@@ -92,6 +92,17 @@ public class ConditionalAccessEdgeFilterTest {
     }
 
     @Test
+    public void SeasonalClosureWeeks() {
+        EdgeIteratorState edge = conditionallyClosedEdge("no @ week 46-20");
+        // 46th week of 2019 starts on Monday 11th Nov
+        assertTrue(filter.accept(edge, timeStamp(2019, Month.NOVEMBER, 10, 23, 59)));
+        assertFalse(filter.accept(edge, timeStamp(2019, Month.NOVEMBER, 11, 0, 0)));
+        // 20th week of 2020 ends on Sunday 17th May
+        assertFalse(filter.accept(edge, timeStamp(2020, Month.MAY, 17, 23, 59)));
+        assertTrue(filter.accept(edge, timeStamp(2020, Month.MAY, 18, 0, 0)));
+    }
+
+    @Test
     public void ClosureWithinSameMonth() {
         EdgeIteratorState edge = conditionallyClosedEdge("no @ (Mar 13-Mar 19)");
         assertTrue(filter.accept(edge, timeStamp(2019, Month.MARCH, 12, 23, 59)));

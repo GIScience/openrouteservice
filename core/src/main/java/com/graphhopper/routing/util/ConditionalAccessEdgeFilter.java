@@ -135,6 +135,13 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         return false;
     }
 
+    boolean inWeekRange(TimePoint timePoint, List<WeekRange> weeks) {
+        for (WeekRange weekRange : weeks)
+            if (inRange(timePoint.getWeek(), weekRange.getStartWeek(), weekRange.getEndWeek(), WeekRange.UNDEFINED_WEEK))
+                return true;
+        return false;
+    }
+
     boolean inWeekdayRange(TimePoint timePoint, List<WeekDayRange> days) {
         for (WeekDayRange weekDayRange: days)
             if (inRange(timePoint.getWeekday(), weekDayRange.getStartDay(), weekDayRange.getEndDay()))
@@ -165,14 +172,12 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     boolean inRange(int value, int start, int end, int undefined) {
         if (start == undefined)
             return true; // unspecified range matches to any value
-        if (value >= start) {
-            if (end == undefined)
-                return value == start;
-            else
-                return value <= end;
-        }
+        if (end == undefined)
+            return value == start;
+        if (start > end)// might happen for week ranges
+            return (value >= start || value <= end);
         else
-            return false;
+            return (value >= start && value <= end);
     }
 
     boolean matches(TimePoint timePoint, Rule rule) {
@@ -185,6 +190,11 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         List<DateRange> dates = rule.getDates();
         if (dates!=null && !dates.isEmpty())
             if (!inDateRange(timePoint, dates))
+                return false;
+
+        List<WeekRange> weeks = rule.getWeeks();
+        if (weeks!=null && !weeks.isEmpty())
+            if (!inWeekRange(timePoint, weeks))
                 return false;
 
         List<WeekDayRange> days = rule.getDays();
