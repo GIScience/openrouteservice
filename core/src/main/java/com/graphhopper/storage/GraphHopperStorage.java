@@ -29,9 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 // ORS-GH MOD START - additional imports
-// CALT
 import java.util.Iterator;
 // ORS-GH MOD END
 

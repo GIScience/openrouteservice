@@ -104,11 +104,14 @@ public class CHProfile {
         CHProfile chProfile = (CHProfile) o;
         return edgeBased == chProfile.edgeBased &&
                 uTurnCosts == chProfile.uTurnCosts &&
+        // ORS-GH MOD START
+                type == chProfile.type &&
+        // ORS-GH MOD END
                 Objects.equals(weighting, chProfile.weighting);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(weighting, edgeBased, uTurnCosts);
+        return Objects.hash(weighting, edgeBased, uTurnCosts, type);
     }
 }
