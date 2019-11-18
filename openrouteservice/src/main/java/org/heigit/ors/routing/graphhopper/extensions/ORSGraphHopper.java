@@ -28,7 +28,6 @@ import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.CHProfile;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
@@ -38,16 +37,16 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.routing.RoutingProfileCategory;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -269,11 +268,11 @@ public class ORSGraphHopper extends GraphHopper {
 
 					// if LM is enabled we have the LMFactory with the CH algo!
 					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-					if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-						chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
+					if (tmpAlgoFactory instanceof CoreLMAlgoFactoryDecorator.CoreLMRAFactory)
+						chAlgoFactory = ((CoreLMAlgoFactoryDecorator.CoreLMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
 
-					if (chAlgoFactory instanceof PrepareContractionHierarchies)
-						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
+					if (chAlgoFactory instanceof PrepareCore)
+						weighting = ((PrepareCore) chAlgoFactory).getWeighting();
 					else
 						throw new IllegalStateException(
 								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
@@ -303,7 +302,7 @@ public class ORSGraphHopper extends GraphHopper {
 									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
 						tMode = TraversalMode.NODE_BASED;
-						queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph());
+						queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) chAlgoFactory).getCHProfile()));
 						queryGraph.lookup(qResults);
 					} else {
 						checkNonChMaxWaypointDistance(points);
@@ -548,7 +547,7 @@ public class ORSGraphHopper extends GraphHopper {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreFactoryDecorator.addCHProfile(CHProfile.nodeBased(weighting));
+					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
 		}

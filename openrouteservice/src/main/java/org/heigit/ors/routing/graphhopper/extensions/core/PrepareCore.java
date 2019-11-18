@@ -163,15 +163,12 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             throw new IllegalStateException("No weight calculation set.");
 
         allSW.start();
-        super.doWork();
 
         initFromGraph();
         if (!prepareNodes())
             return;
         contractNodes();
     }
-
-
 
     boolean prepareNodes() {
         int nodes = prepareGraph.getNodes();

@@ -15,17 +15,12 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
-import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
-import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +58,6 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     private int preparationNeighborUpdates = -1;
     private int preparationContractedNodes = -1;
     private double preparationLogMessages = -1;
-    private PMap pMap = new PMap();
 
     public CoreAlgoFactoryDecorator() {
         setPreparationThreads(1);
@@ -101,8 +95,6 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         setPreparationNeighborUpdates(args.getInt(Core.PREPARE + "updates.neighbor", getPreparationNeighborUpdates()));
         setPreparationContractedNodes(args.getInt(Core.PREPARE + "contracted_nodes", getPreparationContractedNodes()));
         setPreparationLogMessages(args.getDouble(Core.PREPARE + "log_messages", getPreparationLogMessages()));
-
-        pMap = args;
     }
 
     public int getPreparationPeriodicUpdates() {
@@ -333,13 +325,5 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
                 setNeighborUpdates(preparationNeighborUpdates).
                 setLogMessages(preparationLogMessages);
         return tmpPrepareCore;
-    }
-
-    /**
-     * For now only node based will work, later on we can easily find usage of this method to remove
-     * it.
-     */
-    public TraversalMode getNodeBase() {
-        return TraversalMode.NODE_BASED;
     }
 }

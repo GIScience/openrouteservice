@@ -19,9 +19,7 @@ import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -122,12 +120,15 @@ class CoreNodeContractor {
         // collect outgoing nodes (goal-nodes) only once
         while (incomingEdges.next()) {
             int uFromNode = incomingEdges.getAdjNode();
-            // accept only uncontracted nodes
-            if (prepareGraph.getLevel(uFromNode) != maxLevel)
+            // accept only not-contracted nodes, do not consider loops at the node that is being contracted
+            if (uFromNode == sch.getNode() || isContracted(uFromNode))
                 continue;
 
-            double vuDist = incomingEdges.getDistance();
-            double vuWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            final double incomingEdgeWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            // this check is important to prevent calling calcMillis on inaccessible edges and also allows early exit
+            if (Double.isInfinite(incomingEdgeWeight)) {
+                continue;
+            }
             int skippedEdge1 = incomingEdges.getEdge();
             int incomingEdgeOrigCount = getOrigEdgeCount(skippedEdge1);
             // collect outgoing nodes (goal-nodes) only once
@@ -144,7 +145,7 @@ class CoreNodeContractor {
                 // Limit weight as ferries or forbidden edges can increase local search too much.
                 // If we decrease the correct weight we only explore less and introduce more shortcuts.
                 // I.e. no change to accuracy is made.
-                double existingDirectWeight = vuWeight
+                double existingDirectWeight = incomingEdgeWeight
                         + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
                 if (Double.isNaN(existingDirectWeight))
                     throw new IllegalStateException("Weighting should never return NaN values" + ", in:"
@@ -154,7 +155,6 @@ class CoreNodeContractor {
                 if (Double.isInfinite(existingDirectWeight))
                     continue;
 
-                double existingDistSum = vuDist + outgoingEdges.getDistance();
                 prepareAlgo.setWeightLimit(existingDirectWeight);
                 prepareAlgo.setMaxVisitedNodes(maxVisitedNodes);
                 prepareAlgo.setEdgeFilter(ignoreNodeFilterSequence.setAvoidNode(sch.getNode()));
@@ -170,7 +170,7 @@ class CoreNodeContractor {
                     continue;
                 
                 sch.foundShortcut(uFromNode, wToNode,
-                        existingDirectWeight, existingDistSum,
+                        existingDirectWeight, 0,
                         outgoingEdges.getEdge(), getOrigEdgeCount(outgoingEdges.getEdge()),
                         skippedEdge1, incomingEdgeOrigCount);
             }
@@ -217,7 +217,6 @@ class CoreNodeContractor {
 
                     // note: flags overwrite weight => call first
                     iter.setFlagsAndWeight(sc.flags, sc.weight);
-                    iter.setDistance(sc.dist);
                     iter.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
                     setOrigEdgeCount(iter.getEdge(), sc.originalEdges);
                     updatedInGraph = true;
@@ -244,6 +243,10 @@ class CoreNodeContractor {
 
     int getAddedShortcutsCount() {
         return addedShortcutsCount;
+    }
+
+    boolean isContracted(int node) {
+        return prepareGraph.getLevel(node) != maxLevel;
     }
 
     private void setOrigEdgeCount(int edgeId, int value) {

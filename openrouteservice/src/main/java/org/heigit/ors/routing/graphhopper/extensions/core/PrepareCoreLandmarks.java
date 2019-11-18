@@ -129,7 +129,6 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
 
     @Override
     public void doSpecificWork() {
-        super.doWork();
         if (LOGGER.isInfoEnabled())
             LOGGER.info(String.format("Start calculating %d landmarks, default active lms:%d, weighting:%s, %s", lms.getLandmarkCount(), defaultActiveLandmarks, lms.getLmSelectionWeighting(), Helper.getMemInfo()));
         lms.createLandmarks();

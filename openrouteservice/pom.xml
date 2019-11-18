@@ -276,18 +276,18 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.12.2</version>
+            <version>v0.13.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.12.2</version>
+            <version>v0.13.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.12.2</version>
+            <version>v0.13.0</version>
         </dependency>
 
         -->
