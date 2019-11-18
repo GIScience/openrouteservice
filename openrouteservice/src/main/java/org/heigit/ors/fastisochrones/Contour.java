@@ -23,16 +23,13 @@ public class Contour {
 
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
-    protected Timer timer;
     protected NodeAccess nodeAccess;
-    protected LocationIndex locIndex;
     protected GraphHopperStorage ghStorage;
     private int edgeLengthLimit = 300;
 
-    public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+    public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         this.ghStorage = ghStorage;
         this.nodeAccess = nodeAccess;
-        this.locIndex = locationIndex;
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.cellStorage = cellStorage;
     }
@@ -58,6 +55,8 @@ public class Contour {
             for (int node : cellNodes){
                 iter = explorer.setBaseNode(node);
                 while (iter.next()){
+                    if(!cellNodes.contains(iter.getAdjNode()))
+                        continue;
                     if(visitedEdges.contains(iter.getEdge()))
                         continue;
                     visitedEdges.add(iter.getEdge());
@@ -119,7 +118,6 @@ public class Contour {
     }
 
     public  Geometry concHullOfNodes(PointList pointSet) {
-        NodeAccess nodeAccess = ghStorage.getNodeAccess();
         GeometryFactory _geomFactory = new GeometryFactory();
         int size = pointSet.size();
         Geometry[] geometries = new Geometry[pointSet.size()];
