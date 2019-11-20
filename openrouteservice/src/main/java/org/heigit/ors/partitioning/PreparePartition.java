@@ -12,6 +12,12 @@ import com.graphhopper.util.EdgeIterator;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.Timer;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+
+import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 
 public class PreparePartition implements RoutingAlgorithmFactory {
 
@@ -29,6 +35,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     private boolean[] nodeBorderness;
     private PartitioningBase partitioningAlgo;
 
+
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;
         this.ghGraph = ghStorage.getBaseGraph();
@@ -36,14 +43,27 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         this.isochroneNodeStorage = new IsochroneNodeStorage(ghStorage, ghStorage.getDirectory());
         this.cellStorage = new CellStorage(ghStorage, ghStorage.getDirectory(), isochroneNodeStorage);
         this.ghEdgeExpl = ghGraph.createEdgeExplorer();
-        partitioningAlgo = new InertialFlow(ghStorage, edgeFilters);
+
         this.nodes = ghGraph.getNodes();
         this.nodeBorderness = new boolean[nodes];
     }
 
     public PreparePartition prepare() {
-        partitioningAlgo.run();
+        ForkJoinPool forkJoinPool = new ForkJoinPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+        forkJoinPool.invoke(new InertialFlow(ghStorage, edgeFilters));
 
+//        threadPool.execute(() -> {
+//                    partitioningAlgo = new InertialFlow(ghStorage, edgeFilters, threadPool);
+//                    partitioningAlgo.run();
+//                }
+
+//        );
+//        threadPool.shutdown();
+//        try {
+//            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+//        } catch (InterruptedException e) {
+//
+//        }
         prepareData();
 
         //Create and calculate isochrone info that is ordered by node

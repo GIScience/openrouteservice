@@ -159,9 +159,16 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			List<Double> contourCoordinates = new ArrayList<>();
 
+			//printing for debug
+//			printBordernodes(cellStorage.getNodesOfCell(195), isochroneNodeStorage, this._searchContext.getGraphHopper().getGraphHopperStorage().getNodeAccess());
+//			System.out.println("{" +
+//					"  \"type\": \"FeatureCollection\"," +
+//					"  \"features\": [");
 			for (int cellId : fastIsochroneAlgorithm.getFullyReachableCells()){
 				contourCoordinates.addAll(cellStorage.getCellContourOrder(cellId));
+//				printCell(cellStorage.getCellContourOrder(cellId), cellId);
 			}
+//			System.out.println("]}");
 
 			GHPoint3D snappedPosition = res.get(0).getSnappedPoint();
 
@@ -600,5 +607,33 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			Point p = ring.getPointN(i);
 			prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
 		}
+	}
+
+	//DEBUG
+	private void printCell(List coordinates, int cellId){
+		if(coordinates.size() < 3)
+			return;
+		System.out.print("{\"type\": \"Feature\",\"properties\": {\"name\": \"" + cellId + "\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
+		int i;
+		for (i = coordinates.size() - 2; i > 0; i-=2){
+			System.out.print("[" + String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length())) + "," + String.valueOf(coordinates.get(i)).substring(0,Math.min(8, String.valueOf(coordinates.get(i)).length())) + "],");
+		}
+		System.out.print("[" + String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0,Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length())) + "," + String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0,Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length())) + "]");
+
+		System.out.println("]]}},");
+	}
+
+	private void printBordernodes(Set<Integer> nodes, IsochroneNodeStorage isochroneNodeStorage, NodeAccess nodeAccess){
+		System.out.print("{\"type\": \"MultiPoint\",\"coordinates\": [");
+
+		for (int node : nodes) {
+			if (isochroneNodeStorage.getBorderness(node)) {
+
+				System.out.print("[" + String.valueOf(nodeAccess.getLon(node)).substring(0, 8) + "," + String.valueOf(nodeAccess.getLat(node)).substring(0, 8) + "],");
+			}
+		}
+
+		System.out.println("]}");
+
 	}
 }

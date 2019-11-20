@@ -12,6 +12,9 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+
+import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 
 
 public abstract class AbstractEccentricity {
@@ -26,9 +29,13 @@ public abstract class AbstractEccentricity {
     protected CellStorage cellStorage;
     protected List<EccentricityStorage> eccentricityStorages = new ArrayList<>();
 
+    protected ExecutorService threadPool;
+
+
 
     public AbstractEccentricity(GraphHopperStorage ghStorage){
         this.ghStorage = ghStorage;
+        this.threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
     }
 
 

@@ -8,8 +8,11 @@ import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RecursiveAction;
 
-public abstract class PartitioningBase {
+public abstract class PartitioningBase extends RecursiveAction{
 
     public enum PartitionAlgo {FordFulkerson, FordFulkerson2, EdmondsKarp, Dinic}
 
@@ -23,6 +26,9 @@ public abstract class PartitioningBase {
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
 
+    ExecutorService threadPool;
+
+
 
     PartitioningBase() {
     }
@@ -31,6 +37,7 @@ public abstract class PartitioningBase {
         ghStorage = _ghStorage;
         nodeToCellArr = new int[ghStorage.getNodes()];
         this.edgeFilter = edgeFilters;
+
         init();
     }
 
@@ -66,7 +73,8 @@ public abstract class PartitioningBase {
 
     }
 
-    public abstract void run();
+
+//    public abstract void run();
 
     public static int[] getNodeToCellArr() {
         return nodeToCellArr;

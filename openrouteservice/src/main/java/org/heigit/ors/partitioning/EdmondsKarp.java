@@ -11,6 +11,8 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
     private Map<Integer, Integer> prevMap;
     private Map<Integer, Integer> prevBaseNodeMap;
+    private Map<Integer, Integer> prevAdjNodeMap;
+
 
 
     public EdmondsKarp(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
@@ -20,15 +22,20 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
     public EdmondsKarp() {
     }
 
+    public int getRemainingCapacity(int edgeId, int nodeId) {
+        FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId, nodeId);
+        return flowEdgeData.capacity - flowEdgeData.flow;
+    }
+
     public int getRemainingCapacity(int edgeId) {
         FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId);
         return flowEdgeData.capacity - flowEdgeData.flow;
     }
 
-    public void augment(int edge, int bottleNeck) {
-        FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edge);
+    public void augment(int edgeId, int baseId, int adjId, int bottleNeck) {
+        FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId, baseId);
         flowEdgeData.flow += bottleNeck;
-        FlowEdgeData inverseFlowEdgeData = pData.getFlowEdgeData(flowEdgeData.inverse);
+        FlowEdgeData inverseFlowEdgeData = pData.getFlowEdgeData(flowEdgeData.inverse, adjId);
         inverseFlowEdgeData.flow -= bottleNeck;
     }
 
@@ -37,6 +44,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
         int flow;
         prevMap = new HashMap<>();
         prevBaseNodeMap = new HashMap<>();
+        prevAdjNodeMap = new HashMap<>();
 
         do {
             setUnvisitedAll();
@@ -55,6 +63,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
         prevMap = null;
         prevBaseNodeMap = null;
+        prevAdjNodeMap = null;
     }
 
     private int bfs() {
@@ -84,14 +93,15 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                     continue;
                 targSet.add(_edgeIter.getAdjNode());
 
-                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge());
+                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode());
                 if(flowEdgeData.active != true)
                     continue;
-                if ((getRemainingCapacity(_edgeIter.getEdge()) > 0)
+                if ((getRemainingCapacity(_edgeIter.getEdge(), _edgeIter.getBaseNode()) > 0)
                         && !isVisited(pData.getFlowNodeData(_edgeIter.getAdjNode()).visited)) {
                     setVisited(_edgeIter.getAdjNode());
                     prevMap.put(_edgeIter.getAdjNode(), _edgeIter.getEdge());
                     prevBaseNodeMap.put(_edgeIter.getEdge(), _edgeIter.getBaseNode());
+                    prevAdjNodeMap.put(_edgeIter.getEdge(), _edgeIter.getAdjNode());
                     queue.offer(_edgeIter.getAdjNode());
                 }
             }
@@ -106,6 +116,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                 setVisited(dummyEdge.targNode);
                 prevMap.put(dummyEdge.targNode, dummyEdge.id);
                 prevBaseNodeMap.put(dummyEdge.id, dummyEdge.baseNode);
+                prevAdjNodeMap.put(dummyEdge.id, dummyEdge.targNode);
                 queue.offer(dummyEdge.targNode);
             }
 
@@ -115,29 +126,38 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
             return 0;
         int bottleNeck = Integer.MAX_VALUE;
 
-        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
-            bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge));
+        int edge = prevMap.getOrDefault(snkNode.id, -1);
+        while (edge != -1){
+            int baseNode = prevBaseNodeMap.get(edge);
+            bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge, baseNode));
+            edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1);
+        }
 
-        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
-            augment(edge, bottleNeck);
+        edge = prevMap.getOrDefault(snkNode.id, -1);
+        while (edge != -1){
+            int baseNode = prevBaseNodeMap.get(edge);
+            int adjNode = prevAdjNodeMap.get(edge);
+            augment(edge, baseNode, adjNode, bottleNeck);
+            edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1);
+        }
+//        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
+//            bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge, prevBaseNodeMap.get(edge)));
+
+//        for (int edge = prevMap.getOrDefault(snkNode.id, -1); edge != -1; edge = prevMap.getOrDefault(prevBaseNodeMap.get(edge), -1))
+//            augment(edge, bottleNeck);
 
         return bottleNeck;
     }
 
     private void bfsSrcNode(Queue queue) {
-        Set<Integer> targSet = new HashSet<>();
 
         for(FlowEdge flowEdge : srcNode.outEdges){
-            if(targSet.contains(flowEdge.targNode)
-                    || flowEdge.targNode == flowEdge.baseNode)
-                continue;
-            targSet.add(flowEdge.targNode);
-
             if ((getRemainingCapacity(flowEdge.id) > 0)
                     && !isVisited(pData.getFlowNodeData(flowEdge.targNode).visited)) {
                 setVisited(flowEdge.targNode);
                 prevMap.put(flowEdge.targNode, flowEdge.id);
                 prevBaseNodeMap.put(flowEdge.id, flowEdge.baseNode);
+                prevAdjNodeMap.put(flowEdge.id, flowEdge.targNode);
                 queue.offer(flowEdge.targNode);
             }
         }

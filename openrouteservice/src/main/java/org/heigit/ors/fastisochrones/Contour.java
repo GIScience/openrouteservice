@@ -25,7 +25,8 @@ public class Contour {
     private CellStorage cellStorage;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
-    private int edgeLengthLimit = 300;
+    private int minEdgeLengthLimit = 300;
+    private int maxEdgeLengthLimit = Integer.MAX_VALUE;
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         this.ghStorage = ghStorage;
@@ -50,7 +51,7 @@ public class Contour {
 
             EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(EdgeFilter.ALL_EDGES);
             EdgeIterator iter;
-            PointList allNodes = new PointList();
+            PointList allNodes = new PointList(cellNodes.size(), false);
             Set<Integer> visitedEdges = new HashSet<>();
             for (int node : cellNodes){
                 iter = explorer.setBaseNode(node);
@@ -60,13 +61,13 @@ public class Contour {
                     if(visitedEdges.contains(iter.getEdge()))
                         continue;
                     visitedEdges.add(iter.getEdge());
-                    allNodes.add(iter.fetchWayGeometry(3));
+                    allNodes.add(iter.fetchWayGeometry(1));
                 }
 
             }
 
-
-            Geometry geom = concHullOfNodes(allNodes);
+            //
+            Geometry geom = cellNodes.size() < 10 ? concHullOfNodes(cellNodes) : concHullOfNodes(allNodes);
             if (geom.getNumPoints() > 2) {
                 Polygon poly = (Polygon) geom;
                 ring = poly.getExteriorRing();
@@ -87,7 +88,8 @@ public class Contour {
                             ring.getPointN(i + 1).getX(),
                             latitudes,
                             longitudes,
-                            edgeLengthLimit);
+                            minEdgeLengthLimit,
+                            maxEdgeLengthLimit);
                 }
             }
 
@@ -101,9 +103,22 @@ public class Contour {
 
 
     public  Geometry concHullOfNodes(Set<Integer> pointSet) {
+
         NodeAccess nodeAccess = ghStorage.getNodeAccess();
         GeometryFactory _geomFactory = new GeometryFactory();
         Geometry[] geometries = new Geometry[pointSet.size()];
+
+        if(pointSet.size() <10 ){
+            Coordinate[] coordinates = new Coordinate[pointSet.size()];
+            int i = 0;
+            for(int point : pointSet) {
+                coordinates[i] = new Coordinate(nodeAccess.getLon(point), nodeAccess.getLat(point));
+                i++;
+            }
+            Geometry geom = _geomFactory.createMultiPoint(coordinates);
+            return geom.getEnvelope();
+        }
+
         int g = 0;
         for (int point : pointSet) {
             Coordinate c = new Coordinate(nodeAccess.getLon(point), nodeAccess.getLat(point));
@@ -164,16 +179,14 @@ public class Contour {
     /*
     iteratively splits a distance between two coordinates if theyre above a certain limit
      */
-    private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Double> latitudes, List<Double> longitudes, double limit){
-        if (distance(lat0,
-                lat1,
-                lon0,
-                lon1) > limit) {
+    private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Double> latitudes, List<Double> longitudes, double minlim, double maxlim){
+        double dist = distance(lat0, lat1, lon0, lon1);
+        if (dist > minlim && dist < maxlim) {
             latitudes.add((lat0 + lat1) / 2);
             longitudes.add((lon0 + lon1) / 2);
 
-            splitEdge(lat0, (lat0 + lat1) / 2, lon0, (lon0 + lon1) / 2, latitudes, longitudes, limit);
-            splitEdge((lat0 + lat1) / 2, lat1, (lon0 + lon1) / 2, lon1, latitudes, longitudes, limit);
+            splitEdge(lat0, (lat0 + lat1) / 2, lon0, (lon0 + lon1) / 2, latitudes, longitudes, minlim, maxlim);
+            splitEdge((lat0 + lat1) / 2, lat1, (lon0 + lon1) / 2, lon1, latitudes, longitudes, minlim, maxlim);
         }
     }
 

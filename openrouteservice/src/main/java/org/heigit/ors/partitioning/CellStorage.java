@@ -83,16 +83,17 @@ public class CellStorage implements Storable<CellStorage> {
                 cellIdToNodesMap.put(cellId, new HashSet<>());
             cellIdToNodesMap.get(cellId).add(node);
         }
-        //To have a regular storage, we assign the maximum number of possible nodes per cell
         int cellCount = cellIdToNodesMap.keySet().size();
         cells.setHeader(0, cellCount);
         // 2 12-byte pointer sets for each cellId
+        // Store pointers in front that point to where the nodes for each cell start
         NODEINDEXOFFSET = cellCount * 12;
         CONTOURINDEXOFFSET = 2 * cellCount * 12;
         long nodePointer = (long)CONTOURINDEXOFFSET;
 
+        //Put all the cell nodes in the storage
         for (int cellId : cellIdToNodesMap.keySet()) {
-            cells.ensureCapacity(nodePointer + (long)(cellIdToNodesMap.get(cellId).size() + 1) * 4);
+            cells.ensureCapacity(nodePointer + (long)(cellIdToNodesMap.get(cellId).size() + 1) * BYTECOUNT);
             cellIdToNodesPointerMap.put(cellId, nodePointer);
             for (int nodeId : cellIdToNodesMap.get(cellId)){
                 cells.setInt(nodePointer, nodeId);
@@ -103,10 +104,12 @@ public class CellStorage implements Storable<CellStorage> {
             nodePointer = nodePointer + (long)BYTECOUNT;
 
         }
+        //Set the contour node pointer to the end of the nodes part
         cellContourPointer = nodePointer;
         cellIdToNodesMap = null;
 
         //Put the cellId to pointer map into the storage
+        //Layout: [cellId (4B), pointer to nodes (8B)]
         long listPointer = 0;
         for(int cellId : cellIdToNodesPointerMap.keySet()){
             cells.setInt(listPointer, cellId);
@@ -152,7 +155,7 @@ public class CellStorage implements Storable<CellStorage> {
             cells.setInt(cellContourPointer, Helper.degreeToInt(longitudes.get(i)));
             cellContourPointer = cellContourPointer + (long)BYTECOUNT;
         }
-        //Add a trailing int min value so we know when to stop
+        //Add a trailing int max value so we know when to stop
         cells.setInt(cellContourPointer, Integer.MAX_VALUE);
         cellContourPointer = cellContourPointer + (long)BYTECOUNT;
         cells.setInt(cellContourPointer, Integer.MAX_VALUE);
@@ -168,7 +171,6 @@ public class CellStorage implements Storable<CellStorage> {
         nodePointer = nodePointer + (long)(BYTECOUNT);
         double lon = Helper.intToDegree(cells.getInt(nodePointer));
         while (cells.getInt(nodePointer) != Integer.MAX_VALUE){
-            int test = cells.getInt(nodePointer);
             order.add(lat);
             order.add(lon);
             nodePointer = nodePointer + (long)(BYTECOUNT);

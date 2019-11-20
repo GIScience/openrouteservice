@@ -14,6 +14,7 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorCompletionService;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MAX_CELL_NODES_NUMBER;
 
@@ -28,43 +29,62 @@ public class Eccentricity extends AbstractEccentricity {
     }
 
         public void calcEccentricities(GraphHopperStorage ghStorage, Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
-        if(eccentricityStorages == null) {
-            eccentricityStorages = new ArrayList<>();
-        }
-        EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
-        if(!eccentricityStorage.loadExisting())
-            eccentricityStorage.init();
-
-
-        FixedCellEdgeFilter fixedCellEdgeFilter = new FixedCellEdgeFilter(isochroneNodeStorage, 0, graph.getNodes());
-        EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
-        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(defaultEdgeFilter);
-        //Calculate the eccentricity without fixed cell edge filter for now
-//        edgeFilterSequence.add(fixedCellEdgeFilter);
-        for (int borderNode = 0; borderNode < graph.getNodes(); borderNode++){
-            if(!isochroneNodeStorage.getBorderness(borderNode))
-                continue;
-            fixedCellEdgeFilter.setCellId(isochroneNodeStorage.getCellId(borderNode));
-            RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting, traversalMode);
-            rangeDijkstra.setMaxVisitedNodes(PART__MAX_CELL_NODES_NUMBER * eccentricityDijkstraLimitFactor);
-            rangeDijkstra.setEdgeFilter(edgeFilterSequence);
-            rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(borderNode)));
-            double eccentricity = rangeDijkstra.calcMaxWeight(borderNode);
-            int visitedNodesInCell = rangeDijkstra.fromMap.size();
-            int cellNodeCount = cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(borderNode)).size();
-
-            //TODO This is really just a cheap workaround that should really really be something smart instead
-            //If set to 1, it is okay though
-            if (((double) visitedNodesInCell) / cellNodeCount >= acceptedFullyReachablePercentage) {
-                eccentricityStorage.setFullyReachable(borderNode, true);
+            if(eccentricityStorages == null) {
+                eccentricityStorages = new ArrayList<>();
             }
-            else {
-                eccentricityStorage.setFullyReachable(borderNode, false);
+            EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
+            if(!eccentricityStorage.loadExisting())
+                eccentricityStorage.init();
+
+            ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
+
+    //        FixedCellEdgeFilter fixedCellEdgeFilter = new FixedCellEdgeFilter(isochroneNodeStorage, 0, graph.getNodes());
+            EdgeFilter defaultEdgeFilter = new DefaultEdgeFilter(flagEncoder, false, true);
+
+            //Calculate the eccentricity without fixed cell edge filter for now
+    //        edgeFilterSequence.add(fixedCellEdgeFilter);
+            int borderNodeCount = 0;
+            for (int borderNode = 0; borderNode < graph.getNodes(); borderNode++){
+                if(!isochroneNodeStorage.getBorderness(borderNode))
+                    continue;
+                final int node = borderNode;
+                borderNodeCount++;
+    //            fixedCellEdgeFilter.setCellId(isochroneNodeStorage.getCellId(borderNode));
+                completionService.submit(() -> {
+                    EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+                    edgeFilterSequence.add(defaultEdgeFilter);
+                    RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting, traversalMode);
+                    rangeDijkstra.setMaxVisitedNodes(PART__MAX_CELL_NODES_NUMBER * eccentricityDijkstraLimitFactor);
+                    rangeDijkstra.setEdgeFilter(edgeFilterSequence);
+                    rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
+                    double eccentricity = rangeDijkstra.calcMaxWeight(node);
+                    int visitedNodesInCell = rangeDijkstra.fromMap.size();
+                    int cellNodeCount = cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)).size();
+
+                    //TODO This is really just a cheap workaround that should really really be something smart instead
+                    //If set to 1, it is okay though
+                    if (((double) visitedNodesInCell) / cellNodeCount >= acceptedFullyReachablePercentage) {
+                        eccentricityStorage.setFullyReachable(node, true);
+                    }
+                    else {
+                        eccentricityStorage.setFullyReachable(node, false);
+                    }
+
+                    eccentricityStorage.setEccentricity(node, eccentricity);
+                }, String.valueOf(node));
             }
 
-            eccentricityStorage.setEccentricity(borderNode, eccentricity);
+        threadPool.shutdown();
+
+        try {
+            for (int i = 0; i < borderNodeCount; i++) {
+                completionService.take().get();
+            }
+        } catch (Exception e) {
+            threadPool.shutdownNow();
+            throw new RuntimeException(e);
         }
+
         eccentricityStorage.flush();
         eccentricityStorages.add(eccentricityStorage);
     }
