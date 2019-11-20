@@ -14,126 +14,126 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [5.0.2] - 2019-07-29
 ### Added
-- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
-- Added information for countries a route traverses (#349)
+- Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from ([#496](https://github.com/GIScience/openrouteservice/issues/496))
+- Added information for countries a route traverses ([#349](https://github.com/GIScience/openrouteservice/issues/349))
 ### Fixed
-- isochrone reachfactor gives now more realistic results (#325)
-- Fixed the wrong gpx header for api v2 (#496)
-- Make sure external storages contain entries for all edge IDs (#535)
+- isochrone reachfactor gives now more realistic results ([#325](https://github.com/GIScience/openrouteservice/issues/325))
+- Fixed the wrong gpx header for api v2 ([#496](https://github.com/GIScience/openrouteservice/issues/496))
+- Make sure external storages contain entries for all edge IDs ([#535](https://github.com/GIScience/openrouteservice/issues/535))
 - Check if BordersStorage exists before calling it in AvoidBordersCoreEdgeFilter
-- Take into account shortcut direction in LM selection weighting (#550)
-- Updated Matrix api v2 response to correctly display sources (#560)
-- Check for null pointer in LM selection weighting (#550)
-- Use commas rather than pipes for weighting options in app.config.sample (#564)
-- Update point references when point is not found for routing (#567)
-- Fix concurrency issues when requesting extra info in routing (#571)
+- Take into account shortcut direction in LM selection weighting ([#550](https://github.com/GIScience/openrouteservice/issues/550))
+- Updated Matrix api v2 response to correctly display sources ([#560](https://github.com/GIScience/openrouteservice/issues/560))
+- Check for null pointer in LM selection weighting ([#550](https://github.com/GIScience/openrouteservice/issues/550))
+- Use commas rather than pipes for weighting options in app.config.sample ([#564](https://github.com/GIScience/openrouteservice/issues/564))
+- Update point references when point is not found for routing ([#567](https://github.com/GIScience/openrouteservice/issues/567))
+- Fix concurrency issues when requesting extra info in routing ([#571](https://github.com/GIScience/openrouteservice/issues/571))
 ### Changed
-- Moved walking and hiking flag encoders to the ORS core system (#440)
-- Remove route optimization code (#499)
-- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated (#494)
-- Removed obsolete storages (#536)
+- Moved walking and hiking flag encoders to the ORS core system ([#440](https://github.com/GIScience/openrouteservice/issues/440))
+- Remove route optimization code ([#499](https://github.com/GIScience/openrouteservice/issues/499))
+- Reduced distance for neighbourhood point search in isochrones when small isochrones are generated ([#494](https://github.com/GIScience/openrouteservice/issues/494))
+- Removed obsolete storages ([#536](https://github.com/GIScience/openrouteservice/issues/536))
 - Refactor fallback to preprocessing-independent algorithm for certain routing request params
 - Removed some landmark sets as default from app.config.sample
 ### Deprecated
 
 ## [5.0.1] - 2019-04-08
 ### Added
-- CALT routing algorithm - Not for production (Issue #433)
-- Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
-- Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file (Issue #418)
+- CALT routing algorithm - Not for production ([Issue #433](https://github.com/GIScience/openrouteservice/issues/433))
+- Makes docker and docker-compose deployment of openrouteservice more customizable ([Issue #434](https://github.com/GIScience/openrouteservice/issues/434))
+- Add the possibility to predefine standard maximum search radii in general and for each used profile in the config file ([Issue #418](https://github.com/GIScience/openrouteservice/issues/418))
 ### Fixed
-- fix the GPX output of the APIv2. It was broken since release of api v2. (Issue #533)
-- fix SRTM URL in GH fork (#394)
-- fix classpath issues for resources, Windows builds now (#489)
-- isochrone geojson bbox now format compliant (#493)
-- v2 isochrones now respects max_locations in app.config (#482)
-- Updated documentation to reflect correct isochrone smoothing algorithm (Issue #471)
-- Enable > 2 waypoints when geometry_simplify=true (#457)
-- Made it so that the wheelchair profile only goes over bridleways if they are set to be foot or wheelchair accessible (#415)
-- Fixed the build fail bug when `routing_name` was set in the config file (#424)
-- Fixed problem with border crossings where the way crosses three polygons (#491)
+- fix the GPX output of the APIv2. It was broken since release of api v2. ([Issue #533](https://github.com/GIScience/openrouteservice/issues/533))
+- fix SRTM URL in GH fork ([#394](https://github.com/GIScience/openrouteservice/issues/394))
+- fix classpath issues for resources, Windows builds now ([#489](https://github.com/GIScience/openrouteservice/issues/489))
+- isochrone geojson bbox now format compliant ([#493](https://github.com/GIScience/openrouteservice/issues/493))
+- v2 isochrones now respects max_locations in app.config ([#482](https://github.com/GIScience/openrouteservice/issues/482))
+- Updated documentation to reflect correct isochrone smoothing algorithm ([Issue #471](https://github.com/GIScience/openrouteservice/issues/471))
+- Enable > 2 waypoints when geometry_simplify=true ([#457](https://github.com/GIScience/openrouteservice/issues/457))
+- Made it so that the wheelchair profile only goes over bridleways if they are set to be foot or wheelchair accessible ([#415](https://github.com/GIScience/openrouteservice/issues/415))
+- Fixed the build fail bug when `routing_name` was set in the config file ([#424](https://github.com/GIScience/openrouteservice/issues/424))
+- Fixed problem with border crossings where the way crosses three polygons ([#491](https://github.com/GIScience/openrouteservice/issues/491))
 ### Changed
-- Updated pom to always build ors.war (Issue #432)
-- Replace usage of packages incompatible with Java >8 (#474)
-- Updated Matrix to have a maximum number of routes to calculate rather than locations (#518)
+- Updated pom to always build ors.war ([Issue #432](https://github.com/GIScience/openrouteservice/issues/432))
+- Replace usage of packages incompatible with Java >8 ([#474](https://github.com/GIScience/openrouteservice/issues/474))
+- Updated Matrix to have a maximum number of routes to calculate rather than locations ([#518](https://github.com/GIScience/openrouteservice/issues/518))
 ### Deprecated
 
 
 ## [5.0] - 2019-02-25
 ### Added
-- Updated api code to use the Spring framework, with the v2 api being added (Issue #233)
-- Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries (Issue #195)
-- Added support for free hand route option/ skip segments (Issue #167)
-- Added check on matrix service to make sure that the requested locations are within the bounding area of the graph (Issue #408)
-- Makes docker and docker-compose deployment of openrouteservice more customizable (Issue #434)
+- Updated api code to use the Spring framework, with the v2 api being added ([Issue #233](https://github.com/GIScience/openrouteservice/issues/233))
+- Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries ([Issue #195](https://github.com/GIScience/openrouteservice/issues/195))
+- Added support for free hand route option/ skip segments ([Issue #167](https://github.com/GIScience/openrouteservice/issues/167))
+- Added check on matrix service to make sure that the requested locations are within the bounding area of the graph ([Issue #408](https://github.com/GIScience/openrouteservice/issues/408))
+- Makes docker and docker-compose deployment of openrouteservice more customizable ([Issue #434](https://github.com/GIScience/openrouteservice/issues/434))
 ### Fixed
-- Fixed `geometry_simplify` parameter, which had no effect before. `geometry_simplify` is incompatible with `extra_info` (#381)
+- Fixed `geometry_simplify` parameter, which had no effect before. `geometry_simplify` is incompatible with `extra_info` ([#381](https://github.com/GIScience/openrouteservice/issues/381))
 ### Changed
-- Updated rural speed limit in France to be 80km/h (Issue #355)
-- Modified smoothing and buffer distances for small isochrones, aswell as other fixes for smaller isochrones (Issue #382)
-- Updated pom to use correct opengeo repo and reordered so this is the last in the list, and use latest ORS-Graphhopper library (Issue #398)
-- Added /directions as an endpoint for routing (Issue #384)
-- Removed the following avoid features: pavedroads, unpavedroads, tunnels, tracks and hills, as well as the option to set maximum speed; for cycling and walking profiles the option to specify difficulty settings such as fitness level and maximum steepness (issue #396)
-- Updated pom to always build ors.war (Issue #432)
+- Updated rural speed limit in France to be 80km/h ([Issue #355](https://github.com/GIScience/openrouteservice/issues/355))
+- Modified smoothing and buffer distances for small isochrones, aswell as other fixes for smaller isochrones ([Issue #382](https://github.com/GIScience/openrouteservice/issues/382))
+- Updated pom to use correct opengeo repo and reordered so this is the last in the list, and use latest ORS-Graphhopper library ([Issue #398](https://github.com/GIScience/openrouteservice/issues/398))
+- Added /directions as an endpoint for routing ([Issue #384](https://github.com/GIScience/openrouteservice/issues/384))
+- Removed the following avoid features: pavedroads, unpavedroads, tunnels, tracks and hills, as well as the option to set maximum speed; for cycling and walking profiles the option to specify difficulty settings such as fitness level and maximum steepness ([issue #396](https://github.com/GIScience/openrouteservice/issues/396))
+- Updated pom to always build ors.war ([Issue #432](https://github.com/GIScience/openrouteservice/issues/432))
 ### Deprecated
 
 ## [4.7.2] - 2018-12-10
 ### Added
-- Added Unit Tests for RouteSearchParameters.class() (while fixing Issue #291)
+- Added Unit Tests for RouteSearchParameters.class() ([while fixing Issue #291](https://github.com/GIScience/openrouteservice/issues/291))
 - Added ability to return warning messages in the route response which can be used for showing info to a user when warning criteria have been met based on extended storages.
-- Added a RoadAccessRestrictions extended storage as a warning extended storage for when a route goes of ways with access restrictions (Issue #342)
+- Added a RoadAccessRestrictions extended storage as a warning extended storage for when a route goes of ways with access restrictions ([Issue #342](https://github.com/GIScience/openrouteservice/issues/342))
 ### Fixed
 - If residential penalty reduces speed to <5, set it to 5
-- Added a new ParameterValueException in RouteSearchParameters if the profile is driving-car and profile_params are set in the options (Issue #291)
-- Fixed API Test to consider the new ParameterValueException (while fixing Issue #291)
-- Improved range and resolution of values encoding dimension/weight road restrictions in order to properly resolve them when corresponding hgv parameters are set (fixes issue #263)
-- Fixed empty BBox error if the route is located in the southern hemisphere (Issue #348)
-- Take into account access restrictions specific to hgv subprofiles (fixes issue #235)
-- Properly resolve all tolls, especially hgv-specific ones (fixes issue #358)
+- Added a new ParameterValueException in RouteSearchParameters if the profile is driving-car and profile_params are set in the options ([Issue #291](https://github.com/GIScience/openrouteservice/issues/291))
+- Fixed API Test to consider the new ParameterValueException ([while fixing Issue #291](https://github.com/GIScience/openrouteservice/issues/291))
+- Improved range and resolution of values encoding dimension/weight road restrictions in order to properly resolve them when corresponding hgv parameters are set ([fixes issue #263](https://github.com/GIScience/openrouteservice/issues/263))
+- Fixed empty BBox error if the route is located in the southern hemisphere ([Issue #348](https://github.com/GIScience/openrouteservice/issues/348))
+- Take into account access restrictions specific to hgv subprofiles ([fixes issue #235](https://github.com/GIScience/openrouteservice/issues/235))
+- Properly resolve all tolls, especially hgv-specific ones ([fixes issue #358](https://github.com/GIScience/openrouteservice/issues/358))
 - Updated checks on pedestrian way filter for access restrictions
 ### Changed
-- Allowed access for cars and hgvs on access=destination roads (Issue #342)
+- Allowed access for cars and hgvs on access=destination roads ([Issue #342](https://github.com/GIScience/openrouteservice/issues/342))
 ### Deprecated
 
 ## [4.7.1] - 2018-10-24
 ### Added
-Added instructions to readme for installing without Docker (Issue #272)
-Added area_units for isochrones API as units being misleading (Issue #272)
+Added instructions to readme for installing without Docker ([Issue #272](https://github.com/GIScience/openrouteservice/issues/272))
+Added area_units for isochrones API as units being misleading ([Issue #272](https://github.com/GIScience/openrouteservice/issues/272))
 ### Fixed
-- Area calculation for isochrones using metric crs (Issue #130)
-- Decreases maximum peed for bike-regular for more realistic reachability scores (Issue #325)
-- Fixes self intersecting polygons when requesting population for isochrones (Issue #297)
-- Changes center in isochrones response to snapped edge coordinate on graph (Issue #336)
-- Enable HGV axleload restriction (Issue #262)
+- Area calculation for isochrones using metric crs ([Issue #130](https://github.com/GIScience/openrouteservice/issues/130))
+- Decreases maximum peed for bike-regular for more realistic reachability scores ([Issue #325](https://github.com/GIScience/openrouteservice/issues/325))
+- Fixes self intersecting polygons when requesting population for isochrones ([Issue #297](https://github.com/GIScience/openrouteservice/issues/297))
+- Changes center in isochrones response to snapped edge coordinate on graph ([Issue #336](https://github.com/GIScience/openrouteservice/issues/336))
+- Enable HGV axleload restriction ([Issue #262](https://github.com/GIScience/openrouteservice/issues/262))
 ### Changed
-- Changed app.config.sample for docker to consider split profiles (Issue #320)
+- Changed app.config.sample for docker to consider split profiles ([Issue #320](https://github.com/GIScience/openrouteservice/issues/320))
 - Changed minor information in pom.xml
-- Updated API test starting coordinates to be on a road (Issue #328)
+- Updated API test starting coordinates to be on a road ([Issue #328](https://github.com/GIScience/openrouteservice/issues/328))
 ### Deprecated
 
 ## [4.7] - 2018-10-10
 ### Added
-- Removed locations code as this will be handled by openpoiservice in the future (Issue #120)
+- Removed locations code as this will be handled by openpoiservice in the future ([Issue #120](https://github.com/GIScience/openrouteservice/issues/120))
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
-- Added smoothing option for isochrones (Issue #137)
-- Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges (Issue #217)
-- Added a new GeometryUtility function and its unit test to calculate the bbox for a set of coordinates (Issue #241)
-- Added support for elevation data above & and below the 60 deg N/S. When you run your own instance make sure that you specify the `elevation_provider: multi` (instead of just 'cgiar') (Issue #220)
+- Added smoothing option for isochrones ([Issue #137](https://github.com/GIScience/openrouteservice/issues/137))
+- Added ExtraInfo storage for osm way id so that this information can be stored (and accessed) agianst the edges ([Issue #217](https://github.com/GIScience/openrouteservice/issues/217))
+- Added a new GeometryUtility function and its unit test to calculate the bbox for a set of coordinates ([Issue #241](https://github.com/GIScience/openrouteservice/issues/241))
+- Added support for elevation data above & and below the 60 deg N/S. When you run your own instance make sure that you specify the `elevation_provider: multi` (instead of just 'cgiar') ([Issue #220](https://github.com/GIScience/openrouteservice/issues/220))
 - Added support to keep elevation source data over various path generation processes - add to your app.config: `elevation_cache_clear: false`
 - Added support for new keep left/right turn instructions
 
 ### Fixed
-- Correct logic of determining vehicle type flags in heavy vehicle storage (Issue #211)
-- Enable OSM "key:access" tag values to take effect for heavy vehicle profile (Issue #209)
-- Fixed problem with avoid polygons excluding ways that should have been accepted (Issue #95)
-- Updated code to remove merging of instructions as this resulted in missing important turn instructions (Issue #177)
-- Added missing translations for arrival instructions (Issue #171)
-- Updated code so that acceleration is taken into account when speeds are calculated for edges (Issue #178)
-- Fixed the mising rte tag in gpx issue (Issue #196)
-- Fixed the gpx validation errror (Issue #168)
-- Added unit conversion so that isochrone response is in user specified unit (issue #91)
-- Enabled the reporting of multiple missing points in error response (issue #246)
-- Fixed wrong bounding box error (Issue #241)
+- Correct logic of determining vehicle type flags in heavy vehicle storage ([Issue #211](https://github.com/GIScience/openrouteservice/issues/211))
+- Enable OSM "key:access" tag values to take effect for heavy vehicle profile ([Issue #209](https://github.com/GIScience/openrouteservice/issues/209))
+- Fixed problem with avoid polygons excluding ways that should have been accepted ([Issue #95](https://github.com/GIScience/openrouteservice/issues/95))
+- Updated code to remove merging of instructions as this resulted in missing important turn instructions ([Issue #177](https://github.com/GIScience/openrouteservice/issues/177))
+- Added missing translations for arrival instructions ([Issue #171](https://github.com/GIScience/openrouteservice/issues/171))
+- Updated code so that acceleration is taken into account when speeds are calculated for edges ([Issue #178](https://github.com/GIScience/openrouteservice/issues/178))
+- Fixed the mising rte tag in gpx issue ([Issue #196](https://github.com/GIScience/openrouteservice/issues/196))
+- Fixed the gpx validation errror ([Issue #168](https://github.com/GIScience/openrouteservice/issues/168))
+- Added unit conversion so that isochrone response is in user specified unit ([issue #91](https://github.com/GIScience/openrouteservice/issues/91))
+- Enabled the reporting of multiple missing points in error response ([issue #246](https://github.com/GIScience/openrouteservice/issues/246))
+- Fixed wrong bounding box error ([Issue #241](https://github.com/GIScience/openrouteservice/issues/241))
 - Fixed problem with mountain bike profile never using contraction hierarchies.
 
 ### Changed
@@ -147,65 +147,65 @@ profile for bike, one for mtb one for road bike and so on.
 generated routs might not be compliant to the local regulations - specially when 'Biking trails are obligated to be use'
 - Refactored some of the edge filters and cleaned up the code initializing them
 - Updated the wheelchair profile to better handle restrictions such as width, kerb heights and instances where sidewalks
-are attached to roads. (Issue #162)
+are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservice/issues/162))
 - Replaced "Sand" surface encoding with "Paving stone"
-- Changed the bbox api test (Issue #241)
-- Changed the way the bbox is calculated internally (Issue #241)
-- Change the license from apache 2.0 to LGPL3 (PR #296)
+- Changed the bbox api test ([Issue #241](https://github.com/GIScience/openrouteservice/issues/241))
+- Changed the way the bbox is calculated internally ([Issue #241](https://github.com/GIScience/openrouteservice/issues/241))
+- Change the license from apache 2.0 to LGPL3 ([PR #296](https://github.com/GIScience/openrouteservice/issues/296))
 
 ### Deprecated
-- Removed references to locations and accessibilty services from web.xml (Issue #186)
+- Removed references to locations and accessibilty services from web.xml ([Issue #186](https://github.com/GIScience/openrouteservice/issues/186))
 
 ## [4.5.1] - 2018-03-20
 ### Fixed
-- Fixed the parameters being the wrong way around in isochrones request when maximum range has been exceeded (Issue #126)
-- Fixed the coordinate precision in the geojson export from 4 to 6 decimals (Issue #136)
-- Fixed the instructions='false' error when exporting as geojson (Issue #138)
-- Fixed missing summary in the geojson output (Issue #139)
-- Fixed error when a high exit number for a roundabout is used in instructions (Issue #145)
+- Fixed the parameters being the wrong way around in isochrones request when maximum range has been exceeded ([Issue #126](https://github.com/GIScience/openrouteservice/issues/126))
+- Fixed the coordinate precision in the geojson export from 4 to 6 decimals ([Issue #136](https://github.com/GIScience/openrouteservice/issues/136))
+- Fixed the instructions='false' error when exporting as geojson ([Issue #138](https://github.com/GIScience/openrouteservice/issues/138))
+- Fixed missing summary in the geojson output ([Issue #139](https://github.com/GIScience/openrouteservice/issues/139))
+- Fixed error when a high exit number for a roundabout is used in instructions ([Issue #145](https://github.com/GIScience/openrouteservice/issues/145))
 
 ### Changed
-- Updated error response code for routing when no route can be found between locations (Issue #144)
-- Updated logging so that stack traces are only output when debug logging is enabled (Issue #148)
-- Updated the error response for geocding when no address found (Issue #134)
+- Updated error response code for routing when no route can be found between locations ([Issue #144](https://github.com/GIScience/openrouteservice/issues/144))
+- Updated logging so that stack traces are only output when debug logging is enabled ([Issue #148](https://github.com/GIScience/openrouteservice/issues/148))
+- Updated the error response for geocding when no address found ([Issue #134](https://github.com/GIScience/openrouteservice/issues/134))
 
 
 ## [4.5] - 2018-02-27
 ### Added
-- Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries (Issue #41)
-- Added GeoJson export for routing exports (Issue #54)
-- Added global export class to combine all exports there (Issue #123)
-- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
+- Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries ([Issue #41](https://github.com/GIScience/openrouteservice/issues/41))
+- Added GeoJson export for routing exports ([Issue #54](https://github.com/GIScience/openrouteservice/issues/54))
+- Added global export class to combine all exports there ([Issue #123](https://github.com/GIScience/openrouteservice/issues/123))
+- Option to specify maximum locations for matrix request when using non-standard weightings ([Issue #94](https://github.com/GIScience/openrouteservice/issues/94))
 
 ### Fixed
-- Fix exception when roundabout exit is not correctly found (Issue #89)
-- Option to specify maximum locations for matrix request when using non-standard weightings (Issue #94)
-- Geocoder now returns a 404 response if no address is found for reverse geocoding (Issue #113)
-- Fixed error codes (Issue #109)
-- Correct querying of population statistics data for isochrones (Issue #106)
+- Fix exception when roundabout exit is not correctly found ([Issue #89](https://github.com/GIScience/openrouteservice/issues/89))
+- Option to specify maximum locations for matrix request when using non-standard weightings ([Issue #94](https://github.com/GIScience/openrouteservice/issues/94))
+- Geocoder now returns a 404 response if no address is found for reverse geocoding ([Issue #113](https://github.com/GIScience/openrouteservice/issues/113))
+- Fixed error codes ([Issue #109](https://github.com/GIScience/openrouteservice/issues/109))
+- Correct querying of population statistics data for isochrones ([Issue #106](https://github.com/GIScience/openrouteservice/issues/106))
 
 ### Changed
-- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes (Issue #106)
-- Response with a detour factor now uses "detourfactor" rather than "detour_factor" (Issue #61)
-- Changed the gpx export to the new global export processor (Issue #123)
+- RoutingProfile was changed to make sure whenever pop_total or pop_area is queried, both are present in the attributes ([Issue #106](https://github.com/GIScience/openrouteservice/issues/106))
+- Response with a detour factor now uses "detourfactor" rather than "detour_factor" ([Issue #61](https://github.com/GIScience/openrouteservice/issues/61))
+- Changed the gpx export to the new global export processor ([Issue #123](https://github.com/GIScience/openrouteservice/issues/123))
 
 ### Deprecated
-- getStatisticsOld | Connected to the old statistics library (Issue #106)
-- geometryToWKB | Connected to the old statistics library (Issue #106)
+- getStatisticsOld | Connected to the old statistics library ([Issue #106](https://github.com/GIScience/openrouteservice/issues/106))
+- geometryToWKB | Connected to the old statistics library ([Issue #106](https://github.com/GIScience/openrouteservice/issues/106))
 
 ## [4.4.2] - 2018-01-31
 ### Added
-- Ability to get routes in GPX format (Issue #8)
-- Ability to read HGV tags from OSM Nodes (Issue #49)
-- No need to add optimisation parameter in request (PR #87)
-- Option to respond md5 of osm file used for graph generation (Issue #48)
+- Ability to get routes in GPX format ([Issue #8](https://github.com/GIScience/openrouteservice/issues/8))
+- Ability to read HGV tags from OSM Nodes ([Issue #49](https://github.com/GIScience/openrouteservice/issues/49))
+- No need to add optimisation parameter in request ([PR #87](https://github.com/GIScience/openrouteservice/issues/87))
+- Option to respond md5 of osm file used for graph generation ([Issue #48](https://github.com/GIScience/openrouteservice/issues/48))
 
 ### Fixed
-- Updated code to not use empty bearings when continue_straight=true is set (Issue #51)
-- Fixed problem with HGV restrictions only being taken into account if less than three provided (Issue #75)
-- RPHAST performance optimisations (Issue #64)
-- Updated duration calculations for urban areas (Issue #44)
-- Increase hikari pool size for db connections (PR #52)
+- Updated code to not use empty bearings when continue_straight=true is set ([Issue #51](https://github.com/GIScience/openrouteservice/issues/51))
+- Fixed problem with HGV restrictions only being taken into account if less than three provided ([Issue #75](https://github.com/GIScience/openrouteservice/issues/75))
+- RPHAST performance optimisations ([Issue #64](https://github.com/GIScience/openrouteservice/issues/64))
+- Updated duration calculations for urban areas ([Issue #44](https://github.com/GIScience/openrouteservice/issues/44))
+- Increase hikari pool size for db connections ([PR #52](https://github.com/GIScience/openrouteservice/issues/52))
 
 ## [4.4.1] - 2017-10-12
 
