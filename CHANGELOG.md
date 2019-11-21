@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
 ### Fixed
 - Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments (#587)
+- Encoding of waytype ferry (#573)
 ### Changed
 ### Deprecated
 
