@@ -14,7 +14,7 @@
 package heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.graphhopper.GraphHopper;
@@ -27,25 +27,23 @@ import heigit.ors.routing.graphhopper.extensions.SurfaceType;
 import heigit.ors.routing.graphhopper.extensions.WayType;
 import heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 
-public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private WaySurfaceTypeGraphStorage _storage;
+public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	private WaySurfaceTypeGraphStorage storage;
 	private final WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
 	protected final HashSet<String> ferries;
 	
-	public WaySurfaceTypeGraphStorageBuilder()
-	{
+	public WaySurfaceTypeGraphStorageBuilder() {
 		ferries = new HashSet<String>(5);
 		ferries.add("shuttle_train");
 		ferries.add("ferry");
 	}
 	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (_storage != null)
+		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
 		
-		_storage = new WaySurfaceTypeGraphStorage();
-		return _storage;
+		storage = new WaySurfaceTypeGraphStorage();
+		return storage;
 	}
 
 	public void processWay(ReaderWay way) {
@@ -54,37 +52,37 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 		boolean hasHighway = way.hasTag("highway");
 		boolean isFerryRoute = way.hasTag("route", ferries);
 
-		java.util.Iterator<Entry<String, Object>> it = way.getProperties();
+		Iterator<Entry<String, Object>> it = way.getProperties();
+
+		if (isFerryRoute)
+            waySurfaceDesc.WayType = ((byte)WayType.Ferry);
 
 		while (it.hasNext()) {
-			Map.Entry<String, Object> pairs = it.next();
+			Entry<String, Object> pairs = it.next();
 			String key = pairs.getKey();
 			String value = pairs.getValue().toString();
 
 			if (hasHighway || isFerryRoute) {
 				if (key.equals("highway")) {
-					byte wayType = (isFerryRoute) ? WayType.Ferry : (byte)WayType.getFromString(value);
+                    byte wayType = (isFerryRoute) ? WayType.Ferry : (byte) WayType.getFromString(value);
 
-					if (waySurfaceDesc.SurfaceType == 0)
-					{
-						if (wayType == WayType.Road ||  wayType == WayType.StateRoad || wayType == WayType.Street)
-							waySurfaceDesc.SurfaceType = (byte)SurfaceType.Asphalt;
-						else if (wayType == WayType.Path)
-							waySurfaceDesc.SurfaceType = (byte)SurfaceType.Unpaved;
-					}
-
-					waySurfaceDesc.WayType = wayType;
-				}
-				else if (key.equals("surface")) {
+                    if (waySurfaceDesc.SurfaceType == 0) {
+                        if (wayType == WayType.Road || wayType == WayType.StateRoad || wayType == WayType.Street)
+                            waySurfaceDesc.SurfaceType = (byte) SurfaceType.Asphalt;
+                        else if (wayType == WayType.Path)
+                            waySurfaceDesc.SurfaceType = (byte) SurfaceType.Unpaved;
+                    }
+                    if (waySurfaceDesc.WayType == 0)
+                        waySurfaceDesc.WayType = wayType;
+                } else if (key.equals("surface")) {
 					waySurfaceDesc.SurfaceType = (byte)SurfaceType.getFromString(value);
 				}
 			}
 		}
 	}
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge) 
-	{
-		_storage.setEdgeValue(edge.getEdge(), waySurfaceDesc);
+	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+		storage.setEdgeValue(edge.getEdge(), waySurfaceDesc);
 	}
 
 	@Override
