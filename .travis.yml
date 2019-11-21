@@ -13,8 +13,7 @@ branches:
   only:
   - master
   - development
-  - integrate-travis
-  - fix/#613-SonarQube-fails-on-external-PRs
+  - fix/#582-cleanup-travis.yml
 
 addons:
   sonarcloud:
@@ -23,25 +22,20 @@ addons:
 git:
     depth: false
 
-stages:
-  - compile_test
-
-jobs:
-  include:
-    - stage: compile_test
-      script:
-        - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/src/main/resources/app.config
-        - if [[ "$TRAVIS_PULL_REQUEST" == "false" || \
-               "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]];
-          then
-              mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -B;
-          else
-              mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B;
-          fi
-        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run -B &
-        - travis_wait 15 sleep 15m
-        - curl http://127.0.0.1:8082/openrouteservice-5.0/health
-        - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
+script:
+  - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/src/main/resources/app.config
+  - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml dependency:resolve dependency:resolve-plugins -B
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" || \
+         "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]];
+    then
+        mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -B;
+    else
+        mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml install -B;
+    fi
+  - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice/pom.xml tomcat7:run -B &
+  - sleep 5m # for sleeping more than 10m use 'travis_wait 20 sleep 20m'
+  - curl http://127.0.0.1:8082/openrouteservice-5.0/health
+  - mvn -f ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/pom.xml test
 
 notifications:
   webhooks: https://chat.gistools.geog.uni-heidelberg.de/hooks/fqX555ZPxYFdHeqhS/2kxt4rNATiJ9cB8pLmkSc2R3mrxnmJrEQZFd7JKqiPEGFnW9
