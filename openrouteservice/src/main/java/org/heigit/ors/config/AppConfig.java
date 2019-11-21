@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,18 +44,19 @@ public class AppConfig {
 	}
 
 	public AppConfig() {
-		File file;
-
-		String appConfigName = "app.config";
-		if(System.getenv("ORS_APP_CONFIG") != null)
-			appConfigName = System.getenv("ORS_APP_CONFIG");
-    	try {
-
-    		ClassPathResource rs = new ClassPathResource(appConfigName);
-			file = rs.getFile();
+		try {
+			File file;
+			if (System.getProperty("ors_app_config") != null) {
+				file = new FileSystemResource(System.getProperty("ors_app_config")).getFile();
+			} else {
+				String appConfigName = "app.config";
+				if (System.getenv("ORS_APP_CONFIG") != null)
+					appConfigName = System.getenv("ORS_APP_CONFIG");
+				file = new ClassPathResource(appConfigName).getFile();
+			}
 			config = ConfigFactory.parseFile(file);
 		} catch (IOException ioe) {
-    		LOGGER.error(ioe);
+			LOGGER.error(ioe);
 		}
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
