@@ -23,7 +23,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGrap
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
@@ -51,10 +51,13 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 		boolean hasHighway = way.hasTag("highway");
 		boolean isFerryRoute = way.hasTag("route", ferries);
 
-		java.util.Iterator<Entry<String, Object>> it = way.getProperties();
+		Iterator<Entry<String, Object>> it = way.getProperties();
+
+		if (isFerryRoute)
+			waySurfaceDesc.setWayType((byte)WayType.FERRY);
 
 		while (it.hasNext()) {
-			Map.Entry<String, Object> pairs = it.next();
+			Entry<String, Object> pairs = it.next();
 			String key = pairs.getKey();
 			String value = pairs.getValue().toString();
 
