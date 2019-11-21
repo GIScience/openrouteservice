@@ -13,7 +13,6 @@ branches:
   only:
   - master
   - development
-  - fix/#582-cleanup-travis.yml
 
 addons:
   sonarcloud:
