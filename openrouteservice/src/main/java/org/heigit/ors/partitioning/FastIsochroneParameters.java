@@ -9,7 +9,7 @@ public class FastIsochroneParameters {
     public static final int PART__MIN_SPLITTING_ITERATION = 0;
     public static final int PART__MAX_SPLITTING_ITERATION = 16777216; //==2^22
     public static final int PART__MAX_CELL_NODES_NUMBER = 5000;
-    public static final int PART__MIN_CELL_NODES_NUMBER = 20;
+    public static final int PART__MIN_CELL_NODES_NUMBER = 0;
     public static final boolean PART__SEPARATECONNECTED = true;
 
     //>> Inertial Flow
@@ -22,6 +22,6 @@ public class FastIsochroneParameters {
     /**
      * Default tolerance.
      */
-    public static final double CONCAVEHULL_THRESHOLD = 0.008;
+    public static final double CONCAVEHULL_THRESHOLD = 0.010;
 
 }

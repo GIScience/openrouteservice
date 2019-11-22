@@ -27,6 +27,7 @@ public class Contour {
     protected GraphHopperStorage ghStorage;
     private int minEdgeLengthLimit = 300;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
+    private int approxLowNodeCountLimit = 10;
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         this.ghStorage = ghStorage;
@@ -39,18 +40,21 @@ public class Contour {
 
         Set<Integer> cellNodes = new HashSet<>();
         List<Integer> contourOrder = new ArrayList<>();
-        List<Double> latitudes = new ArrayList<>();
-        List<Double> longitudes = new ArrayList<>();
+        List<Double> hullLatitudes = new ArrayList<>();
+        List<Double> hullLongitudes = new ArrayList<>();
 
         for (int cellId : isochroneNodeStorage.getCellIds()) {
             LineString ring;
             contourOrder.clear();
-            latitudes.clear();
-            longitudes.clear();
+            hullLatitudes.clear();
+            hullLongitudes.clear();
             cellNodes = cellStorage.getNodesOfCell(cellId);
 
             EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(EdgeFilter.ALL_EDGES);
             EdgeIterator iter;
+            List<Double> lats = new ArrayList<>(cellNodes.size());
+            List<Double> longs = new ArrayList<>(cellNodes.size());
+
             PointList allNodes = new PointList(cellNodes.size(), false);
             Set<Integer> visitedEdges = new HashSet<>();
             for (int node : cellNodes){
@@ -61,14 +65,15 @@ public class Contour {
                     if(visitedEdges.contains(iter.getEdge()))
                         continue;
                     visitedEdges.add(iter.getEdge());
-                    allNodes.add(iter.fetchWayGeometry(1));
+                    checkAddLatLon(iter.fetchWayGeometry(1), lats, longs);
+//                    allNodes.add(iter.fetchWayGeometry(1));
                 }
 
             }
 
             //
-            Geometry geom = cellNodes.size() < 10 ? concHullOfNodes(cellNodes) : concHullOfNodes(allNodes);
-            if (geom.getNumPoints() > 2) {
+            Geometry geom = lats.size() < approxLowNodeCountLimit ? concHullOfNodes(cellNodes) : concHullOfNodes(lats, longs);
+            if (geom.getNumPoints() > 2 && !(geom instanceof MultiPoint)) {
                 Polygon poly = (Polygon) geom;
                 ring = poly.getExteriorRing();
                 poly.normalize();
@@ -78,22 +83,22 @@ public class Contour {
             }
             for (int i = 0; i < ring.getNumPoints(); i++) {
                 //COORDINATE OF POLYGON BASED
-                latitudes.add(ring.getPointN(i).getY());
-                longitudes.add(ring.getPointN(i).getX());
+                hullLatitudes.add(ring.getPointN(i).getY());
+                hullLongitudes.add(ring.getPointN(i).getX());
 
                 if(i < ring.getNumPoints() -1) {
                     splitEdge(ring.getPointN(i).getY(),
                             ring.getPointN(i + 1).getY(),
                             ring.getPointN(i).getX(),
                             ring.getPointN(i + 1).getX(),
-                            latitudes,
-                            longitudes,
+                            hullLatitudes,
+                            hullLongitudes,
                             minEdgeLengthLimit,
                             maxEdgeLengthLimit);
                 }
             }
 
-            cellStorage.setCellContourOrder(cellId, new ArrayList<>(latitudes), new ArrayList<>(longitudes));
+            cellStorage.setCellContourOrder(cellId, new ArrayList<>(hullLatitudes), new ArrayList<>(hullLongitudes));
 
 
         }
@@ -116,7 +121,8 @@ public class Contour {
                 i++;
             }
             Geometry geom = _geomFactory.createMultiPoint(coordinates);
-            return geom.getEnvelope();
+            System.out.println("This is MultiPoint with size " + pointSet.size());
+            return geom;
         }
 
         int g = 0;
@@ -132,13 +138,15 @@ public class Contour {
         return geom;
     }
 
-    public  Geometry concHullOfNodes(PointList pointSet) {
+    public  Geometry concHullOfNodes(List<Double> lats, List<Double> lons) {
+        if(lats.size() != lons.size())
+            throw new IllegalStateException("Latitudes and Longitudes must be same size");
         GeometryFactory _geomFactory = new GeometryFactory();
-        int size = pointSet.size();
-        Geometry[] geometries = new Geometry[pointSet.size()];
+        int size = lats.size();
+        Geometry[] geometries = new Geometry[lats.size()];
         int g = 0;
         for (int i = 0; i < size; i++) {
-            Coordinate c = new Coordinate(pointSet.getLon(i), pointSet.getLat(i));
+            Coordinate c = new Coordinate(lons.get(i), lats.get(i));
             geometries[g++] = _geomFactory.createPoint(c);
         }
 
@@ -199,5 +207,23 @@ public class Contour {
 
     protected double getLon(int nodeId){
         return nodeAccess.getLon(nodeId);
+    }
+
+    private void checkAddLatLon(PointList newCoordinates, List<Double> existingLats, List<Double> existingLons){
+        for (int i = 0; i < newCoordinates.size(); i++) {
+            int latIndex = existingLats.indexOf(newCoordinates.getLat(i));
+            //point is not yet in list
+            if(latIndex == -1){
+                existingLats.add(newCoordinates.getLat(i));
+                existingLons.add(newCoordinates.getLon(i));
+                continue;
+            }
+            //The coordinate is already added
+            if(newCoordinates.getLon(i) == existingLons.get(latIndex))
+                continue;
+
+            existingLats.add(newCoordinates.getLat(i));
+            existingLons.add(newCoordinates.getLon(i));
+        }
     }
 }

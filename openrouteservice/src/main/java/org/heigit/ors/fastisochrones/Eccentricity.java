@@ -15,7 +15,10 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 
+
+import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MAX_CELL_NODES_NUMBER;
 
 
@@ -35,6 +38,7 @@ public class Eccentricity extends AbstractEccentricity {
             EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
             if(!eccentricityStorage.loadExisting())
                 eccentricityStorage.init();
+            ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
 
             ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
 
@@ -74,20 +78,20 @@ public class Eccentricity extends AbstractEccentricity {
                 }, String.valueOf(node));
             }
 
-        threadPool.shutdown();
+            threadPool.shutdown();
 
-        try {
-            for (int i = 0; i < borderNodeCount; i++) {
-                completionService.take().get();
+            try {
+                for (int i = 0; i < borderNodeCount; i++) {
+                    completionService.take().get();
+                }
+            } catch (Exception e) {
+                threadPool.shutdownNow();
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            threadPool.shutdownNow();
-            throw new RuntimeException(e);
-        }
 
-        eccentricityStorage.flush();
-        eccentricityStorages.add(eccentricityStorage);
-    }
+            eccentricityStorage.flush();
+            eccentricityStorages.add(eccentricityStorage);
+        }
 
     @Override
     public void calcEccentricities() {

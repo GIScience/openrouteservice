@@ -29,13 +29,9 @@ public abstract class AbstractEccentricity {
     protected CellStorage cellStorage;
     protected List<EccentricityStorage> eccentricityStorages = new ArrayList<>();
 
-    protected ExecutorService threadPool;
-
-
 
     public AbstractEccentricity(GraphHopperStorage ghStorage){
         this.ghStorage = ghStorage;
-        this.threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
     }
 
 
