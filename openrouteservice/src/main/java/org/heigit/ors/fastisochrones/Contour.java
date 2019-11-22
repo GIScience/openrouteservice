@@ -55,7 +55,6 @@ public class Contour {
             List<Double> lats = new ArrayList<>(cellNodes.size());
             List<Double> longs = new ArrayList<>(cellNodes.size());
 
-            PointList allNodes = new PointList(cellNodes.size(), false);
             Set<Integer> visitedEdges = new HashSet<>();
             for (int node : cellNodes){
                 iter = explorer.setBaseNode(node);
@@ -121,7 +120,6 @@ public class Contour {
                 i++;
             }
             Geometry geom = _geomFactory.createMultiPoint(coordinates);
-            System.out.println("This is MultiPoint with size " + pointSet.size());
             return geom;
         }
 
