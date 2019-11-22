@@ -57,7 +57,6 @@ class BaseGraph implements Graph {
     final NodeAccess nodeAccess;
     final GraphExtension extStorage;
     final NameIndex nameIndex;
-    final ConditionalEdges conditionalEdges;
     final BitUtil bitUtil;
     final EncodingManager encodingManager;
     final EdgeAccess edgeAccess;
@@ -102,8 +101,6 @@ class BaseGraph implements Graph {
         this.bitUtil = BitUtil.get(dir.getByteOrder());
         this.wayGeometry = dir.find("geometry");
         this.nameIndex = new NameIndex(dir);
-        this.conditionalEdges = new ConditionalEdges();
-        this.conditionalEdges.init(this, dir);
         this.nodes = dir.find("nodes", DAType.getPreferredInt(dir.getDefaultType()));
         this.edges = dir.find("edges", DAType.getPreferredInt(dir.getDefaultType()));
         this.listener = listener;
@@ -342,7 +339,7 @@ class BaseGraph implements Graph {
         edges.setSegmentSize(bytes);
         wayGeometry.setSegmentSize(bytes);
         nameIndex.setSegmentSize(bytes);
-        conditionalEdges.setSegmentSize(bytes);
+        //conditionalEdges.setSegmentSize(bytes);
         extStorage.setSegmentSize(bytes);
     }
 
@@ -370,7 +367,7 @@ class BaseGraph implements Graph {
         initSize = Math.min(initSize, 2000);
         wayGeometry.create(initSize);
         nameIndex.create(initSize);
-        conditionalEdges.create(initSize);
+        //conditionalEdges.create(initSize);
         extStorage.create(initSize);
         initStorage();
         // 0 stands for no separate geoRef
@@ -383,7 +380,7 @@ class BaseGraph implements Graph {
         return "edges:" + nf(edgeCount) + "(" + edges.getCapacity() / Helper.MB + "MB), "
                 + "nodes:" + nf(getNodes()) + "(" + nodes.getCapacity() / Helper.MB + "MB), "
                 + "name:(" + nameIndex.getCapacity() / Helper.MB + "MB), "
-                + "conditional_edges:(" + conditionalEdges.getCapacity() / Helper.MB + "MB), "
+                //+ "conditionals:(" + conditionalEdges.getCapacity() / Helper.MB + "MB), "
                 + "geo:" + nf(maxGeoRef) + "(" + wayGeometry.getCapacity() / Helper.MB + "MB), "
                 + "bounds:" + bounds;
     }
@@ -427,7 +424,7 @@ class BaseGraph implements Graph {
 
         wayGeometry.flush();
         nameIndex.flush();
-        conditionalEdges.flush();
+        //conditionalEdges.flush();
         edges.flush();
         nodes.flush();
         extStorage.flush();
@@ -436,14 +433,14 @@ class BaseGraph implements Graph {
     void close() {
         wayGeometry.close();
         nameIndex.close();
-        conditionalEdges.close();
+        //conditionalEdges.close();
         edges.close();
         nodes.close();
         extStorage.close();
     }
 
     long getCapacity() {
-        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity() + conditionalEdges.getCapacity()
+        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity() //+ conditionalEdges.getCapacity()
                 + wayGeometry.getCapacity() + extStorage.getCapacity();
     }
 
@@ -468,8 +465,10 @@ class BaseGraph implements Graph {
         if (!nameIndex.loadExisting())
             throw new IllegalStateException("Cannot load name index. corrupt file or directory? " + dir);
 
+        /*
         if (!conditionalEdges.loadExisting())
             throw new IllegalStateException("Cannot load conditionals. corrupt file or directory? " + dir);
+            */
 
         if (!extStorage.loadExisting())
             throw new IllegalStateException("Cannot load extended storage. corrupt file or directory? " + dir);
@@ -618,7 +617,7 @@ class BaseGraph implements Graph {
         nameIndex.copyTo(clonedG.nameIndex);
 
         // conditionals
-        conditionalEdges.copyTo(clonedG.conditionalEdges);
+        //conditionalEdges.copyTo(clonedG.conditionalEdges);
 
         // geometry
         setWayGeometryHeader();
@@ -1372,17 +1371,6 @@ class BaseGraph implements Graph {
         @Override
         public EdgeIteratorState setName(String name) {
             baseGraph.setName(edgePointer, name);
-            return this;
-        }
-
-        @Override
-        public String getConditional() {
-            return baseGraph.conditionalEdges.getEdgeValue(edgeId);
-        }
-
-        @Override
-        public EdgeIteratorState setConditional(String value) {
-            baseGraph.conditionalEdges.setEdgeValue(edgeId, value);
             return this;
         }
 

@@ -23,6 +23,9 @@ import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeIteratorState;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
@@ -31,8 +34,6 @@ public class ConditionalAccessTest {
     private final CarFlagEncoder encoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(encoder);
     private final GraphHopperStorage graph = new GraphBuilder(encodingManager).create();
-    private final BooleanEncodedValue conditionalEnc =  encoder.getConditionalEnc();
-
 
     private ReaderWay createWay() {
         ReaderWay way = new ReaderWay(0);
@@ -60,6 +61,7 @@ public class ConditionalAccessTest {
     @Test
     public void setConditionalBit() {
         ReaderWay way = createWay();
+        BooleanEncodedValue conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoder, "conditional_access"));
         assertFalse(createEdge(way).get(conditionalEnc));
         way.setTag("access:conditional", CONDITIONAL);
         assertTrue(createEdge(way).get(conditionalEnc));
@@ -69,7 +71,16 @@ public class ConditionalAccessTest {
     public void setConditionalValue() {
         ReaderWay way = createWay();
         way.setTag("access:conditional", CONDITIONAL);
-        assertEquals(CONDITIONAL, createEdge(way).getConditional());
+        EncodingManager.AcceptWay acceptWay = new EncodingManager.AcceptWay();
+        encodingManager.acceptWay(way, acceptWay);
+        IntsRef flags = encodingManager.handleWayTags(way, acceptWay , 0);
+        EdgeIteratorState edge = graph.edge(0, 1).setFlags(flags);
+        // store conditional
+        List<EdgeIteratorState> createdEdges = new ArrayList<>();
+        createdEdges.add(edge);
+        ConditionalEdgesMap conditionalEdges = graph.getConditionalEdges(encoder);
+        conditionalEdges.addEdges(createdEdges, encoder.getConditionalTagInspector().getTagValue());
+        assertEquals(CONDITIONAL, conditionalEdges.getValue(edge.getEdge()));
     }
 
 }

@@ -21,7 +21,7 @@ public class ConditionalIndex extends NameIndex {
     }
 
     public ConditionalIndex(Directory dir) {
-        super(dir, "conditional_index");
+        super(dir, "conditionals");
     }
 
 }

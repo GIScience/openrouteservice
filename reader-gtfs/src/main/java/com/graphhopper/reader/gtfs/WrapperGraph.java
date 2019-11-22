@@ -286,17 +286,6 @@ public class WrapperGraph implements Graph {
             }
 
             @Override
-            public String getConditional() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public EdgeIteratorState setConditional(String name) {
-                throw new UnsupportedOperationException();
-            }
-
-
-            @Override
             public EdgeIteratorState detach(boolean reverse) {
                 throw new UnsupportedOperationException();
             }
@@ -503,17 +492,6 @@ public class WrapperGraph implements Graph {
                     @Override
                     public <T extends Enum> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
                         current.setReverse(property, value);
-                        return this;
-                    }
-
-                    @Override
-                    public String getConditional() {
-                        return current.getConditional();
-                    }
-
-                    @Override
-                    public EdgeIteratorState setConditional(String name) {
-                        current.setConditional(name);
                         return this;
                     }
 

@@ -20,6 +20,7 @@ package com.graphhopper.storage;
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
@@ -45,6 +46,17 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     private final EncodingManager encodingManager;
     private final StorableProperties properties;
     private final BaseGraph baseGraph;
+
+    private final ConditionalEdges conditionalEdges;
+
+    public ConditionalEdgesMap getConditionalEdges(FlagEncoder encoder) {
+        return getConditionalEdges(encoder.toString());
+    }
+
+    public ConditionalEdgesMap getConditionalEdges(String encoderName) {
+        return conditionalEdges.getConditionalEdgesMap(encoderName);
+    }
+
     // same flush order etc
     private final Collection<CHGraphImpl> chGraphs;
 
@@ -87,6 +99,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHProfile chProfile : chProfiles) {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
+
+        this.conditionalEdges = new ConditionalEdges(encodingManager);
+        this.conditionalEdges.init(this, dir);
     }
 
     public CHGraph getCHGraph() {
@@ -159,6 +174,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.setSegmentSize(bytes);
         }
+
+        conditionalEdges.setSegmentSize(bytes);
     }
 
     /**
@@ -189,6 +206,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         }
 
         properties.put("graph.ch.profiles", getCHProfiles().toString());
+
+        conditionalEdges.create(initSize);
         return this;
     }
 
@@ -274,6 +293,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                     throw new IllegalStateException("Cannot load " + cg);
             }
 
+            conditionalEdges.loadExisting();
+
             return true;
         }
         return false;
@@ -325,6 +346,7 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         baseGraph.flush();
         properties.flush();
+        conditionalEdges.flush();
     }
 
     @Override
@@ -335,6 +357,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.close();
         }
+
+        conditionalEdges.close();
     }
 
     @Override

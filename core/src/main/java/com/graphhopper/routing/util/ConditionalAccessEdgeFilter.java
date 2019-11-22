@@ -5,6 +5,8 @@ import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
 import ch.poole.openinghoursparser.*;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.storage.ConditionalEdgesMap;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 import java.io.ByteArrayInputStream;
@@ -17,11 +19,22 @@ import java.util.List;
 
 public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final BooleanEncodedValue conditionalEnc;
+    private final ConditionalEdgesMap conditionalEdges;
     private final boolean fwd;
     private final boolean bwd;
 
-    public ConditionalAccessEdgeFilter(BooleanEncodedValue conditionalEnc, boolean fwd, boolean bwd) {
-        this.conditionalEnc = conditionalEnc;
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder) {
+        this(graph, encoder.toString());
+    }
+
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName) {
+        this(graph, encoderName, true, true);
+    }
+
+    ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, boolean fwd, boolean bwd) {
+        EncodingManager encodingManager = graph.getEncodingManager();
+        conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, "conditional_access"));
+        conditionalEdges = graph.getConditionalEdges(encoderName);
         this.fwd = fwd;
         this.bwd = bwd;
     }
@@ -33,9 +46,10 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         ZoneId edgeZoneId = ZoneId.of("Europe/Berlin");
         Instant edgeEnterTime = Instant.ofEpochMilli(time);
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
-        boolean result = conditional && accept(iter.getConditional(), zonedDateTime);
+        String value = conditionalEdges.getValue(iter.getEdge());
+        boolean result = conditional && accept(value, zonedDateTime);
         if (conditional)
-            System.out.println(iter.getEdge() + ": " + iter.getConditional() + " -> " + result);  //FIXME: debug string
+            System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
         return result;
     }
 

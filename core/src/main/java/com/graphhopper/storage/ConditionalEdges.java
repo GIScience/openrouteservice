@@ -1,75 +1,23 @@
 package com.graphhopper.storage;
 
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.routing.profiles.EncodedValue;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.search.ConditionalIndex;
+import com.graphhopper.util.EdgeIteratorState;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ConditionalEdges implements GraphExtension {
-    private static final int EF_EDGE_BYTES = 4;
-    private static final int EF_CONDITION_BYTES = 4;
-    protected final int EF_EDGE, EF_CONDITION;
-
-    protected DataAccess edges;
-    protected int edgeEntryIndex = 0;
-    protected int edgeEntryBytes;
-    protected int edgesCount;
-
-    private static final long START_POINTER = 0;
-    private long bytePointer = START_POINTER;
 
     Map<Integer, Integer> values = new HashMap<>();
+    private final Map<String, ConditionalEdgesMap> conditionalEdgesMaps = new LinkedHashMap<>();
 
     ConditionalIndex conditionalIndex;
+    EncodingManager encodingManager;
 
-    public ConditionalEdges() {
-        EF_EDGE = nextBlockEntryIndex(EF_EDGE_BYTES);
-        EF_CONDITION = nextBlockEntryIndex(EF_CONDITION_BYTES);
-
-        edgesCount = 0;
-    }
-
-    protected final int nextBlockEntryIndex(int size) {
-        int res = edgeEntryIndex;
-        edgeEntryIndex += size;
-        return res;
-    }
-
-    public int entries() {
-        return edgesCount;
-    }
-
-    /**
-     * Set the pointer to the conditional index.
-     * @param edge    The internal id of the edge in the graph
-     * @param value  The index pointing to the conditionals
-     */
-    public void setEdgeValue(int edge, String value) {
-        int conditionalRef = (int) conditionalIndex.put(value);
-        if (conditionalRef < 0)
-            throw new IllegalStateException("Too many conditionals are stored, currently limited to int pointer");
-
-        edgesCount++;
-
-        edges.ensureCapacity(bytePointer + EF_EDGE_BYTES + EF_CONDITION_BYTES);
-
-        edges.setInt(bytePointer, edge);
-        bytePointer += EF_EDGE_BYTES;
-        edges.setInt(bytePointer, conditionalRef);
-        bytePointer += EF_CONDITION_BYTES;
-
-        values.put(edge, conditionalRef);
-    }
-
-    /**
-     * Get the pointer to the conditional index.
-     * @param edgeId    The internal graph id of the edger
-     * @return The index pointing to the conditionals
-     */
-    public String getEdgeValue(int edgeId) {
-        Integer index = values.get(edgeId);
-
-        return (index == null) ? "" : conditionalIndex.get((long) index);
+    public ConditionalEdges(EncodingManager encodingManager) {
+        this.encodingManager = encodingManager;
     }
 
     @Override
@@ -94,67 +42,70 @@ public class ConditionalEdges implements GraphExtension {
 
     @Override
     public void init(Graph graph, Directory dir) {
-        if (edgesCount > 0)
+        if (this.conditionalIndex != null || !conditionalEdgesMaps.isEmpty())
             throw new AssertionError("The conditional restrictions storage must be initialized only once.");
 
-        this.edges = dir.find("conditional_edges");
         this.conditionalIndex = new ConditionalIndex(dir);
+
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            String name = encodingManager.getKey(encoder, "conditional_access");
+            if (encodingManager.hasEncodedValue(name)) {
+                ConditionalEdgesMap conditionalEdgesMap = new ConditionalEdgesMap(encoder.toString(), conditionalIndex);
+                conditionalEdgesMap.init(graph, dir);
+                conditionalEdgesMaps.put(encoder.toString(), conditionalEdgesMap);
+            }
+        }
+    }
+
+    public ConditionalEdgesMap getConditionalEdgesMap(String encoder) {
+        return conditionalEdgesMaps.get(encoder);
     }
 
     @Override
     public GraphExtension create(long byteCount) {
-        edges.create(byteCount * edgeEntryBytes);
         conditionalIndex.create(byteCount);
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            conditionalEdgesMap.create(byteCount);
         return this;
     }
 
     @Override
     public boolean loadExisting() {
-        if (!edges.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'conditional_edges'. corrupt file or directory? " );
-
-        edgeEntryBytes = edges.getHeader(0);
-        edgesCount = edges.getHeader(4);
-
-        for (bytePointer = START_POINTER; bytePointer < edgesCount * (EF_EDGE_BYTES + EF_CONDITION_BYTES);) {
-            int edge = edges.getInt(bytePointer);
-            bytePointer += EF_EDGE_BYTES;
-            int condition = edges.getInt(bytePointer);
-            bytePointer += EF_CONDITION_BYTES;
-
-            values.put(edge, condition);
-        }
-
-
         if (!conditionalIndex.loadExisting())
-            throw new IllegalStateException("Cannot load 'conditional_index'. corrupt file or directory? ");
-
+            throw new IllegalStateException("Cannot load 'conditionals'. corrupt file or directory? ");
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            if (!conditionalEdgesMap.loadExisting())
+                throw new IllegalStateException("Cannot load 'conditional_edges_map'. corrupt file or directory? ");
         return true;
     }
 
     @Override
     public void setSegmentSize(int bytes) {
-        edges.setSegmentSize(bytes);
         conditionalIndex.setSegmentSize(bytes);
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            conditionalEdgesMap.setSegmentSize(bytes);
     }
 
     @Override
     public void flush() {
-        edges.setHeader(0, edgeEntryBytes);
-        edges.setHeader(1 * 4, edgesCount);
-        edges.flush();
         conditionalIndex.flush();
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            conditionalEdgesMap.flush();
     }
 
     @Override
     public void close() {
-        edges.close();
         conditionalIndex.close();
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            conditionalEdgesMap.close();
     }
 
     @Override
     public long getCapacity() {
-        return edges.getCapacity() + conditionalIndex.getCapacity();
+        long capacity = conditionalIndex.getCapacity();
+        for (ConditionalEdgesMap conditionalEdgesMap: conditionalEdgesMaps.values())
+            capacity += conditionalEdgesMap.getCapacity();
+        return capacity;
     }
 
     @Override
@@ -166,12 +117,11 @@ public class ConditionalEdges implements GraphExtension {
 
         ConditionalEdges clonedTC = (ConditionalEdges) clonedStorage;
 
-        edges.copyTo(clonedTC.edges);
-        clonedTC.edgesCount = edgesCount;
+        throw new IllegalStateException("NOT IMPLEMENTED");
 
-        conditionalIndex.copyTo(clonedTC.conditionalIndex);
+        //conditionalIndex.copyTo(clonedTC.conditionalIndex);
 
-        return clonedStorage;
+        //return clonedStorage;
     }
 
     @Override

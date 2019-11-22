@@ -236,16 +236,6 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
         return this;
     }
 
-    @Override
-    public String getConditional() {
-        return conditional;
-    }
-
-    @Override
-    public EdgeIteratorState setConditional(String conditional) {
-        this.conditional = conditional;
-        return this;
-    }
     /**
      * This method sets edge to unfavored status for routing from the start or to the stop location.
      */

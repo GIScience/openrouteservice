@@ -189,17 +189,6 @@ class GraphSupport {
                     }
 
                     @Override
-                    public String getConditional() {
-                        return edge.getConditional();
-                    }
-
-                    @Override
-                    public EdgeIteratorState setConditional(String name) {
-                        edge.setConditional(name);
-                        return this;
-                    }
-
-                    @Override
                     public EdgeIteratorState detach(boolean reverse) {
                         return edge.detach(reverse);
                     }

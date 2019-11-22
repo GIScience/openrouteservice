@@ -855,8 +855,8 @@ public class GraphHopper implements GraphHopperAPI {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String name = encodingManager.getKey(encoder, "conditional_access");
             if (encodingManager.hasEncodedValue(name)) {
-                BooleanEncodedValue conditionalEnc = encodingManager.getBooleanEncodedValue(name);
-                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(conditionalEnc, true, true);
+                System.out.println(encoder.toString());
+                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder);
                 AllEdgesIterator edges = ghStorage.getAllEdges();
 
                 long time = Calendar.getInstance().getTimeInMillis();
@@ -867,8 +867,6 @@ public class GraphHopper implements GraphHopperAPI {
         }
 
         initLocationIndex();
-
-
 
         if (chFactoryDecorator.isEnabled())
             chFactoryDecorator.createPreparations(ghStorage);

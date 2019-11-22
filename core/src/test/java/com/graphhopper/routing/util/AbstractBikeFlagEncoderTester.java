@@ -199,13 +199,13 @@ public abstract class AbstractBikeFlagEncoderTester {
         way.clearTags();
         way.setTag("highway", "road");
         way.setTag("bicycle:conditional", "no @ (" + simpleDateFormat.format(new Date().getTime()) + ")");
-        assertTrue(encoder.getAccess(way).canSkip());
+        assertTrue(encoder.getAccess(way).isConditional());
 
         way.clearTags();
         way.setTag("highway", "road");
         way.setTag("access", "no");
         way.setTag("bicycle:conditional", "yes @ (" + simpleDateFormat.format(new Date().getTime()) + ")");
-        assertTrue(encoder.getAccess(way).isWay());
+        assertTrue(encoder.getAccess(way).isConditional());
     }
 
     @Test

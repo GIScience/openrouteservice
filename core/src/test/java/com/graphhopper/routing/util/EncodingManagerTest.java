@@ -82,7 +82,7 @@ public class EncodingManagerTest {
             EncodingManager.create(new FootFlagEncoder(), new CarFlagEncoder(), new BikeFlagEncoder(), new MountainBikeFlagEncoder(), new RacingBikeFlagEncoder());
             fail("There should have been an exception");
         } catch (Exception ex) {
-            assertTrue(ex.getMessage(), ex.getMessage().startsWith("Encoders are requesting 36 bits, more than 32 bits of edge flags"));
+            assertTrue(ex.getMessage(), ex.getMessage().startsWith("Encoders are requesting 33 bits, more than 32 bits of edge flags"));
         }
     }
 
