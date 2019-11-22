@@ -329,12 +329,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				algoOpts.setEdgeFilter(edgeFilter);
 
-//				if(tr instanceof TranslationMap.ORSTranslationHashMapWithExtendedInfo){
-//					tr = new TranslationMap.ORSTranslationHashMapWithExtendedInfo(tr.getLocale());
-//					((TranslationMap.ORSTranslationHashMapWithExtendedInfo) tr).init(encoder, weighting, request.getPathProcessor());
-//				}
-//
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
+
+				ghRsp.getHints().put("data.import.date", getGraphHopperStorage().getProperties().get("datareader.import.date"));
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
 				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());

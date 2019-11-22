@@ -31,6 +31,7 @@ public class RouteResult
 	private List<Integer> wayPointsIndices;
 	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
+	private String graphDate = "";
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
@@ -181,5 +182,13 @@ public class RouteResult
 			summary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 			summary.setDescent(FormatUtility.roundToDecimals(descent, 1));
 		}
+	}
+
+	public String getGraphDate() {
+		return graphDate;
+	}
+
+	public void setGraphDate(String graphDate) {
+		this.graphDate = graphDate;
 	}
 }
