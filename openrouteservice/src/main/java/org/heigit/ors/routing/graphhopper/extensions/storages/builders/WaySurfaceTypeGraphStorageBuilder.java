@@ -53,8 +53,9 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 
 		Iterator<Entry<String, Object>> it = way.getProperties();
 
-		if (isFerryRoute)
-			waySurfaceDesc.setWayType((byte)WayType.FERRY);
+		if (isFerryRoute) {
+            waySurfaceDesc.setWayType((byte) WayType.FERRY);
+        }
 
 		while (it.hasNext()) {
 			Entry<String, Object> pairs = it.next();
@@ -66,13 +67,15 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 					byte wayType = (isFerryRoute) ? WayType.FERRY : (byte)WayType.getFromString(value);
 
 					if (waySurfaceDesc.getSurfaceType() == 0) {
-						if (wayType == WayType.ROAD ||  wayType == WayType.STATE_ROAD || wayType == WayType.STREET)
-							waySurfaceDesc.setSurfaceType((byte)SurfaceType.ASPHALT);
-						else if (wayType == WayType.PATH)
-							waySurfaceDesc.setSurfaceType((byte)SurfaceType.UNPAVED);
+						if (wayType == WayType.ROAD ||  wayType == WayType.STATE_ROAD || wayType == WayType.STREET) {
+                            waySurfaceDesc.setSurfaceType((byte) SurfaceType.ASPHALT);
+                        } else if (wayType == WayType.PATH) {
+                            waySurfaceDesc.setSurfaceType((byte) SurfaceType.UNPAVED);
+                        }
 					}
-
-					waySurfaceDesc.setWayType(wayType);
+                    if (waySurfaceDesc.getWayType() == 0) {
+                        waySurfaceDesc.setWayType(wayType);
+                    }
 				} else if (key.equals("surface")) {
 					waySurfaceDesc.setSurfaceType((byte)SurfaceType.getFromString(value));
 				}
