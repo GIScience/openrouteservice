@@ -7,7 +7,9 @@ import ch.poole.openinghoursparser.*;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeIteratorState;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -22,28 +24,36 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final ConditionalEdgesMap conditionalEdges;
     private final boolean fwd;
     private final boolean bwd;
+    private final NodeAccess nodeAcces;
+    private final TimeZoneMap timeZoneMap;
 
-    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder) {
-        this(graph, encoder.toString());
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
+        this(graph, encoder.toString(), timeZoneMap);
     }
 
-    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName) {
-        this(graph, encoderName, true, true);
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, TimeZoneMap timeZoneMap) {
+        this(graph, encoderName, timeZoneMap, true, true);
     }
 
-    ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, boolean fwd, boolean bwd) {
+    ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, TimeZoneMap timeZoneMap, boolean fwd, boolean bwd) {
         EncodingManager encodingManager = graph.getEncodingManager();
         conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, "conditional_access"));
         conditionalEdges = graph.getConditionalEdges(encoderName);
+        nodeAcces = graph.getNodeAccess();
         this.fwd = fwd;
         this.bwd = bwd;
+        this.timeZoneMap = timeZoneMap;
     }
 
     @Override
     public final boolean accept(EdgeIteratorState iter, long time) {
         boolean conditional = fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc);
-        // TODO: get actual edge timeZoneID
-        ZoneId edgeZoneId = ZoneId.of("Europe/Berlin");
+        // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
+        int node = iter.getBaseNode();
+        double lat = nodeAcces.getLatitude(node);
+        double lon = nodeAcces.getLongitude(node);
+        String timeZoneId = timeZoneMap.getOverlappingTimeZone(lat, lon).get().getZoneId();
+        ZoneId edgeZoneId = ZoneId.of(timeZoneId);
         Instant edgeEnterTime = Instant.ofEpochMilli(time);
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
         String value = conditionalEdges.getValue(iter.getEdge());
@@ -84,7 +94,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         return false;
     }
 
-    boolean match(List<Condition> conditions,  ZonedDateTime zonedDateTime) {
+    boolean match(List<Condition> conditions, ZonedDateTime zonedDateTime) {
         for (Condition condition : conditions) {
             try {
                 OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(condition.toString().getBytes()));

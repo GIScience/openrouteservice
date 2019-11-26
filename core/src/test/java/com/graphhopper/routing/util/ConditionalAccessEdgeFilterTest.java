@@ -21,9 +21,11 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeIteratorState;
 import org.junit.Ignore;
 import org.junit.Test;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.time.Month;
 import java.time.ZonedDateTime;
@@ -35,10 +37,18 @@ import static org.junit.Assert.*;
 
 @Ignore
 public class ConditionalAccessEdgeFilterTest {
+    private static final TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(52, 13, 53, 14);
+
     private final CarFlagEncoder encoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(encoder);
     private final GraphHopperStorage graph = new GraphBuilder(encodingManager).create();
-    private final TimeDependentEdgeFilter filter = new ConditionalAccessEdgeFilter(graph, encoder);
+    private final TimeDependentEdgeFilter filter = new ConditionalAccessEdgeFilter(graph, encoder, timeZoneMap);
+    private final NodeAccess nodeAccess = graph.getNodeAccess();
+
+    public ConditionalAccessEdgeFilterTest() {
+        nodeAccess.setNode(0, 52, 13);
+        nodeAccess.setNode(1, 53, 14);
+    }
 
     private EdgeIteratorState createConditionalEdge(boolean closed, String conditional) {
         ReaderWay way = new ReaderWay(0);

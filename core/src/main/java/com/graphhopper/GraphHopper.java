@@ -55,6 +55,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.io.File;
 import java.io.IOException;
@@ -851,12 +852,15 @@ public class GraphHopper implements GraphHopperAPI {
             interpolateBridgesAndOrTunnels();
         }
 
+        BBox bb = ghStorage.getBounds();
+        TimeZoneMap tzm = TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon);
+
         // FIXME: print out debug info on stored conditionals
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String name = encodingManager.getKey(encoder, "conditional_access");
             if (encodingManager.hasEncodedValue(name)) {
                 System.out.println(encoder.toString());
-                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder);
+                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder, tzm);
                 AllEdgesIterator edges = ghStorage.getAllEdges();
 
                 long time = Calendar.getInstance().getTimeInMillis();
