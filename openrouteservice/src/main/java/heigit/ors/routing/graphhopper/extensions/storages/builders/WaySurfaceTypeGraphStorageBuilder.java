@@ -54,8 +54,9 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 
 		Iterator<Entry<String, Object>> it = way.getProperties();
 
-		if (isFerryRoute)
-            waySurfaceDesc.WayType = ((byte)WayType.Ferry);
+		if (isFerryRoute) {
+			waySurfaceDesc.WayType = ((byte)WayType.Ferry);
+		}
 
 		while (it.hasNext()) {
 			Entry<String, Object> pairs = it.next();
@@ -67,13 +68,15 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
                     byte wayType = (isFerryRoute) ? WayType.Ferry : (byte) WayType.getFromString(value);
 
                     if (waySurfaceDesc.SurfaceType == 0) {
-                        if (wayType == WayType.Road || wayType == WayType.StateRoad || wayType == WayType.Street)
-                            waySurfaceDesc.SurfaceType = (byte) SurfaceType.Asphalt;
-                        else if (wayType == WayType.Path)
-                            waySurfaceDesc.SurfaceType = (byte) SurfaceType.Unpaved;
+                        if (wayType == WayType.Road || wayType == WayType.StateRoad || wayType == WayType.Street) {
+                        	waySurfaceDesc.SurfaceType = (byte) SurfaceType.Asphalt;
+                        } else if (wayType == WayType.Path) {
+							waySurfaceDesc.SurfaceType = (byte) SurfaceType.Unpaved;
+						}
                     }
-                    if (waySurfaceDesc.WayType == 0)
-                        waySurfaceDesc.WayType = wayType;
+                    if (waySurfaceDesc.WayType == 0) {
+						waySurfaceDesc.WayType = wayType;
+					}
                 } else if (key.equals("surface")) {
 					waySurfaceDesc.SurfaceType = (byte)SurfaceType.getFromString(value);
 				}
