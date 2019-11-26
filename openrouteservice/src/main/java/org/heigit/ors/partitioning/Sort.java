@@ -1,5 +1,8 @@
 package org.heigit.ors.partitioning;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntDoubleHashMap;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -16,20 +19,37 @@ public class  Sort {
         return result;
     }
 
-    public static <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
-        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
+//    public static <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
+//        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
+//        list.sort(Entry.comparingByValue());
+//        if (!ASC) {
+//            Collections.reverse(list);
+//            //Collections.sort(list, Collections.reverseOrder());
+//        }
+//        List<K> result = new ArrayList<>();
+//        for (Entry<K, V> entry : list) {
+//            result.add(entry.getKey());
+//        }
+//
+//        return result;
+//    }
+
+    public static IntArrayList sortByValueReturnList(Map<Integer, Double> map, boolean ASC) {
+        List<Entry<Integer, Double>> list = new ArrayList<>(map.entrySet());
         list.sort(Entry.comparingByValue());
         if (!ASC) {
             Collections.reverse(list);
             //Collections.sort(list, Collections.reverseOrder());
         }
-        List<K> result = new ArrayList<>();
-        for (Entry<K, V> entry : list) {
-            result.add(entry.getKey());
+        IntArrayList result = new IntArrayList();
+        for (Entry<Integer, Double> entry : list) {
+            result.add(entry.getKey().intValue());
         }
 
         return result;
     }
+
+
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValueReturnMap(Map<K, V> map) {
         List<Entry<K, V>> list = new ArrayList<>(map.entrySet());

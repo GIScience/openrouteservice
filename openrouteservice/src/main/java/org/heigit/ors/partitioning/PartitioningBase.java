@@ -1,10 +1,13 @@
 package org.heigit.ors.partitioning;
 
+import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIterator;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,16 +22,14 @@ public abstract class PartitioningBase extends RecursiveAction{
     int cellId;
     Graph ghGraph;
     String[] partAlgoAll;
-    Set<Integer> nodeIdSet;
+    IntHashSet nodeIdSet;
     AbstractMaxFlowMinCutAlgorithm mincutAlgo;
     EdgeFilter edgeFilter;
 
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
 
-    ExecutorService threadPool;
-
-
+    static WayCategoryGraphStorage storage;
 
     PartitioningBase() {
     }
@@ -44,8 +45,10 @@ public abstract class PartitioningBase extends RecursiveAction{
 
     private void init() {
         this.partAlgoAll = new String[PartitionAlgo.values().length];
-        this.nodeIdSet = new HashSet<>();
+        this.nodeIdSet = new IntHashSet();
         this.ghGraph = ghStorage.getBaseGraph();
+        storage = GraphStorageUtils.getGraphExtension(ghStorage, WayCategoryGraphStorage.class);
+
 
         for (PartitionAlgo algo : PartitionAlgo.values())
             partAlgoAll[algo.ordinal()] = algo.name();

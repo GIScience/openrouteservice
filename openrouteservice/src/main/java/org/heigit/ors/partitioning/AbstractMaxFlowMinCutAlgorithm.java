@@ -1,5 +1,7 @@
 package org.heigit.ors.partitioning;
 
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
@@ -9,7 +11,7 @@ import java.util.Set;
 
 public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
 
-    private Set<Integer> srcPartition, snkPartition;
+    private IntHashSet srcPartition, snkPartition;
 
 
     public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
@@ -37,24 +39,24 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     }
 
     private void calcNodePartition() {
-        srcPartition = new HashSet<>();
-        snkPartition = new HashSet<>();
+        srcPartition = new IntHashSet();
+        snkPartition = new IntHashSet();
 
         execute();
-        for (int nodeId : nodeIdSet) {
-            if (isVisited(pData.getFlowNodeData(nodeId).visited))
-                this.srcPartition.add(nodeId);
+        for (IntCursor nodeId : nodeIdSet) {
+            if (isVisited(pData.getFlowNodeData(nodeId.value).visited))
+                this.srcPartition.add(nodeId.value);
             else
-                this.snkPartition.add(nodeId);
+                this.snkPartition.add(nodeId.value);
         }
     }
 
-    public Set<Integer> getSrcPartition() {
+    public IntHashSet getSrcPartition() {
         calcNodePartition();
         return srcPartition;
     }
 
-    public Set<Integer> getSnkPartition() {
+    public IntHashSet getSnkPartition() {
         calcNodePartition();
         return snkPartition;
     }

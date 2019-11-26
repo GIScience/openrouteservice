@@ -1,5 +1,9 @@
 package heigit.ors.partitioning;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntDoubleHashMap;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -8,6 +12,7 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.vividsolutions.jts.geom.*;
 import heigit.ors.fastisochrones.Contour;
+import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
@@ -109,7 +114,7 @@ public class InertialFlow extends PartitioningBase {
         abstract double sortValue(double lat, double lon);
     }
 
-    private Map<Integer, Set<Integer>> splitNodeSet;
+    private Map<Integer, IntHashSet> splitNodeSet;
 
     private static double[] bArray = new double[]{0.4};//, 0.27, 0.3, 0.33, 0.36, 0.39, 0.42, 0.45}; // somewhat between 0.25 and 0.45
 
@@ -125,11 +130,12 @@ public class InertialFlow extends PartitioningBase {
         initAlgo();
     }
 
-    private InertialFlow(int cellId, Set<Integer> nodeSet, EdgeFilter edgeFilter) {
+    private InertialFlow(int cellId, IntHashSet nodeSet, EdgeFilter edgeFilter) {
         this.cellId = cellId;
-        this.nodeIdSet = new HashSet<>();
-        for(int node : nodeSet){
-            nodeIdSet.add(node);
+        this.nodeIdSet = new IntHashSet();
+
+        for(IntCursor node : nodeSet){
+            nodeIdSet.add(node.value);
         }
         this.splitNodeSet = new HashMap<>();
         this.edgeFilter = edgeFilter;
@@ -153,18 +159,18 @@ public class InertialFlow extends PartitioningBase {
 
     private void graphBiSplit() {
         int mincutScore = Integer.MAX_VALUE;
-        Set<Integer> mincutSrcSet = new HashSet<>();
-        Set<Integer> mincutSnkSet = new HashSet<>();
+        IntHashSet mincutSrcSet;
+        IntHashSet mincutSnkSet;
         Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
 
         //>> Loop through Projections and project each Node
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
             tmpNodeProjMap.clear();
-            for (int nodeId : nodeIdSet) {
-                tmpNodeProjMap.put(nodeId, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId), ghStorage.getNodeAccess().getLongitude(nodeId)));
+            for (IntCursor nodeId : nodeIdSet) {
+                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
             }
-            List<Integer> tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true);
+            IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true);
 
             //>> loop through b-percentage Values to fetch Source and Sink Nodes
 //            double aTmp = 0.0;
@@ -194,35 +200,36 @@ public class InertialFlow extends PartitioningBase {
 
     private void saveResults() {
         //>> saving iteration results
-        for (Map.Entry<Integer, Set<Integer>> entry : splitNodeSet.entrySet()) {
-            for (Integer node : entry.getValue())
-                nodeToCellArr[node] = cellId << 1 | entry.getKey();
+        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
+            for(IntCursor node : entry.getValue())
+                nodeToCellArr[node.value] = cellId << 1 | entry.getKey();
+//            for (int node : entry.getValue())
+//                nodeToCellArr[node] = cellId << 1 | entry.getKey();
         }
     }
 
-    private void saveMultiCells(Set<Set<Integer>> cells, int motherId) {
+    private void saveMultiCells(Set<IntHashSet> cells, int motherId) {
         //>> saving iteration results
 //        System.out.println("Savind data after disconnecting cell " + motherId);
-        Iterator<Set<Integer>> iterator = cells.iterator();
+        Iterator<IntHashSet> iterator = cells.iterator();
         while (iterator.hasNext()){
-            Set<Integer> cell = iterator.next();
-            for (int node : cell){
-                nodeToCellArr[node] = motherId << 1;
+            IntHashSet cell = iterator.next();
+            for (IntCursor node : cell){
+                nodeToCellArr[node.value] = motherId << 1;
             }
             if (iterator.hasNext()){
                 cell = iterator.next();
-                for (int node : cell){
-                    nodeToCellArr[node] = motherId << 1 | 1;
+                for (IntCursor node : cell){
+                    nodeToCellArr[node.value] = motherId << 1 | 1;
                 }
             }
             motherId = motherId << 1;
         }
-        cells = null;
     }
 
     private void recursion() {
         boolean[] invokeNext = new boolean[2];
-        for (Map.Entry<Integer, Set<Integer>> entry : splitNodeSet.entrySet()) {
+        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
             boolean nextRecursionLevel = false;
 
             //>> Condition
@@ -233,7 +240,7 @@ public class InertialFlow extends PartitioningBase {
                 nextRecursionLevel = true;
             if (nextRecursionLevel == false && PART__SEPARATECONNECTED) {
 //                System.out.println("Disconnecting cell " + (cellId << 1 | entry.getKey()));
-                Set<Set<Integer>> disconnectedCells = separateConnected(entry.getValue(), cellId << 1 | entry.getKey());
+                Set<IntHashSet> disconnectedCells = separateConnected(entry.getValue(), cellId << 1 | entry.getKey());
                 saveMultiCells(disconnectedCells, cellId << 1 | entry.getKey());
 
             }
@@ -241,7 +248,6 @@ public class InertialFlow extends PartitioningBase {
             if (nextRecursionLevel) {
                 invokeNext[entry.getKey()] = true;
 //                list.add(entry.getKey());
-
             }
         }
         if (invokeNext[0] == true && invokeNext[1] == true) {
@@ -285,20 +291,21 @@ public class InertialFlow extends PartitioningBase {
     /*
     Identify disconnected parts of a cell so that they can be split
      */
-    private Set<Set<Integer>> separateConnected(Set<Integer> nodeSet, int cellId){
-        Set<Set<Integer>> disconnectedCells = new HashSet<>();
+    private Set<IntHashSet> separateConnected(IntHashSet nodeSet, int cellId){
+        Set<IntHashSet> disconnectedCells = new HashSet<>();
         EdgeExplorer edgeExplorer = ghGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES);
         Queue<Integer> queue = new ArrayDeque<>();
-        Set<Integer> connectedCell = new HashSet<>();
-        Iterator<Integer> iter;
+        IntHashSet connectedCell = new IntHashSet(nodeSet.size());
+        Iterator<IntCursor> iter;
         EdgeIterator edgeIterator;
+        byte[] buffer = new byte[10];
         while(!nodeSet.isEmpty()) {
             iter = nodeSet.iterator();
-            int startNode = iter.next();
+            int startNode = iter.next().value;
             queue.offer(startNode);
 
             if (connectedCell.size() > PART__MIN_CELL_NODES_NUMBER)
-                connectedCell = new HashSet<>();
+                connectedCell = new IntHashSet();
             connectedCell.add(startNode);
 
             while (!queue.isEmpty()) {
@@ -307,6 +314,8 @@ public class InertialFlow extends PartitioningBase {
                 edgeIterator = edgeExplorer.setBaseNode(currentNode);
 
                 while (edgeIterator.next()) {
+                    if (!((storage.getEdgeValue(edgeIterator.getEdge(), buffer) & AvoidFeatureFlags.Ferries) == 0))
+                        continue;
                     int nextNode = edgeIterator.getAdjNode();
                     if (connectedCell.contains(nextNode)
                             || !nodeSet.contains(nextNode))

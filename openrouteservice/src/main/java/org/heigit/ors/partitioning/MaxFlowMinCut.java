@@ -1,5 +1,7 @@
 package org.heigit.ors.partitioning;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -35,7 +37,7 @@ public class MaxFlowMinCut {
     protected GraphHopperStorage _ghStorage;
 
     protected double limit;
-    protected Set<Integer> nodeIdSet;
+    protected IntHashSet nodeIdSet;
 
     protected EdgeFilter edgeFilter;
 
@@ -59,7 +61,7 @@ public class MaxFlowMinCut {
     }
 
     private void init() {
-        this.nodeIdSet = new HashSet<>();
+        this.nodeIdSet = new IntHashSet();
     }
 
     protected void setGHStorage(GraphHopperStorage ghStorage){
@@ -68,7 +70,7 @@ public class MaxFlowMinCut {
     }
 
 
-    protected void initSubNetwork(double a, double b, List<Integer> sortedNodes) {
+    protected void initSubNetwork(double a, double b, IntArrayList sortedNodes) {
         reset();
         initDynamics();
         buildSrcSnkNodes();
@@ -91,7 +93,7 @@ public class MaxFlowMinCut {
     }
 
     private void initDynamics() {
-        this.nodeIdSet = new HashSet<>();
+        this.nodeIdSet = new IntHashSet();
     }
 
     private void buildSrcSnkNodes() {
@@ -101,7 +103,7 @@ public class MaxFlowMinCut {
         pData.setFlowNodeData(this.snkNode.id, new FlowNodeData(false, 0));
     }
 
-    private void identifySrcSnkEdges(double b, List<Integer> sortedNodes) {
+    private void identifySrcSnkEdges(double b, IntArrayList sortedNodes) {
         this.nodes = sortedNodes.size();
         int b1 = (int) (b * nodes);
         int b2 = (int) ((1 - b) * nodes);
@@ -110,7 +112,7 @@ public class MaxFlowMinCut {
 //        pData.clearVisitedNodes();
 
         for (int i = 0; i < nodes; i++) {
-            Set<Integer> targSet = new HashSet<>();
+            IntHashSet targSet = new IntHashSet();
             int nodeId = sortedNodes.get(i);
             FlowNodeData flowNodeData = pData.getFlowNodeDataOrDefault(nodeId, new FlowNodeData(false, 0));
             flowNodeData.visited = 0;

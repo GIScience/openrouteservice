@@ -161,14 +161,14 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 			//printing for debug
 //			printBordernodes(cellStorage.getNodesOfCell(195), isochroneNodeStorage, this._searchContext.getGraphHopper().getGraphHopperStorage().getNodeAccess());
-//			System.out.println("{" +
-//					"  \"type\": \"FeatureCollection\"," +
-//					"  \"features\": [");
+			System.out.println("{" +
+					"  \"type\": \"FeatureCollection\"," +
+					"  \"features\": [");
 			for (int cellId : fastIsochroneAlgorithm.getFullyReachableCells()){
 				contourCoordinates.addAll(cellStorage.getCellContourOrder(cellId));
-//				printCell(cellStorage.getCellContourOrder(cellId), cellId);
+				printCell(cellStorage.getCellContourOrder(cellId), cellId);
 			}
-//			System.out.println("]}");
+			System.out.println("]}");
 
 			GHPoint3D snappedPosition = res.get(0).getSnappedPoint();
 

@@ -1,6 +1,9 @@
 package org.heigit.ors.partitioning;
 
 
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
@@ -9,9 +12,9 @@ import java.util.*;
 
 public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
-    private Map<Integer, Integer> prevMap;
-    private Map<Integer, Integer> prevBaseNodeMap;
-    private Map<Integer, Integer> prevAdjNodeMap;
+    private IntIntHashMap prevMap;
+    private IntIntHashMap prevBaseNodeMap;
+    private IntIntHashMap prevAdjNodeMap;
 
 
 
@@ -42,9 +45,9 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
     @Override
     public void flood() {
         int flow;
-        prevMap = new HashMap<>();
-        prevBaseNodeMap = new HashMap<>();
-        prevAdjNodeMap = new HashMap<>();
+        prevMap = new IntIntHashMap();
+        prevBaseNodeMap = new IntIntHashMap();
+        prevAdjNodeMap = new IntIntHashMap();
 
         do {
             setUnvisitedAll();
@@ -56,8 +59,8 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
             }
         } while (flow > 0);
 
-        for (int nodeId : nodeIdSet) {
-            FlowNodeData flowNodeData = pData.getFlowNodeData(nodeId);
+        for (IntCursor nodeId : nodeIdSet) {
+            FlowNodeData flowNodeData = pData.getFlowNodeData(nodeId.value);
             flowNodeData.minCut = isVisited(flowNodeData.visited);
         }
 
@@ -74,7 +77,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
 
         while (!queue.isEmpty()) {
-            Set<Integer> targSet = new HashSet<>();
+            IntHashSet targSet = new IntHashSet();
             node = queue.poll();
 
             if (node == snkNode.id)
