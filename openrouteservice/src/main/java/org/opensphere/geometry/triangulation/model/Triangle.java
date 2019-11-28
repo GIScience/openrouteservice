@@ -43,10 +43,10 @@ public class Triangle {
 	private boolean border;
 
 	/** Edges which compose the triangle */
-	private List<Edge> edges = new ArrayList<Edge>();
+	private List<Edge> edges = new ArrayList<>();
 	
 	/** Neighbour triangles of this triangle */
-	private List<Triangle> neighbours = new ArrayList<Triangle>();
+	private List<Triangle> neighbours = new ArrayList<>();
 
 	// vertices...
 

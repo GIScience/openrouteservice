@@ -52,10 +52,10 @@ public class CDL {
      * @return The value string, or null if empty.
      * @throws JSONException if the quoted string is badly formed.
      */
-    private static String getValue(JSONTokener x) throws JSONException {
+    private static String getValue(JSONTokener x) {
         char c;
         char q;
-        StringBuffer sb;
+        StringBuilder sb;
         do {
             c = x.next();
         } while (c == ' ' || c == '\t');
@@ -65,16 +65,12 @@ public class CDL {
         case '"':
         case '\'':
             q = c;
-            sb = new StringBuffer();
+            sb = new StringBuilder();
             for (;;) {
                 c = x.next();
-                if (c == q) {
-                    //Handle escaped double-quote
-                    if(x.next() != '\"')
-                    {
-                        x.back();
-                        break;
-                    }
+                if (c == q && x.next() != '\"') {
+                    x.back();
+                    break;
                 }
                 if (c == 0 || c == '\n' || c == '\r') {
                     throw x.syntaxError("Missing close quote '" + q + "'.");
@@ -97,7 +93,7 @@ public class CDL {
      * @return A JSONArray of strings.
      * @throws JSONException
      */
-    public static JSONArray rowToJSONArray(JSONTokener x) throws JSONException {
+    public static JSONArray rowToJSONArray(JSONTokener x) {
         JSONArray ja = new JSONArray();
         for (;;) {
             String value = getValue(x);
@@ -133,8 +129,7 @@ public class CDL {
      * @return A JSONObject combining the names and values.
      * @throws JSONException
      */
-    public static JSONObject rowToJSONObject(JSONArray names, JSONTokener x)
-            throws JSONException {
+    public static JSONObject rowToJSONObject(JSONArray names, JSONTokener x) {
         JSONArray ja = rowToJSONArray(x);
         return ja != null ? ja.toJSONObject(names) :  null;
     }
@@ -183,7 +178,7 @@ public class CDL {
      * @return A JSONArray of JSONObjects.
      * @throws JSONException
      */
-    public static JSONArray toJSONArray(String string) throws JSONException {
+    public static JSONArray toJSONArray(String string) {
         return toJSONArray(new JSONTokener(string));
     }
 
@@ -194,7 +189,7 @@ public class CDL {
      * @return A JSONArray of JSONObjects.
      * @throws JSONException
      */
-    public static JSONArray toJSONArray(JSONTokener x) throws JSONException {
+    public static JSONArray toJSONArray(JSONTokener x) {
         return toJSONArray(rowToJSONArray(x), x);
     }
 
@@ -206,8 +201,7 @@ public class CDL {
      * @return A JSONArray of JSONObjects.
      * @throws JSONException
      */
-    public static JSONArray toJSONArray(JSONArray names, String string)
-            throws JSONException {
+    public static JSONArray toJSONArray(JSONArray names, String string) {
         return toJSONArray(names, new JSONTokener(string));
     }
 
@@ -219,8 +213,7 @@ public class CDL {
      * @return A JSONArray of JSONObjects.
      * @throws JSONException
      */
-    public static JSONArray toJSONArray(JSONArray names, JSONTokener x)
-            throws JSONException {
+    public static JSONArray toJSONArray(JSONArray names, JSONTokener x) {
         if (names == null || names.length() == 0) {
             return null;
         }
@@ -247,7 +240,7 @@ public class CDL {
      * @return A comma delimited text.
      * @throws JSONException
      */
-    public static String toString(JSONArray ja) throws JSONException {
+    public static String toString(JSONArray ja) {
         JSONObject jo = ja.optJSONObject(0);
         if (jo != null) {
             JSONArray names = jo.names();
@@ -267,12 +260,11 @@ public class CDL {
      * @return A comma delimited text.
      * @throws JSONException
      */
-    public static String toString(JSONArray names, JSONArray ja)
-            throws JSONException {
+    public static String toString(JSONArray names, JSONArray ja) {
         if (names == null || names.length() == 0) {
             return null;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ja.length(); i += 1) {
             JSONObject jo = ja.optJSONObject(i);
             if (jo != null) {

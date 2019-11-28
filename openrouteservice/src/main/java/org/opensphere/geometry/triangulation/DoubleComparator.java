@@ -24,10 +24,10 @@
  */
 package org.opensphere.geometry.triangulation;
 
+import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
+
 import java.util.Comparator;
 import java.util.Map;
-
-import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
 
 /**
  * Comparator of a map containing QuadEdge as key
@@ -38,7 +38,7 @@ import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
  */
 public class DoubleComparator implements Comparator<QuadEdge> {
 	
-	Map<QuadEdge,Double> map;
+	private Map<QuadEdge,Double> map;
 	
 	/**
 	 * Constructor.
@@ -65,9 +65,9 @@ public class DoubleComparator implements Comparator<QuadEdge> {
 	 */
 	@Override
 	public int compare(QuadEdge qeA, QuadEdge qeB) {
-		if (this.map.get(qeA) < this.map.get(qeB)) {
+		if (map.get(qeA) < map.get(qeB)) {
 			return 1;
-		} else if (this.map.get(qeA) == this.map.get(qeB)) {
+		} else if (map.get(qeA) == map.get(qeB)) { // ATTENTION: fixing this causes NPE in isochrones algo!
 			return 0;
 		} else {
 			return -1;

@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replace usage of packages incompatible with Java >8 ([#474](https://github.com/GIScience/openrouteservice/issues/474))
 - Updated Matrix to have a maximum number of routes to calculate rather than locations ([#518](https://github.com/GIScience/openrouteservice/issues/518))
 ### Deprecated
+- Removed the code that was inserted for the prototype traffic weightings as it was not used and made GH updates more complicated.
 
 
 ## [5.0] - 2019-02-25
@@ -68,6 +69,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added support for free hand route option/ skip segments ([Issue #167](https://github.com/GIScience/openrouteservice/issues/167))
 - Added check on matrix service to make sure that the requested locations are within the bounding area of the graph ([Issue #408](https://github.com/GIScience/openrouteservice/issues/408))
 - Makes docker and docker-compose deployment of openrouteservice more customizable ([Issue #434](https://github.com/GIScience/openrouteservice/issues/434))
+- Added support for GH alternative_route algorithm (Issue #377)
 ### Fixed
 - Fixed `geometry_simplify` parameter, which had no effect before. `geometry_simplify` is incompatible with `extra_info` ([#381](https://github.com/GIScience/openrouteservice/issues/381))
 ### Changed

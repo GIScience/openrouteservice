@@ -1,0 +1,12 @@
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.HeavyVehicleGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.WayCategoryGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.WaySurfaceTypeGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.HillIndexGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.GreenIndexGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.NoiseIndexGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.OsmIdGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder

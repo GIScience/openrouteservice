@@ -29,7 +29,7 @@
     "loggers": {
       "logger": [
         {
-          "name": "heigit.ors",
+          "name": "org.heigit.ors",
           "level": "warn",
           "additivity": "false",
           "AppenderRef": [
