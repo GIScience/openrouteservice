@@ -161,17 +161,16 @@ public class InertialFlow extends PartitioningBase {
         int mincutScore = Integer.MAX_VALUE;
         IntHashSet mincutSrcSet;
         IntHashSet mincutSnkSet;
-        Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
 
         //>> Loop through Projections and project each Node
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
-            tmpNodeProjMap.clear();
+            Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
             for (IntCursor nodeId : nodeIdSet) {
                 tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
             }
             IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true);
-
+            tmpNodeProjMap = null;
             //>> loop through b-percentage Values to fetch Source and Sink Nodes
 //            double aTmp = 0.0;
 //            for (double bTmp : bArray) {
@@ -238,7 +237,7 @@ public class InertialFlow extends PartitioningBase {
             }
             if ((cellId < PART__MIN_SPLITTING_ITERATION))
                 nextRecursionLevel = true;
-            if (nextRecursionLevel == false && PART__SEPARATECONNECTED) {
+            if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
 //                System.out.println("Disconnecting cell " + (cellId << 1 | entry.getKey()));
                 Set<IntHashSet> disconnectedCells = separateConnected(entry.getValue(), cellId << 1 | entry.getKey());
                 saveMultiCells(disconnectedCells, cellId << 1 | entry.getKey());

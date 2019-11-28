@@ -109,24 +109,26 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
                     edgeData.inverse = invEdge;
                     FlowEdgeData invEdgeData = pData.getFlowEdgeData(invEdge, targId);
                     invEdgeData.inverse = entry.getValue();
+                    pData.setFlowEdgeData(invEdge, targId, invEdgeData);
                 }
 
             }
+            pData.setFlowEdgeData(entry.getValue(), baseId, edgeData);
         }
     }
 
     public void addDummyEdgePair(int node) {
         FlowEdge forwEdge = new FlowEdge(getDummyEdgeId(), node, -1);
-        FlowEdge backEdge = new FlowEdge(getDummyEdgeId(), -1, node);
-        forwEdge.inverse = backEdge;
-        backEdge.inverse = forwEdge;
+        int backEdgeId = getDummyEdgeId();// = new FlowEdge(getDummyEdgeId(), -1, node);
+        forwEdge.inverse = backEdgeId;
+//        backEdge.inverse = forwEdge.id;
         pData.setDummyEdge(node, forwEdge);
 
-        FlowEdgeData flowEdgeData = new FlowEdgeData((short)0, (short)0, backEdge.id, false);
+        FlowEdgeData flowEdgeData = new FlowEdgeData((short)0, (short)0, backEdgeId, false);
         pData.setFlowEdgeData(forwEdge.id, node, flowEdgeData);
 
         FlowEdgeData invFlowEdgeData = new FlowEdgeData((short)0, (short)0, forwEdge.id, false);
-        pData.setFlowEdgeData(backEdge.id, -2, invFlowEdgeData);
+        pData.setFlowEdgeData(backEdgeId, -2, invFlowEdgeData);
     }
 
 

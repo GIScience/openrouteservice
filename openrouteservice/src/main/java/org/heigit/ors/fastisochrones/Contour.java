@@ -36,6 +36,7 @@ public class Contour {
         this.cellStorage = cellStorage;
     }
 
+
     public void calcCellContourPre() {
 
         Set<Integer> cellNodes = new HashSet<>();
@@ -64,22 +65,36 @@ public class Contour {
                     if(visitedEdges.contains(iter.getEdge()))
                         continue;
                     visitedEdges.add(iter.getEdge());
-                    checkAddLatLon(iter.fetchWayGeometry(1), lats, longs);
+                    checkAddLatLon(iter.fetchWayGeometry(3), lats, longs);
 //                    allNodes.add(iter.fetchWayGeometry(1));
                 }
 
             }
 
-            //
-            Geometry geom = lats.size() < approxLowNodeCountLimit ? concHullOfNodes(cellNodes) : concHullOfNodes(lats, longs);
-            if (geom.getNumPoints() > 2 && !(geom instanceof MultiPoint)) {
-                Polygon poly = (Polygon) geom;
-                ring = poly.getExteriorRing();
-                poly.normalize();
-            } else {
+
+//            Geometry geom = lats.size() < approxLowNodeCountLimit ? concHullOfNodes(cellNodes) : concHullOfNodes(lats, longs);
+            Geometry geom;
+            try {
+                geom = concHullOfNodes(lats, longs);
+//                if (geom.getNumPoints() > 2) {
+                    Polygon poly = (Polygon) geom;
+                    ring = poly.getExteriorRing();
+                    poly.normalize();
+//                }
+            }
+            catch (Exception e){
+                System.out.println("Failed to create concave hull for cell " + cellId);
                 cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
+//            if (geom.getNumPoints() > 2 && !(geom instanceof MultiPoint)) {
+//                Polygon poly = (Polygon) geom;
+//                ring = poly.getExteriorRing();
+//                poly.normalize();
+//            } else {
+//                cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
+//                continue;
+//            }
             for (int i = 0; i < ring.getNumPoints(); i++) {
                 //COORDINATE OF POLYGON BASED
                 hullLatitudes.add(ring.getPointN(i).getY());

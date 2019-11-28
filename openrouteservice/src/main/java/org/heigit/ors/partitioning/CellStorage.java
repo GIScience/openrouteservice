@@ -75,6 +75,14 @@ public class CellStorage implements Storable<CellStorage> {
         cells.create(1000);
     }
 
+    public void reset() {
+        cellIdToNodesMap = new HashMap<>();
+        cellIdToNodesPointerMap = new HashMap<>();
+        cellIdToContourPointerMap = new HashMap<>();
+        NODEINDEXOFFSET = 0;
+        CONTOURINDEXOFFSET = 0;
+    }
+
     public void calcCellNodesMap() {
         //Calc a hashmap of the cells
         for (int node = 0; node < nodeCount; node++) {
@@ -249,6 +257,10 @@ public class CellStorage implements Storable<CellStorage> {
         }
     }
 
+
+    public boolean isCorrupted(){
+        return cellIdToContourPointerMap.size() != cellIdToNodesPointerMap.size();
+    }
 
     @Override
     public CellStorage create(long byteCount) {

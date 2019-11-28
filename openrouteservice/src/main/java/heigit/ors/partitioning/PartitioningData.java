@@ -1,25 +1,30 @@
 package heigit.ors.partitioning;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 public class PartitioningData {
     //Edge data
-    FlowEdgeDataPair[] flowEdgeDataPairs;
-    FlowNodeData[] flowNodeData;
+    int[] flowEdgeBaseNode, flowEdgeInverse;
+    short[] flow, capacity;
+    boolean[] active;
+    boolean[] minCut;
+    int[] visited;
 
     //node data
     //every node has one dummy edge. Map nodeid to DummyEdge
-    FlowEdge[] dummyEdges;
+    int[] inverseDummyEdgeIds, dummyEdgeIds, dummyEdgeBaseNodes, dummyEdgeTargNodes;
 
     public PartitioningData() {
 
     }
 
     public void createEdgeDataStructures(int size){
-//        float loadFactor = 0.75F;
-        flowEdgeDataPairs = new FlowEdgeDataPair[size];
-
+        flowEdgeBaseNode = new int[2 * size];
+        flowEdgeInverse = new int[2 * size];
+        flow = new short[2 * size];
+        capacity = new short[2 * size];
+        active = new boolean[2 * size];
+        Arrays.fill(flowEdgeBaseNode, -1);
     }
 
     public void createNodeDataStructures(int size){
@@ -27,127 +32,127 @@ public class PartitioningData {
         //size should be num of nodes. Each node has one dummy edge.
         //There is data for every node + data for each source/sink node. 2 * numNodes means support for
         //a minimum cell size of 2 nodes per cell, so plenty enough.
-        dummyEdges = new FlowEdge[size];
-        flowNodeData = new FlowNodeData[2 * size];
-//        flowNodeDataMap = new HashMap<>(size, loadFactor);
-    }
-    //Breaks parallelization
-    public void clearActiveEdges(){
-        for(FlowEdgeDataPair data : flowEdgeDataPairs){
-            if (data == null) continue;
-//            FlowEdgeData flowEdgeData = entry.getValue();
-            if(data.flowEdgeData0 != null){
-                data.flowEdgeData0.active = false;
-                data.flowEdgeData0.flow = 0;
-            }
-            if(data.flowEdgeData1 != null){
-                data.flowEdgeData1.active = false;
-                data.flowEdgeData1.flow = 0;
-            }
-//            data.active = false;
-//            data.flow = 0;
-//            flowEdgeDataMap.put(entry.getKey(), flowEdgeData);
-        }
-    }
-    //Breaks parallelization
-    public void clearVisitedNodes(){
-        for(FlowNodeData data : flowNodeData){
-            if (data == null) continue;
-//            FlowNodeData flowNodeData = entry.getValue();
-            data.visited = 0;
-            data.minCut = false;
-//            flowNodeDataMap.put(entry.getKey(), flowNodeData);
-        }
+//        dummyEdges = new FlowEdge[size];
+        inverseDummyEdgeIds = new int[size];
+        dummyEdgeIds = new int[size];
+        dummyEdgeBaseNodes = new int[size];
+        dummyEdgeTargNodes = new int[size];
+
+        minCut = new boolean[2 * size];
+        visited = new int[2 * size];
+        Arrays.fill(visited, -1);
     }
 
+
     public void setFlowEdgeData(int edgeId, int baseNode, FlowEdgeData data){
-        if(flowEdgeDataPairs[edgeId] == null){
-            FlowEdgeDataPair flowEdgeDataPair = new FlowEdgeDataPair();
-            flowEdgeDataPair.setFlowEdgeData(baseNode, data);
-            flowEdgeDataPairs[edgeId] = flowEdgeDataPair;
+        if(flowEdgeBaseNode[2 * edgeId] == -1 || flowEdgeBaseNode[2 * edgeId] == baseNode) {
+            setFlowEdgeData(2 * edgeId, data);
+            flowEdgeBaseNode[2 * edgeId] = baseNode;
         }
-        else
-            flowEdgeDataPairs[edgeId].setFlowEdgeData(baseNode, data);
+        else if (flowEdgeBaseNode[2 * edgeId + 1] == -1 || flowEdgeBaseNode[2 * edgeId + 1] == baseNode) {
+            setFlowEdgeData(2 * edgeId + 1, data);
+            flowEdgeBaseNode[2 * edgeId + 1] = baseNode;
+        }
     }
 
     public FlowEdgeData getFlowEdgeData(int edgeId, int baseNode){
-        return flowEdgeDataPairs[edgeId].getFlowEdgeData(baseNode);
+        int pointer = -1;
+        if(flowEdgeBaseNode[2 * edgeId] == baseNode)
+            pointer = 2 * edgeId;
+        if(flowEdgeBaseNode[2 * edgeId + 1] == baseNode)
+            pointer = 2 * edgeId + 1;
+        if (pointer == -1)
+            throw new IllegalStateException("Edge and node do not belong together?");
+        return new FlowEdgeData(flow[pointer], capacity[pointer], flowEdgeInverse[pointer], active[pointer]);
     }
 
     public FlowEdgeData getFlowEdgeData(int edgeId){
-        return flowEdgeDataPairs[edgeId].getFlowEdgeData();
+        if(flowEdgeBaseNode[2* edgeId + 1] == -1)
+            return new FlowEdgeData(flow[2* edgeId], capacity[2* edgeId], flowEdgeInverse[2* edgeId], active[2* edgeId]);
+        if(flowEdgeBaseNode[2* edgeId] == -1)
+            return new FlowEdgeData(flow[2* edgeId + 1], capacity[2* edgeId + 1], flowEdgeInverse[2* edgeId + 1], active[2* edgeId + 1]);
+        throw new IllegalStateException("Operation only allowed on dummy edges");
+//        return flowEdgeDataPairs[edgeId].getFlowEdgeData();
     }
 
     public void replaceBaseNodeFlowEdgeData(int edgeId, int newBaseNode){
-        flowEdgeDataPairs[edgeId].replaceBaseNode(newBaseNode);
+        int baseNode0 = flowEdgeBaseNode[2 * edgeId];
+        int baseNode1 = flowEdgeBaseNode[2 * edgeId + 1];
+        if ((baseNode0 == -1 && baseNode1 == -1)
+                || (baseNode0 != -1 && baseNode1 != -1))
+            throw new IllegalStateException("Original basenode not found");
+        if (baseNode0 == -1)
+            flowEdgeBaseNode[2 * edgeId + 1] = newBaseNode;
+        else
+            flowEdgeBaseNode[2 * edgeId] = newBaseNode;
     }
 
+    private void setFlowEdgeData(int dataPosition, FlowEdgeData data){
+        flowEdgeInverse[dataPosition] = data.inverse;
+        flow[dataPosition] = data.flow;
+        capacity[dataPosition] = data.capacity;
+        active[dataPosition] = data.active;
+    }
+
+    public void setDummyFlowEdgeData(int dataPosition, FlowEdgeData data){
+        flowEdgeInverse[2* dataPosition] = data.inverse;
+        flow[2 * dataPosition] = data.flow;
+        capacity[2 * dataPosition] = data.capacity;
+        active[2 * dataPosition] = data.active;
+    }
+
+
+    /*
+    DUMMY
+     */
+
     public void setDummyEdge(int nodeId, FlowEdge data){
-        dummyEdges[nodeId] = data;
+        dummyEdgeIds[nodeId] = data.id;
+        inverseDummyEdgeIds[nodeId] = data.inverse;
+        dummyEdgeBaseNodes[nodeId] = data.baseNode;
+        dummyEdgeTargNodes[nodeId] = data.targNode;
+
     }
 
     public FlowEdge getDummyEdge(int nodeId){
-        return dummyEdges[nodeId];
+        return new FlowEdge(
+                dummyEdgeIds[nodeId],
+                inverseDummyEdgeIds[nodeId],
+                dummyEdgeBaseNodes[nodeId],
+                dummyEdgeTargNodes[nodeId]);
     }
 
+    public FlowEdge getInverseDummyEdge(int nodeId){
+        return new FlowEdge(
+                inverseDummyEdgeIds[nodeId],
+                dummyEdgeIds[nodeId],
+                dummyEdgeTargNodes[nodeId],
+                dummyEdgeBaseNodes[nodeId]);
+    }
+
+
+    public void setDummyBaseNode(int nodeId, int newBaseNode){
+        dummyEdgeBaseNodes[nodeId] = newBaseNode;
+    }
+
+    public void setDummyTargNode(int nodeId, int newTargNode){
+        dummyEdgeTargNodes[nodeId] = newTargNode;
+    }
+
+
+
     public void setFlowNodeData(int nodeId, FlowNodeData data){
-        flowNodeData[nodeId] = data;
+        minCut[nodeId] = data.minCut;
+        visited[nodeId] = data.visited;
     }
 
     public FlowNodeData getFlowNodeData(int nodeId){
-        return flowNodeData[nodeId];
+        return new FlowNodeData(minCut[nodeId], visited[nodeId]);
     }
 
     public FlowNodeData getFlowNodeDataOrDefault(int nodeId, FlowNodeData data){
-        return flowNodeData[nodeId] == null ? data : flowNodeData[nodeId];
+        return visited[nodeId] == -1 ? data : new FlowNodeData(minCut[nodeId], visited[nodeId]);
     }
 
-
-    class FlowEdgeDataPair {
-        int baseNode0 = -1;
-        int baseNode1 = -1;
-        FlowEdgeData flowEdgeData0;
-        FlowEdgeData flowEdgeData1;
-
-        public FlowEdgeDataPair setFlowEdgeData(int baseNode, FlowEdgeData flowEdgeData){
-            if (baseNode0 == -1 || baseNode0 == baseNode){
-                baseNode0 = baseNode;
-                flowEdgeData0 = flowEdgeData;
-                return this;
-            }
-            if (baseNode1 == -1 || baseNode1 == baseNode){
-                baseNode1 = baseNode;
-                flowEdgeData1 = flowEdgeData;
-                return this;
-            }
-            throw new IllegalStateException("Edge and node do not belong together?");
-        }
-
-        public void replaceBaseNode(int newBaseNode){
-            if ((baseNode0 == -1 && baseNode1 == -1)
-                || (baseNode0 != -1 && baseNode1 != -1))
-                throw new IllegalStateException("Original basenode not found");
-            if (baseNode0 == -1)
-                baseNode1 = newBaseNode;
-            else
-                baseNode0 = newBaseNode;
-        }
-
-        public FlowEdgeData getFlowEdgeData(int baseNode){
-            if(baseNode0 == baseNode)
-                return flowEdgeData0;
-            if(baseNode1 == baseNode)
-                return flowEdgeData1;
-            throw new IllegalStateException("Edge and node do not belong together?");
-        }
-
-        public FlowEdgeData getFlowEdgeData(){
-            if(baseNode0 == -1)
-                return flowEdgeData1;
-            if(baseNode1 == -1)
-                return flowEdgeData0;
-            throw new IllegalStateException("Operation only allowed on dummy edges");
-        }
-    }
 
 }

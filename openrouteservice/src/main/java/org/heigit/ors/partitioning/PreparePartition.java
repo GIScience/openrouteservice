@@ -51,19 +51,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     public PreparePartition prepare() {
         ForkJoinPool forkJoinPool = new ForkJoinPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
         forkJoinPool.invoke(new InertialFlow(ghStorage, edgeFilters));
-
-//        threadPool.execute(() -> {
-//                    partitioningAlgo = new InertialFlow(ghStorage, edgeFilters, threadPool);
-//                    partitioningAlgo.run();
-//                }
-
-//        );
-//        threadPool.shutdown();
-//        try {
-//            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-//        } catch (InterruptedException e) {
-//
-//        }
+        
         prepareData();
 
         //Create and calculate isochrone info that is ordered by node

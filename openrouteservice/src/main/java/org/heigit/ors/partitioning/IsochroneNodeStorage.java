@@ -60,6 +60,8 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     @Override
     public boolean loadExisting() {
         if (isochroneNodes.loadExisting()) {
+            for(int node = 0; node < nodeCount; node ++)
+                cellIdsSet.add(getCellId(node));
             return true;
         }
         return false;

@@ -760,6 +760,21 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
+	public void initPartitioningFactoryDecorator() {
+		if (!partitioningFactoryDecorator.hasWeightings()) {
+			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+				for (String partWeightingStr : partitioningFactoryDecorator.getWeightingsAsStrings()) {
+					// ghStorage is null at this point
+					Weighting weighting = createWeighting(new HintsMap(partWeightingStr), traversalMode, encoder, null);
+					partitioningFactoryDecorator.addWeighting(weighting);
+				}
+			}
+		}
+	}
+
+
+
+
 	/**
 	 * Isochrone graph contraction - core based on bordernodes
 	 */
@@ -808,6 +823,14 @@ public class ORSGraphHopper extends GraphHopper {
 			ecc.calcEccentricities(getGraphHopperStorage(), getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
 			Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), this.getLocationIndex(), isochroneNodeStorage, cellStorage);
 
+			contour.calcCellContourPre();
+		}
+		else if(cellStorage.isCorrupted()){
+//			cellStorage.init();
+			cellStorage.reset();
+			cellStorage.calcCellNodesMap();
+			cellStorage.flush();
+			Contour contour = new Contour(ghStorage, ghStorage.getNodeAccess(), isochroneNodeStorage, cellStorage);
 			contour.calcCellContourPre();
 		}
 		this.eccentricity = ecc;

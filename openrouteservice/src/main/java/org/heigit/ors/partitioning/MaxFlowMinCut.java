@@ -26,6 +26,7 @@ public class MaxFlowMinCut {
     protected FlowNode srcNode, snkNode;
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
+    protected int snkNodeId;
 
     protected static int _dummyNodeId = -2;
     protected static int _dummyEdgeId = -2;
@@ -99,8 +100,8 @@ public class MaxFlowMinCut {
     private void buildSrcSnkNodes() {
         this.srcNode = new FlowNode(getDummyNodeId());
         pData.setFlowNodeData(this.srcNode.id, new FlowNodeData(false, 0));
-        this.snkNode = new FlowNode(getDummyNodeId());
-        pData.setFlowNodeData(this.snkNode.id, new FlowNodeData(false, 0));
+        this.snkNodeId = getDummyNodeId();
+        pData.setFlowNodeData(this.snkNodeId, new FlowNodeData(false, 0));
     }
 
     private void identifySrcSnkEdges(double b, IntArrayList sortedNodes) {
@@ -108,8 +109,6 @@ public class MaxFlowMinCut {
         int b1 = (int) (b * nodes);
         int b2 = (int) ((1 - b) * nodes);
         this.nodeIdSet.addAll(sortedNodes);
-//        pData.clearActiveEdges();
-//        pData.clearVisitedNodes();
 
         for (int i = 0; i < nodes; i++) {
             IntHashSet targSet = new IntHashSet();
@@ -120,18 +119,19 @@ public class MaxFlowMinCut {
             pData.setFlowNodeData(nodeId, flowNodeData);
 
             _edgeIter = _edgeExpl.setBaseNode(nodeId);
-            FlowEdge dummy = pData.getDummyEdge(nodeId);
-            FlowEdge dummyInv = dummy.inverse;
-            dummy.baseNode = nodeId;
-            dummy.targNode = -1;
-            dummyInv.baseNode = -1;
-            dummyInv.targNode = nodeId;
 
+            FlowEdge dummy = pData.getDummyEdge(nodeId);
+            FlowEdge dummyInv = pData.getInverseDummyEdge(nodeId);
+            pData.setDummyBaseNode(nodeId, nodeId);
+            pData.setDummyTargNode(nodeId, -1);
             FlowEdgeData dummyData = pData.getFlowEdgeData(dummy.id);
             FlowEdgeData dummyInvData = pData.getFlowEdgeData(dummyInv.id);
             dummyData.flow = dummyInvData.flow = 0;
             dummyData.active = dummyInvData.active = false;
             dummyData.capacity = dummyInvData.capacity = 0;
+            pData.setDummyFlowEdgeData(dummy.id,  dummyData);
+            pData.setDummyFlowEdgeData(dummyInv.id, dummyInvData);
+
             while (_edgeIter.next()) {
                 if(targSet.contains(_edgeIter.getAdjNode())
                         || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
@@ -145,6 +145,7 @@ public class MaxFlowMinCut {
                 if (nodeIdSet.contains(_edgeIter.getAdjNode()))
                     flowEdgeData.active = true;
                 else flowEdgeData.active = false;
+                pData.setFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode(), flowEdgeData);
 
 
             }
@@ -154,46 +155,57 @@ public class MaxFlowMinCut {
                 //>> bring DummySourceEdges to Life
 
                 FlowEdge dummBack = pData.getDummyEdge(nodeId);
-                FlowEdge dummForw = pData.getDummyEdge(nodeId).inverse;
+                FlowEdge dummForw = pData.getInverseDummyEdge(nodeId);
 
                 FlowEdgeData dummyBackData = pData.getFlowEdgeData(dummBack.id);
                 FlowEdgeData dummyForwData = pData.getFlowEdgeData(dummForw.id);
 
-                dummForw.baseNode = dummBack.targNode = srcNode.id;
-                srcNode.outEdges.add(dummForw);
+//                dummForw.baseNode = dummBack.targNode = srcNode.id;
+                dummForw.baseNode = srcNode.id;
+                pData.setDummyTargNode(nodeId, srcNode.id);
+//                srcNode.outEdges.add(dummForw.id);
+                srcNode.outNodes.add(nodeId);
                 dummyForwData.capacity = INFL__DUMMY_EDGE_CAPACITY;
                 dummyBackData.capacity = 0;
                 dummyBackData.active = true;
+                pData.setDummyFlowEdgeData(dummBack.id,  dummyBackData);
+                pData.setDummyFlowEdgeData(dummForw.id, dummyForwData);
                 pData.replaceBaseNodeFlowEdgeData(dummForw.id, srcNode.id);
 //                pData.overwriteFlowEdgeData(dummForw.id, nodeId, srcNode.id, dummyForwData);
 
             } else if (b2 < i) {
                 //>> bring DummySinkEdges to Life
-                FlowEdge dummBack = pData.getDummyEdge(nodeId).inverse;
                 FlowEdge dummForw = pData.getDummyEdge(nodeId);
-
+                FlowEdge dummBack = pData.getInverseDummyEdge(nodeId);
                 FlowEdgeData dummyBackData = pData.getFlowEdgeData(dummBack.id);
                 FlowEdgeData dummyForwData = pData.getFlowEdgeData(dummForw.id);
 
-                dummForw.targNode = dummBack.baseNode = snkNode.id;
-                snkNode.outEdges.add(dummBack);
+//                dummForw.targNode = dummBack.baseNode = snkNode.id;
+                dummBack.baseNode = snkNodeId;
+                pData.setDummyTargNode(nodeId, snkNodeId);
+//                snkNode.outEdges.add(dummBack.id);
                 dummyForwData.capacity = INFL__DUMMY_EDGE_CAPACITY;
                 dummyBackData.capacity = 0;
                 dummyForwData.active = true;
-                pData.replaceBaseNodeFlowEdgeData(dummBack.id, snkNode.id);
+                pData.setDummyFlowEdgeData(dummBack.id,  dummyBackData);
+                pData.setDummyFlowEdgeData(dummForw.id, dummyForwData);
+                pData.replaceBaseNodeFlowEdgeData(dummBack.id, snkNodeId);
 //                pData.overwriteFlowEdgeData(dummBack.id, nodeId, snkNode.id, dummyBackData);
 
             } else {
                 //>> let all other DummyEdges sleep
                 FlowEdge dummyEdge = pData.getDummyEdge(nodeId);
-                FlowEdge inverseDummyEdge = pData.getDummyEdge(nodeId).inverse;
-                dummyEdge.targNode = inverseDummyEdge.baseNode = -1;
+                FlowEdge inverseDummyEdge = pData.getInverseDummyEdge(nodeId);
+                pData.setDummyTargNode(nodeId, -1);
+//                dummyEdge.targNode = inverseDummyEdge.baseNode = -1;
                 pData.replaceBaseNodeFlowEdgeData(inverseDummyEdge.id, -2);
 
 
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(dummyEdge.id);
                 FlowEdgeData invFlowEdgeData = pData.getFlowEdgeData(inverseDummyEdge.id);
                 flowEdgeData.capacity = invFlowEdgeData.capacity = -1;
+                pData.setDummyFlowEdgeData(dummyEdge.id,  flowEdgeData);
+                pData.setDummyFlowEdgeData(inverseDummyEdge.id, invFlowEdgeData);
 //                flowEdgeData.active = invFlowEdgeData.active = false;
             }
         }

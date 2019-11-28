@@ -23,6 +23,7 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     public void setVisited(int node) {
         FlowNodeData flowNodeData = pData.getFlowNodeData(node);
         flowNodeData.visited = visitedToken;
+        pData.setFlowNodeData(node, flowNodeData);
     }
 
     public boolean isVisited(int visited) {
