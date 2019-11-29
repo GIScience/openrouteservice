@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from (#496)
 - Added information for countries a route traverses (#349)
+- Added scanning of master with sonarcloud (2019-11-29)
 ### Fixed
 - isochrone reachfactor gives now more realistic results (#325)
 - Fixed the wrong gpx header for api v2 (#496)
