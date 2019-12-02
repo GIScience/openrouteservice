@@ -83,7 +83,7 @@ public class Contour {
 //                }
             }
             catch (Exception e){
-                System.out.println("Failed to create concave hull for cell " + cellId);
+//                System.out.println("Failed to create concave hull for cell " + cellId);
                 cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
