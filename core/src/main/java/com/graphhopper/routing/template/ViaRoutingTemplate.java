@@ -129,8 +129,8 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
 
             int idx = 0;
             for (Path path : tmpPathList) {
-//                if (path.getTime() < 0)
-//                    throw new RuntimeException("Time was negative " + path.getTime() + " for index " + idx + ". Please report as bug and include:" + ghRequest);
+                if (path.getTime() < 0)
+                    throw new RuntimeException("Time was negative " + path.getTime() + " for index " + idx + ". Please report as bug and include:" + ghRequest);
 
                 pathList.add(path);
                 debug += ", " + path.getDebugInfo();
