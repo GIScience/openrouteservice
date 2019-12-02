@@ -29,7 +29,7 @@ public abstract class PartitioningBase extends RecursiveAction{
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
 
-    static WayCategoryGraphStorage storage;
+//    static WayCategoryGraphStorage storage;
 
     PartitioningBase() {
     }
@@ -47,7 +47,7 @@ public abstract class PartitioningBase extends RecursiveAction{
         this.partAlgoAll = new String[PartitionAlgo.values().length];
         this.nodeIdSet = new IntHashSet();
         this.ghGraph = ghStorage.getBaseGraph();
-        storage = GraphStorageUtils.getGraphExtension(ghStorage, WayCategoryGraphStorage.class);
+//        storage = GraphStorageUtils.getGraphExtension(ghStorage, WayCategoryGraphStorage.class);
 
 
         for (PartitionAlgo algo : PartitionAlgo.values())

@@ -4,7 +4,7 @@ package org.heigit.ors.partitioning;
 
 public class FastIsochroneParameters {
 
-    public static final int FASTISO_MAXTHREADCOUNT = 8;
+    public static final int FASTISO_MAXTHREADCOUNT = 12;
         //>> Partitioning
     public static final int PART__MIN_SPLITTING_ITERATION = 0;
     public static final int PART__MAX_SPLITTING_ITERATION = 16777216; //==2^22

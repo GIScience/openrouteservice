@@ -297,7 +297,7 @@ public class InertialFlow extends PartitioningBase {
         IntHashSet connectedCell = new IntHashSet(nodeSet.size());
         Iterator<IntCursor> iter;
         EdgeIterator edgeIterator;
-        byte[] buffer = new byte[10];
+//        byte[] buffer = new byte[10];
         while(!nodeSet.isEmpty()) {
             iter = nodeSet.iterator();
             int startNode = iter.next().value;
@@ -313,8 +313,8 @@ public class InertialFlow extends PartitioningBase {
                 edgeIterator = edgeExplorer.setBaseNode(currentNode);
 
                 while (edgeIterator.next()) {
-                    if (!((storage.getEdgeValue(edgeIterator.getEdge(), buffer) & AvoidFeatureFlags.Ferries) == 0))
-                        continue;
+//                    if (!((storage.getEdgeValue(edgeIterator.getEdge(), buffer) & AvoidFeatureFlags.Ferries) == 0))
+//                        continue;
                     int nextNode = edgeIterator.getAdjNode();
                     if (connectedCell.contains(nextNode)
                             || !nodeSet.contains(nextNode))
