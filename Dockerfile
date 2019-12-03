@@ -3,14 +3,13 @@ FROM openjdk:8-jdk
 ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-ARG APP_CONFIG=docker/conf/app.config.sample
-ARG OSM_FILE=docker/data/heidelberg.osm.gz
-ARG JAVA_OPTS
-ARG CATALINA_OPTS
+ARG APP_CONFIG=./docker/conf/app.config.sample
+ARG OSM_FILE=./docker/data/heidelberg.osm.gz
+# Install tomcat
+RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz
 
 # Install required deps
-RUN apt-get update -qq
-RUN apt-get install -qq -y locales wget nano maven
+RUN apt-get update -qq && apt-get install -qq -y locales wget nano maven
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -31,22 +30,13 @@ WORKDIR /ors-core
 # Build openrouteservice
 RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests
 
-# Install tomcat
-RUN mkdir /usr/local/tomcat
-RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz
-
-RUN cd /tmp && tar xvfz tomcat.tar.gz
-RUN cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/
-
-# Add tomcat custom settings if provided
-RUN touch /usr/local/tomcat/bin/setenv.sh
-RUN echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
-RUN echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
+RUN cd /tmp && tar xvfz tomcat.tar.gz && mkdir /usr/local/tomcat && cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/
 
 # Copy ors app into tomcat webapps
-RUN cp /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+RUN cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 # Start the container
 EXPOSE 8080
-CMD /usr/local/tomcat/bin/catalina.sh run
-
+ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]

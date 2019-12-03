@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments (#587)
 - Encoding of waytype ferry (#573)
 ### Changed
+- Make Docker setup more flexible wrt customizations (#627)
 ### Deprecated
 
 ## [5.0.2] - 2019-07-29
