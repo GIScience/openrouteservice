@@ -6,13 +6,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Indonesian Translation Language
-- Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
 ### Fixed
-- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments (#587)
-- Encoding of waytype ferry (#573)
 ### Changed
 ### Deprecated
+
+## [6.0.0] - 2019-12-03
+### Added
+- Indonesian Translation Language
+- Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
+- Enabled round trip routing ([#391](https://github.com/GIScience/openrouteservice/issues/391))
+- Enabled aternative routes in API ([#377](https://github.com/GIScience/openrouteservice/issues/377))
+- Added information to the response about when graphs were last built for the profile ([#542](https://github.com/GIScience/openrouteservice/issues/542))
+- Added default value for maximum snapping radius
+### Fixed
+- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments ([#587](https://github.com/GIScience/openrouteservice/issues/587))
+- Encoding of waytype ferry ([#573](https://github.com/GIScience/openrouteservice/issues/573))
+- Refactored Core-ALT algorithm so that it can be used globally
+### Changed
+- Updated GraphHopper to newer version (0.12)
+- Reworked flag encoders to use the methods provided by GraphHopper 0.12
+- Renamed packages to follow naming conventions
+- Cleanup of a number of code files
+### Deprecated
+- Removed geocoding endpoint and code
+- Removed accessibilty endpoint and code 
+- Removed Brotil encoder from servlet filter
 
 ## [5.0.2] - 2019-07-29
 ### Added
