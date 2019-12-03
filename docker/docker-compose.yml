@@ -14,7 +14,7 @@ services:
       - ./elevation_cache:/ors-core/data/elevation_cache
       - ./logs/ors/:/var/log/ors/
       - ./logs/tomcat/:/usr/local/tomcat/logs
-      - ./conf/app.config.sample:/ors-core/openrouteservice/target/classes/resources/app.config
+      - ./conf/app.config.sample:/ors-core/openrouteservice/target/classes/app.config
       - ./data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed in app.config
