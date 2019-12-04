@@ -328,7 +328,11 @@ public class ORSGraphHopper extends GraphHopper {
 
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
-				ghRsp.getHints().put("data.import.date", getGraphHopperStorage().getProperties().get("datareader.import.date"));
+				String date = getGraphHopperStorage().getProperties().get("datareader.data.date");
+				if (Helper.isEmpty(date)) {
+					date = getGraphHopperStorage().getProperties().get("datareader.import.date");
+				}
+				ghRsp.getHints().put("data.date", date);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
 				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());
