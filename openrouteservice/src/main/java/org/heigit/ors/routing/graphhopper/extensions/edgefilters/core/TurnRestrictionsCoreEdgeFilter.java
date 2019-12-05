@@ -37,9 +37,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
     }
 
+    //TODO Find how to get edge flags looking at code from CarFlagEncoder adn VehicleFlagEncoder.
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( flagEncoder.isTurnRestricted(edge.) ) { //If the max speed of the road is greater than that of the limit include it in the core.
+        if ( flagEncoder.isTurnRestricted(edge.getFlags() ) ) { //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {
             return true;
