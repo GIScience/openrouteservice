@@ -514,13 +514,12 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		/* TurnRestrictions */
-		/* Maximum Speed Filter */
-		if (routingProfileCategory !=0 & encodingManager.supports("heavyvehicle")) {
+		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
 			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 		}
 
-		if (routingProfileCategory !=0 & encodingManager.supports("car-ors")) {
+		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
 			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 		}
