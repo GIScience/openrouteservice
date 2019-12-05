@@ -43,10 +43,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorat
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -514,6 +511,18 @@ public class ORSGraphHopper extends GraphHopper {
 
 		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
+		}
+
+		/* TurnRestrictions */
+		/* Maximum Speed Filter */
+		if (routingProfileCategory !=0 & encodingManager.supports("heavyvehicle")) {
+			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
+			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+		}
+
+		if (routingProfileCategory !=0 & encodingManager.supports("car-ors")) {
+			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
+			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 		}
 
 		/* End filter sequence initialization */
