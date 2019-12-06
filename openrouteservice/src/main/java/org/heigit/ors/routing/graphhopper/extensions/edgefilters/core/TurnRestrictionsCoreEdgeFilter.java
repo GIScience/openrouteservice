@@ -40,9 +40,12 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     //TODO Find how to get edge flags looking at code from CarFlagEncoder adn VehicleFlagEncoder.
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( flagEncoder.isTurnRestricted(edge.getFlags() ) ) { //If the max speed of the road is greater than that of the limit include it in the core.
+        EdgeIteratorState edgeTest = edge;
+        //if ( flagEncoder.isTurnRestricted(edge.getFlags() ) ) { //If the max speed of the road is greater than that of the limit include it in the core.
+         if( 1 != 1 ){
             return false;
         } else {
+             boolean test = flagEncoder.isTurnRestricted(edge.get("turnCOstEncoder")) !=0 ? true : false ;
             return true;
         }
     }
