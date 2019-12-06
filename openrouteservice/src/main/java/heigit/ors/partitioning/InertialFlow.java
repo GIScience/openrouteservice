@@ -170,7 +170,7 @@ public class InertialFlow extends PartitioningBase {
                 tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
             }
             IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true);
-            tmpNodeProjMap = null;
+//            tmpNodeProjMap = null;
             //>> loop through b-percentage Values to fetch Source and Sink Nodes
 //            double aTmp = 0.0;
 //            for (double bTmp : bArray) {
@@ -212,6 +212,8 @@ public class InertialFlow extends PartitioningBase {
 //        System.out.println("Savind data after disconnecting cell " + motherId);
         Iterator<IntHashSet> iterator = cells.iterator();
         while (iterator.hasNext()){
+            if(motherId << 1 > PART__MAX_SPLITTING_ITERATION)
+                break;
             IntHashSet cell = iterator.next();
             for (IntCursor node : cell){
                 nodeToCellArr[node.value] = motherId << 1;
