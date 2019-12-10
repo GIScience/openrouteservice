@@ -14,9 +14,9 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
@@ -41,11 +41,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     @Override
     public boolean accept(EdgeIteratorState edge) {
         EdgeIteratorState edgeTest = edge;
-        //if ( flagEncoder.isTurnRestricted(edge.getFlags() ) ) { //If the max speed of the road is greater than that of the limit include it in the core.
-         if( 1 != 1 ){
+        IntsRef edgeFlags = edge.getFlags();
+        if ( edge.get( flagEncoder.getIntEncodedValue("maxTurnCost") ) == 1 ) { //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {
-             boolean test = flagEncoder.isTurnRestricted(edge.get("turnCOstEncoder")) !=0 ? true : false ;
             return true;
         }
     }
