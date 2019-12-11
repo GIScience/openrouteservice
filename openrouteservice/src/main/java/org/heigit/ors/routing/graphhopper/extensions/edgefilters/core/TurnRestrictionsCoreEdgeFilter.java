@@ -15,10 +15,12 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.storage.TurnCostExtension;
+import com.graphhopper.util.EdgeExplorer;
+import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 /**
  * This class includes in the core all edges with turn restrictions.
@@ -27,22 +29,30 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
  */
 
 public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
-    private HeavyVehicleAttributesGraphStorage storage;
+    private TurnCostExtension storage;
     public final FlagEncoder flagEncoder;
+    private EdgeExplorer edgeExplorer;
 
     public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
         this.flagEncoder = encoder;
+
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+        storage = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
     }
 
-    //TODO Find how to get edge flags looking at code from CarFlagEncoder adn VehicleFlagEncoder.
+
     @Override
     public boolean accept(EdgeIteratorState edge) {
         EdgeIteratorState edgeTest = edge;
         IntsRef edgeFlags = edge.getFlags();
-        if ( edge.get( flagEncoder.getIntEncodedValue("maxTurnCost") ) == 1 ) { //If the max speed of the road is greater than that of the limit include it in the core.
+        EdgeIterator iter = edgeExplorer.setBaseNode(edge.getAdjNode());
+        boolean hasTurnRestriction = false;
+        while(iter.next()){
+
+        }
+        long test = storage.getTurnCostFlags(edge.getEdge(), edge.getAdjNode(), edge.getOrigEdgeLast());
+        if ( test == Double.POSITIVE_INFINITY ) { //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {
             return true;
