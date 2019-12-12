@@ -919,6 +919,8 @@ public class RoutingProfile {
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put(KEY_CH_DISABLE, true);
+                if (mGraphHopper.isCoreEnabled())
+                   req.getHints().put(KEY_CORE_DISABLE, true);
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm(KEY_ASTARBI);
                     req.getHints().put(KEY_LM_DISABLE, false);
@@ -973,8 +975,9 @@ public class RoutingProfile {
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
-//              TAKB: contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
+//              TAKB: CH and CORE have to be disabled for alternative routes
                 req.getHints().put(KEY_CH_DISABLE, true);
+                req.getHints().put(KEY_CORE_DISABLE, true);
             }
 
             if (directedSegment) {
