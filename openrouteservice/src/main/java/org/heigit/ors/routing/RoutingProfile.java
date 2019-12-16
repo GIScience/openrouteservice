@@ -977,6 +977,7 @@ public class RoutingProfile {
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
 //              TAKB: CH and CORE have to be disabled for alternative routes
                 req.getHints().put(KEY_CH_DISABLE, true);
+                req.getHints().put(KEY_LM_DISABLE, false);
                 req.getHints().put(KEY_CORE_DISABLE, true);
             }
 
