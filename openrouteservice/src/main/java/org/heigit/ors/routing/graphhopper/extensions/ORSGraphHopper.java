@@ -29,6 +29,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -483,6 +484,7 @@ public class ORSGraphHopper extends GraphHopper {
 		super.postProcessing();
 
 		GraphHopperStorage gs = getGraphHopperStorage();
+		Graph graph = gs.getBaseGraph();
 
 		EncodingManager encodingManager = getEncodingManager();
 
@@ -516,12 +518,12 @@ public class ORSGraphHopper extends GraphHopper {
 		/* TurnRestrictions */
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
-			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs, graph));
 		}
 
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
-			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs, graph));
 		}
 
 		/* End filter sequence initialization */
