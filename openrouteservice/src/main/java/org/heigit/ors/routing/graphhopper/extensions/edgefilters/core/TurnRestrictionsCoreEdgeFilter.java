@@ -43,7 +43,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         storage = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
         innerInExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
         innerOutExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
-        graph = graph;
+        this.graph = graph;
     }
 
     protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
@@ -55,27 +55,23 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState edge) {
         EdgeIteratorState edgeTest = edge;
         IntsRef edgeFlags = edge.getFlags();
-        EdgeIterator iter = innerInExplorer.setBaseNode(edge.getAdjNode()); //reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
+        boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
+        EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
         boolean hasTurnRestriction = false;
 
         while (iter.next()) {
             final int edgeId = getOrigEdgeId(iter, !reverse);
             final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
-            if (!traversalMode.hasUTurnSupport() && edgeId == prevOrNextOrigEdgeId) {
-                continue;
-            }
-            int key = GHUtility.getEdgeKey(graph, edgeId, iter.getBaseNode(), !reverse);
-            SPTEntry entryOther = bestWeightMapOther.get(key);
-            if (entryOther == null) {
+            if (edgeId == prevOrNextOrigEdgeId) {
                 continue;
             }
 
-
-        long test = storage.getTurnCostFlags(edge.getOrigEdgeFirst(), edge.getAdjNode(), edge.getOrigEdgeLast());
-        if ( test == Double.POSITIVE_INFINITY ) { //If the max speed of the road is greater than that of the limit include it in the core.
-            return false;
-        } else {
-            return true;
+            long test = storage.getTurnCostFlags(edge.getOrigEdgeFirst(), edge.getAdjNode(), edge.getOrigEdgeLast());
+            if (test == Double.POSITIVE_INFINITY) { //If the max speed of the road is greater than that of the limit include it in the core.
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 }
