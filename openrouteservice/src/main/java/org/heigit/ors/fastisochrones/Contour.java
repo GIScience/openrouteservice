@@ -14,7 +14,7 @@ import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.CONCAVEHULL_THRESHOLD;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
 
 public class Contour {
 
@@ -25,7 +25,7 @@ public class Contour {
     private CellStorage cellStorage;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
-    private int minEdgeLengthLimit = 300;
+    private int minEdgeLengthLimit = 400;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private int approxLowNodeCountLimit = 10;
 
@@ -39,7 +39,7 @@ public class Contour {
 
     public void calcCellContourPre() {
 
-        Set<Integer> cellNodes = new HashSet<>();
+        Set<Integer> cellNodes;
         List<Integer> contourOrder = new ArrayList<>();
         List<Double> hullLatitudes = new ArrayList<>();
         List<Double> hullLongitudes = new ArrayList<>();
@@ -78,8 +78,8 @@ public class Contour {
                 geom = concHullOfNodes(lats, longs);
 //                if (geom.getNumPoints() > 2) {
                     Polygon poly = (Polygon) geom;
-                    ring = poly.getExteriorRing();
-                    poly.normalize();
+                poly.normalize();
+                ring = poly.getExteriorRing();
 //                }
             }
             catch (Exception e){
@@ -87,7 +87,10 @@ public class Contour {
                 cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
-//            if (geom.getNumPoints() > 2 && !(geom instanceof MultiPoint)) {
+            if (geom.getNumPoints() < 2) {
+                cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
+                continue;
+            }
 //                Polygon poly = (Polygon) geom;
 //                ring = poly.getExteriorRing();
 //                poly.normalize();
@@ -116,7 +119,89 @@ public class Contour {
 
 
         }
+
+        cellStorage.flush();
+        Map<Integer, Set<Integer>> superCells, superCellsCopy;
+        superCellsCopy = new HashMap<>();
+        if(CONTOUR__USE_SUPERCELLS) {
+
+            //Create supercells for better querytime performance
+            superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL, true);
+            superCellsCopy.putAll(superCells);
+            Map<Integer, Integer> cellIdToSuperCell = new HashMap<>();
+            for (Map.Entry<Integer, Set<Integer>> superCell : superCells.entrySet()) {
+                for (int cell : superCell.getValue())
+                    cellIdToSuperCell.put(cell, superCell.getKey());
+            }
+
+//        Map<Integer, Set<Integer>> superSuperCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL);
+            Map<Integer, Set<Integer>> superSuperCells = identifySuperCells(superCellsCopy.keySet(), 2, false);
+            Map<Integer, Set<Integer>> superSuperCellsToBaseCells = new HashMap<>();
+
+            for (Map.Entry<Integer, Set<Integer>> superSuperCell : superSuperCells.entrySet()) {
+                Set<Integer> newSuperCell = new HashSet<>();
+                for (int cell : superSuperCell.getValue())
+                    newSuperCell.addAll(superCells.get(cell));
+                superSuperCellsToBaseCells.put(superSuperCell.getKey(), newSuperCell);
+            }
+            superCellsCopy.putAll(superSuperCellsToBaseCells);
+            superCells.putAll(superSuperCells);
+
+
+            for (Map.Entry<Integer, Set<Integer>> superCell : superCellsCopy.entrySet()) {
+                List<Double> superCellLats = new ArrayList<>();
+                List<Double> superCellLongs = new ArrayList<>();
+                for (int subcell : superCell.getValue()) {
+                    List<Double> subCellContour = cellStorage.getCellContourOrder(subcell);
+                    int j = 0;
+                    while (j < subCellContour.size()) {
+                        superCellLats.add(subCellContour.get(j));
+                        j++;
+                        superCellLongs.add(subCellContour.get(j));
+                        j++;
+                    }
+                }
+                Geometry geom;
+                LineString ring;
+                try {
+                    geom = concHullOfNodes(superCellLats, superCellLongs);
+                    Polygon poly = (Polygon) geom;
+                    poly.normalize();
+                    ring = poly.getExteriorRing();
+                } catch (Exception e) {
+//                System.out.println("Failed to create concave hull for cell " + superCell.getKey());
+                    cellStorage.setCellContourOrder(superCell.getKey(), new ArrayList<>(), new ArrayList<>());
+                    continue;
+                }
+                List<Double> superCellContourLats = new ArrayList<>();
+                List<Double> superCellContourLongs = new ArrayList<>();
+                for (int i = 0; i < ring.getNumPoints(); i++) {
+                    //COORDINATE OF POLYGON BASED
+                    superCellContourLats.add(ring.getPointN(i).getY());
+                    superCellContourLongs.add(ring.getPointN(i).getX());
+
+                    if (i < ring.getNumPoints() - 1) {
+                        splitEdge(ring.getPointN(i).getY(),
+                                ring.getPointN(i + 1).getY(),
+                                ring.getPointN(i).getX(),
+                                ring.getPointN(i + 1).getX(),
+                                superCellContourLats,
+                                superCellContourLongs,
+                                minEdgeLengthLimit,
+                                maxEdgeLengthLimit);
+                    }
+                }
+
+                cellStorage.setCellContourOrder(superCell.getKey(), new ArrayList<>(superCellContourLats), new ArrayList<>(superCellContourLongs));
+
+            }
+        }
+
         cellStorage.storeContourPointerMap();
+
+        //Store the supercell->cellIds map
+        if(CONTOUR__USE_SUPERCELLS)
+            cellStorage.storeSuperCells(superCells);
         cellStorage.flush();
     }
 
@@ -168,6 +253,83 @@ public class Contour {
         Geometry geom = ch.getConcaveHull();
 
         return geom;
+    }
+
+    Map<Integer, Set<Integer>> identifySuperCells(Set<Integer> cellIds, int hierarchyLevel, boolean isPrimary){
+        //Account for the subcell division in InertialFlow final step
+//        hierarchyLevel += 1;
+        int maxId = Collections.max(cellIds);
+        Set<Integer> visitedCells = new HashSet<>();
+        Map<Integer, Set<Integer>> superCells = new HashMap();
+        List<Integer> orderedCellIds = new ArrayList(cellIds);
+        Collections.sort(orderedCellIds);
+//        if(isPrimary)
+//            Collections.reverse(orderedCellIds);
+        for(int cellId : orderedCellIds){
+            if (visitedCells.contains(cellId))
+                continue;
+            //These checks are only needed and possible for supercells built from baseCells and not built from supercells
+            if(isPrimary) {
+                //Check if it is part of a separated cell: Has daughter?
+                if (cellIds.contains(cellId << 1))
+                    continue;
+                //If it has sister, check if their combined size is smaller than minimum cell size -> disconnected
+                if (cellIds.contains(cellId ^ 1)) {
+                    if (cellStorage.getNodesOfCell(cellId).size()
+                            + cellStorage.getNodesOfCell(cellId ^ 1).size()
+                            < PART__MAX_CELL_NODES_NUMBER)
+                        continue;
+                }
+            }
+            int motherId = cellId >> hierarchyLevel;
+            //This cell is too high up in the hierarchy
+            while(motherId == 0){
+                hierarchyLevel -= 1;
+                motherId = cellId >> hierarchyLevel;
+            }
+
+//            int depthLimit = (int)Math.ceil(Math.log(FLOW__SET_SPLIT_VALUE)/Math.log(1 - FLOW__SET_SPLIT_VALUE));
+//            depthLimit = (hierarchyLevel - 1) * depthLimit + 1;
+            Set<Integer> superCell = new HashSet<>();
+
+            createSuperCell(cellIds, visitedCells, superCell, maxId, motherId, hierarchyLevel, isPrimary);
+            for(int cell : superCell)
+                visitedCells.add(cell);
+            if(superCell.size() > 0)
+                superCells.put(motherId, superCell);
+        }
+        return superCells;
+    }
+
+    void createSuperCell(Set<Integer> cellIds, Set<Integer> visitedCells, Set<Integer> superCell, int maxId, int currentCell, int level, boolean isPrimary){
+        if(currentCell > maxId)
+            return;
+        //Is it already part of a supercell?
+        if(visitedCells.contains(currentCell))
+            return;
+        if(isPrimary) {
+            //Is a disconnected cell?
+            if (cellIds.contains(currentCell) && cellIds.contains(currentCell << 1))
+                return;
+            //If it has sister, check if their combined size is smaller than minimum cell size -> disconnected
+            if (cellIds.contains(currentCell ^ 1) && cellIds.contains(currentCell)) {
+                if (cellStorage.getNodesOfCell(currentCell).size()
+                        + cellStorage.getNodesOfCell(currentCell ^ 1).size()
+                        < PART__MAX_CELL_NODES_NUMBER)
+                    return;
+            }
+        }
+
+        if(!cellIds.contains(currentCell)){
+//            if(superCell.size() >= Math.pow(2, level))
+//                return;
+            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1, level, isPrimary);
+            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1 | 1, level, isPrimary);
+        }
+        else {
+            superCell.add(currentCell);
+            return;
+        }
     }
 
 

@@ -58,7 +58,7 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     }
 
     public IntHashSet getSnkPartition() {
-        calcNodePartition();
+//        calcNodePartition();
         return snkPartition;
     }
 

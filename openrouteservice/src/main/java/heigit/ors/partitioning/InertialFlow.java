@@ -21,11 +21,12 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.*;
+import static heigit.ors.partitioning.InertialFlow.Projection.*;
 import static heigit.ors.partitioning.Sort.sortByValueReturnList;
 
 public class InertialFlow extends PartitioningBase {
 
-    private enum Projection {  // Sortier-Projektionen der Koordinaten
+    enum Projection {  // Sortier-Projektionen der Koordinaten
         Line_p90
                 // Projektion auf 90°
                 {
@@ -33,13 +34,13 @@ public class InertialFlow extends PartitioningBase {
                         return lat;
                     }
                 },
-//        Line_p75
-//                // Projektion auf 75°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat + Math.tan(Math.toRadians(75)) * lon;
-//                    }
-//                },
+        Line_p75
+                // Projektion auf 75°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat + Math.tan(Math.toRadians(75)) * lon;
+                    }
+                },
         Line_p60
                 // Projektion auf 60°: v.lat+tan(60°)*v.lon
                 {
@@ -47,13 +48,13 @@ public class InertialFlow extends PartitioningBase {
                         return lat + Math.tan(Math.toRadians(60)) * lon;
                     }
                 },
-//        Line_p45
-//                // Projektion auf 30°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat + Math.tan(Math.toRadians(45)) * lon;
-//                    }
-//                },
+        Line_p45
+                // Projektion auf 30°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat + Math.tan(Math.toRadians(45)) * lon;
+                    }
+                },
         Line_p30
                 // Projektion auf 30°
                 {
@@ -61,13 +62,13 @@ public class InertialFlow extends PartitioningBase {
                         return lat + Math.tan(Math.toRadians(30)) * lon;
                     }
                 },
-//        Line_p15
-//                // Projektion auf 30°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat + Math.tan(Math.toRadians(15)) * lon;
-//                    }
-//                },
+        Line_p15
+                // Projektion auf 30°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat + Math.tan(Math.toRadians(15)) * lon;
+                    }
+                },
         Line_m00
                 // Projektion auf 0°
                 {
@@ -75,13 +76,13 @@ public class InertialFlow extends PartitioningBase {
                         return lon;
                     }
                 },
-//        Line_m15
-//                // Projektion auf 30°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat - Math.tan(Math.toRadians(15)) * lon;
-//                    }
-//                },
+        Line_m15
+                // Projektion auf 30°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat - Math.tan(Math.toRadians(15)) * lon;
+                    }
+                },
         Line_m30
                 // Projektion auf -30°
                 {
@@ -89,57 +90,115 @@ public class InertialFlow extends PartitioningBase {
                         return lat - Math.tan(Math.toRadians(30)) * lon;
                     }
                 },
-//        Line_m45
-//                // Projektion auf -30°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat - Math.tan(Math.toRadians(45)) * lon;
-//                    }
-//                },
+        Line_m45
+                // Projektion auf -30°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat - Math.tan(Math.toRadians(45)) * lon;
+                    }
+                },
         Line_m60
                 // Projektion auf -60°
                 {
                     public double sortValue(double lat, double lon) {
                         return lat - Math.tan(Math.toRadians(60)) * lon;
                     }
+                },
+        Line_m75
+                // Projektion auf -30°
+                {
+                    public double sortValue(double lat, double lon) {
+                        return lat - Math.tan(Math.toRadians(75)) * lon;
+                    }
                 };
-//        Line_m75
-//                // Projektion auf -30°
-//                {
-//                    public double sortValue(double lat, double lon) {
-//                        return lat - Math.tan(Math.toRadians(75)) * lon;
-//                    }
-//                };
 
         abstract double sortValue(double lat, double lon);
     }
 
-    private Map<Integer, IntHashSet> splitNodeSet;
+    private Map<Projection, Projection> correspondingProjMap = new HashMap<>();
+
+
+    //    private Map<Integer, IntHashSet> splitNodeSet;
+    private IntHashSet partition0, partition1;
+
+    private Map<Projection, IntArrayList> nodeListProjMap;
+    private List<Projection> projOrder;
+    private Map<Projection, Double> squareRangeProjMap;
+    private Map<Projection, Double> orthogonalDiffProjMap;
+
 
     private static double[] bArray = new double[]{0.4};//, 0.27, 0.3, 0.33, 0.36, 0.39, 0.42, 0.45}; // somewhat between 0.25 and 0.45
 
+    private PreparePartition.InverseSemaphore inverseSemaphore;
 
-    public InertialFlow(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
-        super(ghStorage, edgeFilters);
+    public InertialFlow(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
+        super(ghStorage, edgeFilters, executorService);
         //Start cellId 1 so that bitshifting it causes no zeros at the front
         this.cellId = 1;
-        this.splitNodeSet = new HashMap<>();
+
+        this.correspondingProjMap = new HashMap<>();
+        this.correspondingProjMap.put(Line_p90, Line_m00);
+        this.correspondingProjMap.put(Line_p75, Line_m15);
+        this.correspondingProjMap.put(Line_p60, Line_m30);
+        this.correspondingProjMap.put(Line_p45, Line_m45);
+        this.correspondingProjMap.put(Line_p30, Line_m60);
+        this.correspondingProjMap.put(Line_p15, Line_m75);
+        this.correspondingProjMap.put(Line_m00, Line_p90);
+        this.correspondingProjMap.put(Line_m15, Line_p75);
+        this.correspondingProjMap.put(Line_m30, Line_p60);
+        this.correspondingProjMap.put(Line_m45, Line_p45);
+        this.correspondingProjMap.put(Line_m60, Line_p30);
+        this.correspondingProjMap.put(Line_m75, Line_p15);
+
+//        this.splitNodeSet = new HashMap<>();
+        this.partition0 = new IntHashSet();
+        this.partition1 = new IntHashSet();
+        this.nodeListProjMap = new HashMap<>();
+        this.projOrder = new ArrayList<>();
+        this.squareRangeProjMap = new HashMap<>();
+        this.orthogonalDiffProjMap = new HashMap<>();
         this.ghGraph = ghStorage.getBaseGraph();
+        System.out.println("Number of nodes: "+ghGraph.getNodes());
+        System.out.println("Number of edges: "+ghGraph.getAllEdges().getMaxId());
+        this.inverseSemaphore = inverseSemaphore;
 
         initNodes();
         initAlgo();
     }
 
-    private InertialFlow(int cellId, IntHashSet nodeSet, EdgeFilter edgeFilter) {
+    private InertialFlow(int cellId, IntHashSet nodeSet, EdgeFilter edgeFilter, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
+        setExecutorService(executorService);
         this.cellId = cellId;
-        this.nodeIdSet = new IntHashSet();
+        this.correspondingProjMap = new HashMap<>();
+        this.correspondingProjMap.put(Line_p90, Line_m00);
+        this.correspondingProjMap.put(Line_p75, Line_m15);
+        this.correspondingProjMap.put(Line_p60, Line_m30);
+        this.correspondingProjMap.put(Line_p45, Line_m45);
+        this.correspondingProjMap.put(Line_p30, Line_m60);
+        this.correspondingProjMap.put(Line_p15, Line_m75);
+        this.correspondingProjMap.put(Line_m00, Line_p90);
+        this.correspondingProjMap.put(Line_m15, Line_p75);
+        this.correspondingProjMap.put(Line_m30, Line_p60);
+        this.correspondingProjMap.put(Line_m45, Line_p45);
+        this.correspondingProjMap.put(Line_m60, Line_p30);
+        this.correspondingProjMap.put(Line_m75, Line_p15);
 
+        this.nodeIdSet = new IntHashSet();
+//        this.nodeIdSet = nodeSet;
         for(IntCursor node : nodeSet){
             nodeIdSet.add(node.value);
         }
-        this.splitNodeSet = new HashMap<>();
+        nodeSet = null;
+//        this.splitNodeSet = new HashMap<>();
         this.edgeFilter = edgeFilter;
+        this.partition0 = new IntHashSet();
+        this.partition1 = new IntHashSet();
+        this.nodeListProjMap = new HashMap<>();
+        this.projOrder = new ArrayList<>();
+        this.squareRangeProjMap = new HashMap<>();
+        this.orthogonalDiffProjMap = new HashMap<>();
         this.ghGraph = ghStorage.getBaseGraph();
+        this.inverseSemaphore = inverseSemaphore;
 
 //        graphBiSplit();
 //        saveResults();
@@ -149,62 +208,108 @@ public class InertialFlow extends PartitioningBase {
 
     }
 
-    public void compute() {
-        setAlgo();
-        graphBiSplit();
-        saveResults();
-        recursion();
+    public void run() {
+        try {
+            setAlgo();
+            prepareProjections();
+            graphBiSplit();
+            saveResults();
+            recursion();
+        }
+        finally {
+//            System.out.println("Ending task for cell " + (cellId));
+            inverseSemaphore.taskCompleted();
+        }
+
+    }
+
+    private void prepareProjections() {
+        Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
+
+        //>> Loop through linear combinations and project each Node
+        for (Projection proj : Projection.values()) {
+            //>> sort projected Nodes
+            tmpNodeProjMap.clear();
+            for (IntCursor  nodeId : nodeIdSet) {
+                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
+            }
+            nodeListProjMap.put(proj, sortByValueReturnList(tmpNodeProjMap, true, true));
+            projOrder.add(proj);
+        }
+
+        //>> calculate Projection-Distances
+        for (Projection proj : projOrder) {
+            int idx = (int) (nodeListProjMap.get(proj).size() * FLOW__SET_SPLIT_VALUE);
+            squareRangeProjMap.put(proj, projIndividualValue(proj, idx));
+        }
+
+        //>> combine inverse Projection-Distances
+        for (Projection proj : projOrder) {
+            orthogonalDiffProjMap.put(proj, projCombinedValue(proj));
+        }
+
+        //>> order Projections by Projection-Value
+        projOrder = sortByValueReturnList(orthogonalDiffProjMap, false);
+//            Info.debug(sortByValueReturnMap(orthogonalDiffProjMap, false) + " (" + cellId + ")");
     }
 
 
     private void graphBiSplit() {
-        int mincutScore = Integer.MAX_VALUE;
-        IntHashSet mincutSrcSet;
-        IntHashSet mincutSnkSet;
+        int mincutScore = nodeIdSet.size();
+//        IntHashSet mincutSrcSet;
+//        IntHashSet mincutSnkSet;
 
         //>> Loop through Projections and project each Node
+        int i = 0;
         for (Projection proj : Projection.values()) {
+            if(i == 3)
+                break;
             //>> sort projected Nodes
-            Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
-            for (IntCursor nodeId : nodeIdSet) {
-                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
-            }
-            IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true);
+//            Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
+//            for (IntCursor nodeId : nodeIdSet) {
+//                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
+//            }
+//            IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true, true);
 //            tmpNodeProjMap = null;
             //>> loop through b-percentage Values to fetch Source and Sink Nodes
 //            double aTmp = 0.0;
 //            for (double bTmp : bArray) {
 //            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(aTmp, bTmp, tmpNodeList);
-            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(0d, FLOW__SET_SPLIT_VALUE, tmpNodeList);
+            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(0d, FLOW__SET_SPLIT_VALUE, nodeListProjMap.get(proj));
             int cutScore = mincutAlgo.getMaxFlow();
 
 //                if ((0 < cutScore) && (cutScore < mincutScore)) {
             if (cutScore < mincutScore) {
                 //>> store Results
                 mincutScore = cutScore;
-                mincutSrcSet = mincutAlgo.getSrcPartition();
-                mincutSnkSet = mincutAlgo.getSnkPartition();
+//                mincutSrcSet = mincutAlgo.getSrcPartition();
+//                mincutSnkSet = mincutAlgo.getSnkPartition();
 //                    mincutEdgBaseSet = mincutAlgo.getMinCut();
 
                 //>> get Data for next Recursion-Step
-                splitNodeSet.put(0, mincutSrcSet);
-                splitNodeSet.put(1, mincutSnkSet);
+                partition0 = mincutAlgo.getSrcPartition();
+                partition1 = mincutAlgo.getSnkPartition();
+//                splitNodeSet.put(0, mincutSrcSet);
+//                splitNodeSet.put(1, mincutSnkSet);
             }
 
 //                aTmp = bTmp;
 //            }
+            i++;
         }
         this.mincutAlgo = null;   //>> free Memory
     }
 
     private void saveResults() {
         //>> saving iteration results
-        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
-            for(IntCursor node : entry.getValue())
-                nodeToCellArr[node.value] = cellId << 1 | entry.getKey();
-//            for (int node : entry.getValue())
-//                nodeToCellArr[node] = cellId << 1 | entry.getKey();
-        }
+//        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
+//            for(IntCursor node : partition0)
+//                nodeToCellArr[node.value] = cellId << 1 | entry.getKey();
+        for(IntCursor node : partition0)
+            nodeToCellArr[node.value] = cellId << 1;
+        for(IntCursor node : partition1)
+            nodeToCellArr[node.value] = cellId << 1 | 1;
+//        }
     }
 
     private void saveMultiCells(Set<IntHashSet> cells, int motherId) {
@@ -212,8 +317,6 @@ public class InertialFlow extends PartitioningBase {
 //        System.out.println("Savind data after disconnecting cell " + motherId);
         Iterator<IntHashSet> iterator = cells.iterator();
         while (iterator.hasNext()){
-            if(motherId << 1 > PART__MAX_SPLITTING_ITERATION)
-                break;
             IntHashSet cell = iterator.next();
             for (IntCursor node : cell){
                 nodeToCellArr[node.value] = motherId << 1;
@@ -230,40 +333,105 @@ public class InertialFlow extends PartitioningBase {
 
     private void recursion() {
         boolean[] invokeNext = new boolean[2];
-        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
-            boolean nextRecursionLevel = false;
+//        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
+        boolean nextRecursionLevel = false;
 
-            //>> Condition
-            if ((cellId < PART__MAX_SPLITTING_ITERATION) && (entry.getValue().size() > PART__MAX_CELL_NODES_NUMBER)){
-                nextRecursionLevel = true;
-            }
-            if ((cellId < PART__MIN_SPLITTING_ITERATION))
-                nextRecursionLevel = true;
-            if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
-//                System.out.println("Disconnecting cell " + (cellId << 1 | entry.getKey()));
-                Set<IntHashSet> disconnectedCells = separateConnected(entry.getValue(), cellId << 1 | entry.getKey());
-                saveMultiCells(disconnectedCells, cellId << 1 | entry.getKey());
-
-            }
-            //>> Execution
-            if (nextRecursionLevel) {
-                invokeNext[entry.getKey()] = true;
-//                list.add(entry.getKey());
-            }
+        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (partition0.size() > PART__MAX_CELL_NODES_NUMBER)){
+            nextRecursionLevel = true;
         }
+        if ((cellId < PART__MIN_SPLITTING_ITERATION))
+            nextRecursionLevel = true;
+        if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
+            Set<IntHashSet> disconnectedCells = separateConnected(partition0, cellId << 1);
+            saveMultiCells(disconnectedCells, cellId << 1);
+        }
+        if (nextRecursionLevel) {
+            invokeNext[0] = true;
+        }
+
+        nextRecursionLevel = false;
+
+        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (partition1.size() > PART__MAX_CELL_NODES_NUMBER)){
+            nextRecursionLevel = true;
+        }
+        if ((cellId < PART__MIN_SPLITTING_ITERATION))
+            nextRecursionLevel = true;
+        if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
+            Set<IntHashSet> disconnectedCells = separateConnected(partition1, cellId << 1 | 1);
+            saveMultiCells(disconnectedCells, cellId << 1 | 1);
+        }
+        if (nextRecursionLevel) {
+            invokeNext[1] = true;
+        }
+//        }
         if (invokeNext[0] == true && invokeNext[1] == true) {
-            invokeAll(new InertialFlow(cellId << 1 | 0, splitNodeSet.get(0), this.edgeFilter),
-                    new InertialFlow(cellId << 1 | 1, splitNodeSet.get(1), this.edgeFilter));
+            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
+//                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter, executorService, inverseSemaphore));
+//                System.out.println("Submitting task for cell " + (cellId << 1 | 1));
+
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore));
+//            invokeAll(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter),
+//                    new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter));
+            }
+            else{
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+                inverseSemaphore.beforeSubmit();
+                inertialFlow = new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
         }
         else if (invokeNext[0]) {
-            invokeAll(new InertialFlow(cellId << 1 | 0, splitNodeSet.get(0), this.edgeFilter));
+            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
+                inverseSemaphore.beforeSubmit();
+//                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
+
+                executorService.execute(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter, executorService, inverseSemaphore));
+//            invokeAll(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter));
+            }
+            else {
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
         }
         else if (invokeNext[1]) {
-                invokeAll(new InertialFlow(cellId << 1 | 1, splitNodeSet.get(1), this.edgeFilter));
+            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
+
+                inverseSemaphore.beforeSubmit();
+//                System.out.println("Submitting task for cell " + (cellId << 1 | 1));
+
+                executorService.execute(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore));
+            }
+            else {
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
+//            invokeAll(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter));
         }
     }
 
+    private double projIndividualValue(Projection proj, int idx) {
+        IntArrayList  tmpNodeList;
+        double fromLat, fromLon, toLat, toLon;
 
+        tmpNodeList = nodeListProjMap.get(proj);
+        toLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(idx));
+        toLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(idx));
+        fromLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+        fromLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+
+        return Contour.distance(fromLat, toLat, fromLon, toLon);
+    }
+
+    private double projCombinedValue(Projection proj) {
+        return squareRangeProjMap.get(proj) * squareRangeProjMap.get(proj) / squareRangeProjMap.get(correspondingProjMap.get(proj));
+    }
 
 
     private boolean isMalformed(Set<Integer> nodeSet){
@@ -329,44 +497,9 @@ public class InertialFlow extends PartitioningBase {
 
             nodeSet.removeAll(connectedCell);
         }
+//        if(disconnectedCells.size() > 1)
+//            System.out.println("Separated cell " + cellId + " into number of subcells: " + disconnectedCells.size());
         return disconnectedCells;
     }
-
-//    public Geometry concHullOfNodes(Set<Integer> pointSet) {
-//        NodeAccess nodeAccess = ghStorage.getNodeAccess();
-//        GeometryFactory _geomFactory = new GeometryFactory();
-//        Geometry[] geometries = new Geometry[pointSet.size()];
-//        int g = 0;
-//        for (int point : pointSet) {
-//            Coordinate c = new Coordinate(nodeAccess.getLon(point), nodeAccess.getLat(point));
-//            geometries[g++] = _geomFactory.createPoint(c);
-//        }
-//
-//        GeometryCollection points = new GeometryCollection(geometries, _geomFactory);
-//        ConcaveHull ch = new ConcaveHull(points, CONCAVEHULL_THRESHOLD, false);
-//        Geometry geom = ch.getConcaveHull();
-//
-//        return geom;
-//    }
-//    /*
-//Calculates the distance between two coordinates in meters
-// */
-//    public static double distance(double lat1, double lat2, double lon1,
-//                                  double lon2) {
-//
-//        final int R = 6371; // Radius of the earth
-//
-//        double latDistance = Math.toRadians(lat2 - lat1);
-//        double lonDistance = Math.toRadians(lon2 - lon1);
-//        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-//                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-//                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-//        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//        double distance = R * c * 1000; // convert to meters
-//
-//        distance = Math.pow(distance, 2);
-//
-//        return Math.sqrt(distance);
-//    }
 
 }

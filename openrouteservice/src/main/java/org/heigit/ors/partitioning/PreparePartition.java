@@ -12,10 +12,7 @@ import com.graphhopper.util.EdgeIterator;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.Timer;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 
@@ -49,9 +46,20 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     }
 
     public PreparePartition prepare() {
-        ForkJoinPool forkJoinPool = new ForkJoinPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
-        forkJoinPool.invoke(new InertialFlow(ghStorage, edgeFilters));
-        
+//        ForkJoinPool forkJoinPool = new ForkJoinPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+//        forkJoinPool.invoke(new InertialFlow(ghStorage, edgeFilters));
+//        forkJoinPool.shutdown();
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+        InverseSemaphore inverseSemaphore =  new InverseSemaphore();
+        inverseSemaphore.beforeSubmit();
+        System.out.println("Submitting task for cell 1");
+        threadPool.execute(new InertialFlow(ghStorage, edgeFilters, threadPool, inverseSemaphore));
+        try {
+            inverseSemaphore.awaitCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         prepareData();
 
         //Create and calculate isochrone info that is ordered by node
@@ -130,5 +138,29 @@ public class PreparePartition implements RoutingAlgorithmFactory {
 
     public CellStorage getCellStorage() {
         return cellStorage;
+    }
+
+    public class InverseSemaphore {
+        private int value = 0;
+        private Object lock = new Object();
+
+        public void beforeSubmit() {
+            synchronized(lock) {
+                value++;
+            }
+        }
+
+        public void taskCompleted() {
+            synchronized(lock) {
+                value--;
+                if (value == 0) lock.notifyAll();
+            }
+        }
+
+        public void awaitCompletion() throws InterruptedException {
+            synchronized(lock) {
+                while (value > 0) lock.wait();
+            }
+        }
     }
 }

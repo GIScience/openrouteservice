@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RecursiveAction;
 
-public abstract class PartitioningBase extends RecursiveAction{
+public abstract class PartitioningBase implements Runnable{
 
     public enum PartitionAlgo {FordFulkerson, FordFulkerson2, EdmondsKarp, Dinic}
 
@@ -28,16 +28,17 @@ public abstract class PartitioningBase extends RecursiveAction{
 
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
-
+    ExecutorService executorService;
 //    static WayCategoryGraphStorage storage;
 
     PartitioningBase() {
     }
 
-    PartitioningBase(GraphHopperStorage _ghStorage, EdgeFilterSequence edgeFilters) {
+    PartitioningBase(GraphHopperStorage _ghStorage, EdgeFilterSequence edgeFilters, ExecutorService executorService) {
         ghStorage = _ghStorage;
         nodeToCellArr = new int[ghStorage.getNodes()];
         this.edgeFilter = edgeFilters;
+        setExecutorService(executorService);
 
         init();
     }
@@ -76,6 +77,9 @@ public abstract class PartitioningBase extends RecursiveAction{
 
     }
 
+    void setExecutorService(ExecutorService executorService){
+        this.executorService = executorService;
+    }
 
 //    public abstract void run();
 

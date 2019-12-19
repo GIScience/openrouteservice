@@ -34,7 +34,7 @@ public class  Sort {
 //        return result;
 //    }
 
-    public static IntArrayList sortByValueReturnList(Map<Integer, Double> map, boolean ASC) {
+    public static IntArrayList sortByValueReturnList(Map<Integer, Double> map, boolean ASC, boolean isInt) {
         List<Entry<Integer, Double>> list = new ArrayList<>(map.entrySet());
         list.sort(Entry.comparingByValue());
         if (!ASC) {
@@ -44,6 +44,20 @@ public class  Sort {
         IntArrayList result = new IntArrayList();
         for (Entry<Integer, Double> entry : list) {
             result.add(entry.getKey().intValue());
+        }
+
+        return result;
+    }
+    public static <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
+        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
+        list.sort(Entry.comparingByValue());
+        if (!ASC) {
+            Collections.reverse(list);
+            //Collections.sort(list, Collections.reverseOrder());
+        }
+        List<K> result = new ArrayList<>();
+        for (Entry<K, V> entry : list) {
+            result.add(entry.getKey());
         }
 
         return result;

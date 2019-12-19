@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class PartitioningData {
     //Edge data
     int[] flowEdgeBaseNode, flowEdgeInverse;
-    int[] flow, capacity;
+    short[] flow, capacity;
     boolean[] active;
     boolean[] minCut;
     int[] visited;
@@ -21,8 +21,8 @@ public class PartitioningData {
     public void createEdgeDataStructures(int size){
         flowEdgeBaseNode = new int[2 * size];
         flowEdgeInverse = new int[2 * size];
-        flow = new int[2 * size];
-        capacity = new int[2 * size];
+        flow = new short[2 * size];
+        capacity = new short[2 * size];
         active = new boolean[2 * size];
         Arrays.fill(flowEdgeBaseNode, -1);
     }
