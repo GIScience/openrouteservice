@@ -14,12 +14,12 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.TurnCostEncoder;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 /**
@@ -29,7 +29,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
  */
 
 public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
-    private TurnCostExtension storage;
+    private TurnCostExtension turnCostExtension;
     public final FlagEncoder flagEncoder;
     private final EdgeExplorer innerInExplorer;
     private final EdgeExplorer innerOutExplorer;
@@ -40,9 +40,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
+        turnCostExtension = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
         innerInExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
         innerOutExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+
         this.graph = graph;
     }
 
@@ -59,6 +60,8 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
         boolean hasTurnRestriction = false;
 
+
+
         while (iter.next()) {
             final int edgeId = getOrigEdgeId(iter, !reverse);
             final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
@@ -66,13 +69,20 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
                 continue;
             }
 
-            long test = storage.getTurnCostFlags(edge.getOrigEdgeFirst(), edge.getAdjNode(), edge.getOrigEdgeLast());
-            if (test == Double.POSITIVE_INFINITY) { //If the max speed of the road is greater than that of the limit include it in the core.
-                return false;
-            } else {
-                return true;
+            long turnFlags = turnCostExtension.getTurnCostFlags(edge.getOrigEdgeFirst(), edge.getAdjNode(), edge.getOrigEdgeLast());
+            boolean test=flagEncoder.isTurnRestricted(turnFlags);
+            if (flagEncoder.isTurnRestricted(turnFlags)){ //There is a turn restriction
+                hasTurnRestriction = true;
+                break;
             }
         }
+
+        if (hasTurnRestriction){
+            return false;
+        }else{
+            return true;
+        }
+
     }
 }
 
