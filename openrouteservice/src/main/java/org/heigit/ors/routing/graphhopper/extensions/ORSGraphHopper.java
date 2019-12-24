@@ -47,6 +47,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBorde
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -322,6 +323,11 @@ public class ORSGraphHopper extends GraphHopper {
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
+
+				if(hints.get("weighting_method", "").toLowerCase() =="maximum_speed") {
+					weighting = new MaximumSpeedWeighting(encoder, hints);
+				}
+
 				weighting = createTurnWeighting(queryGraph, weighting, tMode);
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
@@ -514,6 +520,16 @@ public class ORSGraphHopper extends GraphHopper {
 
 		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
+		}
+
+		/* Maximum Speed Filter */
+		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
+			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
+			coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, gs));
+		}
+		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
+			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
+			coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, gs));
 		}
 
 		/* End filter sequence initialization */
