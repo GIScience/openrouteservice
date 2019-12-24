@@ -209,7 +209,8 @@ public class APIEnums {
     public enum RoutePreference {
         FASTEST("fastest"),
         SHORTEST("shortest"),
-        RECOMMENDED("recommended");
+        RECOMMENDED("recommended"),
+        MAXIMUM_SPEED("maximum_speed");
 
         private final String value;
 

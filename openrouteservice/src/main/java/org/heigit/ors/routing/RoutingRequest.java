@@ -42,6 +42,7 @@ public class RoutingRequest extends ServiceRequest {
     private boolean continueStraight = false;
 	private List<Integer> skipSegments = new ArrayList<>();
 	private boolean includeCountryInfo = false;
+	private double userSpeed;
 
 	public RoutingRequest()
 	{
@@ -207,4 +208,9 @@ public class RoutingRequest extends ServiceRequest {
 	public void setIncludeCountryInfo(boolean includeCountryInfo) {
 		this.includeCountryInfo = includeCountryInfo;
 	}
+
+	public void setUserSpeed(double userSpeed){this.userSpeed = userSpeed;}
+
+	public double getUserSpeed(){return userSpeed;}
+
 }

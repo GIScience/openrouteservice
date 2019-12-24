@@ -175,6 +175,10 @@ public class RouteRequestHandler extends GenericHandler {
                 params.setAlternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
         }
 
+        if(request.hasUserSpeed()){
+            routingRequest.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
+        }
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);
@@ -238,6 +242,10 @@ public class RouteRequestHandler extends GenericHandler {
             }
             if (roundTripOptions.hasSeed()) {
                 params.setRoundTripSeed(roundTripOptions.getSeed());
+            }
+
+            if(params.hasUserSpeed()){
+                params.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
             }
         }
 
@@ -483,4 +491,12 @@ public class RouteRequestHandler extends GenericHandler {
 
         return avoidCountryIds;
     }
+
+    private double convertUserSpeed(Double userSpeed) throws ParameterValueException{
+        if(userSpeed < 80){
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_SPEED);
+        }
+        return userSpeed;
+    }
+
 }

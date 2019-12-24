@@ -798,6 +798,14 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
+            if (supportWeightingMethod(profileType)) {
+                if (weightingMethod == WeightingMethod.MAXIMUM_SPEED) {
+                    req.setWeighting("fastest");
+                    req.getHints().put("weighting_method", "maximum_speed");
+                    req.getHints().put("user_speed",searchParams.getUserSpeed());
+                }
+            }
+
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put(KEY_CH_DISABLE, true);
