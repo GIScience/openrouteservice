@@ -26,6 +26,8 @@ public class MaximumSpeedWeighting extends FastestWeighting {
         weighting = map.get("weighting","fastest");
     }
 
+    //TODO Find correct way to parse data.
+
     private double speedToTime_km_h(double speed, EdgeIteratorState edge){
         //Conversion of the speeds (km/h) to times taken from the edges into time adding the penalties
         double time = edge.getDistance() / speed * SPEED_CONV;
