@@ -243,10 +243,6 @@ public class RouteRequestHandler extends GenericHandler {
             if (roundTripOptions.hasSeed()) {
                 params.setRoundTripSeed(roundTripOptions.getSeed());
             }
-
-            if(params.hasUserSpeed()){
-                params.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
-            }
         }
 
         return params;

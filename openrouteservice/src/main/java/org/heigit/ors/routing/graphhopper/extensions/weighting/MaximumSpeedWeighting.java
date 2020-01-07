@@ -33,7 +33,7 @@ public class MaximumSpeedWeighting extends FastestWeighting {
         double time = edge.getDistance() / speed * SPEED_CONV;
 
         // add direction penalties at start/stop/via points
-        boolean unfavoredEdge = edge.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, false);
+        boolean unfavoredEdge = edge.get(EdgeIteratorState.UNFAVORED_EDGE);
         if (unfavoredEdge)
             time += headingPenalty;
 
@@ -45,7 +45,7 @@ public class MaximumSpeedWeighting extends FastestWeighting {
         double time = edge.getDistance() / speed;
 
         // add direction penalties at start/stop/via points
-        boolean unfavoredEdge = edge.getBool(EdgeIteratorState.K_UNFAVORED_EDGE, false);
+        boolean unfavoredEdge = edge.get(EdgeIteratorState.UNFAVORED_EDGE);
         if (unfavoredEdge)
             time += headingPenalty;
 
@@ -72,7 +72,7 @@ public class MaximumSpeedWeighting extends FastestWeighting {
         }
         else{
             //If it is not a shortcut we need to test both directions
-            double speed = reverse ? flagEncoder.getReverseSpeed(edge.getFlags()) : flagEncoder.getSpeed(edge.getFlags());
+            double speed = reverse ? edge.get(flagEncoder.getAverageSpeedEnc()) : edge.getReverse(flagEncoder.getAverageSpeedEnc());
             if (speed == 0) {
                 return Double.POSITIVE_INFINITY;
             }

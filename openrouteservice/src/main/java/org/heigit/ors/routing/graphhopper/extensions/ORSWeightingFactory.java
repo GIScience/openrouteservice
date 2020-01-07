@@ -24,6 +24,7 @@ import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
