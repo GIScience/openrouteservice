@@ -19,8 +19,6 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     private EdgeExplorer _edgeExpl;
     private EdgeIterator _edgeIter;
 
-    private Map<String, Integer> flowEdgeMap;
-
     private int maxEdgeId = -1;
 
 
@@ -38,14 +36,13 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
         pData.createEdgeDataStructures(2 * _dummyEdgeId + 2 * _dummyNodeId);
         pData.createNodeDataStructures(_dummyNodeId);
         buildStaticNetwork();
-        pairEdges();
-        freeMemory();
+//        pairEdges();
     }
 
 
     public void initStatics() {
         this.nodes = _graph.getNodes();
-        this.flowEdgeMap = new HashMap<>();
+//        this.flowEdgeMap = new HashMap<>();
         _dummyEdgeId = _graph.getAllEdges().getMaxId() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
     }
@@ -67,61 +64,61 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
                 if ((baseId != targId) && (!targSet.contains(targId))) {
                     targSet.add(targId);
 
-                    this.flowEdgeMap.put(targId + "," + baseId, _edgeIter.getEdge());
-                    if(shouldBeLowCapacity(_edgeIter))
-                        addEdge(_edgeIter.getEdge(), baseId, INFL__LOW_GRAPH_EDGE_CAPACITY);
-                    else
-                        addEdge(_edgeIter.getEdge(), baseId, INFL__GRAPH_EDGE_CAPACITY);
+//                    if(shouldBeLowCapacity(_edgeIter))
+//                        addEdge(_edgeIter.getEdge(), baseId, INFL__LOW_GRAPH_EDGE_CAPACITY);
+//                    else
+                    addEdge(_edgeIter.getEdge(), baseId, targId, INFL__GRAPH_EDGE_CAPACITY);
                 }
             }
         }
     }
 
-    private int addEdge(int edgeId, int baseNode, byte capacity) {
+    private int addEdge(int edgeId, int baseNode, int targNode, byte capacity) {
         pData.setFlowEdgeData(edgeId, baseNode,
-                new FlowEdgeData((short)0, capacity, -1, false));
+                new FlowEdgeData((short)0, capacity, edgeId, false));
+        pData.setFlowEdgeData(edgeId, targNode,
+                new FlowEdgeData((short)0, capacity, edgeId, false));
         if(maxEdgeId < edgeId)
             maxEdgeId = edgeId;
         return edgeId;
     }
 
 
-    private void pairEdges() {
-        for (Map.Entry<String, Integer> entry : flowEdgeMap.entrySet()) {
-            String[] ids = entry.getKey().split(",");
-            int targId = Integer.parseInt(ids[0]);
-            int baseId = Integer.parseInt(ids[1]);
-
-            FlowEdgeData edgeData = pData.getFlowEdgeData(entry.getValue(), baseId);
-            if (edgeData.inverse == -1) {
-                int invEdge = flowEdgeMap.getOrDefault(baseId + "," + targId, -1);
-                if (invEdge == -1) {
-                    maxEdgeId++;
-//                    invEdge = addEdge(getDummyEdgeId(), 0);
-//                    invEdge = getDummyEdgeId();
-                    edgeData.inverse = entry.getValue();
-                    FlowEdgeData invEdgeData = new FlowEdgeData((short)0, (short)0, entry.getValue(), false);
-
-//                    pData.setFlowEdgeData(entry.getValue(), baseId, edgeData);
-                    pData.setFlowEdgeData(entry.getValue(), targId, invEdgeData);
-                }
-                else {
-                    edgeData.inverse = invEdge;
-                    FlowEdgeData invEdgeData = pData.getFlowEdgeData(invEdge, targId);
-                    invEdgeData.inverse = entry.getValue();
-                    pData.setFlowEdgeData(invEdge, targId, invEdgeData);
-                }
-
-            }
-            pData.setFlowEdgeData(entry.getValue(), baseId, edgeData);
-        }
-    }
+//    private void pairEdges() {
+//        for (Map.Entry<String, Integer> entry : flowEdgeMap.entrySet()) {
+//            String[] ids = entry.getKey().split(",");
+//            int targId = Integer.parseInt(ids[0]);
+//            int baseId = Integer.parseInt(ids[1]);
+//
+//            FlowEdgeData edgeData = pData.getFlowEdgeData(entry.getValue(), baseId);
+//            if (edgeData.inverse == -1) {
+//                int invEdge = flowEdgeMap.getOrDefault(baseId + "," + targId, -1);
+//                if (invEdge == -1) {
+//                    maxEdgeId++;
+////                    invEdge = addEdge(getDummyEdgeId(), 0);
+////                    invEdge = getDummyEdgeId();
+//                    edgeData.inverse = entry.getValue();
+//                    FlowEdgeData invEdgeData = new FlowEdgeData((short)0, (short)0, entry.getValue(), false);
+//
+////                    pData.setFlowEdgeData(entry.getValue(), baseId, edgeData);
+//                    pData.setFlowEdgeData(entry.getValue(), targId, invEdgeData);
+//                }
+//                else {
+//                    edgeData.inverse = invEdge;
+//                    FlowEdgeData invEdgeData = pData.getFlowEdgeData(invEdge, targId);
+//                    invEdgeData.inverse = entry.getValue();
+//                    pData.setFlowEdgeData(invEdge, targId, invEdgeData);
+//                }
+//
+//            }
+//            pData.setFlowEdgeData(entry.getValue(), baseId, edgeData);
+//        }
+//    }
 
     public void addDummyEdgePair(int node) {
         FlowEdge forwEdge = new FlowEdge(getDummyEdgeId(), node, -1);
         int backEdgeId = getDummyEdgeId();// = new FlowEdge(getDummyEdgeId(), -1, node);
         forwEdge.inverse = backEdgeId;
-//        backEdge.inverse = forwEdge.id;
         pData.setDummyEdge(node, forwEdge);
 
         FlowEdgeData flowEdgeData = new FlowEdgeData((short)0, (short)0, backEdgeId, false);
@@ -132,8 +129,8 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     }
 
 
-    public void freeMemory() {
-        this.flowEdgeMap = null;
-    }
+//    public void freeMemory() {
+//        this.flowEdgeMap = null;
+//    }
 
 }

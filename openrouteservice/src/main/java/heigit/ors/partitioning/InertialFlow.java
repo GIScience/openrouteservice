@@ -19,6 +19,7 @@ import org.opensphere.geometry.algorithm.ConcaveHull;
 import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.IntStream;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.*;
 import static heigit.ors.partitioning.InertialFlow.Projection.*;
@@ -224,16 +225,14 @@ public class InertialFlow extends PartitioningBase {
     }
 
     private void prepareProjections() {
-        Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
-
         //>> Loop through linear combinations and project each Node
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
-            tmpNodeProjMap.clear();
-            for (IntCursor  nodeId : nodeIdSet) {
-                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
-            }
-            nodeListProjMap.put(proj, sortByValueReturnList(tmpNodeProjMap, true, true));
+            Double[] values = new Double[nodeIdSet.size()];
+            Integer[] ids = IntStream.of( nodeIdSet.toArray() ).boxed().toArray( Integer[]::new );
+            for(int i = 0; i < ids.length; i++)
+                values[i] = proj.sortValue(ghStorage.getNodeAccess().getLatitude(ids[i]), ghStorage.getNodeAccess().getLongitude(ids[i]));
+            nodeListProjMap.put(proj, sortByValueReturnList(ids, values));
             projOrder.add(proj);
         }
 
@@ -265,36 +264,17 @@ public class InertialFlow extends PartitioningBase {
             if(i == 3)
                 break;
             //>> sort projected Nodes
-//            Map<Integer, Double> tmpNodeProjMap = new HashMap<>();
-//            for (IntCursor nodeId : nodeIdSet) {
-//                tmpNodeProjMap.put(nodeId.value, proj.sortValue(ghStorage.getNodeAccess().getLatitude(nodeId.value), ghStorage.getNodeAccess().getLongitude(nodeId.value)));
-//            }
-//            IntArrayList tmpNodeList = sortByValueReturnList(tmpNodeProjMap, true, true);
-//            tmpNodeProjMap = null;
-            //>> loop through b-percentage Values to fetch Source and Sink Nodes
-//            double aTmp = 0.0;
-//            for (double bTmp : bArray) {
-//            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(aTmp, bTmp, tmpNodeList);
             mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(0d, FLOW__SET_SPLIT_VALUE, nodeListProjMap.get(proj));
             int cutScore = mincutAlgo.getMaxFlow();
 
-//                if ((0 < cutScore) && (cutScore < mincutScore)) {
             if (cutScore < mincutScore) {
                 //>> store Results
                 mincutScore = cutScore;
-//                mincutSrcSet = mincutAlgo.getSrcPartition();
-//                mincutSnkSet = mincutAlgo.getSnkPartition();
-//                    mincutEdgBaseSet = mincutAlgo.getMinCut();
-
                 //>> get Data for next Recursion-Step
                 partition0 = mincutAlgo.getSrcPartition();
                 partition1 = mincutAlgo.getSnkPartition();
-//                splitNodeSet.put(0, mincutSrcSet);
-//                splitNodeSet.put(1, mincutSnkSet);
             }
 
-//                aTmp = bTmp;
-//            }
             i++;
         }
         this.mincutAlgo = null;   //>> free Memory
@@ -302,9 +282,6 @@ public class InertialFlow extends PartitioningBase {
 
     private void saveResults() {
         //>> saving iteration results
-//        for (Map.Entry<Integer, IntHashSet> entry : splitNodeSet.entrySet()) {
-//            for(IntCursor node : partition0)
-//                nodeToCellArr[node.value] = cellId << 1 | entry.getKey();
         for(IntCursor node : partition0)
             nodeToCellArr[node.value] = cellId << 1;
         for(IntCursor node : partition1)
@@ -314,7 +291,6 @@ public class InertialFlow extends PartitioningBase {
 
     private void saveMultiCells(Set<IntHashSet> cells, int motherId) {
         //>> saving iteration results
-//        System.out.println("Savind data after disconnecting cell " + motherId);
         Iterator<IntHashSet> iterator = cells.iterator();
         while (iterator.hasNext()){
             IntHashSet cell = iterator.next();
@@ -373,8 +349,6 @@ public class InertialFlow extends PartitioningBase {
 
                 inverseSemaphore.beforeSubmit();
                 executorService.execute(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore));
-//            invokeAll(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter),
-//                    new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter));
             }
             else{
                 inverseSemaphore.beforeSubmit();
@@ -391,7 +365,6 @@ public class InertialFlow extends PartitioningBase {
 //                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
 
                 executorService.execute(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter, executorService, inverseSemaphore));
-//            invokeAll(new InertialFlow(cellId << 1 | 0, partition0, this.edgeFilter));
             }
             else {
                 inverseSemaphore.beforeSubmit();
@@ -403,8 +376,6 @@ public class InertialFlow extends PartitioningBase {
             if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
 
                 inverseSemaphore.beforeSubmit();
-//                System.out.println("Submitting task for cell " + (cellId << 1 | 1));
-
                 executorService.execute(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore));
             }
             else {
@@ -412,7 +383,6 @@ public class InertialFlow extends PartitioningBase {
                 InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter, executorService, inverseSemaphore);
                 inertialFlow.run();
             }
-//            invokeAll(new InertialFlow(cellId << 1 | 1, partition1, this.edgeFilter));
         }
     }
 
