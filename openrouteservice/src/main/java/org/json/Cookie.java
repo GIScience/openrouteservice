@@ -78,7 +78,7 @@ public class Cookie {
      *  members.
      * @throws JSONException
      */
-    public static JSONObject toJSONObject(String string) throws JSONException {
+    public static JSONObject toJSONObject(String string) {
         String         name;
         JSONObject     jo = new JSONObject();
         Object         value;
@@ -115,7 +115,7 @@ public class Cookie {
      * @return A cookie specification string
      * @throws JSONException
      */
-    public static String toString(JSONObject jo) throws JSONException {
+    public static String toString(JSONObject jo) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(escape(jo.getString("name")));

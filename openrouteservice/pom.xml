@@ -28,9 +28,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>heigit.ors</groupId>
+    <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>5.0.2</version>
+    <version>6.0.0</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -275,26 +275,37 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.10.1.15</version>
+            <version>v0.12.2</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.10.1.15</version>
+            <version>v0.12.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-api</artifactId>
+            <version>v0.12.2</version>
         </dependency>
 
         <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <version>0.12-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-api</artifactId>
+            <version>0.12-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <version>0.12-SNAPSHOT</version>
         </dependency>
         -->
 

@@ -23,7 +23,7 @@
     "loggers": {
       "logger": [
         {
-          "name": "heigit.ors",
+          "name": "org.heigit.ors",
           "level": "debug",
           "additivity": "false",
           "AppenderRef": [

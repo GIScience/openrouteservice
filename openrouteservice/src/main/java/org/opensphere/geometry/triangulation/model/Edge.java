@@ -54,10 +54,10 @@ public class Edge {
 	private Vertex eV;
 
 	/** Triangles in relationship with this edge */
-	private List<Triangle> triangles = new ArrayList<Triangle>();
+	private List<Triangle> triangles = new ArrayList<>();
 	
 	/** Edges in relationship with this edge */
-	private List<Edge> incidentEdges = new ArrayList<Edge>();
+	private List<Edge> incidentEdges = new ArrayList<>();
 
 	
 	/**
