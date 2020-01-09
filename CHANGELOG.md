@@ -6,19 +6,38 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Indonesian Translation Language
-- Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
 ### Fixed
-- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments (#587)
-- Encoding of waytype ferry (#573)
 ### Changed
 - Make Docker setup more flexible wrt customizations (#627)
 ### Deprecated
+
+## [6.0.0] - 2019-12-03
+### Added
+- Indonesian Translation Language
+- Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
+- Enabled round trip routing ([#391](https://github.com/GIScience/openrouteservice/issues/391))
+- Enabled aternative routes in API ([#377](https://github.com/GIScience/openrouteservice/issues/377))
+- Added information to the response about when graphs were last built for the profile ([#542](https://github.com/GIScience/openrouteservice/issues/542))
+- Added default value for maximum snapping radius
+### Fixed
+- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments ([#587](https://github.com/GIScience/openrouteservice/issues/587))
+- Encoding of waytype ferry ([#573](https://github.com/GIScience/openrouteservice/issues/573))
+- Refactored Core-ALT algorithm so that it can be used globally
+### Changed
+- Updated GraphHopper to newer version (0.12)
+- Reworked flag encoders to use the methods provided by GraphHopper 0.12
+- Renamed packages to follow naming conventions
+- Cleanup of a number of code files
+### Deprecated
+- Removed geocoding endpoint and code
+- Removed accessibilty endpoint and code 
+- Removed Brotil encoder from servlet filter
 
 ## [5.0.2] - 2019-07-29
 ### Added
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from ([#496](https://github.com/GIScience/openrouteservice/issues/496))
 - Added information for countries a route traverses ([#349](https://github.com/GIScience/openrouteservice/issues/349))
+- Added scanning of master with sonarcloud (2019-11-29)
 ### Fixed
 - isochrone reachfactor gives now more realistic results ([#325](https://github.com/GIScience/openrouteservice/issues/325))
 - Fixed the wrong gpx header for api v2 ([#496](https://github.com/GIScience/openrouteservice/issues/496))
