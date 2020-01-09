@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 ### Fixed
 ### Changed
+- Make Docker setup more flexible wrt customizations (#627)
 ### Deprecated
 
 ## [6.0.0] - 2019-12-03
