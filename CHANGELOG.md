@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
 ### Fixed
 ### Changed
 - Make Docker setup more flexible wrt customizations (#627)
