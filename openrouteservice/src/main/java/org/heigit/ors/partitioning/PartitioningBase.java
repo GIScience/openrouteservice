@@ -64,12 +64,12 @@ public abstract class PartitioningBase implements Runnable{
     }
 
     void initAlgo() {
-        mincutAlgo = new EdmondsKarp(ghStorage, this.edgeFilter, true);
+        mincutAlgo = new EdmondsKarpAStar(ghStorage, this.edgeFilter, true);
 //        mincutAlgo.setAdditionalEdgeFilter(this.edgeFilter);
     }
 
     void setAlgo() {
-        mincutAlgo = new EdmondsKarp(ghStorage, this.edgeFilter, false);
+        mincutAlgo = new EdmondsKarpAStar(ghStorage, this.edgeFilter, false);
     }
 
     AbstractMaxFlowMinCutAlgorithm getAlgo() {

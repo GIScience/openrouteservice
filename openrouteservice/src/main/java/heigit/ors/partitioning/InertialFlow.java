@@ -159,8 +159,8 @@ public class InertialFlow extends PartitioningBase {
         this.squareRangeProjMap = new HashMap<>();
         this.orthogonalDiffProjMap = new HashMap<>();
         this.ghGraph = ghStorage.getBaseGraph();
-        System.out.println("Number of nodes: "+ghGraph.getNodes());
-        System.out.println("Number of edges: "+ghGraph.getAllEdges().getMaxId());
+        if(PART__DEBUG) System.out.println("Number of nodes: "+ghGraph.getNodes());
+        if(PART__DEBUG) System.out.println("Number of edges: "+ghGraph.getAllEdges().getMaxId());
         this.inverseSemaphore = inverseSemaphore;
 
         initNodes();
@@ -265,6 +265,7 @@ public class InertialFlow extends PartitioningBase {
                 break;
             //>> sort projected Nodes
             mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(0d, FLOW__SET_SPLIT_VALUE, nodeListProjMap.get(proj));
+            mincutAlgo.setExplorationPreference(nodeListProjMap.get(proj));
             int cutScore = mincutAlgo.getMaxFlow();
 
             if (cutScore < mincutScore) {

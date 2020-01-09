@@ -75,6 +75,7 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(nodeId, entry);
         }
+
         fromHeap.add(entry);
     }
 

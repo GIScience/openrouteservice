@@ -15,6 +15,7 @@ import java.util.Timer;
 import java.util.concurrent.*;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
+import static heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
 
 public class PreparePartition implements RoutingAlgorithmFactory {
 
@@ -52,7 +53,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
         InverseSemaphore inverseSemaphore =  new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
-        System.out.println("Submitting task for cell 1");
+        if(PART__DEBUG) System.out.println("Submitting task for cell 1");
         threadPool.execute(new InertialFlow(ghStorage, edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();

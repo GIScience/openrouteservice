@@ -33,7 +33,6 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
-import heigit.ors.isochrones.GraphEdgeMapFinder;
 import heigit.ors.isochrones.Isochrone;
 import heigit.ors.isochrones.IsochroneMap;
 import heigit.ors.isochrones.IsochroneSearchParameters;
@@ -48,7 +47,6 @@ import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 import heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;
 import org.opensphere.geometry.algorithm.ConcaveHull;
@@ -56,6 +54,7 @@ import org.opensphere.geometry.algorithm.ConcaveHull;
 import java.util.*;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
+import static heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
 
 public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 {
@@ -155,14 +154,15 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					TraversalMode.NODE_BASED,
 					cellStorage,
 					isochroneNodeStorage,
-					eccentricityStorage);
+					eccentricityStorage,
+					_searchContext.getEdgeFilter());
 			fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
 			fastIsochroneAlgorithm.calcIsochroneNodes(res.get(0).getClosestNode(), parameters.getRanges()[i]);
 
 			List<Double> contourCoordinates = new ArrayList<>();
 
 			//printing for debug
-			System.out.println("{" +
+			if(PART__DEBUG) System.out.println("{" +
 					"  \"type\": \"FeatureCollection\"," +
 					"  \"features\": [");
 			Set<Integer> fullyReachableCells = fastIsochroneAlgorithm.getFullyReachableCells();
@@ -207,12 +207,12 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			else{
 				for (int cellId : fastIsochroneAlgorithm.getFullyReachableCells()){
 					contourCoordinates.addAll(cellStorage.getCellContourOrder(cellId));
-					printCell(cellStorage.getCellContourOrder(cellId), cellId);
+					if(PART__DEBUG) printCell(cellStorage.getCellContourOrder(cellId), cellId);
 				}
 			}
 //			countNodesNonDisconnectedContour = contourCoordinates.size() / 2;
 
-			System.out.println("]}");
+			if(PART__DEBUG) System.out.println("]}");
 			int startCell = isochroneNodeStorage.getCellId(nonvirtualClosestNode);
 			boolean startCellFullyReachable = false;
 			if (fastIsochroneAlgorithm.getFullyReachableCells().contains(startCell)) {
@@ -234,10 +234,11 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 //			}
 //			System.out.println("Contour coordinates disconnected " + countNodesDisconnectedContour);
 //			System.out.println("Contour coordinates nondisconnected " + countNodesNonDisconnectedContour);
-
-			System.out.println("Fully reachable bordernodes " + countFullyReachableBordernodes);
-			System.out.println("Nodes in fully reachable startcell " + countNodesInStartCell);
-			System.out.println("Other nodes in map " + (fastIsochroneAlgorithm.getBestWeightMap().size() - countFullyReachableBordernodes));
+			if(PART__DEBUG) {
+				System.out.println("Fully reachable bordernodes " + countFullyReachableBordernodes);
+				System.out.println("Nodes in fully reachable startcell " + countNodesInStartCell);
+				System.out.println("Other nodes in map " + (fastIsochroneAlgorithm.getBestWeightMap().size() - countFullyReachableBordernodes));
+			}
 
 			GHPoint3D snappedPosition = res.get(0).getSnappedPoint();
 
@@ -683,7 +684,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			}
 		}
 		int mapPointCount = points.size();
-		System.out.println("Number of points from map " + mapPointCount);
+		if(PART__DEBUG) System.out.println("Number of points from map " + mapPointCount);
 
 		int j = 0;
 		while (j < contourCoordinates.size()){
@@ -693,7 +694,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			j++;
 			addPoint(points, qtree, longitude, latitude, lowResSearchWidth, lowResPointWidth, true);
 		}
-		System.out.println("Number of points from contours " + (points.size() - mapPointCount));
+		if(PART__DEBUG) System.out.println("Number of points from contours " + (points.size() - mapPointCount));
 
 
 

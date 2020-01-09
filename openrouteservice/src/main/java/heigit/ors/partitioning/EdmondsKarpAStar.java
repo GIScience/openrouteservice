@@ -1,4 +1,4 @@
-package org.heigit.ors.partitioning;
+package heigit.ors.partitioning;
 
 
 import com.carrotsearch.hppc.IntHashSet;
@@ -6,27 +6,22 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
-import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 
-public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
+public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
     private HashMap<Integer, EdgeInfo> prevMap;
     int calls = 0;
     int maxCalls = 0;
 
-//    private IntIntHashMap prevBaseNodeMap;
-//    private IntIntHashMap prevAdjNodeMap;
-
-
-
-    public EdmondsKarp(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
+    public EdmondsKarpAStar(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
         super(ghStorage, edgeFilter, init);
     }
 
-    public EdmondsKarp() {
+    public EdmondsKarpAStar() {
     }
 
     public int getRemainingCapacity(int edgeId, int nodeId) {
@@ -51,17 +46,13 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
     @Override
     public void flood() {
         int flow;
-        maxCalls = nodeIdSet.size() * 3;
-        maxCalls = Integer.MAX_VALUE;
+//        maxCalls = nodeIdSet.size() * 3;
+//        maxCalls = Integer.MAX_VALUE;
         prevMap = new HashMap();
-//        prevBaseNodeMap = new IntIntHashMap();
-//        prevAdjNodeMap = new IntIntHashMap();
         do {
-//            calls = 0;
             setUnvisitedAll();
             flow = bfs();
             maxFlow += flow;
-//            System.out.println("maxflow " + maxFlow + " with maxflowlimit " + maxFlowLimit);
 
             if ((maxFlow > maxFlowLimit)) {
                 maxFlow = Integer.MAX_VALUE;
@@ -74,22 +65,21 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
             flowNodeData.minCut = isVisited(flowNodeData.visited);
             pData.setFlowNodeData(nodeId.value, flowNodeData);
         }
-        System.out.println("Did EK calls: " + calls);
 
         prevMap = null;
     }
 
     private int bfs() {
-        Queue<Integer> queue = new ArrayDeque<>(nodes);
+        PriorityQueue<EKEdgeEntry> queue = new PriorityQueue<EKEdgeEntry>(nodes);
         setVisited(srcNode.id);
-        queue.offer(srcNode.id);
+        EKEdgeEntry srcNodeEntry = new EKEdgeEntry(srcNode.id, 0);
+        queue.offer(srcNodeEntry);
         int node;
         IntHashSet targSet = new IntHashSet();
 
         while (!queue.isEmpty()) {
-            if(calls > maxCalls)
-                return Integer.MAX_VALUE;
-            node = queue.poll();
+            EKEdgeEntry entry = queue.poll();
+            node = entry.node;
             targSet.clear();
 
             if (node == snkNodeId)
@@ -116,7 +106,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                         && !isVisited(pData.getFlowNodeData(adj).visited)) {
                     setVisited(adj);
                     prevMap.put(adj, new EdgeInfo(edge, base, adj));
-                    queue.offer(adj);
+                    queue.offer(new EKEdgeEntry(adj, this.explorationPreference.get(adj)));
                 }
             }
 
@@ -130,7 +120,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                     ) {
                 setVisited(dummyEdge.targNode);
                 prevMap.put(dummyEdge.targNode, new EdgeInfo(dummyEdge.id, dummyEdge.baseNode, dummyEdge.targNode));
-                queue.offer(dummyEdge.targNode);
+                queue.offer(new EKEdgeEntry(dummyEdge.targNode, this.explorationPreference.get(dummyEdge.targNode)));
                 //Early stop
                 if(dummyEdge.targNode == snkNodeId)
                     break;
@@ -170,7 +160,7 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
                     && !isVisited(pData.getFlowNodeData(flowEdge.targNode).visited)) {
                 setVisited(flowEdge.targNode);
                 prevMap.put(flowEdge.targNode, new EdgeInfo(flowEdge.id, flowEdge.baseNode, flowEdge.targNode));
-                queue.offer(flowEdge.targNode);
+                queue.offer(new EKEdgeEntry(flowEdge.targNode, this.explorationPreference.get(flowEdge.targNode)));
             }
         }
     }

@@ -2,6 +2,7 @@ package org.heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntIntHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -39,6 +40,7 @@ public class MaxFlowMinCut {
 
     protected double limit;
     protected IntHashSet nodeIdSet;
+    protected IntIntHashMap explorationPreference;
 
     protected EdgeFilter edgeFilter;
 
@@ -209,6 +211,12 @@ public class MaxFlowMinCut {
 //                flowEdgeData.active = invFlowEdgeData.active = false;
             }
         }
+    }
+
+    public void setExplorationPreference(IntArrayList nodes){
+        this.explorationPreference = new IntIntHashMap();
+        for(int i = 0; i < nodes.size(); i++)
+            explorationPreference.put(nodes.get(i), i);
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator){

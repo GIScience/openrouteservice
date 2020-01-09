@@ -28,6 +28,8 @@ import com.graphhopper.util.Helper;
 
 import java.util.*;
 
+import static heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
+
 /**
  * Stores nodes ordered by cell
  *
@@ -68,8 +70,10 @@ public class CellStorage implements Storable<CellStorage> {
             CONTOURINDEXOFFSET = 2 * cellCount * 18;
             fillCellIdToNodesPointerMap();
             fillCellIdToContourPointerMap();
-            fillSuperCellMap();
-            fillCellIdToSuperCellMap();
+            if(CONTOUR__USE_SUPERCELLS) {
+                fillSuperCellMap();
+                fillCellIdToSuperCellMap();
+            }
             return true;
         }
         return false;

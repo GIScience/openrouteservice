@@ -794,6 +794,8 @@ public class ORSGraphHopper extends GraphHopper {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : isochroneCoreAlgoFactoryDecorator.getWeightingsAsStrings()) {
 					// ghStorage is null at this point
+					HintsMap hints = new HintsMap(coreWeightingStr);
+					hints.put("isochroneWeighting", "true");
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
 					isochroneCoreAlgoFactoryDecorator.addWeighting(weighting);
 				}
