@@ -13,13 +13,14 @@ branches:
   only:
   - master
   - development
+  - /hotfix.*/
 
 addons:
   sonarcloud:
     organization: "giscience"
 
 git:
-    depth: false
+    depth: false # required for sonarcloud
 
 script:
   - cp ${TRAVIS_BUILD_DIR}/openrouteservice-api-tests/conf/app.config.test ${TRAVIS_BUILD_DIR}/openrouteservice/src/main/resources/app.config
