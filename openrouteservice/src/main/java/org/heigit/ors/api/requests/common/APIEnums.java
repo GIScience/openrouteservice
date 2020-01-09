@@ -303,6 +303,7 @@ public class APIEnums {
         ES("es"),
         FR("fr"),
         GR("gr"),
+        HE("he"),
         HU("hu"),
         IT("it"),
         NE("ne"),
