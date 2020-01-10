@@ -44,11 +44,11 @@ public class CellStorage implements Storable<CellStorage> {
     private int nodeCount;
     private long cellContourPointer;
     private IsochroneNodeStorage isochroneNodeStorage;
-    private HashMap<Integer, Set<Integer>> cellIdToNodesMap = new HashMap<>();
-    private HashMap<Integer, Long> cellIdToNodesPointerMap = new HashMap<>();
-    private HashMap<Integer, Long> cellIdToContourPointerMap = new HashMap<>();
+    private HashMap<Integer, Set<Integer>> cellIdToNodesMap;
+    private HashMap<Integer, Long> cellIdToNodesPointerMap;
+    private HashMap<Integer, Long> cellIdToContourPointerMap;
+    private Map<Integer, Integer> cellIdToSuperCellMap;
     private Map<Integer, Set<Integer>> superCellIdToCellsMap = new HashMap<>();
-    private Map<Integer, Integer> cellIdToSuperCellMap = new HashMap<>();
 
 
     public CellStorage(GraphHopperStorage graph, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
@@ -68,6 +68,8 @@ public class CellStorage implements Storable<CellStorage> {
             int cellCount = cells.getHeader(0);
             NODEINDEXOFFSET = cellCount * 12;
             CONTOURINDEXOFFSET = 2 * cellCount * 18;
+            cellIdToNodesPointerMap = new HashMap<>(cellCount);
+            cellIdToContourPointerMap = new HashMap<>(cellCount);
             fillCellIdToNodesPointerMap();
             fillCellIdToContourPointerMap();
             if(CONTOUR__USE_SUPERCELLS) {
@@ -81,15 +83,11 @@ public class CellStorage implements Storable<CellStorage> {
 
     public void init() {
         cells.create(1000);
-    }
-
-    public void reset() {
-        cellIdToNodesMap = new HashMap<>();
-        cellIdToNodesPointerMap = new HashMap<>();
-        cellIdToContourPointerMap = new HashMap<>();
-        superCellIdToCellsMap = new HashMap<>();
-        NODEINDEXOFFSET = 0;
-        CONTOURINDEXOFFSET = 0;
+        int cellCount = isochroneNodeStorage.getCellIds().size();
+        cellIdToNodesMap = new HashMap<>(cellCount);
+        cellIdToNodesPointerMap = new HashMap<>(cellCount);
+        cellIdToContourPointerMap = new HashMap<>(cellCount);
+        cellIdToSuperCellMap = new HashMap<>(cellCount);
     }
 
     public void calcCellNodesMap() {

@@ -2,18 +2,21 @@ package heigit.ors.partitioning;
 
 
 import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
-import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
+
+import static heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
 
 
 public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
-    private HashMap<Integer, EdgeInfo> prevMap;
+//    private HashMap<Integer, EdgeInfo> prevMap;
+    private IntObjectHashMap<EdgeInfo> prevMap;
     int calls = 0;
     int maxCalls = 0;
 
@@ -48,7 +51,8 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         int flow;
 //        maxCalls = nodeIdSet.size() * 3;
 //        maxCalls = Integer.MAX_VALUE;
-        prevMap = new HashMap();
+//        prevMap = new HashMap();
+        prevMap = new IntObjectHashMap((int)Math.ceil(FLOW__SET_SPLIT_VALUE * nodes));
         do {
             setUnvisitedAll();
             flow = bfs();
