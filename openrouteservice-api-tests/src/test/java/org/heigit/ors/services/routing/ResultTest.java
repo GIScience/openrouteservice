@@ -1585,6 +1585,24 @@ public class ResultTest extends ServiceTest {
                 .body("routes[1].summary.distance", is(10670.9f))
                 .body("routes[1].summary.duration", is(1414))
                 .statusCode(200);
+
+        given()
+                .param("coordinates", getParameter("coordinatesAR"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_features\":\"ferries\",\"alternative_routes_count\": 2}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(2))
+                .body("routes[0].summary.distance", is(8178.2f))
+                .body("routes[0].summary.duration", is(1087.4f))
+                .body("routes[1].summary.distance", is(10670.9f))
+                .body("routes[1].summary.duration", is(1414))
+                .statusCode(200);
     }
 }
 
