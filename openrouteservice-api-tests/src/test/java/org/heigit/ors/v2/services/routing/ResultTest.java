@@ -830,7 +830,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 107.81765f, 8.714833f, 49.424603f, 404.725f))
                 .statusCode(200);
     }
 
@@ -853,7 +853,7 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 107.81765f, 8.714833f, 49.424603f, 404.725f))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
                 //.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
