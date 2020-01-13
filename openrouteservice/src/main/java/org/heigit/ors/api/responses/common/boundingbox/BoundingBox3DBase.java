@@ -19,6 +19,7 @@ import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.util.FormatUtility;
 
 public class BoundingBox3DBase extends BoundingBoxBase {
+    private static final int ELEVATION_DECIMAL_PLACES = 2;
     protected double minEle;
     protected double maxEle;
 
@@ -41,10 +42,10 @@ public class BoundingBox3DBase extends BoundingBoxBase {
         return new double[] {
                 FormatUtility.roundToDecimals(minLon, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(minLat, COORDINATE_DECIMAL_PLACES),
-                FormatUtility.roundToDecimals(minEle, COORDINATE_DECIMAL_PLACES),
+                FormatUtility.roundToDecimals(minEle, ELEVATION_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(maxLon, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(maxLat, COORDINATE_DECIMAL_PLACES),
-                FormatUtility.roundToDecimals(maxEle, COORDINATE_DECIMAL_PLACES),
+                FormatUtility.roundToDecimals(maxEle, ELEVATION_DECIMAL_PLACES),
         };
     }
 }
