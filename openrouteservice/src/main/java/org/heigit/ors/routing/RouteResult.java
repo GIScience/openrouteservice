@@ -127,7 +127,7 @@ public class RouteResult
 
 	public void addPointlist(PointList pointlistToAdd) {
 		if (pointlist == null) {
-			pointlist = new PointList();
+			pointlist = new PointList(pointlistToAdd.getSize(), pointlistToAdd.is3D());
 		}
 		pointlist.add(pointlistToAdd);
 	}
