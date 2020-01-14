@@ -16,19 +16,20 @@ package org.heigit.ors.localization;
 import java.util.Locale;
 
 public class Language {
-	private final String langCode;
+	private final String langTag;
 	private final String enLangName;
 	private final String nativeName;
 	private Locale locale;
 
-	public Language(String langCode, String enLangName, String nativeName) { 
-		this.langCode = langCode;
-		this.enLangName = enLangName;
-		this.nativeName = nativeName;
-	} 
+	public Language(String langTag) {
+		this.langTag = langTag;
+		this.locale = Locale.forLanguageTag(langTag);
+		this.enLangName = locale.getDisplayName();
+		this.nativeName = locale.getDisplayName(locale);
+	}
 
-	public String getLangCode() { 
-		return langCode;
+	public String getLangTag() {
+		return langTag;
 	} 
 
 	public String getEnLangName() { 
@@ -39,25 +40,17 @@ public class Language {
 		return nativeName;
 	} 
 
-	public synchronized Locale getLocale() { 
-		if (locale == null) {
-			locale = new Locale(langCode);
-		} 
+	public Locale getLocale() {
 		return locale;
 	} 
 	
 	@Override 
 	public int hashCode() { 
-		return langCode.hashCode();
+		return langTag.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final Language other = (Language) obj;
-		return langCode.equals(other.getLangCode());
+		return obj != null && getClass() == obj.getClass() && langTag.equals(((Language)obj).getLangTag());
 	}
 }

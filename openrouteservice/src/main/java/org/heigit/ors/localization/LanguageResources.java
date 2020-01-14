@@ -20,22 +20,20 @@ public class LanguageResources {
 	private Map<Integer,LocalString> localStrings;
 	private Language lang;
 	
-	public LanguageResources(Language lang) {
-		this.lang = lang;
+	public LanguageResources(String langTag) {
+		this.lang = new Language(langTag);
 		localStrings = new HashMap<>();
 	}
 	
 	public void addLocalString(String resourceName, String resourceText) {
 		int hashCode = resourceName.hashCode();
-
 		if (!localStrings.containsKey(hashCode)) {
 			LocalString localString = new LocalString(lang, resourceText);
 			localStrings.put(hashCode, localString);
 		}
 	}
 	
-	public Language getLangCode()
-	{
+	public Language getLangCode() {
 		return lang;
 	}
 	
@@ -46,13 +44,12 @@ public class LanguageResources {
 	public String getTranslation(String name, boolean throwException) throws Exception {
 		if (name == null)
 			return null;
-
 		LocalString ls = localStrings.get(name.hashCode());
 		if (ls != null) {
 			return ls.getString();
 		} else {
 			if (throwException)
-				throw new Exception("Unable to find translation for '" + name + "' in language '" + lang.getLangCode() + "'.");
+				throw new Exception("Unable to find translation for '" + name + "' in language '" + lang.getLangTag() + "'.");
 			else
 				return null;
 		}
