@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
 ### Fixed
+- more consistent language API parameters (ISO 639-1 codes & IETF tags)
+- Nepali language support can be selected through API
+- Fixed invalid JSON and GeoJSON when including elevation ([#640](https://github.com/GIScience/openrouteservice/issues/640))
 ### Changed
-- Make Docker setup more flexible wrt customizations (#627)
+- Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 ### Deprecated
 
 ## [6.0.0] - 2019-12-03

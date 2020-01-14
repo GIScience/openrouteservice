@@ -13,22 +13,19 @@
  */
 package org.heigit.ors.localization;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.apache.log4j.Logger;
+import org.heigit.ors.util.StringUtility;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import org.apache.log4j.Logger;
-import org.heigit.ors.util.StringUtility;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 public class LocalizationManager {
 	protected static final Logger LOGGER = Logger.getLogger(LocalizationManager.class);
@@ -53,7 +50,7 @@ public class LocalizationManager {
 	private void loadLocalizations() throws Exception {
 		PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
 
-		String filePattern = "ors_(.*?).resources";
+		String filePattern = "ors_(.*?)(\\.default)?.resources";
 		String resourcePattern = "/resources/**/ors_*.resources";
 
 		Resource[] resources = resourcePatternResolver.getResources(resourcePattern);
@@ -64,43 +61,36 @@ public class LocalizationManager {
 
 		for (Resource res : resources) {
 			File file = res.getFile();
-			try {
-				if (file.isFile() && file.getName().matches(filePattern)) {
-					Matcher matcher = pattern.matcher(file.getName());
-					if (matcher.find()) {
-						String langCode = matcher.group(1).toLowerCase();
-						String[] langCountry = langCode.split("-");
-						Locale locale = new Locale(langCountry[0], langCountry.length == 2 ? langCountry[1] : "");
-						Language lang = new Language(langCode, locale.getDisplayLanguage(), locale.getDisplayName());
-						LanguageResources localLangResources = new LanguageResources(lang);
-
-						Config allConfig = ConfigFactory.parseFile(file);
-						allConfig.entrySet().forEach(entry -> localLangResources.addLocalString(entry.getKey(), StringUtility.trim(entry.getValue().render(), '\"')));
-						this.langResources.put(langCode, localLangResources);
-					}
+			if (file.isFile()) {
+				Matcher matcher = pattern.matcher(file.getName());
+				if (matcher.find()) {
+					loadLocalization(matcher.group(1).toLowerCase(), file, matcher.group(2) != null);
 				}
-			} catch(Exception ex) {
-				LOGGER.error(String.format("Unable to load resources from file %s", file.getAbsolutePath()));
 			}
 		}
 	}
 
+	private void loadLocalization(String langTag, File file, boolean isDefault) {
+		String langCode = langTag.substring(0,2);
+		LanguageResources localLangResources = new LanguageResources(langTag);
+		try {
+			Config allConfig = ConfigFactory.parseFile(file);
+			allConfig.entrySet().forEach(entry -> localLangResources.addLocalString(entry.getKey(), StringUtility.trim(entry.getValue().render(), '\"')));
+			this.langResources.put(langTag, localLangResources);
+			if (isDefault || !this.langResources.containsKey(langCode)) {
+				this.langResources.put(langCode, localLangResources);
+			}
+		} catch(Exception ex) {
+			LOGGER.error(String.format("Unable to load resources from file %s", file.getAbsolutePath()));
+		}
+	}
+
 	public LanguageResources getLanguageResources(String langCode) {
-		String lang = langCode.toLowerCase();
-		LanguageResources res = langResources.get(lang);
-		if (res == null && !langCode.contains("-"))
-			res = langResources.get(lang + "-" + lang);
-		return res;
+		return langResources.get(langCode.toLowerCase());
 	}
 
 	public boolean isLanguageSupported(String langCode) {
-		String lang = langCode.toLowerCase();
-		boolean res = langResources.containsKey(lang);
-
-		if (!res && !langCode.contains("-"))
-			res = langResources.containsKey(lang + "-" + lang);
-
-		return res;
+		return langResources.containsKey(langCode.toLowerCase());
 	}
 
 	public String[] getLanguages() {
@@ -110,9 +100,7 @@ public class LocalizationManager {
 			langs[i] = entry.getKey();
 			i++;
 		}
-
 		Arrays.sort(langs);
-		
 		return langs;
 	}
 }
