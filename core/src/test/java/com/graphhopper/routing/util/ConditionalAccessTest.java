@@ -78,7 +78,7 @@ public class ConditionalAccessTest {
         // store conditional
         List<EdgeIteratorState> createdEdges = new ArrayList<>();
         createdEdges.add(edge);
-        ConditionalEdgesMap conditionalEdges = graph.getConditionalEdges(encoder);
+        ConditionalEdgesMap conditionalEdges = graph.getConditionalAccess(encoder);
         conditionalEdges.addEdges(createdEdges, encoder.getConditionalTagInspector().getTagValue());
         assertEquals(CONDITIONAL, conditionalEdges.getValue(edge.getEdge()));
     }

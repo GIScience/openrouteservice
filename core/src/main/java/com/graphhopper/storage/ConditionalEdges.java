@@ -1,23 +1,22 @@
 package com.graphhopper.storage;
 
-import com.graphhopper.routing.profiles.BooleanEncodedValue;
-import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.search.ConditionalIndex;
-import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.*;
 
 public class ConditionalEdges implements GraphExtension {
-
     Map<Integer, Integer> values = new HashMap<>();
     private final Map<String, ConditionalEdgesMap> conditionalEdgesMaps = new LinkedHashMap<>();
 
     ConditionalIndex conditionalIndex;
     EncodingManager encodingManager;
 
-    public ConditionalEdges(EncodingManager encodingManager) {
+    private String encoderName;
+
+    public ConditionalEdges(EncodingManager encodingManager, String encoderName) {
         this.encodingManager = encodingManager;
+        this.encoderName = encoderName;
     }
 
     @Override
@@ -45,12 +44,12 @@ public class ConditionalEdges implements GraphExtension {
         if (this.conditionalIndex != null || !conditionalEdgesMaps.isEmpty())
             throw new AssertionError("The conditional restrictions storage must be initialized only once.");
 
-        this.conditionalIndex = new ConditionalIndex(dir);
+        this.conditionalIndex = new ConditionalIndex(dir, encoderName);
 
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
-            String name = encodingManager.getKey(encoder, "conditional_access");
+            String name = encodingManager.getKey(encoder, encoderName);
             if (encodingManager.hasEncodedValue(name)) {
-                ConditionalEdgesMap conditionalEdgesMap = new ConditionalEdgesMap(encoder.toString(), conditionalIndex);
+                ConditionalEdgesMap conditionalEdgesMap = new ConditionalEdgesMap(encoderName + "_" + encoder.toString(), conditionalIndex);
                 conditionalEdgesMap.init(graph, dir);
                 conditionalEdgesMaps.put(encoder.toString(), conditionalEdgesMap);
             }

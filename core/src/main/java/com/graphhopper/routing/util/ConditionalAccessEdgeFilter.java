@@ -38,7 +38,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, TimeZoneMap timeZoneMap, boolean fwd, boolean bwd) {
         EncodingManager encodingManager = graph.getEncodingManager();
         conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, "conditional_access"));
-        conditionalEdges = graph.getConditionalEdges(encoderName);
+        conditionalEdges = graph.getConditionalAccess(encoderName);
         nodeAcces = graph.getNodeAccess();
         this.fwd = fwd;
         this.bwd = bwd;

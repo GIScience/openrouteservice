@@ -20,8 +20,8 @@ public class ConditionalIndex extends NameIndex {
         return index;
     }
 
-    public ConditionalIndex(Directory dir) {
-        super(dir, "conditionals");
+    public ConditionalIndex(Directory dir, String filename) {
+        super(dir, filename);
     }
 
 }

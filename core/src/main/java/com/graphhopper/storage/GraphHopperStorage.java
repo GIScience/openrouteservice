@@ -47,14 +47,23 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     private final StorableProperties properties;
     private final BaseGraph baseGraph;
 
-    private final ConditionalEdges conditionalEdges;
+    private final ConditionalEdges conditionalAccess;
+    private final ConditionalEdges conditionalSpeed;
 
-    public ConditionalEdgesMap getConditionalEdges(FlagEncoder encoder) {
-        return getConditionalEdges(encoder.toString());
+    public ConditionalEdgesMap getConditionalAccess(FlagEncoder encoder) {
+        return getConditionalAccess(encoder.toString());
     }
 
-    public ConditionalEdgesMap getConditionalEdges(String encoderName) {
-        return conditionalEdges.getConditionalEdgesMap(encoderName);
+    public ConditionalEdgesMap getConditionalAccess(String encoderName) {
+        return conditionalAccess.getConditionalEdgesMap(encoderName);
+    }
+
+    public ConditionalEdgesMap getConditionalSpeed(FlagEncoder encoder) {
+        return getConditionalSpeed(encoder.toString());
+    }
+
+    public ConditionalEdgesMap getConditionalSpeed(String encoderName) {
+        return conditionalSpeed.getConditionalEdgesMap(encoderName);
     }
 
     // same flush order etc
@@ -100,8 +109,11 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
 
-        this.conditionalEdges = new ConditionalEdges(encodingManager);
-        this.conditionalEdges.init(this, dir);
+        this.conditionalAccess = new ConditionalEdges(encodingManager, "conditional_access");
+        this.conditionalAccess.init(this, dir);
+
+        this.conditionalSpeed = new ConditionalEdges(encodingManager, "conditional_speed");
+        this.conditionalSpeed.init(this, dir);
     }
 
     public CHGraph getCHGraph() {
@@ -175,7 +187,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             cg.setSegmentSize(bytes);
         }
 
-        conditionalEdges.setSegmentSize(bytes);
+        conditionalAccess.setSegmentSize(bytes);
+        conditionalSpeed.setSegmentSize(bytes);
     }
 
     /**
@@ -207,7 +220,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         properties.put("graph.ch.profiles", getCHProfiles().toString());
 
-        conditionalEdges.create(initSize);
+        conditionalAccess.create(initSize);
+        conditionalSpeed.create(initSize);
         return this;
     }
 
@@ -293,7 +307,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                     throw new IllegalStateException("Cannot load " + cg);
             }
 
-            conditionalEdges.loadExisting();
+            conditionalAccess.loadExisting();
+            conditionalSpeed.loadExisting();
 
             return true;
         }
@@ -346,7 +361,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         baseGraph.flush();
         properties.flush();
-        conditionalEdges.flush();
+        conditionalAccess.flush();
+        conditionalSpeed.flush();
     }
 
     @Override
@@ -358,7 +374,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             cg.close();
         }
 
-        conditionalEdges.close();
+        conditionalAccess.close();
+        conditionalSpeed.close();
     }
 
     @Override

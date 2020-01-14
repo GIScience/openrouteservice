@@ -42,7 +42,7 @@ public class ConditionalParser {
     private final List<ConditionalValueParser> valueParsers = new ArrayList<>(5);
     private final boolean enabledLogs;
 
-    private final String simpleValue;
+    private String simpleValue = new String();
     private String unevaluatedRestrictions = "";
     private Conditions unevaluatedConditions;
 
@@ -55,9 +55,11 @@ public class ConditionalParser {
         this.restrictedValues = restrictedValues;
         this.enabledLogs = enabledLogs;
 
-        if (restrictedValues.contains("yes"))
-            this.simpleValue = "yes";
-        else this.simpleValue = "no";
+        if (hasRestrictedValues()) {
+            if (restrictedValues.contains("yes"))
+                this.simpleValue = "yes";
+            else this.simpleValue = "no";
+        }
     }
 
     public static ConditionalValueParser createNumberParser(final String assertKey, final Number obj) {
@@ -193,21 +195,30 @@ public class ConditionalParser {
             // iterate over restrictions starting from the last one in order to match to the most specific one
             for (int i = restrictions.size() - 1 ; i >= 0; i--) {
                 Restriction restriction = restrictions.get(i);
-                // check if encountered value is on the list
-                if (restrictedValues.contains(restriction.getValue())) {
-                    List<Condition> conditions = restriction.getConditions();
 
-                    unevaluatedConditions = new Conditions(new ArrayList<Condition>(), restriction.inParen());
+                String restrictionValue = restriction.getValue();
 
-                    if (checkCombinedCondition(conditions)) {
-                        // check for unevaluated conditions
-                        if (unevaluatedConditions.getConditions().isEmpty()) {
-                            return true; // terminate once the first matching condition which can be fully evaluated is encountered
-                        }
-                        else {
-                            parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
-                            unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
-                        }
+                if (hasRestrictedValues()) {
+                    // check whether the encountered value is on the list
+                    if (!restrictedValues.contains(restrictionValue))
+                        continue;
+                }
+                else {
+                    simpleValue = restrictionValue;
+                }
+
+                List<Condition> conditions = restriction.getConditions();
+
+                unevaluatedConditions = new Conditions(new ArrayList<Condition>(), restriction.inParen());
+
+                if (checkCombinedCondition(conditions)) {
+                    // check for unevaluated conditions
+                    if (unevaluatedConditions.getConditions().isEmpty()) {
+                        return true; // terminate once the first matching condition which can be fully evaluated is encountered
+                    }
+                    else {
+                        parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
+                        unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
                     }
                 }
             }
@@ -235,5 +246,9 @@ public class ConditionalParser {
                 break;
         }
         return Double.parseDouble(str.substring(0, untilIndex + 1));
+    }
+
+    private boolean hasRestrictedValues() {
+        return !( restrictedValues==null || restrictedValues.isEmpty() );
     }
 }

@@ -868,6 +868,11 @@ public class GraphHopper implements GraphHopperAPI {
                 while (edges.next())
                     edgeFilter.accept(edges, time);
             }
+
+            name = encodingManager.getKey(encoder, "conditional_speed");
+            if (encodingManager.hasEncodedValue(name)) {
+                System.out.println(encoder.toString()+ "has conditional speeds");
+            }
         }
 
         initLocationIndex();

@@ -62,7 +62,7 @@ public class ConditionalAccessEdgeFilterTest {
         // store conditional
         List<EdgeIteratorState> createdEdges = new ArrayList<>();
         createdEdges.add(edge);
-        graph.getConditionalEdges(encoder).addEdges(createdEdges, encoder.getConditionalTagInspector().getTagValue());
+        graph.getConditionalAccess(encoder).addEdges(createdEdges, encoder.getConditionalTagInspector().getTagValue());
         return edge;
     }
 

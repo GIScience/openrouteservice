@@ -113,7 +113,7 @@ public class ConditionalEdgesMap implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The conditional restrictions storage must be initialized only once.");
 
-        this.edges = dir.find("conditional_access_" + name);
+        this.edges = dir.find(name);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class ConditionalEdgesMap implements GraphExtension {
 
     @Override
     public String toString() {
-        return "conditional_access_" + name;
+        return name;
     }
 
     @Override

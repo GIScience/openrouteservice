@@ -19,6 +19,7 @@ package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.profiles.SimpleBooleanEncodedValue;
@@ -53,6 +54,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     protected final Map<String, Integer> defaultSpeedMap = new HashMap<>();
 
     private BooleanEncodedValue conditionalEncoder;
+    private BooleanEncodedValue conditionalSpeedEncoder;
 
     public CarFlagEncoder() {
         this(5, 5, 0);
@@ -154,6 +156,12 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
+    protected void init() {
+        super.init();
+        setConditionalSpeedInspector(new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed")));
+    }
+
+    @Override
     public int getVersion() {
         return 2;
     }
@@ -168,6 +176,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         registerNewEncodedValue.add(speedEncoder = new UnsignedDecimalEncodedValue(EncodingManager.getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections));
         // FIXME: shouldn't this be directional?
         registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
+        registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_speed"), false));
     }
 
     protected double getSpeed(ReaderWay way) {
@@ -261,8 +270,11 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         if (!accept.isFerry()) {
             // get assumed speed from highway type
             double speed = getSpeed(way);
-            speed = applyMaxSpeed(way, speed);
 
+            if (getConditionalSpeedInspector().hasConditionalSpeed(way))
+                conditionalSpeedEncoder.setBool(false, edgeFlags, true);
+
+            speed = applyMaxSpeed(way, speed);
             speed = applyBadSurfaceSpeed(way, speed);
 
             setSpeed(false, edgeFlags, speed);

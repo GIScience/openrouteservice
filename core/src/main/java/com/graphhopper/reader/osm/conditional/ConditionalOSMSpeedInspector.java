@@ -17,12 +17,15 @@
  */
 package com.graphhopper.reader.osm.conditional;
 
+import com.graphhopper.reader.ConditionalSpeedInspector;
 import com.graphhopper.reader.ConditionalTagInspector;
 import com.graphhopper.reader.ReaderWay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Inspects the conditional tags of an OSMWay according to the given conditional tags.
@@ -30,10 +33,10 @@ import java.util.*;
  *
  * @author Robin Boldt
  */
-public class ConditionalOSMTagInspector implements ConditionalTagInspector {
+public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final List<String> tagsToCheck;
-    private final ConditionalParser permitParser, restrictiveParser;
+    private final ConditionalParser parser;
     // enabling by default makes noise but could improve OSM data
     private boolean enabledLogs = true;
 
@@ -45,11 +48,11 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
         return val;
     }
 
-    public ConditionalOSMTagInspector(List<String> tagsToCheck, Set<String> restrictiveValues, Set<String> permittedValues) {
-        this(tagsToCheck, restrictiveValues, permittedValues, false);
+    public ConditionalOSMSpeedInspector(List<String> tagsToCheck) {
+        this(tagsToCheck, false);
     }
 
-    public ConditionalOSMTagInspector(List<String> tagsToCheck, Set<String> restrictiveValues, Set<String> permittedValues, boolean enabledLogs) {
+    public ConditionalOSMSpeedInspector(List<String> tagsToCheck, boolean enabledLogs) {
         this.tagsToCheck = new ArrayList<>(tagsToCheck.size());
         for (String tagToCheck : tagsToCheck) {
             this.tagsToCheck.add(tagToCheck + ":conditional");
@@ -59,33 +62,12 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
 
         // enable for debugging purposes only as this is too much
         boolean logUnsupportedFeatures = false;
-        this.permitParser = new ConditionalParser(permittedValues, logUnsupportedFeatures);
-        this.restrictiveParser = new ConditionalParser(restrictiveValues, logUnsupportedFeatures);
-    }
-
-    public void addValueParser(ConditionalValueParser vp) {
-        permitParser.addConditionalValueParser(vp);
-        restrictiveParser.addConditionalValueParser(vp);
+        this.parser = new ConditionalParser(null);
+        this.parser.addConditionalValueParser(ConditionalParser.createDateTimeParser());
     }
 
     @Override
-    public boolean isRestrictedWayConditionallyPermitted(ReaderWay way) {
-        return applies(way, true);
-    }
-
-    @Override
-    public boolean isPermittedWayConditionallyRestricted(ReaderWay way) {
-        return applies(way, false);
-    }
-
-    @Override
-    public boolean isConditionLazyEvaluated() {
-        return isLazyEvaluated;
-    }
-
-    protected boolean applies(ReaderWay way, boolean checkPermissiveValues) {
-        ConditionalParser parser = checkPermissiveValues ? permitParser : restrictiveParser;
-
+    public boolean hasConditionalSpeed(ReaderWay way) {
         isLazyEvaluated = false;
         for (int index = 0; index < tagsToCheck.size(); index++) {
             String tagToCheck = tagsToCheck.get(index);
@@ -103,12 +85,16 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
                 }
             } catch (Exception e) {
                 if (enabledLogs) {
-                    // log only if no date ala 21:00 as currently date and numbers do not support time precise restrictions
-                    if (!val.contains(":"))
-                        logger.warn("for way " + way.getId() + " could not parse the conditional value '" + val + "' of tag '" + tagToCheck + "'. Exception:" + e.getMessage());
+                    logger.warn("for way " + way.getId() + " could not parse the conditional value '" + val + "' of tag '" + tagToCheck + "'. Exception:" + e.getMessage());
                 }
             }
         }
         return false;
     }
+
+    @Override
+    public boolean isConditionLazyEvaluated() {
+        return isLazyEvaluated;
+    }
+
 }

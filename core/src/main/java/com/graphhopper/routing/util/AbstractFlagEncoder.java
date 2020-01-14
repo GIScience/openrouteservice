@@ -17,13 +17,13 @@
  */
 package com.graphhopper.routing.util;
 
+import com.graphhopper.reader.ConditionalSpeedInspector;
 import com.graphhopper.reader.ConditionalTagInspector;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
 import com.graphhopper.reader.osm.conditional.ConditionalParser;
-import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
@@ -84,6 +84,7 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     protected static final double LONG_TRIP_FERRY_SPEED = 30;
 
     private ConditionalTagInspector conditionalTagInspector;
+    private ConditionalSpeedInspector conditionalSpeedInspector;
 
     public AbstractFlagEncoder(PMap properties) {
         throw new RuntimeException("This method must be overridden in derived classes");
@@ -151,6 +152,14 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
 
     protected void setConditionalTagInspector(ConditionalTagInspector conditionalTagInspector) {
         this.conditionalTagInspector = conditionalTagInspector;
+    }
+
+    public ConditionalSpeedInspector getConditionalSpeedInspector() {
+        return conditionalSpeedInspector;
+    }
+
+    protected void setConditionalSpeedInspector(ConditionalSpeedInspector conditionalSpeedInspector) {
+        this.conditionalSpeedInspector = conditionalSpeedInspector;
     }
 
     /**
