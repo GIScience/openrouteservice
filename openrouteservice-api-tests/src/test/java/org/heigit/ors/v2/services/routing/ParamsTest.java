@@ -379,7 +379,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/json")
-				.then().log().all()
+				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('geometry')", is(true))
@@ -1546,7 +1546,7 @@ public class ParamsTest extends ServiceTest {
 				.body(body.toString())
 				.when().log().all()
 				.post(getEndPointPath() + "/{profile}/json")
-				.then().log().all()
+				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
 				.statusCode(400);
