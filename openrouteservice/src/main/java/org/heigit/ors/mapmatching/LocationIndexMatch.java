@@ -70,7 +70,7 @@ public class LocationIndexMatch extends LocationIndexTree {
 
         for (int iteration = 0; iteration < 2; iteration++) {
             // should we use the return value of earlyFinish?
-                index.findNetworkEntries(queryLat, queryLon, set, iteration);
+            index.findNetworkEntries(queryLat, queryLon, set, iteration);
 
             final GHBitSet exploredNodes = new GHTBitSet(new GHIntHashSet(set));
             final EdgeExplorer explorer = graph.createEdgeExplorer(edgeFilter);
