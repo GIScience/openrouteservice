@@ -22,8 +22,8 @@ public class EdmondsKarp extends AbstractMaxFlowMinCutAlgorithm {
 
 
 
-    public EdmondsKarp(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
-        super(ghStorage, edgeFilter, init);
+    public EdmondsKarp(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
+        super(ghStorage, pData, edgeFilter, init);
     }
 
     public EdmondsKarp() {

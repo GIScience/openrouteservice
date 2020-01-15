@@ -26,6 +26,8 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     private EdgeFilterSequence edgeFilters;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
+    protected PartitioningData pData;
+
 
     private int nodes;
     protected Timer timer;
@@ -41,6 +43,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         this.isochroneNodeStorage = new IsochroneNodeStorage(ghStorage, ghStorage.getDirectory());
         this.cellStorage = new CellStorage(ghStorage, ghStorage.getDirectory(), isochroneNodeStorage);
         this.ghEdgeExpl = ghGraph.createEdgeExplorer();
+        this.pData = new PartitioningData();
 
         this.nodes = ghGraph.getNodes();
         this.nodeBorderness = new boolean[nodes];
@@ -54,7 +57,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         InverseSemaphore inverseSemaphore =  new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
         if(PART__DEBUG) System.out.println("Submitting task for cell 1");
-        threadPool.execute(new InertialFlow(ghStorage, edgeFilters, threadPool, inverseSemaphore));
+        threadPool.execute(new InertialFlow(ghStorage, pData, edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();
         } catch (InterruptedException e) {

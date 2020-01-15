@@ -19,9 +19,8 @@ import java.util.*;
 
 public class MaxFlowMinCut {
 
-    protected static PartitioningData pData = new PartitioningData();
-
     private WayCategoryGraphStorage storage;
+    PartitioningData pData;
     private byte[] buffer = new byte[10];
 
     protected FlowNode srcNode, snkNode;
@@ -44,16 +43,17 @@ public class MaxFlowMinCut {
 
     protected EdgeFilter edgeFilter;
 
-    MaxFlowMinCut(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
+    MaxFlowMinCut(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
         this._ghStorage = ghStorage;
         this._graph = ghStorage.getBaseGraph();
         this._edgeExpl = _graph.createEdgeExplorer();
+        this.pData = pData;
         storage = GraphStorageUtils.getGraphExtension(_ghStorage, WayCategoryGraphStorage.class);
 
         setAdditionalEdgeFilter(edgeFilter);
         if(init) {
             init();
-            MaxFlowMinCutImpl maxFlowMinCut = new MaxFlowMinCutImpl(ghStorage);
+            MaxFlowMinCutImpl maxFlowMinCut = new MaxFlowMinCutImpl(ghStorage, pData);
             maxFlowMinCut.setAdditionalEdgeFilter(edgeFilter);
             maxFlowMinCut.setGHStorage(ghStorage);
             maxFlowMinCut.run();

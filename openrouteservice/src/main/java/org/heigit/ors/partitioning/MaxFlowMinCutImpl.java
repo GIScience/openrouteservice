@@ -20,9 +20,10 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     private int maxEdgeId = -1;
 
 
-    MaxFlowMinCutImpl(GraphHopperStorage ghStorage) {
+    MaxFlowMinCutImpl(GraphHopperStorage ghStorage, PartitioningData pData) {
         this._graph = ghStorage.getBaseGraph();
         this._edgeExpl = _graph.createEdgeExplorer();
+        this.pData = pData;
 
         initStatics();
     }
@@ -31,7 +32,8 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
         _dummyEdgeId = _graph.getAllEdges().getMaxId() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
         //Need entries for all edges + one dummy edge for all nodes
-        pData.createEdgeDataStructures(2 * _dummyEdgeId + 2 * _dummyNodeId);
+        pData.createEdgeDataStructures(_dummyEdgeId + 2 * _dummyNodeId);
+        pData.fillFlowEdgeBaseNodes(_graph);
         pData.createNodeDataStructures(_dummyNodeId);
         buildStaticNetwork();
 //        pairEdges();
@@ -120,10 +122,13 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
         pData.setDummyEdge(node, forwEdge);
 
         FlowEdgeData flowEdgeData = new FlowEdgeData((short)0, (short)0, backEdgeId, false);
-        pData.setFlowEdgeData(forwEdge.id, node, flowEdgeData);
+        pData.setDummyFlowEdgeData(forwEdge.id, flowEdgeData);
+        pData.replaceBaseNodeFlowEdgeData(forwEdge.id, node);
 
         FlowEdgeData invFlowEdgeData = new FlowEdgeData((short)0, (short)0, forwEdge.id, false);
-        pData.setFlowEdgeData(backEdgeId, -2, invFlowEdgeData);
+        pData.setDummyFlowEdgeData(backEdgeId, invFlowEdgeData);
+        pData.replaceBaseNodeFlowEdgeData(backEdgeId, -2);
+
     }
 
 

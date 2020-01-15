@@ -17,11 +17,9 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
 //    private HashMap<Integer, EdgeInfo> prevMap;
     private IntObjectHashMap<EdgeInfo> prevMap;
-    int calls = 0;
-    int maxCalls = 0;
 
-    public EdmondsKarpAStar(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
-        super(ghStorage, edgeFilter, init);
+    public EdmondsKarpAStar(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
+        super(ghStorage, pData, edgeFilter, init);
     }
 
     public EdmondsKarpAStar() {
@@ -49,11 +47,9 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
     @Override
     public void flood() {
         int flow;
-//        maxCalls = nodeIdSet.size() * 3;
-//        maxCalls = Integer.MAX_VALUE;
-//        prevMap = new HashMap();
         prevMap = new IntObjectHashMap((int)Math.ceil(FLOW__SET_SPLIT_VALUE * nodes));
         do {
+            prevMap.clear();
             setUnvisitedAll();
             flow = bfs();
             maxFlow += flow;
@@ -81,7 +77,15 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         int node;
         IntHashSet targSet = new IntHashSet();
 
+        int calls = 0;
+        double maxBFSCalls = _graph.getBaseGraph().getAllEdges().getMaxId() * 2;
+        double sizeFactor = ((double)nodeIdSet.size()) / _graph.getBaseGraph().getNodes();
+        maxBFSCalls = (int)Math.ceil(maxBFSCalls * sizeFactor);
+        maxBFSCalls += nodeIdSet.size() * 2;
+
         while (!queue.isEmpty()) {
+            if(calls > maxBFSCalls)
+                return 0;
             EKEdgeEntry entry = queue.poll();
             node = entry.node;
             targSet.clear();
@@ -89,7 +93,7 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
             if (node == snkNodeId)
                 break;
             if (node == srcNode.id){
-                bfsSrcNode(queue);
+                calls += bfsSrcNode(queue);
                 continue;
             }
             _edgeIter = _edgeExpl.setBaseNode(node);
@@ -153,9 +157,7 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         return bottleNeck;
     }
 
-    private void bfsSrcNode(Queue queue) {
-
-//        for(FlowEdge flowEdge : srcNode.outEdges){
+    private int bfsSrcNode(Queue queue) {
         final int[] outEdges = srcNode.outNodes.buffer;
         int size = srcNode.outNodes.size();
         for (int i = 0; i < size; i++){
@@ -167,6 +169,7 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
                 queue.offer(new EKEdgeEntry(flowEdge.targNode, this.explorationPreference.get(flowEdge.targNode)));
             }
         }
+        return srcNode.outNodes.size();
     }
 
     private class EdgeInfo{

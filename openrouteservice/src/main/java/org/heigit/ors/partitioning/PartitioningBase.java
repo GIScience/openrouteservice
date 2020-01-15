@@ -25,6 +25,7 @@ public abstract class PartitioningBase implements Runnable{
     IntHashSet nodeIdSet;
     AbstractMaxFlowMinCutAlgorithm mincutAlgo;
     EdgeFilter edgeFilter;
+    PartitioningData pData;
 
     static int[] nodeToCellArr;
     static GraphHopperStorage ghStorage;
@@ -34,8 +35,9 @@ public abstract class PartitioningBase implements Runnable{
     PartitioningBase() {
     }
 
-    PartitioningBase(GraphHopperStorage _ghStorage, EdgeFilterSequence edgeFilters, ExecutorService executorService) {
+    PartitioningBase(GraphHopperStorage _ghStorage, PartitioningData pData, EdgeFilterSequence edgeFilters, ExecutorService executorService) {
         ghStorage = _ghStorage;
+        this.pData = pData;
         nodeToCellArr = new int[ghStorage.getNodes()];
         this.edgeFilter = edgeFilters;
         setExecutorService(executorService);
@@ -64,16 +66,16 @@ public abstract class PartitioningBase implements Runnable{
     }
 
     void initAlgo() {
-        mincutAlgo = new EdmondsKarpAStar(ghStorage, this.edgeFilter, true);
+        mincutAlgo = new EdmondsKarpAStar(ghStorage, pData, this.edgeFilter, true);
 //        mincutAlgo.setAdditionalEdgeFilter(this.edgeFilter);
     }
 
     void setAlgo() {
-        mincutAlgo = new EdmondsKarpAStar(ghStorage, this.edgeFilter, false);
+        mincutAlgo = new EdmondsKarpAStar(ghStorage, pData, this.edgeFilter, false);
     }
 
     AbstractMaxFlowMinCutAlgorithm getAlgo() {
-        return new EdmondsKarp();
+        return new EdmondsKarpAStar();
 
     }
 

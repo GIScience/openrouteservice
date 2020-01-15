@@ -1,5 +1,8 @@
 package heigit.ors.partitioning;
 
+import com.graphhopper.routing.util.AllEdgesIterator;
+import com.graphhopper.storage.Graph;
+
 import java.util.Arrays;
 
 public class PartitioningData {
@@ -27,6 +30,14 @@ public class PartitioningData {
         Arrays.fill(flowEdgeBaseNode, -1);
     }
 
+    public void fillFlowEdgeBaseNodes(Graph graph) {
+        AllEdgesIterator iter = graph.getAllEdges();
+        while (iter.next()){
+            flowEdgeBaseNode[2 * iter.getEdge()] = iter.getBaseNode();
+            flowEdgeBaseNode[2 * iter.getEdge() + 1] = iter.getAdjNode();
+        }
+    }
+
     public void createNodeDataStructures(int size){
 //        float loadFactor = 0.75F;
         //size should be num of nodes. Each node has one dummy edge.
@@ -45,14 +56,21 @@ public class PartitioningData {
 
 
     public void setFlowEdgeData(int edgeId, int baseNode, FlowEdgeData data){
-        if(flowEdgeBaseNode[2 * edgeId] == -1 || flowEdgeBaseNode[2 * edgeId] == baseNode) {
+        if(flowEdgeBaseNode[2 * edgeId] == baseNode) {
             setFlowEdgeData(2 * edgeId, data);
-            flowEdgeBaseNode[2 * edgeId] = baseNode;
+            return;
+//            flowEdgeBaseNode[2 * edgeId] = baseNode;
         }
-        else if (flowEdgeBaseNode[2 * edgeId + 1] == -1 || flowEdgeBaseNode[2 * edgeId + 1] == baseNode) {
+        else if (flowEdgeBaseNode[2 * edgeId + 1] == baseNode) {
             setFlowEdgeData(2 * edgeId + 1, data);
-            flowEdgeBaseNode[2 * edgeId + 1] = baseNode;
+            return;
+//            flowEdgeBaseNode[2 * edgeId + 1] = baseNode;
         }
+        throw new IllegalStateException("edgeId " + edgeId + " and basenode " + baseNode + " do not belong together");
+    }
+
+    public void setDummyFlowEdgeData(int edgeId, FlowEdgeData data){
+        setFlowEdgeData(2 * edgeId, data);
     }
 
     public FlowEdgeData getFlowEdgeData(int edgeId, int baseNode){
@@ -76,14 +94,14 @@ public class PartitioningData {
     }
 
     public void replaceBaseNodeFlowEdgeData(int edgeId, int newBaseNode){
-        int baseNode0 = flowEdgeBaseNode[2 * edgeId];
-        int baseNode1 = flowEdgeBaseNode[2 * edgeId + 1];
-        if ((baseNode0 == -1 && baseNode1 == -1)
-                || (baseNode0 != -1 && baseNode1 != -1))
-            throw new IllegalStateException("Original basenode not found");
-        if (baseNode0 == -1)
-            flowEdgeBaseNode[2 * edgeId + 1] = newBaseNode;
-        else
+//        int baseNode0 = flowEdgeBaseNode[2 * edgeId];
+//        int baseNode1 = flowEdgeBaseNode[2 * edgeId + 1];
+//        if ((baseNode0 == -1 && baseNode1 == -1)
+//                || (baseNode0 != -1 && baseNode1 != -1))
+//            throw new IllegalStateException("Original basenode not found");
+//        if (baseNode0 == -1)
+//            flowEdgeBaseNode[2 * edgeId + 1] = newBaseNode;
+//        else
             flowEdgeBaseNode[2 * edgeId] = newBaseNode;
     }
 
@@ -94,12 +112,12 @@ public class PartitioningData {
         active[dataPosition] = data.active;
     }
 
-    public void setDummyFlowEdgeData(int dataPosition, FlowEdgeData data){
-        flowEdgeInverse[2* dataPosition] = data.inverse;
-        flow[2 * dataPosition] = data.flow;
-        capacity[2 * dataPosition] = data.capacity;
-        active[2 * dataPosition] = data.active;
-    }
+//    public void setDummyFlowEdgeData(int dataPosition, FlowEdgeData data){
+//        flowEdgeInverse[2* dataPosition] = data.inverse;
+//        flow[2 * dataPosition] = data.flow;
+//        capacity[2 * dataPosition] = data.capacity;
+//        active[2 * dataPosition] = data.active;
+//    }
 
 
     /*

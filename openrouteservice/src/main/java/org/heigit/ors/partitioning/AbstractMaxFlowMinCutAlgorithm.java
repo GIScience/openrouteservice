@@ -14,8 +14,8 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     private IntHashSet srcPartition, snkPartition;
 
 
-    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, EdgeFilter edgeFilter, boolean init) {
-        super(ghStorage, edgeFilter, init);
+    public AbstractMaxFlowMinCutAlgorithm(GraphHopperStorage ghStorage, PartitioningData pData,  EdgeFilter edgeFilter, boolean init) {
+        super(ghStorage, pData, edgeFilter, init);
     }
 
     public AbstractMaxFlowMinCutAlgorithm() {}
