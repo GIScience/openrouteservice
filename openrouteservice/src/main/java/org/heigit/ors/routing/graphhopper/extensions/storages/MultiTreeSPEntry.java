@@ -97,21 +97,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final MultiTreeSPEntry other = (MultiTreeSPEntry) obj;
-		return toString().equals(other.toString());
-	}
-
-	@Override
-	public int hashCode() {
-		return ("MultiTreeSPEntry" + toString()).hashCode();
-	}
-
-	@Override
 	public String toString() {
 		return adjNode + " (" + 0 + ") weights: " + totalWeight; // TODO
 	}
