@@ -18,7 +18,7 @@
 package heigit.ors.partitioning;
 
 /**
- * Used for Astar with EdmondsKarp
+ * Used for Astar with EdmondsKarpAstar
  * <p>
  *
  * @author Hendrik Leuschner
