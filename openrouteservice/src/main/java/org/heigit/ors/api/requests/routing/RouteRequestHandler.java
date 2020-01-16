@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.requests.routing;
 
+import com.google.common.base.Strings;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -23,6 +24,7 @@ import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
@@ -167,8 +169,14 @@ public class RouteRequestHandler extends GenericHandler {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
             }
             RouteRequestAlternativeRoutes alternativeRoutes = request.getAlternativeRoutes();
-            if (alternativeRoutes.hasTargetCount())
+            if (alternativeRoutes.hasTargetCount()) {
                 params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
+                String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_alternative_routes");
+                int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+                if (countLimit > 0 && alternativeRoutes.getTargetCount() > countLimit) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutes.getTargetCount()), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                }
+            }
             if (alternativeRoutes.hasWeightFactor())
                 params.setAlternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
             if (alternativeRoutes.hasShareFactor())
