@@ -18,6 +18,7 @@ import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -611,8 +612,8 @@ public class ParamsTest extends ServiceTest {
 
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
-		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
-				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } } };
+		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.07381" },
+				{ "8.92699", "53.07381" }, { "8.91197", "53.07257" } } };
 		polygon.put("coordinates", coords);
 		options.put("avoid_polygons", polygon);
 
@@ -697,6 +698,53 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectAvoidpolygonsRejectTooLargePolygons() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("preference", "shortest");
+
+		JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0.05,0],[0.05,0.001],[0,0.001],[0,0]]]}");
+		JSONObject options = new JSONObject();
+		options.put("avoid_polygons", avoidGeom);
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("error.code", is(2003))
+				.body("error.message", is("The extent of a polygon to avoid must not exceed 1.5 kilometers."))
+				.statusCode(400);
+
+		body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("preference", "shortest");
+
+		avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0.1,0],[0.1,0.01],[0,0.01],[0,0]]]}");
+		options = new JSONObject();
+		options.put("avoid_polygons", avoidGeom);
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then().log().all()
+				.assertThat()
+				.body("error.code", is(2003))
+				.body("error.message", is("The area of a polygon to avoid must not exceed 2.5 square kilometers."))
 				.statusCode(400);
 	}
 
