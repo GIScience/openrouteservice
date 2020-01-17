@@ -38,7 +38,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
@@ -349,7 +348,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 			return altPaths;
 
-		} catch (Exception ex) {
+		} catch (IllegalArgumentException ex) {
 			ghRsp.addError(ex);
 			return Collections.emptyList();
 		} finally {
@@ -616,11 +615,4 @@ public class ORSGraphHopper extends GraphHopper {
 				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}
-//	public CountryBordersReader getGeneralCbReader() {
-//		return _generalCbReader;
-//	}
-//
-//	public void setGeneralCbReader(CountryBordersReader _generalCbReader) {
-//		this._generalCbReader = _generalCbReader;
-//	}
 }

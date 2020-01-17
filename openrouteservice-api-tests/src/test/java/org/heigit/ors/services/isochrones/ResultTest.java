@@ -111,7 +111,7 @@ public class ResultTest extends ServiceTest {
                 .param("profile", getParameter("profile"))
                 .param("range", "400")
                 .param("attributes", "reachfactor|area")
-                .when().log().all()
+                .when()
                 .get(getEndPointName())
                 .then()
                 .body("any { it.key == 'type' }", is(true))

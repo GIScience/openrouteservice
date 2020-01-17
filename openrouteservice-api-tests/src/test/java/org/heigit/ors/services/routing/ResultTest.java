@@ -839,7 +839,28 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
-				.param("profile", "driving-hgv")
+                .param("profile", "driving-car")
+                .param("extra_info", "suitability|tollways")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
+
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.tollways.values.size()", is(1))
+                .body("routes[0].extras.tollways.values[0][0]", is(0))
+                .body("routes[0].extras.tollways.values[0][1]", is(101))
+                .body("routes[0].extras.tollways.values[0][2]", is(0))
+                .statusCode(200);
+
+        checkExtraConsistency(response);
+
+        response = given()
+                .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+                .param("instructions", "true")
+                .param("preference", "fastest")
+                .param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
 				.when().log().ifValidationFails()
 				.get(getEndPointName());
@@ -1400,7 +1421,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
 				.param("options", "{\"profile_params\":{\"maximum_incline\":\"2\"}}")
-				.when().log().all()
+				.when()
 				.get(getEndPointName())
 				.then().log().ifValidationFails()
 				.assertThat()

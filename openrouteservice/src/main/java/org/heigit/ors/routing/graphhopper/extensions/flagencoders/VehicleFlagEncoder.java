@@ -49,7 +49,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     private double accelerationModifier = 0.0;
 
-    protected boolean speedTwoDirections = true;
+    protected boolean speedTwoDirections = false;
 
     protected int maxTrackGradeLevel = 3;
 

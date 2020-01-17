@@ -1544,7 +1544,7 @@ public class ParamsTest extends ServiceTest {
 				.header("Content-Type", "application/json")
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
-				.when().log().all()
+				.when()
 				.post(getEndPointPath() + "/{profile}/json")
 				.then()
 				.assertThat()
