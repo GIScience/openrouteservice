@@ -3,7 +3,6 @@ package heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
@@ -11,12 +10,13 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import static heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
-import static heigit.ors.partitioning.FastIsochroneParameters.INFL__GRAPH_EDGE_CAPACITY;
 
 
 public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
     private IntObjectHashMap<EdgeInfo> prevMap;
+    private int srcLimit;
+    private int snkLimit;
 
     public EdmondsKarpAStar(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
         super(ghStorage, pData, edgeFilter, init);
@@ -43,6 +43,8 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
     public void flood() {
         int flow;
         prevMap = new IntObjectHashMap((int)Math.ceil(FLOW__SET_SPLIT_VALUE * nodes));
+        srcLimit = (int) (FLOW__SET_SPLIT_VALUE * nodes);
+        snkLimit = (int) ((1 - FLOW__SET_SPLIT_VALUE) * nodes);
         do {
             prevMap.clear();
             setUnvisitedAll();
@@ -60,16 +62,13 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
     private int bfs() {
         PriorityQueue<EKEdgeEntry> queue = new PriorityQueue<EKEdgeEntry>(nodes);
-        EKEdgeEntry srcNodeEntry = new EKEdgeEntry(srcNode.id, 0);
-        queue.offer(srcNodeEntry);
+        int calls = addSrcNodesToQueue(queue);
         int node;
         IntHashSet targSet = new IntHashSet();
 
-        int calls = 0;
         double maxBFSCalls = _graph.getBaseGraph().getAllEdges().getMaxId() * 2;
-        double sizeFactor = ((double)nodeIdSet.size()) / _graph.getBaseGraph().getNodes();
-        maxBFSCalls = (int)Math.ceil(maxBFSCalls * sizeFactor);
-        maxBFSCalls += nodeIdSet.size() * 2;
+        double sizeFactor = ((double) nodeOrder.size()) / _graph.getBaseGraph().getNodes();
+        maxBFSCalls = (int)Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
 
         while (!queue.isEmpty()) {
             if(calls > maxBFSCalls)
@@ -78,12 +77,12 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
             node = entry.node;
             targSet.clear();
 
-            if (node == snkNodeId)
+            if(snkLimit < nodeOrder.get(node)){
+                prevMap.put(snkNodeId, new EdgeInfo(getDummyEdgeId(), node, snkNodeId));
+                //Early stop
                 break;
-            if (node == srcNode.id){
-                calls += bfsSrcNode(queue);
-                continue;
             }
+
             _edgeIter = _edgeExpl.setBaseNode(node);
             //Iterate over normal edges
             while(_edgeIter.next()){
@@ -96,26 +95,16 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
                         || adj == base)
                     continue;
                 targSet.add(adj);
-                if(pData.getFlowEdgeData(edge, base).active != true)
+                if(!nodeOrder.containsKey(adj))
                     continue;
                 if ((getRemainingCapacity(edge, base))
-                        && !isVisited(pData.getFlowNodeData(adj).visited)) {
+                        && !isVisited(pData.getVisited(adj))) {
                     setVisited(adj);
                     prevMap.put(adj, new EdgeInfo(edge, base, adj));
-                    queue.offer(new EKEdgeEntry(adj, this.explorationPreference.get(adj)));
+                    queue.offer(new EKEdgeEntry(adj, this.nodeOrder.get(adj)));
                 }
             }
-
             calls++;
-            //do the same for the dummyedge of the node
-            FlowEdge dummyEdge = pData.getDummyEdge(node);
-            if(dummyEdge.targNode != snkNodeId)
-                continue;
-            prevMap.put(dummyEdge.targNode, new EdgeInfo(dummyEdge.id, node, dummyEdge.targNode));
-            queue.offer(new EKEdgeEntry(dummyEdge.targNode, this.explorationPreference.get(dummyEdge.targNode)));
-            //Early stop
-            break;
-
         }
 
         if (prevMap.getOrDefault(snkNodeId, null) == null)
@@ -125,38 +114,24 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         EdgeInfo edge = prevMap.getOrDefault(snkNodeId, null);
         edge = prevMap.getOrDefault(edge.baseNode, null);
         while (edge != null){
-            if(edge.baseNode == srcNode.id)
+            if(nodeOrder.get(edge.baseNode) < srcLimit)
                 break;
             bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge.edge, edge.baseNode) ? 1 : 0);
             if(bottleNeck == 0)
                 return 0;
-            edge = prevMap.getOrDefault(edge.baseNode, null);
-        }
-
-        edge = prevMap.getOrDefault(snkNodeId, null);
-        edge = prevMap.getOrDefault(edge.baseNode, null);
-        while (edge != null){
-            if(edge.baseNode == srcNode.id)
-                break;
             augment(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode());
-            edge = prevMap.getOrDefault(edge.getBaseNode(), null);
+            edge = prevMap.getOrDefault(edge.baseNode, null);
         }
         return bottleNeck;
     }
 
-    private int bfsSrcNode(Queue queue) {
-        final int[] outEdges = srcNode.outNodes.buffer;
-        int size = srcNode.outNodes.size();
-        for (int i = 0; i < size; i++){
-            FlowEdge flowEdge = pData.getInverseDummyEdge(outEdges[i]);
-            setVisited(flowEdge.targNode);
-            if(flowEdge.targNode == srcNode.id) {
-                continue;
-            }
-            prevMap.put(flowEdge.targNode, new EdgeInfo(flowEdge.id, srcNode.id, flowEdge.targNode));
-            queue.offer(new EKEdgeEntry(flowEdge.targNode, this.explorationPreference.get(flowEdge.targNode)));
+    private int addSrcNodesToQueue(Queue queue){
+        int nodeNumber = 0;
+        while(nodeNumber < srcLimit) {
+            queue.offer(new EKEdgeEntry(orderedNodes.get(nodeNumber), nodeNumber));
+            nodeNumber++;
         }
-        return srcNode.outNodes.size();
+        return srcLimit;
     }
 
     private class EdgeInfo{

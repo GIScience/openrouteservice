@@ -1,23 +1,16 @@
 package heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntDoubleHashMap;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.vividsolutions.jts.geom.*;
 import heigit.ors.fastisochrones.Contour;
-import heigit.ors.routing.AvoidFeatureFlags;
 import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
@@ -202,12 +195,6 @@ public class InertialFlow extends PartitioningBase {
         this.ghGraph = ghStorage.getBaseGraph();
         this.inverseSemaphore = inverseSemaphore;
 
-//        graphBiSplit();
-//        saveResults();
-//        recursion();
-
-
-
     }
 
     public void run() {
@@ -266,8 +253,9 @@ public class InertialFlow extends PartitioningBase {
             if(i == 3)
                 break;
             //>> sort projected Nodes
-            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork(0d, FLOW__SET_SPLIT_VALUE, nodeListProjMap.get(proj));
-            mincutAlgo.setExplorationPreference(nodeListProjMap.get(proj));
+            mincutAlgo.setOrderedNodes(nodeListProjMap.get(proj));
+            mincutAlgo.setNodeOrder();
+            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork();
             int cutScore = mincutAlgo.getMaxFlow();
 
             if (cutScore < mincutScore) {

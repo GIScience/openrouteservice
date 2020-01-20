@@ -36,7 +36,6 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
         pData.fillFlowEdgeBaseNodes(_graph);
         pData.createNodeDataStructures(_dummyNodeId);
         buildStaticNetwork();
-//        pairEdges();
     }
 
 
@@ -50,9 +49,6 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     public void buildStaticNetwork() {
         Set<Integer> targSet = new HashSet<>();
 
-        for (int nodeId = 0; nodeId < nodes; nodeId++)
-            addDummyEdgePair(nodeId);
-
         for (int baseId = 0; baseId < nodes; baseId++) {
             targSet.clear();
             _edgeIter = _edgeExpl.setBaseNode(baseId);
@@ -63,10 +59,6 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
                 //>> eliminate Loops and MultiEdges
                 if ((baseId != targId) && (!targSet.contains(targId))) {
                     targSet.add(targId);
-
-//                    if(shouldBeLowCapacity(_edgeIter))
-//                        addEdge(_edgeIter.getEdge(), baseId, INFL__LOW_GRAPH_EDGE_CAPACITY);
-//                    else
                     addEdge(_edgeIter.getEdge(), baseId, targId);
                 }
             }
@@ -75,21 +67,11 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
 
     private int addEdge(int edgeId, int baseNode, int targNode) {
         pData.setFlowEdgeData(edgeId, baseNode,
-                new FlowEdgeData(false, edgeId, false));
+                new FlowEdgeData(false, edgeId));
         pData.setFlowEdgeData(edgeId, targNode,
-                new FlowEdgeData(false, edgeId, false));
+                new FlowEdgeData(false, edgeId));
         if(maxEdgeId < edgeId)
             maxEdgeId = edgeId;
         return edgeId;
     }
-
-
-    public void addDummyEdgePair(int node) {
-        FlowEdge forwEdge = new FlowEdge(getDummyEdgeId(), node, -1);
-        int backEdgeId = getDummyEdgeId();// = new FlowEdge(getDummyEdgeId(), -1, node);
-        forwEdge.inverse = backEdgeId;
-        pData.setDummyEdge(node, forwEdge);
     }
-
-
-}

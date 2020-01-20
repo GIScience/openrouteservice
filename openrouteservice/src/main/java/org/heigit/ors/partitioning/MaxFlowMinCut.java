@@ -9,12 +9,10 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
-
 public class MaxFlowMinCut {
 
     PartitioningData pData;
 
-    protected FlowNode srcNode;
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
     protected int snkNodeId;
@@ -29,8 +27,9 @@ public class MaxFlowMinCut {
     protected GraphHopperStorage _ghStorage;
 
     protected double limit;
-    protected IntHashSet nodeIdSet;
-    protected IntIntHashMap explorationPreference;
+
+    protected IntIntHashMap nodeOrder;
+    protected IntArrayList orderedNodes;
 
     protected EdgeFilter edgeFilter;
 
@@ -42,7 +41,6 @@ public class MaxFlowMinCut {
 
         setAdditionalEdgeFilter(edgeFilter);
         if(init) {
-            init();
             MaxFlowMinCutImpl maxFlowMinCut = new MaxFlowMinCutImpl(ghStorage, pData);
             maxFlowMinCut.setAdditionalEdgeFilter(edgeFilter);
             maxFlowMinCut.setGHStorage(ghStorage);
@@ -53,20 +51,15 @@ public class MaxFlowMinCut {
     MaxFlowMinCut() {
     }
 
-    private void init() {
-        this.nodeIdSet = new IntHashSet();
-    }
-
     protected void setGHStorage(GraphHopperStorage ghStorage){
         this._ghStorage = ghStorage;
     }
 
 
-    protected void initSubNetwork(double a, double b, IntArrayList sortedNodes) {
+    protected void initSubNetwork() {
         reset();
-        initDynamics();
         buildSrcSnkNodes();
-        identifySrcSnkEdges(b, sortedNodes);
+        identifySrcSnkEdges();
     }
 
     protected MaxFlowMinCut setMaxFlowLimit(int prevMaxFlow) {
@@ -84,65 +77,46 @@ public class MaxFlowMinCut {
         this.visitedToken = 1;
     }
 
-    private void initDynamics() {
-        this.nodeIdSet = new IntHashSet();
-    }
 
     private void buildSrcSnkNodes() {
-        this.srcNode = new FlowNode(getDummyNodeId());
         this.snkNodeId = getDummyNodeId();
     }
 
-    private void identifySrcSnkEdges(double b, IntArrayList sortedNodes) {
-        this.nodes = sortedNodes.size();
-        int b1 = (int) (b * nodes);
-        int b2 = (int) ((1 - b) * nodes);
-        this.nodeIdSet.addAll(sortedNodes);
-
+    private void identifySrcSnkEdges() {
+        this.nodes = orderedNodes.size();
         for (int i = 0; i < nodes; i++) {
             IntHashSet targSet = new IntHashSet();
-            int nodeId = sortedNodes.get(i);
-            FlowNodeData flowNodeData = pData.getFlowNodeDataOrDefault(nodeId, new FlowNodeData(0));
-            flowNodeData.visited = 0;
-            pData.setFlowNodeData(nodeId, flowNodeData);
+            int nodeId = orderedNodes.get(i);
+//            FlowNodeData flowNodeData = pData.getFlowNodeDataOrDefault(nodeId, new FlowNodeData(0));
+//            flowNodeData.visited = 0;
+//            pData.setFlowNodeData(nodeId, flowNodeData);
+            pData.setVisited(nodeId, 0);
 
             _edgeIter = _edgeExpl.setBaseNode(nodeId);
-            pData.setDummyTargNode(nodeId, -1);
-
             while (_edgeIter.next()) {
                 if(targSet.contains(_edgeIter.getAdjNode())
                         || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
                     continue;
-                if(!acceptForPartitioning(_edgeIter))
-                    continue;
+//                if(!acceptForPartitioning(_edgeIter))
+//                    continue;
                 targSet.add(_edgeIter.getAdjNode());
                 //reset
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode());
                 flowEdgeData.flow = false;
-                if (nodeIdSet.contains(_edgeIter.getAdjNode()))
-                    flowEdgeData.active = true;
-                else flowEdgeData.active = false;
                 pData.setFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode(), flowEdgeData);
 
-            }
-
-//          handle Dummy-Edges of Node
-            if (i < b1) {
-                //>> bring DummySourceEdges to Life
-                pData.setDummyTargNode(nodeId, srcNode.id);
-                srcNode.outNodes.add(nodeId);
-
-            } else if (b2 < i) {
-                //>> bring DummySinkEdges to Life
-                pData.setDummyTargNode(nodeId, snkNodeId);
             }
         }
     }
 
-    public void setExplorationPreference(IntArrayList nodes){
-        this.explorationPreference = new IntIntHashMap();
-        for(int i = 0; i < nodes.size(); i++)
-            explorationPreference.put(nodes.get(i), i);
+    public void setNodeOrder(){
+        this.nodeOrder = new IntIntHashMap();
+        for(int i = 0; i < orderedNodes.size(); i++)
+            nodeOrder.put(orderedNodes.get(i), i);
+    }
+
+    public void setOrderedNodes(IntArrayList orderedNodes){
+        this.orderedNodes = orderedNodes;
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator){
@@ -152,21 +126,9 @@ public class MaxFlowMinCut {
 //        return edgeFilter.accept(edgeIterator);
     }
 
-    protected boolean shouldBeLowCapacity(EdgeIterator edgeIterator){
-        return false;
-//        if (storage == null)
-//            storage = GraphStorageUtils.getGraphExtension(_ghStorage, WayCategoryGraphStorage.class);
-//        if ((storage.getEdgeValue(edgeIterator.getEdge(), buffer) & AvoidFeatureFlags.Ferries) == 0)
-//            return false;
-//        else
-//            return true;
-//        return (edgeIterator.getDistance() > 2000);
-    }
-
     public void setAdditionalEdgeFilter(EdgeFilter edgeFilter){
         this.edgeFilter = edgeFilter;
     }
-
 
     private synchronized int getDummyNodeId() {
         return ++_dummyNodeId;

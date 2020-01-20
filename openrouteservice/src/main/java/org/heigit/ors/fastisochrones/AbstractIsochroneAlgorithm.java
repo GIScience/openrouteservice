@@ -60,7 +60,7 @@ public abstract class AbstractIsochroneAlgorithm {
     int coreNodeLevel;
     int fromNode;
     double isochroneLimit;
-    
+
     protected EdgeFilter additionalEdgeFilter;
 
     boolean inCore;

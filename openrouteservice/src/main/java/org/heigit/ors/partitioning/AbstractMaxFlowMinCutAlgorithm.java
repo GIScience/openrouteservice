@@ -1,12 +1,8 @@
 package org.heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-
-import java.util.HashSet;
-import java.util.Set;
 
 
 public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
@@ -21,9 +17,10 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     public AbstractMaxFlowMinCutAlgorithm() {}
 
     public void setVisited(int node) {
-        FlowNodeData flowNodeData = pData.getFlowNodeData(node);
-        flowNodeData.visited = visitedToken;
-        pData.setFlowNodeData(node, flowNodeData);
+//        FlowNodeData flowNodeData = pData.getFlowNodeData(node);
+//        flowNodeData.visited = visitedToken;
+//        pData.setFlowNodeData(node, flowNodeData);
+        pData.setVisited(node, visitedToken);
     }
 
     public boolean isVisited(int visited) {
@@ -44,11 +41,11 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
         snkPartition = new IntHashSet();
 
         execute();
-        for (IntCursor nodeId : nodeIdSet) {
-            if (isVisited(pData.getFlowNodeData(nodeId.value).visited))
-                this.srcPartition.add(nodeId.value);
+        for (int nodeId : nodeOrder.keys) {
+            if (isVisited(pData.getVisited(nodeId)))
+                this.srcPartition.add(nodeId);
             else
-                this.snkPartition.add(nodeId.value);
+                this.snkPartition.add(nodeId);
         }
     }
 
