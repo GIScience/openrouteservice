@@ -87,9 +87,7 @@ public class MaxFlowMinCut {
         for (int i = 0; i < nodes; i++) {
             IntHashSet targSet = new IntHashSet();
             int nodeId = orderedNodes.get(i);
-//            FlowNodeData flowNodeData = pData.getFlowNodeDataOrDefault(nodeId, new FlowNodeData(0));
-//            flowNodeData.visited = 0;
-//            pData.setFlowNodeData(nodeId, flowNodeData);
+
             pData.setVisited(nodeId, 0);
 
             _edgeIter = _edgeExpl.setBaseNode(nodeId);
