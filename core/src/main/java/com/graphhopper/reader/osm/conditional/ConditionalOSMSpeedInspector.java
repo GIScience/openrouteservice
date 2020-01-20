@@ -18,14 +18,12 @@
 package com.graphhopper.reader.osm.conditional;
 
 import com.graphhopper.reader.ConditionalSpeedInspector;
-import com.graphhopper.reader.ConditionalTagInspector;
 import com.graphhopper.reader.ReaderWay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Inspects the conditional tags of an OSMWay according to the given conditional tags.
@@ -41,7 +39,6 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
     private boolean enabledLogs = true;
 
     private String val;
-    private boolean isLazyEvaluated;
 
     @Override
     public String getTagValue() {
@@ -59,16 +56,15 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
         }
 
         this.enabledLogs = enabledLogs;
+        parser = new ConditionalParser(null);
+    }
 
-        // enable for debugging purposes only as this is too much
-        boolean logUnsupportedFeatures = false;
-        this.parser = new ConditionalParser(null);
-        this.parser.addConditionalValueParser(ConditionalParser.createDateTimeParser());
+    public void addValueParser(ConditionalValueParser vp) {
+        parser.addConditionalValueParser(vp);
     }
 
     @Override
     public boolean hasConditionalSpeed(ReaderWay way) {
-        isLazyEvaluated = false;
         for (int index = 0; index < tagsToCheck.size(); index++) {
             String tagToCheck = tagsToCheck.get(index);
             val = way.getTag(tagToCheck);
@@ -76,11 +72,7 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
                 continue;
             try {
                 if (parser.checkCondition(val)) {
-                    if (parser.hasUnevaluatedRestrictions()) {
-                        isLazyEvaluated = true;
-                        //System.out.println(way.getId() + ": " + val + " -> " + parser.getUnevaluatedRestrictions());
-                        val = parser.getUnevaluatedRestrictions();
-                    }
+                    val = parser.getRestrictions();
                     return true;
                 }
             } catch (Exception e) {
@@ -94,7 +86,7 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
 
     @Override
     public boolean isConditionLazyEvaluated() {
-        return isLazyEvaluated;
+        return parser.hasUnevaluatedRestrictions();
     }
 
 }

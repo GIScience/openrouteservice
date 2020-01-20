@@ -231,8 +231,11 @@ public class ConditionalParser {
         return (!parsedRestrictions.isEmpty());
     }
 
-    public String getUnevaluatedRestrictions() {
-        return unevaluatedRestrictions;
+    public String getRestrictions() {
+        if (hasUnevaluatedRestrictions())
+            return unevaluatedRestrictions;
+        else
+            return simpleValue;
     }
 
     public boolean hasUnevaluatedRestrictions() {

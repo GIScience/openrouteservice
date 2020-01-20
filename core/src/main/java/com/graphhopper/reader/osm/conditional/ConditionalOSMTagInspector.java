@@ -70,12 +70,12 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
 
     @Override
     public boolean isRestrictedWayConditionallyPermitted(ReaderWay way) {
-        return applies(way, true);
+        return applies(way, permitParser);
     }
 
     @Override
     public boolean isPermittedWayConditionallyRestricted(ReaderWay way) {
-        return applies(way, false);
+        return applies(way, restrictiveParser);
     }
 
     @Override
@@ -83,8 +83,7 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
         return isLazyEvaluated;
     }
 
-    protected boolean applies(ReaderWay way, boolean checkPermissiveValues) {
-        ConditionalParser parser = checkPermissiveValues ? permitParser : restrictiveParser;
+    protected boolean applies(ReaderWay way, ConditionalParser parser) {
 
         isLazyEvaluated = false;
         for (int index = 0; index < tagsToCheck.size(); index++) {
@@ -94,11 +93,9 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
                 continue;
             try {
                 if (parser.checkCondition(val)) {
-                    if (parser.hasUnevaluatedRestrictions()) {
+                    if (parser.hasUnevaluatedRestrictions())
                         isLazyEvaluated = true;
-                        //System.out.println(way.getId() + ": " + val + " -> " + parser.getUnevaluatedRestrictions());
-                        val = parser.getUnevaluatedRestrictions();
-                    }
+                    val = parser.getRestrictions();
                     return true;
                 }
             } catch (Exception e) {
