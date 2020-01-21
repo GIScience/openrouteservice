@@ -16,7 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.FactorizedDecimalEncodedValue;
+import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
@@ -25,6 +25,8 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
 import java.util.*;
+
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     public static final String VAL_DESIGNATED = "designated";
@@ -63,7 +65,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         setBlockFords(properties.getBool("block_fords", true));
         setBlockByDefault(properties.getBool("block_barriers", true));
 
-        speedTwoDirections = properties.getBool("speed_two_directions", false);
+        speedTwoDirections = properties.getBool("speed_two_directions", true);
 
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
 
@@ -124,7 +126,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 	@Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
     }
 	

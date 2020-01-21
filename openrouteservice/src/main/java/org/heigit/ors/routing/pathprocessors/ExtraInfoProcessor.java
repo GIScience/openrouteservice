@@ -43,6 +43,8 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
+
 public class ExtraInfoProcessor implements PathProcessor {
 	private WaySurfaceTypeGraphStorage extWaySurface;
 	private WayCategoryGraphStorage extWayCategory;
@@ -428,7 +430,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 			double priority;
 			int priorityIndex;
 			if (encoderWithPriority) {
-				priority = edge.get(encoder.getDecimalEncodedValue(encoder.toString()+"."+FlagEncoderKeys.PRIORITY_KEY));
+				priority = edge.get(encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY)));
 				priorityIndex = (int)(3 + priority*PriorityCode.BEST.getValue()); // normalize values between 3 and 10
 			} else {
 				priority = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags()) / encoder.getMaxSpeed();

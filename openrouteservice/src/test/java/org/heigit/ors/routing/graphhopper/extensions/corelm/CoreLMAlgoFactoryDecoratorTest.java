@@ -26,6 +26,7 @@ import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,7 @@ public class CoreLMAlgoFactoryDecoratorTest {
         List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
         dec.getCoreLMOptions().setRestrictionFilters(tmpCoreLMSets);
 
-        GraphHopperStorage graph = new GraphBuilder(em).setCoreGraph(weighting).create();
+        GraphHopperStorage graph = new GraphBuilder(em).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
         dec.createPreparations(graph, null);
         assertEquals(0.3, dec.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
     }

@@ -21,6 +21,8 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
+
 public class OptimizedPriorityWeighting extends FastestWeighting {
 	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
 	private  static final Double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
@@ -28,7 +30,7 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 
 	public OptimizedPriorityWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
-		priorityEncoder = encoder.getDecimalEncodedValue(EncodingManager.getKey(encoder, "priority"));
+		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, "priority"));
 	}
 
 	@Override

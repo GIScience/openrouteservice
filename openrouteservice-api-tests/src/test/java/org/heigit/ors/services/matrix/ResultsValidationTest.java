@@ -162,7 +162,6 @@ public class ResultsValidationTest extends ServiceTest {
                 .param("metrics", "distance|duration")
                 .param("profile", "driving-car")
                 .when()
-                .log().all()
                 .get(getEndPointName());
 
         Assert.assertEquals(response.getStatusCode(), 200);

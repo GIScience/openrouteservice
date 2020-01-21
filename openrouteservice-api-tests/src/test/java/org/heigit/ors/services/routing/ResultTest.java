@@ -55,7 +55,7 @@ public class ResultTest extends ServiceTest {
 		addParameter("carProfile", "driving-car");
 
 		// query for testing the alternative routes algorithm
-        addParameter("coordinatesAR", "8.680401,49.437436|8.746362,49.414191");
+        addParameter("coordinatesAR", "8.673191,49.446812|8.689499,49.398295");
 	}
 
     @Test
@@ -839,28 +839,28 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
-				.param("profile", "driving-car")
-				.param("extra_info", "suitability|tollways")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+                .param("profile", "driving-car")
+                .param("extra_info", "suitability|tollways")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(1))
-				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(101))
-				.body("routes[0].extras.tollways.values[0][2]", is(0))
-				.statusCode(200);
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.tollways.values.size()", is(1))
+                .body("routes[0].extras.tollways.values[0][0]", is(0))
+                .body("routes[0].extras.tollways.values[0][1]", is(101))
+                .body("routes[0].extras.tollways.values[0][2]", is(0))
+                .statusCode(200);
 
-		checkExtraConsistency(response);
+        checkExtraConsistency(response);
 
-		response = given()
-				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
-				.param("instructions", "true")
-				.param("preference", "fastest")
-				.param("profile", "driving-hgv")
+        response = given()
+                .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+                .param("instructions", "true")
+                .param("preference", "fastest")
+                .param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
 				.when().log().ifValidationFails()
 				.get(getEndPointName());
@@ -1421,7 +1421,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
 				.param("options", "{\"profile_params\":{\"maximum_incline\":\"2\"}}")
-				.when().log().all()
+				.when()
 				.get(getEndPointName())
 				.then().log().ifValidationFails()
 				.assertThat()
@@ -1594,17 +1594,33 @@ public class ResultTest extends ServiceTest {
                 .param("instructions", "true")
                 .param("preference", getParameter("preference"))
                 .param("profile", getParameter("carProfile"))
-                .param("options", "{\"alternative_routes_count\": 2}")
+                .param("options", "{\"alternative_routes_count\": 2, \"alternative_routes_share_factor\": 0.5}")
                 .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(2))
-                .body("routes[0].summary.distance", is(8178.2f))
-                .body("routes[0].summary.duration", is(1087.4f))
-                .body("routes[1].summary.distance", is(10670.9f))
-                .body("routes[1].summary.duration", is(1414))
+                .body("routes[0].summary.distance", is(5942.2f))
+                .body("routes[0].summary.duration", is(776.1f))
+                .body("routes[1].summary.distance", is( 6435.1f))
+                .body("routes[1].summary.duration", is(801.5f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", getParameter("coordinatesAR"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]},\"alternative_routes_count\": 2}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 6435.1f))
+                .body("routes[0].summary.duration", is(801.5f))
                 .statusCode(200);
     }
 }
