@@ -22,6 +22,7 @@ import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.coll.GHIntArrayList;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.TDWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -62,6 +63,7 @@ public class Path {
     protected int endNode = -1;
     private List<String> description;
     protected Weighting weighting;
+    private boolean isTDweighting;
     private FlagEncoder encoder;
     private boolean found;
     private int fromNode = -1;
@@ -74,6 +76,7 @@ public class Path {
         this.graph = graph;
         this.nodeAccess = graph.getNodeAccess();
         this.weighting = weighting;
+        this.isTDweighting = weighting instanceof TDWeighting;
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
     }
@@ -206,7 +209,9 @@ public class Path {
             processEdge(currEdge.edge, currEdge.adjNode, nextEdge);
             currEdge = currEdge.parent;
         }
-
+        if (isTDweighting) {
+            time = sptEntry.time - currEdge.time;
+        }
         setFromNode(currEdge.adjNode);
         reverseOrder();
         extractSW.stop();
@@ -239,7 +244,9 @@ public class Path {
     protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         distance += iter.getDistance();
-        time += weighting.calcMillis(iter, false, prevEdgeId);
+        if (!isTDweighting) {
+            time += weighting.calcMillis(iter, false, prevEdgeId);
+        }
         addEdge(edgeId);
     }
 

@@ -20,6 +20,7 @@ package com.graphhopper.routing;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TDWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -37,29 +38,20 @@ import java.util.PriorityQueue;
  *
  * @author Peter Karich
  */
-public class Dijkstra extends AbstractRoutingAlgorithm {
-    protected IntObjectMap<SPTEntry> fromMap;
-    protected PriorityQueue<SPTEntry> fromHeap;
-    protected SPTEntry currEdge;
-    protected int visitedNodes;
-    protected int to = -1;
+public class TDDijkstra extends Dijkstra {
+    private TDWeighting weighting;
 
-    public Dijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public TDDijkstra(Graph graph, TDWeighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
-        int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
-        initCollections(size);
-    }
-
-    protected void initCollections(int size) {
-        fromHeap = new PriorityQueue<>(size);
-        fromMap = new GHIntObjectHashMap<>(size);
+        this.weighting = weighting;
     }
 
     @Override
-    public Path calcPath(int from, int to) {
+    public Path calcPath(int from, int to, long at) {
         checkAlreadyRun();
         this.to = to;
         currEdge = new SPTEntry(from, 0);
+        currEdge.time = at;
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }
@@ -67,6 +59,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         return extractPath();
     }
 
+    @Override
     protected void runAlgo() {
         EdgeExplorer explorer = outEdgeExplorer;
         while (true) {
@@ -80,7 +73,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge, currEdge.time) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight)) {
                     continue;
                 }
@@ -90,6 +83,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
+                    nEdge.time = weighting.calcMillis(iter, false, currEdge.edge, currEdge.time) + currEdge.time;
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
@@ -97,6 +91,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
                     nEdge.edge = iter.getEdge();
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
+                    nEdge.time = weighting.calcMillis(iter, false, currEdge.edge, currEdge.time) + currEdge.time;
                     fromHeap.add(nEdge);
                 } else
                     continue;
@@ -114,29 +109,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     }
 
     @Override
-    protected boolean finished() {
-        return currEdge.adjNode == to;
-    }
-
-    @Override
-    protected Path extractPath() {
-        if (currEdge == null || !finished())
-            return createEmptyPath();
-
-        return new Path(graph, weighting).
-                setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
-    }
-
-    @Override
-    public int getVisitedNodes() {
-        return visitedNodes;
-    }
-
-    protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry bestSPTEntry, int traversalId) {
-    }
-
-    @Override
     public String getName() {
-        return Parameters.Algorithms.DIJKSTRA;
+        return Parameters.Algorithms.TD_DIJKSTRA;
     }
 }
