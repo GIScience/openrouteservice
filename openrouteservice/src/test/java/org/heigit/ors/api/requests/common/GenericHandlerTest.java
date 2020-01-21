@@ -69,7 +69,7 @@ public class GenericHandlerTest {
     }
 
     @Test
-    public void convertAvoidAreas() throws ParameterValueException {
+    public void convertAvoidAreas() throws StatusCodeException {
         JSONObject geomJSON = new JSONObject();
         geomJSON.put("type", "Polygon");
 
@@ -104,7 +104,7 @@ public class GenericHandlerTest {
     }
 
     @Test(expected = ParameterValueException.class)
-    public void convertAvoidAreasInvalidType() throws ParameterValueException {
+    public void convertAvoidAreasInvalidType() throws StatusCodeException {
         JSONObject geomJSON = new JSONObject();
         geomJSON.put("type", "LineString");
 
@@ -115,7 +115,7 @@ public class GenericHandlerTest {
     }
 
     @Test(expected = ParameterValueException.class)
-    public void convertAvoidAreasInvalidFeature() throws ParameterValueException {
+    public void convertAvoidAreasInvalidFeature() throws StatusCodeException {
         JSONObject geomJSON = new JSONObject();
         geomJSON.put("type", "Polygon");
 
