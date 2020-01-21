@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.ShortestWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
@@ -26,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -58,7 +60,7 @@ public class CoreLandmarkStorageTest {
     }
 
     private GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCoreGraph(weighting).create();
+        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
     }
 
 
@@ -101,8 +103,8 @@ public class CoreLandmarkStorageTest {
     }
 
     private CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
-        CHGraph lg = g.getGraph(CHGraph.class);
-        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        CHGraph lg = g.getCHGraph(new CHProfile(weighting, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
+        PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
         prepare.setPeriodicUpdates(20);

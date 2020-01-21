@@ -137,7 +137,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // Edge based is not really necessary because when adding turn costs while routing we can still
         // use the node based traversal as this is a smaller weight approximation and will still produce correct results
         this.traversalMode = TraversalMode.NODE_BASED;
-        final String name = AbstractWeighting.weightingToFileName(weighting, traversalMode.isEdgeBased()) + landmarksFilter.getName();
+        final String name = AbstractWeighting.weightingToFileName(weighting) + landmarksFilter.getName();
         this.landmarkWeightDA = dir.find("landmarks_core_" + name);
 
         this.landmarks = landmarks;
@@ -821,14 +821,6 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             return lastNode;
         }
 
-        public void initFrom(int from, double weight) {
-            super.initFrom(from, weight);
-        }
-
-        public void initTo(int to, double weight) {
-            super.initTo(to, weight);
-        }
-
         public void runAlgo(boolean from, EdgeFilter filter) {
             // no path should be calculated
             setUpdateBestPath(false);
@@ -901,6 +893,17 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                     .append(weighting.getName()).append("|maximum=").append(finalMaxWeight.getValue() * 1.2).toString());
             }
         }
+
+        @Override
+        public void initFrom(int from, double weight){
+            super.initFrom(from, weight);
+        }
+
+        @Override
+        public void initTo(int to, double weight){
+            super.initTo(to, weight);
+        }
+
     }
 
     /**

@@ -63,9 +63,6 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	}
 
 	protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-		if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
-			return false;
-
 		return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
 	}
 

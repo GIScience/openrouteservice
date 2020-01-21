@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.apache.log4j.Logger;
 
@@ -26,12 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GHDirectory;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.ExtendedStorageSequence;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorageFactory;
-import com.graphhopper.storage.TurnCostExtension;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
@@ -100,25 +95,16 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		if (gh.getCHFactoryDecorator().isEnabled())
 			gh.initCHAlgoFactoryDecorator();
 
-		List<Weighting> nodeBasedWeightings = new ArrayList<>();
-		List<Weighting> edgeBasedWeightings = new ArrayList<>();
-		List<String> nodeBasedTypes = new ArrayList<>();
-		List<String> edgeBasedTypes = new ArrayList<>();
+		List<CHProfile> profiles = new ArrayList<>();
+
 		if (gh.isCHEnabled()) {
-			nodeBasedWeightings.addAll(gh.getCHFactoryDecorator().getNodeBasedWeightings());
-			String[] types = new String[gh.getCHFactoryDecorator().getNodeBasedWeightings().size()];
-			Arrays.fill(types, "ch");
-			nodeBasedTypes.addAll(Arrays.asList(types));
+			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
 		}
 		if (((ORSGraphHopper)gh).isCoreEnabled()) {
-			nodeBasedWeightings.addAll(((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings());
-			String[] types = new String[((ORSGraphHopper) gh).getCoreFactoryDecorator().getWeightings().size()];
-			Arrays.fill(types, "core");
-			nodeBasedTypes.addAll(Arrays.asList(types));
+			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
 		}
-		if (!nodeBasedWeightings.isEmpty())
-			return new GraphHopperStorage(nodeBasedWeightings, edgeBasedWeightings, dir, encodingManager,
-				gh.hasElevation(), graphExtension, nodeBasedTypes, edgeBasedTypes);
+		if (!profiles.isEmpty())
+			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}
