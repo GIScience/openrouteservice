@@ -379,8 +379,8 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
             }
 
-            String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area");
-            String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent");
+            String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+            String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
             double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
             double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
             for (Polygon avoidArea : avoidAreas) {

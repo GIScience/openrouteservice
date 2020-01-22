@@ -111,7 +111,7 @@ public class GenericHandler {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));

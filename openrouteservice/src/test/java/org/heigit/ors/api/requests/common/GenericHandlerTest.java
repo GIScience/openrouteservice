@@ -79,7 +79,7 @@ public class GenericHandlerTest {
         coords.add(0, poly);
         geomJSON.put("coordinates", coords);
 
-        Polygon[] avoidAreas = handler.convertAvoidAreas(geomJSON);
+        Polygon[] avoidAreas = handler.convertAvoidAreas(geomJSON, 1);
         Assert.assertEquals(1, avoidAreas.length);
         Assert.assertEquals(4, avoidAreas[0].getCoordinates().length);
         Assert.assertEquals(1, avoidAreas[0].getCoordinates()[0].x, 0.0);
@@ -98,7 +98,7 @@ public class GenericHandlerTest {
 
         geomJSONMulti.put("coordinates", coords);
 
-        avoidAreas = handler.convertAvoidAreas(geomJSONMulti);
+        avoidAreas = handler.convertAvoidAreas(geomJSONMulti, 1);
 
         Assert.assertEquals(2, avoidAreas.length);
     }
@@ -111,7 +111,7 @@ public class GenericHandlerTest {
         JSONArray poly = generateGeoJSONPolyCoords();
 
         geomJSON.put("coordinates", poly);
-        handler.convertAvoidAreas(geomJSON);
+        handler.convertAvoidAreas(geomJSON, 1);
     }
 
     @Test(expected = ParameterValueException.class)
@@ -122,7 +122,7 @@ public class GenericHandlerTest {
         JSONArray poly = generateGeoJSONPolyCoords();
 
         geomJSON.put("coooooooooooordinates", poly);
-        handler.convertAvoidAreas(geomJSON);
+        handler.convertAvoidAreas(geomJSON, 1);
     }
 
     private JSONArray generateGeoJSONPolyCoords() {

@@ -208,7 +208,7 @@ public class RouteRequestHandler extends GenericHandler {
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
         if (options.hasAvoidPolygonFeatures())
-            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
+            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
@@ -325,8 +325,7 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
-    @Override
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -353,8 +352,8 @@ public class RouteRequestHandler extends GenericHandler {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
-        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area");
-        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent");
+        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
         double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
         double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
         for (Polygon avoidArea : avoidAreas) {
