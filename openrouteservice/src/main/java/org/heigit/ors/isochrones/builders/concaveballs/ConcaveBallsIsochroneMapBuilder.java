@@ -73,6 +73,9 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 			sw.start();
 		}
 
+		GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
+		String graphdate = graph.getProperties().get("datareader.import.date");
+
 		// 1. Find all graph edges for a given cost.
 		double maxSpeed = searchContext.getEncoder().getMaxSpeed();
 
@@ -97,6 +100,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         Coordinate loc = (point == null) ? parameters.getLocation() : new Coordinate(point.lon, point.lat);
 
 		IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
+
+		isochroneMap.setGraphDate(graphdate);
 
 		if (LOGGER.isDebugEnabled())
 		{
@@ -171,7 +176,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
 			addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
 
-
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("Build concave hull: " + sw.stop().getSeconds());
 
@@ -231,7 +235,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 		Polygon poly = (Polygon)geom;
 
 		copyConvexHullPoints(poly);
-
 		isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
 	}
 
@@ -328,7 +331,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 		GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
 		NodeAccess nodeAccess = graph.getNodeAccess();
 		int maxNodeId = graph.getNodes();
-
 
 		DistanceCalc dcFast = new DistancePlaneProjection();
 		double bufferSize = 0.0018;

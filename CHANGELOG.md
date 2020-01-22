@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - more consistent language API parameters (ISO 639-1 codes & IETF tags)
 - Nepali language support can be selected through API
 - Fixed invalid JSON and GeoJSON when including elevation ([#640](https://github.com/GIScience/openrouteservice/issues/640))
+- Added graph date for isochrones and matrix service and fixed the 0 output ([#648](https://github.com/GIScience/openrouteservice/issues/648))
 ### Changed
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
