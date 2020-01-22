@@ -17,19 +17,13 @@
  */
 package com.graphhopper.routing;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TDWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
-
-import java.util.PriorityQueue;
 
 /**
  * Implements a single source shortest path algorithm
@@ -39,11 +33,11 @@ import java.util.PriorityQueue;
  * @author Peter Karich
  */
 public class TDDijkstra extends Dijkstra {
-    private TDWeighting weighting;
 
-    public TDDijkstra(Graph graph, TDWeighting weighting, TraversalMode tMode) {
+    public TDDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
-        this.weighting = weighting;
+        if (!weighting.isTimeDependent())
+            throw new RuntimeException("A time-dependent routing algorithm requires a time-dependent weighting.");
     }
 
     @Override

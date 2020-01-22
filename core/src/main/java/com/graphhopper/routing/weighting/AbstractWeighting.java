@@ -45,6 +45,11 @@ public abstract class AbstractWeighting implements Weighting {
     }
 
     @Override
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcWeight(edge, reverse, prevOrNextEdgeId);
+    }
+
+    @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         // special case for loop edges: since they do not have a meaningful direction we always need to read them in
         // forward direction
@@ -65,6 +70,11 @@ public abstract class AbstractWeighting implements Weighting {
             throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
 
         return (long) (edgeState.getDistance() * 3600 / speed);
+    }
+
+    @Override
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcMillis(edgeState, reverse, prevOrNextEdgeId);
     }
 
     @Override
@@ -111,5 +121,10 @@ public abstract class AbstractWeighting implements Weighting {
     @Override
     public String toString() {
         return getName() + "|" + flagEncoder;
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return false;
     }
 }

@@ -28,7 +28,6 @@ import com.graphhopper.routing.profiles.DefaultEncodedValueFactory;
 import com.graphhopper.routing.profiles.EncodedValueFactory;
 import com.graphhopper.routing.profiles.EnumEncodedValue;
 import com.graphhopper.routing.profiles.RoadEnvironment;
-import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.subnetwork.PrepareRoutingSubnetworks;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
@@ -939,8 +938,15 @@ public class GraphHopper implements GraphHopperAPI {
             weighting = new ShortFastestWeighting(encoder, hintsMap);
         }
 
+        // TODO: make weighting time-dependent based on hintsMap
+        else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
+            weighting = new FastestWeighting(encoder, hintsMap);
+            weighting = new TimeDependentAccessWeighting(weighting);
+        }
+
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
+
 
         if (hintsMap.has(Routing.BLOCK_AREA)) {
             String blockAreaStr = hintsMap.get(Parameters.Routing.BLOCK_AREA, "");
@@ -948,7 +954,6 @@ public class GraphHopper implements GraphHopperAPI {
                     parseBlockArea(blockAreaStr, DefaultEdgeFilter.allEdges(encoder), hintsMap.getDouble("block_area.edge_id_max_area", 1000 * 1000));
             return new BlockAreaWeighting(weighting, blockArea);
         }
-
         return weighting;
     }
 

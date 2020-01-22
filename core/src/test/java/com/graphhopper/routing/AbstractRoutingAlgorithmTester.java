@@ -22,6 +22,7 @@ import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -805,7 +806,7 @@ public abstract class AbstractRoutingAlgorithmTester {
     @Test
     public void testTwoWeightsPerEdge2() {
         // other direction should be different!
-        Weighting fakeWeighting = new Weighting() {
+        Weighting fakeWeighting = new AbstractWeighting(carEncoder) {
             @Override
             public FlagEncoder getFlagEncoder() {
                 return carEncoder;
@@ -853,6 +854,7 @@ public abstract class AbstractRoutingAlgorithmTester {
             public String getName() {
                 return "custom";
             }
+
         };
 
         AlgorithmOptions opts = AlgorithmOptions.start().weighting(defaultOpts.getWeighting()).build();
