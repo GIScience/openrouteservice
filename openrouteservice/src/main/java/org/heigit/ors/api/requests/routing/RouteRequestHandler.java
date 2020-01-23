@@ -160,8 +160,14 @@ public class RouteRequestHandler extends GenericHandler {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
             }
             RouteRequestAlternativeRoutes alternativeRoutes = request.getAlternativeRoutes();
-            if (alternativeRoutes.hasTargetCount())
+            if (alternativeRoutes.hasTargetCount()) {
                 params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
+                String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(request.getProfile().toString(), "maximum_alternative_routes");
+                int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+                if (countLimit > 0 && alternativeRoutes.getTargetCount() > countLimit) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutes.getTargetCount()), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                }
+            }
             if (alternativeRoutes.hasWeightFactor())
                 params.setAlternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
             if (alternativeRoutes.hasShareFactor())

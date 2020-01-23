@@ -64,6 +64,8 @@
             "maximum_snapping_radius": 400,
             "maximum_avoid_polygon_area": 200,
             "maximum_avoid_polygon_extent": 20,
+            "maximum_distance_alternative_routes": 100000,
+            "maximum_alternative_routes": 3,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,
