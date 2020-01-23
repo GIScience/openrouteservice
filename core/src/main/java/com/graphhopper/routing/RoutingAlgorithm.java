@@ -50,6 +50,8 @@ public interface RoutingAlgorithm {
      */
     List<Path> calcPaths(int from, int to);
 
+    List<Path> calcPaths(int from, int to, long at);
+
     /**
      * Limit the search to numberOfNodes. See #681
      */

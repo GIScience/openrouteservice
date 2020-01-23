@@ -34,6 +34,10 @@ import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +123,25 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             sw = new StopWatch().start();
 
             // calculate paths
-            List<Path> tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
+            List<Path> tmpPathList;
+            if (algoOpts.getWeighting().isTimeDependent()) {
+                String departureTimeString = ghRequest.getHints().get("departure", "");
+                if (departureTimeString.equals(""))
+                    departureTimeString = "2020-01-22T15:13";
+
+                // departure as local time
+                LocalDateTime localDateTime = LocalDateTime.parse(departureTimeString);
+                // TODO: get the time zone of the start node
+                ZoneId zoneId = ZoneId.of("Europe/Berlin");
+                ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+
+                long at = zonedDateTime.toInstant().toEpochMilli();
+
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), at);
+            } else {
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
+            }
+
             debug += ", " + algo.getName() + "-routing:" + sw.stop().getSeconds() + "s";
             if (tmpPathList.isEmpty())
                 throw new IllegalStateException("At least one path has to be returned for " + fromQResult + " -> " + toQResult);

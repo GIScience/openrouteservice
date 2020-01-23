@@ -17,9 +17,13 @@
  */
 package com.graphhopper.routing.weighting;
 
+import com.graphhopper.routing.util.ConditionalAccessEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 /**
  * Calculates the fastest route with the specified vehicle (VehicleEncoder). Calculates the time-dependent weight
@@ -29,9 +33,10 @@ import com.graphhopper.util.PMap;
  * @author Andrzej Oles
  */
 public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
-
-    public TimeDependentAccessWeighting(Weighting weighting) {
+    private ConditionalAccessEdgeFilter edgeFilter;
+    public TimeDependentAccessWeighting(Weighting weighting, GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
         super(weighting);
+        this.edgeFilter = new ConditionalAccessEdgeFilter(graph, encoder, timeZoneMap);
     }
 
     @Override
@@ -41,7 +46,11 @@ public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long linkEnterTime) {
-        return calcWeight(edge, reverse, prevOrNextEdgeId);
+        if (edgeFilter.accept(edge, linkEnterTime)) {
+            return calcWeight(edge, reverse, prevOrNextEdgeId);
+        } else {
+            return Double.POSITIVE_INFINITY;
+        }
     }
 
     @Override
@@ -52,6 +61,11 @@ public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
     @Override
     public double getMinWeight(double distance) {
         return superWeighting.getMinWeight(distance);
+    }
+
+    @Override
+    public boolean matches(HintsMap map) {
+        return superWeighting.matches(map);
     }
 
     @Override

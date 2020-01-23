@@ -47,20 +47,21 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
 
     @Override
     public final boolean accept(EdgeIteratorState iter, long time) {
-        boolean conditional = fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc);
-        // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
-        int node = iter.getBaseNode();
-        double lat = nodeAcces.getLatitude(node);
-        double lon = nodeAcces.getLongitude(node);
-        String timeZoneId = timeZoneMap.getOverlappingTimeZone(lat, lon).get().getZoneId();
-        ZoneId edgeZoneId = ZoneId.of(timeZoneId);
-        Instant edgeEnterTime = Instant.ofEpochMilli(time);
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
-        String value = conditionalEdges.getValue(iter.getEdge());
-        boolean result = conditional && accept(value, zonedDateTime);
-        if (conditional)
+        if (fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc)) {
+            // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
+            int node = iter.getBaseNode();
+            double lat = nodeAcces.getLatitude(node);
+            double lon = nodeAcces.getLongitude(node);
+            String timeZoneId = timeZoneMap.getOverlappingTimeZone(lat, lon).get().getZoneId();
+            ZoneId edgeZoneId = ZoneId.of(timeZoneId);
+            Instant edgeEnterTime = Instant.ofEpochMilli(time);
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
+            String value = conditionalEdges.getValue(iter.getEdge());
+            boolean result = accept(value, zonedDateTime);
             System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
-        return result;
+            return result;
+        }
+        return true;
     }
 
     boolean accept(String conditional, ZonedDateTime zonedDateTime) {

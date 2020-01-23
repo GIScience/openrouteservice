@@ -202,6 +202,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
     }
 
     @Override
+    public List<Path> calcPaths(int from, int to, long at) {
+        return calcPaths(from, to);
+    }
+
+    @Override
     public String getName() {
         return Parameters.Algorithms.ALT_ROUTE;
     }

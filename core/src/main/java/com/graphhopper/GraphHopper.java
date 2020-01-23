@@ -127,6 +127,9 @@ public class GraphHopper implements GraphHopperAPI {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
 
+    // for time-dependent routing
+    private TimeZoneMap timeZoneMap;
+
     public GraphHopper() {
         chFactoryDecorator.setEnabled(true);
         lmFactoryDecorator.setEnabled(false);
@@ -852,14 +855,14 @@ public class GraphHopper implements GraphHopperAPI {
         }
 
         BBox bb = ghStorage.getBounds();
-        TimeZoneMap tzm = TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon);
+        timeZoneMap = TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon);
 
         // FIXME: print out debug info on stored conditionals
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String name = encodingManager.getKey(encoder, "conditional_access");
             if (encodingManager.hasEncodedValue(name)) {
                 System.out.println(encoder.toString());
-                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder, tzm);
+                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder, timeZoneMap);
                 AllEdgesIterator edges = ghStorage.getAllEdges();
 
                 long time = Calendar.getInstance().getTimeInMillis();
@@ -941,7 +944,7 @@ public class GraphHopper implements GraphHopperAPI {
         // TODO: make weighting time-dependent based on hintsMap
         else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
             weighting = new FastestWeighting(encoder, hintsMap);
-            weighting = new TimeDependentAccessWeighting(weighting);
+            weighting = new TimeDependentAccessWeighting(weighting, ghStorage, encoder, timeZoneMap);
         }
 
         if (weighting == null)
