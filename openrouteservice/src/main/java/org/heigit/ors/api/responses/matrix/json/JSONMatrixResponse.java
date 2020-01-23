@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class JSONMatrixResponse extends MatrixResponse {
     public JSONMatrixResponse(MatrixResult result, MatrixRequest request) {
         super(result, request);
+        responseInformation.setGraphDate(result.getGraphDate());
     }
 
     @JsonProperty("matrix")
