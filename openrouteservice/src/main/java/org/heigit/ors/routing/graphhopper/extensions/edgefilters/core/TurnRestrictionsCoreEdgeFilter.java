@@ -77,6 +77,8 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
             }
         }
 
+        double node_check = graph.getNodes();
+
         if (hasTurnRestriction){
             return false;
         }else{
