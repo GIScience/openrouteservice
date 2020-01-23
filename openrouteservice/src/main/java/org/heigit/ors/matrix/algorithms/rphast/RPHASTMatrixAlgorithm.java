@@ -70,6 +70,8 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			
 			int[] srcIds = getValidNodeIds(srcData.getNodeIds());
 			int[] destIds = getValidNodeIds(dstData.getNodeIds());
+
+			mtxResult.setGraphDate(graphHopper.getGraphHopperStorage().getProperties().get("datareader.import.date"));
 			
 			algorithm.prepare(srcIds, destIds);
 
