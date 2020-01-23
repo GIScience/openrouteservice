@@ -62,8 +62,8 @@
             "maximum_distance_avoid_areas": 100000,
             "maximum_waypoints": 50,
             "maximum_snapping_radius": 400,
-            "maximum_avoid_polygon_area": 2.5,
-            "maximum_avoid_polygon_extent": 1.5,
+            "maximum_avoid_polygon_area": 200,
+            "maximum_avoid_polygon_extent": 20,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,

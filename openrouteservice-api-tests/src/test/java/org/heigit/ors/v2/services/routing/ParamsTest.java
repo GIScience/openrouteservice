@@ -16,9 +16,9 @@ package org.heigit.ors.v2.services.routing;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
+import org.heigit.ors.v2.services.config.AppConfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -707,7 +707,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("coordinates", getParameter("coordinatesShort"));
 		body.put("preference", "shortest");
 
-		JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0.05,0],[0.05,0.001],[0,0.001],[0,0]]]}");
+		JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[2,0],[2,0.001],[0,0.001],[0,0]]]}");
 		JSONObject options = new JSONObject();
 		options.put("avoid_polygons", avoidGeom);
 		body.put("options", options);
@@ -722,14 +722,14 @@ public class ParamsTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("error.code", is(2003))
-				.body("error.message", is("The extent of a polygon to avoid must not exceed 1.5 kilometers."))
+				.body("error.message", is(String.format("The extent of a polygon to avoid must not exceed %s kilometers.", Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent")))))
 				.statusCode(400);
 
 		body = new JSONObject();
 		body.put("coordinates", getParameter("coordinatesShort"));
 		body.put("preference", "shortest");
 
-		avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0.1,0],[0.1,0.01],[0,0.01],[0,0]]]}");
+		avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0.3,0],[0.3,0.1],[0,0.1],[0,0]]]}");
 		options = new JSONObject();
 		options.put("avoid_polygons", avoidGeom);
 		body.put("options", options);
@@ -741,10 +741,10 @@ public class ParamsTest extends ServiceTest {
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath() + "/{profile}")
-				.then().log().all()
+				.then()
 				.assertThat()
 				.body("error.code", is(2003))
-				.body("error.message", is("The area of a polygon to avoid must not exceed 2.5 square kilometers."))
+				.body("error.message", is(String.format("The area of a polygon to avoid must not exceed %s square kilometers.", Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area")))))
 				.statusCode(400);
 	}
 
