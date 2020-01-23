@@ -285,6 +285,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             if (sortedNodes.getSize() < nodesToAvoidContract) {
                 // skipped nodes are already set to maxLevel
+                double test = sortedNodes.getSize() +1;
                 prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
                 //Disconnect all shortcuts that lead out of the core
                 while (!sortedNodes.isEmpty()) {
