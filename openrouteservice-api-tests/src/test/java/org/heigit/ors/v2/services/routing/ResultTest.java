@@ -1631,7 +1631,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", "shortest");
 
-        JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[\"8.680\",\"49.421\"],[\"8.687\",\"49.421\"],[\"8.687\",\"49.418\"],[\"8.680\",\"49.418\"],[\"8.680\",\"49.421\"]]]}}");
+        JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.680,49.421],[8.687,49.421],[8.687,49.418],[8.680,49.418],[8.680,49.421]]]}}");
         JSONObject options = new JSONObject();
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);

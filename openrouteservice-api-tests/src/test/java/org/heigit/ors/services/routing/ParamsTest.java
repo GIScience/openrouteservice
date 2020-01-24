@@ -473,8 +473,8 @@ public class ParamsTest extends ServiceTest {
 		JSONObject options = new JSONObject();
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
-		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
-				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } } };
+		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.07381" },
+				{ "8.92699", "53.07381" }, { "8.91197", "53.07257" } } };
 		polygon.put("coordinates", coords);
 		options.put("avoid_polygons", polygon);
 
