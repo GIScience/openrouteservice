@@ -66,6 +66,7 @@
                    "instructions": true,
                    "maximum_distance": 100000,
                    "maximum_segment_distance_with_dynamic_weights": 100000,
+                   "maximum_distance_round_trip_routes": 100000,
                    "maximum_waypoints": 50
                    "maximum_avoid_polygon_area": 200000000,
                    "maximum_avoid_polygon_extent": 20000,
