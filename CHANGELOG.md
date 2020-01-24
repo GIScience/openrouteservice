@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
 - Configuration options to limit count parameter and distance when using alternative routes algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/651))
+- Configuration options to limit distance when using round trip routing algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/658))
 ### Fixed
 - more consistent language API parameters (ISO 639-1 codes & IETF tags)
 - Nepali language support can be selected through API

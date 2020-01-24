@@ -167,6 +167,9 @@ public class RoutingManagerConfiguration  {
 					case "maximum_distance_alternative_routes":
 						profile.setMaximumDistanceAlternativeRoutes(Double.parseDouble(paramItem.getValue().toString()));
 						break;
+					case "maximum_distance_round_trip_routes":
+						profile.setMaximumDistanceRoundTripRoutes(Double.parseDouble(paramItem.getValue().toString()));
+						break;
 					case "maximum_waypoints":
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
 						break;
