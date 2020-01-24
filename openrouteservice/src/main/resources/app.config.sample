@@ -62,8 +62,8 @@
             "maximum_distance_avoid_areas": 100000,
             "maximum_waypoints": 50,
             "maximum_snapping_radius": 400,
-            "maximum_avoid_polygon_area": 200,
-            "maximum_avoid_polygon_extent": 20,
+            "maximum_avoid_polygon_area": 200000000,
+            "maximum_avoid_polygon_extent": 20000,
             "maximum_distance_alternative_routes": 100000,
             "maximum_alternative_routes": 3,
             "preparation": {

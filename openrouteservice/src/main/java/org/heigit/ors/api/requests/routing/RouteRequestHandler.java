@@ -366,14 +366,14 @@ public class RouteRequestHandler extends GenericHandler {
             try {
                 if (areaLimit > 0) {
                     long area = Math.round(GeomUtility.getArea(avoidArea, true));
-                    if (area > areaLimit * 1000000) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square kilometers.", areaLimit));
+                    if (area > areaLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
                     }
                 }
                 if (extentLimit > 0) {
                     long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
-                    if (extent > extentLimit * 1000) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s kilometers.", extentLimit));
+                    if (extent > extentLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
                     }
                 }
             } catch (InternalServerException e) {
