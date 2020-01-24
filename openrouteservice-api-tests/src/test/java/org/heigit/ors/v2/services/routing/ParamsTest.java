@@ -1625,6 +1625,35 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
+	public void expectRoundTripToRejectTooLongLength() {
+		JSONObject body = new JSONObject();
+		JSONArray singleCoordinate = new JSONArray();
+		JSONArray coord1 = new JSONArray();
+		coord1.put(8.680916);
+		coord1.put(49.410973);
+		singleCoordinate.put(coord1);
+		body.put("coordinates", singleCoordinate);
+
+		JSONObject options = new JSONObject();
+		JSONObject roundTripOptions = new JSONObject();
+		roundTripOptions.put("length", 110000);
+		options.put("round_trip", roundTripOptions);
+		body.put("options", options);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when().log().ifValidationFails()
+				.post(getEndPointPath() + "/{profile}/json")
+				.then().log().ifValidationFails()
+				.assertThat()
+				.body("error.code", is(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT))
+				.statusCode(400);
+	}
+
+	@Test
 	public void expectRejectSingleCoordinate() {
 		JSONObject body = new JSONObject();
 		JSONArray singleCoordinate = new JSONArray();

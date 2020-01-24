@@ -66,6 +66,7 @@
             "maximum_avoid_polygon_extent": 20000,
             "maximum_distance_alternative_routes": 100000,
             "maximum_alternative_routes": 3,
+            "maximum_distance_round_trip_routes": 100000,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,

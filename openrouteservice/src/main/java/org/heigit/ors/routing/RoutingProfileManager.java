@@ -226,6 +226,14 @@ public class RoutingProfileManager {
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
+        RouteProfileConfiguration config = rp.getConfiguration();
+
+        if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
+            throw new ServerLimitExceededException(
+                    RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
+                    String.format("The requested route length must not be greater than %s meters.", config.getMaximumDistanceRoundTripRoutes())
+            );
+        }
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];

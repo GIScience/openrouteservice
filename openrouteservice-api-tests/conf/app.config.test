@@ -49,6 +49,7 @@
             elevation_cache_path: "openrouteservice-api-tests/data/elevation",
             instructions: true,
             maximum_distance: 100000,
+            maximum_distance_round_trip_routes: 100000,
             maximum_segment_distance_with_dynamic_weights: 50000,
             maximum_waypoints: 50,
             maximum_snapping_radius: 350,
