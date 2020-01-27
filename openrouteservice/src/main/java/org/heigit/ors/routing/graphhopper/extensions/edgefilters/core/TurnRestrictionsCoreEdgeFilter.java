@@ -69,7 +69,8 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
                 continue;
             }
 
-            long turnFlags = turnCostExtension.getTurnCostFlags(edge.getOrigEdgeFirst(), edge.getAdjNode(), edge.getOrigEdgeLast());
+            //TODO Find if it should be getBaseNode() or getAdjNode
+            long turnFlags = turnCostExtension.getTurnCostFlags(edgeId, iter.getBaseNode(), prevOrNextOrigEdgeId);
             boolean test=flagEncoder.isTurnRestricted(turnFlags);
             if (flagEncoder.isTurnRestricted(turnFlags)){ //There is a turn restriction
                 hasTurnRestriction = true;
@@ -77,7 +78,6 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
             }
         }
 
-        double node_check = graph.getNodes();
 
         if (hasTurnRestriction){
             return false;
