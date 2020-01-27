@@ -125,19 +125,15 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             // calculate paths
             List<Path> tmpPathList;
             if (algoOpts.getWeighting().isTimeDependent()) {
-                String departureTimeString = ghRequest.getHints().get("departure", "");
-                if (departureTimeString.equals(""))
-                    departureTimeString = "2020-01-22T15:13";
+                String departureTimeString = ghRequest.getHints().get("pt.earliest_departure_time", "");
+                final Instant departureTime;
+                if (departureTimeString.equals("")) {
+                    departureTime = Instant.now();
+                } else {
+                    departureTime = Instant.parse(departureTimeString);
+                }
 
-                // departure as local time
-                LocalDateTime localDateTime = LocalDateTime.parse(departureTimeString);
-                // TODO: get the time zone of the start node
-                ZoneId zoneId = ZoneId.of("Europe/Berlin");
-                ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-
-                long at = zonedDateTime.toInstant().toEpochMilli();
-
-                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), at);
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), departureTime.toEpochMilli());
             } else {
                 tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
             }
