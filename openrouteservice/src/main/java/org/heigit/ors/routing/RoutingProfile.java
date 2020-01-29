@@ -604,8 +604,7 @@ public class RoutingProfile {
 
             HintsMap hintsMap = new HintsMap();
             hintsMap.setWeighting(weightingStr);
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-
+            Weighting weighting = gh.createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
