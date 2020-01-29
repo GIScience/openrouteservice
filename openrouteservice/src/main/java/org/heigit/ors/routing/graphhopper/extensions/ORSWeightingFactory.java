@@ -38,40 +38,19 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-    private Map<Object, TurnCostExtension> turnCostExtensionMap;
 
-    public ORSWeightingFactory() {
-        turnCostExtensionMap = new HashMap<>();
-    }
+    public ORSWeightingFactory() { }
 
     public Weighting enrichDefaultGHWeighting(Weighting result, HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
         // MARQ24 - this code need to be present ONLY once that's why I have deleted the same section that was
-        // present in the graphhopper repro...
+        // present in the graphhopper repro [com.graphhopper.GraphHopper]...
         TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
         if (hintsMap.has(Parameters.Routing.EDGE_BASED))
             tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
         if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
             throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
         }
-
-        // REMOVED BY MARQ24:
-        /*if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
-            Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
-            File file = path.toFile();
-            if (file.exists()) {
-                TurnCostExtension turnCostExt = null;
-                synchronized (turnCostExtensionMap) {
-                    turnCostExt = turnCostExtensionMap.get(graphStorage);
-                    if (turnCostExt == null) {
-                        turnCostExt = new TurnCostExtension();
-                        turnCostExt.init(graphStorage, graphStorage.getDirectory());
-                        turnCostExtensionMap.put(graphStorage, turnCostExt);
-                    }
-                }
-                result = new TurnWeighting(result, turnCostExt);
-            }
-        }*/
 
         // Apply soft weightings
         if (hintsMap.getBool("custom_weightings", false)) {
@@ -115,10 +94,6 @@ public class ORSWeightingFactory implements WeightingFactory {
             }
         }
         return result;
-    }
-
-    private boolean isFootBasedFlagEncoder(FlagEncoder encoder) {
-        return encoder instanceof FootFlagEncoder;
     }
 
     private PMap getWeightingProps(String weightingName, Map<String, String> map) {

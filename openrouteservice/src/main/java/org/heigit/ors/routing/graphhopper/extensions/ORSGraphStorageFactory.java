@@ -41,17 +41,14 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
-		GraphExtension geTurnCosts = null;
+
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
 
+		GraphExtension geTurnCosts = null;
 		if (encodingManager.needsTurnCostsSupport()) {
-			Path path = Paths.get(dir.getLocation(), "turn_costs");
-			File fileEdges  = Paths.get(dir.getLocation(), "edges").toFile();
-			File fileTurnCosts = path.toFile();
-
-			// First we need to check if turncosts are available. This check is required when we introduce a new feature, but an existing graph does not have it yet.
-			if ((!hasGraph(gh) && !fileEdges.exists()) || (fileEdges.exists() && fileTurnCosts.exists()))
-				geTurnCosts =  new TurnCostExtension();
+			// MARQ24 no additional checks required - we make use of the GH original
+			// TurnCostImpl...
+			geTurnCosts = new TurnCostExtension();
 		}
 
 		if (graphStorageBuilders != null) {
@@ -66,67 +63,64 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			}
 		}
 
+		// generating the final list of graphExtensions that we want to use
 		GraphExtension graphExtension = null;
 
-		if (geTurnCosts == null && graphExtensions.isEmpty())
+		if (geTurnCosts == null && graphExtensions.isEmpty()) {
+			// ok - noTurnCosts and NO additional GraphExtension, then we have to use
+			// the 'NoOpExtension'
 			graphExtension = new GraphExtension.NoOpExtension();
-		else if (geTurnCosts != null && !graphExtensions.isEmpty()) {
+		} else if (geTurnCosts != null && !graphExtensions.isEmpty()) {
+			// so combining turnCosts and all the additional Extentions...
 			ArrayList<GraphExtension> seq = new ArrayList<>();
 			seq.add(geTurnCosts);
 			seq.addAll(graphExtensions);
-
 			graphExtension = getExtension(seq);
 		} else if (geTurnCosts != null) {
+			// only use the TurnCostExtention
 			graphExtension = geTurnCosts;
 		} else {
+			// only use the ors extra extentions...
 			graphExtension = getExtension(graphExtensions);
 		}
 
 		if(gh instanceof ORSGraphHopper) {
-			if (((ORSGraphHopper) gh).isCoreEnabled())
+			if (((ORSGraphHopper) gh).isCoreEnabled()) {
 				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-			if (((ORSGraphHopper) gh).isCoreLMEnabled())
+			}
+			if (((ORSGraphHopper) gh).isCoreLMEnabled()){
 				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
+			}
 		}
 
-		if (gh.getLMFactoryDecorator().isEnabled())
+		if (gh.getLMFactoryDecorator().isEnabled()) {
 			gh.initLMAlgoFactoryDecorator();
+		}
 
-		if (gh.getCHFactoryDecorator().isEnabled())
+		if (gh.getCHFactoryDecorator().isEnabled()) {
 			gh.initCHAlgoFactoryDecorator();
+		}
 
 		List<CHProfile> profiles = new ArrayList<>();
-
 		if (gh.isCHEnabled()) {
 			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
 		}
 		if (((ORSGraphHopper)gh).isCoreEnabled()) {
 			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
 		}
-		if (!profiles.isEmpty())
+		if (!profiles.isEmpty()) {
 			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
-		else
+		} else {
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
+		}
 	}
 
 	private GraphExtension getExtension(ArrayList<GraphExtension> graphExtensions) {
 		if (graphExtensions.size() > 1) {
 			ArrayList<GraphExtension> seq = new ArrayList<>(graphExtensions);
 			return new ExtendedStorageSequence(seq);
-		}
-		else
+		} else {
 			return graphExtensions.isEmpty() ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
-	}
-
-	private boolean hasGraph(GraphHopper gh) {
-		try {
-			gh.getGraphHopperStorage();
-			return true;
-		} catch (IllegalStateException ex){
-			// do nothing
-		} catch(Exception ex) {
-			LOGGER.error(ex.getStackTrace());
 		}
-		return false;
 	}
 }
