@@ -48,8 +48,35 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
-        return reverse ? edge.getOrigEdgeFirst() : edge.getOrigEdgeLast();
+        return reverse ? edge.getOrigEdgeLast() : edge.getOrigEdgeFirst();
     }
+
+    boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
+        EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
+        boolean hasTurnRestrictions = false;
+
+        while (iter.next()) {
+            final int edgeId = getOrigEdgeId(edge, reverse);
+            final int prevOrNextOrigEdgeId = getOrigEdgeId(iter, !reverse);
+            if (edgeId == prevOrNextOrigEdgeId) {
+                continue;
+            }
+
+            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(edgeId, iter.getAdjNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getAdjNode(), edgeId);
+            boolean test = flagEncoder.isTurnRestricted(turnFlags);
+            if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
+                hasTurnRestrictions = true;
+                break;
+            }
+        }
+
+        if (hasTurnRestrictions) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     //TODO Solve problems in the code looking at the AbstractBidirectionEdgeCHNoSOD.java
     @Override
@@ -57,34 +84,18 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         EdgeIteratorState edgeTest = edge;
         IntsRef edgeFlags = edge.getFlags();
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
-        EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
-        boolean hasTurnRestriction = false;
+        boolean hasTurnRestrictions = false;
 
+        hasTurnRestrictions = hasTurnRestrictions(edge, reverse);
 
-
-        while (iter.next()) {
-            final int edgeId = getOrigEdgeId(iter, !reverse);
-            final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
-            if (edgeId == prevOrNextOrigEdgeId) {
-                continue;
-            }
-
-            //TODO Find if it should be getBaseNode() or getAdjNode
-            long turnFlags = turnCostExtension.getTurnCostFlags(edgeId, iter.getBaseNode(), prevOrNextOrigEdgeId);
-            boolean test=flagEncoder.isTurnRestricted(turnFlags);
-            if (flagEncoder.isTurnRestricted(turnFlags)){ //There is a turn restriction
-                hasTurnRestriction = true;
-                break;
-            }
-        }
-
-
-        if (hasTurnRestriction){
+        if (hasTurnRestrictions) {
             return false;
-        }else{
+        } else if (hasTurnRestrictions(edge, !reverse)) {
+            return false;
+        } else {
             return true;
         }
-
     }
 }
+
 
