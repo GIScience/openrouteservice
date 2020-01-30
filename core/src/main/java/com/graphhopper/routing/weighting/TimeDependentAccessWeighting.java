@@ -22,7 +22,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 import us.dustinj.timezonemap.TimeZoneMap;
 
 /**
@@ -34,6 +33,7 @@ import us.dustinj.timezonemap.TimeZoneMap;
  */
 public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
     private ConditionalAccessEdgeFilter edgeFilter;
+
     public TimeDependentAccessWeighting(Weighting weighting, GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
         super(weighting);
         this.edgeFilter = new ConditionalAccessEdgeFilter(graph, encoder, timeZoneMap);
@@ -47,7 +47,7 @@ public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long linkEnterTime) {
         if (edgeFilter.accept(edge, linkEnterTime)) {
-            return calcWeight(edge, reverse, prevOrNextEdgeId);
+            return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId, linkEnterTime);
         } else {
             return Double.POSITIVE_INFINITY;
         }
@@ -55,7 +55,7 @@ public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
 
     @Override
     public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long linkEnterTime) {
-        return calcMillis(edge, reverse, prevOrNextEdgeId);
+        return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId, linkEnterTime);
     }
 
     @Override

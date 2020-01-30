@@ -943,7 +943,7 @@ public class GraphHopper implements GraphHopperAPI {
 
         // TODO: make weighting time-dependent based on hintsMap
         else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
-            weighting = new FastestWeighting(encoder, hintsMap);
+            weighting = new TimeDependentFastestWeighting(encoder, hintsMap, ghStorage, timeZoneMap);
             weighting = new TimeDependentAccessWeighting(weighting, ghStorage, encoder, timeZoneMap);
         }
 
