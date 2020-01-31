@@ -731,15 +731,15 @@ public class GraphHopper implements GraphHopperAPI {
         GraphExtension ext = encodingManager.needsTurnCostsSupport()
                 ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
 
-        if (lmFactoryDecorator.isEnabled())
-            initLMAlgoFactoryDecorator();
-
         if (chFactoryDecorator.isEnabled()) {
             initCHAlgoFactoryDecorator();
             ghStorage = new GraphHopperStorage(chFactoryDecorator.getCHProfiles(), dir, encodingManager, hasElevation(), ext);
         } else {
             ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
         }
+
+        if (lmFactoryDecorator.isEnabled())
+            initLMAlgoFactoryDecorator();
 
         ghStorage.setSegmentSize(defaultSegmentSize);
 

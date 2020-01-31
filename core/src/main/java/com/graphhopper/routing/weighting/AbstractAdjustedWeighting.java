@@ -69,8 +69,6 @@ public abstract class AbstractAdjustedWeighting implements Weighting {
         return getName() + "|" + superWeighting.toString();
     }
 
-
-
     @Override
     public boolean isTimeDependent() {
         return superWeighting.isTimeDependent();
