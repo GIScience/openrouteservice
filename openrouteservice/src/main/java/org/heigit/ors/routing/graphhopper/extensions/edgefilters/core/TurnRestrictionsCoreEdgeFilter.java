@@ -48,7 +48,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
-        return reverse ? edge.getOrigEdgeLast() : edge.getOrigEdgeFirst();
+        return reverse ? edge.getOrigEdgeFirst() : edge.getOrigEdgeLast();
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
@@ -56,13 +56,13 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         boolean hasTurnRestrictions = false;
 
         while (iter.next()) {
-            final int edgeId = getOrigEdgeId(edge, reverse);
-            final int prevOrNextOrigEdgeId = getOrigEdgeId(iter, !reverse);
+            final int edgeId = getOrigEdgeId(iter, !reverse);
+            final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
             if (edgeId == prevOrNextOrigEdgeId) {
                 continue;
             }
 
-            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(edgeId, iter.getAdjNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getAdjNode(), edgeId);
+            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getAdjNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getAdjNode(), iter.getOrigEdgeFirst());
             boolean test = flagEncoder.isTurnRestricted(turnFlags);
             if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
                 hasTurnRestrictions = true;
@@ -70,11 +70,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
             }
         }
 
-        if (hasTurnRestrictions) {
-            return true;
-        } else {
-            return false;
-        }
+        return hasTurnRestrictions;
     }
 
 
@@ -82,13 +78,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     @Override
     public boolean accept(EdgeIteratorState edge) {
         EdgeIteratorState edgeTest = edge;
-        IntsRef edgeFlags = edge.getFlags();
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
-        boolean hasTurnRestrictions = false;
 
-        hasTurnRestrictions = hasTurnRestrictions(edge, reverse);
 
-        if (hasTurnRestrictions) {
+        if (hasTurnRestrictions(edge, reverse)) {
             return false;
         } else if (hasTurnRestrictions(edge, !reverse)) {
             return false;
