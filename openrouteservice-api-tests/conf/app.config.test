@@ -231,6 +231,32 @@
             parameters: {
               encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
+              preparation:
+                {
+                  min_network_size: 200,
+                  min_one_way_network_size: 200,
+                  methods:
+                    {
+                      core:
+                        {
+                          enabled: true,
+                          threads: 1,
+                          weightings: "fastest,shortest",
+                          landmarks: 32
+                        }
+                    }
+                }
+              execution:
+                {
+                  methods:
+                    {
+                      core:
+                        {
+                          disabling_allowed: true,
+                          active_landmarks: 6
+                        }
+                    }
+                }
               ext_storages: {
                 WayCategory: {},
                 WaySurfaceType: {},

@@ -63,4 +63,9 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 	public int hashCode() {
 		return ("OptimizedPriorityWeighting" + toString()).hashCode();
 	}
+
+	@Override
+	public String getName() {
+		return "recommended";
+	}
 }

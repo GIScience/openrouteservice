@@ -908,6 +908,14 @@ public class RoutingProfile {
                 }
             }
 
+            //Use specially prepared recommended weighting graphs for cycling (and walking)
+            if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if(RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
+                    req.setWeighting("recommended");
+                    req.getHints().put("weighting_method", "recommended");
+                }
+            }
+
             // MARQ24 for what ever reason after the 'weighting_method' hint have been set (based
             // on the given searchParameter Max have decided that's necessary 'patch' the hint
             // for certain profiles...
@@ -963,6 +971,15 @@ public class RoutingProfile {
                 req.getHints().put(KEY_LM_DISABLE, false);
                 req.getHints().put(KEY_CORE_DISABLE, true);
                 req.getHints().put(KEY_CH_DISABLE, true);
+            }
+
+            //If we have special weightings, we have to fall back to ALT with Beeline
+            ProfileParameters profileParams = searchParams.getProfileParameters();
+            if (profileParams != null && profileParams.hasWeightings()) {
+                req.setAlgorithm("astarbi");
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
             }
 
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
