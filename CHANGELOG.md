@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Configuration options to limit avoid_polygon routing option by area and/or extent ([#629](https://github.com/GIScience/openrouteservice/issues/629))
 - Configuration options to limit count parameter and distance when using alternative routes algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/651))
 - Configuration options to limit distance when using round trip routing algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/658))
+- Enable CALT routing algorithm for cycling profiles ([#662](https://github.com/GIScience/openrouteservice/issues/662))
 ### Fixed
 - more consistent language API parameters (ISO 639-1 codes & IETF tags)
 - Nepali language support can be selected through API
