@@ -226,8 +226,9 @@ public class ResultTest extends ServiceTest {
                     boolean metadataDescription = false;
                     boolean metadataAuthor = false;
                     boolean metadataCopyright = false;
-                    boolean metatadaTime = false;
+                    boolean metadataTime = false;
                     boolean metadataBounds = false;
+                    boolean metadataExtensions = false;
                     for (int j = 0; j < metadataSize; j++) {
                         Node metadataItem = metadataChildren.item(j);
                         switch (metadataItem.getNodeName()) {
@@ -300,7 +301,21 @@ public class ResultTest extends ServiceTest {
                                 Assert.assertTrue(copyrightLicense);
                                 break;
                             case "time":
-                                metatadaTime = true;
+                                metadataTime = true;
+                                break;
+                            case "extensions":
+                                metadataExtensions = true;
+                                int metadataExtensionsLength = metadataItem.getChildNodes().getLength();
+                                boolean metadataExtensionsSystemMessage = false;
+                                for (int k = 0; k < metadataExtensionsLength; k++) {
+                                    Node extensionsElement = metadataItem.getChildNodes().item(k);
+                                    switch (extensionsElement.getNodeName()) {
+                                        case "system-message":
+                                            metadataExtensionsSystemMessage = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(metadataExtensionsSystemMessage);
                                 break;
                             case "bounds":
                                 metadataBounds = true;
@@ -312,8 +327,9 @@ public class ResultTest extends ServiceTest {
                     Assert.assertTrue(metadataDescription);
                     Assert.assertTrue(metadataAuthor);
                     Assert.assertTrue(metadataCopyright);
-                    Assert.assertTrue(metatadaTime);
+                    Assert.assertTrue(metadataTime);
                     Assert.assertTrue(metadataBounds);
+                    Assert.assertTrue(metadataExtensions);
                     break;
                 case "rte":
                     gpxRte = true;
