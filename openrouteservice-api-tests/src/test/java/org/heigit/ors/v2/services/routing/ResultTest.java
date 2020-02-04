@@ -13,11 +13,11 @@
  */
 package org.heigit.ors.v2.services.routing;
 
+import io.restassured.response.Response;
+import junit.framework.Assert;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
-import io.restassured.response.Response;
-import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -43,9 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -526,6 +524,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"system-message\" minOccurs=\"0\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"metadataType\">\n" +
@@ -536,6 +535,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"boundsType\">\n" +
@@ -646,6 +646,7 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].geometry.type", is("LineString"))
                 .body("features[0].type", is("Feature"))
                 .body("type", is("FeatureCollection"))
+                .body("metadata.containsKey('system_message')", is(true))
 
                 .statusCode(200);
     }
@@ -666,6 +667,7 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any {it.key == 'metadata'}", is(true))
+                .body("metadata.containsKey('system_message')", is(true))
                 .body("metadata.containsKey('id')", is(true))
                 .body("metadata.id", is("request123"))
 

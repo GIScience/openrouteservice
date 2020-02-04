@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
@@ -54,6 +55,10 @@ public class MatrixResponseInfo {
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
+    @ApiModelProperty(value = "System message", example ="A message string configured in the service")
+    @JsonProperty("system_message")
+    private String systemMessage;
+
     public MatrixResponseInfo(MatrixRequest request) {
         service = "matrix";
         timeStamp = System.currentTimeMillis();
@@ -70,6 +75,8 @@ public class MatrixResponseInfo {
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
         this.request = request;
+
+        this.systemMessage = SystemMessage.getSystemMessage(request);
     }
     public void setGraphDate(String graphDate) {
         engineInfo.setGraphDate(graphDate);

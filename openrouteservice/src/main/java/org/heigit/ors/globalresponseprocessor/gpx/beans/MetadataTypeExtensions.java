@@ -27,6 +27,7 @@ package org.heigit.ors.globalresponseprocessor.gpx.beans;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -38,19 +39,16 @@ import javax.xml.bind.annotation.XmlType;
 @SuppressWarnings("WeakerAccess")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
-        "example1"
+        "systemMessage"
         // always add new variables here! and below
 })
 
 public class MetadataTypeExtensions extends ExtensionsType {
 
-    protected double example1;
+    @XmlElement(name = "system-message")
+    protected String systemMessage;
 
-    public double getExample1() {
-        return example1;
-    }
-
-    public void setExample1(double example1) {
-        this.example1 = example1;
+    public void setSystemMessage(String value) {
+        this.systemMessage = value;
     }
 }

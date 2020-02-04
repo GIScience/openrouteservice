@@ -125,6 +125,7 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
                 .body("features[0].properties.value", is(400f))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
 
     }

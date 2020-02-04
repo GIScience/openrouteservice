@@ -15,11 +15,20 @@ package org.heigit.ors.matrix;
 
 import com.graphhopper.util.Helper;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class MatrixMetricsType {
 	public static final int UNKNOWN = 0;
 	public static final int DURATION = 1;
 	public static final int DISTANCE = 2;
 	public static final int WEIGHT = 4;
+	public static final String KEY_DURATION = "duration";
+	public static final String KEY_DISTANCE = "distance";
+	public static final String KEY_WEIGHT = "weight";
+	public static final String KEY_UNKNOWN = "unknown";
 
 	private MatrixMetricsType() {}
 
@@ -36,13 +45,13 @@ public class MatrixMetricsType {
 
 		for(String str : values) {
 			switch(str) {
-				case "duration":
+				case KEY_DURATION:
 					res |= DURATION;
 					break;
-				case "distance":
+				case KEY_DISTANCE:
 					res |= DISTANCE;
 					break;
-				case "weight":
+				case KEY_WEIGHT:
 					res |= WEIGHT;
 					break;
 				default:
@@ -57,17 +66,32 @@ public class MatrixMetricsType {
 		String res;
 		switch (metric) {
 			case MatrixMetricsType.DURATION:
-				res = "duration";
+				res = KEY_DURATION;
 				break;
 			case MatrixMetricsType.DISTANCE:
-				res = "distance";
+				res = KEY_DISTANCE;
 				break;
 			case MatrixMetricsType.WEIGHT:
-				res = "weight";
+				res = KEY_WEIGHT;
 				break;
 			default:
-				res = "unknown";
+				res = KEY_UNKNOWN;
 		}
 		return res;
+	}
+
+	public static Set<String> getMetricsNamesFromInt(int metric) {
+		switch (metric) {
+			case MatrixMetricsType.DURATION:
+				return new HashSet<>(Collections.singletonList(KEY_DURATION)) ;
+			case MatrixMetricsType.DISTANCE:
+				return new HashSet<>(Collections.singletonList(KEY_DISTANCE)) ;
+			case MatrixMetricsType.WEIGHT:
+				return new HashSet<>(Collections.singletonList(KEY_WEIGHT)) ;
+			case 3:
+				return new HashSet<>(Arrays.asList(KEY_DURATION, KEY_DISTANCE)) ;
+			default:
+				return new HashSet<>(Collections.singletonList(KEY_UNKNOWN)) ;
+		}
 	}
 }
