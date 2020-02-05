@@ -20,6 +20,7 @@ package com.graphhopper.routing;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.coll.GHIntArrayList;
+import com.graphhopper.coll.GHLongArrayList;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
@@ -55,6 +56,7 @@ public class Path {
     // we go upwards (via SPTEntry.parent) from the goal node to the origin node
     protected boolean reverseOrder = true;
     protected long time;
+    protected GHLongArrayList times;
     /**
      * Shortest path tree entry
      */
@@ -76,6 +78,7 @@ public class Path {
         this.weighting = weighting;
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
+        this.times = new GHLongArrayList();
     }
 
     /**
@@ -85,6 +88,7 @@ public class Path {
         this(p.graph, p.weighting);
         weight = p.weight;
         edgeIds = new GHIntArrayList(p.edgeIds);
+        times = new GHLongArrayList(p.times);
         sptEntry = p.sptEntry;
     }
 
@@ -110,6 +114,10 @@ public class Path {
 
     protected void addEdge(int edge) {
         edgeIds.add(edge);
+    }
+
+    protected void addTime(long time) {
+        times.add(time);
     }
 
     protected Path setEndNode(int end) {
@@ -154,6 +162,7 @@ public class Path {
 
         reverseOrder = false;
         edgeIds.reverse();
+        times.reverse();
     }
 
     public Path setDistance(double distance) {
@@ -203,11 +212,8 @@ public class Path {
             // the reverse search needs the next edge
             nextEdgeValid = EdgeIterator.Edge.isValid(currEdge.parent.edge);
             nextEdge = nextEdgeValid ? currEdge.parent.edge : EdgeIterator.NO_EDGE;
-            processEdge(currEdge.edge, currEdge.adjNode, nextEdge);
+            processEdge(currEdge, nextEdge);
             currEdge = currEdge.parent;
-        }
-        if (weighting.isTimeDependent()) {
-            time = sptEntry.time - currEdge.time;
         }
         setFromNode(currEdge.adjNode);
         reverseOrder();
@@ -241,12 +247,22 @@ public class Path {
     protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         distance += iter.getDistance();
-        if (!weighting.isTimeDependent()) {
-            time += weighting.calcMillis(iter, false, prevEdgeId);
-        }
+        time += weighting.calcMillis(iter, false, prevEdgeId);
         addEdge(edgeId);
     }
 
+    protected void processEdge(SPTEntry currEdge, int prevEdgeId) {
+        int edgeId = currEdge.edge;
+        int adjNode = currEdge.adjNode;
+        EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
+        distance += iter.getDistance();
+        long duration;
+        duration = weighting.isTimeDependent() ?
+                currEdge.time - currEdge.parent.time : weighting.calcMillis(iter, false, prevEdgeId);
+        addEdge(edgeId);
+        addTime(duration);
+        time += duration;
+    }
     /**
      * Iterates over all edges in this path sorted from start to end and calls the visitor callback
      * for every edge.
@@ -255,7 +271,7 @@ public class Path {
      * @param visitor callback to handle every edge. The edge is decoupled from the iterator and can
      *                be stored.
      */
-    private void forEveryEdge(EdgeVisitor visitor) {
+    protected void forEveryEdge(EdgeVisitor visitor) {
         int tmpNode = getFromNode();
         int len = edgeIds.size();
         int prevEdgeId = EdgeIterator.NO_EDGE;
@@ -370,7 +386,7 @@ public class Path {
             }
             return ways;
         }
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, times));
         return ways;
     }
 

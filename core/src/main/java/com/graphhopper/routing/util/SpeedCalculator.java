@@ -48,6 +48,7 @@ public class SpeedCalculator {
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(edge, time);
             String value = conditionalEdges.getValue(edge.getEdge());
             double result = getSpeed(value, zonedDateTime);
+            //System.out.println(time + " ["+zonedDateTime.toLocalTime()+"] " + value + ":" + speed + " -> " + result);// FIXME: debug string
             if (result != -1)
                 speed = result;
         }

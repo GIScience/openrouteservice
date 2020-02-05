@@ -47,7 +47,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(iter, time);
             String value = conditionalEdges.getValue(iter.getEdge());
             boolean result = accept(value, zonedDateTime);
-            System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
+            //System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
             return result;
         }
         return true;

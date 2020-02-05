@@ -17,6 +17,7 @@
  */
 package com.graphhopper.routing;
 
+import com.graphhopper.coll.GHLongArrayList;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -81,9 +82,11 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
     private final int MAX_U_TURN_DISTANCE = 35;
 
+    protected GHLongArrayList times;
+
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
                                  BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
-                                 Translation tr, InstructionList ways) {
+                                 Translation tr, InstructionList ways, GHLongArrayList times) {
         this.weighting = weighting;
         this.encoder = encoder;
         this.accessEnc = encoder.getAccessEnc();
@@ -98,6 +101,15 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         prevName = null;
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
         crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
+        this.times = times;
+    }
+
+    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
+                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
+                                 Translation tr, InstructionList ways) {
+        this(tmpNode,  graph,  weighting,  encoder,
+                 roundaboutEnc,  nodeAccess,
+                 tr,  ways, null);
     }
 
 
@@ -275,6 +287,9 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
         updatePointsAndInstruction(edge, wayGeo);
 
+        if (hasTimes())
+            prevInstruction.setTime(times.get(index) + prevInstruction.getTime());
+
         if (wayGeo.getSize() <= 2) {
             doublePrevLat = prevLat;
             doublePrevLon = prevLon;
@@ -427,13 +442,11 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
         double newDist = edge.getDistance();
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
-        if (weighting.isTimeDependent()) {
-            prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE, prevInstruction.getTime())
-                    + prevInstruction.getTime());
-        } else {
-            prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE)
-                    + prevInstruction.getTime());
-        }
+        if (!hasTimes())
+            prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
     }
 
+    private boolean hasTimes() {
+        return !times.isEmpty();
+    }
 }
