@@ -187,8 +187,9 @@ public class MatrixRequest {
     public Set<String> getMetricsStrings() {
         Set<String> ret = new HashSet<>();
         if (metrics != null) {
-        for (MatrixRequestEnums.Metrics metric : metrics)
-            ret.add(metric.name());
+            for (MatrixRequestEnums.Metrics metric : metrics) {
+                ret.add(metric.name());
+            }
         }
         return ret;
     }

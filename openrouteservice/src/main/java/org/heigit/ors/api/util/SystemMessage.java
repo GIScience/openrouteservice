@@ -124,6 +124,7 @@ public class SystemMessage {
             }
             catch (Exception e) {
                 // ignore otherwise incomplete messages entirely
+                LOGGER.warn(String.format("Invalid SystemMessage object in app.config %s.", message.toString().substring(18)));
             }
         }
         LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
