@@ -32,15 +32,22 @@ public class CellAndLevelFilter implements EdgeFilter {
         int adj = iter.getAdjNode();
         if (base >= maxNodes || adj >= maxNodes)
             return true;
-
-        // minor performance improvement: shortcuts in wrong direction are disconnected, so no need to exclude them
-        if (((CHEdgeIteratorState) iter).isShortcut())
+        if (isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
+                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId){
+            if (((CHEdgeIteratorState) iter).isShortcut())
+                return false;
             return true;
+        }
 
+
+//        if (((CHEdgeIteratorState) iter).isShortcut())
+//            return true;
+//        return false;
         if(graph.getLevel(base) <= graph.getLevel(adj))
             return true;
-
-        return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
-                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
+        return false;
+//
+//        return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
+//                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
     }
 }

@@ -17,7 +17,9 @@
  */
 package org.heigit.ors.fastisochrones;
 
+import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
@@ -35,6 +37,8 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import static heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVANTONLY;
+
 /**
  * Implements a single source shortest path algorithm
  * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
@@ -46,10 +50,16 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
-    private int visitedNodes;
+    public int visitedNodes;
     private double maximumWeight = 0;
-    private Set<Integer> cellNodes;
+    private IntHashSet cellNodes;
     private Set<Integer> visitedIds = new HashSet<>();
+    private IntHashSet relevantNodes = new IntHashSet();
+    public int calcs = 0;
+
+
+
+    private double acceptedFullyReachablePercentage = 1.0;
 
     // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;
@@ -72,18 +82,31 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
     }
     // ORS-GH MOD END
 
-    public double calcMaxWeight(int from) {
-        checkAlreadyRun();
+    public double calcMaxWeight(int from, IntHashSet relevantNodes) {
+//        checkAlreadyRun();
         currEdge = new SPTEntry(EdgeIterator.NO_EDGE, from, 0);
+        this.relevantNodes = relevantNodes;
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }
         runAlgo();
+        getMaxWeight();
         return maximumWeight;
     }
 
+    private void getMaxWeight() {
+        for (IntObjectCursor<SPTEntry> entry : fromMap) {
+            if(ECC__USERELEVANTONLY && !relevantNodes.contains(entry.key))
+                continue;
+
+            if (maximumWeight < entry.value.weight)
+                maximumWeight = entry.value.weight;
+        }
+    }
+
     protected void runAlgo() {
-        EdgeExplorer explorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, true, true));
+//        EdgeExplorer explorer = graph.createEdgeExplorer(new DefaultEdgeFilter(flagEncoder, true, true));
+        EdgeExplorer explorer = graph.createEdgeExplorer();
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -108,6 +131,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
 
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+                calcs++;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
@@ -122,8 +146,8 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
                     // ORS-GH MOD END
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
-                    if(tmpWeight > maximumWeight)
-                        maximumWeight = tmpWeight;
+//                    if(tmpWeight > maximumWeight)
+//                        maximumWeight = tmpWeight;
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
@@ -133,8 +157,8 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
-                    if(tmpWeight > maximumWeight)
-                        maximumWeight = tmpWeight;
+//                    if(tmpWeight > maximumWeight)
+//                        maximumWeight = tmpWeight;
                 } else
                     continue;
             }
@@ -150,7 +174,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
 
     @Override
     protected boolean finished() {
-        return(visitedIds.size() == cellNodes.size());
+        return(((double)visitedIds.size()) / cellNodes.size() >= acceptedFullyReachablePercentage);
     }
 
     @Override
@@ -163,9 +187,18 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
         return visitedNodes;
     }
 
-    public void setCellNodes(Set<Integer> cellNodes) {
+    public void setCellNodes(IntHashSet cellNodes) {
         this.cellNodes = cellNodes;
     }
+
+    public int getFoundCellNodeSize(){
+        return visitedIds.size();
+    }
+
+    public void setAcceptedFullyReachablePercentage(double acceptedFullyReachablePercentage) {
+        this.acceptedFullyReachablePercentage = acceptedFullyReachablePercentage;
+    }
+
 
     @Override
     public Path calcPath(int from, int to) {

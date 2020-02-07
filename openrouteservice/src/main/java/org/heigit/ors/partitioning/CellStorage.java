@@ -18,6 +18,7 @@
 package org.heigit.ors.partitioning;
 
 
+import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
@@ -47,7 +48,7 @@ public class CellStorage implements Storable<CellStorage> {
     private HashMap<Integer, Set<Integer>> cellIdToNodesMap;
     private HashMap<Integer, Long> cellIdToNodesPointerMap;
     private HashMap<Integer, Long> cellIdToContourPointerMap;
-    private Map<Integer, Integer> cellIdToSuperCellMap;
+    private Map<Integer, Integer> cellIdToSuperCellMap = new HashMap<>();
     private Map<Integer, Set<Integer>> superCellIdToCellsMap = new HashMap<>();
 
 
@@ -147,11 +148,11 @@ public class CellStorage implements Storable<CellStorage> {
 
     }
 
-    public Set getNodesOfCell(int cellId){
+    public IntHashSet getNodesOfCell(int cellId){
 //        return cellIdToNodesMap.get(cellId);
         long nodePointer = cellIdToNodesPointerMap.get(cellId);
         int currentNode = cells.getInt(nodePointer);
-        Set<Integer> nodeIds = new HashSet<>();
+        IntHashSet nodeIds = new IntHashSet();
         while(currentNode != -1){
             nodeIds.add(currentNode);
             nodePointer = nodePointer + (long)BYTECOUNT;
@@ -318,6 +319,14 @@ public class CellStorage implements Storable<CellStorage> {
                 cellIdToSuperCellMap.put(cellId, superCell.getKey());
             }
         }
+    }
+
+    public boolean isContourPrepared(){
+        return cells.getHeader(16) > 0 ? true : false;
+    }
+
+    public void setContourPrepared(boolean prepared){
+        cells.setHeader(16, prepared == true ? 1 : 0);
     }
 
     public boolean isCorrupted(){

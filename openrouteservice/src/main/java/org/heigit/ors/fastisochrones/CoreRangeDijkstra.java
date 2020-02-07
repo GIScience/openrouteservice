@@ -45,7 +45,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-    Set<Integer> processedBorderNodes;
+//    Set<Integer> processedBorderNodes;
     protected SPTEntry currEdge;
     private int visitedNodes;
     private double isochroneLimit = 0;
@@ -60,7 +60,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
-        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
+//        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -142,15 +142,14 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
                 if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
                         && eccentricityStorage.getFullyReachable(baseNode)) {
                     fastIsochroneAlgorithm.fullyReachableCells.add(baseCell);
+                    fastIsochroneAlgorithm.addInactiveBorderNode(baseNode);
                     if (fastIsochroneAlgorithm.activeCells.contains(baseCell))
                         fastIsochroneAlgorithm.activeCells.remove(baseCell);
                 }
 
-                if (fromMap.get(baseNode).getWeightOfVisitedPath() <= isochroneLimit) {
-                    processedBorderNodes.add(baseNode);
-
-                    if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity > isochroneLimit
-                            && !fastIsochroneAlgorithm.fullyReachableCells.contains(baseCell)) {
+                else {
+//                    processedBorderNodes.add(baseNode);
+                    if (!fastIsochroneAlgorithm.fullyReachableCells.contains(baseCell)) {
                         fastIsochroneAlgorithm.addActiveCell(baseCell);
                         fastIsochroneAlgorithm.addActiveBorderNode(baseNode);
                     }

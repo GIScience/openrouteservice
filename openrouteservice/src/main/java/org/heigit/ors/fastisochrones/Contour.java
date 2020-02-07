@@ -1,5 +1,7 @@
 package org.heigit.ors.fastisochrones;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -13,21 +15,17 @@ import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
 
 public class Contour {
-
-    private Map<String, Set<Coordinate>> bufferCoordsMap = new HashMap<>();
-    public enum ContourCalc {hull_v1}
-
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
     private int minEdgeLengthLimit = 400;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
-    private int approxLowNodeCountLimit = 10;
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         this.ghStorage = ghStorage;
@@ -36,28 +34,19 @@ public class Contour {
         this.cellStorage = cellStorage;
     }
 
-
     public void calcCellContourPre() {
-
-        Set<Integer> cellNodes;
-        List<Integer> contourOrder = new ArrayList<>();
-        List<Double> hullLatitudes = new ArrayList<>();
-        List<Double> hullLongitudes = new ArrayList<>();
-
         for (int cellId : isochroneNodeStorage.getCellIds()) {
-            LineString ring;
-            contourOrder.clear();
-            hullLatitudes.clear();
-            hullLongitudes.clear();
-            cellNodes = cellStorage.getNodesOfCell(cellId);
+            IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
+            int initialSize = cellNodes.size();
+            List<Double> hullLatitudes = new ArrayList<>(initialSize);
+            List<Double> hullLongitudes = new ArrayList<>(initialSize);
+            List<Coordinate> coordinates =  new ArrayList<>(initialSize);
 
             EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(EdgeFilter.ALL_EDGES);
             EdgeIterator iter;
-            List<Double> lats = new ArrayList<>(cellNodes.size());
-            List<Double> longs = new ArrayList<>(cellNodes.size());
 
-            Set<Integer> visitedEdges = new HashSet<>();
-            for (int node : cellNodes){
+            IntHashSet visitedEdges = new IntHashSet();
+            for (int node : cellNodes.keys){
                 iter = explorer.setBaseNode(node);
                 while (iter.next()){
                     if(!cellNodes.contains(iter.getAdjNode()))
@@ -65,25 +54,20 @@ public class Contour {
                     if(visitedEdges.contains(iter.getEdge()))
                         continue;
                     visitedEdges.add(iter.getEdge());
-                    checkAddLatLon(iter.fetchWayGeometry(3), lats, longs);
-//                    allNodes.add(iter.fetchWayGeometry(1));
+                    //Add all base nodes + geometry of edge
+                    checkAddLatLon(iter.fetchWayGeometry(1), coordinates);
                 }
-
             }
 
-
-//            Geometry geom = lats.size() < approxLowNodeCountLimit ? concHullOfNodes(cellNodes) : concHullOfNodes(lats, longs);
             Geometry geom;
+            LineString ring;
             try {
-                geom = concHullOfNodes(lats, longs);
-//                if (geom.getNumPoints() > 2) {
-                    Polygon poly = (Polygon) geom;
+                geom = concHullOfNodes(coordinates);
+                Polygon poly = (Polygon) geom;
                 poly.normalize();
                 ring = poly.getExteriorRing();
-//                }
             }
             catch (Exception e){
-//                System.out.println("Failed to create concave hull for cell " + cellId);
                 cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
@@ -91,15 +75,8 @@ public class Contour {
                 cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
-//                Polygon poly = (Polygon) geom;
-//                ring = poly.getExteriorRing();
-//                poly.normalize();
-//            } else {
-//                cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
-//                continue;
-//            }
             for (int i = 0; i < ring.getNumPoints(); i++) {
-                //COORDINATE OF POLYGON BASED
+                // Add coordinates to storage, but make sure there are enough on long edges by splitting
                 hullLatitudes.add(ring.getPointN(i).getY());
                 hullLongitudes.add(ring.getPointN(i).getX());
 
@@ -114,28 +91,18 @@ public class Contour {
                             maxEdgeLengthLimit);
                 }
             }
-
-            cellStorage.setCellContourOrder(cellId, new ArrayList<>(hullLatitudes), new ArrayList<>(hullLongitudes));
-
-
+            cellStorage.setCellContourOrder(cellId, hullLatitudes, hullLongitudes);
         }
 
         cellStorage.flush();
-        Map<Integer, Set<Integer>> superCells, superCellsCopy;
-        superCellsCopy = new HashMap<>();
+        Map<Integer, Set<Integer>> superCells;
         if(CONTOUR__USE_SUPERCELLS) {
-
             //Create supercells for better querytime performance
+            //Current implementation supports 2 levels of supercells. Calculated individually
+            //For each super(super)cell, we need to know the corresponding basecells (to get the contour from storage)
+            //and the corresponding subcells (these are supercells for supersupercells)
             superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL, true);
-            superCellsCopy.putAll(superCells);
-            Map<Integer, Integer> cellIdToSuperCell = new HashMap<>();
-            for (Map.Entry<Integer, Set<Integer>> superCell : superCells.entrySet()) {
-                for (int cell : superCell.getValue())
-                    cellIdToSuperCell.put(cell, superCell.getKey());
-            }
-
-//        Map<Integer, Set<Integer>> superSuperCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL);
-            Map<Integer, Set<Integer>> superSuperCells = identifySuperCells(superCellsCopy.keySet(), 2, false);
+            Map<Integer, Set<Integer>> superSuperCells = identifySuperCells(superCells.keySet(), 2, false);
             Map<Integer, Set<Integer>> superSuperCellsToBaseCells = new HashMap<>();
 
             for (Map.Entry<Integer, Set<Integer>> superSuperCell : superSuperCells.entrySet()) {
@@ -144,32 +111,31 @@ public class Contour {
                     newSuperCell.addAll(superCells.get(cell));
                 superSuperCellsToBaseCells.put(superSuperCell.getKey(), newSuperCell);
             }
-            superCellsCopy.putAll(superSuperCellsToBaseCells);
+            superSuperCellsToBaseCells.putAll(superCells);
             superCells.putAll(superSuperCells);
 
-
-            for (Map.Entry<Integer, Set<Integer>> superCell : superCellsCopy.entrySet()) {
-                List<Double> superCellLats = new ArrayList<>();
-                List<Double> superCellLongs = new ArrayList<>();
+            //Calculate the concave hull for all super(super)cells
+            for (Map.Entry<Integer, Set<Integer>> superCell : superSuperCellsToBaseCells.entrySet()) {
+                List<Coordinate> superCellCoordinates = new ArrayList<>(superCell.getValue().size());
                 for (int subcell : superCell.getValue()) {
                     List<Double> subCellContour = cellStorage.getCellContourOrder(subcell);
                     int j = 0;
                     while (j < subCellContour.size()) {
-                        superCellLats.add(subCellContour.get(j));
+                        double lat = subCellContour.get(j);
                         j++;
-                        superCellLongs.add(subCellContour.get(j));
+                        double lon = subCellContour.get(j);
                         j++;
+                        superCellCoordinates.add(new Coordinate(lon, lat));
                     }
                 }
                 Geometry geom;
                 LineString ring;
                 try {
-                    geom = concHullOfNodes(superCellLats, superCellLongs);
+                    geom = concHullOfNodes(superCellCoordinates);
                     Polygon poly = (Polygon) geom;
                     poly.normalize();
                     ring = poly.getExteriorRing();
                 } catch (Exception e) {
-//                System.out.println("Failed to create concave hull for cell " + superCell.getKey());
                     cellStorage.setCellContourOrder(superCell.getKey(), new ArrayList<>(), new ArrayList<>());
                     continue;
                 }
@@ -191,9 +157,7 @@ public class Contour {
                                 maxEdgeLengthLimit);
                     }
                 }
-
                 cellStorage.setCellContourOrder(superCell.getKey(), new ArrayList<>(superCellContourLats), new ArrayList<>(superCellContourLongs));
-
             }
         }
 
@@ -202,51 +166,17 @@ public class Contour {
         //Store the supercell->cellIds map
         if(CONTOUR__USE_SUPERCELLS)
             cellStorage.storeSuperCells(superCells);
+        cellStorage.setContourPrepared(true);
         cellStorage.flush();
     }
 
-
-    public  Geometry concHullOfNodes(Set<Integer> pointSet) {
-
-        NodeAccess nodeAccess = ghStorage.getNodeAccess();
+    public  Geometry concHullOfNodes(List<Coordinate> coordinates) {
         GeometryFactory _geomFactory = new GeometryFactory();
-        Geometry[] geometries = new Geometry[pointSet.size()];
-
-        if(pointSet.size() <10 ){
-            Coordinate[] coordinates = new Coordinate[pointSet.size()];
-            int i = 0;
-            for(int point : pointSet) {
-                coordinates[i] = new Coordinate(nodeAccess.getLon(point), nodeAccess.getLat(point));
-                i++;
-            }
-            Geometry geom = _geomFactory.createMultiPoint(coordinates);
-            return geom;
-        }
-
+        int size = coordinates.size();
+        Geometry[] geometries = new Geometry[size];
         int g = 0;
-        for (int point : pointSet) {
-            Coordinate c = new Coordinate(nodeAccess.getLon(point), nodeAccess.getLat(point));
-            geometries[g++] = _geomFactory.createPoint(c);
-        }
-
-        GeometryCollection points = new GeometryCollection(geometries, _geomFactory);
-        ConcaveHull ch = new ConcaveHull(points, CONCAVEHULL_THRESHOLD, false);
-        Geometry geom = ch.getConcaveHull();
-
-        return geom;
-    }
-
-    public  Geometry concHullOfNodes(List<Double> lats, List<Double> lons) {
-        if(lats.size() != lons.size())
-            throw new IllegalStateException("Latitudes and Longitudes must be same size");
-        GeometryFactory _geomFactory = new GeometryFactory();
-        int size = lats.size();
-        Geometry[] geometries = new Geometry[lats.size()];
-        int g = 0;
-        for (int i = 0; i < size; i++) {
-            Coordinate c = new Coordinate(lons.get(i), lats.get(i));
-            geometries[g++] = _geomFactory.createPoint(c);
-        }
+        for (int i = 0; i < size; i++)
+            geometries[g++] = _geomFactory.createPoint(coordinates.get(i));
 
         GeometryCollection points = new GeometryCollection(geometries, _geomFactory);
         ConcaveHull ch = new ConcaveHull(points, CONCAVEHULL_THRESHOLD, false);
@@ -257,14 +187,12 @@ public class Contour {
 
     Map<Integer, Set<Integer>> identifySuperCells(Set<Integer> cellIds, int hierarchyLevel, boolean isPrimary){
         //Account for the subcell division in InertialFlow final step
-//        hierarchyLevel += 1;
+        //hierarchyLevel += 1;
         int maxId = Collections.max(cellIds);
         Set<Integer> visitedCells = new HashSet<>();
         Map<Integer, Set<Integer>> superCells = new HashMap();
         List<Integer> orderedCellIds = new ArrayList(cellIds);
         Collections.sort(orderedCellIds);
-//        if(isPrimary)
-//            Collections.reverse(orderedCellIds);
         for(int cellId : orderedCellIds){
             if (visitedCells.contains(cellId))
                 continue;
@@ -288,8 +216,6 @@ public class Contour {
                 motherId = cellId >> hierarchyLevel;
             }
 
-//            int depthLimit = (int)Math.ceil(Math.log(FLOW__SET_SPLIT_VALUE)/Math.log(1 - FLOW__SET_SPLIT_VALUE));
-//            depthLimit = (hierarchyLevel - 1) * depthLimit + 1;
             Set<Integer> superCell = new HashSet<>();
 
             createSuperCell(cellIds, visitedCells, superCell, maxId, motherId, hierarchyLevel, isPrimary);
@@ -321,8 +247,6 @@ public class Contour {
         }
 
         if(!cellIds.contains(currentCell)){
-//            if(superCell.size() >= Math.pow(2, level))
-//                return;
             createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1, level, isPrimary);
             createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1 | 1, level, isPrimary);
         }
@@ -331,7 +255,6 @@ public class Contour {
             return;
         }
     }
-
 
     public Contour setGhStorage(GraphHopperStorage ghStorage) {
         this.ghStorage = ghStorage;
@@ -360,16 +283,17 @@ public class Contour {
     }
 
     /*
-    iteratively splits a distance between two coordinates if theyre above a certain limit
+     splits a distance between two coordinates if theyre above a certain limit
      */
     private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Double> latitudes, List<Double> longitudes, double minlim, double maxlim){
         double dist = distance(lat0, lat1, lon0, lon1);
-        if (dist > minlim && dist < maxlim) {
-            latitudes.add((lat0 + lat1) / 2);
-            longitudes.add((lon0 + lon1) / 2);
 
-            splitEdge(lat0, (lat0 + lat1) / 2, lon0, (lon0 + lon1) / 2, latitudes, longitudes, minlim, maxlim);
-            splitEdge((lat0 + lat1) / 2, lat1, (lon0 + lon1) / 2, lon1, latitudes, longitudes, minlim, maxlim);
+        if(dist > minlim && dist < maxlim){
+            int n = (int) Math.ceil(dist / minlim);
+            for (int i = 1; i < n; i++){
+                latitudes.add(lat0 + i * (lat1 - lat0) / n);
+                longitudes.add(lon0 + i * (lon1 - lon0) / n);
+            }
         }
     }
 
@@ -384,21 +308,30 @@ public class Contour {
         return nodeAccess.getLon(nodeId);
     }
 
-    private void checkAddLatLon(PointList newCoordinates, List<Double> existingLats, List<Double> existingLons){
+    private void checkAddLatLon(PointList newCoordinates, List<Coordinate> existingCoordinates){
         for (int i = 0; i < newCoordinates.size(); i++) {
-            int latIndex = existingLats.indexOf(newCoordinates.getLat(i));
-            //point is not yet in list
-            if(latIndex == -1){
-                existingLats.add(newCoordinates.getLat(i));
-                existingLons.add(newCoordinates.getLon(i));
-                continue;
-            }
-            //The coordinate is already added
-            if(newCoordinates.getLon(i) == existingLons.get(latIndex))
-                continue;
+            existingCoordinates.add(new Coordinate(newCoordinates.getLon(i), newCoordinates.getLat(i)));
+//            existingLats.add(newCoordinates.getLat(i));
+//            existingLons.add(newCoordinates.getLon(i));
+//            int latIndex = existingLats.indexOf(newCoordinates.getLat(i));
+//            //point is not yet in list
+//            if(latIndex == -1){
+//                existingLats.add(newCoordinates.getLat(i));
+//                existingLons.add(newCoordinates.getLon(i));
+//                countNonExisting++;
+//                continue;
+//            }
+//            //The coordinate is already added
+//            if(newCoordinates.getLon(i) == existingLons.get(latIndex)) {
+//                countExisting++;
+//                continue;
+//            }
+//
+//
+//            existingLats.add(newCoordinates.getLat(i));
+//            existingLons.add(newCoordinates.getLon(i));
+//            countNonExisting++;
 
-            existingLats.add(newCoordinates.getLat(i));
-            existingLons.add(newCoordinates.getLon(i));
         }
     }
 }

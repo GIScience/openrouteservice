@@ -86,7 +86,7 @@ public abstract class AbstractIsochroneAlgorithm {
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        chGraph = (CHGraph) ((QueryGraph) graph).getMainGraph();
+        chGraph = (CHGraph) graph;
         coreNodeLevel = chGraph.getNodes() + 1;
     }
 

@@ -45,7 +45,7 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-    Set<Integer> processedBorderNodes;
+//    Set<Integer> processedBorderNodes;
     protected SPTEntry currEdge;
     private int visitedNodes;
     private double isochroneLimit = 0;
@@ -60,7 +60,7 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
-        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
+//        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -116,6 +116,9 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
+
+//                if(tmpWeight > isochroneLimit)
+//                    continue;
 
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {

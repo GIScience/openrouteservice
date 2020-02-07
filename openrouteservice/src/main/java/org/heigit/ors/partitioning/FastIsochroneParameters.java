@@ -8,9 +8,9 @@ public class FastIsochroneParameters {
         //>> Partitioning
     public static final int PART__MIN_SPLITTING_ITERATION = 0;
     public static final int PART__MAX_SPLITTING_ITERATION = 268435456; //==2^28
-    public static final int PART__MAX_CELL_NODES_NUMBER = 5000;
+    public static final int PART__MAX_CELL_NODES_NUMBER = 6000;
     public static final int PART__MIN_CELL_NODES_NUMBER = 4;
-    public static final boolean PART__SEPARATECONNECTED = true;
+    public static final boolean PART__SEPARATEDISCONNECTED = true;
     public static final int PART_SUPERCELL_HIERARCHY_LEVEL = 3;
 
     //>> Inertial Flow
@@ -20,7 +20,8 @@ public class FastIsochroneParameters {
     public static final double FLOW__SET_SPLIT_VALUE = 0.2525;
 
     //CONTOUR
-    public static final boolean CONTOUR__USE_SUPERCELLS = false;
+    public static final boolean CONTOUR__USE_SUPERCELLS = true;
+    public static final boolean ECC__USERELEVANTONLY = true;
 
 
     /**

@@ -308,8 +308,8 @@ public class InertialFlow extends PartitioningBase {
         }
         if ((cellId < PART__MIN_SPLITTING_ITERATION))
             nextRecursionLevel = true;
-        if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
-            Set<IntHashSet> disconnectedCells = separateConnected(partition0, cellId << 1);
+        if (nextRecursionLevel == false && PART__SEPARATEDISCONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
+            Set<IntHashSet> disconnectedCells = separateDisconnected(partition0, cellId << 1);
             saveMultiCells(disconnectedCells, cellId << 1);
         }
         if (nextRecursionLevel) {
@@ -323,8 +323,8 @@ public class InertialFlow extends PartitioningBase {
         }
         if ((cellId < PART__MIN_SPLITTING_ITERATION))
             nextRecursionLevel = true;
-        if (nextRecursionLevel == false && PART__SEPARATECONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
-            Set<IntHashSet> disconnectedCells = separateConnected(partition1, cellId << 1 | 1);
+        if (nextRecursionLevel == false && PART__SEPARATEDISCONNECTED && (cellId < PART__MAX_SPLITTING_ITERATION)) {
+            Set<IntHashSet> disconnectedCells = separateDisconnected(partition1, cellId << 1 | 1);
             saveMultiCells(disconnectedCells, cellId << 1 | 1);
         }
         if (nextRecursionLevel) {
@@ -421,7 +421,7 @@ public class InertialFlow extends PartitioningBase {
     /*
     Identify disconnected parts of a cell so that they can be split
      */
-    private Set<IntHashSet> separateConnected(IntHashSet nodeSet, int cellId){
+    private Set<IntHashSet> separateDisconnected(IntHashSet nodeSet, int cellId){
         Set<IntHashSet> disconnectedCells = new HashSet<>();
         EdgeExplorer edgeExplorer = ghGraph.createEdgeExplorer(EdgeFilter.ALL_EDGES);
         Queue<Integer> queue = new ArrayDeque<>();
