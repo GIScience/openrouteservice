@@ -941,11 +941,8 @@ public class GraphHopper implements GraphHopperAPI {
             weighting = new ShortFastestWeighting(encoder, hintsMap);
         }
 
-        // TODO: make weighting time-dependent based on hintsMap
-        else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
+        else if ("td_fastest".equalsIgnoreCase(weightingStr))
             weighting = new TimeDependentFastestWeighting(encoder, hintsMap, ghStorage, timeZoneMap);
-            weighting = new TimeDependentAccessWeighting(weighting, ghStorage, encoder, timeZoneMap);
-        }
 
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
@@ -968,6 +965,18 @@ public class GraphHopper implements GraphHopperAPI {
         if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased())
             return new TurnWeighting(weighting, (TurnCostExtension) graph.getExtension(), uTurnCosts);
         return weighting;
+    }
+
+    /**
+     * Potentially wraps the specified weighting into a TimeDependentAccessWeighting.
+     */
+    public Weighting createTimeDependentAccessWeighting(Weighting weighting, TraversalMode tMode, String algo) {
+        return tMode.isEdgeBased() && isAlgorithmTimeDependent(algo) ?
+            new TimeDependentAccessWeighting(weighting, ghStorage, weighting.getFlagEncoder(), timeZoneMap) : weighting;
+    }
+
+    private boolean isAlgorithmTimeDependent(String algo) {
+        return ("td_dijkstra".equals(algo) || "td_astar".equals(algo)) ? true : false;
     }
 
     @Override
@@ -1082,6 +1091,8 @@ public class GraphHopper implements GraphHopperAPI {
                 int maxVisitedNodesForRequest = hints.getInt(Routing.MAX_VISITED_NODES, maxVisitedNodes);
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
                     throw new IllegalArgumentException("The max_visited_nodes parameter has to be below or equal to:" + maxVisitedNodes);
+
+                weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
 
                 int uTurnCostInt = request.getHints().getInt(Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
                 if (uTurnCostInt != INFINITE_U_TURN_COSTS && !tMode.isEdgeBased()) {

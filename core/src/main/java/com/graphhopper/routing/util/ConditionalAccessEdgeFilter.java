@@ -3,6 +3,7 @@ package com.graphhopper.routing.util;
 import ch.poole.conditionalrestrictionparser.Condition;
 import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
+import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.weighting.DateTimeConverter;
 import com.graphhopper.storage.ConditionalEdgesMap;
@@ -43,9 +44,10 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter, long time) {
         if (fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc)) {
+            int edgeId = EdgeKeys.getOriginalEdge(iter);
             // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(iter, time);
-            String value = conditionalEdges.getValue(iter.getEdge());
+            String value = conditionalEdges.getValue(edgeId);
             boolean result = accept(value, zonedDateTime);
             //System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
             return result;

@@ -2,6 +2,7 @@ package com.graphhopper.routing.util;
 
 import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
+import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.weighting.DateTimeConverter;
@@ -46,7 +47,8 @@ public class SpeedCalculator {
         // retrieve time-dependent maxspeed here
         if (time != -1 && edge.get(conditionalEnc)) {
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(edge, time);
-            String value = conditionalEdges.getValue(edge.getEdge());
+            int edgeId = EdgeKeys.getOriginalEdge(edge);
+            String value = conditionalEdges.getValue(edgeId);
             double result = getSpeed(value, zonedDateTime);
             //System.out.println(time + " ["+zonedDateTime.toLocalTime()+"] " + value + ":" + speed + " -> " + result);// FIXME: debug string
             if (result != -1)
