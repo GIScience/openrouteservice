@@ -29,7 +29,7 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     }
 
     public void run(){
-        _dummyEdgeId = _graph.getAllEdges().getMaxId() + 1;
+        _dummyEdgeId = _graph.getAllEdges().length() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
         //Need entries for all edges + one dummy edge for all nodes
         pData.createEdgeDataStructures(_dummyEdgeId);
@@ -42,7 +42,7 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     public void initStatics() {
         this.nodes = _graph.getNodes();
 //        this.flowEdgeMap = new HashMap<>();
-        _dummyEdgeId = _graph.getAllEdges().getMaxId() + 1;
+        _dummyEdgeId = _graph.getAllEdges().length() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
     }
 

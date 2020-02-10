@@ -71,7 +71,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     }
 
     protected void initFrom(int from){
-        currEdge = new SPTEntry(from, 0);;
+        currEdge = new SPTEntry(from, 0.0D);
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }

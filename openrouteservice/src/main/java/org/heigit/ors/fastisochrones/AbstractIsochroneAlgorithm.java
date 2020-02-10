@@ -49,16 +49,13 @@ public abstract class AbstractIsochroneAlgorithm {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected EdgeExplorer outEdgeExplorer;
-    protected int maxVisitedNodes = Integer.MAX_VALUE;
     private boolean alreadyRun;
-    private Set<Integer> isochroneNodes;
     int visitedCountPhase1;
     int visitedCountPhase2;
     int visitedCountPhase3;
 
     CHGraph chGraph;
     int coreNodeLevel;
-    int fromNode;
     double isochroneLimit;
 
     protected EdgeFilter additionalEdgeFilter;
@@ -159,12 +156,11 @@ public abstract class AbstractIsochroneAlgorithm {
         runPhase3();
     }
 
-    public Set<Integer> calcIsochroneNodes(int from, double isochroneLimit){
+    public void calcIsochroneNodes(int from, double isochroneLimit){
         checkAlreadyRun();
         init(from, isochroneLimit);
         runAlgo();
         createIsochroneNodeSet();
-        return isochroneNodes;
     }
 
     public int getVisitedNodes() {
@@ -182,5 +178,4 @@ public abstract class AbstractIsochroneAlgorithm {
     public int getVisitedNodesPhase3() {
         return visitedCountPhase3;
     }
-
 }

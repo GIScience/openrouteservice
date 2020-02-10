@@ -25,9 +25,7 @@ package heigit.ors.partitioning;
  */
 public class EKEdgeEntry implements Comparable<EKEdgeEntry> {
     public int node;
-    // ORS-GH MOD START
     public int weight;
-    // ORS-GH MOD END
 
     public EKEdgeEntry(int node, int weight) {
         this.node = node;

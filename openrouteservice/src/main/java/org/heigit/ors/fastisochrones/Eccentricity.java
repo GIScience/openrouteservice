@@ -2,15 +2,12 @@ package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
-import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
@@ -18,10 +15,9 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
@@ -52,7 +48,7 @@ public class Eccentricity extends AbstractEccentricity {
 
             ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
 
-            EdgeFilter defaultEdgeFilter = new DefaultEdgeFilter(flagEncoder, false, true);
+            EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
 
             IntObjectHashMap relevantNodesSets = new IntObjectHashMap(isochroneNodeStorage.getCellIds().size());
             for(int cellId : isochroneNodeStorage.getCellIds()){

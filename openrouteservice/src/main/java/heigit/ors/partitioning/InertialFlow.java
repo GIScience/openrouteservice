@@ -153,7 +153,7 @@ public class InertialFlow extends PartitioningBase {
         this.orthogonalDiffProjMap = new HashMap<>();
         this.ghGraph = ghStorage.getBaseGraph();
         if(PART__DEBUG) System.out.println("Number of nodes: "+ghGraph.getNodes());
-        if(PART__DEBUG) System.out.println("Number of edges: "+ghGraph.getAllEdges().getMaxId());
+        if(PART__DEBUG) System.out.println("Number of edges: "+ghGraph.getAllEdges().length());
         this.inverseSemaphore = inverseSemaphore;
 
         initNodes();
@@ -243,7 +243,7 @@ public class InertialFlow extends PartitioningBase {
 
     private void graphBiSplit() {
         //Estimated maximum iterations
-        int mincutScore = ghGraph.getBaseGraph().getAllEdges().getMaxId();
+        int mincutScore = ghGraph.getBaseGraph().getAllEdges().length();
         double sizeFactor = ((double)nodeIdSet.size()) / ghGraph.getBaseGraph().getNodes();
         mincutScore = (int)Math.ceil(mincutScore * sizeFactor);
 

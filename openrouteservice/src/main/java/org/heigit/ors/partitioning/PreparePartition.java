@@ -50,9 +50,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     }
 
     public PreparePartition prepare() {
-//        ForkJoinPool forkJoinPool = new ForkJoinPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
-//        forkJoinPool.invoke(new InertialFlow(ghStorage, edgeFilters));
-//        forkJoinPool.shutdown();
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
         InverseSemaphore inverseSemaphore =  new InverseSemaphore();
         inverseSemaphore.beforeSubmit();

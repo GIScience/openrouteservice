@@ -66,7 +66,7 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         int node;
         IntHashSet targSet = new IntHashSet();
 
-        double maxBFSCalls = _graph.getBaseGraph().getAllEdges().getMaxId() * 2;
+        double maxBFSCalls = _graph.getBaseGraph().getAllEdges().length() * 2;
         double sizeFactor = ((double) nodeOrder.size()) / _graph.getBaseGraph().getNodes();
         maxBFSCalls = (int)Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
 

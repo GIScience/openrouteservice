@@ -72,9 +72,9 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
 
     protected void addInitialBordernode(int nodeId, double weight){
         SPTEntry entry = new SPTEntry(nodeId, weight);
-        if (!traversalMode.isEdgeBased()) {
-            fromMap.put(nodeId, entry);
-        }
+//        if (!traversalMode.isEdgeBased()) {
+//            fromMap.put(nodeId, entry);
+//        }
 
         fromHeap.add(entry);
     }
