@@ -124,8 +124,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         throw new IllegalStateException("Cannot find CHGraph for the specified profile: " + profile + ", existing:" + existing);
     }
 
-//    // ORS-GH MOD START
-//    // CALT
+    // ORS-GH MOD START
+    // CALT
     public CHGraphImpl getCoreGraph(Weighting weighting) {
         Collection<CHGraphImpl> chGraphs = getAllCHGraphs();
         if (chGraphs.isEmpty())
@@ -138,7 +138,19 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         }
         throw new IllegalStateException("No core graph was found");
     }
-//    // ORS-GH MOD END
+
+    public CHGraphImpl getIsochroneGraph(Weighting weighting) {
+        if (chGraphs.isEmpty())
+            throw new IllegalStateException("Cannot find graph implementation");
+        Iterator<CHGraphImpl> iterator = chGraphs.iterator();
+        while(iterator.hasNext()){
+            CHGraphImpl cg = iterator.next();
+            if(cg.getCHProfile().getType() == "isocore" && cg.getCHProfile().getWeighting().getName() == weighting.getName() && cg.getCHProfile().getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+                return cg;
+        }
+        throw new IllegalStateException("No isochrone graph was found");
+    }
+    // ORS-GH MOD END
 
     public boolean isCHPossible() {
         return !getAllCHGraphs().isEmpty();
