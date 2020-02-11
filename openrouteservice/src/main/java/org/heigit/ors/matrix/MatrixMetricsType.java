@@ -88,7 +88,7 @@ public class MatrixMetricsType {
 				return new HashSet<>(Collections.singletonList(KEY_DISTANCE)) ;
 			case MatrixMetricsType.WEIGHT:
 				return new HashSet<>(Collections.singletonList(KEY_WEIGHT)) ;
-			case 3:
+			case MatrixMetricsType.DURATION | MatrixMetricsType.DISTANCE:
 				return new HashSet<>(Arrays.asList(KEY_DURATION, KEY_DISTANCE)) ;
 			default:
 				return new HashSet<>(Collections.singletonList(KEY_UNKNOWN)) ;
