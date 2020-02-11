@@ -14,7 +14,7 @@ public class MatrixResponseInfoTest {
 
     @Before
     public void setUp() {
-        System.setProperty("ors_app_config", "../openrouteservice-api-tests/conf/app.config.test");
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
 
         bareMatrixRequest = new MatrixRequest(new ArrayList<>());
         MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest);

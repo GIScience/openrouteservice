@@ -53,7 +53,7 @@ public class IsochronesRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
-        System.setProperty("ors_app_config", "../openrouteservice-api-tests/conf/app.config.test");
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
 
         handler = new IsochronesRequestHandler();
         geoJsonPolygon = constructGeoJson();
