@@ -6,9 +6,14 @@ import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class RouteSearchParametersTest {
+    @Before
+    public void setUp() {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+    }
 
     @Test(expected = ParameterValueException.class)
     public void expectFailingProfileParamsWithVehicleProfile() throws Exception {

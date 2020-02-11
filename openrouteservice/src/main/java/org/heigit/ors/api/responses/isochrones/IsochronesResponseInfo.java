@@ -18,12 +18,13 @@ package org.heigit.ors.api.responses.isochrones;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.AppInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
 @ApiModel(value = "RouteResponseInfo", description = "Information about the request")
@@ -54,6 +55,10 @@ public class IsochronesResponseInfo {
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
+    @ApiModelProperty(value = "System message", example ="A message string configured in the service")
+    @JsonProperty("system_message")
+    private String systemMessage;
+
     public IsochronesResponseInfo(IsochronesRequest request) {
         service = "isochrones";
         timeStamp = System.currentTimeMillis();
@@ -70,6 +75,8 @@ public class IsochronesResponseInfo {
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
         this.request = request;
+
+        this.systemMessage = SystemMessage.getSystemMessage(request);
     }
 
     public void setGraphDate(String graphDate) {

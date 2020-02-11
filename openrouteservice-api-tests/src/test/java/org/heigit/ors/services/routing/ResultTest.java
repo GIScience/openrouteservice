@@ -123,8 +123,9 @@ public class ResultTest extends ServiceTest {
                     boolean metadataDescription = false;
                     boolean metadataAuthor = false;
                     boolean metadataCopyright = false;
-                    boolean metatadaTime = false;
+                    boolean metadataTime = false;
                     boolean metadataBounds = false;
+                    boolean metadataExtensions = false;
                     for (int j = 0; j < metadataSize; j++) {
                         Node metadataItem = metadataChildren.item(j);
                         switch (metadataItem.getNodeName()) {
@@ -196,7 +197,21 @@ public class ResultTest extends ServiceTest {
                                 Assert.assertTrue(copyrightLicense);
                                 break;
                             case "time":
-                                metatadaTime = true;
+                                metadataTime = true;
+                                break;
+                            case "extensions":
+                                metadataExtensions = true;
+                                int metadataExtensionsLength = metadataItem.getChildNodes().getLength();
+                                boolean metadataExtensionsSystemMessage = false;
+                                for (int k = 0; k < metadataExtensionsLength; k++) {
+                                    Node extensionsElement = metadataItem.getChildNodes().item(k);
+                                    switch (extensionsElement.getNodeName()) {
+                                        case "system-message":
+                                            metadataExtensionsSystemMessage = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(metadataExtensionsSystemMessage);
                                 break;
                             case "bounds":
                                 metadataBounds = true;
@@ -207,8 +222,9 @@ public class ResultTest extends ServiceTest {
                     Assert.assertTrue(metadataDescription);
                     Assert.assertTrue(metadataAuthor);
                     Assert.assertTrue(metadataCopyright);
-                    Assert.assertTrue(metatadaTime);
+                    Assert.assertTrue(metadataTime);
                     Assert.assertTrue(metadataBounds);
+                    Assert.assertTrue(metadataExtensions);
                     break;
                 case "rte":
                     gpxRte = true;
@@ -423,6 +439,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"system-message\" minOccurs=\"0\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"metadataType\">\n" +
@@ -433,6 +450,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"boundsType\">\n" +
@@ -539,6 +557,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[0].geometry.type", is("LineString"))
 				.body("features[0].type", is("Feature"))
 				.body("type", is("FeatureCollection"))
+                .body("info.containsKey('system_message')", is(true))
 
 				.statusCode(200);
 	}

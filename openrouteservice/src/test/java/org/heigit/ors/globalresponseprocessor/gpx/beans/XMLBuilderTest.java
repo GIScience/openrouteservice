@@ -104,7 +104,7 @@ public class XMLBuilderTest {
         MetadataType metadataType = new MetadataType();
         // set metadata extensions
         MetadataTypeExtensions metadataTypeExtensions = new MetadataTypeExtensions();
-        metadataTypeExtensions.setExample1(0.0);
+        metadataTypeExtensions.setSystemMessage("System message string");
         // set metadata
         metadataType.setExtensions(metadataTypeExtensions);
         PersonType personType = new PersonType();
@@ -175,7 +175,7 @@ public class XMLBuilderTest {
                 "        <keywords></keywords>\n" +
                 "        <bounds/>\n" +
                 "        <extensions>\n" +
-                "            <example1>0.0</example1>\n" +
+                "            <system-message>System message string</system-message>\n" +
                 "        </extensions>\n" +
                 "    </metadata>\n" +
                 "    <wpt lat=\"0.0\" lon=\"0.0\">\n" +

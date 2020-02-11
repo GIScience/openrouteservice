@@ -126,6 +126,15 @@ public class AppConfig {
 		return new ArrayList<>() ;
 	}
 
+	public List<? extends ConfigObject> getObjectList(String paramName) {
+		try {
+			return config.getObjectList("ors." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return new ArrayList<>() ;
+	}
+
 	public List<Double> getDoubleList(String serviceName, String paramName) {
 		try {
 			return config.getDoubleList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);

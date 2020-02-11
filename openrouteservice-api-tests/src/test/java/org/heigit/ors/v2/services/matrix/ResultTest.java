@@ -241,6 +241,7 @@ public class ResultTest extends ServiceTest {
                 .body("durations[2][0]", is(235.97f))
                 .body("durations[2][1]", is(90.42f))
                 .body("durations[2][2]", is(0.0f))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 

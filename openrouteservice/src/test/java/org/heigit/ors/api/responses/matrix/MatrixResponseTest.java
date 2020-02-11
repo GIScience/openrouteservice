@@ -14,6 +14,8 @@ public class MatrixResponseTest {
 
     @Before
     public void setUp() {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+
         MatrixRequest bareMatrixRequest = new MatrixRequest(new ArrayList<>());
         bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest);
     }

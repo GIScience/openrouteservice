@@ -19,15 +19,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -181,6 +183,17 @@ public class MatrixRequest {
     public MatrixRequestEnums.Metrics[] getMetrics() {
         return metrics;
     }
+
+    public Set<String> getMetricsStrings() {
+        Set<String> ret = new HashSet<>();
+        if (metrics != null) {
+            for (MatrixRequestEnums.Metrics metric : metrics) {
+                ret.add(metric.name());
+            }
+        }
+        return ret;
+    }
+
 
     public void setMetrics(MatrixRequestEnums.Metrics[] metrics) {
         this.metrics = metrics;

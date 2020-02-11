@@ -74,6 +74,15 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>../openrouteservice-api-tests/conf</directory>
+                <includes>
+                    <include>app.config.test</include>
+                </includes>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
 
         <plugins>
             <plugin>
