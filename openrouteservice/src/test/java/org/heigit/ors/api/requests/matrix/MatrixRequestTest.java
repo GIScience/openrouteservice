@@ -25,6 +25,8 @@ public class MatrixRequestTest {
 
     @Before
     public void setUp() {
+        System.setProperty("ors_app_config", "../openrouteservice-api-tests/conf/app.config.test");
+
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
         bareCoordinatesList.add(49.41461);

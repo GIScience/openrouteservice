@@ -27,6 +27,8 @@ public class JSONMatrixResponseTest {
 
     @Before
     public void setUp() throws StatusCodeException {
+        System.setProperty("ors_app_config", "../openrouteservice-api-tests/conf/app.config.test");
+
         MatrixResult matrixResultCombined;
         MatrixResult matrixResultDistance;
         MatrixResult matrixResultDuration;
