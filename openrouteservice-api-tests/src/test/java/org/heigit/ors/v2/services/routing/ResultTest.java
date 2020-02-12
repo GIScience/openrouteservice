@@ -1104,7 +1104,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testOptimizedAndTurnRestrictions() {
+    public void  testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
