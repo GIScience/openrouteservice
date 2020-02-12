@@ -48,9 +48,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
             // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(iter, time);
             String value = conditionalEdges.getValue(edgeId);
-            boolean result = accept(value, zonedDateTime);
-            //System.out.println(iter.getEdge() + ": " + value + " -> " + result);  //FIXME: debug string
-            return result;
+            return accept(value, zonedDateTime);
         }
         return true;
     }

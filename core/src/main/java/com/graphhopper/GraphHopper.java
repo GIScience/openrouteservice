@@ -861,19 +861,16 @@ public class GraphHopper implements GraphHopperAPI {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String name = encodingManager.getKey(encoder, "conditional_access");
             if (encodingManager.hasEncodedValue(name)) {
-                System.out.println(encoder.toString());
-                TimeDependentEdgeFilter edgeFilter = new ConditionalAccessEdgeFilter(ghStorage, encoder, timeZoneMap);
-                AllEdgesIterator edges = ghStorage.getAllEdges();
-
-                long time = Calendar.getInstance().getTimeInMillis();
-
-                while (edges.next())
-                    edgeFilter.accept(edges, time);
+                ConditionalEdgesMap ca = ghStorage.getConditionalAccess(encoder);
+                System.out.println("CONDITIONAL ACCESS " + encoder.toString().toUpperCase() + ": [" + ca.entries()+ "]");
+                ca.printStoredValues();
             }
 
             name = encodingManager.getKey(encoder, "conditional_speed");
             if (encodingManager.hasEncodedValue(name)) {
-                System.out.println(encoder.toString()+ "has conditional speeds");
+                ConditionalEdgesMap cs = ghStorage.getConditionalSpeed(encoder);
+                System.out.println("CONDITIONAL SPEED " + encoder.toString().toUpperCase() + ": [" + cs.entries()+ "]");
+                cs.printStoredValues();
             }
         }
 

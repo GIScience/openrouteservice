@@ -42,7 +42,7 @@ public class ConditionalParser {
     private final List<ConditionalValueParser> valueParsers = new ArrayList<>(5);
     private final boolean enabledLogs;
 
-    private String simpleValue = new String();
+    private String simpleValue;
     private String unevaluatedRestrictions = "";
     private Conditions unevaluatedConditions;
 
@@ -185,7 +185,7 @@ public class ConditionalParser {
             return false;
 
         ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
-        //unevaluatedRestrictions = new String();
+        unevaluatedRestrictions = "";
 
         try {
             ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));
@@ -218,7 +218,6 @@ public class ConditionalParser {
                     }
                     else {
                         parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
-                        unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
                     }
                 }
             }
@@ -228,7 +227,13 @@ public class ConditionalParser {
             return false;
         }
         // at this point either no matching restriction was found or the encountered restrictions need to be lazy evaluated
-        return (!parsedRestrictions.isEmpty());
+        if (parsedRestrictions.isEmpty()) {
+            return false;
+        }
+        else {
+            unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
+            return true;
+        }
     }
 
     public String getRestrictions() {

@@ -3,9 +3,7 @@ package com.graphhopper.storage;
 import com.graphhopper.search.ConditionalIndex;
 import com.graphhopper.util.EdgeIteratorState;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConditionalEdgesMap implements GraphExtension {
     private static final int EF_EDGE_BYTES = 4;
@@ -187,6 +185,16 @@ public class ConditionalEdgesMap implements GraphExtension {
     @Override
     public boolean isClosed() {
         return false;
+    }
+
+    public void printStoredValues() {
+        Set<Integer> uniqueValues = new HashSet<>(values.values());
+
+        Iterator<Integer> value = uniqueValues.iterator();
+
+        while (value.hasNext()) {
+            System.out.println(conditionalIndex.get((long) value.next()));
+        }
     }
 
 };

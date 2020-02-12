@@ -274,10 +274,16 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             // get assumed speed from highway type
             double speed = getSpeed(way);
 
-            if (getConditionalSpeedInspector().hasConditionalSpeed(way))
-                conditionalSpeedEncoder.setBool(false, edgeFlags, true);
-
             speed = applyMaxSpeed(way, speed);
+
+            // TODO: save conditional speeds only if their value is different from the default speed
+            if (getConditionalSpeedInspector().hasConditionalSpeed(way))
+                if (getConditionalSpeedInspector().isConditionLazyEvaluated())
+                    conditionalSpeedEncoder.setBool(false, edgeFlags, true);
+                else
+                    // conditional maxspeed overrides unconditional one
+                    speed = applyConditionalSpeed(getConditionalSpeedInspector().getTagValue(), speed);
+
             speed = applyBadSurfaceSpeed(way, speed);
 
             setSpeed(false, edgeFlags, speed);

@@ -592,6 +592,16 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
         return speed;
     }
 
+    protected double applyConditionalSpeed(String value, double speed) {
+        double maxSpeed = parseSpeed(value);
+        // We obey speed limits
+        if (maxSpeed >= 0) {
+            // We assume that the average speed is 90% of the allowed maximum
+            return maxSpeed * 0.9;
+        }
+        return speed;
+    }
+
     protected String getPropertiesString() {
         return "speed_factor=" + speedFactor + "|speed_bits=" + speedBits + "|turn_costs=" + (maxTurnCosts > 0);
     }

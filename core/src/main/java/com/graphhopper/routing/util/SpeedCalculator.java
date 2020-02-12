@@ -49,10 +49,9 @@ public class SpeedCalculator {
             ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(edge, time);
             int edgeId = EdgeKeys.getOriginalEdge(edge);
             String value = conditionalEdges.getValue(edgeId);
-            double result = getSpeed(value, zonedDateTime);
-            //System.out.println(time + " ["+zonedDateTime.toLocalTime()+"] " + value + ":" + speed + " -> " + result);// FIXME: debug string
-            if (result != -1)
-                speed = result;
+            double maxSpeed = getSpeed(value, zonedDateTime);
+            if (maxSpeed >= 0)
+                return maxSpeed * 0.9;
         }
 
         return speed;
@@ -68,10 +67,7 @@ public class SpeedCalculator {
                 Restriction restriction = restrictions.get(i);
                 // stop as soon as time matches the combined conditions
                 if (TimeDependentConditionalEvaluator.match(restriction.getConditions(), zonedDateTime)) {
-                    double speed = Double.parseDouble(restriction.getValue());
-                    if (Double.isInfinite(speed) || Double.isNaN(speed) || speed < 0)
-                        throw new IllegalStateException("Invalid speed stored in edge! " + speed);
-                    return speed;
+                    return AbstractFlagEncoder.parseSpeed(restriction.getValue());
                 }
             }
         } catch (ch.poole.conditionalrestrictionparser.ParseException e) {
