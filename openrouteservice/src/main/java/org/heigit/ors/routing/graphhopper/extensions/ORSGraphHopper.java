@@ -48,6 +48,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.StreetCrossingWeighting;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -486,7 +487,10 @@ public class ORSGraphHopper extends GraphHopper {
 		super.postProcessing();
 
 		GraphHopperStorage gs = getGraphHopperStorage();
-
+		// MARQ24 EVIL HACK...
+		if(gs.getEncodingManager().toString().equalsIgnoreCase("car-ors")) {
+			StreetCrossingWeighting.staticStorage = gs;
+		}
 		EncodingManager encodingManager = getEncodingManager();
 
 		int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);

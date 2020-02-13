@@ -13,15 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -55,41 +50,42 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 
 		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
-		if (Helper.isEmpty(strWeighting))
+		if (Helper.isEmpty(strWeighting)) {
 			strWeighting = hintsMap.getWeighting();
+		}
 
+		boolean addTrafficLightAndCrossingPenalties = false;
 		Weighting result = null;
-
-		if ("shortest".equalsIgnoreCase(strWeighting))
-		{
+		if ("shortest".equalsIgnoreCase(strWeighting)){
 			result = new ShortestWeighting(encoder); 
-		}
-		else if ("fastest".equalsIgnoreCase(strWeighting)) 
-		{
-			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE))
+		} else if ("fastest".equalsIgnoreCase(strWeighting)) {
+			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE)) {
 				result = new PriorityWeighting(encoder, hintsMap);
-	         else
-	        	 result = new FastestWeighting(encoder, hintsMap);
-		}
-		else  if ("priority".equalsIgnoreCase(strWeighting))
-		{
-			result = new PreferencePriorityWeighting(encoder, hintsMap);
-		} 
-		else 
-		{
-			if (encoder.supports(PriorityWeighting.class))
-			{
-				if ("recommended_pref".equalsIgnoreCase(strWeighting))
-				{
-					result = new PreferencePriorityWeighting(encoder, hintsMap);
+			}else {
+				// if we want to use penalties for traffic lights and crossings...
+				if(isOrsCarFlagEncoder(encoder)) {
+					addTrafficLightAndCrossingPenalties = true;
 				}
-				else if ("recommended".equalsIgnoreCase(strWeighting))
-					result = new OptimizedPriorityWeighting(encoder, hintsMap);
-				else
-					result = new FastestSafeWeighting(encoder, hintsMap);
-			}
-			else
 				result = new FastestWeighting(encoder, hintsMap);
+			}
+		} else  if ("priority".equalsIgnoreCase(strWeighting)) {
+			result = new PreferencePriorityWeighting(encoder, hintsMap);
+		} else {
+			if (encoder.supports(PriorityWeighting.class)){
+				if ("recommended_pref".equalsIgnoreCase(strWeighting)) {
+					result = new PreferencePriorityWeighting(encoder, hintsMap);
+				} else if ("recommended".equalsIgnoreCase(strWeighting))
+					result = new OptimizedPriorityWeighting(encoder, hintsMap);
+				else {
+					result = new FastestSafeWeighting(encoder, hintsMap);
+				}
+			} else {
+				// if we want to use penalties for traffic lights and crossings...
+				if(isOrsCarFlagEncoder(encoder)) {
+					addTrafficLightAndCrossingPenalties = true;
+				}
+				result = new FastestWeighting(encoder, hintsMap);
+			}
 		}
 
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
@@ -111,19 +107,19 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 
 		// Apply soft weightings
-		if (hintsMap.getBool("custom_weightings", false))
-		{
+		List<Weighting> softWeightings = new ArrayList<>();
+		if(addTrafficLightAndCrossingPenalties){
+			softWeightings.add(new StreetCrossingWeighting(encoder, hintsMap, graphStorage));
+		}
+		if (hintsMap.getBool("custom_weightings", false)) {
 			Map<String, String> map = hintsMap.toMap();
-
 			List<String> weightingNames = new ArrayList<>();
-			for (Map.Entry<String, String> kv : map.entrySet())
-			{
+			for (Map.Entry<String, String> kv : map.entrySet()) {
 				String name = ProfileWeighting.decodeName(kv.getKey());
-				if (name != null && !weightingNames.contains(name))
+				if (name != null && !weightingNames.contains(name)) {
 					weightingNames.add(name);
+				}
 			}
-	
-			List<Weighting> softWeightings = new ArrayList<>();
 
 			for (String weightingName : weightingNames) {
 				switch (weightingName) {
@@ -146,12 +142,11 @@ public class ORSWeightingFactory implements WeightingFactory {
 						break;
 				}
 			}
-
-			if (!softWeightings.isEmpty()) {
-				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
-				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder);
-			}
+		}
+		if (!softWeightings.isEmpty()) {
+			Weighting[] arrWeightings = new Weighting[softWeightings.size()];
+			arrWeightings = softWeightings.toArray(arrWeightings);
+			result = new AdditionWeighting(arrWeightings, result, encoder);
 		}
 		return result;
 	}
@@ -159,6 +154,11 @@ public class ORSWeightingFactory implements WeightingFactory {
 	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
 		return encoder instanceof FootFlagEncoder;
 	}
+
+	private boolean isOrsCarFlagEncoder(FlagEncoder encoder){
+		return encoder instanceof org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
+	}
+
 
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)
 	{

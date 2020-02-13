@@ -24,9 +24,6 @@ import java.util.*;
 
 public class StreetCrossingGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
-	private int trafficLights;
-	private int crossings;
-
 	private StreetCrossingGraphStorage storage;
 	private List<String> trafficLightValues = new ArrayList<>(4);
 	private List<String> crossingValues = new ArrayList<>(3);
@@ -52,8 +49,6 @@ public class StreetCrossingGraphStorageBuilder extends AbstractGraphStorageBuild
 
 	@Override
 	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags){
-		int trafficLights = 0;
-		int crossings = 0;
 		if(nodeTags != null && nodeTags.size()>0){
 			// MARQ24: that was my initial/original code from the OSMReader to count traffic lights and crossings...
 			// that was extracted in the 'processNode(...)' state...
@@ -64,7 +59,8 @@ public class StreetCrossingGraphStorageBuilder extends AbstractGraphStorageBuild
 			} else if (node.hasTag("highway", "crossing") && node.hasTag("crossing", crossing_without)) {
 				osmNodeIdToNodeExtraFlagsMap.put(node.getId(), NODE_EXTRADATA_HAS_CROSSING);
 			}*/
-
+			int trafficLights = 0;
+			int crossings = 0;
 			for(HashMap<String, String> aNodeTagList: nodeTags.values()){
 				if(aNodeTagList.containsKey("highway")) {
 					String highwayVal = aNodeTagList.get("highway");
@@ -83,11 +79,21 @@ public class StreetCrossingGraphStorageBuilder extends AbstractGraphStorageBuild
 					}
 				}
 			}
+			if(trafficLights > 0) {
+				way.setTag("trafficLights", trafficLights);
+			}
+			if(crossings > 0) {
+				way.setTag("crossings", crossings);
+			}
 		}
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		storage.setEdgeValue(edge.getEdge(), trafficLights, crossings);
+		int trafficLights = way.getTag("trafficLights", 0);
+		int crossings =  way.getTag("crossings", 0);
+		if(trafficLights + crossings>0) {
+			storage.setEdgeValue(edge.getEdge(), trafficLights, crossings);
+		}
 	}
 
 	@Override

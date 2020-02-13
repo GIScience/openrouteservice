@@ -926,6 +926,11 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
+            if (weightingMethod == WeightingMethod.FASTEST && profileType == RoutingProfileType.DRIVING_CAR){
+                req.setWeighting("addition");
+                req.getHints().put(KEY_WEIGHTING_METHOD, VAL_FASTEST);
+            }
+
             if(profileType == RoutingProfileType.WHEELCHAIR) {
                 flexibleMode = true;
             }
