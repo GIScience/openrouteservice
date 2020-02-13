@@ -25,10 +25,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 
 import java.io.InvalidObjectException;
 import java.util.*;
@@ -51,6 +48,7 @@ public class ORSOSMReader extends OSMReader {
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
 	private HashSet<String> extraTagKeys;
+	private HashMap<String, Set<String>> extraTagKeysWithValues;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
@@ -58,9 +56,9 @@ public class ORSOSMReader extends OSMReader {
 		setCalcDistance3D(false);
 		this.procCntx = procCntx;
 		this.readerCntx = new OSMDataReaderContext(this);
-
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
+		extraTagKeysWithValues = new HashMap<>();
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
@@ -92,6 +90,12 @@ public class ORSOSMReader extends OSMReader {
 				extraTagKeys.add("motorcar");
 				extraTagKeys.add("motorcycle");
 			}
+
+			if(b instanceof StreetCrossingGraphStorageBuilder){
+				this.processNodeTags = true;
+				extraTagKeysWithValues.put("highway", new HashSet<>(Arrays.asList(new String[]{"traffic_signals", "crossing"})));
+				extraTagKeys.add("crossing");
+			}
 		}
 	}
 
@@ -113,14 +117,17 @@ public class ORSOSMReader extends OSMReader {
 			// Check each node and store the tags that are required
 			HashMap<String, String> tagValues = new HashMap<>();
 			Set<String> nodeKeys = node.getTags().keySet();
-			for(String key : nodeKeys) {
-				if(extraTagKeys.contains(key)) {
+			for (String key : nodeKeys) {
+				if (extraTagKeys.contains(key)) {
 					tagValues.put(key, node.getTag(key));
+				} else if(extraTagKeysWithValues.containsKey(key)){
+					if(node.hasTag(key, extraTagKeysWithValues.get(key))){
+						tagValues.put(key, node.getTag(key));
+					}
 				}
 			}
-
 			// Now if we have tag data, we need to store it
-			if(tagValues.size() > 0) {
+			if (tagValues.size() > 0) {
 				nodeTags.put(node.getId(), tagValues);
 			}
 		}
@@ -151,7 +158,6 @@ public class ORSOSMReader extends OSMReader {
 					}
 				}
 			}
-
 			return;
 
 		}
@@ -172,7 +178,7 @@ public class ORSOSMReader extends OSMReader {
 	public void onProcessWay(ReaderWay way) {
 
 		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
-		ArrayList<Coordinate> coords = new ArrayList<>();
+		ArrayList<Coordinate> coords = new ArrayList<>(100);
 
 		if(processNodeTags) {
 			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
@@ -186,12 +192,11 @@ public class ORSOSMReader extends OSMReader {
 			for(int i=0; i<size; i++) {
 				// find the node
 				long id = osmNodeIds.get(i);
-				// replace the osm id with the internal id
-				int internalId = getInternalNodeIdOfOsmNode(id);
-				HashMap<String, String> tagsForNode = nodeTags.get(id);
 
+				HashMap<String, String> tagsForNode = nodeTags.get(id);
 				if(tagsForNode != null) {
-					tags.put(internalId, nodeTags.get(id));
+					// replace the osm node id with the internal id
+					tags.put(getInternalNodeIdOfOsmNode(id), tagsForNode);
 				}
 			}
 		}
@@ -411,6 +416,4 @@ public class ORSOSMReader extends OSMReader {
 		super.finishedReading();
 		procCntx.finish();
 	}
-
-
 }
