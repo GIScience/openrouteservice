@@ -17,15 +17,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.carrotsearch.hppc.HashOrderMixing;
-import com.carrotsearch.hppc.HashOrderMixingStrategy;
-import com.carrotsearch.hppc.LongArrayList;
-import com.carrotsearch.hppc.LongIntHashMap;
-import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 
 import java.util.*;
@@ -43,9 +37,6 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
     // Mean speed for isochrone reach_factor
     private static final int MEAN_SPEED = 100;
-
-    private IntEncodedValue trafficLightCountEnc;
-    private IntEncodedValue crossingCountEnc;
 
     public CarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),
@@ -75,6 +66,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         initSpeedLimitHandler(this.toString());
 
         // MARQ24 added in order to support transfer from Node values over to the ways...
+        /*
         osmNodeIdToNodeExtraFlagsMap =  new GHLongIntHashMap(200, .5f);
         //see https://wiki.openstreetmap.org/wiki/DE:Key:crossing
         crossing_with_trafficLight.add("traffic_signals");
@@ -84,6 +76,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         crossing_without.add("uncontrolled");
         crossing_without.add("zebra");
         crossing_without.add("island");
+        */
 
         init();
     }
@@ -164,6 +157,12 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         return 1;
     }
 
+    @Override
+    public void applyWayTags(ReaderWay way, EdgeIteratorState edge) {
+        System.out.println(edge);
+    }
+
+    /*
     // ADDONs for supporting TrafficLight & crossing Counts in order to support more reasonable routing times
     // for car's in cities... [initial created by marq24 - so if you have questions - please contact me]
     // These additional values will be used by the
@@ -173,6 +172,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     private GHLongIntHashMap osmNodeIdToNodeExtraFlagsMap;
     private static int NODE_EXTRADATA_HAS_TRAFFIC_LIGHT = 1;
     private static int NODE_EXTRADATA_HAS_CROSSING      = 2;
+    private IntEncodedValue trafficLightCountEnc;
+    private IntEncodedValue crossingCountEnc;
 
     // QUICK HACK in order to be Graphhopper ORS Version independent - MOVE this class later to
     // the com.graphhopper.coll package!
@@ -252,18 +253,18 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         if(trafficLights > 0){
             // the encoder can only handle 4 bit - so reduce the max count to 15 lights...
             trafficLightCountEnc.setInt(false, edgeFlags, Math.min(trafficLights, 15));
-            /*if(maxT<trafficLights){
-                maxT = trafficLights;
-                System.out.println("TL: "+maxT+" "+way.getId());
-            }*/
+            //if(maxT<trafficLights){
+            //    maxT = trafficLights;
+            //    System.out.println("TL: "+maxT+" "+way.getId());
+            //}
         }
         if(crossings > 0){
             // the encoder can only handle 4 bit - so reduce the max count to 15 crossings...
             crossingCountEnc.setInt(false, edgeFlags,  Math.min(crossings, 15));
-            /*if(maxC<crossings){
-                maxC = crossings;
-                System.out.println("CX: "+maxC);
-            }*/
+            //if(maxC<crossings){
+            //    maxC = crossings;
+            //    System.out.println("CX: "+maxC);
+            //}
         }
         return edgeFlags;
     }
@@ -281,4 +282,5 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         }
         return crossingCountEnc;
     }
+    */
 }
