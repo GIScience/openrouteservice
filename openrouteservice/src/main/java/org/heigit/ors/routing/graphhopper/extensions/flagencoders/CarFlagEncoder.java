@@ -28,9 +28,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -170,8 +168,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     // for car's in cities... [initial created by marq24 - so if you have questions - please contact me]
     // These additional values will be used by the
     // org.heigit.ors.routing.graphhopper.extensions.weighting.StreetCrossingWeighting
-    private List<String> crossing_with_trafficLight = new ArrayList<>(4);
-    private List<String> crossing_without = new ArrayList<>(3);
+    private Set<String> crossing_with_trafficLight = new HashSet(4);
+    private Set<String> crossing_without = new HashSet(3);
     private GHLongIntHashMap osmNodeIdToNodeExtraFlagsMap;
     private static int NODE_EXTRADATA_HAS_TRAFFIC_LIGHT = 1;
     private static int NODE_EXTRADATA_HAS_CROSSING      = 2;
@@ -208,11 +206,17 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         // just extract out traffic light & crossing info...
         if (node.hasTag("highway", "traffic_signals") || node.hasTag("crossing", crossing_with_trafficLight)){
             osmNodeIdToNodeExtraFlagsMap.put(node.getId(), NODE_EXTRADATA_HAS_TRAFFIC_LIGHT);
-        } else if(node.hasTag("highway", "crossing") && node.hasTag("crossing", crossing_without)){
+        } else if(node.hasTag("highway", "crossing") && node.hasTag("crossing", crossing_without)) {
             osmNodeIdToNodeExtraFlagsMap.put(node.getId(), NODE_EXTRADATA_HAS_CROSSING);
         }
         return super.handleNodeTags(node);
     }
+
+    // just to debug max possible max count... > for heidelberg.osm.gz
+    // 8 TrafficLights at way [Berliner Straße with id: 154934575]
+    // https://www.openstreetmap.org/way/154934575
+    //private int maxT = 0;
+    //private int maxC = 0;
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
@@ -248,10 +252,18 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         if(trafficLights > 0){
             // the encoder can only handle 4 bit - so reduce the max count to 15 lights...
             trafficLightCountEnc.setInt(false, edgeFlags, Math.min(trafficLights, 15));
+            /*if(maxT<trafficLights){
+                maxT = trafficLights;
+                System.out.println("TL: "+maxT+" "+way.getId());
+            }*/
         }
         if(crossings > 0){
             // the encoder can only handle 4 bit - so reduce the max count to 15 crossings...
             crossingCountEnc.setInt(false, edgeFlags,  Math.min(crossings, 15));
+            /*if(maxC<crossings){
+                maxC = crossings;
+                System.out.println("CX: "+maxC);
+            }*/
         }
         return edgeFlags;
     }
