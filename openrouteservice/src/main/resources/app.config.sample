@@ -105,18 +105,18 @@
                   "ch": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest"
+                    "weightings": "fastestwp"
                   },
                   "lm": {
                     "enabled": false,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "fastestwp,shortest",
                     "landmarks": 16
                   },
                   "core": {
                       "enabled": true,
                       "threads": 1,
-                      "weightings": "fastest,shortest",
+                      "weightings": "fastestwp,shortest",
                       "landmarks": 64,
                       "lmsets": "highways;allow_all"
                   }
