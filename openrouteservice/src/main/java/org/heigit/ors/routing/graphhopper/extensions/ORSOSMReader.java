@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -25,7 +25,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 
 import java.io.InvalidObjectException;
 import java.util.*;
@@ -55,9 +58,9 @@ public class ORSOSMReader extends OSMReader {
 		setCalcDistance3D(false);
 		this.procCntx = procCntx;
 		this.readerCntx = new OSMDataReaderContext(this);
+
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
-
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
@@ -71,12 +74,12 @@ public class ORSOSMReader extends OSMReader {
 				this.processSimpleGeom = true;
 				extraTagKeys.add("kerb");
 				extraTagKeys.add("kerb:both");
-                extraTagKeys.add("kerb:left");
-                extraTagKeys.add("kerb:right");
+				extraTagKeys.add("kerb:left");
+				extraTagKeys.add("kerb:right");
 				extraTagKeys.add("kerb:height");
-                extraTagKeys.add("kerb:both:height");
-                extraTagKeys.add("kerb:left:height");
-                extraTagKeys.add("kerb:right:height");
+				extraTagKeys.add("kerb:both:height");
+				extraTagKeys.add("kerb:left:height");
+				extraTagKeys.add("kerb:right:height");
 			}
 
 			if ( b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
@@ -110,13 +113,14 @@ public class ORSOSMReader extends OSMReader {
 			// Check each node and store the tags that are required
 			HashMap<String, String> tagValues = new HashMap<>();
 			Set<String> nodeKeys = node.getTags().keySet();
-			for (String key : nodeKeys) {
-				if (extraTagKeys.contains(key)) {
+			for(String key : nodeKeys) {
+				if(extraTagKeys.contains(key)) {
 					tagValues.put(key, node.getTag(key));
 				}
 			}
+
 			// Now if we have tag data, we need to store it
-			if (tagValues.size() > 0) {
+			if(tagValues.size() > 0) {
 				nodeTags.put(node.getId(), tagValues);
 			}
 		}
@@ -147,8 +151,11 @@ public class ORSOSMReader extends OSMReader {
 					}
 				}
 			}
+
 			return;
+
 		}
+
 		// Normal processing
 		super.processWay(way);
 	}
@@ -173,18 +180,17 @@ public class ORSOSMReader extends OSMReader {
 			// do not know the osm node id
 
 			// TODO: CHeck this as this only stores tower nodes - is that what we want?
-			// MARQ24: please also see now the 'processWay(ReaderWay way) forwardNodeData=true section'
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 
 			for(int i=0; i<size; i++) {
 				// find the node
 				long id = osmNodeIds.get(i);
-
 				HashMap<String, String> tagsForNode = nodeTags.get(id);
 				if(tagsForNode != null) {
-					// replace the osm node id with the internal id
-					tags.put(getInternalNodeIdOfOsmNode(id), tagsForNode);
+					// replace the osm id with the internal id
+					int internalId = getInternalNodeIdOfOsmNode(id);
+					tags.put(internalId, tagsForNode);
 				}
 			}
 		}
@@ -308,7 +314,7 @@ public class ORSOSMReader extends OSMReader {
 		LongArrayList osmNodeIds = way.getNodes();
 		int size = osmNodeIds.size();
 		if (size > 2) {
-		    // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
+			// If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
 			for (int i = 1; i < size-1; i++) {
 				long nodeId = osmNodeIds.get(i);
 				if (nodeHasTagsStored(nodeId)) {
@@ -343,10 +349,10 @@ public class ORSOSMReader extends OSMReader {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
-	@Override 
-    protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
-    {
+
+	@Override
+	protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
+	{
 		try
 		{
 			return procCntx.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
@@ -354,11 +360,11 @@ public class ORSOSMReader extends OSMReader {
 		catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
-		
-		return false;
-    }
 
-    @Override
+		return false;
+	}
+
+	@Override
 	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
 		double totalDist = 0d;
 		long nodeId = osmNodeIds.get(0);
@@ -404,4 +410,6 @@ public class ORSOSMReader extends OSMReader {
 		super.finishedReading();
 		procCntx.finish();
 	}
+
+
 }
