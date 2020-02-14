@@ -48,7 +48,6 @@ public class ORSOSMReader extends OSMReader {
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
 	private HashSet<String> extraTagKeys;
-	private HashMap<String, Set<String>> extraTagKeysWithValues;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
@@ -58,7 +57,7 @@ public class ORSOSMReader extends OSMReader {
 		this.readerCntx = new OSMDataReaderContext(this);
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
-		extraTagKeysWithValues = new HashMap<>();
+
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
@@ -90,12 +89,6 @@ public class ORSOSMReader extends OSMReader {
 				extraTagKeys.add("motorcar");
 				extraTagKeys.add("motorcycle");
 			}
-
-			if(b instanceof StreetCrossingGraphStorageBuilder){
-				this.processNodeTags = true;
-				extraTagKeysWithValues.put("highway", new HashSet<>(Arrays.asList(new String[]{"traffic_signals", "crossing"})));
-				extraTagKeys.add("crossing");
-			}
 		}
 	}
 
@@ -120,10 +113,6 @@ public class ORSOSMReader extends OSMReader {
 			for (String key : nodeKeys) {
 				if (extraTagKeys.contains(key)) {
 					tagValues.put(key, node.getTag(key));
-				} else if(extraTagKeysWithValues.containsKey(key)){
-					if(node.hasTag(key, extraTagKeysWithValues.get(key))){
-						tagValues.put(key, node.getTag(key));
-					}
 				}
 			}
 			// Now if we have tag data, we need to store it
@@ -159,9 +148,7 @@ public class ORSOSMReader extends OSMReader {
 				}
 			}
 			return;
-
 		}
-
 		// Normal processing
 		super.processWay(way);
 	}
@@ -186,6 +173,7 @@ public class ORSOSMReader extends OSMReader {
 			// do not know the osm node id
 
 			// TODO: CHeck this as this only stores tower nodes - is that what we want?
+			// MARQ24: please also see now the 'processWay(ReaderWay way) forwardNodeData=true section'
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 

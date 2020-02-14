@@ -54,7 +54,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 			strWeighting = hintsMap.getWeighting();
 		}
 
-		boolean addTrafficLightAndCrossingPenalties = false;
 		Weighting result = null;
 		if ("shortest".equalsIgnoreCase(strWeighting)){
 			result = new ShortestWeighting(encoder); 
@@ -62,11 +61,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE)) {
 				result = new PriorityWeighting(encoder, hintsMap);
 			}else {
-				// if we want to use penalties for traffic lights and crossings...
 				if(isOrsCarFlagEncoder(encoder)) {
-					addTrafficLightAndCrossingPenalties = true;
+					// if we want to use penalties for traffic lights and crossings...
+					result = new StreetCrossingWeighting(encoder, hintsMap);
+				}else {
+					result = new FastestWeighting(encoder, hintsMap);
 				}
-				result = new FastestWeighting(encoder, hintsMap);
 			}
 		} else  if ("priority".equalsIgnoreCase(strWeighting)) {
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
@@ -80,11 +80,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 					result = new FastestSafeWeighting(encoder, hintsMap);
 				}
 			} else {
-				// if we want to use penalties for traffic lights and crossings...
 				if(isOrsCarFlagEncoder(encoder)) {
-					addTrafficLightAndCrossingPenalties = true;
+					// if we want to use penalties for traffic lights and crossings...
+					result = new StreetCrossingWeighting(encoder, hintsMap);
+				}else {
+					result = new FastestWeighting(encoder, hintsMap);
 				}
-				result = new FastestWeighting(encoder, hintsMap);
 			}
 		}
 
@@ -106,12 +107,10 @@ public class ORSWeightingFactory implements WeightingFactory {
 			}
 		}
 
-		// Apply soft weightings
-		List<Weighting> softWeightings = new ArrayList<>();
-		if(addTrafficLightAndCrossingPenalties){
-			softWeightings.add(new StreetCrossingWeighting(encoder, hintsMap, graphStorage));
-		}
 		if (hintsMap.getBool("custom_weightings", false)) {
+			// Apply soft weightings
+			List<Weighting> softWeightings = new ArrayList<>();
+
 			Map<String, String> map = hintsMap.toMap();
 			List<String> weightingNames = new ArrayList<>();
 			for (Map.Entry<String, String> kv : map.entrySet()) {
@@ -142,11 +141,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 						break;
 				}
 			}
-		}
-		if (!softWeightings.isEmpty()) {
-			Weighting[] arrWeightings = new Weighting[softWeightings.size()];
-			arrWeightings = softWeightings.toArray(arrWeightings);
-			result = new AdditionWeighting(arrWeightings, result, encoder);
+
+			if (!softWeightings.isEmpty()) {
+				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
+				arrWeightings = softWeightings.toArray(arrWeightings);
+				result = new AdditionWeighting(arrWeightings, result, encoder);
+			}
 		}
 		return result;
 	}

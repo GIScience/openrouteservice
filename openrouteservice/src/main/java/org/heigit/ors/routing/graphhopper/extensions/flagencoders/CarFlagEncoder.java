@@ -17,9 +17,20 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
+import com.carrotsearch.hppc.HashOrderMixing;
+import com.carrotsearch.hppc.HashOrderMixingStrategy;
+import com.carrotsearch.hppc.LongArrayList;
+import com.carrotsearch.hppc.LongIntHashMap;
+import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -34,6 +45,9 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
     // Mean speed for isochrone reach_factor
     private static final int MEAN_SPEED = 100;
+
+    private IntEncodedValue trafficLightCountEnc;
+    private IntEncodedValue crossingCountEnc;
 
     public CarFlagEncoder(PMap properties) {
         this((int) properties.getLong("speed_bits", 5),
@@ -61,6 +75,17 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         absoluteBarriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
+
+        // MARQ24 added in order to support transfer from Node values over to the ways...
+        osmNodeIdToNodeExtraFlagsMap =  new GHLongIntHashMap(200, .5f);
+        //see https://wiki.openstreetmap.org/wiki/DE:Key:crossing
+        crossing_with_trafficLight.add("traffic_signals");
+        crossing_with_trafficLight.add("traffic_lights");
+        crossing_with_trafficLight.add("toucan");
+        crossing_with_trafficLight.add("pegasus");
+        crossing_without.add("uncontrolled");
+        crossing_without.add("zebra");
+        crossing_without.add("island");
 
         init();
     }
@@ -139,5 +164,109 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     @Override
     public int getVersion() {
         return 1;
+    }
+
+    // ADDONs for supporting TrafficLight & crossing Counts in order to support more reasonable routing times
+    // for car's in cities... [initial created by marq24 - so if you have questions - please contact me]
+    // These additional values will be used by the
+    // org.heigit.ors.routing.graphhopper.extensions.weighting.StreetCrossingWeighting
+    private List<String> crossing_with_trafficLight = new ArrayList<>(4);
+    private List<String> crossing_without = new ArrayList<>(3);
+    private GHLongIntHashMap osmNodeIdToNodeExtraFlagsMap;
+    private static int NODE_EXTRADATA_HAS_TRAFFIC_LIGHT = 1;
+    private static int NODE_EXTRADATA_HAS_CROSSING      = 2;
+
+    // QUICK HACK in order to be Graphhopper ORS Version independent - MOVE this class later to
+    // the com.graphhopper.coll package!
+    static final HashOrderMixingStrategy DETERMINISTIC = HashOrderMixing.constant(123321123321123312L);
+    private class GHLongIntHashMap extends LongIntHashMap{
+        public GHLongIntHashMap() {
+            super(10, 0.75, DETERMINISTIC);
+        }
+        public GHLongIntHashMap(int capacity) {
+            super(capacity, 0.75, DETERMINISTIC);
+        }
+        public GHLongIntHashMap(int capacity, double loadFactor) {
+            super(capacity, loadFactor, DETERMINISTIC);
+        }
+        public GHLongIntHashMap(int capacity, double loadFactor, HashOrderMixingStrategy hashOrderMixer) {
+            super(capacity, loadFactor, hashOrderMixer);
+        }
+    }
+
+    @Override
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+        // first two bits are reserved for route handling in superclass
+        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+        trafficLightCountEnc = new UnsignedIntEncodedValue("trafficlights", 4, false);
+        registerNewEncodedValue.add(trafficLightCountEnc);
+        crossingCountEnc = new UnsignedIntEncodedValue("crossings", 4, false);
+        registerNewEncodedValue.add(crossingCountEnc);
+    }
+
+    public long handleNodeTags(ReaderNode node) {
+        // just extract out traffic light & crossing info...
+        if (node.hasTag("highway", "traffic_signals") || node.hasTag("crossing", crossing_with_trafficLight)){
+            osmNodeIdToNodeExtraFlagsMap.put(node.getId(), NODE_EXTRADATA_HAS_TRAFFIC_LIGHT);
+        } else if(node.hasTag("highway", "crossing") && node.hasTag("crossing", crossing_without)){
+            osmNodeIdToNodeExtraFlagsMap.put(node.getId(), NODE_EXTRADATA_HAS_CROSSING);
+        }
+        return super.handleNodeTags(node);
+    }
+
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+        if (access.canSkip()) {
+            return edgeFlags;
+        }
+        edgeFlags = super.handleWayTags(edgeFlags, way, access, relationFlags);
+
+        LongArrayList osmNodeIds = way.getNodes();
+        int size = osmNodeIds.size();
+
+        int trafficLights = 0;
+        int crossings = 0;
+
+        // MARQ24 2020/02/14 -> going here already though all the nodes of a way is quite some performance killer
+        // I'll need to improve that!
+        for(int i=0; i<size; i++) {
+            // find the node
+            long nodeId = osmNodeIds.get(i);
+
+            long nextNodeExtraFlags = osmNodeIdToNodeExtraFlagsMap.get(nodeId);
+            if (nextNodeExtraFlags > 0) {
+                if((nextNodeExtraFlags|NODE_EXTRADATA_HAS_TRAFFIC_LIGHT) == NODE_EXTRADATA_HAS_TRAFFIC_LIGHT) {
+                    trafficLights++;
+                }
+                if((nextNodeExtraFlags|NODE_EXTRADATA_HAS_CROSSING) == NODE_EXTRADATA_HAS_CROSSING) {
+                    crossings++;
+                }
+            }
+        }
+
+        // marq24: can we only encode the count, if it's > 0 ?!
+        if(trafficLights > 0){
+            // the encoder can only handle 4 bit - so reduce the max count to 15 lights...
+            trafficLightCountEnc.setInt(false, edgeFlags, Math.min(trafficLights, 15));
+        }
+        if(crossings > 0){
+            // the encoder can only handle 4 bit - so reduce the max count to 15 crossings...
+            crossingCountEnc.setInt(false, edgeFlags,  Math.min(crossings, 15));
+        }
+        return edgeFlags;
+    }
+
+    public IntEncodedValue getTrafficLightCountEnc() {
+        if (trafficLightCountEnc == null) {
+            throw new NullPointerException("FlagEncoder " + toString() + " not yet initialized");
+        }
+        return trafficLightCountEnc;
+    }
+
+    public IntEncodedValue getCrossingCountEnc() {
+        if (crossingCountEnc == null) {
+            throw new NullPointerException("FlagEncoder " + toString() + " not yet initialized");
+        }
+        return crossingCountEnc;
     }
 }

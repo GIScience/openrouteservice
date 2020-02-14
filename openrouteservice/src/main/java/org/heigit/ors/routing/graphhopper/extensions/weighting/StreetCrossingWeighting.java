@@ -13,48 +13,43 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.profiles.IntEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.StreetCrossingGraphStorage;
-
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 
 public class StreetCrossingWeighting extends FastestWeighting {
 
-	public static GraphStorage staticStorage;
-	private StreetCrossingGraphStorage gsStreetCrossIndex;
+	protected final IntEncodedValue trafficLightCountEnc;
+	protected final IntEncodedValue crossingCountEnc;
 
-	private static final double[] PENALTY_FACTOR = {1.2, 1.3, 1.4, 1.5, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.2, 3.5, 3.7, 3.9, 4.2};
-
-    public StreetCrossingWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public StreetCrossingWeighting(FlagEncoder encoder, PMap map) {
         super(encoder, map);
-        if(graphStorage != null) {
-			gsStreetCrossIndex = GraphStorageUtils.getGraphExtension(graphStorage, StreetCrossingGraphStorage.class);
+        if(encoder instanceof CarFlagEncoder) {
+			trafficLightCountEnc = ((CarFlagEncoder) encoder).getTrafficLightCountEnc();
+			crossingCountEnc = ((CarFlagEncoder) encoder).getCrossingCountEnc();
+		}else{
+			trafficLightCountEnc = null;
+			crossingCountEnc = null;
 		}
     }
 
-    @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		double fastestWeight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
-		if(gsStreetCrossIndex == null && staticStorage != null){
-			gsStreetCrossIndex = GraphStorageUtils.getGraphExtension(staticStorage, StreetCrossingGraphStorage.class);
+	@Override
+	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    	long time = super.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+
+    	if(trafficLightCountEnc != null && crossingCountEnc != null) {
+			int tLights = edgeState.get(trafficLightCountEnc);
+			int crossings = edgeState.get(crossingCountEnc);
+			// 30sec penalty for a traffic light
+			// 2sec penalty for a pedestrian crossing
+			return time + tLights * 30000 + crossings * 2000;
+		}else{
+    		return time;
 		}
-		if (gsStreetCrossIndex != null) {
-    		int[] lightsAndCrossings = gsStreetCrossIndex.getTrafficLightsAndCrossings(edgeState.getEdge());
-    		int sum = lightsAndCrossings[0] + lightsAndCrossings[1];
-    		if(sum > 0) {
-				if (sum < 15) {
-					return fastestWeight / PENALTY_FACTOR[sum];
-				} else {
-					return fastestWeight / 10;
-				}
-			}
-    	}
-    	return fastestWeight;
-    }
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -69,5 +64,10 @@ public class StreetCrossingWeighting extends FastestWeighting {
 	@Override
 	public int hashCode() {
 		return ("StreetCrossingWeighting" + toString()).hashCode();
+	}
+
+	@Override
+	public String getName() {
+		return "fastestwp";
 	}
 }

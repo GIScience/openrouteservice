@@ -926,8 +926,10 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
+            // MARQ24: added to "patch" the weighting to the 'StreetCrossingWeighting' that takes
+            // the number of traffic lights and crossings into account...
             if (weightingMethod == WeightingMethod.FASTEST && profileType == RoutingProfileType.DRIVING_CAR){
-                req.setWeighting("addition");
+                req.setWeighting("fastestwp");
                 req.getHints().put(KEY_WEIGHTING_METHOD, VAL_FASTEST);
             }
 
