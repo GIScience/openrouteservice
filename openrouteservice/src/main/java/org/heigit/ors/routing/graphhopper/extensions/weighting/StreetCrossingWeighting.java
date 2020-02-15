@@ -13,40 +13,38 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.profiles.IntEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.StreetCrossingGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
 
 public class StreetCrossingWeighting extends FastestWeighting {
 
-	private StreetCrossingGraphStorage gsStreetCrossIndex = null;
-	public static GraphStorage storage = null;
+	protected final IntEncodedValue trafficLightCountEnc;
+	protected final IntEncodedValue crossingCountEnc;
 
-    public StreetCrossingWeighting(FlagEncoder encoder, PMap map) {
-        super(encoder, map);
-    }
+	public StreetCrossingWeighting(FlagEncoder encoder, PMap map) {
+		super(encoder, map);
+		if (encoder instanceof CarFlagEncoder) {
+			trafficLightCountEnc = ((CarFlagEncoder) encoder).getTrafficLightCountEnc();
+			crossingCountEnc = ((CarFlagEncoder) encoder).getCrossingCountEnc();
+		} else {
+			trafficLightCountEnc = null;
+			crossingCountEnc = null;
+		}
+	}
 
 	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-    	long time = super.calcMillis(edgeState, reverse, prevOrNextEdgeId);
-
-		// MARQ24: HOW the heck we can get rid of this EXTREM ugly storage INIT?!
-    	if(gsStreetCrossIndex == null && storage != null){
-			gsStreetCrossIndex = GraphStorageUtils.getGraphExtension(storage, StreetCrossingGraphStorage.class);
-		}
-		if(gsStreetCrossIndex != null){
-			int[] lightsAndCrossings = gsStreetCrossIndex.getTrafficLightsAndCrossings(edgeState.getEdge());
-			// in order to make debugging easier we just apply the penalty if one of the values
-			// is > 0
-			if(lightsAndCrossings[0]+lightsAndCrossings[1]>0) {
-				// 30sec penalty for a traffic light
-				// 2sec penalty for a pedestrian crossing
-				return time + lightsAndCrossings[0] * 30000 + lightsAndCrossings[1] * 2000;
-			}
+		long time = super.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+		if (trafficLightCountEnc != null && crossingCountEnc != null) {
+			int tLights = edgeState.get(trafficLightCountEnc);
+			int crossings = edgeState.get(crossingCountEnc);
+			// 30sec penalty for a traffic light
+			// 2sec penalty for a pedestrian crossing
+			return time + tLights * 30000 + crossings * 2000;
 		}
 		return time;
 	}

@@ -25,7 +25,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 
 import java.io.InvalidObjectException;
 import java.util.*;
@@ -48,7 +51,6 @@ public class ORSOSMReader extends OSMReader {
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
 	private HashSet<String> extraTagKeys;
-	private HashMap<String, Set<String>> extraTagKeysWithValues;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
@@ -59,7 +61,6 @@ public class ORSOSMReader extends OSMReader {
 
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
-		extraTagKeysWithValues = new HashMap<>();
 		// Look if we should do border processing - if so then we have to process the geometry
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
@@ -91,12 +92,6 @@ public class ORSOSMReader extends OSMReader {
 				extraTagKeys.add("motorcar");
 				extraTagKeys.add("motorcycle");
 			}
-
-			if(b instanceof StreetCrossingGraphStorageBuilder){
-				this.processNodeTags = true;
-				extraTagKeysWithValues.put("highway", new HashSet<>(Arrays.asList(new String[]{"traffic_signals", "crossing"})));
-				extraTagKeys.add("crossing");
-			}
 		}
 	}
 
@@ -121,10 +116,6 @@ public class ORSOSMReader extends OSMReader {
 			for(String key : nodeKeys) {
 				if(extraTagKeys.contains(key)) {
 					tagValues.put(key, node.getTag(key));
-				} else if(extraTagKeysWithValues.containsKey(key)){
-					if(node.hasTag(key, extraTagKeysWithValues.get(key))){
-						tagValues.put(key, node.getTag(key));
-					}
 				}
 			}
 
@@ -181,7 +172,7 @@ public class ORSOSMReader extends OSMReader {
 	public void onProcessWay(ReaderWay way) {
 
 		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
-		ArrayList<Coordinate> coords = new ArrayList<>(100);
+		ArrayList<Coordinate> coords = new ArrayList<>();
 
 		if(processNodeTags) {
 			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
@@ -195,11 +186,12 @@ public class ORSOSMReader extends OSMReader {
 			for(int i=0; i<size; i++) {
 				// find the node
 				long id = osmNodeIds.get(i);
+				// replace the osm id with the internal id
+				int internalId = getInternalNodeIdOfOsmNode(id);
 				HashMap<String, String> tagsForNode = nodeTags.get(id);
+
 				if(tagsForNode != null) {
-					// replace the osm id with the internal id
-					int internalId = getInternalNodeIdOfOsmNode(id);
-					tags.put(internalId, tagsForNode);
+					tags.put(internalId, nodeTags.get(id));
 				}
 			}
 		}

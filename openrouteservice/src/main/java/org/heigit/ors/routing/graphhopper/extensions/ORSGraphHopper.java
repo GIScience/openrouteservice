@@ -48,7 +48,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import org.heigit.ors.routing.graphhopper.extensions.weighting.StreetCrossingWeighting;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,7 @@ public class ORSGraphHopper extends GraphHopper {
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
 			if (LOGGER.isInfoEnabled())
 				LOGGER.info(String.format("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
-			);
+				);
 		} else {
 			LOGGER.info("graph GraphHopperStorage is null?!");
 		}
@@ -320,7 +319,7 @@ public class ORSGraphHopper extends GraphHopper {
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
-	                ((TurnWeighting)weighting).setInORS(true);
+					((TurnWeighting)weighting).setInORS(true);
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 
@@ -339,7 +338,7 @@ public class ORSGraphHopper extends GraphHopper {
 				double wayPointMaxDistance = hints.getDouble(Parameters.Routing.WAY_POINT_MAX_DISTANCE, 1d);
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
-                        .setEnableInstructions(tmpEnableInstructions)
+						.setEnableInstructions(tmpEnableInstructions)
 						.setPathProcessor(pathProcessor)
 						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
@@ -414,70 +413,70 @@ public class ORSGraphHopper extends GraphHopper {
 		return result;
 	}
 
-    public GHResponse constructFreeHandRoute(GHRequest request) {
-        LineString directRouteGeometry = constructFreeHandRouteGeometry(request);
-        PathWrapper directRoutePathWrapper = constructFreeHandRoutePathWrapper(directRouteGeometry);
-        GHResponse directRouteResponse = new GHResponse();
-        directRouteResponse.add(directRoutePathWrapper);
-        directRouteResponse.getHints().put("skipped_segment", "true");
-        return directRouteResponse;
-    }
+	public GHResponse constructFreeHandRoute(GHRequest request) {
+		LineString directRouteGeometry = constructFreeHandRouteGeometry(request);
+		PathWrapper directRoutePathWrapper = constructFreeHandRoutePathWrapper(directRouteGeometry);
+		GHResponse directRouteResponse = new GHResponse();
+		directRouteResponse.add(directRoutePathWrapper);
+		directRouteResponse.getHints().put("skipped_segment", "true");
+		return directRouteResponse;
+	}
 
-    private PathWrapper constructFreeHandRoutePathWrapper(LineString lineString) {
-        PathWrapper pathWrapper = new PathWrapper();
-        PointList pointList = new PointList();
-        PointList startPointList = new PointList();
-        PointList endPointList = new PointList();
-        PointList wayPointList = new PointList();
-        Coordinate startCoordinate = lineString.getCoordinateN(0);
-        Coordinate endCoordinate = lineString.getCoordinateN(1);
-        double distance = CoordTools.calcDistHaversine(startCoordinate.x, startCoordinate.y, endCoordinate.x, endCoordinate.y);
-        pointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        pointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        wayPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
-        InstructionList instructions = new InstructionList(translation);
-        Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", new InstructionAnnotation(0, ""), startPointList);
-        Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", new InstructionAnnotation(0, ""), endPointList);
-        instructions.add(0, startInstruction);
-        instructions.add(1, endInstruction);
-        pathWrapper.setDistance(distance);
-        pathWrapper.setAscend(0.0);
-        pathWrapper.setDescend(0.0);
-        pathWrapper.setTime(0);
-        pathWrapper.setInstructions(instructions);
-        pathWrapper.setWaypoints(wayPointList);
-        pathWrapper.setPoints(pointList);
-        pathWrapper.setRouteWeight(0.0);
-        pathWrapper.setDescription(new ArrayList<>());
-        pathWrapper.setImpossible(false);
-        startInstruction.setDistance(distance);
-        startInstruction.setTime(0);
-        return pathWrapper;
-    }
+	private PathWrapper constructFreeHandRoutePathWrapper(LineString lineString) {
+		PathWrapper pathWrapper = new PathWrapper();
+		PointList pointList = new PointList();
+		PointList startPointList = new PointList();
+		PointList endPointList = new PointList();
+		PointList wayPointList = new PointList();
+		Coordinate startCoordinate = lineString.getCoordinateN(0);
+		Coordinate endCoordinate = lineString.getCoordinateN(1);
+		double distance = CoordTools.calcDistHaversine(startCoordinate.x, startCoordinate.y, endCoordinate.x, endCoordinate.y);
+		pointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
+		pointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
+		wayPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
+		wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
+		startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
+		endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
+		Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
+		InstructionList instructions = new InstructionList(translation);
+		Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", new InstructionAnnotation(0, ""), startPointList);
+		Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", new InstructionAnnotation(0, ""), endPointList);
+		instructions.add(0, startInstruction);
+		instructions.add(1, endInstruction);
+		pathWrapper.setDistance(distance);
+		pathWrapper.setAscend(0.0);
+		pathWrapper.setDescend(0.0);
+		pathWrapper.setTime(0);
+		pathWrapper.setInstructions(instructions);
+		pathWrapper.setWaypoints(wayPointList);
+		pathWrapper.setPoints(pointList);
+		pathWrapper.setRouteWeight(0.0);
+		pathWrapper.setDescription(new ArrayList<>());
+		pathWrapper.setImpossible(false);
+		startInstruction.setDistance(distance);
+		startInstruction.setTime(0);
+		return pathWrapper;
+	}
 
-    private LineString constructFreeHandRouteGeometry(GHRequest request){
-        Coordinate start = new Coordinate();
-        Coordinate end = new Coordinate();
-        start.x = request.getPoints().get(0).getLat();
-        start.y = request.getPoints().get(0).getLon();
-        end.x = request.getPoints().get(1).getLat();
-        end.y = request.getPoints().get(1).getLon();
-        Coordinate[] coords = new Coordinate[]{start, end};
-        return new GeometryFactory().createLineString(coords);
-    }
+	private LineString constructFreeHandRouteGeometry(GHRequest request){
+		Coordinate start = new Coordinate();
+		Coordinate end = new Coordinate();
+		start.x = request.getPoints().get(0).getLat();
+		start.y = request.getPoints().get(0).getLon();
+		end.x = request.getPoints().get(1).getLat();
+		end.y = request.getPoints().get(1).getLon();
+		Coordinate[] coords = new Coordinate[]{start, end};
+		return new GeometryFactory().createLineString(coords);
+	}
 
 
-    public HashMap<Integer, Long> getTmcGraphEdges() {
-        return tmcEdges;
-    }
+	public HashMap<Integer, Long> getTmcGraphEdges() {
+		return tmcEdges;
+	}
 
-    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
-        return osmId2EdgeIds;
-    }
+	public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
+		return osmId2EdgeIds;
+	}
 
 	/**
 	 * Does the preparation and creates the location index
@@ -487,11 +486,6 @@ public class ORSGraphHopper extends GraphHopper {
 		super.postProcessing();
 
 		GraphHopperStorage gs = getGraphHopperStorage();
-
-		// MARQ24 EVIL HACK...
-		if(gs.getEncodingManager().toString().equalsIgnoreCase("car-ors")) {
-			StreetCrossingWeighting.storage = gs;
-		}
 
 		EncodingManager encodingManager = getEncodingManager();
 
