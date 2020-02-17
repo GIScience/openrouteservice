@@ -62,7 +62,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
                 continue;
             }
 
-            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getAdjNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getAdjNode(), iter.getOrigEdgeFirst());
+            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getBaseNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getBaseNode(), iter.getOrigEdgeFirst());
             boolean test = flagEncoder.isTurnRestricted(turnFlags);
             if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
                 hasTurnRestrictions = true;
@@ -77,7 +77,6 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     //TODO Solve problems in the code looking at the AbstractBidirectionEdgeCHNoSOD.java
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        EdgeIteratorState edgeTest = edge;
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
 
 
