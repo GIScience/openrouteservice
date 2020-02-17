@@ -1204,6 +1204,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", false);
+        body.put("optimized", false);
 
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
