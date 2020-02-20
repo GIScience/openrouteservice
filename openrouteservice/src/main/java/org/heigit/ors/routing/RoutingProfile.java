@@ -1004,6 +1004,11 @@ public class RoutingProfile {
                 req.getHints().put(KEY_CORE_DISABLE, true);
             }
 
+            if (searchParams.hasDeparture())
+                req.getHints().put("departure", searchParams.getDeparture());
+            else if (searchParams.hasArrival())
+                req.getHints().put("arrival", searchParams.getArrival());
+
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);
             } else {

@@ -31,6 +31,7 @@ import org.heigit.ors.util.PolylineEncoder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,15 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     private Map<String, JSONExtra> extras;
 
+    @ApiModelProperty(value = "Departure date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
+    @JsonProperty(value = "departure")
+    protected ZonedDateTime departure;
+    @ApiModelProperty(value = "Arrival date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}", example = "2020-01-31T13:15:00+01:00")
+    @JsonProperty(value = "arrival")
+    protected ZonedDateTime arrival;
+
     public JSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);
 
@@ -69,6 +79,11 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration(), routeResult.getSummary().getAscent(), routeResult.getSummary().getDescent());
         else
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
+
+        if(routeResult.hasDepartureAndArrival()) {
+            departure = routeResult.getDeparture();
+            arrival = routeResult.getArrival();
+        }
 
         segments = constructSegments(routeResult, request);
 

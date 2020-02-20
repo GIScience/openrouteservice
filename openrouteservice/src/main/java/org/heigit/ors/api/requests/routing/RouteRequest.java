@@ -25,7 +25,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +57,8 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
+    public static final String PARAM_DEPARTURE = "departure";
+    public static final String PARAM_ARRIVAL = "arrival";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -244,6 +246,22 @@ public class RouteRequest {
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
+
+    @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
+            example = "2020-01-31T12:45:00")
+    @JsonProperty(PARAM_DEPARTURE)
+    private LocalDateTime departure;
+    @JsonIgnore
+    private boolean hasDeparture = false;
+
+    @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
+            example = "2020-01-31T13:15:00")
+    @JsonProperty(PARAM_ARRIVAL)
+    private LocalDateTime arrival;
+    @JsonIgnore
+    private boolean hasArrival = false;
 
 
     @JsonCreator
@@ -504,6 +522,24 @@ public class RouteRequest {
         hasAlternativeRoutes = true;
     }
 
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+        hasDeparture = true;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+        hasArrival = true;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -575,4 +611,8 @@ public class RouteRequest {
     public boolean hasSkipSegments() { return hasSkipSegments;}
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
+
+    public boolean hasDeparture() { return hasDeparture; }
+
+    public boolean hasArrival() { return hasArrival; }
 }

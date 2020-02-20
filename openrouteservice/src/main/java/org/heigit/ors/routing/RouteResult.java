@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,9 @@ public class RouteResult
 	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
 	private String graphDate = "";
+
+	private ZonedDateTime departure;
+	private ZonedDateTime arrival;
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
@@ -182,6 +187,17 @@ public class RouteResult
 			summary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 			summary.setDescent(FormatUtility.roundToDecimals(descent, 1));
 		}
+		//FIXME: get departure and arrival time from computed route
+		if (request.getSearchParameters().hasDeparture()) {
+			ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
+			departure = zonedDateTime;
+			arrival = zonedDateTime.plusSeconds((long) duration);
+		}
+		else if (request.getSearchParameters().hasArrival()) {
+			ZonedDateTime zonedDateTime = request.getSearchParameters().getArrival().atZone(ZoneId.of("Europe/Berlin"));
+			arrival = zonedDateTime;
+			departure = zonedDateTime.minusSeconds((long) duration);
+		}
 	}
 
 	public String getGraphDate() {
@@ -190,5 +206,17 @@ public class RouteResult
 
 	public void setGraphDate(String graphDate) {
 		this.graphDate = graphDate;
+	}
+
+	public boolean hasDepartureAndArrival() {
+		return (departure!=null && arrival!=null);
+	}
+
+	public ZonedDateTime getDeparture() {
+		return departure;
+	}
+
+	public ZonedDateTime getArrival() {
+		return arrival;
 	}
 }
