@@ -5,15 +5,9 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIterator;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RecursiveAction;
 
 public abstract class PartitioningBase implements Runnable{
 

@@ -49,6 +49,18 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 			tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
 	}
 
+	public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphStorage graphStorage) throws Exception{
+		if(avoidFeatureType == AvoidFeatureFlags.TOLLWAYS)
+			throw new IllegalArgumentException("Invalid constructor for use with feature type: " + AvoidFeatureFlags.TOLLWAYS);
+		this.buffer = new byte[10];
+
+		this.avoidFeatureType = avoidFeatureType;
+
+		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+		if (storage == null)
+			throw new IllegalStateException("ExtendedGraphStorage for avoid features was not found.");
+	}
+
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
 		if (avoidFeatureType != 0) {

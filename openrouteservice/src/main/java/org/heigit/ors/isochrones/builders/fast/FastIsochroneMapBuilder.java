@@ -17,8 +17,8 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.ch.PreparationWeighting;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -34,36 +34,38 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
-import heigit.ors.common.TravelRangeType;
+import org.apache.log4j.Logger;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.fastisochrones.BaseGraphFilter;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
-
-import heigit.ors.isochrones.Isochrone;
-import heigit.ors.isochrones.IsochroneMap;
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
-import heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
+import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
-import heigit.ors.routing.RouteSearchContext;
-import heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
-import heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import heigit.ors.util.GeomUtility;
-import org.apache.log4j.Logger;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
+import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
 
-import static heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
-import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
-import static heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MIN_CELL_NODES_NUMBER;
 
-public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
+public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 {
 	private final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
@@ -127,25 +129,32 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
 		Weighting weighting = null;
 
-		if (parameters.getRangeType() == TravelRangeType.Time)
+		if (parameters.getRangeType() == TravelRangeType.TIME)
 		{
-			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
-					.getIsochroneCoreFactoryDecorator()
-					.getDecoratedAlgorithmFactory(new FastestWeighting(_searchContext.getEncoder()))
-					.getWeighting();
+			weighting = new FastestWeighting(_searchContext.getEncoder());
+//			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
+//					.getIsochroneCoreFactoryDecorator()
+//					.getDecoratedAlgorithmFactory(new FastestWeighting(_searchContext.getEncoder()))
+//					.getWeighting();
 		}
 		else
 		{
-			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
-					.getIsochroneCoreFactoryDecorator()
-					.getDecoratedAlgorithmFactory(new ShortestWeighting(_searchContext.getEncoder()))
-					.getWeighting();
+			weighting = new ShortestWeighting(_searchContext.getEncoder());
+//			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
+//					.getIsochroneCoreFactoryDecorator()
+//					.getDecoratedAlgorithmFactory(new ShortestWeighting(_searchContext.getEncoder()))
+//					.getWeighting();
 		}
 
 		eccentricityStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting);
 
 		Coordinate loc = parameters.getLocation();
-		QueryResult res = _searchContext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, _searchContext.getEdgeFilter());
+		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
+		EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(_searchContext.getProperties(), _searchContext.getEncoder(), _searchContext.getGraphHopper().getGraphHopperStorage());
+		edgeFilterSequence.add(edgeFilter);
+		edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, _searchContext.getGraphHopper().getGraphHopperStorage()));
+		QueryResult res = _searchContext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
 		//Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
 		int nonvirtualClosestNode = res.getClosestNode();
 		this.graph = _searchContext.getGraphHopper().getGraphHopperStorage().getIsochroneGraph(weighting);
@@ -170,7 +179,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					cellStorage,
 					isochroneNodeStorage,
 					eccentricityStorage,
-					_searchContext.getEdgeFilter());
+					edgeFilterSequence);
 			fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
 			fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, parameters.getRanges()[i]);
 
@@ -210,11 +219,11 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			final double maxRadius;
 			double meanRadius = 0;
 			switch (isochroneType) {
-				case Distance:
+				case DISTANCE:
 					maxRadius = isoValue;
 					meanRadius = isoValue;
 					break;
-				case Time:
+				case TIME:
 					maxRadius = metersPerSecond * isoValue;
 					meanRadius = meanMetersPerSecond * isoValue;
 					isochronesDifference = metersPerSecond * isochronesDifference;
@@ -242,6 +251,8 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 					swActiveCellSeparate.stop();
 					swActiveCellBuild.start();
 					for (GHIntObjectHashMap<SPTEntry> splitMap : disconnectedActiveCells) {
+						if(splitMap.size() < PART__MIN_CELL_NODES_NUMBER)
+							continue;
 						GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<Coordinate>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
 						createPolyFromPoints(isochroneGeometries, points, maxRadius, smoothingFactor);
 					}
@@ -672,7 +683,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			j++;
 			addPoint(points, qtree, longitude, latitude, true);
 		}
-		if(PART__DEBUG) System.out.println("Number of points from map " + mapPointCount + ", number of points from contours " + (points.size() - mapPointCount));
+		if(PART__DEBUG) System.out.println("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
 
 		Geometry[] geometries = new Geometry[points.size()];
 
@@ -695,7 +706,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			Set<Integer> reachableSuperCells = new HashSet<>();
 			for (int cellId : fullyReachableCells) {
 				int superCell = cellStorage.getSuperCellOfCell(cellId);
-				if (superCell != -1 && fullyReachableCells.containsAll(cellStorage.getCellsOfSuperCell(superCell)))
+				if (superCell != -1 && fullyReachableCells.containsAll(Arrays.asList(cellStorage.getCellsOfSuperCell(superCell))))
 					reachableSuperCells.add(superCell);
 				else {
 					reachableCellsAndSuperCells.add(cellId);
@@ -703,7 +714,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 			}
 			for (int cellId : reachableSuperCells) {
 				int superCell = cellStorage.getSuperCellOfCell(cellId);
-				if (superCell != -1 && reachableSuperCells.containsAll(cellStorage.getCellsOfSuperCell(superCell))) {
+				if (superCell != -1 && reachableSuperCells.containsAll(Arrays.asList(cellStorage.getCellsOfSuperCell(superCell)))) {
 					reachableCellsAndSuperCells.add(superCell);
 				} else {
 					reachableCellsAndSuperCells.add(cellId);

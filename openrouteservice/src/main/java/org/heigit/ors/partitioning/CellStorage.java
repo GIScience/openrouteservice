@@ -19,8 +19,10 @@ package org.heigit.ors.partitioning;
 
 
 import com.carrotsearch.hppc.IntHashSet;
-import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.Weighting;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -29,7 +31,7 @@ import com.graphhopper.util.Helper;
 
 import java.util.*;
 
-import static heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
 
 /**
  * Stores nodes ordered by cell
@@ -49,7 +51,7 @@ public class CellStorage implements Storable<CellStorage> {
     private HashMap<Integer, Long> cellIdToNodesPointerMap;
     private HashMap<Integer, Long> cellIdToContourPointerMap;
     private Map<Integer, Integer> cellIdToSuperCellMap = new HashMap<>();
-    private Map<Integer, Set<Integer>> superCellIdToCellsMap = new HashMap<>();
+    private IntObjectMap<IntHashSet> superCellIdToCellsMap = new IntObjectHashMap<>();
 
 
     public CellStorage(GraphHopperStorage graph, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
@@ -198,7 +200,7 @@ public class CellStorage implements Storable<CellStorage> {
         return order;
     }
 
-    public Set<Integer> getCellsOfSuperCell(int superCell){
+    public IntHashSet getCellsOfSuperCell(int superCell){
         return superCellIdToCellsMap.get(superCell);
     }
 
@@ -230,17 +232,17 @@ public class CellStorage implements Storable<CellStorage> {
         }
     }
 
-    public void storeSuperCells(Map<Integer, Set<Integer>> superCells){
+    public void storeSuperCells(IntObjectMap<IntHashSet> superCells){
         //Store the beginning of the supercells information
         superCellIdToCellsMap = superCells;
         cells.setHeader(8, (int) (cellContourPointer >> 32));
         cells.setHeader(12, (int) cellContourPointer);
-        for(Map.Entry<Integer, Set<Integer>> superCell : superCells.entrySet()){
-            cells.setInt(cellContourPointer, superCell.getKey());
+        for(IntObjectCursor<IntHashSet> superCell : superCells){
+            cells.setInt(cellContourPointer, superCell.key);
             cellContourPointer = cellContourPointer + (long)BYTECOUNT;
-            for(int cellId : superCell.getValue()){
-                cells.setInt(cellContourPointer, cellId);
-                cellIdToSuperCellMap.put(cellId, superCell.getKey());
+            for(IntCursor cellId : superCell.value){
+                cells.setInt(cellContourPointer, cellId.value);
+                cellIdToSuperCellMap.put(cellId.value, superCell.key);
                 cellContourPointer = cellContourPointer + (long)BYTECOUNT;
             }
             //Add trailing -1 to signal next entry
@@ -302,7 +304,7 @@ public class CellStorage implements Storable<CellStorage> {
         long bytePos = (long) cells.getHeader(8) << 32 | cells.getHeader(12) & 0xFFFFFFFFL;
         while(cells.getInt(bytePos) != -1){
             int superCellId = cells.getInt(bytePos);
-            Set<Integer> cellIds = new HashSet<>();
+            IntHashSet cellIds = new IntHashSet();
             bytePos += (long) BYTECOUNT;
             while(cells.getInt(bytePos) != -1){
                 cellIds.add(cells.getInt(bytePos));
@@ -314,9 +316,9 @@ public class CellStorage implements Storable<CellStorage> {
     }
 
     private void fillCellIdToSuperCellMap() {
-        for(Map.Entry<Integer, Set<Integer>> superCell : superCellIdToCellsMap.entrySet()){
-            for(int cellId : superCell.getValue()){
-                cellIdToSuperCellMap.put(cellId, superCell.getKey());
+        for(IntObjectCursor<IntHashSet> superCell : superCellIdToCellsMap){
+            for(IntCursor cellId : superCell.value){
+                cellIdToSuperCellMap.put(cellId.value, superCell.key);
             }
         }
     }

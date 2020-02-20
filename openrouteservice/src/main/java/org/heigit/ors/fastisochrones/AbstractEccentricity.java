@@ -12,9 +12,6 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-
-import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 
 
 public abstract class AbstractEccentricity {

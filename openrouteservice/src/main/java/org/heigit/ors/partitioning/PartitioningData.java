@@ -1,4 +1,4 @@
-package heigit.ors.partitioning;
+package org.heigit.ors.partitioning;
 
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.storage.Graph;

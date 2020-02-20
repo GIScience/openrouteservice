@@ -10,6 +10,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.IsoCore;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.graphhopper.util.Helper.toLowerCase;
+import static org.heigit.ors.services.isochrones.IsochronesServiceSettings.SERVICE_NAME_ISOCHRONES;
 
 
 /**
@@ -67,7 +69,8 @@ public class IsochroneCoreAlgoFactoryDecorator implements RoutingAlgorithmFactor
         setPreparationThreads(args.getInt(IsoCore.PREPARE + "threads", getPreparationThreads()));
 
         // default is enabled & fastest
-        String isoCoreWeightingStr = args.get(IsoCore.PREPARE + "weightings", "");
+//        String isoCoreWeightingStr = args.get(IsoCore.PREPARE + "weightings", "");
+        String isoCoreWeightingStr = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "weightings");
 
         if (isoCoreWeightingStr.equals("no")) {
             // default is fastest and we need to clear this explicitely

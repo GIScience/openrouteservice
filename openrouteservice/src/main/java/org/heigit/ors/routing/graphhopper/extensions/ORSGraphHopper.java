@@ -46,10 +46,12 @@ import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.heigit.ors.partitioning.PartitioningFactoryDecorator;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
@@ -98,6 +100,7 @@ public class ORSGraphHopper extends GraphHopper {
 		algoDecorators.clear();
 		algoDecorators.add(coreFactoryDecorator);
 		algoDecorators.add(coreLMFactoryDecorator);
+		algoDecorators.add(isochroneCoreAlgoFactoryDecorator);
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
@@ -579,7 +582,13 @@ public class ORSGraphHopper extends GraphHopper {
 		if(partitioningFactoryDecorator.isEnabled()) {
 			for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
-				partitioningEdgeFilter.add(new DefaultEdgeFilter(encoder, false, true));
+//				partitioningEdgeFilter.add(DefaultEdgeFilter.outEdges(encoder));
+				try {
+					partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+				}
+				catch (Exception e){
+					LOGGER.debug(e.getLocalizedMessage());
+				}
 				partitioningFactoryDecorator.createPreparations(gs, partitioningEdgeFilter);
 			}
 		}
@@ -596,6 +605,13 @@ public class ORSGraphHopper extends GraphHopper {
 
 			EdgeFilterSequence isochroneCoreEdgeFilter = new EdgeFilterSequence();
 			isochroneCoreEdgeFilter.add(new CellCoreEdgeFilter(partitioningFactoryDecorator.getIsochroneNodeStorage()));
+			try {
+				isochroneCoreEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+			}
+			catch (Exception e){
+				LOGGER.debug(e.getLocalizedMessage());
+			}
+
 
 			if (isochroneCoreAlgoFactoryDecorator.isEnabled())
 				isochroneCoreAlgoFactoryDecorator.createPreparations(gs, isochroneCoreEdgeFilter);
@@ -603,9 +619,9 @@ public class ORSGraphHopper extends GraphHopper {
 				prepareIsochroneCore();
 			calculateContours();
 
-			for(Weighting weighting : isochroneCoreAlgoFactoryDecorator.getWeightings()){
+			for(CHProfile chProfile : isochroneCoreAlgoFactoryDecorator.getCHProfiles()){
 				for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-					calculateCellProperties(weighting, encoder, TraversalMode.NODE_BASED, partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
+					calculateCellProperties(chProfile.getWeighting(), encoder, TraversalMode.NODE_BASED, partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
 				}
 			}
 		}
@@ -762,21 +778,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
-	public void initPartitioningFactoryDecorator() {
-		if (!partitioningFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String partWeightingStr : partitioningFactoryDecorator.getWeightingsAsStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(partWeightingStr), traversalMode, encoder, null);
-					partitioningFactoryDecorator.addWeighting(weighting);
-				}
-			}
-		}
-	}
-
-
-
-
 	/**
 	 * Isochrone graph contraction - core based on bordernodes
 	 */
@@ -792,14 +793,12 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public void initIsochroneCoreAlgoFactoryDecorator() {
-		if (!isochroneCoreAlgoFactoryDecorator.hasWeightings()) {
+		if (!isochroneCoreAlgoFactoryDecorator.hasCHProfiles()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : isochroneCoreAlgoFactoryDecorator.getWeightingsAsStrings()) {
+				for (String coreWeightingStr : isochroneCoreAlgoFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
-					HintsMap hints = new HintsMap(coreWeightingStr);
-					hints.put("isochroneWeighting", "true");
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					isochroneCoreAlgoFactoryDecorator.addWeighting(weighting);
+					isochroneCoreAlgoFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
 				}
 			}
 		}
@@ -822,16 +821,16 @@ public class ORSGraphHopper extends GraphHopper {
 	private void calculateContours(){
 		if(partitioningFactoryDecorator.getCellStorage().isContourPrepared())
 			return;
-		Contour contour = new Contour(ghStorage, ghStorage.getNodeAccess(), partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
+		Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
 		contour.calcCellContourPre();
 	}
 
 	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
 		Eccentricity ecc = this.eccentricity;
 		if (ecc == null)
-			ecc = new Eccentricity(ghStorage, getLocationIndex());
+			ecc = new Eccentricity(getGraphHopperStorage(), getLocationIndex());
 		if(!ecc.loadExisting(weighting)) {
-			ecc.calcEccentricities(ghStorage, ghStorage.getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
+			ecc.calcEccentricities(getGraphHopperStorage(), getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
 		}
 
 		this.eccentricity = ecc;

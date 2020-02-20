@@ -24,7 +24,6 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.Path;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -37,7 +36,7 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import static heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVANTONLY;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVANTONLY;
 
 /**
  * Implements a single source shortest path algorithm

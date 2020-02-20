@@ -9,6 +9,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.index.LocationIndex;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;

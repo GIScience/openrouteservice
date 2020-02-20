@@ -1,4 +1,4 @@
-package heigit.ors.partitioning;
+package org.heigit.ors.partitioning;
 
 
 import com.carrotsearch.hppc.IntHashSet;
@@ -9,7 +9,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import static heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
 
 
 public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
@@ -86,6 +86,8 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
             _edgeIter = _edgeExpl.setBaseNode(node);
             //Iterate over normal edges
             while(_edgeIter.next()){
+                if(!edgeFilter.accept(_edgeIter))
+                    continue;
                 calls++;
                 int adj = _edgeIter.getAdjNode();
                 int base = _edgeIter.getBaseNode();

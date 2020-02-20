@@ -57,7 +57,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 			strWeighting = hintsMap.getWeighting();
 
 		if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
-			return createIsochroneWeighting(hintsMap, tMode, encoder, graph, locationIndex, graphStorage);
+			return createIsochroneWeighting(hintsMap, encoder, graphStorage);
 		Weighting result = null;
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
@@ -157,10 +157,17 @@ public class ORSWeightingFactory implements WeightingFactory {
 		return result;
 	}
 
-	public Weighting createIsochroneWeighting(HintsMap hintsMap, TraversalMode tMode, FlagEncoder encoder, Graph graph, LocationIndex locationIndex, GraphHopperStorage graphStorage) {
+	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
 		if (Helper.isEmpty(strWeighting))
 			strWeighting = hintsMap.getWeighting();
+
+		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
+			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
+		}
 
 		Weighting result = null;
 
@@ -184,12 +191,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 			File file = path.toFile();
 			if (file.exists()) {
 				TurnCostExtension turnCostExt = null;
-				synchronized (m_turnCostExtensions) {
-					turnCostExt = m_turnCostExtensions.get(graphStorage);
+				synchronized (turnCostExtensionMap) {
+					turnCostExt = turnCostExtensionMap.get(graphStorage);
 					if (turnCostExt == null) {
 						turnCostExt = new TurnCostExtension();
 						turnCostExt.init(graphStorage, graphStorage.getDirectory());
-						m_turnCostExtensions.put(graphStorage, turnCostExt);
+						turnCostExtensionMap.put(graphStorage, turnCostExt);
 					}
 				}
 

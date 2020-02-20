@@ -1,4 +1,4 @@
-package heigit.ors.partitioning;
+package org.heigit.ors.partitioning;
 
 public class FlowEdgeData {
     public boolean flow = false;

@@ -18,8 +18,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Partition;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Partition;
 
 import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;

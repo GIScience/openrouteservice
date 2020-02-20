@@ -3,19 +3,17 @@ package org.heigit.ors.partitioning;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.Timer;
 import java.util.concurrent.*;
 
-import static heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
-import static heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
 
 public class PreparePartition implements RoutingAlgorithmFactory {
 
@@ -30,11 +28,8 @@ public class PreparePartition implements RoutingAlgorithmFactory {
 
 
     private int nodes;
-    protected Timer timer;
     private int[] nodeCellId;
     private boolean[] nodeBorderness;
-    private PartitioningBase partitioningAlgo;
-
 
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;
@@ -77,7 +72,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
             cellStorage.flush();
         }
 
-        freeMemory();
         return this;
     }
 
@@ -87,9 +81,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         calcBorderNodes();
     }
 
-    private void freeMemory() {
-        partitioningAlgo = null;
-    }
 
     /**
      * S-E-T

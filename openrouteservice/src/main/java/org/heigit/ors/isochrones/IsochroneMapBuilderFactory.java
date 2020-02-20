@@ -11,22 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-<<<<<<< HEAD:openrouteservice/src/main/java/org/heigit/ors/isochrones/IsochroneMapBuilderFactory.java
 package org.heigit.ors.isochrones;
-=======
-package heigit.ors.isochrones;
-
-import heigit.ors.isochrones.IsochroneSearchParameters;
-import heigit.ors.isochrones.builders.IsochroneMapBuilder;
-import heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
-import heigit.ors.isochrones.builders.fast.FastIsochroneMapBuilder;
-import heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
-import heigit.ors.routing.RouteSearchContext;
->>>>>>> Implement FastIsochrones algorithm:openrouteservice/src/main/java/heigit/ors/isochrones/IsochroneMapBuilderFactory.java
 
 import com.graphhopper.util.Helper;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
+import org.heigit.ors.isochrones.builders.fast.FastIsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
 import org.heigit.ors.routing.RouteSearchContext;
 
@@ -44,16 +34,13 @@ public class IsochroneMapBuilderFactory {
 			isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
 		} else if ("grid".equalsIgnoreCase(method)) {
         	isochroneBuilder= new GridBasedIsochroneMapBuilder();
-<<<<<<< HEAD:openrouteservice/src/main/java/org/heigit/ors/isochrones/IsochroneMapBuilderFactory.java
-        } else {
-=======
+
         }
         else if ("fastisochrone".equalsIgnoreCase(method)){
 			isochroneBuilder = new FastIsochroneMapBuilder();
 		}
         else
         {
->>>>>>> Implement FastIsochrones algorithm:openrouteservice/src/main/java/heigit/ors/isochrones/IsochroneMapBuilderFactory.java
 			throw new Exception("Unknown method.");
 		}
 		isochroneBuilder.initialize(searchContext);
