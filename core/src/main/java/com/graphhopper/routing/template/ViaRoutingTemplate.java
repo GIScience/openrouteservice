@@ -33,11 +33,7 @@ import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,16 +120,9 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
 
             // calculate paths
             List<Path> tmpPathList;
-            if (algoOpts.getWeighting().isTimeDependent()) {
-                String departureTimeString = ghRequest.getHints().get("pt.earliest_departure_time", "");
-                final Instant departureTime;
-                if (departureTimeString.equals("")) {
-                    departureTime = Instant.now();
-                } else {
-                    departureTime = Instant.parse(departureTimeString);
-                }
-
-                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), departureTime.toEpochMilli());
+            String departure = algoOpts.getHints().get("departure", "");
+            if (!departure.isEmpty()) {
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), Instant.parse(departure).toEpochMilli());
             } else {
                 tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
             }

@@ -55,7 +55,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.dustinj.timezonemap.TimeZoneMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -1097,6 +1096,12 @@ public class GraphHopper implements GraphHopperAPI {
                 }
                 double uTurnCosts = uTurnCostInt == INFINITE_U_TURN_COSTS ? Double.POSITIVE_INFINITY : uTurnCostInt;
                 weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
+
+                if (weighting.isTimeDependent()) {
+                    String departureTimeString = hints.get("pt.earliest_departure_time", "");
+                    if (!departureTimeString.isEmpty())
+                        hints.put("departure", departureTimeString);
+                }
 
                 AlgorithmOptions algoOpts = AlgorithmOptions.start().
                         algorithm(algoStr).traversalMode(tMode).weighting(weighting).
