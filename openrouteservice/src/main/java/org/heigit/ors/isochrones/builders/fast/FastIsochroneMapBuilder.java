@@ -52,6 +52,7 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.CHEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
@@ -153,7 +154,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
 		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(_searchContext.getProperties(), _searchContext.getEncoder(), _searchContext.getGraphHopper().getGraphHopperStorage());
 		edgeFilterSequence.add(edgeFilter);
-		edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, _searchContext.getGraphHopper().getGraphHopperStorage()));
+		edgeFilterSequence.add(new CHEdgeFilter(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, _searchContext.getGraphHopper().getGraphHopperStorage()), true));
 		QueryResult res = _searchContext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
 		//Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
 		int nonvirtualClosestNode = res.getClosestNode();

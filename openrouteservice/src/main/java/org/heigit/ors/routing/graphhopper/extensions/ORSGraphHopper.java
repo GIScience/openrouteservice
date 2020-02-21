@@ -52,6 +52,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorat
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.CHEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
@@ -584,7 +585,7 @@ public class ORSGraphHopper extends GraphHopper {
 				EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
 //				partitioningEdgeFilter.add(DefaultEdgeFilter.outEdges(encoder));
 				try {
-					partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+					partitioningEdgeFilter.add(new CHEdgeFilter(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()), true));
 				}
 				catch (Exception e){
 					LOGGER.debug(e.getLocalizedMessage());
@@ -606,7 +607,7 @@ public class ORSGraphHopper extends GraphHopper {
 			EdgeFilterSequence isochroneCoreEdgeFilter = new EdgeFilterSequence();
 			isochroneCoreEdgeFilter.add(new CellCoreEdgeFilter(partitioningFactoryDecorator.getIsochroneNodeStorage()));
 			try {
-				isochroneCoreEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+				isochroneCoreEdgeFilter.add(new CHEdgeFilter(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()), true));
 			}
 			catch (Exception e){
 				LOGGER.debug(e.getLocalizedMessage());

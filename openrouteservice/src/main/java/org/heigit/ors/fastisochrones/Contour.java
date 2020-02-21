@@ -14,6 +14,9 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.index.ItemVisitor;
+import com.vividsolutions.jts.index.quadtree.Quadtree;
+import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.opensphere.geometry.algorithm.ConcaveHull;
@@ -124,18 +127,75 @@ public class Contour {
     }
 
     public  Geometry concHullOfNodes(List<Coordinate> coordinates) {
+        int j = 0;
+        double defaultVisitorThreshold = 0.0035;
+        double defaultSearchWidth = 0.0008;
+        double defaulPointWidth = 0.005;
+
+        List<Coordinate> points = new ArrayList<>(2*coordinates.size());
+        PointItemVisitor visitor = new PointItemVisitor(0, 0, defaultVisitorThreshold);
+        Quadtree qtree = new Quadtree();
+        Envelope searchEnv = new Envelope();
+        TreeSet<Coordinate> treeSet = new TreeSet<>();
+
+        while (j < coordinates.size()){
+            double latitude = coordinates.get(j).x;
+            double longitude = coordinates.get(j).y;
+            j++;
+            addPoint(visitor, points, qtree, searchEnv, treeSet, longitude, latitude, defaultSearchWidth, defaulPointWidth, true);
+        }
+
         GeometryFactory _geomFactory = new GeometryFactory();
         int size = coordinates.size();
         Geometry[] geometries = new Geometry[size];
         int g = 0;
         for (int i = 0; i < size; i++)
             geometries[g++] = _geomFactory.createPoint(coordinates.get(i));
+        GeometryCollection treePoints = new GeometryCollection(geometries, _geomFactory);
 
-        GeometryCollection points = new GeometryCollection(geometries, _geomFactory);
-        ConcaveHull ch = new ConcaveHull(points, CONCAVEHULL_THRESHOLD, false);
+        System.out.println("Coordinates from geometry " + size + ", reduced input coordinates to conchull " + points.size());
+        ConcaveHull ch = new ConcaveHull(treePoints, CONCAVEHULL_THRESHOLD, false);
         Geometry geom = ch.getConcaveHull();
 
         return geom;
+    }
+
+    public Boolean addPoint(PointItemVisitor visitor, List<Coordinate> points, Quadtree tree, Envelope searchEnv, TreeSet treeSet, double lon, double lat, double searchWidth, double pointWidth, boolean checkNeighbours) {
+        if (checkNeighbours)
+        {
+            visitor.setPoint(lon, lat);
+            searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
+            tree.query(searchEnv, visitor);
+            if (!visitor.isNeighbourFound())
+            {
+                Coordinate p = new Coordinate(lon, lat);
+
+                if (!treeSet.contains(p))
+                {
+                    Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
+                    tree.insert(env, p);
+                    points.add(p);
+                    treeSet.add(p);
+
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            Coordinate p = new Coordinate(lon, lat);
+            if (!treeSet.contains(p))
+            {
+                Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
+                tree.insert(env, p);
+                points.add(p);
+                treeSet.add(p);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     IntObjectMap<IntHashSet> identifySuperCells(int hierarchyLevel, boolean isPrimary){
