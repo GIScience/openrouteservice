@@ -437,8 +437,8 @@ public class InertialFlow extends PartitioningBase {
             }
             nodeSet.removeAll(connectedCell);
         }
-        if(disconnectedCells.size() > 1)
-            System.out.println("Separated cell " + cellId + " into number of subcells: " + disconnectedCells.size());
+//        if(disconnectedCells.size() > 1)
+//            System.out.println("Separated cell " + cellId + " into number of subcells: " + disconnectedCells.size());
         return disconnectedCells;
     }
 
