@@ -153,7 +153,7 @@ public class Contour {
             geometries[g++] = _geomFactory.createPoint(coordinates.get(i));
         GeometryCollection treePoints = new GeometryCollection(geometries, _geomFactory);
 
-        System.out.println("Coordinates from geometry " + size + ", reduced input coordinates to conchull " + points.size());
+//        System.out.println("Coordinates from geometry " + size + ", reduced input coordinates to conchull " + points.size());
         ConcaveHull ch = new ConcaveHull(treePoints, CONCAVEHULL_THRESHOLD, false);
         Geometry geom = ch.getConcaveHull();
 
