@@ -3,23 +3,26 @@
  *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
  *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
+
  *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
+
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.TurnCostEncoder;
-import com.graphhopper.storage.*;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 /**
@@ -27,18 +30,28 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
  *
  * @author Athanasios Kogios
  */
-
-public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
+/*  This file is part of Openrouteservice.
+        *
+        *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+        *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+        *  of the License, or (at your option) any later version.
+        *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+        *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+        *  See the GNU Lesser General Public License for more details.
+        *  You should have received a copy of the GNU Lesser General Public License along with this library;
+        *  if not, see <https://www.gnu.org/licenses/>.
+        */
+public class TurnRestrictionsEdgeFilter implements EdgeFilter {
     private TurnCostExtension turnCostExtension;
     public final FlagEncoder flagEncoder;
     private final EdgeExplorer innerInExplorer;
     private final EdgeExplorer innerOutExplorer;
     private Graph graph;
 
-    public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, Graph graph) {
+    public TurnRestrictionsEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, Graph graph) {
         this.flagEncoder = encoder;
-
         this.graph = graph;
+
 
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
@@ -90,5 +103,3 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         }
     }
 }
-
-
