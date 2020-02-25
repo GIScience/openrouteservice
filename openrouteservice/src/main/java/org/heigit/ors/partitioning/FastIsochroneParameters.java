@@ -28,7 +28,7 @@ public class FastIsochroneParameters {
      */
     public static final double CONCAVEHULL_THRESHOLD = 0.010;
 
-    public static final boolean PART__DEBUG = true;
+    public static final boolean PART__DEBUG = false;
 
 
 }

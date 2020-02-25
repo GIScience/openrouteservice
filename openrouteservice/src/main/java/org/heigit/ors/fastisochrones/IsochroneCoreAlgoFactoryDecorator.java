@@ -254,25 +254,26 @@ public class IsochroneCoreAlgoFactoryDecorator implements RoutingAlgorithmFactor
 
     @Override
     public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory, HintsMap map) {
-        boolean disableIsoCore = map.getBool(IsoCore.DISABLE, false);
-        if (!isEnabled() || disablingAllowed && disableIsoCore)
-            throw new IllegalStateException("Isochrone core preparation was called but is disabled");
-
-        if (preparations.isEmpty())
-            throw new IllegalStateException("No preparations added to this decorator");
-
-        if (map.getWeighting().isEmpty())
-            map.setWeighting(getDefaultProfile());
-
-        String entriesStr = "";
-        for (PrepareIsochroneCore p : preparations) {
-            if (p.getWeighting().matches(map))
-                return p;
-
-            entriesStr += p.getWeighting() + ", ";
-        }
-
-        throw new IllegalArgumentException("Cannot find IsoCore RoutingAlgorithmFactory for weighting map " + map + " in entries " + entriesStr);
+        return defaultAlgoFactory;
+//        boolean disableIsoCore = map.getBool(IsoCore.DISABLE, false);
+//        if (!isEnabled() || disablingAllowed && disableIsoCore)
+//            throw new IllegalStateException("Isochrone core preparation was called but is disabled");
+//
+//        if (preparations.isEmpty())
+//            throw new IllegalStateException("No preparations added to this decorator");
+//
+//        if (map.getWeighting().isEmpty())
+//            map.setWeighting(getDefaultProfile());
+//
+//        String entriesStr = "";
+//        for (PrepareIsochroneCore p : preparations) {
+//            if (p.getWeighting().matches(map))
+//                return p;
+//
+//            entriesStr += p.getWeighting() + ", ";
+//        }
+//
+//        throw new IllegalArgumentException("Cannot find IsoCore RoutingAlgorithmFactory for weighting map " + map + " in entries " + entriesStr);
     }
 
     private int getPreparationThreads() {
