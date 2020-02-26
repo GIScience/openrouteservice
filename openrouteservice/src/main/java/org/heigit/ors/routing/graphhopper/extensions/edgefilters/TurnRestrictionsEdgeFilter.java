@@ -14,10 +14,12 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.EdgeExplorer;
@@ -48,14 +50,14 @@ public class TurnRestrictionsEdgeFilter implements EdgeFilter {
     private final EdgeExplorer innerOutExplorer;
     private Graph graph;
 
-    public TurnRestrictionsEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, Graph graph) {
+    public TurnRestrictionsEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
         this.flagEncoder = encoder;
-        this.graph = graph;
+        this.graph = graphHopperStorage.getBaseGraph();
 
 
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
-        turnCostExtension = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
+        turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
         innerInExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
         innerOutExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
@@ -88,7 +90,6 @@ public class TurnRestrictionsEdgeFilter implements EdgeFilter {
     }
 
 
-    //TODO Solve problems in the code looking at the AbstractBidirectionEdgeCHNoSOD.java
     @Override
     public boolean accept(EdgeIteratorState edge) {
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
@@ -96,9 +97,9 @@ public class TurnRestrictionsEdgeFilter implements EdgeFilter {
 
         if (hasTurnRestrictions(edge, reverse)) {
             return false;
-        } else if (hasTurnRestrictions(edge, !reverse)) {
+        } /*else if (hasTurnRestrictions(edge, !reverse)) {
             return false;
-        } else {
+        }*/ else {
             return true;
         }
     }

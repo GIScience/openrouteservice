@@ -694,6 +694,11 @@ public class RoutingProfile {
             }
         }
 
+        if(searchParams.getOptimized()){
+            props.put("edgefilter_turn_restrictions","true");
+        }
+
+
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
         searchCntx.setProperties(props);
 
