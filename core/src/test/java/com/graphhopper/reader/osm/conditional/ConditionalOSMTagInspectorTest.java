@@ -17,10 +17,10 @@
  */
 package com.graphhopper.reader.osm.conditional;
 
-import com.graphhopper.reader.ConditionalTagInspector;
 import com.graphhopper.reader.ReaderWay;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.*;
 
 import static org.junit.Assert.assertFalse;
@@ -57,10 +57,14 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
         return conditionalTags;
     }
 
+    private static ConditionalOSMTagInspector getConditionalTagInspector() {
+        return new ConditionalOSMTagInspector(getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+    }
+
     @Test
     public void testConditionalAccept() {
-        Calendar cal = getCalendar(2014, Calendar.MARCH, 10);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.MARCH, 10)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "no @ (Aug 10-Aug 14)");
         assertFalse(acceptor.isPermittedWayConditionallyRestricted(way));
@@ -68,8 +72,8 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalAcceptNextYear() {
-        Calendar cal = getCalendar(2014, Calendar.MARCH, 10);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.MARCH, 10)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "no @ (2013 Mar 1-2013 Mar 31)");
         assertFalse(acceptor.isPermittedWayConditionallyRestricted(way));
@@ -77,8 +81,8 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalReject() {
-        Calendar cal = getCalendar(2014, Calendar.MARCH, 10);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.MARCH, 10)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "no @ (Mar 10-Aug 14)");
         assertTrue(acceptor.isPermittedWayConditionallyRestricted(way));
@@ -86,8 +90,8 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalAllowance() {
-        Calendar cal = getCalendar(2014, Calendar.MARCH, 10);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.MARCH, 10)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "yes @ (Mar 10-Aug 14)");
         assertTrue(acceptor.isRestrictedWayConditionallyPermitted(way));
@@ -95,8 +99,8 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalAllowanceReject() {
-        Calendar cal = getCalendar(2014, Calendar.MARCH, 10);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.MARCH, 10)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "no @ (Mar 10-Aug 14)");
         assertTrue(acceptor.isPermittedWayConditionallyRestricted(way));
@@ -104,8 +108,8 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalSingleDay() {
-        Calendar cal = getCalendar(2015, Calendar.DECEMBER, 27);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2015, Calendar.DECEMBER, 27)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "no @ (Su)");
         assertTrue(acceptor.isPermittedWayConditionallyRestricted(way));
@@ -113,11 +117,22 @@ public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
 
     @Test
     public void testConditionalAllowanceSingleDay() {
-        Calendar cal = getCalendar(2015, Calendar.DECEMBER, 27);
-        ConditionalTagInspector acceptor = new ConditionalOSMTagInspector(cal, getSampleConditionalTags(), getSampleRestrictedValues(), getSamplePermissiveValues());
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(new DateRangeParser(getCalendar(2015, Calendar.DECEMBER, 27)));
         ReaderWay way = new ReaderWay(1);
         way.setTag("vehicle:conditional", "yes @ (Su)");
         assertTrue(acceptor.isRestrictedWayConditionallyPermitted(way));
     }
 
+    @Test
+    public void testCombinedCondition() throws ParseException {
+        String str = "no @ (10:00-18:00 AND length>5)";
+        ConditionalOSMTagInspector acceptor = getConditionalTagInspector();
+        acceptor.addValueParser(ConditionalParser.createDateTimeParser());
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("vehicle:conditional", "no @ (10:00-18:00 AND length>5)");
+        assertFalse(acceptor.isPermittedWayConditionallyRestricted(way));
+        acceptor.addValueParser(ConditionalParser.createNumberParser("length", 10));
+        assertTrue(acceptor.isPermittedWayConditionallyRestricted(way));
+    }
 }

@@ -197,6 +197,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
     }
 
     @Override
+    public Path calcPath(int from, int to, long at) {
+        return calcPath(from, to);
+    }
+
+    @Override
     public List<Path> calcPaths(int from, int to) {
         List<AlternativeInfo> alts = calcAlternatives(from, to);
         List<Path> paths = new ArrayList<>(alts.size());
@@ -204,6 +209,11 @@ public class AlternativeRoute implements RoutingAlgorithm {
             paths.add(a.getPath());
         }
         return paths;
+    }
+
+    @Override
+    public List<Path> calcPaths(int from, int to, long at) {
+        return calcPaths(from, to);
     }
 
     @Override

@@ -105,8 +105,17 @@ public abstract class AbstractRoutingAlgorithm implements RoutingAlgorithm {
     protected abstract Path extractPath();
 
     @Override
+    public Path calcPath(int from, int to, long at) {
+        return calcPath(from, to);
+    }
+
+    @Override
     public List<Path> calcPaths(int from, int to) {
         return Collections.singletonList(calcPath(from, to));
+    }
+
+    public List<Path> calcPaths(int from, int to, long at) {
+        return Collections.singletonList(calcPath(from, to, at));
     }
 
     protected Path createEmptyPath() {

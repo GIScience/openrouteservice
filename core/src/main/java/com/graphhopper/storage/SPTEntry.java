@@ -33,6 +33,7 @@ public class SPTEntry implements Cloneable, Comparable<SPTEntry> {
     // ORS-GH MOD END
     public int adjNode;
     public double weight;
+    public long time;
     public SPTEntry parent;
 
     public SPTEntry(int edgeId, int adjNode, double weight) {

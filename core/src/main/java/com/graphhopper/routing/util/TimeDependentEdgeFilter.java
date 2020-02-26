@@ -15,17 +15,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.reader;
+package com.graphhopper.routing.util;
+
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
- * @author Peter Karich
+ * Class used to traverse a graph.
+ *
+ * @author Andrzej Oles
  */
-public interface ConditionalTagInspector {
-    boolean isRestrictedWayConditionallyPermitted(ReaderWay way);
-
-    boolean isPermittedWayConditionallyRestricted(ReaderWay way);
-
-    boolean isConditionLazyEvaluated();
-
-    String getTagValue();
+public interface TimeDependentEdgeFilter {
+    /**
+     * @return true if the current edge should be processed and false otherwise.
+     */
+    boolean accept(EdgeIteratorState edgeState, long time);
 }

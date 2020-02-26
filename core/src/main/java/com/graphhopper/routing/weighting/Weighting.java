@@ -51,7 +51,10 @@ public interface Weighting {
      * @return the calculated weight with the specified velocity has to be in the range of 0 and
      * +Infinity. Make sure your method does not return NaN which can e.g. occur for 0/0.
      */
+
     double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
+
+    double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime);
 
     /**
      * This method calculates the time taken (in milli seconds) for the specified edgeState and
@@ -59,6 +62,8 @@ public interface Weighting {
      * prevOrNextEdgeId. Typically used for post-processing and on only a few thousand edges.
      */
     long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
+
+    long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime);
 
     FlagEncoder getFlagEncoder();
 
@@ -68,4 +73,6 @@ public interface Weighting {
      * Returns true if the specified weighting and encoder matches to this Weighting.
      */
     boolean matches(HintsMap map);
+
+    boolean isTimeDependent();
 }

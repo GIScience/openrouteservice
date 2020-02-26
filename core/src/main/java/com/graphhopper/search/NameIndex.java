@@ -39,7 +39,11 @@ public class NameIndex implements Storable<NameIndex> {
     private long lastIndex;
 
     public NameIndex(Directory dir) {
-        names = dir.find("names");
+        this(dir, "names");
+    }
+
+    protected NameIndex(Directory dir, String filename) {
+        names = dir.find(filename);
     }
 
     @Override

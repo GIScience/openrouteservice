@@ -17,12 +17,15 @@
  */
 package com.graphhopper.reader.osm.conditional;
 
+import ch.poole.conditionalrestrictionparser.*;
+import ch.poole.openinghoursparser.OpeningHoursParser;
+import ch.poole.openinghoursparser.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
@@ -35,22 +38,39 @@ import java.util.Set;
  */
 public class ConditionalParser {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final Set<String> restrictedTags;
+    private final Set<String> restrictedValues;
     private final List<ConditionalValueParser> valueParsers = new ArrayList<>(5);
     private final boolean enabledLogs;
 
-    public ConditionalParser(Set<String> restrictedTags) {
-        this(restrictedTags, false);
+    private String simpleValue;
+    private String unevaluatedRestrictions = "";
+    private Conditions unevaluatedConditions;
+
+    public ConditionalParser(Set<String> restrictedValues) {
+        this(restrictedValues, false);
     }
 
-    public ConditionalParser(Set<String> restrictedTags, boolean enabledLogs) {
+    public ConditionalParser(Set<String> restrictedValues, boolean enabledLogs) {
         // use map => key & type (date vs. double)
-        this.restrictedTags = restrictedTags;
+        this.restrictedValues = restrictedValues;
         this.enabledLogs = enabledLogs;
+
+        if (hasRestrictedValues()) {
+            if (restrictedValues.contains("yes"))
+                this.simpleValue = "yes";
+            else this.simpleValue = "no";
+        }
     }
 
     public static ConditionalValueParser createNumberParser(final String assertKey, final Number obj) {
         return new ConditionalValueParser() {
+            @Override
+            public ConditionState checkCondition(Condition condition) throws ParseException {
+                if (condition.isExpression())
+                    return checkCondition(condition.toString());
+                else
+                    return ConditionState.INVALID;
+            }
             @Override
             public ConditionState checkCondition(String conditionalValue) throws ParseException {
                 int indexLT = conditionalValue.indexOf("<");
@@ -90,6 +110,35 @@ public class ConditionalParser {
         };
     }
 
+    public static ConditionalValueParser createDateTimeParser() {
+        return new ConditionalValueParser() {
+            @Override
+            public ConditionState checkCondition(String conditionString) {
+                ArrayList<Rule> rules;
+                try {
+                    OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(conditionString.getBytes()));
+                    rules = parser.rules(false);
+                }
+                catch (Exception e) {
+                    return ConditionState.INVALID;
+                }
+                if (rules.isEmpty())
+                    return ConditionState.INVALID;
+                else {
+                    String parsedConditionString = ch.poole.openinghoursparser.Util.rulesToOpeningHoursString(rules);
+                    return ConditionState.UNEVALUATED.setCondition(new Condition(parsedConditionString, true));
+                }
+            }
+            @Override
+            public ConditionState checkCondition(Condition condition) {
+                if (condition.isOpeningHours())
+                    return checkCondition(condition.toString()); // attempt to properly parse the condition
+                else
+                    return ConditionState.INVALID;
+            }
+        };
+    }
+
     /**
      * This method adds a new value parser. The one added last has a higher priority.
      */
@@ -104,36 +153,98 @@ public class ConditionalParser {
         return this;
     }
 
-    public boolean checkCondition(String conditionalTag) throws ParseException {
-        if (conditionalTag == null || conditionalTag.isEmpty() || !conditionalTag.contains("@"))
-            return false;
-
-        if (conditionalTag.contains(";")) {
-            if (enabledLogs)
-                logger.warn("We do not support multiple conditions yet: " + conditionalTag);
-            return false;
-        }
-
-        String[] conditionalArr = conditionalTag.split("@");
-
-        if (conditionalArr.length != 2)
-            throw new IllegalStateException("could not split this condition: " + conditionalTag);
-
-        String restrictiveValue = conditionalArr[0].trim();
-        if (!restrictedTags.contains(restrictiveValue))
-            return false;
-
-        String conditionalValue = conditionalArr[1];
-        conditionalValue = conditionalValue.replace('(', ' ');
-        conditionalValue = conditionalValue.replace(')', ' ');
-        conditionalValue = conditionalValue.trim();
-
+    // attempt to parse the value with any of the registered parsers
+    private boolean checkAtomicCondition(Condition condition) throws ParseException {
         for (ConditionalValueParser valueParser : valueParsers) {
-            ConditionalValueParser.ConditionState c = valueParser.checkCondition(conditionalValue);
-            if (c.isValid())
-                return c.isCheckPassed();
+            ConditionalValueParser.ConditionState c = valueParser.checkCondition(condition);
+            if (c.isValid()) {
+                if (c.isEvaluated())
+                    return c.isCheckPassed();
+                else { // condition could not be evaluated but might evaluate to true during query
+                    unevaluatedConditions.addCondition(c.getCondition());
+                    return true;
+                }
+            }
         }
         return false;
+    }
+
+    // all of the combined conditions need to be met
+    private boolean checkCombinedCondition(List<Condition> conditions) throws ParseException {
+        // combined conditions, must be all matched
+        for (Condition condition: conditions) {
+            if (!checkAtomicCondition(condition))
+                return false;
+        }
+        return true;
+    }
+
+
+    public boolean checkCondition(String tagValue) throws ParseException {
+        if (tagValue == null || tagValue.isEmpty() || !tagValue.contains("@"))
+            return false;
+
+        ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
+        unevaluatedRestrictions = "";
+
+        try {
+            ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));
+
+            ArrayList<Restriction> restrictions = parser.restrictions();
+
+            // iterate over restrictions starting from the last one in order to match to the most specific one
+            for (int i = restrictions.size() - 1 ; i >= 0; i--) {
+                Restriction restriction = restrictions.get(i);
+
+                String restrictionValue = restriction.getValue();
+
+                if (hasRestrictedValues()) {
+                    // check whether the encountered value is on the list
+                    if (!restrictedValues.contains(restrictionValue))
+                        continue;
+                }
+                else {
+                    simpleValue = restrictionValue;
+                }
+
+                List<Condition> conditions = restriction.getConditions();
+
+                unevaluatedConditions = new Conditions(new ArrayList<Condition>(), restriction.inParen());
+
+                if (checkCombinedCondition(conditions)) {
+                    // check for unevaluated conditions
+                    if (unevaluatedConditions.getConditions().isEmpty()) {
+                        return true; // terminate once the first matching condition which can be fully evaluated is encountered
+                    }
+                    else {
+                        parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
+                    }
+                }
+            }
+        } catch (ch.poole.conditionalrestrictionparser.ParseException e) {
+            if (enabledLogs)
+                logger.warn("Parser exception for " + tagValue + " " + e.toString());
+            return false;
+        }
+        // at this point either no matching restriction was found or the encountered restrictions need to be lazy evaluated
+        if (parsedRestrictions.isEmpty()) {
+            return false;
+        }
+        else {
+            unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
+            return true;
+        }
+    }
+
+    public String getRestrictions() {
+        if (hasUnevaluatedRestrictions())
+            return unevaluatedRestrictions;
+        else
+            return simpleValue;
+    }
+
+    public boolean hasUnevaluatedRestrictions() {
+        return !unevaluatedRestrictions.isEmpty();
     }
 
     protected static double parseNumber(String str) {
@@ -143,5 +254,9 @@ public class ConditionalParser {
                 break;
         }
         return Double.parseDouble(str.substring(0, untilIndex + 1));
+    }
+
+    private boolean hasRestrictedValues() {
+        return !( restrictedValues==null || restrictedValues.isEmpty() );
     }
 }

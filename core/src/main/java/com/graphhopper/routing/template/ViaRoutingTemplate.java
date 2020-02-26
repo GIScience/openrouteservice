@@ -33,7 +33,7 @@ import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.Translation;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,7 +122,14 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
             sw = new StopWatch().start();
 
             // calculate paths
-            List<Path> tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
+            List<Path> tmpPathList;
+            String departure = algoOpts.getHints().get("departure", "");
+            if (!departure.isEmpty()) {
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), Instant.parse(departure).toEpochMilli());
+            } else {
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
+            }
+
             debug += ", " + algo.getName() + "-routing:" + sw.stop().getSeconds() + "s";
             if (tmpPathList.isEmpty())
                 throw new IllegalStateException("At least one path has to be returned for " + fromQResult + " -> " + toQResult);

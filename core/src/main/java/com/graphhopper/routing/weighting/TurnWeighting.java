@@ -81,7 +81,10 @@ public class TurnWeighting implements Weighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        double weight = superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+        return calcWeightInternal(superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId), edgeState, reverse, prevOrNextEdgeId);
+    }
+
+    private double calcWeightInternal(double weight, EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId))
             return weight;
 
@@ -97,8 +100,16 @@ public class TurnWeighting implements Weighting {
     }
 
     @Override
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcWeightInternal(superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime), edgeState, reverse, prevOrNextEdgeId);
+    }
+
+    @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        long millis = superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+        return calcMillisInternal(superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId), edgeState, reverse, prevOrNextEdgeId);
+    }
+
+    private long calcMillisInternal(long millis, EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId))
             return millis;
 
@@ -110,6 +121,11 @@ public class TurnWeighting implements Weighting {
                 : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), origEdgeId));
 
         return millis + 1000 * turnCostsInSeconds;
+    }
+
+    @Override
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcMillisInternal(superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime), edgeState, reverse, prevOrNextEdgeId);
     }
 
     /**
@@ -156,5 +172,10 @@ public class TurnWeighting implements Weighting {
     @Override
     public String getName() {
         return "turn|" + superWeighting.getName();
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return superWeighting.isTimeDependent();
     }
 }
