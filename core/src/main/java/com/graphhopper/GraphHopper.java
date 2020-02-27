@@ -809,10 +809,11 @@ public class GraphHopper implements GraphHopperAPI {
                 ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
             }
 
-            if (lmFactoryDecorator.isEnabled())
-                initLMAlgoFactoryDecorator();
         }
         //ORS-GH MOD END
+
+        if (lmFactoryDecorator.isEnabled())
+            initLMAlgoFactoryDecorator();
 
         ghStorage.setSegmentSize(defaultSegmentSize);
 
