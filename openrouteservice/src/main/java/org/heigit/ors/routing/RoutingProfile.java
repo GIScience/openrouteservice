@@ -101,7 +101,7 @@ public class RoutingProfile {
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
-    private static final String KEY_ASTARBI = "astarbi";
+    private static final String KEY_ASTARBI = Parameters.Algorithms.ASTAR_BI;
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -882,7 +882,7 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm("dijkstrabi");
+            req.setAlgorithm(searchParams.isTimeDependent() ? Parameters.Algorithms.TD_DIJKSTRA : Parameters.Algorithms.DIJKSTRA_BI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
@@ -930,84 +930,93 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
-            if (searchParams.requiresDynamicWeights() || flexibleMode) {
-                if (mGraphHopper.isCHEnabled())
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                if (mGraphHopper.isCoreEnabled())
-                   req.getHints().put(KEY_CORE_DISABLE, true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
-                    req.setAlgorithm(KEY_ASTARBI);
+            // use time-dependent A*
+            if (searchParams.isTimeDependent()) {
+                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
+                req.getHints().put(KEY_CORE_DISABLE, true);
+                req.getHints().put(KEY_CH_DISABLE, true);
+                if (mGraphHopper.getLMFactoryDecorator().isEnabled())
                     req.getHints().put(KEY_LM_DISABLE, false);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                }
-                if (mGraphHopper.isCoreEnabled() && optimized) {
-                    req.getHints().put(KEY_CORE_DISABLE, false);
-                    req.getHints().put(KEY_LM_DISABLE, true);
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                    req.setAlgorithm(KEY_ASTARBI);
-                }
+                if (searchParams.hasDeparture())
+                    req.getHints().put("departure", searchParams.getDeparture());
+                else if (searchParams.hasArrival())
+                    req.getHints().put("arrival", searchParams.getArrival());
+
             } else {
-                if (mGraphHopper.isCHEnabled()) {
-                    req.getHints().put(KEY_LM_DISABLE, true);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                }
-                else {
+                if (searchParams.requiresDynamicWeights() || flexibleMode) {
+                    if (mGraphHopper.isCHEnabled())
+                        req.getHints().put(KEY_CH_DISABLE, true);
+                    if (mGraphHopper.isCoreEnabled())
+                        req.getHints().put(KEY_CORE_DISABLE, true);
+                    if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
+                        req.setAlgorithm(KEY_ASTARBI);
+                        req.getHints().put(KEY_LM_DISABLE, false);
+                        req.getHints().put(KEY_CORE_DISABLE, true);
+                        req.getHints().put(KEY_CH_DISABLE, true);
+                    }
                     if (mGraphHopper.isCoreEnabled() && optimized) {
                         req.getHints().put(KEY_CORE_DISABLE, false);
                         req.getHints().put(KEY_LM_DISABLE, true);
                         req.getHints().put(KEY_CH_DISABLE, true);
                         req.setAlgorithm(KEY_ASTARBI);
                     }
-                    else {
-                        req.getHints().put(KEY_CH_DISABLE, true);
-                        req.getHints().put(RoutingProfile.KEY_CORE_DISABLE, true);
+                } else {
+                    if (mGraphHopper.isCHEnabled()) {
+                        req.getHints().put(KEY_LM_DISABLE, true);
+                        req.getHints().put(KEY_CORE_DISABLE, true);
+                    } else {
+                        if (mGraphHopper.isCoreEnabled() && optimized) {
+                            req.getHints().put(KEY_CORE_DISABLE, false);
+                            req.getHints().put(KEY_LM_DISABLE, true);
+                            req.getHints().put(KEY_CH_DISABLE, true);
+                            req.setAlgorithm(KEY_ASTARBI);
+                        } else {
+                            req.getHints().put(KEY_CH_DISABLE, true);
+                            req.getHints().put(RoutingProfile.KEY_CORE_DISABLE, true);
+                        }
                     }
                 }
-            }
-            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if(searchParams.requiresFallbackAlgorithm()) {
-                req.setAlgorithm(KEY_ASTARBI);
-                req.getHints().put(KEY_LM_DISABLE, false);
-                req.getHints().put(KEY_CORE_DISABLE, true);
-                req.getHints().put(KEY_CH_DISABLE, true);
-            }
 
-            //If we have special weightings, we have to fall back to ALT with Beeline
-            ProfileParameters profileParams = searchParams.getProfileParameters();
-            if (profileParams != null && profileParams.hasWeightings()) {
-                req.setAlgorithm("astarbi");
-                req.getHints().put("lm.disable", false);
-                req.getHints().put("core.disable", true);
-                req.getHints().put("ch.disable", true);
-            }
+                //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
+                if (searchParams.requiresFallbackAlgorithm()) {
+                    req.setAlgorithm(KEY_ASTARBI);
+                    req.getHints().put(KEY_LM_DISABLE, false);
+                    req.getHints().put(KEY_CORE_DISABLE, true);
+                    req.getHints().put(KEY_CH_DISABLE, true);
+                }
 
-            if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
-                req.getHints().put(KEY_CUSTOM_WEIGHTINGS, true);
-                req.getHints().put("weighting_#acceleration#", true);
-                req.getHints().put(KEY_LM_DISABLE, true); // REMOVE
-            }
+// FIXME: the following seems to duplicate the logic above
+//            //If we have special weightings, we have to fall back to ALT with Beeline
+//            ProfileParameters profileParams = searchParams.getProfileParameters();
+//            if (profileParams != null && profileParams.hasWeightings()) {
+//                req.setAlgorithm("astarbi");
+//                req.getHints().put("lm.disable", false);
+//                req.getHints().put("core.disable", true);
+//                req.getHints().put("ch.disable", true);
+//            }
 
-            if (astarEpsilon != null)
-                req.getHints().put("astarbi.epsilon", astarEpsilon);
-            if (astarApproximation != null)
-                req.getHints().put("astarbi.approximation", astarApproximation);
+                if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
+                    req.getHints().put(KEY_CUSTOM_WEIGHTINGS, true);
+                    req.getHints().put("weighting_#acceleration#", true);
+                    req.getHints().put(KEY_LM_DISABLE, true); // REMOVE
+                }
 
-            if (searchParams.getAlternativeRoutesCount() > 0) {
-                req.setAlgorithm("alternative_route");
-                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
-                req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
-                req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
+                if (astarEpsilon != null)
+                    req.getHints().put("astarbi.epsilon", astarEpsilon);
+                if (astarApproximation != null)
+                    req.getHints().put("astarbi.approximation", astarApproximation);
+
+                if (searchParams.getAlternativeRoutesCount() > 0) {
+                    req.setAlgorithm("alternative_route");
+                    req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
+                    req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
+                    req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
 //              TAKB: CH and CORE have to be disabled for alternative routes
-                req.getHints().put(KEY_CH_DISABLE, true);
-                req.getHints().put(KEY_LM_DISABLE, false);
-                req.getHints().put(KEY_CORE_DISABLE, true);
+                    req.getHints().put(KEY_CH_DISABLE, true);
+                    req.getHints().put(KEY_LM_DISABLE, false);
+                    req.getHints().put(KEY_CORE_DISABLE, true);
+                }
             }
-
-            if (searchParams.hasDeparture())
-                req.getHints().put("departure", searchParams.getDeparture());
-            else if (searchParams.hasArrival())
-                req.getHints().put("arrival", searchParams.getArrival());
 
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);

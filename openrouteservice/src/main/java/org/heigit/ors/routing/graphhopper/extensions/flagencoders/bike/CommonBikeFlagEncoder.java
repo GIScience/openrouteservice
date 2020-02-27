@@ -89,7 +89,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // This is the specific bicycle class
     private String classBicycleKey;
 
-    boolean considerElevation = false;
+    private BooleanEncodedValue conditionalEncoder;
 
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
@@ -262,6 +262,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(wayTypeEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
+        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
+
     }
 
     @Override
@@ -294,8 +296,13 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             }
 
             if (!acceptPotentially.canSkip()) {
-                if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)){
-                    return EncodingManager.Access.CAN_SKIP;
+                if (way.hasTag(restrictions, restrictedValues)) {
+                    if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
+                        if (getConditionalTagInspector().isConditionLazyEvaluated())
+                            return EncodingManager.Access.CONDITIONAL;
+                    }
+                    else
+                        return EncodingManager.Access.CAN_SKIP;
                 }
                 return acceptPotentially;
             }
@@ -344,12 +351,20 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-            return EncodingManager.Access.CAN_SKIP;
+        if (way.hasTag(restrictions, restrictedValues)) {
+            if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
+                if (getConditionalTagInspector().isConditionLazyEvaluated())
+                    return EncodingManager.Access.CONDITIONAL;
+            }
+            else
+                return EncodingManager.Access.CAN_SKIP;
         }
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way)){
-            return EncodingManager.Access.CAN_SKIP;
+            if (getConditionalTagInspector().isConditionLazyEvaluated())
+                return EncodingManager.Access.CONDITIONAL;
+            else
+                return EncodingManager.Access.CAN_SKIP;
         }else {
             return EncodingManager.Access.WAY;
         }
@@ -411,6 +426,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
             handleBikeRelated(edgeFlags, way, relationFlags > UNCHANGED.getValue());
+            if (access.isConditional())
+                conditionalEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
             if (isRoundabout) {
                 roundaboutEnc.setBool(true, edgeFlags, true);

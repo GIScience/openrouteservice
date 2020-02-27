@@ -560,6 +560,7 @@ public class RouteSearchParameters {
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
     }
 
+    // time-dependent stuff
     public LocalDateTime getDeparture() {
         return departure;
     }
@@ -581,4 +582,8 @@ public class RouteSearchParameters {
     }
 
     public boolean hasArrival() { return arrival!=null; }
+
+    public boolean isTimeDependent () {
+        return (hasDeparture() || hasArrival());
+    }
 }

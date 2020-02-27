@@ -71,6 +71,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
+		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
+			result = new TimeDependentFastestWeighting(encoder, hintsMap, graphStorage);
+		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);

@@ -34,6 +34,7 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -54,6 +55,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
@@ -211,8 +214,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 			String algoStr = request.getAlgorithm();
 			if (algoStr.isEmpty())
-				algoStr = getCHFactoryDecorator().isEnabled() && !disableCH
-						&& !(getLMFactoryDecorator().isEnabled() && !disableLM) ? DIJKSTRA_BI : ASTAR_BI;
+				throw new IllegalStateException("No routing algorithm set.");
 
 			List<GHPoint> points = request.getPoints();
 			// TODO Maybe we should think about a isRequestValid method that checks all that stuff that we could do to fail fast
@@ -320,6 +322,20 @@ public class ORSGraphHopper extends GraphHopper {
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 	                ((TurnWeighting)weighting).setInORS(true);
+
+				weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
+
+				String departureTimeString = hints.get("departure", "");
+
+				if (!departureTimeString.isEmpty() && weighting.isTimeDependent()) {
+					LocalDateTime localDateTime = LocalDateTime.parse(departureTimeString);
+					GHPoint3D snappedPoint = qResults.get(0).getSnappedPoint();
+					String timeZoneId = "Europe/Berlin";//timeZoneMap.getOverlappingTimeZone(snappedPoint.lat, snappedPoint.lon).get().getZoneId();
+					hints.put("departure", localDateTime.atZone(ZoneId.of(timeZoneId)).toInstant());
+				} else {
+					hints.remove("departure");
+				}
+
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 

@@ -18,8 +18,12 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
+import com.graphhopper.reader.osm.conditional.ConditionalParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.PMap;
+
+import java.util.Arrays;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -66,6 +70,14 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
+    protected void init() {
+        super.init();
+        ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
+        conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
+        setConditionalSpeedInspector(conditionalOSMSpeedInspector);
+    }
+
+    @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         // TODO: Ferries have conditionals, like opening hours or are closed during some time in the year
         String highwayValue = way.getTag("highway");
@@ -99,8 +111,14 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
         if (!firstValue.isEmpty()) {
-            if (restrictedValues.contains(firstValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                return EncodingManager.Access.CAN_SKIP;
+            if (restrictedValues.contains(firstValue))
+                if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+                    if (getConditionalTagInspector().isConditionLazyEvaluated())
+                        return EncodingManager.Access.CONDITIONAL;
+                    else
+                        return EncodingManager.Access.WAY;
+                else
+                    return EncodingManager.Access.CAN_SKIP;
             if (intendedValues.contains(firstValue))
                 return EncodingManager.Access.WAY;
         }
@@ -122,7 +140,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         }
 
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            return EncodingManager.Access.CAN_SKIP;
+            if (getConditionalTagInspector().isConditionLazyEvaluated())
+                return EncodingManager.Access.CONDITIONAL;
+            else
+                return EncodingManager.Access.CAN_SKIP;
         else
             return EncodingManager.Access.WAY;
     }
