@@ -832,6 +832,7 @@ public class ORSGraphHopper extends GraphHopper {
 			ecc = new Eccentricity(getGraphHopperStorage(), getLocationIndex());
 		if(!ecc.loadExisting(weighting)) {
 			ecc.calcEccentricities(getGraphHopperStorage(), getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, traversalMode, isochroneNodeStorage, cellStorage);
+			ecc.calcCoreGraphDistances(getGraphHopperStorage().getBaseGraph(), weighting, flagEncoder, isochroneNodeStorage, cellStorage);
 		}
 
 		this.eccentricity = ecc;

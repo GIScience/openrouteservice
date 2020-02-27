@@ -55,12 +55,9 @@ public class CellStorage implements Storable<CellStorage> {
 
 
     public CellStorage(GraphHopperStorage graph, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
-//        final String name = AbstractWeighting.weightingToFileName(weighting);
         this.isochroneNodeStorage = isochroneNodeStorage;
-//        cells = dir.find("cells_" + name);
         cells = dir.find("cells");
         BYTECOUNT = 4;
-        //TODO for now just create for all nodes... optimize to use only border nodes... will save 95% space
         nodeCount = graph.getNodes();
     }
 

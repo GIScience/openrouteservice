@@ -6,6 +6,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
+import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
@@ -25,6 +26,7 @@ public abstract class AbstractEccentricity {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected CellStorage cellStorage;
     protected List<EccentricityStorage> eccentricityStorages = new ArrayList<>();
+    protected List<BorderNodeDistanceStorage> borderNodeDistanceStorages = new ArrayList<>();
 
 
     public AbstractEccentricity(GraphHopperStorage ghStorage){
@@ -44,9 +46,24 @@ public abstract class AbstractEccentricity {
         return null;
     }
 
+    public BorderNodeDistanceStorage getBorderNodeDistanceStorages(Weighting weighting){
+        if (borderNodeDistanceStorages.isEmpty())
+            return null;
+        for(BorderNodeDistanceStorage bnds : borderNodeDistanceStorages){
+            if(bnds.getWeighting().getName() == weighting.getName() && bnds.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+                return bnds;
+        }
+        return null;
+    }
+
     public boolean loadExisting(Weighting weighting){
         EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
         eccentricityStorages.add(eccentricityStorage);
+
+        BorderNodeDistanceStorage borderNodeDistanceStorage = new BorderNodeDistanceStorage(ghStorage, ghStorage.getDirectory(), weighting, isochroneNodeStorage);
+        borderNodeDistanceStorages.add(borderNodeDistanceStorage);
+        borderNodeDistanceStorage.loadExisting();
+
         return eccentricityStorage.loadExisting();
     }
 
