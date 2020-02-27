@@ -25,6 +25,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.BBox;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,6 +68,17 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
     public ConditionalEdgesMap getConditionalSpeed(String encoderName) {
         return conditionalSpeed.getConditionalEdgesMap(encoderName);
+    }
+
+    // FIXME: temporal solution until an external storage for time zones is introduced.
+    private TimeZoneMap timeZoneMap;
+
+    public TimeZoneMap getTimeZoneMap() {
+        return timeZoneMap;
+    }
+
+    public void setTimeZoneMap(TimeZoneMap timeZoneMap) {
+        this.timeZoneMap = timeZoneMap;
     }
 
     // same flush order etc

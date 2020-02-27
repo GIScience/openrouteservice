@@ -13,9 +13,9 @@ public class DateTimeConverter {
     private final NodeAccess nodeAccess;
     private final TimeZoneMap timeZoneMap;
 
-    public DateTimeConverter(GraphHopperStorage graph, TimeZoneMap timeZoneMap) {
+    public DateTimeConverter(GraphHopperStorage graph) {
         this.nodeAccess = graph.getNodeAccess();
-        this.timeZoneMap = timeZoneMap;
+        this.timeZoneMap = graph.getTimeZoneMap();
     }
 
     public ZonedDateTime localDateTime (EdgeIteratorState iter, long time) {

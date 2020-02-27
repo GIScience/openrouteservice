@@ -9,7 +9,6 @@ import com.graphhopper.routing.weighting.DateTimeConverter;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
@@ -24,21 +23,21 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final boolean bwd;
     private final DateTimeConverter dateTimeConverter;
 
-    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
-        this(graph, encoder.toString(), timeZoneMap);
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder) {
+        this(graph, encoder.toString());
     }
 
-    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, TimeZoneMap timeZoneMap) {
-        this(graph, encoderName, timeZoneMap, true, true);
+    public ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName) {
+        this(graph, encoderName, true, true);
     }
 
-    ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, TimeZoneMap timeZoneMap, boolean fwd, boolean bwd) {
+    ConditionalAccessEdgeFilter(GraphHopperStorage graph, String encoderName, boolean fwd, boolean bwd) {
         EncodingManager encodingManager = graph.getEncodingManager();
         conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, "conditional_access"));
         conditionalEdges = graph.getConditionalAccess(encoderName);
         this.fwd = fwd;
         this.bwd = bwd;
-        this.dateTimeConverter = new DateTimeConverter(graph, timeZoneMap);
+        this.dateTimeConverter = new DateTimeConverter(graph);
     }
 
     @Override

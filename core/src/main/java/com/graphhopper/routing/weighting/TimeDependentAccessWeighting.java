@@ -22,7 +22,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import us.dustinj.timezonemap.TimeZoneMap;
 
 /**
  * Calculates the fastest route with the specified vehicle (VehicleEncoder). Calculates the time-dependent weight
@@ -34,9 +33,9 @@ import us.dustinj.timezonemap.TimeZoneMap;
 public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
     private ConditionalAccessEdgeFilter edgeFilter;
 
-    public TimeDependentAccessWeighting(Weighting weighting, GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
+    public TimeDependentAccessWeighting(Weighting weighting, GraphHopperStorage graph, FlagEncoder encoder) {
         super(weighting);
-        this.edgeFilter = new ConditionalAccessEdgeFilter(graph, encoder, timeZoneMap);
+        this.edgeFilter = new ConditionalAccessEdgeFilter(graph, encoder);
     }
 
     @Override
