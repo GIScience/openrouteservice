@@ -126,9 +126,6 @@ public class GraphHopper implements GraphHopperAPI {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private PathDetailsBuilderFactory pathBuilderFactory = new PathDetailsBuilderFactory();
 
-    // for time-dependent routing
-    private TimeZoneMap timeZoneMap;
-
     public GraphHopper() {
         chFactoryDecorator.setEnabled(true);
         lmFactoryDecorator.setEnabled(false);
@@ -854,7 +851,7 @@ public class GraphHopper implements GraphHopperAPI {
         }
 
         BBox bb = ghStorage.getBounds();
-        timeZoneMap = TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon);
+        ghStorage.setTimeZoneMap(TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon));
 
         // FIXME: print out debug info on stored conditionals
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
@@ -938,7 +935,7 @@ public class GraphHopper implements GraphHopperAPI {
         }
 
         else if ("td_fastest".equalsIgnoreCase(weightingStr))
-            weighting = new TimeDependentFastestWeighting(encoder, hintsMap, ghStorage, timeZoneMap);
+            weighting = new TimeDependentFastestWeighting(encoder, hintsMap, ghStorage);
 
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
@@ -968,7 +965,7 @@ public class GraphHopper implements GraphHopperAPI {
      */
     public Weighting createTimeDependentAccessWeighting(Weighting weighting, TraversalMode tMode, String algo) {
         return tMode.isEdgeBased() && isAlgorithmTimeDependent(algo) ?
-            new TimeDependentAccessWeighting(weighting, ghStorage, weighting.getFlagEncoder(), timeZoneMap) : weighting;
+            new TimeDependentAccessWeighting(weighting, ghStorage, weighting.getFlagEncoder()) : weighting;
     }
 
     private boolean isAlgorithmTimeDependent(String algo) {

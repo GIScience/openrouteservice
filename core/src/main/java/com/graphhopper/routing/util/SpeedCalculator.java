@@ -9,7 +9,6 @@ import com.graphhopper.routing.weighting.DateTimeConverter;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
@@ -24,7 +23,7 @@ public class SpeedCalculator {
     private final ConditionalEdgesMap conditionalEdges;
     private final DateTimeConverter dateTimeConverter;
 
-    public SpeedCalculator(GraphHopperStorage graph, FlagEncoder encoder, TimeZoneMap timeZoneMap) {
+    public SpeedCalculator(GraphHopperStorage graph, FlagEncoder encoder) {
         avSpeedEnc = encoder.getAverageSpeedEnc();
 
         // time-dependent stuff
@@ -38,7 +37,7 @@ public class SpeedCalculator {
         conditionalEnc = encodingManager.getBooleanEncodedValue(encoderName);
         conditionalEdges = graph.getConditionalSpeed(encoder);
 
-        this.dateTimeConverter = new DateTimeConverter(graph, timeZoneMap);
+        this.dateTimeConverter = new DateTimeConverter(graph);
     }
 
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {

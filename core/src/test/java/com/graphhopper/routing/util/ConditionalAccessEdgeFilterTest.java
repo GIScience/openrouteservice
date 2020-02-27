@@ -42,12 +42,13 @@ public class ConditionalAccessEdgeFilterTest {
     private final CarFlagEncoder encoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(encoder);
     private final GraphHopperStorage graph = new GraphBuilder(encodingManager).create();
-    private final TimeDependentEdgeFilter filter = new ConditionalAccessEdgeFilter(graph, encoder, timeZoneMap);
+    private final TimeDependentEdgeFilter filter = new ConditionalAccessEdgeFilter(graph, encoder);
     private final NodeAccess nodeAccess = graph.getNodeAccess();
 
     public ConditionalAccessEdgeFilterTest() {
         nodeAccess.setNode(0, 52, 13);
         nodeAccess.setNode(1, 53, 14);
+        graph.setTimeZoneMap(timeZoneMap);
     }
 
     private EdgeIteratorState createConditionalEdge(boolean closed, String conditional) {

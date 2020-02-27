@@ -22,7 +22,6 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters.Routing;
-import us.dustinj.timezonemap.TimeZoneMap;
 
 
 /**
@@ -44,12 +43,12 @@ public class TimeDependentFastestWeighting extends AbstractWeighting {
     private final SpeedCalculator speedCalculator;
 
 
-    public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graph, TimeZoneMap timeZoneMap) {
+    public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graph) {
         super(encoder);
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
 
-        this.speedCalculator = new SpeedCalculator(graph, encoder, timeZoneMap);
+        this.speedCalculator = new SpeedCalculator(graph, encoder);
     }
 
     @Override
