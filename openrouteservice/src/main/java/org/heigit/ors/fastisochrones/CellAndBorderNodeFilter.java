@@ -9,15 +9,13 @@ import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
 public class CellAndBorderNodeFilter implements EdgeFilter {
     private IsochroneNodeStorage isochroneNodeStorage;
-    private CHGraph graph;
     private int cellId;
     private final int maxNodes;
 
 
     /* Edge is within a specified Cell */
-    public CellAndBorderNodeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes, CHGraph g) {
+    public CellAndBorderNodeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes) {
         this.isochroneNodeStorage = isochroneNodeStorage;
-        graph = g;
         this.cellId = cellId;
         this.maxNodes = maxNodes - 1;
     }
@@ -32,8 +30,6 @@ public class CellAndBorderNodeFilter implements EdgeFilter {
         int adj = iter.getAdjNode();
         if (base >= maxNodes || adj >= maxNodes)
             return true;
-        if (((CHEdgeIteratorState) iter).isShortcut())
-            return false;
         if (isochroneNodeStorage.getCellId(base) == cellId
                 && isochroneNodeStorage.getCellId(adj) == cellId){
             return true;

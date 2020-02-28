@@ -17,7 +17,6 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -36,7 +35,6 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
-import org.heigit.ors.fastisochrones.BaseGraphFilter;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
@@ -53,7 +51,6 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.CHEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
@@ -135,37 +132,25 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		if (parameters.getRangeType() == TravelRangeType.TIME)
 		{
 			weighting = new FastestWeighting(_searchContext.getEncoder());
-//			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
-//					.getIsochroneCoreFactoryDecorator()
-//					.getDecoratedAlgorithmFactory(new FastestWeighting(_searchContext.getEncoder()))
-//					.getWeighting();
 		}
 		else
 		{
 			weighting = new ShortestWeighting(_searchContext.getEncoder());
-//			weighting = ((ORSGraphHopper) _searchContext.getGraphHopper())
-//					.getIsochroneCoreFactoryDecorator()
-//					.getDecoratedAlgorithmFactory(new ShortestWeighting(_searchContext.getEncoder()))
-//					.getWeighting();
 		}
 
 		eccentricityStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting);
 		borderNodeDistanceStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getBorderNodeDistanceStorage(weighting);
-
 
 		Coordinate loc = parameters.getLocation();
 		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
 		EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
 		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(_searchContext.getProperties(), _searchContext.getEncoder(), _searchContext.getGraphHopper().getGraphHopperStorage());
 		edgeFilterSequence.add(edgeFilter);
-		edgeFilterSequence.add(new CHEdgeFilter(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, _searchContext.getGraphHopper().getGraphHopperStorage()), true));
+		edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, _searchContext.getGraphHopper().getGraphHopperStorage()));
 		QueryResult res = _searchContext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
 		//Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
 		int nonvirtualClosestNode = res.getClosestNode();
-		this.graph = _searchContext.getGraphHopper().getGraphHopperStorage().getIsochroneGraph(weighting);
-//		QueryGraph queryGraph = new QueryGraph(_searchContext.getGraphHopper().getGraphHopperStorage().getIsochroneGraph(weighting));
-//		graph.lookup(res);
-//		this.graph = queryGraph;
+		this.graph = _searchContext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
 
         //This calculates the nodes that are within the limit
 		//Currently only support for Node based
@@ -179,7 +164,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		for (int i = 0; i < nRanges; i++) {
 			FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
 					graph,
-					new PreparationWeighting(weighting),
+					weighting,
 					TraversalMode.NODE_BASED,
 					cellStorage,
 					isochroneNodeStorage,
@@ -565,8 +550,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 				continue;
 
 			EdgeIteratorState iter = this.graph.getEdgeIteratorState(edgeId, nodeId);
-			if(((CHEdgeIteratorState) iter).isShortcut())
-				continue;
 
 			double maxCost = (goalEdge.weight);
 			double minCost = (goalEdge.parent.weight);
@@ -812,7 +795,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 	}
 	private Set<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map){
 		Set<GHIntObjectHashMap<SPTEntry>> disconnectedCells = new HashSet<>();
-		EdgeExplorer edgeExplorer = graph.createEdgeExplorer(new BaseGraphFilter());
+		EdgeExplorer edgeExplorer = graph.createEdgeExplorer();
 		Queue<Integer> queue = new ArrayDeque<>();
 		IntHashSet visitedNodes = new IntHashSet(map.size());
 		for(IntObjectCursor<SPTEntry> entry : map) {

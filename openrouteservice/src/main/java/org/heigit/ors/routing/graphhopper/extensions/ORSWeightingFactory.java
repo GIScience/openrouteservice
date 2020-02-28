@@ -162,12 +162,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 		if (Helper.isEmpty(strWeighting))
 			strWeighting = hintsMap.getWeighting();
 
-		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
-			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
-			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
-		}
+//		TraversalMode tMode =  TraversalMode.NODE_BASED;
+//		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
+//			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+//		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+//			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
+//		}
 
 		Weighting result = null;
 
@@ -186,23 +186,23 @@ public class ORSWeightingFactory implements WeightingFactory {
 			result = new FastestWeighting(encoder, hintsMap);
 		}
 
-		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
-			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
-			File file = path.toFile();
-			if (file.exists()) {
-				TurnCostExtension turnCostExt = null;
-				synchronized (turnCostExtensionMap) {
-					turnCostExt = turnCostExtensionMap.get(graphStorage);
-					if (turnCostExt == null) {
-						turnCostExt = new TurnCostExtension();
-						turnCostExt.init(graphStorage, graphStorage.getDirectory());
-						turnCostExtensionMap.put(graphStorage, turnCostExt);
-					}
-				}
-
-				result = new TurnWeighting(result, turnCostExt);
-			}
-		}
+//		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
+//			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
+//			File file = path.toFile();
+//			if (file.exists()) {
+//				TurnCostExtension turnCostExt = null;
+//				synchronized (turnCostExtensionMap) {
+//					turnCostExt = turnCostExtensionMap.get(graphStorage);
+//					if (turnCostExt == null) {
+//						turnCostExt = new TurnCostExtension();
+//						turnCostExt.init(graphStorage, graphStorage.getDirectory());
+//						turnCostExtensionMap.put(graphStorage, turnCostExt);
+//					}
+//				}
+//
+//				result = new TurnWeighting(result, turnCostExt);
+//			}
+//		}
 
 		// No soft weightings for now
 

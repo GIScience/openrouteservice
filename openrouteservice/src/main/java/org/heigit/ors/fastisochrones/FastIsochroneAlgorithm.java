@@ -104,8 +104,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         edgeFilterSequence.add(
                 new CellAndBorderNodeFilter(this.isochroneNodeStorage,
                         startCell,
-                        graph.getNodes(),
-                        chGraph)
+                        graph.getNodes())
         );
         rangeSweepToAndInCore.setEdgeFilter(edgeFilterSequence);
         rangeSweepToAndInCore.setIsochroneLimit(isochroneLimit);
@@ -164,7 +163,6 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             //TODO maybe also add a level(base)<=level(adj) filter to make it PHAST?
             EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
             edgeFilterSequence.add(new FixedCellEdgeFilter(this.isochroneNodeStorage, entry.getKey(), graph.getNodes()));
-            edgeFilterSequence.add(new BaseGraphFilter());
             activeCellDijkstra.setEdgeFilter(edgeFilterSequence);
             activeCellDijkstra.setIsochroneLimit(isochroneLimit);
             //Add all the start points with their respective already visited weight

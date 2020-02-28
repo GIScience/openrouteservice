@@ -57,7 +57,6 @@ public abstract class AbstractIsochroneAlgorithm {
     int visitedCountPhase3;
 
     CHGraph chGraph;
-    int coreNodeLevel;
     double isochroneLimit;
 
     protected EdgeFilter additionalEdgeFilter;
@@ -86,9 +85,6 @@ public abstract class AbstractIsochroneAlgorithm {
 
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
-
-        chGraph = (CHGraph) graph;
-        coreNodeLevel = chGraph.getNodes() + 1;
     }
 
     protected abstract void initCollections(int size);
