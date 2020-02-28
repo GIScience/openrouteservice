@@ -77,7 +77,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public void init() {
         borderNodes.create(1000);
         getNumBorderNodes();
-        borderNodes.ensureCapacity(necessaryCapacity * BYTECOUNT);
+        borderNodes.ensureCapacity(borderNodeCount * BYTECOUNT + necessaryCapacity * BYTECOUNT + borderNodeCount * 4);
         borderNodes.setHeader(0, borderNodeCount);
         BORDERNODEINDEXOFFSET = borderNodeCount * BYTECOUNT;
         borderNodePointer = BORDERNODEINDEXOFFSET;
@@ -110,18 +110,6 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
             borderNodes.setInt(borderNodePointer, bnds.adjBorderNodeIds[i]);
             borderNodePointer += 4;
             borderNodes.setBytes(borderNodePointer, toByteArray(bnds.adjBorderNodeDistances[i]), 8);
-//            long distance  = Double.doubleToLongBits(bnds.adjBorderNodeDistances[i]);
-//            byte b0 = (byte)((distance >> 56));
-//            byte b1 = (byte)((distance >> 48));
-//            byte b2 = (byte)((distance >> 40));
-//            byte b3 = (byte)((distance >> 32));
-//            byte b4 = (byte)((distance >> 24));
-//            byte b5 = (byte)((distance >> 16));
-//            byte b6 = (byte)((distance >> 8));
-//            byte b7 = (byte)(distance);
-//            borderNodes.setBytes(borderNodePointer, new byte[] {
-//                    b0, b1, b2, b3, b4, b5, b6, b7
-//            }, 8);
             borderNodePointer += 8;
         }
         //Add trailing -1
@@ -139,24 +127,14 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
             ids.add(currentNode);
             pointer += 4;
             borderNodes.getBytes(pointer, buffer, 8);
-//            long longDistance = 0;
-//            longDistance += (buffer[0] & 0x000000FF) << 56;
-//            longDistance += (buffer[1] & 0x000000FF) << 48;
-//            longDistance += (buffer[2] & 0x000000FF) << 40;
-//            longDistance += (buffer[3] & 0x000000FF) << 32;
-//            longDistance += (buffer[4] & 0x000000FF) << 24;
-//            longDistance += (buffer[5] & 0x000000FF) << 16;
-//            longDistance += (buffer[6] & 0x000000FF) << 8;
-//            longDistance += (buffer[7] & 0x000000FF);
             distances.add(toDouble(buffer));
-//            distances.add(Double.longBitsToDouble(longDistance));
             pointer += 8;
             currentNode = borderNodes.getInt(pointer);
         }
         return new BorderNodeDistanceSet(ids.toArray(), distances.toArray());
     }
 
-    public void storeCellIdToNodesPointerMap(){
+    public void storeBorderNodeToPointerMap(){
         long listPointer = 0;
         long nodePointer;
         //Store the number of contours (= num cells + num supercells)

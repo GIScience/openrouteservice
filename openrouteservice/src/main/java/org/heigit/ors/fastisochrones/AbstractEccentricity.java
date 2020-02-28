@@ -57,7 +57,7 @@ public abstract class AbstractEccentricity {
     }
 
     public boolean loadExisting(Weighting weighting){
-        EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
+        EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting, isochroneNodeStorage);
         eccentricityStorages.add(eccentricityStorage);
 
         BorderNodeDistanceStorage borderNodeDistanceStorage = new BorderNodeDistanceStorage(ghStorage, ghStorage.getDirectory(), weighting, isochroneNodeStorage);

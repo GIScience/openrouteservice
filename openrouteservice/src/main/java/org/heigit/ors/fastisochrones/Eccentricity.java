@@ -15,7 +15,6 @@ import com.graphhopper.storage.index.LocationIndex;
 import org.heigit.ors.partitioning.*;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 
 import java.util.ArrayList;
@@ -115,6 +114,7 @@ public class Eccentricity extends AbstractEccentricity {
             throw new RuntimeException(e);
         }
 
+        eccentricityStorage.storeBorderNodeToPointerMap();
         eccentricityStorage.flush();
 //        eccentricityStorages.add(eccentricityStorage);
     }
@@ -156,33 +156,35 @@ public class Eccentricity extends AbstractEccentricity {
             threadPool.shutdownNow();
             throw new RuntimeException(e);
         }
-        borderNodeDistanceStorage.storeCellIdToNodesPointerMap();
+        borderNodeDistanceStorage.storeBorderNodeToPointerMap();
         borderNodeDistanceStorage.flush();
     }
 
     public void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, int cellId, Graph graph, Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
-        IntHashSet cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage);
+        int[] cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage).toArray();
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
 
-        for(IntCursor borderNode : cellBorderNodes) {
+        for(int borderNode : cellBorderNodes) {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
             algorithm.setEdgeFilter(defaultEdgeFilter);
-            algorithm.prepare(new int[]{borderNode.value}, cellBorderNodes.toArray());
-            algorithm.setMaxVisitedNodes(Integer.MAX_VALUE);
-            SPTEntry[] targets = algorithm.calcPaths(borderNode.value, cellBorderNodes.toArray());
-            int[] ids = new int[targets.length - 1];
-            double[] distances = new double[targets.length - 1];
-            int i = 0;
-            for(SPTEntry target : targets){
-                if(target == null)
+            algorithm.prepare(new int[]{borderNode}, cellBorderNodes);
+            algorithm.setMaxVisitedNodes(PART__MAX_CELL_NODES_NUMBER * 20);
+            SPTEntry[] targets = algorithm.calcPaths(borderNode, cellBorderNodes);
+            int[] ids = new int[targets.length];
+            double[] distances = new double[targets.length];
+            for(int i = 0; i < targets.length; i++){
+                ids[i] = cellBorderNodes[i];
+                if(targets[i] == null){
+                    distances[i] = Double.POSITIVE_INFINITY;
                     continue;
-                if(target.adjNode == borderNode.value)
+                }
+                if(targets[i].adjNode == borderNode){
+                    distances[i] = 0;
                     continue;
-                ids[i] = target.adjNode;
-                distances[i] = target.weight;
-                i++;
+                }
+                distances[i] = targets[i].weight;
             }
-            borderNodeDistanceStorage.storeBorderNodeDistanceSet(borderNode.value, new BorderNodeDistanceSet(ids, distances));
+            borderNodeDistanceStorage.storeBorderNodeDistanceSet(borderNode, new BorderNodeDistanceSet(ids, distances));
         }
     }
 
