@@ -43,6 +43,7 @@ import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
+import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
@@ -79,6 +80,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 	private CellStorage cellStorage;
 	private IsochroneNodeStorage isochroneNodeStorage;
 	private EccentricityStorage eccentricityStorage;
+	private BorderNodeDistanceStorage borderNodeDistanceStorage;
 
 	private double searchWidth = 0.0007;
 	private double pointWidth = 0.0005;
@@ -148,6 +150,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		}
 
 		eccentricityStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting);
+		borderNodeDistanceStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getEccentricity().getBorderNodeDistanceStorage(weighting);
+
 
 		Coordinate loc = parameters.getLocation();
 		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
@@ -180,6 +184,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 					cellStorage,
 					isochroneNodeStorage,
 					eccentricityStorage,
+					borderNodeDistanceStorage,
 					edgeFilterSequence);
 			fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
 			fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, parameters.getRanges()[i]);

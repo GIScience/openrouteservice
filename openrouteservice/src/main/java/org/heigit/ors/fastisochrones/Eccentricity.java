@@ -34,16 +34,18 @@ public class Eccentricity extends AbstractEccentricity {
     int eccentricityDijkstraLimitFactor = 10;
     LocationIndex locationIndex;
 
-    public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex){
+    public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         super(graphHopperStorage);
         this.locationIndex = locationIndex;
+        this.isochroneNodeStorage = isochroneNodeStorage;
+        this.cellStorage = cellStorage;
     }
 
     public void calcEccentricities(GraphHopperStorage ghStorage, Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         if(eccentricityStorages == null) {
             eccentricityStorages = new ArrayList<>();
         }
-        EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting);
+        EccentricityStorage eccentricityStorage = getEccentricityStorage(weighting);
         if(!eccentricityStorage.loadExisting())
             eccentricityStorage.init();
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
@@ -114,7 +116,7 @@ public class Eccentricity extends AbstractEccentricity {
         }
 
         eccentricityStorage.flush();
-        eccentricityStorages.add(eccentricityStorage);
+//        eccentricityStorages.add(eccentricityStorage);
     }
 
     @Override
@@ -126,7 +128,7 @@ public class Eccentricity extends AbstractEccentricity {
         if(borderNodeDistanceStorages == null) {
             borderNodeDistanceStorages = new ArrayList<>();
         }
-        BorderNodeDistanceStorage borderNodeDistanceStorage = new BorderNodeDistanceStorage(ghStorage, ghStorage.getDirectory(), weighting, isochroneNodeStorage);
+        BorderNodeDistanceStorage borderNodeDistanceStorage = getBorderNodeDistanceStorage(weighting);
         if(!borderNodeDistanceStorage.loadExisting())
             borderNodeDistanceStorage.init();
 
@@ -156,43 +158,32 @@ public class Eccentricity extends AbstractEccentricity {
         }
         borderNodeDistanceStorage.storeCellIdToNodesPointerMap();
         borderNodeDistanceStorage.flush();
-        borderNodeDistanceStorages.add(borderNodeDistanceStorage);
     }
 
     public void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, int cellId, Graph graph, Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         IntHashSet cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage);
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
-        if(cellBorderNodes.size() < 2)
-            return;
+
         for(IntCursor borderNode : cellBorderNodes) {
-//            IntHashSet otherBoderNodes = reduceSet(cellBorderNodes, borderNode.value);
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
             algorithm.setEdgeFilter(defaultEdgeFilter);
             algorithm.prepare(new int[]{borderNode.value}, cellBorderNodes.toArray());
             algorithm.setMaxVisitedNodes(Integer.MAX_VALUE);
             SPTEntry[] targets = algorithm.calcPaths(borderNode.value, cellBorderNodes.toArray());
-            int[] ids = new int[targets.length];
-            double[] distances = new double[targets.length];
+            int[] ids = new int[targets.length - 1];
+            double[] distances = new double[targets.length - 1];
             int i = 0;
             for(SPTEntry target : targets){
+                if(target == null)
+                    continue;
                 if(target.adjNode == borderNode.value)
                     continue;
                 ids[i] = target.adjNode;
                 distances[i] = target.weight;
                 i++;
-//                System.out.println("From " + borderNode.value + " to " + target.adjNode + " is value " + target.weight);
             }
             borderNodeDistanceStorage.storeBorderNodeDistanceSet(borderNode.value, new BorderNodeDistanceSet(ids, distances));
         }
-    }
-
-    private IntHashSet reduceSet(IntHashSet originalSet, int itemToRemove) {
-        IntHashSet reducedSet = new IntHashSet();
-        for (IntCursor borderNode : originalSet) {
-            if (borderNode.value != itemToRemove)
-                reducedSet.add(borderNode.value);
-        }
-        return reducedSet;
     }
 
     private IntHashSet getBorderNodesOfCell(int cellId, CellStorage cellStorage, IsochroneNodeStorage isochroneNodeStorage){

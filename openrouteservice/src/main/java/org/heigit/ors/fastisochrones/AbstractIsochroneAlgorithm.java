@@ -23,6 +23,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
+import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
@@ -48,6 +49,7 @@ public abstract class AbstractIsochroneAlgorithm {
     protected CellStorage cellStorage;
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
+    protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected EdgeExplorer outEdgeExplorer;
     private boolean alreadyRun;
     int visitedCountPhase1;
@@ -68,6 +70,7 @@ public abstract class AbstractIsochroneAlgorithm {
                                       CellStorage cellStorage,
                                       IsochroneNodeStorage isochroneNodeStorage,
                                       EccentricityStorage eccentricityStorage,
+                                      BorderNodeDistanceStorage borderNodeDistanceStorage,
                                       EdgeFilter additionalEdgeFilter) {
         this.weighting = weighting;
         this.flagEncoder = weighting.getFlagEncoder();
@@ -76,6 +79,7 @@ public abstract class AbstractIsochroneAlgorithm {
         this.cellStorage = cellStorage;
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.eccentricityStorage = eccentricityStorage;
+        this.borderNodeDistanceStorage = borderNodeDistanceStorage;
         this.additionalEdgeFilter = additionalEdgeFilter;
         this.nodeAccess = graph.getNodeAccess();
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));

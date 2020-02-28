@@ -20,6 +20,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
+import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
@@ -27,6 +28,7 @@ import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 
+import javax.swing.border.Border;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,8 +62,9 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
                                   CellStorage cellStorage,
                                   IsochroneNodeStorage isochroneNodeStorage,
                                   EccentricityStorage eccentricityStorage,
+                                  BorderNodeDistanceStorage borderNodeDistanceStorage,
                                   EdgeFilter additionalEdgeFilter) {
-        super(graph, weighting, tMode, cellStorage, isochroneNodeStorage, eccentricityStorage, additionalEdgeFilter);
+        super(graph, weighting, tMode, cellStorage, isochroneNodeStorage, eccentricityStorage, borderNodeDistanceStorage, additionalEdgeFilter);
     }
 
     @Override
@@ -99,7 +102,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         edgeFilterSequence.add(this.additionalEdgeFilter);
         edgeFilterSequence.add(
-                new CellAndLevelFilter(this.isochroneNodeStorage,
+                new CellAndBorderNodeFilter(this.isochroneNodeStorage,
                         startCell,
                         graph.getNodes(),
                         chGraph)
@@ -110,8 +113,10 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         rangeSweepToAndInCore.runAlgo();
         this.bestWeightMap = rangeSweepToAndInCore.fromMap;
 
-        for(int inactiveBorderNode : inactiveBorderNodes)
+        for(int inactiveBorderNode : inactiveBorderNodes) {
             this.bestWeightMap.remove(inactiveBorderNode);
+            activeBorderNodes.remove(inactiveBorderNode);
+        }
 
         //as far as I can tell this is only duplicate information of bordernodes->weight
         for (int sweepEndNode : activeBorderNodes) {

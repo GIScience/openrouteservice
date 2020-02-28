@@ -46,7 +46,7 @@ public abstract class AbstractEccentricity {
         return null;
     }
 
-    public BorderNodeDistanceStorage getBorderNodeDistanceStorages(Weighting weighting){
+    public BorderNodeDistanceStorage getBorderNodeDistanceStorage(Weighting weighting){
         if (borderNodeDistanceStorages.isEmpty())
             return null;
         for(BorderNodeDistanceStorage bnds : borderNodeDistanceStorages){

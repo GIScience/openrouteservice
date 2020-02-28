@@ -7,7 +7,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
 
-public class CellAndLevelFilter implements EdgeFilter {
+public class CellAndBorderNodeFilter implements EdgeFilter {
     private IsochroneNodeStorage isochroneNodeStorage;
     private CHGraph graph;
     private int cellId;
@@ -15,7 +15,7 @@ public class CellAndLevelFilter implements EdgeFilter {
 
 
     /* Edge is within a specified Cell */
-    public CellAndLevelFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes, CHGraph g) {
+    public CellAndBorderNodeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes, CHGraph g) {
         this.isochroneNodeStorage = isochroneNodeStorage;
         graph = g;
         this.cellId = cellId;
@@ -32,19 +32,15 @@ public class CellAndLevelFilter implements EdgeFilter {
         int adj = iter.getAdjNode();
         if (base >= maxNodes || adj >= maxNodes)
             return true;
-        if (isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
-                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId){
-            if (((CHEdgeIteratorState) iter).isShortcut())
-                return false;
+        if (((CHEdgeIteratorState) iter).isShortcut())
+            return false;
+        if (isochroneNodeStorage.getCellId(base) == cellId
+                && isochroneNodeStorage.getCellId(adj) == cellId){
             return true;
         }
-
-
-//        if (((CHEdgeIteratorState) iter).isShortcut())
-//            return true;
-//        return false;
-        if(graph.getLevel(base) <= graph.getLevel(adj))
+        if(isochroneNodeStorage.getBorderness(adj))
             return true;
+
         return false;
 //
 //        return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId

@@ -26,6 +26,8 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
+import org.heigit.ors.partitioning.BorderNodeDistanceSet;
+import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
@@ -44,6 +46,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     protected PriorityQueue<SPTEntry> fromHeap;
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
+    protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
 //    Set<Integer> processedBorderNodes;
     protected SPTEntry currEdge;
@@ -60,6 +63,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
+        this.borderNodeDistanceStorage = fastIsochroneAlgorithm.borderNodeDistanceStorage;
 //        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
@@ -96,13 +100,6 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
             while (iter.next()) {
                 if (!accept(iter, currEdge.edge))
                     continue;
-
-                // ORS-GH MOD START
-                // ORG CODE START
-                //int traversalId = traversalMode.createTraversalId(iter, false);
-                //double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
-                // ORIGINAL END
-                // TODO: MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
@@ -139,6 +136,38 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
                 int baseCell = isochroneNodeStorage.getCellId(baseNode);
                 double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
 
+                BorderNodeDistanceSet bnds = borderNodeDistanceStorage.getBorderNodeDistanceSet(baseNode);
+
+                for(int i = 0; i < bnds.getAdjBorderNodeIds().length; i++){
+                    int id = bnds.getAdjBorderNodeIds()[i];
+                    double addWeight = bnds.getAdjBorderNodeDistances()[i];
+
+                    double weight = bnds.getAdjBorderNodeDistances()[i] + currEdge.weight;
+                    if(weight > isochroneLimit)
+                        continue;
+                    if (Double.isInfinite(weight))
+                        continue;
+
+                    SPTEntry nEdge = fromMap.get(id);
+                    if (nEdge == null) {
+                        nEdge = new SPTEntry(EdgeIterator.NO_EDGE, id, weight);
+                        nEdge.parent = currEdge;
+                        fromMap.put(id, nEdge);
+                        fromHeap.add(nEdge);
+                    } else if (nEdge.weight > weight) {
+                        fromHeap.remove(nEdge);
+                        nEdge.edge = EdgeIterator.NO_EDGE;
+                        // ORS-GH MOD START
+                        nEdge.originalEdge = EdgeIterator.NO_EDGE;
+                        // ORS-GH MOD END
+                        nEdge.weight = weight;
+                        nEdge.parent = currEdge;
+                        fromHeap.add(nEdge);
+                    } else
+                        continue;
+                }
+
+                //Fully reachable cell
                 if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
                         && eccentricityStorage.getFullyReachable(baseNode)) {
                     fastIsochroneAlgorithm.fullyReachableCells.add(baseCell);
