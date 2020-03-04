@@ -896,7 +896,7 @@ public class RoutingProfile {
             if (supportWeightingMethod(profileType)) {
                 if (weightingMethod == WeightingMethod.FASTEST) {
                     req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_FASTEST);
+                    req.getHints().put(KEY_WEIGHTING_METHOD, searchParams.isTimeDependent() ? "td_fastest" : VAL_FASTEST);
                 } else if (weightingMethod == WeightingMethod.SHORTEST) {
                     req.setWeighting(VAL_SHORTEST);
                     req.getHints().put(KEY_WEIGHTING_METHOD, VAL_SHORTEST);

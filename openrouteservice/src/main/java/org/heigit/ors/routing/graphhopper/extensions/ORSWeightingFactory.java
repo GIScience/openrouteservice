@@ -95,6 +95,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
+		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
+		/*
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
@@ -112,7 +114,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new TurnWeighting(result, turnCostExt);
 			}
 		}
-
+		*/
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
