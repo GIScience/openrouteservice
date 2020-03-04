@@ -82,14 +82,13 @@ public class TurnRestrictionsEdgeFilter implements EdgeFilter {
             boolean test = flagEncoder.isTurnRestricted(turnFlags);
             if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
                 hasTurnRestrictions = true;
-                break;
             }
         }
 
         return hasTurnRestrictions;
     }
 
-
+    //TODO Turn Restrictions are not yet correctly integrated.
     @Override
     public boolean accept(EdgeIteratorState edge) {
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
@@ -97,9 +96,9 @@ public class TurnRestrictionsEdgeFilter implements EdgeFilter {
 
         if (hasTurnRestrictions(edge, reverse)) {
             return false;
-        } /*else if (hasTurnRestrictions(edge, !reverse)) {
+        } else if (hasTurnRestrictions(edge, !reverse)) {
             return false;
-        }*/ else {
+        } else {
             return true;
         }
     }
