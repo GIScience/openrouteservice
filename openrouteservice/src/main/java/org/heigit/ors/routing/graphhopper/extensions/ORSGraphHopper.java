@@ -26,9 +26,14 @@ import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
+<<<<<<< HEAD
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+=======
+import com.graphhopper.storage.CHProfile;
+>>>>>>> upstream/development
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -38,7 +43,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
@@ -55,6 +59,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
+import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
 
@@ -187,10 +192,10 @@ public class ORSGraphHopper extends GraphHopper {
 						"Vehicle " + vehicle + " unsupported. " + "Supported are: " + getEncodingManager());
 
 			HintsMap hints = request.getHints();
-			String tModeStr = hints.get("traversal_mode", getTraversalMode().toString());
+			String tModeStr = hints.get("traversal_mode", TraversalMode.EDGE_BASED.name());
 			TraversalMode tMode = TraversalMode.fromString(tModeStr);
 			if (hints.has(Parameters.Routing.EDGE_BASED))
-				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED_2DIR
+				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED
 						: TraversalMode.NODE_BASED;
 
 			FlagEncoder encoder = getEncodingManager().getEncoder(vehicle);
@@ -272,14 +277,10 @@ public class ORSGraphHopper extends GraphHopper {
 						throw new IllegalStateException(
 								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
-//					tMode = getCHFactoryDecorator().getNodeBase();  this method simply returned NODE_BASED, when we implement support for edge-based CH this will probably have to be fixed or removed
-					tMode = TraversalMode.NODE_BASED;
-
 					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
-					weighting = ((PrepareCore) coreAlgoFactory).getWeighting();
-					tMode = getCoreFactoryDecorator().getNodeBase();
+					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
 
-					queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
+					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
 					queryGraph.lookup(qResults);
 					tMode = TraversalMode.EDGE_BASED_2DIR;
 					setTraversalMode(tMode);
@@ -305,16 +306,13 @@ public class ORSGraphHopper extends GraphHopper {
 									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
 
 						tMode = TraversalMode.NODE_BASED;
-						queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
+						queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) chAlgoFactory).getCHProfile()));
 						queryGraph.lookup(qResults);
-
-
 					} else {
-
 						checkNonChMaxWaypointDistance(points);
 						queryGraph = new QueryGraph(getGraphHopperStorage());
 						queryGraph.lookup(qResults);
-						weighting = createWeighting(hints, tMode, encoder, queryGraph);
+						weighting = createWeighting(hints, encoder, queryGraph);
 						ghRsp.addDebugInfo("tmode:" + tMode.toString());
 					}
 				}
@@ -324,8 +322,10 @@ public class ORSGraphHopper extends GraphHopper {
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
-				weighting = createTurnWeighting(queryGraph, weighting, tMode);
-
+				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
+				if (weighting instanceof TurnWeighting)
+	                ((TurnWeighting)weighting).setInORS(true);
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 
@@ -333,7 +333,11 @@ public class ORSGraphHopper extends GraphHopper {
 
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
-				ghRsp.getHints().put("data.import.date", getGraphHopperStorage().getProperties().get("datareader.import.date"));
+				String date = getGraphHopperStorage().getProperties().get("datareader.data.date");
+				if (Helper.isEmpty(date)) {
+					date = getGraphHopperStorage().getProperties().get("datareader.import.date");
+				}
+				ghRsp.getHints().put("data.date", date);
 
 				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
 				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());
@@ -534,7 +538,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(gs, getTraversalMode(), coreEdgeFilter);
+			coreFactoryDecorator.createPreparations(gs, coreEdgeFilter);
 		if (!isCorePrepared())
 			prepareCore();
 
@@ -560,12 +564,12 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public void initCoreAlgoFactoryDecorator() {
-		if (!coreFactoryDecorator.hasWeightings()) {
+		if (!coreFactoryDecorator.hasCHProfiles()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
+				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), getTraversalMode(), encoder, null);
-					coreFactoryDecorator.addWeighting(weighting);
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
+					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
 		}
@@ -607,9 +611,9 @@ public class ORSGraphHopper extends GraphHopper {
 	public void initCoreLMAlgoFactoryDecorator() {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getWeightingsAsStrings()) {
+				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), getTraversalMode(), encoder, null);
+					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
 					coreLMFactoryDecorator.addWeighting(weighting);
 				}
 			}
@@ -629,11 +633,4 @@ public class ORSGraphHopper extends GraphHopper {
 				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}
-//	public CountryBordersReader getGeneralCbReader() {
-//		return _generalCbReader;
-//	}
-//
-//	public void setGeneralCbReader(CountryBordersReader _generalCbReader) {
-//		this._generalCbReader = _generalCbReader;
-//	}
 }

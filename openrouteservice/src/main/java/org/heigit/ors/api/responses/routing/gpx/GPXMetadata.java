@@ -42,6 +42,8 @@ public class GPXMetadata {
     private Date timeGenerated;
     @XmlElement(name = "bounds", type = GPXBounds.class)
     private BoundingBox bounds;
+    @XmlElement(name = "extensions")
+    private GPXMetadataExtensions extensions;
 
     public GPXMetadata() {}
 
@@ -58,6 +60,8 @@ public class GPXMetadata {
         }
 
         this.bounds = BoundingBoxFactory.constructBoundingBox(GeomUtility.generateBoundingFromMultiple(bboxes), request);
+
+        this.extensions = new GPXMetadataExtensions(request);
     }
 
     public String getName() {
@@ -82,5 +86,9 @@ public class GPXMetadata {
 
     public BoundingBox getBounds() {
         return bounds;
+    }
+
+    public GPXMetadataExtensions getExtensions() {
+        return extensions;
     }
 }

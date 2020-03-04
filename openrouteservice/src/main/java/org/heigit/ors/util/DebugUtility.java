@@ -13,10 +13,13 @@
  */
 package org.heigit.ors.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DebugUtility {
 
 	private static boolean isDebug;
-	
+	private static Map listMap = new HashMap<String, long[]>();
 	static {
 		isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
 				.contains("-agentlib:jdwp");
@@ -27,5 +30,18 @@ public class DebugUtility {
 	public static boolean isDebug()
 	{
 		return isDebug;	
+	}
+
+	public static void setList(String name, final long[] array) {
+		listMap.put(name, array);
+	}
+
+	public static boolean listContains(String name, final long v) {
+		long[] array = (long[])listMap.get(name);
+		for (long i : array){
+			if(i == v)
+				return true;
+		}
+		return false;
 	}
 }

@@ -95,9 +95,40 @@ public class AppConfig {
 		return null;
 	}
 
+	public String getRoutingProfileParameter(String profile, String paramName) {
+		try {
+			String rootPath = PREFIX_ORS_SERVICES + "routing.profiles";
+			ConfigObject configObj = config.getObject(rootPath);
+			for(String key : configObj.keySet()) {
+				if (key.startsWith("profile-")) {
+					String profileName = getServiceParameter("routing", "profiles." + key + ".profiles");
+					if (profile.equals(profileName)) {
+						String profileValue = getServiceParameter("routing", "profiles." + key + ".parameters." + paramName);
+						if (profileValue != null) {
+							return profileValue;
+						}
+					}
+				}
+			}
+			return config.getString(rootPath + ".default_params." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return null;
+	}
+
 	public List<? extends ConfigObject> getObjectList(String serviceName, String paramName) {
 		try {
 			return config.getObjectList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return new ArrayList<>() ;
+	}
+
+	public List<? extends ConfigObject> getObjectList(String paramName) {
+		try {
+			return config.getObjectList("ors." + paramName);
 		} catch(Exception e) {
 			// IGNORE
 		}

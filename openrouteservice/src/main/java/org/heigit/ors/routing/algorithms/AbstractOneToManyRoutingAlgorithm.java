@@ -61,9 +61,6 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
     }
 
     protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-        if (!traversalMode.hasUTurnSupport() && iter.getEdge() == prevOrNextEdgeId)
-            return false;
-
         return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
     }
 

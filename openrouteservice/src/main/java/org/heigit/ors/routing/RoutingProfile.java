@@ -16,13 +16,16 @@ package org.heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.util.*;
+import com.graphhopper.util.CmdArgs;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
+import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
@@ -588,8 +591,11 @@ public class RoutingProfile {
         try {
             String weightingStr = Helper.isEmpty(req.getWeightingMethod()) ? VAL_FASTEST : req.getWeightingMethod();
             Graph graph = null;
-            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getWeightingsAsStrings().contains(weightingStr))
-                graph = gh.getGraphHopperStorage().getGraph(CHGraph.class);
+            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(weightingStr)) {
+                HintsMap map = new HintsMap(weightingStr);
+                map.setVehicle(encoderName);
+                graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(map)).getCHProfile());
+            }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
@@ -598,7 +604,7 @@ public class RoutingProfile {
 
             HintsMap hintsMap = new HintsMap();
             hintsMap.setWeighting(weightingStr);
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, gh.getTraversalMode(), flagEncoder, graph, null, gh.getGraphHopperStorage());
+            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
 
@@ -907,6 +913,14 @@ public class RoutingProfile {
                 }
             }
 
+            //Use specially prepared recommended weighting graphs for cycling (and walking)
+            if (weightingMethod == WeightingMethod.RECOMMENDED){
+                if(RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
+                    req.setWeighting("recommended");
+                    req.getHints().put("weighting_method", "recommended");
+                }
+            }
+
             // MARQ24 for what ever reason after the 'weighting_method' hint have been set (based
             // on the given searchParameter Max have decided that's necessary 'patch' the hint
             // for certain profiles...
@@ -924,6 +938,8 @@ public class RoutingProfile {
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put(KEY_CH_DISABLE, true);
+                if (mGraphHopper.isCoreEnabled())
+                   req.getHints().put(KEY_CORE_DISABLE, true);
                 if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
                     req.setAlgorithm(KEY_ASTARBI);
                     req.getHints().put(KEY_LM_DISABLE, false);
@@ -962,6 +978,15 @@ public class RoutingProfile {
                 req.getHints().put(KEY_CH_DISABLE, true);
             }
 
+            //If we have special weightings, we have to fall back to ALT with Beeline
+            ProfileParameters profileParams = searchParams.getProfileParameters();
+            if (profileParams != null && profileParams.hasWeightings()) {
+                req.setAlgorithm("astarbi");
+                req.getHints().put("lm.disable", false);
+                req.getHints().put("core.disable", true);
+                req.getHints().put("ch.disable", true);
+            }
+
             if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
                 req.getHints().put(KEY_CUSTOM_WEIGHTINGS, true);
                 req.getHints().put("weighting_#acceleration#", true);
@@ -978,8 +1003,10 @@ public class RoutingProfile {
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
-//              TAKB: contraction hierarchies have to be disabled for alternative routes until GH pulls https://github.com/graphhopper/graphhopper/pull/1524 and we update our fork.
+//              TAKB: CH and CORE have to be disabled for alternative routes
                 req.getHints().put(KEY_CH_DISABLE, true);
+                req.getHints().put(KEY_LM_DISABLE, false);
+                req.getHints().put(KEY_CORE_DISABLE, true);
             }
 
             if (directedSegment) {

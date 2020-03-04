@@ -182,4 +182,33 @@ public class GeomUtility {
 			throw new InternalServerException("Could not transform features (getting area of feature)");
 		}
     }
+
+	public static double calculateMaxExtent(Geometry geom) throws InternalServerException {
+		try {
+			// https://gis.stackexchange.com/questions/265481/geotools-unexpected-result-reprojecting-bounding-box-to-epsg3035
+			System.setProperty("org.geotools.referencing.forceXY", "true");
+
+			Polygon poly = (Polygon) geom;
+
+			CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+
+			String mollweideProj = "PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54009\"]]";
+
+			CoordinateReferenceSystem targetCRS = CRS.parseWKT(mollweideProj);
+
+			MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
+			Geometry targetGeometry = JTS.transform(poly, transform);
+
+			Envelope envelope = targetGeometry.getEnvelopeInternal();
+			return Math.max(envelope.getHeight(), envelope.getWidth());
+		} catch (NoSuchAuthorityCodeException e) {
+			throw new InternalServerException("Could not set CRS authority (getting area of feature)");
+		} catch (FactoryException fe) {
+			throw new InternalServerException("Problem setting up Geometry (getting area of feature)");
+		} catch (MismatchedDimensionException e) {
+			throw new InternalServerException("Problem with feature dimensions (getting area of feature)");
+		} catch (TransformException e) {
+			throw new InternalServerException("Could not transform features (getting area of feature)");
+		}
+	}
 }

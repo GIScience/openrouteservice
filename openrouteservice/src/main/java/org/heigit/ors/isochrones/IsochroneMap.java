@@ -24,6 +24,7 @@ public class IsochroneMap {
 	private Envelope envelope;
 	private List<Isochrone> isochrones;
 	private Coordinate center;
+	private String graphDate;
 
     public IsochroneMap(int travellerId, Coordinate center) {
 		this.travellerId = travellerId;
@@ -66,9 +67,16 @@ public class IsochroneMap {
 		isochrones.add(isochrone);
 		envelope.expandToInclude(isochrone.getGeometry().getEnvelopeInternal());
 	}
-
 	public Envelope getEnvelope()
 	{
 		return envelope;
+	}
+
+	public String getGraphDate () {
+    	return graphDate;
+	}
+
+	public void setGraphDate(String graphDate) {
+		this.graphDate = graphDate;
 	}
 }

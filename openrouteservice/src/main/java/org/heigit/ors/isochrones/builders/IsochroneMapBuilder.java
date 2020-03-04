@@ -21,5 +21,5 @@ public interface IsochroneMapBuilder {
 	
 	void initialize(RouteSearchContext searchContext);
 	
-	IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception; 
+	IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception;
 }

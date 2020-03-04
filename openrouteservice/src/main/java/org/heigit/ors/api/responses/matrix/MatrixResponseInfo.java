@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
@@ -54,6 +55,10 @@ public class MatrixResponseInfo {
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
+    @ApiModelProperty(value = "System message", example ="A message string configured in the service")
+    @JsonProperty("system_message")
+    private String systemMessage;
+
     public MatrixResponseInfo(MatrixRequest request) {
         service = "matrix";
         timeStamp = System.currentTimeMillis();
@@ -70,6 +75,11 @@ public class MatrixResponseInfo {
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
         this.request = request;
+
+        this.systemMessage = SystemMessage.getSystemMessage(request);
+    }
+    public void setGraphDate(String graphDate) {
+        engineInfo.setGraphDate(graphDate);
     }
 
     @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the matrix")
@@ -80,10 +90,14 @@ public class MatrixResponseInfo {
         @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
         private String buildDate;
+        @ApiModelProperty(value = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
+        @JsonProperty("graph_date")
+        private String graphDate;
 
         public EngineInfo(JSONObject infoIn) {
             version = infoIn.getString("version");
             buildDate = infoIn.getString("build_date");
+            graphDate = "0000-00-00T00:00:00Z";
         }
 
         public String getVersion() {
@@ -92,6 +106,10 @@ public class MatrixResponseInfo {
 
         public String getBuildDate() {
             return buildDate;
+        }
+
+        public void setGraphDate(String graphDate) {
+            this.graphDate = graphDate;
         }
     }
 

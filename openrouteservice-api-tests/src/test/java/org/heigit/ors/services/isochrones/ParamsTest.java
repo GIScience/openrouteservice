@@ -51,7 +51,7 @@ public class ParamsTest extends ServiceTest {
 				.param("range", "1800")
 				.when()
 				.get(getEndPointName())
-				.then().log().all()
+				.then()
 				.body("any { it.key == 'type' }", is(true))
 				.body("any { it.key == 'features' }", is(true))
 				.statusCode(200);
@@ -215,7 +215,7 @@ public class ParamsTest extends ServiceTest {
 				.all()
 				.when()
 				.get(getEndPointName())
-				.then().log().all()
+				.then()
 				.statusCode(200);
 	}
 

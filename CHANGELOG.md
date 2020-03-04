@@ -6,18 +6,52 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
+- Configuration options to limit avoid_polygon routing option by area and/or extent ([#629](https://github.com/GIScience/openrouteservice/issues/629))
+- Configuration options to limit count parameter and distance when using alternative routes algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/651))
+- Configuration options to limit distance when using round trip routing algorithm ([#658](https://github.com/GIScience/openrouteservice/issues/658))
+- Enable CALT routing algorithm for cycling profiles ([#662](https://github.com/GIScience/openrouteservice/issues/662))
+- Configuration options to send conditional system messages with API responses ([#664](https://github.com/GIScience/openrouteservice/issues/664))
+### Fixed
+- more consistent language API parameters (ISO 639-1 codes & IETF tags)
+- Nepali language support can be selected through API
+- Fixed invalid JSON and GeoJSON when including elevation ([#640](https://github.com/GIScience/openrouteservice/issues/640))
+- Added graph date for isochrones and matrix service and fixed the 0 output ([#648](https://github.com/GIScience/openrouteservice/issues/648))
+- Fixed memory issue at graph building ([#659](https://github.com/GIScience/openrouteservice/issues/659))
+- Improve way category assignment for ferry connections ([#678](https://github.com/GIScience/openrouteservice/issues/678))
+### Changed
+- Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
+- Updated GraphHopper to newer version (0.13)
+- Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
+### Deprecated
+
+## [6.0.0] - 2019-12-03
+### Added
 - Indonesian Translation Language
 - Allow specifying a config file with -Dors_app_config=<file> anywhere on the filesystem
+- Enabled round trip routing ([#391](https://github.com/GIScience/openrouteservice/issues/391))
+- Enabled aternative routes in API ([#377](https://github.com/GIScience/openrouteservice/issues/377))
+- Added information to the response about when graphs were last built for the profile ([#542](https://github.com/GIScience/openrouteservice/issues/542))
+- Added default value for maximum snapping radius
 ### Fixed
-- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments (#587)
-- Encoding of waytype ferry (#573)
+- Pass JAVA_OPTS and CATALINA_OPTS as Docker build arguments ([#587](https://github.com/GIScience/openrouteservice/issues/587))
+- Encoding of waytype ferry ([#573](https://github.com/GIScience/openrouteservice/issues/573))
+- Refactored Core-ALT algorithm so that it can be used globally
 ### Changed
+- Updated GraphHopper to newer version (0.12)
+- Reworked flag encoders to use the methods provided by GraphHopper 0.12
+- Renamed packages to follow naming conventions
+- Cleanup of a number of code files
 ### Deprecated
+- Removed geocoding endpoint and code
+- Removed accessibilty endpoint and code 
+- Removed Brotil encoder from servlet filter
 
 ## [5.0.2] - 2019-07-29
 ### Added
 - Added a gpx schema validator into the api-tests, testing all gpx outputs while fixing the bug from ([#496](https://github.com/GIScience/openrouteservice/issues/496))
 - Added information for countries a route traverses ([#349](https://github.com/GIScience/openrouteservice/issues/349))
+- Added scanning of master with sonarcloud (2019-11-29)
 ### Fixed
 - isochrone reachfactor gives now more realistic results ([#325](https://github.com/GIScience/openrouteservice/issues/325))
 - Fixed the wrong gpx header for api v2 ([#496](https://github.com/GIScience/openrouteservice/issues/496))
