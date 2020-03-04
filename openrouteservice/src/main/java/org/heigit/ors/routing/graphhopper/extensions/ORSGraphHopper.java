@@ -28,12 +28,9 @@ import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-<<<<<<< HEAD
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-=======
 import com.graphhopper.storage.CHProfile;
->>>>>>> upstream/development
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -282,9 +279,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
 					queryGraph.lookup(qResults);
-					tMode = TraversalMode.EDGE_BASED_2DIR;
-					setTraversalMode(tMode);
-					weighting = createWeighting(hints, tMode, encoder, queryGraph);
+					//tMode = TraversalMode.EDGE_BASED_2DIR;
+					//setTraversalMode(tMode);
+					//weighting = createWeighting(hints, tMode, encoder, queryGraph);
 					//tMode = TraversalMode.NODE_BASED;
 				}
 				else{
