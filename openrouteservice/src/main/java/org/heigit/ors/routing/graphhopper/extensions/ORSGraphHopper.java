@@ -281,6 +281,10 @@ public class ORSGraphHopper extends GraphHopper {
 
 					queryGraph = new QueryGraph(getGraphHopperStorage().getGraph(CHGraph.class, weighting));
 					queryGraph.lookup(qResults);
+					tMode = TraversalMode.EDGE_BASED_2DIR;
+					setTraversalMode(tMode);
+					weighting = createWeighting(hints, tMode, encoder, queryGraph);
+					//tMode = TraversalMode.NODE_BASED;
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
