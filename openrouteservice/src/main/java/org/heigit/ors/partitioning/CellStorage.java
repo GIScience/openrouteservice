@@ -18,9 +18,7 @@
 package org.heigit.ors.partitioning;
 
 
-import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.*;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.storage.DataAccess;
@@ -47,10 +45,10 @@ public class CellStorage implements Storable<CellStorage> {
     private int nodeCount;
     private long cellContourPointer;
     private IsochroneNodeStorage isochroneNodeStorage;
-    private HashMap<Integer, Set<Integer>> cellIdToNodesMap;
-    private HashMap<Integer, Long> cellIdToNodesPointerMap;
-    private HashMap<Integer, Long> cellIdToContourPointerMap;
-    private Map<Integer, Integer> cellIdToSuperCellMap = new HashMap<>();
+    private IntObjectMap<IntHashSet> cellIdToNodesMap;
+    private IntLongMap cellIdToNodesPointerMap;
+    private IntLongMap cellIdToContourPointerMap;
+    private IntIntMap cellIdToSuperCellMap = new IntIntHashMap();
     private IntObjectMap<IntHashSet> superCellIdToCellsMap = new IntObjectHashMap<>();
 
 
@@ -68,8 +66,8 @@ public class CellStorage implements Storable<CellStorage> {
             int cellCount = cells.getHeader(0);
             NODEINDEXOFFSET = cellCount * 12;
             CONTOURINDEXOFFSET = 2 * cellCount * 18;
-            cellIdToNodesPointerMap = new HashMap<>(cellCount);
-            cellIdToContourPointerMap = new HashMap<>(cellCount);
+            cellIdToNodesPointerMap = new IntLongHashMap(cellCount);
+            cellIdToContourPointerMap = new IntLongHashMap(cellCount);
             fillCellIdToNodesPointerMap();
             fillCellIdToContourPointerMap();
             if(CONTOUR__USE_SUPERCELLS) {
@@ -84,10 +82,10 @@ public class CellStorage implements Storable<CellStorage> {
     public void init() {
         cells.create(1000);
         int cellCount = isochroneNodeStorage.getCellIds().size();
-        cellIdToNodesMap = new HashMap<>(cellCount);
-        cellIdToNodesPointerMap = new HashMap<>(cellCount);
-        cellIdToContourPointerMap = new HashMap<>(cellCount);
-        cellIdToSuperCellMap = new HashMap<>(cellCount);
+        cellIdToNodesMap = new IntObjectHashMap<>(cellCount);
+        cellIdToNodesPointerMap = new IntLongHashMap(cellCount);
+        cellIdToContourPointerMap = new IntLongHashMap(cellCount);
+        cellIdToSuperCellMap = new IntIntHashMap(cellCount);
     }
 
     public void calcCellNodesMap() {
@@ -95,10 +93,10 @@ public class CellStorage implements Storable<CellStorage> {
         for (int node = 0; node < nodeCount; node++) {
             int cellId = isochroneNodeStorage.getCellId(node);
             if (!cellIdToNodesMap.containsKey(cellId))
-                cellIdToNodesMap.put(cellId, new HashSet<>());
+                cellIdToNodesMap.put(cellId, new IntHashSet());
             cellIdToNodesMap.get(cellId).add(node);
         }
-        int cellCount = cellIdToNodesMap.keySet().size();
+        int cellCount = cellIdToNodesMap.size();
         cells.setHeader(0, cellCount);
         // 2 12-byte pointer sets for each cellId
         // Store pointers in front that point to where the nodes for each cell start
@@ -108,11 +106,11 @@ public class CellStorage implements Storable<CellStorage> {
         long nodePointer = (long)CONTOURINDEXOFFSET;
 
         //Put all the cell nodes in the storage
-        for (int cellId : cellIdToNodesMap.keySet()) {
-            cells.ensureCapacity(nodePointer + (long)(cellIdToNodesMap.get(cellId).size() + 1) * BYTECOUNT);
-            cellIdToNodesPointerMap.put(cellId, nodePointer);
-            for (int nodeId : cellIdToNodesMap.get(cellId)){
-                cells.setInt(nodePointer, nodeId);
+        for (IntCursor cellId : cellIdToNodesMap.keys()) {
+            cells.ensureCapacity(nodePointer + (long)(cellIdToNodesMap.get(cellId.value).size() + 1) * BYTECOUNT);
+            cellIdToNodesPointerMap.put(cellId.value, nodePointer);
+            for (IntCursor nodeId : cellIdToNodesMap.get(cellId.value)){
+                cells.setInt(nodePointer, nodeId.value);
                 nodePointer = nodePointer + (long)BYTECOUNT;
             }
             //Add a trailing -1 so we know when to stop
@@ -127,10 +125,10 @@ public class CellStorage implements Storable<CellStorage> {
         //Put the cellId to pointer map into the storage
         //Layout: [cellId (4B), pointer to nodes (8B)]
         long listPointer = 0;
-        for(int cellId : cellIdToNodesPointerMap.keySet()){
-            cells.setInt(listPointer, cellId);
+        for(IntCursor cellId : cellIdToNodesPointerMap.keys()){
+            cells.setInt(listPointer, cellId.value);
             listPointer = listPointer + (long)BYTECOUNT;
-            nodePointer = cellIdToNodesPointerMap.get(cellId);
+            nodePointer = cellIdToNodesPointerMap.get(cellId.value);
             byte b0 = (byte)((nodePointer >> 56));
             byte b1 = (byte)((nodePointer >> 48));
             byte b2 = (byte)((nodePointer >> 40));
@@ -209,11 +207,11 @@ public class CellStorage implements Storable<CellStorage> {
         long listPointer = NODEINDEXOFFSET;
         long nodePointer;
         //Store the number of contours (= num cells + num supercells)
-        cells.setHeader(4, cellIdToContourPointerMap.keySet().size());
-        for(int cellId : cellIdToContourPointerMap.keySet()){
-            cells.setInt(listPointer, cellId);
+        cells.setHeader(4, cellIdToContourPointerMap.keys().size());
+        for(IntCursor cellId : cellIdToContourPointerMap.keys()){
+            cells.setInt(listPointer, cellId.value);
             listPointer = listPointer + (long)BYTECOUNT;
-            nodePointer = cellIdToContourPointerMap.get(cellId);
+            nodePointer = cellIdToContourPointerMap.get(cellId.value);
             byte b0 = (byte)((nodePointer >> 56));
             byte b1 = (byte)((nodePointer >> 48));
             byte b2 = (byte)((nodePointer >> 40));

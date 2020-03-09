@@ -54,8 +54,8 @@ public class Eccentricity extends AbstractEccentricity {
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
 
         IntObjectHashMap relevantNodesSets = new IntObjectHashMap(isochroneNodeStorage.getCellIds().size());
-        for(int cellId : isochroneNodeStorage.getCellIds()){
-            relevantNodesSets.put(cellId, getRelevantContourNodes(cellId, cellStorage, isochroneNodeStorage));
+        for(IntCursor cellId : isochroneNodeStorage.getCellIds()){
+            relevantNodesSets.put(cellId.value, getRelevantContourNodes(cellId.value, cellStorage, isochroneNodeStorage));
         }
 
         //Calculate the eccentricity without fixed cell edge filter for now
@@ -136,8 +136,8 @@ public class Eccentricity extends AbstractEccentricity {
         ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
 
         int cellCount = 0;
-        for (int cellId : isochroneNodeStorage.getCellIds()){
-            final int currentCellId = cellId;
+        for (IntCursor cellId : isochroneNodeStorage.getCellIds()){
+            final int currentCellId = cellId.value;
             cellCount++;
             completionService.submit(() -> {
                 calculateBorderNodeDistances(borderNodeDistanceStorage, currentCellId, graph, weighting, flagEncoder, isochroneNodeStorage, cellStorage);

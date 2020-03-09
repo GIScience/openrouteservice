@@ -1,9 +1,6 @@
 package org.heigit.ors.fastisochrones;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.*;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -42,13 +39,13 @@ public class Contour {
     }
 
     public void calcCellContourPre() {
-        for (int cellId : isochroneNodeStorage.getCellIds()) {
-            LineString ring = createContour(cellId, createCoordinates(cellId));
+        for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
+            LineString ring = createContour(cellId.value, createCoordinates(cellId.value));
             if (ring == null || ring.getNumPoints() < 2) {
-                cellStorage.setCellContourOrder(cellId, new ArrayList<>(), new ArrayList<>());
+                cellStorage.setCellContourOrder(cellId.value, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
-            storeContour(cellId, ring);
+            storeContour(cellId.value, ring);
         }
 
         cellStorage.flush();
@@ -132,28 +129,28 @@ public class Contour {
         double defaultSearchWidth = 0.0008;
         double defaulPointWidth = 0.005;
 
-        List<Coordinate> points = new ArrayList<>(2*coordinates.size());
+        List<Coordinate> points = new ArrayList<>(1/20 * coordinates.size());
         PointItemVisitor visitor = new PointItemVisitor(0, 0, defaultVisitorThreshold);
         Quadtree qtree = new Quadtree();
         Envelope searchEnv = new Envelope();
         TreeSet<Coordinate> treeSet = new TreeSet<>();
 
         while (j < coordinates.size()){
-            double latitude = coordinates.get(j).x;
-            double longitude = coordinates.get(j).y;
+            double latitude = coordinates.get(j).y;
+            double longitude = coordinates.get(j).x;
             j++;
             addPoint(visitor, points, qtree, searchEnv, treeSet, longitude, latitude, defaultSearchWidth, defaulPointWidth, true);
         }
 
         GeometryFactory _geomFactory = new GeometryFactory();
-        int size = coordinates.size();
+        int size = points.size();
         Geometry[] geometries = new Geometry[size];
         int g = 0;
         for (int i = 0; i < size; i++)
-            geometries[g++] = _geomFactory.createPoint(coordinates.get(i));
+            geometries[g++] = _geomFactory.createPoint(points.get(i));
         GeometryCollection treePoints = new GeometryCollection(geometries, _geomFactory);
 
-//        System.out.println("Coordinates from geometry " + size + ", reduced input coordinates to conchull " + points.size());
+//        if(PART__DEBUG) System.out.println("Coordinates from geometry " + coordinates.size() + ", reduced input coordinates to conchull " + points.size());
         ConcaveHull ch = new ConcaveHull(treePoints, CONCAVEHULL_THRESHOLD, false);
         Geometry geom = ch.getConcaveHull();
 
@@ -201,12 +198,15 @@ public class Contour {
     IntObjectMap<IntHashSet> identifySuperCells(int hierarchyLevel, boolean isPrimary){
         //Account for the subcell division in InertialFlow final step
         //hierarchyLevel += 1;
-        Set<Integer> cellIds = isochroneNodeStorage.getCellIds();
-        int maxId = Collections.max(cellIds);
+        IntSet cellIds = isochroneNodeStorage.getCellIds();
+        int maxId = -1;
+        for(IntCursor cellId : cellIds)
+            if(cellId.value > maxId)
+                maxId = cellId.value;
 
         IntHashSet visitedCells = new IntHashSet();
         IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
-        List<Integer> orderedCellIds = new ArrayList(cellIds);
+        List<Integer> orderedCellIds = new ArrayList(Arrays.asList(cellIds.toArray()));
         Collections.sort(orderedCellIds);
         for(int cellId : orderedCellIds){
             if (visitedCells.contains(cellId))
@@ -242,7 +242,7 @@ public class Contour {
         return superCells;
     }
 
-    void createSuperCell(Set<Integer> cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, int level, boolean isPrimary){
+    void createSuperCell(IntSet cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, int level, boolean isPrimary){
         if(currentCell > maxId)
             return;
         //Is it already part of a supercell?

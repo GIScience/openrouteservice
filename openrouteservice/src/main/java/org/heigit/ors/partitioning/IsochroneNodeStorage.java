@@ -18,6 +18,8 @@
 package org.heigit.ors.partitioning;
 
 
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -39,7 +41,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private final DataAccess isochroneNodes;
     private int CELLBYTES;
     private int nodeCount;
-    private Set<Integer> cellIdsSet = new HashSet<>();
+    private IntSet cellIdsSet = new IntHashSet();
 
     public IsochroneNodeStorage(GraphHopperStorage graph, Directory dir){//, Weighting weighting) {
 //        final String name = AbstractWeighting.weightingToFileName(weighting);
@@ -119,7 +121,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         return cellId;
     }
 
-    public Set<Integer> getCellIds(){
+    public IntSet getCellIds(){
         return cellIdsSet;
     }
 
