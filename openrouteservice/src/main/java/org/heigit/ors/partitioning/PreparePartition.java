@@ -17,51 +17,43 @@ import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
 
 public class PreparePartition implements RoutingAlgorithmFactory {
 
-    private Graph ghGraph;
-    private EdgeIterator edgeIter;
-    private EdgeExplorer ghEdgeExpl;
     private GraphHopperStorage ghStorage;
     private EdgeFilterSequence edgeFilters;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
-    protected PartitioningData pData;
-
 
     private int nodes;
-    private int[] nodeCellId;
-    private boolean[] nodeBorderness;
 
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;
-        this.ghGraph = ghStorage.getBaseGraph();
         this.edgeFilters = edgeFilters;
         this.isochroneNodeStorage = new IsochroneNodeStorage(ghStorage, ghStorage.getDirectory());
         this.cellStorage = new CellStorage(ghStorage, ghStorage.getDirectory(), isochroneNodeStorage);
-        this.ghEdgeExpl = ghGraph.createEdgeExplorer();
-        this.pData = new PartitioningData();
-
-        this.nodes = ghGraph.getNodes();
-        this.nodeBorderness = new boolean[nodes];
+        this.nodes = ghStorage.getBaseGraph().getNodes();
     }
 
     public PreparePartition prepare() {
+        PartitioningData pData = new PartitioningData();
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
         InverseSemaphore inverseSemaphore =  new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
+        InertialFlow inertialFlow;
         if(PART__DEBUG) System.out.println("Submitting task for cell 1");
-        threadPool.execute(new InertialFlow(ghStorage, pData, edgeFilters, threadPool, inverseSemaphore));
+        threadPool.execute(inertialFlow = new InertialFlow(ghStorage, pData, edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        prepareData();
+        threadPool.shutdown();
+        int[] nodeCellId = inertialFlow.nodeToCellArr;
+        boolean[] nodeBorderness = calcBorderNodes(nodeCellId);
 
         //Create and calculate isochrone info that is ordered by node
         if (!isochroneNodeStorage.loadExisting()) {
-            isochroneNodeStorage.setCellId(this.nodeCellId);
-            isochroneNodeStorage.setBorderness(this.nodeBorderness);
+            isochroneNodeStorage.setCellId(nodeCellId);
+            isochroneNodeStorage.setBorderness(nodeBorderness);
             isochroneNodeStorage.flush();
         }
 
@@ -71,16 +63,8 @@ public class PreparePartition implements RoutingAlgorithmFactory {
             cellStorage.calcCellNodesMap();
             cellStorage.flush();
         }
-
         return this;
     }
-
-
-    private void prepareData() {
-        this.nodeCellId = PartitioningBase.getNodeToCellArr();
-        calcBorderNodes();
-    }
-
 
     /**
      * S-E-T
@@ -91,9 +75,12 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     }
 
 
-    private void calcBorderNodes() {
+    private boolean[] calcBorderNodes(int[] nodeCellId) {
+        boolean[] nodeBorderness = new boolean[this.nodes];
         boolean borderness = false;
         int adjNode;
+        EdgeExplorer ghEdgeExpl = ghStorage.getBaseGraph().createEdgeExplorer();
+        EdgeIterator edgeIter;
         for (int baseNode = 0; baseNode < nodes; baseNode++) {
             edgeIter = ghEdgeExpl.setBaseNode(baseNode);
             while (edgeIter.next()) {
@@ -101,9 +88,10 @@ public class PreparePartition implements RoutingAlgorithmFactory {
                 if (nodeCellId[baseNode] != nodeCellId[adjNode])
                     borderness = true;
             }
-            this.nodeBorderness[baseNode] = borderness;
+            nodeBorderness[baseNode] = borderness;
             borderness = false;
         }
+        return nodeBorderness;
     }
 
 

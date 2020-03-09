@@ -160,10 +160,14 @@ public class InertialFlow extends PartitioningBase {
         initAlgo();
     }
 
-    private InertialFlow(int cellId, PartitioningData pData, IntHashSet nodeSet, EdgeFilter edgeFilter, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
+    private InertialFlow(int cellId, GraphHopperStorage ghStorage, int[] nodeToCellArr, PartitioningData pData, IntHashSet nodeSet, EdgeFilter edgeFilter, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
         setExecutorService(executorService);
         this.pData = pData;
         this.cellId = cellId;
+        this.ghStorage = ghStorage;
+        this.ghGraph = ghStorage.getBaseGraph();
+        this.nodeToCellArr = nodeToCellArr;
+        this.inverseSemaphore = inverseSemaphore;
         this.correspondingProjMap = new HashMap<>();
         this.correspondingProjMap.put(Line_p90, Line_m00);
         this.correspondingProjMap.put(Line_p75, Line_m15);
@@ -192,8 +196,7 @@ public class InertialFlow extends PartitioningBase {
         this.projOrder = new ArrayList<>();
         this.squareRangeProjMap = new HashMap<>();
         this.orthogonalDiffProjMap = new HashMap<>();
-        this.ghGraph = ghStorage.getBaseGraph();
-        this.inverseSemaphore = inverseSemaphore;
+
 
     }
 
@@ -335,18 +338,18 @@ public class InertialFlow extends PartitioningBase {
             if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
 //                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
                 inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 0, pData, partition0, this.edgeFilter, executorService, inverseSemaphore));
+                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, partition0, this.edgeFilter, executorService, inverseSemaphore));
 //                System.out.println("Submitting task for cell " + (cellId << 1 | 1));
 
                 inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 1, pData, partition1, this.edgeFilter, executorService, inverseSemaphore));
+                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, partition1, this.edgeFilter, executorService, inverseSemaphore));
             }
             else{
                 inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, pData, partition0, this.edgeFilter, executorService, inverseSemaphore);
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, partition0, this.edgeFilter, executorService, inverseSemaphore);
                 inertialFlow.run();
                 inverseSemaphore.beforeSubmit();
-                inertialFlow = new InertialFlow(cellId << 1 | 1, pData, partition1, this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, partition1, this.edgeFilter, executorService, inverseSemaphore);
                 inertialFlow.run();
             }
         }
@@ -355,11 +358,11 @@ public class InertialFlow extends PartitioningBase {
                 inverseSemaphore.beforeSubmit();
 //                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
 
-                executorService.execute(new InertialFlow(cellId << 1 | 0, pData, partition0, this.edgeFilter, executorService, inverseSemaphore));
+                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, partition0, this.edgeFilter, executorService, inverseSemaphore));
             }
             else {
                 inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, pData, partition0, this.edgeFilter, executorService, inverseSemaphore);
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, partition0, this.edgeFilter, executorService, inverseSemaphore);
                 inertialFlow.run();
             }
         }
@@ -367,11 +370,11 @@ public class InertialFlow extends PartitioningBase {
             if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 10) {
 
                 inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 1, pData, partition1, this.edgeFilter, executorService, inverseSemaphore));
+                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, partition1, this.edgeFilter, executorService, inverseSemaphore));
             }
             else {
                 inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, pData, partition1, this.edgeFilter, executorService, inverseSemaphore);
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, partition1, this.edgeFilter, executorService, inverseSemaphore);
                 inertialFlow.run();
             }
         }

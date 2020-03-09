@@ -731,7 +731,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		if(polygon.isValid()) {
 			isochronePolygons.add(polygon);
 		}
-		else
+		else if(PART__DEBUG)
 			System.out.println("Poly of cell " + cellId + " is invalid at size " + cArray.length);
 		if(PART__DEBUG)printCell(cellStorage.getCellContourOrder(cellId), cellId);
 	}

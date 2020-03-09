@@ -21,8 +21,8 @@ public abstract class PartitioningBase implements Runnable{
     EdgeFilter edgeFilter;
     PartitioningData pData;
 
-    static int[] nodeToCellArr;
-    static GraphHopperStorage ghStorage;
+    int[] nodeToCellArr;
+    GraphHopperStorage ghStorage;
     ExecutorService executorService;
 //    static WayCategoryGraphStorage storage;
 
@@ -79,7 +79,7 @@ public abstract class PartitioningBase implements Runnable{
 
 //    public abstract void run();
 
-    public static int[] getNodeToCellArr() {
+    public int[] getNodeToCellArr() {
         return nodeToCellArr;
     }
 }
