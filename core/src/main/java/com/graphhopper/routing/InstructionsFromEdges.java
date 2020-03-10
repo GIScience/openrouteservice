@@ -86,9 +86,10 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
     private InstructionAnnotation prevAnnotation;
 
     private final int MAX_U_TURN_DISTANCE = 35;
+    protected GHLongArrayList times;
+    private boolean hasTimes;
     // ORS-GH MOD START
     private PathProcessor mPathProcessor = PathProcessor.DEFAULT;
-    protected GHLongArrayList times;
 //    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
 //                                 BooleanEncodedValue roundaboutEnc, NodeAccess nodeAccess,
 //                                 Translation tr, InstructionList ways, GHLongArrayList times) {
@@ -112,6 +113,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
         crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
         this.times = times;
+        hasTimes = times == null;
     }
 
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
@@ -295,10 +297,8 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             prevName = name;
         }
 
-        updatePointsAndInstruction(edge, wayGeo);
-
-        if (hasTimes())
-            prevInstruction.setTime(times.get(index) + prevInstruction.getTime());
+        long time = hasTimes ? times.get(index) : weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE);
+        updatePointsAndInstruction(edge, wayGeo, time);
 
         if (wayGeo.getSize() <= 2) {
             doublePrevLat = prevLat;
@@ -448,7 +448,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         return Instruction.IGNORE;
     }
 
-    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl) {
+    private void updatePointsAndInstruction(EdgeIteratorState edge, PointList pl, long time) {
         // skip adjNode
         int len = pl.size() - 1;
         for (int i = 0; i < len; i++) {
@@ -456,11 +456,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         }
         double newDist = edge.getDistance();
         prevInstruction.setDistance(newDist + prevInstruction.getDistance());
-        if (!hasTimes())
-            prevInstruction.setTime(weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE) + prevInstruction.getTime());
+        prevInstruction.setTime(time + prevInstruction.getTime());
     }
 
-private boolean hasTimes() {
-        return !times.isEmpty();
-    }
 }

@@ -33,6 +33,7 @@ import com.graphhopper.util.Parameters;
  * @author Peter Karich
  */
 public class TDDijkstra extends Dijkstra {
+    private boolean reverse = false;
 
     public TDDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -43,11 +44,13 @@ public class TDDijkstra extends Dijkstra {
     @Override
     public Path calcPath(int from, int to, long at) {
         checkAlreadyRun();
-        this.to = to;
-        currEdge = new SPTEntry(from, 0);
+        int source = reverse ? to : from;
+        int target = reverse ? from : to;
+        this.to = target;
+        currEdge = new SPTEntry(source, 0);
         currEdge.time = at;
         if (!traversalMode.isEdgeBased()) {
-            fromMap.put(from, currEdge);
+            fromMap.put(source, currEdge);
         }
         runAlgo();
         return extractPath();
@@ -55,7 +58,7 @@ public class TDDijkstra extends Dijkstra {
 
     @Override
     protected void runAlgo() {
-        EdgeExplorer explorer = outEdgeExplorer;
+        EdgeExplorer explorer = reverse ? inEdgeExplorer : outEdgeExplorer;
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -67,28 +70,26 @@ public class TDDijkstra extends Dijkstra {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge, currEdge.time) + currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge, currEdge.time) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight)) {
                     continue;
                 }
-                int traversalId = traversalMode.createTraversalId(iter, false);
+                int traversalId = traversalMode.createTraversalId(iter, reverse);
 
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                    nEdge.parent = currEdge;
-                    nEdge.time = weighting.calcMillis(iter, false, currEdge.edge, currEdge.time) + currEdge.time;
                     fromMap.put(traversalId, nEdge);
-                    fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
                     nEdge.weight = tmpWeight;
-                    nEdge.parent = currEdge;
-                    nEdge.time = weighting.calcMillis(iter, false, currEdge.edge, currEdge.time) + currEdge.time;
-                    fromHeap.add(nEdge);
                 } else
                     continue;
+
+                nEdge.parent = currEdge;
+                nEdge.time = (reverse ? -1 : 1) * weighting.calcMillis(iter, reverse, currEdge.edge, currEdge.time) + currEdge.time;
+                fromHeap.add(nEdge);
 
                 updateBestPath(iter, nEdge, traversalId);
             }
@@ -103,7 +104,20 @@ public class TDDijkstra extends Dijkstra {
     }
 
     @Override
+    protected Path extractPath() {
+        if (currEdge == null || !finished())
+            return createEmptyPath();
+
+        return new PathTD(graph, weighting).setReverse(reverse).
+                setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
+    }
+
+    @Override
     public String getName() {
         return Parameters.Algorithms.TD_DIJKSTRA;
+    }
+
+    public void reverse() {
+        reverse = !reverse;
     }
 }
