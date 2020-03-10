@@ -43,7 +43,10 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
             ra = new Dijkstra(g, opts.getWeighting(), opts.getTraversalMode());
 
         } else if (TD_DIJKSTRA.equalsIgnoreCase(algoStr)) {
-            ra = new TDDijkstra(g, opts.getWeighting(), opts.getTraversalMode());
+            TDDijkstra tdd = new TDDijkstra(g, opts.getWeighting(), opts.getTraversalMode());
+            if (opts.getHints().has("arrival"))
+                tdd.reverse();
+            ra = tdd;
 
         }else if (ASTAR_BI.equalsIgnoreCase(algoStr)) {
             AStarBidirection aStarBi = new AStarBidirection(g, opts.getWeighting(),
@@ -58,10 +61,13 @@ public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
             AStar aStar = new AStar(g, opts.getWeighting(), opts.getTraversalMode());
             aStar.setApproximation(getApproximation(ASTAR, opts, g.getNodeAccess()));
             ra = aStar;
+
         } else if (TD_ASTAR.equalsIgnoreCase(algoStr)) {
-            AStar aStar = new TDAStar(g, opts.getWeighting(), opts.getTraversalMode());
-            aStar.setApproximation(getApproximation(ASTAR, opts, g.getNodeAccess()));
-            ra = aStar;
+            TDAStar tda = new TDAStar(g, opts.getWeighting(), opts.getTraversalMode());
+            tda.setApproximation(getApproximation(ASTAR, opts, g.getNodeAccess()));
+            if (opts.getHints().has("arrival"))
+                tda.reverse();
+            ra = tda;
 
         } else if (ALT_ROUTE.equalsIgnoreCase(algoStr)) {
             AlternativeRoute altRouteAlgo = new AlternativeRoute(g, opts.getWeighting(), opts.getTraversalMode());

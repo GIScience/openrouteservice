@@ -116,8 +116,9 @@ public class Path {
         edgeIds.add(edge);
     }
 
-    protected void addTime(long time) {
-        times.add(time);
+    protected void addTime(long duration) {
+        times.add(duration);
+        time += duration;
     }
 
     protected Path setEndNode(int end) {
@@ -212,9 +213,10 @@ public class Path {
             // the reverse search needs the next edge
             nextEdgeValid = EdgeIterator.Edge.isValid(currEdge.parent.edge);
             nextEdge = nextEdgeValid ? currEdge.parent.edge : EdgeIterator.NO_EDGE;
-            processEdge(currEdge, nextEdge);
+            processEdge(currEdge.edge, currEdge.adjNode, nextEdge);
             currEdge = currEdge.parent;
         }
+
         setFromNode(currEdge.adjNode);
         reverseOrder();
         extractSW.stop();
@@ -247,22 +249,10 @@ public class Path {
     protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         distance += iter.getDistance();
-        time += weighting.calcMillis(iter, false, prevEdgeId);
+        addTime(weighting.calcMillis(iter, false, prevEdgeId));
         addEdge(edgeId);
     }
 
-    protected void processEdge(SPTEntry currEdge, int prevEdgeId) {
-        int edgeId = currEdge.edge;
-        int adjNode = currEdge.adjNode;
-        EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
-        distance += iter.getDistance();
-        long duration;
-        duration = weighting.isTimeDependent() ?
-                currEdge.time - currEdge.parent.time : weighting.calcMillis(iter, false, prevEdgeId);
-        addEdge(edgeId);
-        addTime(duration);
-        time += duration;
-    }
     /**
      * Iterates over all edges in this path sorted from start to end and calls the visitor callback
      * for every edge.

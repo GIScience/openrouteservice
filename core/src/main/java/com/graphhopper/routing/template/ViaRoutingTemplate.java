@@ -120,9 +120,9 @@ public class ViaRoutingTemplate extends AbstractRoutingTemplate implements Routi
 
             // calculate paths
             List<Path> tmpPathList;
-            String departure = algoOpts.getHints().get("departure", "");
-            if (!departure.isEmpty()) {
-                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), Instant.parse(departure).toEpochMilli());
+            String time = algoOpts.getHints().has("departure") ? algoOpts.getHints().get("departure", "") : algoOpts.getHints().get("arrival", "");
+            if (!time.isEmpty()) {
+                tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode(), Instant.parse(time).toEpochMilli());
             } else {
                 tmpPathList = algo.calcPaths(fromQResult.getClosestNode(), toQResult.getClosestNode());
             }
