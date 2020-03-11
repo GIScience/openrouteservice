@@ -27,6 +27,8 @@ import org.heigit.ors.routing.instructions.InstructionType;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 class RouteResultBuilder
@@ -89,6 +91,14 @@ class RouteResultBuilder
         }
 
         result.calculateRouteSummary(request);
+
+        if (request.getSearchParameters().isTimeDependent()) {
+            String timezoneDeparture = responses.get(0).getHints().get("timezone.departure", "");
+            String timezoneArrival = responses.get(responses.size()-1).getHints().get("timezone.arrival", "");
+
+            setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
+        }
+
         if (!request.getIncludeInstructions()) {
             result.resetSegments();
         }
@@ -124,9 +134,35 @@ class RouteResultBuilder
 
             result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
+
+            if (request.getSearchParameters().isTimeDependent()) {
+                String timezoneDeparture = response.getHints().get("timezone.departure", "");
+                String timezoneArrival = response.getHints().get("timezone.arrival", "");
+
+                setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
+            }
         }
 
         return resultSet;
+    }
+
+    private void setDepartureArrivalTimes(String timezoneDeparture, String timezoneArrival, RoutingRequest request, RouteResult result) {
+        ZonedDateTime departure, arrival;
+
+        long duration = (long) result.getSummary().getDuration();
+
+        if (request.getSearchParameters().hasDeparture()) {
+            ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of(timezoneDeparture));
+            departure = zonedDateTime;
+            arrival = zonedDateTime.plusSeconds(duration);
+        } else {
+            ZonedDateTime zonedDateTime = request.getSearchParameters().getArrival().atZone(ZoneId.of(timezoneArrival));
+            arrival = zonedDateTime;
+            departure = zonedDateTime.minusSeconds(duration);
+        }
+
+        result.setDeparture(departure);
+        result.setArrival(arrival);
     }
 
     private PointList getNextResponseFirstStepPoints(List<GHResponse> routes, int ri) {

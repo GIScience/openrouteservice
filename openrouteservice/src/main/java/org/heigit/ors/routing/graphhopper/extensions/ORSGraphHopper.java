@@ -55,8 +55,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
@@ -325,15 +323,25 @@ public class ORSGraphHopper extends GraphHopper {
 
 				weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
 
-				String departureTimeString = hints.get("departure", "");
-
-				if (!departureTimeString.isEmpty() && weighting.isTimeDependent()) {
-					LocalDateTime localDateTime = LocalDateTime.parse(departureTimeString);
-					GHPoint3D snappedPoint = qResults.get(0).getSnappedPoint();
-					String timeZoneId = "Europe/Berlin";//timeZoneMap.getOverlappingTimeZone(snappedPoint.lat, snappedPoint.lon).get().getZoneId();
-					hints.put("departure", localDateTime.atZone(ZoneId.of(timeZoneId)).toInstant());
+				if (weighting.isTimeDependent()) {
+					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
+					String key;
+					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
+					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
+					ghRsp.getHints().put("timezone.departure", dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
+					ghRsp.getHints().put("timezone.arrival", dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
+					if (hints.has("departure")) {
+						key = "departure";
+						point = departurePoint;
+					} else {
+						key = "arrival";
+						point = arrivalPoint;
+					}
+					String time = hints.get(key, "");
+					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
 				} else {
 					hints.remove("departure");
+					hints.remove("arrival");
 				}
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)

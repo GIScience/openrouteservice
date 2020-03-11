@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,17 +186,6 @@ public class RouteResult
 			summary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 			summary.setDescent(FormatUtility.roundToDecimals(descent, 1));
 		}
-		//FIXME: get departure and arrival time from computed route
-		if (request.getSearchParameters().hasDeparture()) {
-			ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
-			departure = zonedDateTime;
-			arrival = zonedDateTime.plusSeconds((long) duration);
-		}
-		else if (request.getSearchParameters().hasArrival()) {
-			ZonedDateTime zonedDateTime = request.getSearchParameters().getArrival().atZone(ZoneId.of("Europe/Berlin"));
-			arrival = zonedDateTime;
-			departure = zonedDateTime.minusSeconds((long) duration);
-		}
 	}
 
 	public String getGraphDate() {
@@ -216,7 +204,15 @@ public class RouteResult
 		return departure;
 	}
 
+	public void setDeparture(ZonedDateTime departure) {
+	    this.departure = departure;
+    }
+
 	public ZonedDateTime getArrival() {
 		return arrival;
 	}
+
+	public void setArrival(ZonedDateTime arrival) {
+	    this.arrival = arrival;
+    }
 }
