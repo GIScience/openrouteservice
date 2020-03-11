@@ -5,7 +5,7 @@ import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
 import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
-import com.graphhopper.routing.weighting.DateTimeConverter;
+import com.graphhopper.util.DateTimeHelper;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -21,7 +21,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final ConditionalEdgesMap conditionalEdges;
     private final boolean fwd;
     private final boolean bwd;
-    private final DateTimeConverter dateTimeConverter;
+    private final DateTimeHelper dateTimeHelper;
 
     public ConditionalAccessEdgeFilter(GraphHopperStorage graph, FlagEncoder encoder) {
         this(graph, encoder.toString());
@@ -37,7 +37,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         conditionalEdges = graph.getConditionalAccess(encoderName);
         this.fwd = fwd;
         this.bwd = bwd;
-        this.dateTimeConverter = new DateTimeConverter(graph);
+        this.dateTimeHelper = new DateTimeHelper(graph);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
         if (fwd && iter.get(conditionalEnc) || bwd && iter.getReverse(conditionalEnc)) {
             int edgeId = EdgeKeys.getOriginalEdge(iter);
             // for now the filter is used only in the context of fwd search so only edges going out of the base node are explored
-            ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(iter, time);
+            ZonedDateTime zonedDateTime = dateTimeHelper.getZonedDateTime(iter, time);
             String value = conditionalEdges.getValue(edgeId);
             return accept(value, zonedDateTime);
         }

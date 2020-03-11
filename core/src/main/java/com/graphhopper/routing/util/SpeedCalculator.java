@@ -5,7 +5,7 @@ import ch.poole.conditionalrestrictionparser.Restriction;
 import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
-import com.graphhopper.routing.weighting.DateTimeConverter;
+import com.graphhopper.util.DateTimeHelper;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -21,7 +21,7 @@ public class SpeedCalculator {
     // time-dependent stuff
     private final BooleanEncodedValue conditionalEnc;
     private final ConditionalEdgesMap conditionalEdges;
-    private final DateTimeConverter dateTimeConverter;
+    private final DateTimeHelper dateTimeHelper;
 
     public SpeedCalculator(GraphHopperStorage graph, FlagEncoder encoder) {
         avSpeedEnc = encoder.getAverageSpeedEnc();
@@ -37,7 +37,7 @@ public class SpeedCalculator {
         conditionalEnc = encodingManager.getBooleanEncodedValue(encoderName);
         conditionalEdges = graph.getConditionalSpeed(encoder);
 
-        this.dateTimeConverter = new DateTimeConverter(graph);
+        this.dateTimeHelper = new DateTimeHelper(graph);
     }
 
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
@@ -45,7 +45,7 @@ public class SpeedCalculator {
 
         // retrieve time-dependent maxspeed here
         if (time != -1 && edge.get(conditionalEnc)) {
-            ZonedDateTime zonedDateTime = dateTimeConverter.localDateTime(edge, time);
+            ZonedDateTime zonedDateTime = dateTimeHelper.getZonedDateTime(edge, time);
             int edgeId = EdgeKeys.getOriginalEdge(edge);
             String value = conditionalEdges.getValue(edgeId);
             double maxSpeed = getSpeed(value, zonedDateTime);

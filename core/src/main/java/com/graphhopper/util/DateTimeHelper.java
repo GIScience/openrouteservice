@@ -1,4 +1,4 @@
-package com.graphhopper.routing.weighting;
+package com.graphhopper.util;
 
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -10,16 +10,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class DateTimeConverter {
+public class DateTimeHelper {
     private final NodeAccess nodeAccess;
     private final TimeZoneMap timeZoneMap;
 
-    public DateTimeConverter(GraphHopperStorage graph) {
+    public DateTimeHelper(GraphHopperStorage graph) {
         this.nodeAccess = graph.getNodeAccess();
         this.timeZoneMap = graph.getTimeZoneMap();
     }
 
-    public ZonedDateTime localDateTime (EdgeIteratorState iter, long time) {
+    public ZonedDateTime getZonedDateTime(EdgeIteratorState iter, long time) {
         int node = iter.getBaseNode();
         double lat = nodeAccess.getLatitude(node);
         double lon = nodeAccess.getLongitude(node);
@@ -29,9 +29,13 @@ public class DateTimeConverter {
         return ZonedDateTime.ofInstant(edgeEnterTime, edgeZoneId);
     }
 
-    public ZonedDateTime getZonedDateTime (double lat, double lon, String time) {
+    public ZonedDateTime getZonedDateTime(double lat, double lon, String time) {
         LocalDateTime localDateTime = LocalDateTime.parse(time);
         String timeZoneId = timeZoneMap.getOverlappingTimeZone(lat, lon).get().getZoneId();
         return localDateTime.atZone(ZoneId.of(timeZoneId));
+    }
+
+    public String getZoneId(double lat, double lon) {
+        return timeZoneMap.getOverlappingTimeZone(lat, lon).get().getZoneId();
     }
 }
