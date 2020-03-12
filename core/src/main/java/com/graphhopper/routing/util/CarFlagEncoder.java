@@ -223,7 +223,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
 
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
-            if (tt != null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
+            if (tt !=  null && !tt.equals("grade1") && !tt.equals("grade2") && !tt.equals("grade3"))
                 return EncodingManager.Access.CAN_SKIP;
         }
 
@@ -236,13 +236,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
         if (!firstValue.isEmpty()) {
             if (restrictedValues.contains(firstValue))
-                if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                    if (getConditionalTagInspector().isConditionLazyEvaluated())
-                        return EncodingManager.Access.CONDITIONAL;
-                    else
-                        return EncodingManager.Access.WAY;
-                else
-                    return EncodingManager.Access.CAN_SKIP;
+                return isRestrictedWayConditionallyPermitted(way);
             if (intendedValues.contains(firstValue))
                 return EncodingManager.Access.WAY;
         }
@@ -251,13 +245,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
         if (isBlockFords() && ("ford".equals(highwayValue) || way.hasTag("ford")))
             return EncodingManager.Access.CAN_SKIP;
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            if (getConditionalTagInspector().isConditionLazyEvaluated())
-                return EncodingManager.Access.CONDITIONAL;
-            else
-                return EncodingManager.Access.CAN_SKIP;
-        else
-            return EncodingManager.Access.WAY;
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     @Override

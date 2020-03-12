@@ -280,7 +280,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
         if (way.hasTag("bicycle", intendedValues) ||
                 way.hasTag("bicycle", "dismount") ||
                 way.hasTag("highway", "cycleway"))
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
 
         // accept only if explicitly tagged for bike usage
         if ("motorway".equals(highwayValue) || "motorway_link".equals(highwayValue))
@@ -294,22 +294,10 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues)) {
-            if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-                if (getConditionalTagInspector().isConditionLazyEvaluated())
-                    return EncodingManager.Access.CONDITIONAL;
-            }
-            else
-                return EncodingManager.Access.CAN_SKIP;
-        }
+        if (way.hasTag(restrictions, restrictedValues))
+            return isRestrictedWayConditionallyPermitted(way);
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            if (getConditionalTagInspector().isConditionLazyEvaluated())
-                return EncodingManager.Access.CONDITIONAL;
-            else
-                return EncodingManager.Access.CAN_SKIP;
-        else
-            return EncodingManager.Access.WAY;
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     boolean isSacScaleAllowed(String sacScale) {
