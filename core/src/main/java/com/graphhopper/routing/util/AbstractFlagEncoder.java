@@ -647,4 +647,24 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     public boolean hasEncodedValue(String key) {
         return encodedValueLookup.hasEncodedValue(key);
     }
+
+    public EncodingManager.Access isRestrictedWayConditionallyPermitted(ReaderWay way) {
+        if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+            if (getConditionalTagInspector().isConditionLazyEvaluated())
+                return EncodingManager.Access.CONDITIONAL;
+            else
+                return EncodingManager.Access.WAY;
+        else
+            return EncodingManager.Access.CAN_SKIP;
+    }
+
+    public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way) {
+        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
+            if (getConditionalTagInspector().isConditionLazyEvaluated())
+                return EncodingManager.Access.CONDITIONAL;
+            else
+                return EncodingManager.Access.CAN_SKIP;
+        else
+            return EncodingManager.Access.WAY;
+    }
 }
