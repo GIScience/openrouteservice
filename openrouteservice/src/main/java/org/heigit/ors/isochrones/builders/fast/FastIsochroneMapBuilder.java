@@ -59,6 +59,7 @@ import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
@@ -174,10 +175,22 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
 			fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, parameters.getRanges()[i]);
 
+			if (LOGGER.isDebugEnabled())
+			{
+				LOGGER.debug("Find edges: " + sw.stop().getSeconds());
+				sw = new StopWatch();
+				sw.start();
+			}
+
 			Set<Geometry> isochroneGeometries = new HashSet<>();
 
 			//Add all fully reachable cell geometries
 			handleFullyReachableCells(isochroneGeometries, fastIsochroneAlgorithm.getFullyReachableCells());
+
+			if (LOGGER.isDebugEnabled())
+			{
+				LOGGER.debug("Handle fully reachable cells: " + sw.stop().getSeconds());
+			}
 
 			GHPoint3D snappedPosition = res.getSnappedPoint();
 
@@ -187,10 +200,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 
 			if(isochroneMap == null) isochroneMap = new IsochroneMap(parameters.getTravellerId(), snappedLoc);
 
-			if (LOGGER.isDebugEnabled())
-			{
-				LOGGER.debug("Find edges: " + sw.stop().getSeconds());
-			}
+
 
 			if (edgeMap.isEmpty())
 				return isochroneMap;
@@ -231,9 +241,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			StopWatch swActiveCellBuild = new StopWatch();
 
 
-			if (LOGGER.isDebugEnabled()) {
-				swActiveCell.start();
-			}
 
 			for(Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell : fastIsochroneAlgorithm.getActiveCellMaps().entrySet()) {
 					swActiveCellSeparate.start();
@@ -257,13 +264,17 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			}
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Build all active cell concave hull: " + swActiveCell.stop().getSeconds());
 				swActiveCell = new StopWatch();
 				swActiveCell.start();
 			}
 
 			//Make a union of all now existing polygons to reduce coordinate list
 			Geometry preprocessedGeometry = UnaryUnionOp.union(isochroneGeometries);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Union of geometries: " + swActiveCell.stop().getSeconds());
+				swActiveCell = new StopWatch();
+				swActiveCell.start();
+			}
 
 			//Build the final isochrone from the outlines of the remaining unified polygons
 			List<Double> contourCoordinates = new ArrayList<>();
@@ -286,7 +297,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			prevCost = isoValue;
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Build final concave hull: " + swActiveCell.stop().getSeconds());
+				LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + swActiveCell.stop().getSeconds());
 			}
 		}
 
@@ -695,7 +706,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			Set<Integer> reachableSuperCells = new HashSet<>();
 			for (int cellId : fullyReachableCells) {
 				int superCell = cellStorage.getSuperCellOfCell(cellId);
-				if (superCell != -1 && fullyReachableCells.containsAll(Arrays.asList(cellStorage.getCellsOfSuperCell(superCell))))
+				if (superCell != -1 && fullyReachableCells.containsAll(cellStorage.getCellsOfSuperCellAsList(superCell)))
 					reachableSuperCells.add(superCell);
 				else {
 					reachableCellsAndSuperCells.add(cellId);
@@ -703,7 +714,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			}
 			for (int cellId : reachableSuperCells) {
 				int superCell = cellStorage.getSuperCellOfCell(cellId);
-				if (superCell != -1 && reachableSuperCells.containsAll(Arrays.asList(cellStorage.getCellsOfSuperCell(superCell)))) {
+				if (superCell != -1 && reachableSuperCells.containsAll(cellStorage.getCellsOfSuperCellAsList(superCell))) {
 					reachableCellsAndSuperCells.add(superCell);
 				} else {
 					reachableCellsAndSuperCells.add(cellId);

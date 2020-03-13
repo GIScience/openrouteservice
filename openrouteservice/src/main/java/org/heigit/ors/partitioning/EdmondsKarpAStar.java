@@ -5,9 +5,9 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
+import io.swagger.models.auth.In;
 
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
 
@@ -45,10 +45,12 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         prevMap = new IntObjectHashMap((int)Math.ceil(FLOW__SET_SPLIT_VALUE * nodes));
         srcLimit = (int) (FLOW__SET_SPLIT_VALUE * nodes);
         snkLimit = (int) ((1 - FLOW__SET_SPLIT_VALUE) * nodes);
+        Deque<Integer> deque = new ArrayDeque<>(nodes / 2);
+        addSrcNodesToDeque(deque);
         do {
             prevMap.clear();
             setUnvisitedAll();
-            flow = bfs();
+            flow = bfs(deque);
             maxFlow += flow;
 
             if ((maxFlow > maxFlowLimit)) {
@@ -56,26 +58,22 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
                 break;
             }
         } while (flow > 0);
-
         prevMap = null;
     }
 
-    private int bfs() {
-        PriorityQueue<EKEdgeEntry> queue = new PriorityQueue<EKEdgeEntry>(nodes);
-        int calls = addSrcNodesToQueue(queue);
+    private int bfs(Deque<Integer> initialDeque) {
+        Deque<Integer> deque = copyInitialDeque(initialDeque);
+        int calls = srcLimit;
         int node;
-        IntHashSet targSet = new IntHashSet();
 
         double maxBFSCalls = _graph.getBaseGraph().getAllEdges().length() * 2;
         double sizeFactor = ((double) nodeOrder.size()) / _graph.getBaseGraph().getNodes();
         maxBFSCalls = (int)Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
 
-        while (!queue.isEmpty()) {
+        while (!deque.isEmpty()) {
             if(calls > maxBFSCalls)
                 return 0;
-            EKEdgeEntry entry = queue.poll();
-            node = entry.node;
-            targSet.clear();
+            node = deque.pop();
 
             if(snkLimit < nodeOrder.get(node)){
                 prevMap.put(snkNodeId, new EdgeInfo(getDummyEdgeId(), node, snkNodeId));
@@ -85,27 +83,27 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
             _edgeIter = _edgeExpl.setBaseNode(node);
             //Iterate over normal edges
+            TreeSet<EKEdgeEntry> set = new TreeSet<>(EKEdgeEntry::compareTo);
             while(_edgeIter.next()){
                 if(!edgeFilter.accept(_edgeIter))
                     continue;
                 calls++;
                 int adj = _edgeIter.getAdjNode();
-                int base = _edgeIter.getBaseNode();
                 int edge = _edgeIter.getEdge();
 
-                if(targSet.contains(adj)
-                        || adj == base)
+                if(adj == node)
                     continue;
-                targSet.add(adj);
                 if(!nodeOrder.containsKey(adj))
                     continue;
-                if ((getRemainingCapacity(edge, base))
+                if ((getRemainingCapacity(edge, node))
                         && !isVisited(pData.getVisited(adj))) {
                     setVisited(adj);
-                    prevMap.put(adj, new EdgeInfo(edge, base, adj));
-                    queue.offer(new EKEdgeEntry(adj, this.nodeOrder.get(adj)));
+                    prevMap.put(adj, new EdgeInfo(edge, node, adj));
+                    set.add(new EKEdgeEntry(adj, this.nodeOrder.get(adj)));
                 }
             }
+            for(EKEdgeEntry ekEdgeEntry : set)
+                deque.push(ekEdgeEntry.node);
             calls++;
         }
 
@@ -127,13 +125,28 @@ public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
         return bottleNeck;
     }
 
-    private int addSrcNodesToQueue(Queue queue){
+    private int addSrcNodesToDeque(Deque<Integer> deque){
+        //Reverse insertion order to maximize offer performance
         int nodeNumber = 0;
         while(nodeNumber < srcLimit) {
-            queue.offer(new EKEdgeEntry(orderedNodes.get(nodeNumber), nodeNumber));
+            int node = orderedNodes.get(nodeNumber);
+            deque.push(node);
+            setVisited(node);
             nodeNumber++;
         }
         return srcLimit;
+    }
+
+    private Deque<Integer> copyInitialDeque(Deque<Integer> initialDeque){
+        Deque<Integer> deque = new ArrayDeque<>(initialDeque);
+        //Reverse insertion order to maximize offer performance
+        int nodeNumber = srcLimit - 1;
+        while(nodeNumber > 0) {
+            int node = orderedNodes.get(nodeNumber);
+            setVisited(node);
+            nodeNumber--;
+        }
+        return deque;
     }
 
     private class EdgeInfo{

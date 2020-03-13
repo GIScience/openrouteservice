@@ -2,6 +2,7 @@ package org.heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntDoubleHashMap;
+import com.graphhopper.util.StopWatch;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -34,10 +35,11 @@ public class  Sort {
 //        return result;
 //    }
     //Sort ids list by values
-    public static IntArrayList sortByValueReturnList(Integer[] ids, Double[] values) {
+    public static IntArrayList sortByValueReturnList(Integer[] ids, Double[] values, int cellId) {
         ArrayIndexComparator comparator = new ArrayIndexComparator(values);
         Integer[] indices = comparator.createIndexArray();
-        Arrays.sort(indices, comparator);
+        //Sort the first cellArray in parallel
+        Arrays.parallelSort(indices, comparator);
 
         IntArrayList result = new IntArrayList();
         for (int entry : indices) {

@@ -16,10 +16,11 @@ public class FastIsochroneParameters {
 
     //>> Inertial Flow
     public static final double FLOW__SET_SPLIT_VALUE = 0.2525;
+    public static final int FLOW__CONSIDERED_PROJECTIONS = 3;
 
     //CONTOUR
     //TODO Currently buggy!
-    public static final boolean CONTOUR__USE_SUPERCELLS = false;
+    public static final boolean CONTOUR__USE_SUPERCELLS = true;
     public static final boolean ECC__USERELEVANTONLY = true;
 
 

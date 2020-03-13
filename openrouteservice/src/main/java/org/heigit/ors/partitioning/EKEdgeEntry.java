@@ -34,10 +34,10 @@ public class EKEdgeEntry implements Comparable<EKEdgeEntry> {
 
     @Override
     public int compareTo(EKEdgeEntry o) {
-        if (weight > o.weight)
+        if (weight < o.weight)
             return -1;
 
         // assumption no NaN and no -0
-        return weight < o.weight ? 1 : 0;
+        return weight > o.weight ? 1 : 0;
     }
 }

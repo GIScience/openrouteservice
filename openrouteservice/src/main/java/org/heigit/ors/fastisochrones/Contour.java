@@ -20,6 +20,7 @@ import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
 
@@ -40,7 +41,7 @@ public class Contour {
 
     public void calcCellContourPre() {
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
-            LineString ring = createContour(cellId.value, createCoordinates(cellId.value));
+            LineString ring = createContour(createCoordinates(cellId.value));
             if (ring == null || ring.getNumPoints() < 2) {
                 cellStorage.setCellContourOrder(cellId.value, new ArrayList<>(), new ArrayList<>());
                 continue;
@@ -55,8 +56,10 @@ public class Contour {
             //Current implementation supports 2 levels of supercells. Calculated individually
             //For each super(super)cell, we need to know the corresponding basecells (to get the contour from storage)
             //and the corresponding subcells (these are supercells for supersupercells)
-            superCells = identifySuperCells(PART_SUPERCELL_HIERARCHY_LEVEL, true);
-            IntObjectMap<IntHashSet> superSuperCells = identifySuperCells(2, false);
+            superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL, true);
+            IntHashSet superCellIds = new IntHashSet();
+            superCellIds.addAll(superCells.keys());
+            IntObjectMap<IntHashSet> superSuperCells = identifySuperCells(superCellIds, 2, false);
             IntObjectMap<IntHashSet> superSuperCellsToBaseCells = new IntObjectHashMap<>();
             for(IntObjectCursor<IntHashSet> superSuperCell : superSuperCells){
                 IntHashSet newSuperCell = new IntHashSet();
@@ -69,48 +72,36 @@ public class Contour {
 
             //Calculate the concave hull for all super(super)cells
             for (IntObjectCursor<IntHashSet> superCell : superSuperCellsToBaseCells) {
-                List<Coordinate> superCellCoordinates = new ArrayList<>(superCell.value.size());
-                for (IntCursor subcell : superCell.value) {
-                    List<Double> subCellContour = cellStorage.getCellContourOrder(subcell.value);
-                    int j = 0;
-                    while (j < subCellContour.size()) {
-                        double lat = subCellContour.get(j);
-                        j++;
-                        double lon = subCellContour.get(j);
-                        j++;
-                        superCellCoordinates.add(new Coordinate(lon, lat));
-                    }
-                }
-                Geometry geom;
-                LineString ring;
-                try {
-                    geom = concHullOfNodes(superCellCoordinates);
-                    Polygon poly = (Polygon) geom;
-                    poly.normalize();
-                    ring = poly.getExteriorRing();
-                } catch (Exception e) {
+
+                List<Coordinate> superCellCoordinates = createSuperCellCoordinates(superCell.value);
+
+                LineString ring = createContour(superCellCoordinates);
+                if (ring == null || ring.getNumPoints() < 2) {
                     cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(), new ArrayList<>());
                     continue;
                 }
-                List<Double> superCellContourLats = new ArrayList<>();
-                List<Double> superCellContourLongs = new ArrayList<>();
-                for (int i = 0; i < ring.getNumPoints(); i++) {
-                    //COORDINATE OF POLYGON BASED
-                    superCellContourLats.add(ring.getPointN(i).getY());
-                    superCellContourLongs.add(ring.getPointN(i).getX());
 
-                    if (i < ring.getNumPoints() - 1) {
-                        splitEdge(ring.getPointN(i).getY(),
-                                ring.getPointN(i + 1).getY(),
-                                ring.getPointN(i).getX(),
-                                ring.getPointN(i + 1).getX(),
-                                superCellContourLats,
-                                superCellContourLongs,
-                                minEdgeLengthLimit,
-                                maxEdgeLengthLimit);
-                    }
-                }
-                cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(superCellContourLats), new ArrayList<>(superCellContourLongs));
+                storeContour(superCell.key, ring);
+
+//                List<Double> superCellContourLats = new ArrayList<>();
+//                List<Double> superCellContourLongs = new ArrayList<>();
+//                for (int i = 0; i < ring.getNumPoints(); i++) {
+//                    //COORDINATE OF POLYGON BASED
+//                    superCellContourLats.add(ring.getPointN(i).getY());
+//                    superCellContourLongs.add(ring.getPointN(i).getX());
+//
+//                    if (i < ring.getNumPoints() - 1) {
+//                        splitEdge(ring.getPointN(i).getY(),
+//                                ring.getPointN(i + 1).getY(),
+//                                ring.getPointN(i).getX(),
+//                                ring.getPointN(i + 1).getX(),
+//                                superCellContourLats,
+//                                superCellContourLongs,
+//                                minEdgeLengthLimit,
+//                                maxEdgeLengthLimit);
+//                    }
+//                }
+//                cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(superCellContourLats), new ArrayList<>(superCellContourLongs));
             }
         }
 
@@ -121,6 +112,22 @@ public class Contour {
             cellStorage.storeSuperCells(superCells);
         cellStorage.setContourPrepared(true);
         cellStorage.flush();
+    }
+
+    private List<Coordinate> createSuperCellCoordinates(IntHashSet superCell) {
+        List<Coordinate> superCellCoordinates = new ArrayList<>(superCell.size() * 10);
+        for (IntCursor subcell : superCell) {
+            List<Double> subCellContour = cellStorage.getCellContourOrder(subcell.value);
+            int j = 0;
+            while (j < subCellContour.size()) {
+                double lat = subCellContour.get(j);
+                j++;
+                double lon = subCellContour.get(j);
+                j++;
+                superCellCoordinates.add(new Coordinate(lon, lat));
+            }
+        }
+        return  superCellCoordinates;
     }
 
     public  Geometry concHullOfNodes(List<Coordinate> coordinates) {
@@ -195,10 +202,10 @@ public class Contour {
         return false;
     }
 
-    IntObjectMap<IntHashSet> identifySuperCells(int hierarchyLevel, boolean isPrimary){
+    IntObjectMap<IntHashSet> identifySuperCells(IntSet cellIds, int hierarchyLevel, boolean isPrimary){
         //Account for the subcell division in InertialFlow final step
         //hierarchyLevel += 1;
-        IntSet cellIds = isochroneNodeStorage.getCellIds();
+//        IntSet cellIds = isochroneNodeStorage.getCellIds();
         int maxId = -1;
         for(IntCursor cellId : cellIds)
             if(cellId.value > maxId)
@@ -206,7 +213,8 @@ public class Contour {
 
         IntHashSet visitedCells = new IntHashSet();
         IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
-        List<Integer> orderedCellIds = new ArrayList(Arrays.asList(cellIds.toArray()));
+        List<Integer> orderedCellIds = Arrays.stream(cellIds.toArray()).boxed().collect(Collectors.toList());
+//        List<Integer> orderedCellIds = (List<Integer>) Arrays.asList(cellIds.toArray());
         Collections.sort(orderedCellIds);
         for(int cellId : orderedCellIds){
             if (visitedCells.contains(cellId))
@@ -295,7 +303,7 @@ public class Contour {
         return coordinates;
     }
 
-    private LineString createContour(int cellId, List<Coordinate> coordinates){
+    private LineString createContour(List<Coordinate> coordinates){
         try {
             Geometry geom = concHullOfNodes(coordinates);
             Polygon poly = (Polygon) geom;

@@ -28,6 +28,7 @@ import com.graphhopper.storage.Storable;
 import com.graphhopper.util.Helper;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
 
@@ -197,6 +198,10 @@ public class CellStorage implements Storable<CellStorage> {
 
     public IntHashSet getCellsOfSuperCell(int superCell){
         return superCellIdToCellsMap.get(superCell);
+    }
+
+    public List<Integer> getCellsOfSuperCellAsList(int superCell){
+        return Arrays.stream(superCellIdToCellsMap.get(superCell).toArray()).boxed().collect(Collectors.toList());
     }
 
     public int getSuperCellOfCell(int cell){
