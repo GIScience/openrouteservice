@@ -17,6 +17,7 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -1043,7 +1044,9 @@ public class RoutingProfile {
     }
 
     boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
-        return searchParams.isTimeDependent() && searchCntx.getEncoder().hasEncodedValue("conditional_speed");
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+        String key = EncodingManager.getKey(flagEncoder, "conditional_speed");
+        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
     }
 
     /**
