@@ -333,7 +333,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 || way.hasTag(KEY_BICYCLE_ROAD, "yes")
                 // MARQ24 MOD END
         ){
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
         }
 
         // accept only if explicitly tagged for bike usage
@@ -351,23 +351,10 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues)) {
-            if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-                if (getConditionalTagInspector().isConditionLazyEvaluated())
-                    return EncodingManager.Access.CONDITIONAL;
-            }
-            else
-                return EncodingManager.Access.CAN_SKIP;
-        }
+        if (way.hasTag(restrictions, restrictedValues))
+            return isRestrictedWayConditionallyPermitted(way);
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way)){
-            if (getConditionalTagInspector().isConditionLazyEvaluated())
-                return EncodingManager.Access.CONDITIONAL;
-            else
-                return EncodingManager.Access.CAN_SKIP;
-        }else {
-            return EncodingManager.Access.WAY;
-        }
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     boolean isSacScaleAllowed(String sacScale) {

@@ -583,7 +583,7 @@ public class RouteSearchParameters {
 
     public boolean hasArrival() { return arrival!=null; }
 
-    public boolean isTimeDependent () {
+    public boolean isTimeDependent() {
         return (hasDeparture() || hasArrival());
     }
 }

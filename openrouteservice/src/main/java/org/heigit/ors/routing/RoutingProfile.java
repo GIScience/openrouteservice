@@ -896,7 +896,7 @@ public class RoutingProfile {
             if (supportWeightingMethod(profileType)) {
                 if (weightingMethod == WeightingMethod.FASTEST) {
                     req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, searchParams.isTimeDependent() ? "td_fastest" : VAL_FASTEST);
+                    req.getHints().put(KEY_WEIGHTING_METHOD, hasTimeDependentSpeed(searchParams, searchCntx) ? "td_fastest" : VAL_FASTEST);
                 } else if (weightingMethod == WeightingMethod.SHORTEST) {
                     req.setWeighting(VAL_SHORTEST);
                     req.getHints().put(KEY_WEIGHTING_METHOD, VAL_SHORTEST);
@@ -1040,6 +1040,10 @@ public class RoutingProfile {
         }
 
         return resp;
+    }
+
+    boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        return searchParams.isTimeDependent() && searchCntx.getEncoder().hasEncodedValue("conditional_speed");
     }
 
     /**
