@@ -27,8 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * This class implements the Core Algo decorator and provides several helper methods related to core
- * preparation and its vehicle profiles.
+ * Decorator class for partitioning.
  *
  * This code is based on that from GraphHopper GmbH.
  *
@@ -60,17 +59,6 @@ public class PartitioningFactoryDecorator  {
             throw new IllegalStateException("Use " + Partition.PREPARE + "threads instead of prepare.threads");
 
         setPreparationThreads(args.getInt(Partition.PREPARE + "threads", getPreparationThreads()));
-
-//        // default is enabled & fastest
-//        String isoCoreWeightingsStr = args.get(Partition.PREPARE + "weightings", "");
-//
-//        if ("no".equals(isoCoreWeightingsStr)) {
-//            // default is fastest and we need to clear this explicitely
-//            weightingsAsStrings.clear();
-//        } else if (!isoCoreWeightingsStr.isEmpty()) {
-//            List<String> tmpCHWeightingList = Arrays.asList(isoCoreWeightingsStr.split(","));
-//            setWeightingsAsStrings(tmpCHWeightingList);
-//        }
 
         boolean enableThis = args.getBool("partitioning.enabled", false);
         setEnabled(enableThis);
@@ -115,50 +103,6 @@ public class PartitioningFactoryDecorator  {
         return preparationThreads;
     }
 
-    public PartitioningFactoryDecorator addWeighting(String weighting) {
-        weightingsAsStrings.add(weighting);
-        return this;
-    }
-    public PartitioningFactoryDecorator addWeighting(Weighting weighting) {
-        weightings.add(weighting);
-        return this;
-    }
-
-    public final boolean hasWeightings() {
-        return !weightings.isEmpty();
-    }
-
-
-
-    /**
-     * Enables the use of core to reduce query times. Enabled by default.
-     *
-     * @param weightingList A list containing multiple weightings like: "fastest", "shortest" or
-     *                      your own weight-calculation type.
-     */
-    public PartitioningFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
-        if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
-
-        weightingsAsStrings.clear();
-        for (String strWeighting : weightingList) {
-            strWeighting = strWeighting.toLowerCase();
-            strWeighting = strWeighting.trim();
-            addWeighting(strWeighting);
-        }
-        return this;
-    }
-
-    public List<String> getWeightingsAsStrings() {
-        if (this.weightingsAsStrings.isEmpty())
-            throw new IllegalStateException("Potential bug: weightingsAsStrings is empty");
-
-        return new ArrayList<>(this.weightingsAsStrings);
-    }
-
-    private String getDefaultWeighting() {
-        return weightingsAsStrings.isEmpty() ? "fastest" : weightingsAsStrings.iterator().next();
-    }
 
     /**
      * This method changes the number of threads used for preparation on import. Default is 1. Make
@@ -185,22 +129,6 @@ public class PartitioningFactoryDecorator  {
             }
         }, name);
 
-
-//        for (final PreparePartition prepare : getPreparations()) {
-//            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting());
-//            completionService.submit(new Runnable() {
-//                @Override
-//                public void run() {
-//                    // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
-//                    Thread.currentThread().setName(name);
-//                    prepare.prepare();
-//                    properties.put(ORSParameters.Partition.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
-//                }
-//            }, name);
-//
-//        }
-//        }
-
         threadPool.shutdown();
 
         try {
@@ -216,37 +144,14 @@ public class PartitioningFactoryDecorator  {
     public void createPreparations(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         if (!isEnabled() || !preparations.isEmpty())
             return;
-
-//        if (weightings.isEmpty())
-//            throw new IllegalStateException("No Core weightings found");
-
-//        for (Weighting weighting : getWeightings()) {
             PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
             addPreparation(tmpPreparePartition);
-//        }
-
-
-
     }
-
-//    public final List<Weighting> getWeightings() {
-//        return weightings;
-//    }
-
 
     public void setExistingStorages(){
         setIsochroneNodeStorage(getPreparations().get(0).getIsochroneNodeStorage());
         setCellStorage(getPreparations().get(0).getCellStorage());
     }
-
-    /**
-     * For now only node based will work, later on we can easily find usage of this method to remove
-     * it.
-     */
-    public TraversalMode getNodeBase() {
-        return TraversalMode.NODE_BASED;
-    }
-
 
     public IsochroneNodeStorage getIsochroneNodeStorage() {
         return isochroneNodeStorage;

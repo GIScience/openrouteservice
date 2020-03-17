@@ -30,14 +30,13 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
 import java.util.PriorityQueue;
-import java.util.Set;
 
 /**
- * Implements a single source shortest path algorithm
- * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+ * Calculates shortest paths within an active isochrones cell.
+ * Starts from a given set of entry nodes and ends when isochrone limit reached.
  * <p>
  *
- * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;

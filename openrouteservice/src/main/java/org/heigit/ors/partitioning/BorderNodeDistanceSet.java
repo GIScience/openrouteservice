@@ -1,4 +1,10 @@
 package org.heigit.ors.partitioning;
+/**
+ * Object to store a set of nodeids and respective distances.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 
 public class BorderNodeDistanceSet{
     int[] adjBorderNodeIds;

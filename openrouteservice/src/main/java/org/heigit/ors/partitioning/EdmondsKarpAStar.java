@@ -1,17 +1,24 @@
 package org.heigit.ors.partitioning;
 
 
-import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-import io.swagger.models.auth.In;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.TreeSet;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLIT_VALUE;
 
-
+/**
+ * EdmondsKarp implementation of the maxflow algorithm using a deque.
+ * Finds the maximum number of possible paths from the source region to the sink region.
+ * The visit order is determined by the projection order. Nodes closer to the sink region are expanded first.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
 
     private IntObjectHashMap<EdgeInfo> prevMap;

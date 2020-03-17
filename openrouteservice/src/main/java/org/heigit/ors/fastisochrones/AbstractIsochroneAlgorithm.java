@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.fastisochrones;
 
-import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -27,8 +26,6 @@ import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
-
-import java.util.Set;
 
 /**
  * Calculates an isochrone using a partitioned and core-contracted graph.

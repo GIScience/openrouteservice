@@ -18,9 +18,7 @@
 package org.heigit.ors.partitioning;
 
 
-import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntLongHashMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -30,7 +28,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 
 /**
- * Stores eccentricities of cell border nodes for fast isochrones. eccentricities are weighting dependent, therefore they are stored separately
+ * Stores eccentricities of cell border nodes for fast isochrones. Eccentricities are weighting dependent, therefore they are stored separately from cells.
  *
  * @author Hendrik Leuschner
  */

@@ -25,16 +25,11 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * This class stores the landmark nodes and the weights from and to all other nodes in every
- * subnetwork. This data is created to apply a speed-up for path calculation but at the same times
- * stays flexible to per-request changes. The class is safe for usage from multiple reading threads
- * across algorithms.
+ * Stores a mapping of nodeId->cellId/borderness
+ * <p>
  *
- * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
 

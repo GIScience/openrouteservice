@@ -5,7 +5,12 @@ import com.graphhopper.storage.Graph;
 
 import java.util.Arrays;
 
-
+/**
+ * Temporary preprocessing time storage for max flow min cut data.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class PartitioningData {
     //Edge data
     int[] flowEdgeBaseNode;

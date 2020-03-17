@@ -2,7 +2,6 @@ package org.heigit.ors.partitioning;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -18,6 +17,13 @@ import java.util.stream.IntStream;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
 import static org.heigit.ors.partitioning.InertialFlow.Projection.*;
 import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
+
+/**
+ * Recursive implementation of InertialFlow algorithm for partitioning a graph.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 
 public class InertialFlow extends PartitioningBase {
 

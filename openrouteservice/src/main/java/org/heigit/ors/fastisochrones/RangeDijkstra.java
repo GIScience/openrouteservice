@@ -39,11 +39,10 @@ import java.util.Set;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVANTONLY;
 
 /**
- * Implements a single source shortest path algorithm
- * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+ * calculates maximum range (eccentricity) within a cell.
  * <p>
  *
- * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class RangeDijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;

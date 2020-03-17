@@ -16,17 +16,21 @@ import org.heigit.ors.partitioning.*;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
-
 import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MAX_CELL_NODES_NUMBER;
 
-
+/**
+ * Eccentricity implementation. Calculates the maximum value of all shortest paths within a cell given a starting bordernode.
+ * Further calculates all distance pairs of bordernodes.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class Eccentricity extends AbstractEccentricity {
 
     double acceptedFullyReachablePercentage = 0.995;

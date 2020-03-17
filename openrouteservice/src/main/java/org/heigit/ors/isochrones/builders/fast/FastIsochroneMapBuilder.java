@@ -59,11 +59,15 @@ import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
-import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
-import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MIN_CELL_NODES_NUMBER;
+import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
+
+/**
+ * Calculates isochrone polygons using fast isochrone algorithm.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 
 public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 {

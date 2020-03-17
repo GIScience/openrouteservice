@@ -4,7 +4,13 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 
-
+/**
+ * Superclass for partitioning a graph (or subgraph) into two cells.
+ * Iteratively used, it is possible to subdivide the graph into an arbitraty amount of cells.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
 
     private IntHashSet srcPartition, snkPartition;
@@ -52,7 +58,6 @@ public abstract class AbstractMaxFlowMinCutAlgorithm extends MaxFlowMinCut {
     }
 
     public IntHashSet getSnkPartition() {
-//        calcNodePartition();
         return snkPartition;
     }
 

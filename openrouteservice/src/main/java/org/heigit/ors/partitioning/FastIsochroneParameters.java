@@ -1,7 +1,12 @@
 package org.heigit.ors.partitioning;
 
 
-
+/**
+ * Parameters for fast isochrone algorithm preprocessing and query processing.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class FastIsochroneParameters {
 
     public static final int FASTISO_MAXTHREADCOUNT = 12;
@@ -29,7 +34,7 @@ public class FastIsochroneParameters {
      */
     public static final double CONCAVEHULL_THRESHOLD = 0.010;
 
-    public static final boolean PART__DEBUG = false;
+    public static final boolean PART__DEBUG = true;
 
 
 }

@@ -1,17 +1,18 @@
 package org.heigit.ors.fastisochrones;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.IntSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.index.ItemVisitor;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.partitioning.CellStorage;
@@ -19,10 +20,18 @@ import org.heigit.ors.partitioning.IsochroneNodeStorage;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
+
+/**
+ * Calculates Outlines (Contour) of cells.
+ * Contours are concave hulls of a given set of points.
+ * Additionally, contours for supercells can be created.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 
 public class Contour {
     private IsochroneNodeStorage isochroneNodeStorage;

@@ -8,7 +8,12 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-
+/**
+ * Abstract MaxFlowMinCut implementation.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class MaxFlowMinCut {
 
     PartitioningData pData;
@@ -118,9 +123,6 @@ public class MaxFlowMinCut {
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator){
-//        return true;
-//        return !(edgeIterator.getDistance() > 3000);
-//            return false;
         return edgeFilter.accept(edgeIterator);
     }
 

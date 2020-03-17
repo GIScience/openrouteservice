@@ -32,14 +32,12 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
 import java.util.PriorityQueue;
-import java.util.Set;
 
 /**
- * Implements a single source shortest path algorithm
- * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+ * Single-source shortest path algorithm bounded by isochrone limit.
  * <p>
  *
- * @author Peter Karich
+ * @author Hendrik Leuschner
  */
 public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;
@@ -48,7 +46,6 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     protected EccentricityStorage eccentricityStorage;
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-//    Set<Integer> processedBorderNodes;
     protected SPTEntry currEdge;
     private int visitedNodes;
     private double isochroneLimit = 0;

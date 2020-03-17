@@ -1,12 +1,15 @@
 package org.heigit.ors.fastisochrones;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
-
+/**
+ * Allows all edges within a given cell AND all edges to bordernodes
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class CellAndBorderNodeFilter implements EdgeFilter {
     private IsochroneNodeStorage isochroneNodeStorage;
     private int cellId;
@@ -38,8 +41,5 @@ public class CellAndBorderNodeFilter implements EdgeFilter {
             return true;
 
         return false;
-//
-//        return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
-//                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
     }
 }

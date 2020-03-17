@@ -24,11 +24,8 @@ import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
 import org.heigit.ors.partitioning.CellStorage;
 import org.heigit.ors.partitioning.EccentricityStorage;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
-
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-
-import javax.swing.border.Border;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,13 +33,10 @@ import java.util.Set;
 
 
 /**
- * Calculates best path using CH routing outside core and ALT inside core.
+ * Implementation of Fast Isochrones
+ * <p>
  *
- * This code is based on that from GraphHopper GmbH.
- *
- * @author Peter Karich
- * @author jansoe
- * @author Andrzej Oles
+ * @author Hendrik Leuschner
  */
 
 public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {

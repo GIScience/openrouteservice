@@ -9,12 +9,16 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-import java.util.Timer;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
 import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
-
+/**
+ * Prepares the partition of the graph.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class PreparePartition implements RoutingAlgorithmFactory {
 
     private GraphHopperStorage ghStorage;

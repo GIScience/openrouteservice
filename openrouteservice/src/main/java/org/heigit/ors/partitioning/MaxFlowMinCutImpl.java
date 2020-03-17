@@ -8,9 +8,12 @@ import com.graphhopper.util.EdgeIterator;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
-
-
+/**
+ * Implementation of MaxFlowMinCut
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public class MaxFlowMinCutImpl extends MaxFlowMinCut {
 
     private Graph _graph;

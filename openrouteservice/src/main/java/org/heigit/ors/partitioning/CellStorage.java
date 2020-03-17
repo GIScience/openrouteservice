@@ -27,13 +27,15 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 import com.graphhopper.util.Helper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.CONTOUR__USE_SUPERCELLS;
 
 /**
- * Stores nodes ordered by cell
+ * Stores nodes ordered by cell and contours of cells.
  *
  * @author Hendrik Leuschner
  */

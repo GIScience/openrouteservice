@@ -14,7 +14,12 @@ import org.heigit.ors.partitioning.EccentricityStorage;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Superclass for eccentricity calculations. Stores and orders references to eccentricity and bordernodedistance storages.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public abstract class AbstractEccentricity {
 
     protected GraphHopperStorage ghStorage;

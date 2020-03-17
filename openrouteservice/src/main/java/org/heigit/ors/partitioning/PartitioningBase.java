@@ -8,14 +8,15 @@ import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.concurrent.ExecutorService;
-
+/**
+ *
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 public abstract class PartitioningBase implements Runnable{
-
-    public enum PartitionAlgo {FordFulkerson, FordFulkerson2, EdmondsKarp, Dinic}
-
     int cellId;
     Graph ghGraph;
-    String[] partAlgoAll;
     IntHashSet nodeIdSet;
     AbstractMaxFlowMinCutAlgorithm mincutAlgo;
     EdgeFilter edgeFilter;
@@ -24,7 +25,6 @@ public abstract class PartitioningBase implements Runnable{
     int[] nodeToCellArr;
     GraphHopperStorage ghStorage;
     ExecutorService executorService;
-//    static WayCategoryGraphStorage storage;
 
     PartitioningBase() {
     }
@@ -41,14 +41,8 @@ public abstract class PartitioningBase implements Runnable{
 
 
     private void init() {
-        this.partAlgoAll = new String[PartitionAlgo.values().length];
         this.nodeIdSet = new IntHashSet();
         this.ghGraph = ghStorage.getBaseGraph();
-//        storage = GraphStorageUtils.getGraphExtension(ghStorage, WayCategoryGraphStorage.class);
-
-
-        for (PartitionAlgo algo : PartitionAlgo.values())
-            partAlgoAll[algo.ordinal()] = algo.name();
     }
 
     void initNodes() {
@@ -61,7 +55,6 @@ public abstract class PartitioningBase implements Runnable{
 
     void initAlgo() {
         mincutAlgo = new EdmondsKarpAStar(ghStorage, pData, this.edgeFilter, true);
-//        mincutAlgo.setAdditionalEdgeFilter(this.edgeFilter);
     }
 
     void setAlgo() {
@@ -70,14 +63,11 @@ public abstract class PartitioningBase implements Runnable{
 
     AbstractMaxFlowMinCutAlgorithm getAlgo() {
         return new EdmondsKarpAStar();
-
     }
 
     void setExecutorService(ExecutorService executorService){
         this.executorService = executorService;
     }
-
-//    public abstract void run();
 
     public int[] getNodeToCellArr() {
         return nodeToCellArr;

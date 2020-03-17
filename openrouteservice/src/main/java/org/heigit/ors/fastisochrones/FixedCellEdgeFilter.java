@@ -4,6 +4,12 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.partitioning.IsochroneNodeStorage;
 
+/**
+ * EdgeFilter to stay within cell.
+ * <p>
+ *
+ * @author Hendrik Leuschner
+ */
 
 public class FixedCellEdgeFilter implements EdgeFilter {
     private IsochroneNodeStorage isochroneNodeStorage;
