@@ -276,12 +276,13 @@ public class ORSGraphHopper extends GraphHopper {
 					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
 
+//                    tMode = TraversalMode.NODE_BASED;
+
 					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
 					queryGraph.lookup(qResults);
 					//tMode = TraversalMode.EDGE_BASED_2DIR;
 					//setTraversalMode(tMode);
 					//weighting = createWeighting(hints, tMode, encoder, queryGraph);
-					//tMode = TraversalMode.NODE_BASED;
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -519,11 +520,13 @@ public class ORSGraphHopper extends GraphHopper {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
+
 		/* TurnRestrictions */
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
 			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs, graph));
 		}
+
 
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.

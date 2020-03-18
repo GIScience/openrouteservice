@@ -21,6 +21,7 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import com.graphhopper.routing.weighting.TurnWeighting;
 
 /**
  * This class includes in the core all edges with turn restrictions.
@@ -34,37 +35,44 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     private final EdgeExplorer innerInExplorer;
     private final EdgeExplorer innerOutExplorer;
     private Graph graph;
+    private GraphHopperStorage graphHopperStorage;
 
-    public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage, Graph graph) {
+    public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage, Graph graph) {
         this.flagEncoder = encoder;
 
         this.graph = graph;
 
+        this.graphHopperStorage = graphHopperStorage;
+
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
-        turnCostExtension = GraphStorageUtils.getGraphExtension(graphStorage, TurnCostExtension.class);
+        turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
         innerInExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
         innerOutExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
     }
 
+    /* Returns tthe edge id of the first original edge of the current edge if reverse is true or the edge id of the last original edge of the current edge if reverse is false. */
     protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
         return reverse ? edge.getOrigEdgeFirst() : edge.getOrigEdgeLast();
     }
 
+    /* Returns true if there are turn-restrictions or u-turn starting from the current edge.  */
     boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
-        EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode());
+        EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode()); //Set the node as the incoming if reverse is true or outgoing if reverse is false.
         boolean hasTurnRestrictions = false;
+
 
         while (iter.next()) {
             final int edgeId = getOrigEdgeId(iter, !reverse);
             final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
-            if (edgeId == prevOrNextOrigEdgeId) {
-                continue;
-            }
 
             long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getBaseNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getBaseNode(), iter.getOrigEdgeFirst());
-            boolean test = flagEncoder.isTurnRestricted(turnFlags);
+            //Get the turn-flags (returns 1 if there is a turn cost or 0 if there is not) for a route between edgeId and prevOrNextOrigEdgeId depending on reverse.
+
+            edge.getName();
+            double test = 1;
+
             if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
                 hasTurnRestrictions = true;
                 break;

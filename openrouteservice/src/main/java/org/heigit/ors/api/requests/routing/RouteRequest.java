@@ -460,6 +460,8 @@ public class RouteRequest {
     }
 
     public boolean getUseContractionHierarchies() {
+
+
         return useContractionHierarchies;
     }
 
