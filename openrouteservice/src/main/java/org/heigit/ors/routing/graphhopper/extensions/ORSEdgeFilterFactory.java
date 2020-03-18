@@ -69,7 +69,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
             /* Consider turn restrictions */
             if(params.has("edgefilter_turn_restrictions")) {
-            //    edgeFilters.add(new TurnRestrictionsEdgeFilter(flagEncoder, gs));
+                edgeFilters.add(new TurnRestrictionsEdgeFilter(flagEncoder, gs));
             }
 
             
