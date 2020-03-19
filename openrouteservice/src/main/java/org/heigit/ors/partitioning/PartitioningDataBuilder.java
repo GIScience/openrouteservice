@@ -1,5 +1,6 @@
 package org.heigit.ors.partitioning;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
@@ -8,22 +9,27 @@ import com.graphhopper.util.EdgeIterator;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.heigit.ors.partitioning.MaxFlowMinCut._dummyEdgeId;
+import static org.heigit.ors.partitioning.MaxFlowMinCut._dummyNodeId;
+
 /**
  * Implementation of MaxFlowMinCut
  * <p>
  *
  * @author Hendrik Leuschner
  */
-public class MaxFlowMinCutImpl extends MaxFlowMinCut {
+public class PartitioningDataBuilder {
 
     private Graph _graph;
     private EdgeExplorer _edgeExpl;
     private EdgeIterator _edgeIter;
+    private PartitioningData pData;
+    private EdgeFilter edgeFilter;
 
     private int maxEdgeId = -1;
 
 
-    MaxFlowMinCutImpl(GraphHopperStorage ghStorage, PartitioningData pData) {
+    PartitioningDataBuilder(GraphHopperStorage ghStorage, PartitioningData pData) {
         this._graph = ghStorage.getBaseGraph();
         this._edgeExpl = _graph.createEdgeExplorer();
         this.pData = pData;
@@ -43,7 +49,6 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
 
 
     public void initStatics() {
-        this.nodes = _graph.getNodes();
 //        this.flowEdgeMap = new HashMap<>();
         _dummyEdgeId = _graph.getAllEdges().length() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
@@ -52,7 +57,7 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
     public void buildStaticNetwork() {
         Set<Integer> targSet = new HashSet<>();
 
-        for (int baseId = 0; baseId < nodes; baseId++) {
+        for (int baseId = 0; baseId < _graph.getNodes(); baseId++) {
             targSet.clear();
             _edgeIter = _edgeExpl.setBaseNode(baseId);
             while (_edgeIter.next()) {
@@ -77,4 +82,12 @@ public class MaxFlowMinCutImpl extends MaxFlowMinCut {
             maxEdgeId = edgeId;
         return edgeId;
     }
+
+    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter){
+        this.edgeFilter = edgeFilter;
     }
+
+    private boolean acceptForPartitioning(EdgeIterator edgeIterator){
+        return edgeFilter.accept(edgeIterator);
+    }
+}

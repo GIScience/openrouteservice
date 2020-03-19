@@ -19,7 +19,7 @@ import static org.heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLI
  *
  * @author Hendrik Leuschner
  */
-public class EdmondsKarpAStar extends AbstractMaxFlowMinCutAlgorithm {
+public class EdmondsKarpAStar extends MaxFlowMinCut {
 
     private IntObjectHashMap<EdgeInfo> prevMap;
     private int srcLimit;

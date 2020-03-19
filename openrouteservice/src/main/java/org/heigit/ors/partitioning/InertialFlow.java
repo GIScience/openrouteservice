@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
-import static org.heigit.ors.partitioning.InertialFlow.Projection.*;
 import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
 
 /**
@@ -26,67 +25,6 @@ import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
  */
 
 public class InertialFlow extends PartitioningBase {
-
-    enum Projection {  // Sortier-Projektionen der Koordinaten
-        Line_p90
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat;
-                    }
-                },
-        Line_p675
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat + Math.tan(Math.toRadians(67.5)) * lon;
-                    }
-                },
-        Line_p45
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat + Math.tan(Math.toRadians(45)) * lon;
-                    }
-                },
-        Line_p225
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat + Math.tan(Math.toRadians(22.5)) * lon;
-                    }
-                },
-        Line_m00
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lon;
-                    }
-                },
-        Line_m225
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat - Math.tan(Math.toRadians(22.5)) * lon;
-                    }
-                },
-        Line_m45
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat - Math.tan(Math.toRadians(45)) * lon;
-                    }
-                },
-        Line_m675
-                {
-                    public double sortValue(double lat, double lon) {
-                        return lat - Math.tan(Math.toRadians(67.5)) * lon;
-                    }
-                };
-
-        abstract double sortValue(double lat, double lon);
-    }
-
-    private Map<Projection, Projection> correspondingProjMap = new HashMap<>();
-
-    private List<Projection> projOrder;
-
-
-    private Map<Projection, IntArrayList> projections;
-
     private PreparePartition.InverseSemaphore inverseSemaphore;
 
     public InertialFlow(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilterSequence edgeFilters, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
@@ -216,7 +154,7 @@ public class InertialFlow extends PartitioningBase {
         mincutScore = (int)Math.ceil(mincutScore * sizeFactor);
         IntHashSet part0 = new IntHashSet(nodeIdSet.size() / 3);
         IntHashSet part1 = new IntHashSet(nodeIdSet.size() / 3);
-
+        MaxFlowMinCut maxFlowMinCut = this.cellId == 1 ? initAlgo() : setAlgo();
         //>> Loop through Projections and project each Node
         int i = 0;
         for (Projection proj : projOrder) {
@@ -224,20 +162,19 @@ public class InertialFlow extends PartitioningBase {
             if(i == FLOW__CONSIDERED_PROJECTIONS)
                 break;
             //>> sort projected Nodes
-            mincutAlgo.setOrderedNodes(nodeListProjMap.get(proj));
-            mincutAlgo.setNodeOrder();
-            mincutAlgo.setMaxFlowLimit(mincutScore).initSubNetwork();
-            int cutScore = mincutAlgo.getMaxFlow();
+            maxFlowMinCut.setOrderedNodes(nodeListProjMap.get(proj));
+            maxFlowMinCut.setNodeOrder();
+            maxFlowMinCut.setMaxFlowLimit(mincutScore).initSubNetwork();
+            int cutScore = maxFlowMinCut.getMaxFlow();
             if (cutScore < mincutScore) {
                 //>> store Results
                 mincutScore = cutScore;
                 //>> get Data for next Recursion-Step
-                part0 = mincutAlgo.getSrcPartition();
-                part1 = mincutAlgo.getSnkPartition();
+                part0 = maxFlowMinCut.getSrcPartition();
+                part1 = maxFlowMinCut.getSnkPartition();
             }
             i++;
         }
-        this.mincutAlgo = null;   //>> free Memory
         return new BiPartition(part0, part1);
     }
 
@@ -410,53 +347,5 @@ public class InertialFlow extends PartitioningBase {
         return disconnectedCells;
     }
 
-    private void prepareProjectionMaps(){
-        this.correspondingProjMap = new HashMap<>();
-        this.correspondingProjMap.put(Line_p90, Line_m00);
-        this.correspondingProjMap.put(Line_p675, Line_m225);
-        this.correspondingProjMap.put(Line_p45, Line_m45);
-        this.correspondingProjMap.put(Line_p225, Line_m675);
-        this.correspondingProjMap.put(Line_m00, Line_p90);
-        this.correspondingProjMap.put(Line_m225, Line_p675);
-        this.correspondingProjMap.put(Line_m45, Line_p45);
-        this.correspondingProjMap.put(Line_m675, Line_p225);
-    }
 
-    private class BiPartition {
-        private IntHashSet partition0;
-        private IntHashSet partition1;
-
-        public BiPartition(IntHashSet partition0, IntHashSet partition1){
-            this.partition0 = partition0;
-            this.partition1 = partition1;
-        }
-
-        public IntHashSet getPartition0() {
-            return partition0;
-        }
-
-        public IntHashSet getPartition1() {
-            return partition1;
-        }
-
-    }
-
-    private class BiPartitionProjection {
-        private Map<Projection, IntArrayList> projection0;
-        private Map<Projection, IntArrayList> projection1;
-
-        public BiPartitionProjection(Map<Projection, IntArrayList> partition0, Map<Projection, IntArrayList> partition1){
-            this.projection0 = partition0;
-            this.projection1 = partition1;
-        }
-
-        public Map<Projection, IntArrayList> getProjection0() {
-            return projection0;
-        }
-
-        public Map<Projection, IntArrayList> getProjection1() {
-            return projection1;
-        }
-
-    }
 }

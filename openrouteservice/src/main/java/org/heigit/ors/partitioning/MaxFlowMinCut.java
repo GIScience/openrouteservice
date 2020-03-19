@@ -14,24 +14,22 @@ import com.graphhopper.util.EdgeIterator;
  *
  * @author Hendrik Leuschner
  */
-public class MaxFlowMinCut {
+public abstract class MaxFlowMinCut {
 
     PartitioningData pData;
+    private IntHashSet srcPartition, snkPartition;
 
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
     protected int snkNodeId;
-
+    protected double limit;
     protected static int _dummyNodeId = -2;
     protected static int _dummyEdgeId = -2;
 
     protected Graph _graph;
     protected EdgeExplorer _edgeExpl;
     protected EdgeIterator _edgeIter;
-
     protected GraphHopperStorage _ghStorage;
-
-    protected double limit;
 
     protected IntIntHashMap nodeOrder;
     protected IntArrayList orderedNodes;
@@ -46,9 +44,8 @@ public class MaxFlowMinCut {
 
         setAdditionalEdgeFilter(edgeFilter);
         if(init) {
-            MaxFlowMinCutImpl maxFlowMinCut = new MaxFlowMinCutImpl(ghStorage, pData);
+            PartitioningDataBuilder maxFlowMinCut = new PartitioningDataBuilder(ghStorage, pData);
             maxFlowMinCut.setAdditionalEdgeFilter(edgeFilter);
-            maxFlowMinCut.setGHStorage(ghStorage);
             maxFlowMinCut.run();
         }
     }
@@ -81,6 +78,55 @@ public class MaxFlowMinCut {
         this.maxFlow = 0;
         this.visitedToken = 1;
     }
+
+    public void setVisited(int node) {
+        pData.setVisited(node, visitedToken);
+    }
+
+    public boolean isVisited(int visited) {
+        return (visited == visitedToken);
+    }
+
+    public void setUnvisitedAll() {
+        ++this.visitedToken;
+    }
+
+    public int getMaxFlow() {
+        execute();
+        return maxFlow;
+    }
+
+    private void calcNodePartition() {
+        srcPartition = new IntHashSet();
+        snkPartition = new IntHashSet();
+
+        execute();
+        for (int nodeId : nodeOrder.keys) {
+            if (isVisited(pData.getVisited(nodeId)))
+                this.srcPartition.add(nodeId);
+            else
+                this.snkPartition.add(nodeId);
+        }
+    }
+
+    public IntHashSet getSrcPartition() {
+        calcNodePartition();
+        return srcPartition;
+    }
+
+    public IntHashSet getSnkPartition() {
+        return snkPartition;
+    }
+
+    private void execute() {
+        if (flooded)
+            return;
+
+        this.flooded = true;
+        flood();
+    }
+
+    public abstract void flood();
 
 
     private void buildSrcSnkNodes() {
