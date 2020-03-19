@@ -26,45 +26,34 @@ import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
 
 public class InertialFlow extends PartitioningBase {
     private PreparePartition.InverseSemaphore inverseSemaphore;
+    private int partitionNodeCount;
 
     public InertialFlow(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilterSequence edgeFilters, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
         super(ghStorage, pData, edgeFilters, executorService);
         //Start cellId 1 so that bitshifting it causes no zeros at the front
         this.cellId = 1;
         prepareProjectionMaps();
-        this.projOrder = new ArrayList<>();
         this.ghGraph = ghStorage.getBaseGraph();
+        this.partitionNodeCount = this.ghGraph.getNodes();
         if(PART__DEBUG) System.out.println("Number of nodes: "+ghGraph.getNodes());
         if(PART__DEBUG) System.out.println("Number of edges: "+ghGraph.getAllEdges().length());
         this.inverseSemaphore = inverseSemaphore;
 
-        initNodes();
         initAlgo();
         this.projections = calculateProjections();
-        this.projOrder = calculateProjectionOrder(this.projections);
     }
 
-    private InertialFlow(int cellId, GraphHopperStorage ghStorage, int[] nodeToCellArr, PartitioningData pData, IntHashSet nodeSet, Map<Projection, IntArrayList> projections, EdgeFilter edgeFilter, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
+    private InertialFlow(int cellId, GraphHopperStorage ghStorage, int[] nodeToCellArr, PartitioningData pData, int partitionNodeCount, Map<Projection, IntArrayList> projections, EdgeFilter edgeFilter, ExecutorService executorService, PreparePartition.InverseSemaphore inverseSemaphore) {
         setExecutorService(executorService);
         this.pData = pData;
+        this.partitionNodeCount = partitionNodeCount;
         this.cellId = cellId;
         this.ghStorage = ghStorage;
         this.ghGraph = ghStorage.getBaseGraph();
         this.nodeToCellArr = nodeToCellArr;
         this.inverseSemaphore = inverseSemaphore;
         this.edgeFilter = edgeFilter;
-        this.projOrder = new ArrayList<>();
         this.projections = projections;
-
-        prepareProjectionMaps();
-
-        this.nodeIdSet = new IntHashSet();
-        for(IntCursor node : nodeSet){
-            nodeIdSet.add(node.value);
-        }
-
-        this.projOrder = calculateProjectionOrder(projections);
-
     }
 
     public void run() {
@@ -74,7 +63,7 @@ public class InertialFlow extends PartitioningBase {
             saveResults(biPartition);
             BiPartitionProjection biPartitionProjection = prepareProjections(this.projections, biPartition);
             this.projections = null;
-            recursion(biPartition, biPartitionProjection);
+            recursion(getInvokeNextAndSave(biPartition), biPartition.getPartition0().size(), biPartition.getPartition1().size(), biPartitionProjection);
         }
         finally {
             inverseSemaphore.taskCompleted();
@@ -85,18 +74,16 @@ public class InertialFlow extends PartitioningBase {
     private Map<Projection, IntArrayList> calculateProjections() {
         //>> Loop through linear combinations and project each Node
         Map<Projection, IntArrayList> nodeListProjMap = new HashMap<>(Projection.values().length);
+        IntHashSet nodeIdSet = initNodes();
+        Double[] values = new Double[nodeIdSet.size()];
+        Integer[] ids = IntStream.of( nodeIdSet.toArray() ).boxed().toArray( Integer[]::new );
 
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
-            Double[] values = new Double[nodeIdSet.size()];
-            Integer[] ids = IntStream.of( nodeIdSet.toArray() ).boxed().toArray( Integer[]::new );
-
             for(int i = 0; i < ids.length; i++) {
                 values[i] = proj.sortValue(ghStorage.getNodeAccess().getLatitude(ids[i]), ghStorage.getNodeAccess().getLongitude(ids[i]));
             }
             nodeListProjMap.put(proj, sortByValueReturnList(ids, values, this.cellId));
-
-            projOrder.add(proj);
         }
         return nodeListProjMap;
     }
@@ -147,14 +134,15 @@ public class InertialFlow extends PartitioningBase {
     }
 
 
-    private BiPartition graphBiSplit(Map<Projection, IntArrayList> nodeListProjMap) {
+    private BiPartition graphBiSplit(Map<Projection, IntArrayList> projections) {
         //Estimated maximum iterations
         int mincutScore = ghGraph.getBaseGraph().getAllEdges().length();
-        double sizeFactor = ((double)nodeIdSet.size()) / ghGraph.getBaseGraph().getNodes();
+        double sizeFactor = ((double)partitionNodeCount) / ghGraph.getBaseGraph().getNodes();
         mincutScore = (int)Math.ceil(mincutScore * sizeFactor);
-        IntHashSet part0 = new IntHashSet(nodeIdSet.size() / 3);
-        IntHashSet part1 = new IntHashSet(nodeIdSet.size() / 3);
+        IntHashSet part0 = new IntHashSet(partitionNodeCount / 3);
+        IntHashSet part1 = new IntHashSet(partitionNodeCount / 3);
         MaxFlowMinCut maxFlowMinCut = this.cellId == 1 ? initAlgo() : setAlgo();
+        List<Projection> projOrder = calculateProjectionOrder(projections);
         //>> Loop through Projections and project each Node
         int i = 0;
         for (Projection proj : projOrder) {
@@ -162,7 +150,7 @@ public class InertialFlow extends PartitioningBase {
             if(i == FLOW__CONSIDERED_PROJECTIONS)
                 break;
             //>> sort projected Nodes
-            maxFlowMinCut.setOrderedNodes(nodeListProjMap.get(proj));
+            maxFlowMinCut.setOrderedNodes(projections.get(proj));
             maxFlowMinCut.setNodeOrder();
             maxFlowMinCut.setMaxFlowLimit(mincutScore).initSubNetwork();
             int cutScore = maxFlowMinCut.getMaxFlow();
@@ -204,11 +192,54 @@ public class InertialFlow extends PartitioningBase {
         }
     }
 
-    private void recursion(BiPartition biPartition, BiPartitionProjection biPartitionProjection) {
+    private void recursion(boolean[] invokeNext, int part0Count, int part1Count, BiPartitionProjection biPartitionProjection) {
+        if (invokeNext[0] == true && invokeNext[1] == true) {
+            if(partitionNodeCount > PART__MAX_CELL_NODES_NUMBER * 4) {
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, part0Count, biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore));
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, part1Count, biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore));
+            }
+            else{
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, part0Count, biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+                inverseSemaphore.beforeSubmit();
+                inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, part1Count, biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
+        }
+        else if (invokeNext[0]) {
+            if(partitionNodeCount > PART__MAX_CELL_NODES_NUMBER * 4) {
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, part0Count, biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore));
+            }
+            else {
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, part0Count, biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
+        }
+        else if (invokeNext[1]) {
+            if(partitionNodeCount > PART__MAX_CELL_NODES_NUMBER * 4) {
+                inverseSemaphore.beforeSubmit();
+                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, part1Count, biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore));
+            }
+            else {
+                inverseSemaphore.beforeSubmit();
+                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, part1Count, biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore);
+                inertialFlow.run();
+            }
+        }
+    }
+
+    private boolean[] getInvokeNextAndSave(BiPartition biPartition){
         boolean[] invokeNext = new boolean[2];
         boolean nextRecursionLevel = false;
+        int part0Count = biPartition.getPartition0().size();
+        int part1Count = biPartition.getPartition1().size();
 
-        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (biPartition.getPartition0().size() > PART__MAX_CELL_NODES_NUMBER)){
+        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (part0Count > PART__MAX_CELL_NODES_NUMBER)){
             nextRecursionLevel = true;
         }
         if ((cellId < PART__MIN_SPLITTING_ITERATION))
@@ -223,7 +254,7 @@ public class InertialFlow extends PartitioningBase {
 
         nextRecursionLevel = false;
 
-        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (biPartition.getPartition1().size() > PART__MAX_CELL_NODES_NUMBER)){
+        if ((cellId < PART__MAX_SPLITTING_ITERATION) && (part1Count > PART__MAX_CELL_NODES_NUMBER)){
             nextRecursionLevel = true;
         }
         if ((cellId < PART__MIN_SPLITTING_ITERATION))
@@ -235,51 +266,7 @@ public class InertialFlow extends PartitioningBase {
         if (nextRecursionLevel) {
             invokeNext[1] = true;
         }
-//        }
-        if (invokeNext[0] == true && invokeNext[1] == true) {
-            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 4) {
-//                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
-                inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, biPartition.getPartition0(), biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore));
-//                System.out.println("Submitting task for cell " + (cellId << 1 | 1));
-
-                inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, biPartition.getPartition1(), biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore));
-            }
-            else{
-                inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, biPartition.getPartition0(), biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore);
-                inertialFlow.run();
-                inverseSemaphore.beforeSubmit();
-                inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, biPartition.getPartition1(), biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore);
-                inertialFlow.run();
-            }
-        }
-        else if (invokeNext[0]) {
-            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 4) {
-                inverseSemaphore.beforeSubmit();
-//                System.out.println("Submitting task for cell " + (cellId << 1 | 0));
-
-                executorService.execute(new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, biPartition.getPartition0(), biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore));
-            }
-            else {
-                inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 0, ghStorage, nodeToCellArr, pData, biPartition.getPartition0(), biPartitionProjection.getProjection0(), this.edgeFilter, executorService, inverseSemaphore);
-                inertialFlow.run();
-            }
-        }
-        else if (invokeNext[1]) {
-            if(nodeIdSet.size() > PART__MAX_CELL_NODES_NUMBER * 4) {
-
-                inverseSemaphore.beforeSubmit();
-                executorService.execute(new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, biPartition.getPartition1(), biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore));
-            }
-            else {
-                inverseSemaphore.beforeSubmit();
-                InertialFlow inertialFlow = new InertialFlow(cellId << 1 | 1, ghStorage, nodeToCellArr, pData, biPartition.getPartition1(), biPartitionProjection.getProjection1(), this.edgeFilter, executorService, inverseSemaphore);
-                inertialFlow.run();
-            }
-        }
+        return invokeNext;
     }
 
     private double projIndividualValue(Map<Projection, IntArrayList> projMap, Projection proj, int idx) {

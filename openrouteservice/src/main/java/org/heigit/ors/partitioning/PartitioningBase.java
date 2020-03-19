@@ -24,14 +24,9 @@ import static org.heigit.ors.partitioning.PartitioningBase.Projection.*;
 public abstract class PartitioningBase implements Runnable{
     int cellId;
     Graph ghGraph;
-    IntHashSet nodeIdSet;
     EdgeFilter edgeFilter;
     PartitioningData pData;
-    protected Map<Projection, Projection> correspondingProjMap = new HashMap<>();
-
-    protected List<Projection> projOrder;
-
-
+    protected static Map<Projection, Projection> correspondingProjMap = new HashMap<>();
     protected Map<Projection, IntArrayList> projections;
 
     int[] nodeToCellArr;
@@ -100,22 +95,17 @@ public abstract class PartitioningBase implements Runnable{
         nodeToCellArr = new int[ghStorage.getNodes()];
         this.edgeFilter = edgeFilters;
         setExecutorService(executorService);
-
-        init();
-    }
-
-
-    private void init() {
-        this.nodeIdSet = new IntHashSet();
         this.ghGraph = ghStorage.getBaseGraph();
     }
 
-    void initNodes() {
+    protected IntHashSet initNodes() {
+        IntHashSet nodeIdSet = new IntHashSet();
         EdgeIterator edgeIter = ghGraph.getAllEdges();
         while (edgeIter.next()) {
             nodeIdSet.add(edgeIter.getBaseNode());
             nodeIdSet.add(edgeIter.getAdjNode());
         }
+        return nodeIdSet;
     }
 
     public MaxFlowMinCut initAlgo() {
@@ -182,9 +172,5 @@ public abstract class PartitioningBase implements Runnable{
             return projection1;
         }
 
-    }
-
-    public int[] getNodeToCellArr() {
-        return nodeToCellArr;
     }
 }
