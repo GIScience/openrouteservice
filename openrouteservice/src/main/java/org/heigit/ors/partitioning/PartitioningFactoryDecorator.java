@@ -37,8 +37,6 @@ import java.util.concurrent.Executors;
 public class PartitioningFactoryDecorator  {
     private final List<PreparePartition> preparations = new ArrayList<>();
     private boolean disablingAllowed = true;
-    private final List<Weighting> weightings = new ArrayList<>();
-    private final Set<String> weightingsAsStrings = new LinkedHashSet<>();
     // for backward compatibility enable CH by default.
     private boolean enabled = true;
     private int preparationThreads;
