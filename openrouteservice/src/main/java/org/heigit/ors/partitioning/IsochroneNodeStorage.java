@@ -82,7 +82,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         return buffer[0] == 1;
     }
 
-    public void setCellId(int[] cellIds){
+    public void setCellIds(int[] cellIds){
         if (nodeCount != cellIds.length)
             throw new IllegalStateException("Nodecount and cellIds array do not match");
         isochroneNodes.create(1000);
@@ -119,7 +119,6 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     public IntSet getCellIds(){
         return cellIdsSet;
     }
-
 
     @Override
     public IsochroneNodeStorage create(long byteCount) {

@@ -48,7 +48,6 @@ public class CellStorage implements Storable<CellStorage> {
     private int nodeCount;
     private long cellContourPointer;
     private IsochroneNodeStorage isochroneNodeStorage;
-    private IntObjectMap<IntHashSet> cellIdToNodesMap;
     private IntLongMap cellIdToNodesPointerMap;
     private IntLongMap cellIdToContourPointerMap;
     private IntIntMap cellIdToSuperCellMap = new IntIntHashMap();
@@ -85,13 +84,13 @@ public class CellStorage implements Storable<CellStorage> {
     public void init() {
         cells.create(1000);
         int cellCount = isochroneNodeStorage.getCellIds().size();
-        cellIdToNodesMap = new IntObjectHashMap<>(cellCount);
         cellIdToNodesPointerMap = new IntLongHashMap(cellCount);
         cellIdToContourPointerMap = new IntLongHashMap(cellCount);
         cellIdToSuperCellMap = new IntIntHashMap(cellCount);
     }
 
     public void calcCellNodesMap() {
+        IntObjectMap<IntHashSet> cellIdToNodesMap = new IntObjectHashMap<>(isochroneNodeStorage.getCellIds().size());
         //Calc a hashmap of the cells
         for (int node = 0; node < nodeCount; node++) {
             int cellId = isochroneNodeStorage.getCellId(node);
@@ -123,7 +122,6 @@ public class CellStorage implements Storable<CellStorage> {
         }
         //Set the contour node pointer to the end of the nodes part
         cellContourPointer = nodePointer;
-        cellIdToNodesMap = null;
 
         //Put the cellId to pointer map into the storage
         //Layout: [cellId (4B), pointer to nodes (8B)]

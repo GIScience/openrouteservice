@@ -37,26 +37,12 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     }
 
     public PreparePartition prepare() {
-        PartitioningData pData = new PartitioningData();
-        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
-        InverseSemaphore inverseSemaphore =  new InverseSemaphore();
-        inverseSemaphore.beforeSubmit();
-        InertialFlow inertialFlow;
-        if(PART__DEBUG) System.out.println("Submitting task for cell 1");
-        threadPool.execute(inertialFlow = new InertialFlow(ghStorage, pData, edgeFilters, threadPool, inverseSemaphore));
-        try {
-            inverseSemaphore.awaitCompletion();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        threadPool.shutdown();
-        int[] nodeCellId = inertialFlow.nodeToCellArr;
+        int[] nodeCellId = runInertialFlow();
         boolean[] nodeBorderness = calcBorderNodes(nodeCellId);
 
         //Create and calculate isochrone info that is ordered by node
         if (!isochroneNodeStorage.loadExisting()) {
-            isochroneNodeStorage.setCellId(nodeCellId);
+            isochroneNodeStorage.setCellIds(nodeCellId);
             isochroneNodeStorage.setBorderness(nodeBorderness);
             isochroneNodeStorage.flush();
         }
@@ -68,6 +54,23 @@ public class PreparePartition implements RoutingAlgorithmFactory {
             cellStorage.flush();
         }
         return this;
+    }
+
+    private int[] runInertialFlow(){
+        int[] nodeToCellArray = new int[ghStorage.getNodes()];
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+        InverseSemaphore inverseSemaphore =  new InverseSemaphore();
+        inverseSemaphore.beforeSubmit();
+        if(PART__DEBUG) System.out.println("Submitting task for cell 1");
+        threadPool.execute(new InertialFlow(nodeToCellArray, ghStorage, new PartitioningData(), edgeFilters, threadPool, inverseSemaphore));
+        try {
+            inverseSemaphore.awaitCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        threadPool.shutdown();
+        return nodeToCellArray;
     }
 
     /**

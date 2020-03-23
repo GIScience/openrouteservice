@@ -89,10 +89,10 @@ public abstract class PartitioningBase implements Runnable{
     PartitioningBase() {
     }
 
-    PartitioningBase(GraphHopperStorage _ghStorage, PartitioningData pData, EdgeFilterSequence edgeFilters, ExecutorService executorService) {
+    PartitioningBase(int[] nodeToCellArray, GraphHopperStorage _ghStorage, PartitioningData pData, EdgeFilterSequence edgeFilters, ExecutorService executorService) {
         ghStorage = _ghStorage;
         this.pData = pData;
-        nodeToCellArr = new int[ghStorage.getNodes()];
+        this.nodeToCellArr = nodeToCellArray;
         this.edgeFilter = edgeFilters;
         setExecutorService(executorService);
         this.ghGraph = ghStorage.getBaseGraph();
@@ -136,41 +136,4 @@ public abstract class PartitioningBase implements Runnable{
         this.correspondingProjMap.put(Line_m675, Line_p225);
     }
 
-    protected class BiPartition {
-        private IntHashSet partition0;
-        private IntHashSet partition1;
-
-        public BiPartition(IntHashSet partition0, IntHashSet partition1){
-            this.partition0 = partition0;
-            this.partition1 = partition1;
-        }
-
-        public IntHashSet getPartition0() {
-            return partition0;
-        }
-
-        public IntHashSet getPartition1() {
-            return partition1;
-        }
-
-    }
-
-    protected class BiPartitionProjection {
-        private Map<Projection, IntArrayList> projection0;
-        private Map<Projection, IntArrayList> projection1;
-
-        public BiPartitionProjection(Map<Projection, IntArrayList> partition0, Map<Projection, IntArrayList> partition1){
-            this.projection0 = partition0;
-            this.projection1 = partition1;
-        }
-
-        public Map<Projection, IntArrayList> getProjection0() {
-            return projection0;
-        }
-
-        public Map<Projection, IntArrayList> getProjection1() {
-            return projection1;
-        }
-
-    }
 }

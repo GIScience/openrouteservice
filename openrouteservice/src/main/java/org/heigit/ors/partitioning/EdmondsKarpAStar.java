@@ -21,7 +21,6 @@ import static org.heigit.ors.partitioning.FastIsochroneParameters.FLOW__SET_SPLI
  */
 public class EdmondsKarpAStar extends MaxFlowMinCut {
 
-    private IntObjectHashMap<EdgeInfo> prevMap;
     private int srcLimit;
     private int snkLimit;
 
@@ -49,13 +48,11 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     @Override
     public void flood() {
         int flow;
-        prevMap = new IntObjectHashMap((int)Math.ceil(FLOW__SET_SPLIT_VALUE * nodes));
         srcLimit = (int) (FLOW__SET_SPLIT_VALUE * nodes);
         snkLimit = (int) ((1 - FLOW__SET_SPLIT_VALUE) * nodes);
         Deque<Integer> deque = new ArrayDeque<>(nodes / 2);
         addSrcNodesToDeque(deque);
         do {
-            prevMap.clear();
             setUnvisitedAll();
             flow = bfs(deque);
             maxFlow += flow;
@@ -65,10 +62,10 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
                 break;
             }
         } while (flow > 0);
-        prevMap = null;
     }
 
     private int bfs(Deque<Integer> initialDeque) {
+        IntObjectHashMap<EdgeInfo> prevMap = new IntObjectHashMap((int)Math.ceil(0.1 * nodes));
         Deque<Integer> deque = copyInitialDeque(initialDeque);
         int calls = srcLimit;
         int node;

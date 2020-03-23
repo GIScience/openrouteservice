@@ -17,7 +17,6 @@ import com.graphhopper.util.EdgeIterator;
 public abstract class MaxFlowMinCut {
 
     PartitioningData pData;
-    private IntHashSet srcPartition, snkPartition;
 
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
@@ -44,9 +43,9 @@ public abstract class MaxFlowMinCut {
 
         setAdditionalEdgeFilter(edgeFilter);
         if(init) {
-            PartitioningDataBuilder maxFlowMinCut = new PartitioningDataBuilder(ghStorage, pData);
-            maxFlowMinCut.setAdditionalEdgeFilter(edgeFilter);
-            maxFlowMinCut.run();
+            PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage, pData);
+            partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
+            partitioningDataBuilder.run();
         }
     }
 
@@ -96,26 +95,18 @@ public abstract class MaxFlowMinCut {
         return maxFlow;
     }
 
-    private void calcNodePartition() {
-        srcPartition = new IntHashSet();
-        snkPartition = new IntHashSet();
+    public BiPartition calcNodePartition() {
+        IntHashSet srcSet = new IntHashSet();
+        IntHashSet snkSet = new IntHashSet();
 
         execute();
         for (int nodeId : nodeOrder.keys) {
             if (isVisited(pData.getVisited(nodeId)))
-                this.srcPartition.add(nodeId);
+                srcSet.add(nodeId);
             else
-                this.snkPartition.add(nodeId);
+                snkSet.add(nodeId);
         }
-    }
-
-    public IntHashSet getSrcPartition() {
-        calcNodePartition();
-        return srcPartition;
-    }
-
-    public IntHashSet getSnkPartition() {
-        return snkPartition;
+        return new BiPartition(srcSet, snkSet);
     }
 
     private void execute() {
