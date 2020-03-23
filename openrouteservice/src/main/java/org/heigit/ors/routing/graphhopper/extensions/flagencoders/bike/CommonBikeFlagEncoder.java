@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
 import static com.graphhopper.util.Helper.keepIn;
 
@@ -253,13 +254,13 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        speedEncoder = new FactorizedDecimalEncodedValue(prefix + "average_speed", speedBits, speedFactor, speedTwoDirections);
+        speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
-        unpavedEncoder = new SimpleBooleanEncodedValue(prefix + "paved", false);
+        unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false);
         registerNewEncodedValue.add(unpavedEncoder);
-        wayTypeEncoder = new SimpleIntEncodedValue(prefix + "waytype", 2, false);
+        wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false);
         registerNewEncodedValue.add(wayTypeEncoder);
-        priorityWayEncoder = new FactorizedDecimalEncodedValue(prefix + "priority", 3, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
     }
 

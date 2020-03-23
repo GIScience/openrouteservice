@@ -2,12 +2,32 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 ### Added
 ### Fixed
 ### Changed
+### Deprecated
+
+## [6.1.0] - 2020-03-06
+### Added
+- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
+- Configuration options to limit avoid_polygon routing option by area and/or extent ([#629](https://github.com/GIScience/openrouteservice/issues/629))
+- Configuration options to limit count parameter and distance when using alternative routes algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/651))
+- Configuration options to limit distance when using round trip routing algorithm ([#658](https://github.com/GIScience/openrouteservice/issues/658))
+- Enable CALT routing algorithm for cycling profiles ([#662](https://github.com/GIScience/openrouteservice/issues/662))
+- Configuration options to send conditional system messages with API responses ([#664](https://github.com/GIScience/openrouteservice/issues/664))
+### Fixed
+- more consistent language API parameters (ISO 639-1 codes & IETF tags)
+- Nepali language support can be selected through API
+- Fixed invalid JSON and GeoJSON when including elevation ([#640](https://github.com/GIScience/openrouteservice/issues/640))
+- Added graph date for isochrones and matrix service and fixed the 0 output ([#648](https://github.com/GIScience/openrouteservice/issues/648))
+- Fixed memory issue at graph building ([#659](https://github.com/GIScience/openrouteservice/issues/659))
+- Improve way category assignment for ferry connections ([#678](https://github.com/GIScience/openrouteservice/issues/678))
+### Changed
+- Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
+- Updated GraphHopper to newer version (0.13)
+- Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
 ### Deprecated
 
 ## [6.0.0] - 2019-12-03

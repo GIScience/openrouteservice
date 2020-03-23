@@ -32,6 +32,8 @@ public class RouteProfileConfiguration {
 	private Double maximumDistance = 0.0;
 	private Double maximumDistanceDynamicWeights = 0.0;
 	private Double maximumDistanceAvoidAreas = 0.0;
+	private Double maximumDistanceAlternativeRoutes = 0.0;
+	private Double maximumDistanceRoundTripRoutes = 0.0;
 	private Integer maximumWayPoints = 0;
 	private boolean instructions = true;
 	private boolean optimize = false;
@@ -203,7 +205,22 @@ public class RouteProfileConfiguration {
 	{
 		return maximumDistanceAvoidAreas;
 	}
-	
+	public Double getMaximumDistanceAlternativeRoutes() {
+		return maximumDistanceAlternativeRoutes;
+	}
+
+	public void setMaximumDistanceAlternativeRoutes(Double maximumDistanceAlternativeRoutes) {
+		this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
+	}
+
+	public Double getMaximumDistanceRoundTripRoutes() {
+		return maximumDistanceRoundTripRoutes;
+	}
+
+	public void setMaximumDistanceRoundTripRoutes(Double maximumDistanceRoundTripRoutes) {
+		this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
+	}
+
 	public void setMaximumWayPoints(Integer value)
 	{
 		maximumWayPoints = value;

@@ -61,6 +61,8 @@ public class GeoJsonResponseWriterTest {
      */
     @BeforeClass
     public static void setUp() {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+
         // routingRequest = new RoutingRequestMockup().create(RoutingRequestMockup.routeProfile.standardHeidelberg2d);
         // routeResult = RouteResultMockup.create(RouteResultMockup.routeResultProfile.standardHeidelberg);
         // Create Line coordinate

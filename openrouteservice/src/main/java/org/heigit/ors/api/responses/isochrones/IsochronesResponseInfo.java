@@ -18,12 +18,13 @@ package org.heigit.ors.api.responses.isochrones;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.AppInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
 @ApiModel(value = "RouteResponseInfo", description = "Information about the request")
@@ -54,6 +55,10 @@ public class IsochronesResponseInfo {
     @JsonProperty("engine")
     private EngineInfo engineInfo;
 
+    @ApiModelProperty(value = "System message", example ="A message string configured in the service")
+    @JsonProperty("system_message")
+    private String systemMessage;
+
     public IsochronesResponseInfo(IsochronesRequest request) {
         service = "isochrones";
         timeStamp = System.currentTimeMillis();
@@ -70,6 +75,12 @@ public class IsochronesResponseInfo {
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 
         this.request = request;
+
+        this.systemMessage = SystemMessage.getSystemMessage(request);
+    }
+
+    public void setGraphDate(String graphDate) {
+        engineInfo.setGraphDate(graphDate);
     }
 
     @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the route")
@@ -80,10 +91,14 @@ public class IsochronesResponseInfo {
         @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
         private String buildDate;
+        @ApiModelProperty(value = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
+        @JsonProperty("graph_date")
+        private String graphDate;
 
         public EngineInfo(JSONObject infoIn) {
             version = infoIn.getString("version");
             buildDate = infoIn.getString("build_date");
+            graphDate = "0000-00-00T00:00:00Z";
         }
 
         public String getVersion() {
@@ -92,6 +107,10 @@ public class IsochronesResponseInfo {
 
         public String getBuildDate() {
             return buildDate;
+        }
+
+        public void setGraphDate(String graphDate) {
+            this.graphDate = graphDate;
         }
     }
 }

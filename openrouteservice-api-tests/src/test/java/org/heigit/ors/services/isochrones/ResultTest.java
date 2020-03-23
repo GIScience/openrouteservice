@@ -68,6 +68,7 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
                 .body("features[0].properties.value", is(400))
+                .body("info.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 
@@ -111,7 +112,7 @@ public class ResultTest extends ServiceTest {
                 .param("profile", getParameter("profile"))
                 .param("range", "400")
                 .param("attributes", "reachfactor|area")
-                .when().log().all()
+                .when()
                 .get(getEndPointName())
                 .then()
                 .body("any { it.key == 'type' }", is(true))

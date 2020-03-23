@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 public class PedestrianFlagEncoderTest {
     private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
     private PedestrianFlagEncoder flagEncoder;
-    private BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue(EncodingManager.ROUNDABOUT);
+    private BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
     // TODO: Refactor the design of this test class to make more sense. Currently, the member variable 'way' is
     // TODO: modified in methods like 'generatePedestrianWay' or 'generateFerryWay', but also returned by this methods

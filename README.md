@@ -87,7 +87,7 @@ Openrouteservice offers a set of endpoints for different spatial purposes. They 
 
 ## API Documentation
 
-For an easy and interactive way to test the api, visit our documentation at [openrouteservice.org](https://openrouteservice.org).
+For an easy and interactive way to test the api, visit our documentation at [openrouteservice.org](https://openrouteservice.org/dev/#/api-docs).
 After obtaining your key you can try out the different endpoints instantly and start firing requests.
 
 
@@ -97,6 +97,4 @@ For questions please use our [community forum](https://ask.openrouteservice.org)
 
 ## Translations
 
-If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, please add/edit files in the src/main/resources/locales folder. You can use the ors_en.resources file as a template as to what information needs to be present.
-As a guide, for each instruction there are two formats - one where there is a named place (i.e. 47 Berlinerstraße) and one without. It is important to keep the {way_name} tag in the text, but it should be moved to the correct location.
-To show ORS what language is being used, you should alter the name of the file to include the ISO identifier (i.e. for Austrian German the filename would be ors_de_AT.resources).
+If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions on our [wiki page](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/openrouteservice-app/#translations) if you want to contribute the language to there aswell (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).

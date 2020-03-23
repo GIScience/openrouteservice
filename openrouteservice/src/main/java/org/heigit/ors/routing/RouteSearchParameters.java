@@ -13,19 +13,29 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.heigit.ors.routing.parameters.*;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -369,6 +379,29 @@ public class RouteSearchParameters {
             } else {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
             }
+
+            String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+            String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+            double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+            double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+            for (Polygon avoidArea : avoidAreas) {
+                try {
+                    if (areaLimit > 0) {
+                        long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                        if (area > areaLimit) {
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                        }
+                    }
+                    if (extentLimit > 0) {
+                        long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                        if (extent > extentLimit) {
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                        }
+                    }
+                } catch (InternalServerException e) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+                }
+            }
         }
 
         if (json.has("alternative_routes_count")) {
@@ -376,6 +409,11 @@ public class RouteSearchParameters {
                 alternativeRoutesCount = json.getInt("alternative_routes_count");
             } catch (Exception ex) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+            }
+            String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
+            int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+            if (countLimit > 0 && alternativeRoutesCount > countLimit) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
             if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {

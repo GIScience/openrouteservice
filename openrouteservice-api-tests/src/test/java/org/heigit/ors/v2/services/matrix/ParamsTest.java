@@ -168,10 +168,8 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
-                .log().all()
                 .body("any { it.key == 'metadata' }", is(true))
                 .body("any { it.key == 'sources' }", is(true))
                 .statusCode(200);
@@ -252,7 +250,6 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", "carProfile")
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
@@ -288,7 +285,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then().log().all()
+                .then()
                 .assertThat()
                 .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);

@@ -148,10 +148,8 @@ public class RoutingManagerConfiguration  {
 							Map<String, Object> entryValue = (Map<String, Object>)storageEntry.getValue();
 							Map<String, String> storageParams = new HashMap<>();
 
-							if (storageParams != null) {
-								for(Map.Entry<String, Object> entry : entryValue.entrySet()) {
-									storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
-								}
+							for(Map.Entry<String, Object> entry : entryValue.entrySet()) {
+								storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 							}
 
 							profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
@@ -165,6 +163,12 @@ public class RoutingManagerConfiguration  {
 						break;
 					case "maximum_distance_avoid_areas":
 						profile.setMaximumDistanceAvoidAreas(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_distance_alternative_routes":
+						profile.setMaximumDistanceAlternativeRoutes(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "maximum_distance_round_trip_routes":
+						profile.setMaximumDistanceRoundTripRoutes(Double.parseDouble(paramItem.getValue().toString()));
 						break;
 					case "maximum_waypoints":
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));

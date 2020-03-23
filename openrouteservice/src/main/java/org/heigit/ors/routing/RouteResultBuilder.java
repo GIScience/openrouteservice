@@ -85,7 +85,7 @@ class RouteResultBuilder
             }
 
             result.addSegment(createRouteSegment(path, request, getNextResponseFirstStepPoints(responses, ri)));
-            result.setGraphDate(response.getHints().get("data.import.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
         }
 
         result.calculateRouteSummary(request);
@@ -122,7 +122,7 @@ class RouteResultBuilder
                 result.resetSegments();
             }
 
-            result.setGraphDate(response.getHints().get("data.import.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
         }
 

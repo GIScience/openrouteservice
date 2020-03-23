@@ -21,6 +21,7 @@
 package org.heigit.ors.services.matrix;
 
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.is;
 
 import org.junit.Test;
 
@@ -80,6 +81,8 @@ public class ResultsValidationTest extends ServiceTest {
                 .param("profile", "driving-car")
                 .when()
                 .get(getEndPointName());
+
+        response.then().assertThat().body("info.containsKey('system_message')", is(true));
 
         Assert.assertEquals(response.getStatusCode(), 200);
         JSONObject jResponse = new JSONObject(response.body().asString());
@@ -162,7 +165,6 @@ public class ResultsValidationTest extends ServiceTest {
                 .param("metrics", "distance|duration")
                 .param("profile", "driving-car")
                 .when()
-                .log().all()
                 .get(getEndPointName());
 
         Assert.assertEquals(response.getStatusCode(), 200);

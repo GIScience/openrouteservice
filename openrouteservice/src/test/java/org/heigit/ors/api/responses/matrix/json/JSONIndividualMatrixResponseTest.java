@@ -26,6 +26,8 @@ public class JSONIndividualMatrixResponseTest {
 
     @Before
     public void setUp() throws StatusCodeException {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+
         MatrixResult matrixResultCombined;
         MatrixResult matrixResultDistance;
         MatrixResult matrixResultDuration;
