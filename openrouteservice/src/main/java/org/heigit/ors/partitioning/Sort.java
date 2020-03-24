@@ -20,7 +20,7 @@ public class  Sort {
      **/
 
     //Sort ids list by values
-    public static IntArrayList sortByValueReturnList(Integer[] ids, Double[] values, int cellId) {
+    public IntArrayList sortByValueReturnList(Integer[] ids, Double[] values, int cellId) {
         ArrayIndexComparator comparator = new ArrayIndexComparator(values);
         Integer[] indices = comparator.createIndexArray();
         //Sort the first cellArray in parallel
@@ -34,7 +34,7 @@ public class  Sort {
         return result;
     }
 
-    public static IntArrayList sortByValueReturnList(Map<Integer, Double> map, boolean ASC, boolean isInt) {
+    public IntArrayList sortByValueReturnList(Map<Integer, Double> map, boolean ASC, boolean isInt) {
         List<Entry<Integer, Double>> list = new ArrayList<>(map.entrySet());
         list.sort(Entry.comparingByValue());
         if (!ASC) {
@@ -48,7 +48,7 @@ public class  Sort {
 
         return result;
     }
-    public static <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
+    public <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
         List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
         list.sort(Entry.comparingByValue());
         if (!ASC) {
@@ -64,7 +64,7 @@ public class  Sort {
     }
 
 
-    public static class ArrayIndexComparator implements Comparator<Integer>
+    private class ArrayIndexComparator implements Comparator<Integer>
     {
         private final Double[] array;
 

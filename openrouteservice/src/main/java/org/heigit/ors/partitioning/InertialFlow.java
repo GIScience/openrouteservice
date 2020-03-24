@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
 import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
-import static org.heigit.ors.partitioning.Sort.sortByValueReturnList;
 
 /**
  * Recursive implementation of InertialFlow algorithm for partitioning a graph.
@@ -77,13 +76,13 @@ public class InertialFlow extends PartitioningBase {
         IntHashSet nodeIdSet = initNodes();
         Double[] values = new Double[nodeIdSet.size()];
         Integer[] ids = IntStream.of( nodeIdSet.toArray() ).boxed().toArray( Integer[]::new );
-
+        Sort sort = new Sort();
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
             for(int i = 0; i < ids.length; i++) {
                 values[i] = proj.sortValue(ghStorage.getNodeAccess().getLatitude(ids[i]), ghStorage.getNodeAccess().getLongitude(ids[i]));
             }
-            nodeListProjMap.put(proj, sortByValueReturnList(ids, values, this.cellId));
+            nodeListProjMap.put(proj, sort.sortByValueReturnList(ids, values, this.cellId));
         }
         return nodeListProjMap;
     }
@@ -129,7 +128,8 @@ public class InertialFlow extends PartitioningBase {
         }
 
         //>> order Projections by Projection-Value
-        order = sortByValueReturnList(orthogonalDiffProjMap, false);
+        Sort sort = new Sort();
+        order = sort.sortByValueReturnList(orthogonalDiffProjMap, false);
         return order;
     }
 
