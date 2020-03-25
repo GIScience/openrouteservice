@@ -67,12 +67,6 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
                 edgeFilters.add(new AvoidBordersEdgeFilter((RouteSearchParameters) params.getObj("avoid_borders"), gs));
             }
 
-            /* Consider turn restrictions */
-            if(params.has("edgefilter_turn_restrictions")) {
-                edgeFilters.add(new TurnRestrictionsEdgeFilter(flagEncoder, gs));
-            }
-
-            
         } catch (Exception ex) {
             LOGGER.error(ex);
         }
