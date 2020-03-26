@@ -1123,6 +1123,82 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testGreenExtraInfo() {
+        JSONObject body = new JSONObject();
+
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676023);
+        coord1.put(49.416809);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.696837);
+        coord2.put(49.411839);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+
+        body.put("extra_info", constructExtras("green"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.green.values[0][0]", is(0))
+                .body("routes[0].extras.green.values[0][1]", is(8))
+                .body("routes[0].extras.green.values[0][2]", is(9))
+                .body("routes[0].extras.green.values[3][0]", is(15))
+                .body("routes[0].extras.green.values[3][1]", is(34))
+                .body("routes[0].extras.green.values[3][2]", is(10))
+
+                .statusCode(200);
+    }
+
+    @Test
+    public void testNoiseExtraInfo() {
+        JSONObject body = new JSONObject();
+
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676023);
+        coord1.put(49.416809);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.696837);
+        coord2.put(49.411839);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+
+        body.put("extra_info", constructExtras("noise"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.noise.values[0][0]", is(0))
+                .body("routes[0].extras.noise.values[0][1]", is(10))
+                .body("routes[0].extras.noise.values[0][2]", is(10))
+                .body("routes[0].extras.noise.values[4][0]", is(27))
+                .body("routes[0].extras.noise.values[4][1]", is(34))
+                .body("routes[0].extras.noise.values[4][2]", is(9))
+
+                .statusCode(200);
+    }
+
+    @Test
     public void testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
