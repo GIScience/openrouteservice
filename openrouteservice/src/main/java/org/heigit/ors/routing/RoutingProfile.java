@@ -298,7 +298,7 @@ public class RoutingProfile {
                     if (coreOpts.hasPath(VAL_ENABLED) || coreOpts.getBoolean(VAL_ENABLED)) {
                         prepareCore = coreOpts.getBoolean(VAL_ENABLED);
                         if (!prepareCore)
-                            args.put(KEY_PREPARE_CH_WEIGHTINGS, "no");
+                            args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
                     }
 
 
