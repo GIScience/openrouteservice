@@ -24,7 +24,7 @@ public class  Sort {
         ArrayIndexComparator comparator = new ArrayIndexComparator(values);
         Integer[] indices = comparator.createIndexArray();
         //Sort the first cellArray in parallel
-        Arrays.parallelSort(indices, comparator);
+        Arrays.sort(indices, comparator);
 
         IntArrayList result = new IntArrayList();
         for (int entry : indices) {
