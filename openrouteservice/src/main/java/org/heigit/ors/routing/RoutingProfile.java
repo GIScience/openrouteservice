@@ -926,7 +926,16 @@ public class RoutingProfile {
 
         return resp;
     }
-
+    /**
+     * Get the flexibility mode necessary for the searchParams.
+     * Reults in usage of CH, Core or ALT/AStar
+     *
+     * @param flexibleMode initial flexibleMode
+     * @param searchParams RouteSearchParameters
+     * @param profileType Necessary for HGV
+     * @param weightingMethod weightingmethod previously determined
+     * @return flexibility as int
+     */
     private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType, int weightingMethod){
         if(searchParams.requiresDynamicPreprocessedWeights())
             flexibleMode = KEY_FLEX_PREPROCESSED;
@@ -983,7 +992,15 @@ public class RoutingProfile {
         //Return the weighting as integer to set flexibleMode
         return weighting == VAL_FASTEST ? WeightingMethod.FASTEST : weighting == VAL_SHORTEST ? WeightingMethod.SHORTEST : WeightingMethod.RECOMMENDED;
     }
-
+    /**
+     * Set the speedup techniques used for calculating the route.
+     * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
+     *
+     * @param req Request whose hints will be set
+     * @param useCH Should CH be enabled
+     * @param useCore Should Core be enabled
+     * @param useALT Should ALT be enabled
+     */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
         //Priority: CH->Core->ALT
         useCH &= mGraphHopper.isCHEnabled();
