@@ -987,6 +987,13 @@ public class RoutingProfile {
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
         //Priority: CH->Core->ALT
         useCH &= mGraphHopper.isCHEnabled();
+        //If there is either no shortest or fastest profile, CH will be enabled and crash if a missing profile is not present
+        try{
+            mGraphHopper.getCHFactoryDecorator().getPreparation(req.getHints());
+        }
+        catch (Exception e){
+            useCH = false;
+        }
         useCore = useCore && mGraphHopper.isCoreEnabled() && !useCH;
         useALT &= mGraphHopper.getLMFactoryDecorator().isEnabled() && !useCH && !useCore;
 
