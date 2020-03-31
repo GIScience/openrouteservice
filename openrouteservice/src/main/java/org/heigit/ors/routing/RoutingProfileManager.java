@@ -499,8 +499,8 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
 
-        boolean fallbackAlgorithm = searchParams.requiresFallbackAlgorithm();
-        boolean dynamicWeights = searchParams.requiresDynamicWeights();
+        boolean fallbackAlgorithm = searchParams.requiresFullyDynamicWeights();
+        boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
         boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
         RoutingProfile rp = routeProfiles.getRouteProfile(profileType, !dynamicWeights);
