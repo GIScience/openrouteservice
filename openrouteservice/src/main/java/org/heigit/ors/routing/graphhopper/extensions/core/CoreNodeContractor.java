@@ -19,9 +19,7 @@ import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -42,7 +40,7 @@ class CoreNodeContractor {
     private final CHGraph prepareGraph;
     private final PreparationWeighting prepareWeighting;
     // todo: so far node contraction can only be done for node-based graph traversal
-    private final TraversalMode traversalMode;
+    private final CHProfile chProfile;
     private final DataAccess originalEdges;
     private final Map<Shortcut, Shortcut> shortcuts = new HashMap<>();
     private final AddShortcutHandler addScHandler = new AddShortcutHandler();
@@ -59,17 +57,16 @@ class CoreNodeContractor {
     private int maxEdgesCount;
     private int maxLevel;
 
-    CoreNodeContractor(Directory dir, GraphHopperStorage ghStorage, CHGraph prepareGraph, Weighting weighting,
-                   TraversalMode traversalMode) {
-        if (traversalMode.isEdgeBased()) {
-            throw new IllegalArgumentException("Contraction Hierarchies only support node based traversal so far, given: " + traversalMode);
+    CoreNodeContractor(Directory dir, GraphHopperStorage ghStorage, CHGraph prepareGraph, CHProfile chProfile) {
+        if (chProfile.getTraversalMode().isEdgeBased()) {
+            throw new IllegalArgumentException("Contraction Hierarchies only support node based traversal so far, given: " + chProfile.getTraversalMode());
         }
         // todo: it would be nice to check if ghStorage is frozen here
         this.ghStorage = ghStorage;
         this.prepareGraph = prepareGraph;
-        this.prepareWeighting = new PreparationWeighting(weighting);
-        this.traversalMode = traversalMode;
-        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(weighting, traversalMode.isEdgeBased()));
+        this.prepareWeighting = new PreparationWeighting(chProfile.getWeighting());
+        this.chProfile = chProfile;
+        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(chProfile.getWeighting()));
         originalEdges.create(1000);
     }
 
@@ -83,7 +80,7 @@ class CoreNodeContractor {
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, traversalMode);
+        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, chProfile.getTraversalMode());
     }
 
     void close() {
@@ -123,12 +120,15 @@ class CoreNodeContractor {
         // collect outgoing nodes (goal-nodes) only once
         while (incomingEdges.next()) {
             int uFromNode = incomingEdges.getAdjNode();
-            // accept only uncontracted nodes
-            if (prepareGraph.getLevel(uFromNode) != maxLevel)
+            // accept only not-contracted nodes, do not consider loops at the node that is being contracted
+            if (uFromNode == sch.getNode() || isContracted(uFromNode))
                 continue;
 
-            double vuDist = incomingEdges.getDistance();
-            double vuWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            final double incomingEdgeWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            // this check is important to prevent calling calcMillis on inaccessible edges and also allows early exit
+            if (Double.isInfinite(incomingEdgeWeight)) {
+                continue;
+            }
             int skippedEdge1 = incomingEdges.getEdge();
             int incomingEdgeOrigCount = getOrigEdgeCount(skippedEdge1);
             // collect outgoing nodes (goal-nodes) only once
@@ -145,7 +145,7 @@ class CoreNodeContractor {
                 // Limit weight as ferries or forbidden edges can increase local search too much.
                 // If we decrease the correct weight we only explore less and introduce more shortcuts.
                 // I.e. no change to accuracy is made.
-                double existingDirectWeight = vuWeight
+                double existingDirectWeight = incomingEdgeWeight
                         + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
                 if (Double.isNaN(existingDirectWeight))
                     throw new IllegalStateException("Weighting should never return NaN values" + ", in:"
@@ -155,7 +155,6 @@ class CoreNodeContractor {
                 if (Double.isInfinite(existingDirectWeight))
                     continue;
 
-                double existingDistSum = vuDist + outgoingEdges.getDistance();
                 prepareAlgo.setWeightLimit(existingDirectWeight);
                 prepareAlgo.setMaxVisitedNodes(maxVisitedNodes);
                 prepareAlgo.setEdgeFilter(ignoreNodeFilterSequence.setAvoidNode(sch.getNode()));
@@ -171,7 +170,7 @@ class CoreNodeContractor {
                     continue;
                 
                 sch.foundShortcut(uFromNode, wToNode,
-                        existingDirectWeight, existingDistSum,
+                        existingDirectWeight, 0,
                         outgoingEdges.getEdge(), getOrigEdgeCount(outgoingEdges.getEdge()),
                         skippedEdge1, incomingEdgeOrigCount);
             }
@@ -218,7 +217,6 @@ class CoreNodeContractor {
 
                     // note: flags overwrite weight => call first
                     iter.setFlagsAndWeight(sc.flags, sc.weight);
-                    iter.setDistance(sc.dist);
                     iter.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
                     setOrigEdgeCount(iter.getEdge(), sc.originalEdges);
                     updatedInGraph = true;
@@ -227,12 +225,8 @@ class CoreNodeContractor {
             }
 
             if (!updatedInGraph) {
-                CHEdgeIteratorState edgeState = prepareGraph.shortcut(sc.from, sc.to);
-                // note: flags overwrite weight => call first
-                edgeState.setFlagsAndWeight(sc.flags, sc.weight);
-                edgeState.setDistance(sc.dist);
-                edgeState.setSkippedEdges(sc.skippedEdge1, sc.skippedEdge2);
-                setOrigEdgeCount(edgeState.getEdge(), sc.originalEdges);
+                int scId = prepareGraph.shortcut(sc.from, sc.to, sc.flags, sc.weight, sc.skippedEdge1, sc.skippedEdge2);
+                setOrigEdgeCount(scId, sc.originalEdges);
                 tmpNewShortcuts++;
             }
         }
@@ -249,6 +243,10 @@ class CoreNodeContractor {
 
     int getAddedShortcutsCount() {
         return addedShortcutsCount;
+    }
+
+    boolean isContracted(int node) {
+        return prepareGraph.getLevel(node) != maxLevel;
     }
 
     private void setOrigEdgeCount(int edgeId, int value) {

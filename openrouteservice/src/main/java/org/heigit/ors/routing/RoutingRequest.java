@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import org.heigit.ors.common.DistanceUnit;
@@ -43,6 +44,8 @@ public class RoutingRequest extends ServiceRequest {
 	private List<Integer> skipSegments = new ArrayList<>();
 	private boolean includeCountryInfo = false;
 	private double userSpeed;
+
+	private String responseFormat = "json";
 
 	public RoutingRequest()
 	{
@@ -213,4 +216,13 @@ public class RoutingRequest extends ServiceRequest {
 
 	public double getUserSpeed(){return userSpeed;}
 
+	public void setResponseFormat(String responseFormat) {
+		if (!Helper.isEmpty(responseFormat)) {
+			this.responseFormat = responseFormat;
+		}
+	}
+
+	public String getResponseFormat() {
+		return this.responseFormat;
+	}\
 }

@@ -56,10 +56,10 @@ public class RouteRequestHandlerTest {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 123.0, 100.0});
-        coordsArray.add(new Double[] { 150.0, 138.0});
-        coordsArray.add(new Double[] { 140.0, 115.0});
-        coordsArray.add(new Double[] { 123.0, 100.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
+        coordsArray.add(new Double[] { 49.005, 8.01});
+        coordsArray.add(new Double[] { 49.01, 8.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
@@ -70,6 +70,8 @@ public class RouteRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});
         coords.add(new Double[] {27.4,38.6});

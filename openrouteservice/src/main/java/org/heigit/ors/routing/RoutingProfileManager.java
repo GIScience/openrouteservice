@@ -226,6 +226,14 @@ public class RoutingProfileManager {
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
+        RouteProfileConfiguration config = rp.getConfiguration();
+
+        if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
+            throw new ServerLimitExceededException(
+                    RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
+                    String.format("The requested route length must not be greater than %s meters.", config.getMaximumDistanceRoundTripRoutes())
+            );
+        }
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];
@@ -493,6 +501,7 @@ public class RoutingProfileManager {
 
         boolean fallbackAlgorithm = searchParams.requiresFallbackAlgorithm();
         boolean dynamicWeights = searchParams.requiresDynamicWeights();
+        boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
         RoutingProfile rp = routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -544,11 +553,13 @@ public class RoutingProfileManager {
                 }
 
                 if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters.", Double.toString(config.getMaximumDistance())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters.", config.getMaximumDistance()));
                 if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.", Double.toString(config.getMaximumDistanceDynamicWeights())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.", config.getMaximumDistanceDynamicWeights()));
                 if (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", Double.toString(config.getMaximumDistanceAvoidAreas())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", config.getMaximumDistanceAvoidAreas()));
+                if (useAlternativeRoutes && config.getMaximumDistanceAlternativeRoutes() > 0 && totalDist > config.getMaximumDistanceAlternativeRoutes())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algotirhm.", config.getMaximumDistanceAlternativeRoutes()));
             }
         }
 

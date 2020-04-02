@@ -46,18 +46,18 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
 	public void processWay(ReaderWay way) {
 		wayType = 0;
-		
+
 		boolean hasHighway = way.hasTag("highway");
-		boolean isFerryRoute = isFerryRoute(way);
-		
-		java.util.Iterator<Entry<String, Object>> it = way.getProperties();
+		boolean isFerryRoute = way.hasTag("route", ferries);
 
-		while (it.hasNext()) {
-			Map.Entry<String, Object> pairs = it.next();
-			String key = pairs.getKey();
-			String value = pairs.getValue().toString();
+		if (hasHighway || isFerryRoute) {
+			java.util.Iterator<Entry<String, Object>> it = way.getProperties();
 
-			if (hasHighway || isFerryRoute) {
+			while (it.hasNext()) {
+				Map.Entry<String, Object> pairs = it.next();
+				String key = pairs.getKey();
+				String value = pairs.getValue().toString();
+
 				if (key.equals("highway")) {
 					if (value.equals("motorway") || value.equals("motorway_link")) {
 						wayType |= AvoidFeatureFlags.HIGHWAYS;
@@ -77,21 +77,6 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		storage.setEdgeValue(edge.getEdge(), wayType);
-	}
-
-	private boolean isFerryRoute(ReaderWay way) {
-		if (way.hasTag("route", ferries)) {
-			String motorcarTag = way.getTag("motorcar");
-			if (motorcarTag == null)
-				motorcarTag = way.getTag("motor_vehicle");
-
-			if (motorcarTag == null && !way.hasTag("foot") && !way.hasTag("bicycle") || "yes".equals(motorcarTag))
-				return true;
-
-			String bikeTag = way.getTag("bicycle");
-			return bikeTag == null && !way.hasTag("foot") || "yes".equals(bikeTag);
-		}
-		return false;
 	}
 	
 	@Override

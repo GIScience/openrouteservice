@@ -49,9 +49,12 @@
             elevation_cache_path: "openrouteservice-api-tests/data/elevation",
             instructions: true,
             maximum_distance: 100000,
+            maximum_distance_round_trip_routes: 100000,
             maximum_segment_distance_with_dynamic_weights: 50000,
             maximum_waypoints: 50,
             maximum_snapping_radius: 350,
+            maximum_avoid_polygon_area: 200000000,
+            maximum_avoid_polygon_extent: 20000,
             preparation:
               {
                 min_network_size: 200,
@@ -228,6 +231,32 @@
             parameters: {
               encoder_options: "consider_elevation=false|turn_costs=true|block_fords=false",
               elevation: true,
+              preparation:
+                {
+                  min_network_size: 200,
+                  min_one_way_network_size: 200,
+                  methods:
+                    {
+                      core:
+                        {
+                          enabled: true,
+                          threads: 1,
+                          weightings: "fastest,shortest",
+                          landmarks: 32
+                        }
+                    }
+                }
+              execution:
+                {
+                  methods:
+                    {
+                      core:
+                        {
+                          disabling_allowed: true,
+                          active_landmarks: 6
+                        }
+                    }
+                }
               ext_storages: {
                 WayCategory: {},
                 WaySurfaceType: {},
@@ -340,6 +369,37 @@
       level_file: "DEBUG_LOGGING.json",
       location: "./logs",
       stdout: true
-    }
+    },
+    system_message: [
+        {
+            active: true,
+            text: "This message would be sent with every routing bike fastest request",
+            condition: {
+                "request_service": "routing",
+                "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+                "request_preference": "fastest"
+            }
+        },
+        {
+            active: true,
+            text: "This message would be sent with every request for geojson response",
+            condition: {
+                "api_format": "geojson"
+            }
+        },
+        {
+            active: true,
+            text: "This message would be sent with every request on API v1 from January 2020 until June 2050",
+            condition: {
+                "api_version": 1,
+                "time_after": "2020-01-01T00:00:00Z",
+                "time_before": "2050-06-01T00:00:00Z"
+            }
+        },
+        {
+            active: true,
+            text: "This message would be sent with every request"
+        }
+    ]
   }
 }

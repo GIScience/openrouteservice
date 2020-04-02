@@ -3,8 +3,8 @@ package org.heigit.ors.api.requests.matrix;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -37,6 +37,8 @@ public class MatrixRequestHandlerTest {
 
     @Before
     public void setUp() {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
         bareCoordinatesList.add(49.41461);

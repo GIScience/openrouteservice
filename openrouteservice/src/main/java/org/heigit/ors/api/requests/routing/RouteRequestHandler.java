@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.requests.routing;
 
+import com.google.common.base.Strings;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -23,23 +24,15 @@ import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
-import org.heigit.ors.routing.AvoidFeatureFlags;
-import org.heigit.ors.routing.RouteExtraInfoFlag;
-import org.heigit.ors.routing.RouteInstructionsFormat;
-import org.heigit.ors.routing.RouteResult;
-import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.RoutingErrorCodes;
-import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.RoutingRequest;
-import org.heigit.ors.routing.WayPointBearing;
-import org.heigit.ors.routing.WeightingMethod;
+import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.GeomUtility;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -171,8 +164,14 @@ public class RouteRequestHandler extends GenericHandler {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
             }
             RouteRequestAlternativeRoutes alternativeRoutes = request.getAlternativeRoutes();
-            if (alternativeRoutes.hasTargetCount())
+            if (alternativeRoutes.hasTargetCount()) {
                 params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
+                String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(request.getProfile().toString(), "maximum_alternative_routes");
+                int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+                if (countLimit > 0 && alternativeRoutes.getTargetCount() > countLimit) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutes.getTargetCount()), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                }
+            }
             if (alternativeRoutes.hasWeightFactor())
                 params.setAlternativeRoutesWeightFactor(alternativeRoutes.getWeightFactor());
             if (alternativeRoutes.hasShareFactor())
@@ -218,12 +217,12 @@ public class RouteRequestHandler extends GenericHandler {
         return params;
     }
 
-    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws ParameterValueException, IncompatibleParameterException, UnknownParameterValueException, MissingParameterException {
+    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws StatusCodeException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
         if (options.hasAvoidPolygonFeatures())
-            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures()));
+            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
@@ -340,8 +339,7 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
-    @Override
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -366,6 +364,29 @@ public class RouteRequestHandler extends GenericHandler {
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+        }
+
+        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+        double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+        double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+        for (Polygon avoidArea : avoidAreas) {
+            try {
+                if (areaLimit > 0) {
+                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                    if (area > areaLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                    }
+                }
+                if (extentLimit > 0) {
+                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                    if (extent > extentLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                    }
+                }
+            } catch (InternalServerException e) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            }
         }
 
         return avoidAreas;
@@ -468,7 +489,7 @@ public class RouteRequestHandler extends GenericHandler {
         if(useContractionHierarchies)
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, RouteRequest.PARAM_OPTIMIZED);
 
-        return(!useContractionHierarchies);
+        return true;
     }
 
     private int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {

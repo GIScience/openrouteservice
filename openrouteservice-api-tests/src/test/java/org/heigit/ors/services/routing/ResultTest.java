@@ -55,7 +55,7 @@ public class ResultTest extends ServiceTest {
 		addParameter("carProfile", "driving-car");
 
 		// query for testing the alternative routes algorithm
-        addParameter("coordinatesAR", "8.680401,49.437436|8.746362,49.414191");
+        addParameter("coordinatesAR", "8.673191,49.446812|8.689499,49.398295");
 	}
 
     @Test
@@ -123,8 +123,9 @@ public class ResultTest extends ServiceTest {
                     boolean metadataDescription = false;
                     boolean metadataAuthor = false;
                     boolean metadataCopyright = false;
-                    boolean metatadaTime = false;
+                    boolean metadataTime = false;
                     boolean metadataBounds = false;
+                    boolean metadataExtensions = false;
                     for (int j = 0; j < metadataSize; j++) {
                         Node metadataItem = metadataChildren.item(j);
                         switch (metadataItem.getNodeName()) {
@@ -196,7 +197,21 @@ public class ResultTest extends ServiceTest {
                                 Assert.assertTrue(copyrightLicense);
                                 break;
                             case "time":
-                                metatadaTime = true;
+                                metadataTime = true;
+                                break;
+                            case "extensions":
+                                metadataExtensions = true;
+                                int metadataExtensionsLength = metadataItem.getChildNodes().getLength();
+                                boolean metadataExtensionsSystemMessage = false;
+                                for (int k = 0; k < metadataExtensionsLength; k++) {
+                                    Node extensionsElement = metadataItem.getChildNodes().item(k);
+                                    switch (extensionsElement.getNodeName()) {
+                                        case "system-message":
+                                            metadataExtensionsSystemMessage = true;
+                                            break;
+                                    }
+                                }
+                                Assert.assertTrue(metadataExtensionsSystemMessage);
                                 break;
                             case "bounds":
                                 metadataBounds = true;
@@ -207,8 +222,9 @@ public class ResultTest extends ServiceTest {
                     Assert.assertTrue(metadataDescription);
                     Assert.assertTrue(metadataAuthor);
                     Assert.assertTrue(metadataCopyright);
-                    Assert.assertTrue(metatadaTime);
+                    Assert.assertTrue(metadataTime);
                     Assert.assertTrue(metadataBounds);
+                    Assert.assertTrue(metadataExtensions);
                     break;
                 case "rte":
                     gpxRte = true;
@@ -423,6 +439,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
+                "            <xs:element type=\"xs:string\" name=\"system-message\" minOccurs=\"0\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"metadataType\">\n" +
@@ -433,6 +450,7 @@ public class ResultTest extends ServiceTest {
                 "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
                 "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
+                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
                 "        </xs:sequence>\n" +
                 "    </xs:complexType>\n" +
                 "    <xs:complexType name=\"boundsType\">\n" +
@@ -539,6 +557,7 @@ public class ResultTest extends ServiceTest {
 				.body("features[0].geometry.type", is("LineString"))
 				.body("features[0].type", is("Feature"))
 				.body("type", is("FeatureCollection"))
+                .body("info.containsKey('system_message')", is(true))
 
 				.statusCode(200);
 	}
@@ -598,10 +617,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].summary.distance", is(11259.9f))
-                .body("routes[0].summary.duration", is(2546.9f))
-                .body("routes[0].summary.ascent", is(345.2f))
-                .body("routes[0].summary.descent", is(341.8f))
+                .body("routes[0].summary.distance", is(11137.6f))
+                .body("routes[0].summary.duration", is(2522.6f))
+                .body("routes[0].summary.ascent", is(343.1f))
+                .body("routes[0].summary.descent", is(339.7f))
                 .statusCode(200);
     }
 
@@ -620,8 +639,8 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].segments[0].distance", is(5666.4f))
-                .body("routes[0].segments[0].duration", is(1284.9f))
+                .body("routes[0].segments[0].distance", is(5544.1f))
+                .body("routes[0].segments[0].duration", is(1260.6f))
                 .body("routes[0].segments[1].distance", is(5593.5f))
                 .body("routes[0].segments[1].duration", is(1262))
                 .statusCode(200);
@@ -645,7 +664,7 @@ public class ResultTest extends ServiceTest {
                 .body(
                         "routes[0].geometry",
                         is(
-                                "gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHEAHMCHICHWCHgAKf@CGq@?Cq@IaCwB?MSCe@SNMSRC]HA]l@e@{@NK]tBwAu\\FIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                                "gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwBAKq@AQ{@?Gq@AMq@AGq@Gm@q@WwC{EGg@S?MSJES~CcAg@|@[z@HARFAR?CRIaCrD?Mz@Ce@x@NMv@RCj@HAf@l@e@jANK`@tBwAkQFIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
                 .statusCode(200);
     }
 
@@ -663,7 +682,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 302, 540))
+                .body("routes[0].way_points", hasItems(0, 271, 509))
                 .statusCode(200);
     }
 
@@ -749,10 +768,10 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(43))
-                .body("routes[0].extras.surface.values[26][1]", is(347))
-                .body("routes[0].extras.suitability.values[29][0]", is(461))
-                .body("routes[0].extras.steepness.values[11][1]", is(296))
+                .body("routes[0].extras.surface.values.size()", is(44))
+                .body("routes[0].extras.surface.values[26][1]", is(281))
+                .body("routes[0].extras.suitability.values[29][0]", is(429))
+                .body("routes[0].extras.steepness.values[11][1]", is(265))
 
                 .statusCode(200);
 
@@ -839,28 +858,28 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
 				.param("preference", "fastest")
-				.param("profile", "driving-car")
-				.param("extra_info", "suitability|tollways")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+                .param("profile", "driving-car")
+                .param("extra_info", "suitability|tollways")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(1))
-				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(101))
-				.body("routes[0].extras.tollways.values[0][2]", is(0))
-				.statusCode(200);
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.tollways.values.size()", is(1))
+                .body("routes[0].extras.tollways.values[0][0]", is(0))
+                .body("routes[0].extras.tollways.values[0][1]", is(101))
+                .body("routes[0].extras.tollways.values[0][2]", is(0))
+                .statusCode(200);
 
-		checkExtraConsistency(response);
+        checkExtraConsistency(response);
 
-		response = given()
-				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
-				.param("instructions", "true")
-				.param("preference", "fastest")
-				.param("profile", "driving-hgv")
+        response = given()
+                .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+                .param("instructions", "true")
+                .param("preference", "fastest")
+                .param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
 				.when().log().ifValidationFails()
 				.get(getEndPointName());
@@ -954,7 +973,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
-				.param("profile", "cycling-regular")
+				.param("profile", "cycling-road")
 				.param("bearings", "25,30|90,20")
 				.when().log().ifValidationFails()
 				.get(getEndPointName())
@@ -971,7 +990,7 @@ public class ResultTest extends ServiceTest {
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
 				.param("preference", "fastest")
 				.param("geometry", "true")
-				.param("profile", "cycling-regular")
+				.param("profile", "cycling-road")
 				.param("bearings", "25,30")
 				.when().log().ifValidationFails()
 				.get(getEndPointName())
@@ -1015,7 +1034,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
 				//.body("routes[0].segments[0].steps.size()", is(55))
-                .body("routes[0].segments[0].steps.size()", is(42))
+                .body("routes[0].segments[0].steps.size()", is(39))
 				//.body("routes[0].segments[1].steps.size()", is(28))
                 .body("routes[0].segments[1].steps.size()", is(25))
 				.statusCode(200);
@@ -1036,7 +1055,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].containsKey('steps')", is(true))
                 .body("routes[0].segments[1].containsKey('steps')", is(true))
-                .body("routes[0].segments[0].steps.size()", is(42))
+                .body("routes[0].segments[0].steps.size()", is(39))
                 .body("routes[0].segments[1].steps.size()", is(25))
                 .body("routes[0].segments[0].steps[3].distance", is(337.3f))
                 .body("routes[0].segments[0].steps[3].duration", is(67.5f))
@@ -1421,7 +1440,7 @@ public class ResultTest extends ServiceTest {
 				.param("preference", "shortest")
 				.param("profile", "wheelchair")
 				.param("options", "{\"profile_params\":{\"maximum_incline\":\"2\"}}")
-				.when().log().all()
+				.when()
 				.get(getEndPointName())
 				.then().log().ifValidationFails()
 				.assertThat()
@@ -1594,17 +1613,33 @@ public class ResultTest extends ServiceTest {
                 .param("instructions", "true")
                 .param("preference", getParameter("preference"))
                 .param("profile", getParameter("carProfile"))
-                .param("options", "{\"alternative_routes_count\": 2}")
+                .param("options", "{\"alternative_routes_count\": 2, \"alternative_routes_share_factor\": 0.5}")
                 .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(2))
-                .body("routes[0].summary.distance", is(8178.2f))
-                .body("routes[0].summary.duration", is(1087.4f))
-                .body("routes[1].summary.distance", is(10670.9f))
-                .body("routes[1].summary.duration", is(1414))
+                .body("routes[0].summary.distance", is(5942.2f))
+                .body("routes[0].summary.duration", is(776.1f))
+                .body("routes[1].summary.distance", is( 6435.1f))
+                .body("routes[1].summary.duration", is(801.5f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", getParameter("coordinatesAR"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]},\"alternative_routes_count\": 2}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(1))
+                .body("routes[0].summary.distance", is( 6435.1f))
+                .body("routes[0].summary.duration", is(801.5f))
                 .statusCode(200);
     }
 }

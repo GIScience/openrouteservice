@@ -16,6 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.corelm;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
@@ -65,7 +66,7 @@ public class PrepareCoreLandmarksTest
         weighting = new FastestWeighting(encoder);
         tm = TraversalMode.NODE_BASED;
         distCalc = new DistanceCalcEarth();
-        GraphHopperStorage tmp = new GraphBuilder(encodingManager).setCoreGraph(weighting).create();
+        GraphHopperStorage tmp = new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
         graph = tmp;
     }
 
@@ -84,8 +85,8 @@ public class PrepareCoreLandmarksTest
     }
 
     public CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
-        CHGraph lg = g.getGraph(CHGraph.class);
-        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tm, restrictedEdges);
+        CHGraph lg = g.getCHGraph(new CHProfile(weighting, tm, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
+        PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
         prepare.setPeriodicUpdates(20);

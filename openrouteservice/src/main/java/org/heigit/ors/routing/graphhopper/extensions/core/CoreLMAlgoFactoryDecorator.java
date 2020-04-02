@@ -250,7 +250,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         for (final PrepareCoreLandmarks plm : preparations) {
             counter++;
             final int tmpCounter = counter;
-            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting(), false);
+            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting());
             completionService.submit(() -> {
                 if (plm.loadExisting())
                     return;
