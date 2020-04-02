@@ -234,6 +234,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 }
             }
 
+            if (speed > 80) System.out.println(way.getId() + " " + speed);
+
             setSpeed(false, edgeFlags, speed);
             setSpeed(true, edgeFlags, speed);
 

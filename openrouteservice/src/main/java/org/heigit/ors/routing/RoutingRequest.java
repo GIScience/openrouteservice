@@ -224,5 +224,5 @@ public class RoutingRequest extends ServiceRequest {
 
 	public String getResponseFormat() {
 		return this.responseFormat;
-	}\
+	}
 }

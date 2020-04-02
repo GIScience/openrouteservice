@@ -318,12 +318,6 @@ public class ORSGraphHopper extends GraphHopper {
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
-				if(hints.get("weighting_method", "").toLowerCase() =="maximum_speed") {
-					weighting = new MaximumSpeedWeighting(encoder, hints);
-				}
-
-				weighting = createTurnWeighting(queryGraph, weighting, tMode);
-
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
