@@ -2861,8 +2861,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is(1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                .body("routes[0].summary.distance", is(1866.2f))
+                .body("routes[0].summary.duration", is(1343.6f))
                 .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
@@ -2879,8 +2879,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                .body("routes[0].summary.distance", is(1784.2f))
+                .body("routes[0].summary.duration", is(1284.6f))
                 .statusCode(200);
 
         options.remove("avoid_polygons");
@@ -2913,8 +2913,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 2496.8f))
-                .body("routes[0].summary.duration", is(1797.6f))
+                .body("routes[0].summary.distance", is(2519.8f))
+                .body("routes[0].summary.duration", is(1814.2f))
                 .statusCode(200);
     }
     

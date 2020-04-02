@@ -756,9 +756,6 @@ public class RoutingProfile {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
-            int flexibleMode = searchParams.getFlexibleMode() ? KEY_FLEX_PREPROCESSED : KEY_FLEX_STATIC;
-            boolean optimized = searchParams.getOptimized();
-
             List<GHPoint> points = new ArrayList<>();
             points.add(new GHPoint(lat0, lon0));
             List<Double> bearings = new ArrayList<>();
@@ -785,27 +782,13 @@ public class RoutingProfile {
             if (props != null && !props.isEmpty())
                 req.getHints().merge(props);
 
-            if (supportWeightingMethod(profileType)) {
-                weightingMethod = setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
-                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType, weightingMethod);
-            }
+            if (supportWeightingMethod(profileType))
+                setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            if(flexibleMode == KEY_FLEX_STATIC)
-                //Speedup order: useCH, useCore, useALT
-                setSpeedups(req, true, true, true);
-
-            if (flexibleMode == KEY_FLEX_PREPROCESSED) {
-                if(optimized)
-                    setSpeedups(req, false, true, true);
-                else
-                    setSpeedups(req, false, false, true);
-            }
-
-            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if(flexibleMode == KEY_FLEX_FULLY)
-                setSpeedups(req, false, false, true);
+            //Roundtrip not possible with preprocessed edges.
+            setSpeedups(req, false, false, true);
 
             if (astarEpsilon != null)
                 req.getHints().put("astarbi.epsilon", astarEpsilon);
@@ -1005,11 +988,13 @@ public class RoutingProfile {
         //Priority: CH->Core->ALT
         useCH &= mGraphHopper.isCHEnabled();
         //If there is either no shortest or fastest profile, CH will be enabled and crash if a missing profile is not present
-        try{
-            mGraphHopper.getCHFactoryDecorator().getPreparation(req.getHints());
-        }
-        catch (Exception e){
-            useCH = false;
+        if(useCH){
+            try{
+                mGraphHopper.getCHFactoryDecorator().getPreparation(req.getHints());
+            }
+            catch (Exception e){
+                useCH = false;
+            }
         }
         useCore = useCore && mGraphHopper.isCoreEnabled() && !useCH;
         useALT &= mGraphHopper.getLMFactoryDecorator().isEnabled() && !useCH && !useCore;
