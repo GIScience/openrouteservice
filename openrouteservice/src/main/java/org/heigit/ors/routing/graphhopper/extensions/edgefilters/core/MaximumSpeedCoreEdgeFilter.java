@@ -39,7 +39,6 @@ public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
         storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
     }
 
-    //TODO FInd difference between methods getMaxSpeed and getAverageSpeedEnc
     @Override
     public boolean accept(EdgeIteratorState edge) {
         if ( (edge.get(flagEncoder.getAverageSpeedEnc()) > maxSpeed) || (edge.getReverse(flagEncoder.getAverageSpeedEnc())) > maxSpeed ) { //If the max speed of the road is greater than that of the limit include it in the core.

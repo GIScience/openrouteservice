@@ -123,6 +123,10 @@ public class RouteRequestHandler extends GenericHandler {
         if(request.hasId())
             routingRequest.setId(request.getId());
 
+        if(request.hasUserSpeed()){
+            routingRequest.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
+        }
+
         int profileType = -1;
 
         int coordinatesLength = request.getCoordinates().size();
@@ -176,7 +180,7 @@ public class RouteRequestHandler extends GenericHandler {
         }
 
         if(request.hasUserSpeed()){
-            routingRequest.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
+            params.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
         }
 
         params.setConsiderTurnRestrictions(false);
