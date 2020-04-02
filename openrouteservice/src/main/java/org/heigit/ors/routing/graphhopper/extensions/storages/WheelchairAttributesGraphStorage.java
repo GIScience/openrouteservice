@@ -82,7 +82,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		widthEncoder = new EncodedValueOld("width", shift, 5, 10, 0, WIDTH_MAX_VALUE);
 		shift += widthEncoder.getBits();
 
-		sideFlagEncoder = new EncodedValueOld("northFacing", shift, 2, 1,0,2);
+		sideFlagEncoder = new EncodedValueOld("side", shift, 2, 1,0,2);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -146,7 +146,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer) {
 		/*
-		 *       | flag  | surface | smoothness | tracktype | hasKerbHeight | kerbHeight | hasIncline | incline | width  | northFacing |
+		 *       | flag  | surface | smoothness | tracktype | hasKerbHeight | kerbHeight | hasIncline | incline | width  | side |
 		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 1 bit         | 6 bits     | 1 bit      | 4 bits  | 6 bits | 2 bit 	   | 33 bits in total which can fit into 5 bytes
 		 * 	
 		 * 
