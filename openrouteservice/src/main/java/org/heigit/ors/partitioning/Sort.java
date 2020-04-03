@@ -26,7 +26,7 @@ public class  Sort {
         //Sort the first cellArray in parallel
         Arrays.sort(indices, comparator);
 
-        IntArrayList result = new IntArrayList();
+        IntArrayList result = new IntArrayList(indices.length);
         for (int entry : indices) {
             result.add(ids[entry]);
         }
@@ -41,7 +41,7 @@ public class  Sort {
             Collections.reverse(list);
             //Collections.sort(list, Collections.reverseOrder());
         }
-        IntArrayList result = new IntArrayList();
+        IntArrayList result = new IntArrayList(list.size());
         for (Entry<Integer, Double> entry : list) {
             result.add(entry.getKey().intValue());
         }
@@ -55,7 +55,7 @@ public class  Sort {
             Collections.reverse(list);
             //Collections.sort(list, Collections.reverseOrder());
         }
-        List<K> result = new ArrayList<>();
+        List<K> result = new ArrayList<>(list.size());
         for (Entry<K, V> entry : list) {
             result.add(entry.getKey());
         }
