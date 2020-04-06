@@ -23,6 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
@@ -47,6 +48,8 @@ public class ORSOSMReader extends OSMReader {
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
 	private boolean detachSidewalksFromRoad = false;
+
+	private boolean processElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
 
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
@@ -412,5 +415,15 @@ public class ORSOSMReader extends OSMReader {
 		procCntx.finish();
 	}
 
-
+	@Override
+	protected double getElevation(ReaderNode node) {
+		if (processElevationFromPreprocessedData) {
+			double ele = node.getEle();
+			if (Double.isNaN(ele)) { // this should npt happen if preprocessing worked correctly
+				ele = 0;
+			}
+			return ele;
+		}
+		return super.getElevation(node);
+	}
 }

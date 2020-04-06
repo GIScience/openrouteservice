@@ -38,6 +38,7 @@
         "sources": ["openrouteservice/src/main/files/heidelberg.osm.gz"],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
+        "elevation_preprocessed": false,
         "profiles": {
           "active": [
             "car",
