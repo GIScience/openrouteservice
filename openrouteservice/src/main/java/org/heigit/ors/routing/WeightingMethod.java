@@ -18,7 +18,6 @@ public class WeightingMethod {
 	public static final int FASTEST = 1;
 	public static final int SHORTEST = 2;
 	public static final int RECOMMENDED = 3;
-	public static final int MAXIMUM_SPEED = 4;
 
 	private  WeightingMethod() {}
 
@@ -29,9 +28,6 @@ public class WeightingMethod {
 			return WeightingMethod.SHORTEST;
 		} else if ("recommended".equalsIgnoreCase(method)) {
 			return WeightingMethod.RECOMMENDED; 
-		}
-		else if ("maximum_speed".equalsIgnoreCase(method)){
-			return WeightingMethod.MAXIMUM_SPEED;
 		}
 		return WeightingMethod.UNKNOWN;
 	}
@@ -44,8 +40,6 @@ public class WeightingMethod {
 			return "shortest";
 		case RECOMMENDED:
 			return "recommended";
-			case MAXIMUM_SPEED:
-				return "maximum_speed";
 		default:
 			return "";
 		}

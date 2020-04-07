@@ -83,7 +83,6 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
-    private static final String VAL_MAXIMUM_SPEED = "maximum_speed";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
     private static final String KEY_LM_DISABLE = "lm.disable";
@@ -805,15 +804,6 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
-            if (supportWeightingMethod(profileType)) {
-                if (weightingMethod == WeightingMethod.MAXIMUM_SPEED) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_MAXIMUM_SPEED);
-                    req.getHints().put("user_speed",searchParams.getUserSpeed());
-                    flexibleMode = true;
-                }
-            }
-
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())
                     req.getHints().put(KEY_CH_DISABLE, true);
@@ -936,18 +926,16 @@ public class RoutingProfile {
                 flexibleMode = true;
             }
 
-            if (supportWeightingMethod(profileType)) {
-                if (weightingMethod == WeightingMethod.MAXIMUM_SPEED) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, "maximum_speed");
-                    req.getHints().put("user_speed",searchParams.getUserSpeed());
-                }
-            }
-
             if(profileType == RoutingProfileType.WHEELCHAIR) {
                 flexibleMode = true;
             }
 
+            if (supportWeightingMethod(profileType)) {
+                if (searchParams.hasUserSpeed()) {
+                    req.getHints().put("user_speed",searchParams.getUserSpeed());
+                    flexibleMode = true;
+                }
+            }
 
             if (searchParams.requiresDynamicWeights() || flexibleMode) {
                 if (mGraphHopper.isCHEnabled())

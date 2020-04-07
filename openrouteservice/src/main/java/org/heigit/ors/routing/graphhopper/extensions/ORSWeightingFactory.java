@@ -72,9 +72,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
-		else if ("maximum_speed".equalsIgnoreCase(strWeighting)){
-			result = new MaximumSpeedWeighting(encoder, hintsMap);
-		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);

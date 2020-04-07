@@ -82,6 +82,7 @@ public class RouteSearchParameters {
     private long roundTripSeed = -1;
 
     private double userSpeed;
+    private boolean hasUserSpeed = false;
 
     private String options;
 
@@ -531,7 +532,12 @@ public class RouteSearchParameters {
 
     public double getUserSpeed() {return userSpeed;}
 
-    public void setUserSpeed(double userSpeed) { this.userSpeed = userSpeed;}
+    public void setUserSpeed(double userSpeed) {
+        this.userSpeed = userSpeed;
+        hasUserSpeed = true;
+    }
+
+    public boolean hasUserSpeed() {return hasUserSpeed;}
 
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
@@ -550,9 +556,7 @@ public class RouteSearchParameters {
             || getWeightingMethod() == WeightingMethod.SHORTEST
             || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
-            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-                || getWeightingMethod() == WeightingMethod.MAXIMUM_SPEED
-        ;
+            || isProfileTypeDriving() && hasParameters(VehicleParameters.class);
     }
 
     /**
