@@ -71,7 +71,9 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
 
     // ORS-GH MOD START
     // CALT add member variable
+    private boolean isTypeCore;
     private int coreNodeCount = -1;
+    private int S_TIME;
     // ORS-GH MOD END
 
      CHGraphImpl(CHProfile chProfile, Directory dir, final BaseGraph baseGraph) {
@@ -86,6 +88,7 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         //this.shortcuts = dir.find("shortcuts_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         this.nodesCH = dir.find("nodes_" + chProfile.getType() + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
         this.shortcuts = dir.find("shortcuts_" + chProfile.getType() + "_" + name, DAType.getPreferredInt(dir.getDefaultType()));
+        this.isTypeCore = chProfile.getType()==CHProfile.TYPE_CORE;
         // ORS-GH MOD END
         this.chEdgeAccess = new CHEdgeAccess(name);
     }
@@ -370,6 +373,13 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
             shortcutEntryBytes = S_SKIP_EDGE2 + 4;
         }
 
+        // ORS-GH MOD START: TD CALT
+        if (isTypeCore) {
+            S_TIME = shortcutEntryBytes;
+            shortcutEntryBytes = S_TIME + 4;
+        }
+        // ORS-GH MOD END
+
         // node based data:
         N_LEVEL = 0;
         N_CH_REF = N_LEVEL + 4;
@@ -498,6 +508,18 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
             }
         };
     }
+
+    // ORS-GH MOD START: TD CALT
+    @Override
+    public int shortcutCore(int a, int b, int accessFlags, double weight, int skippedEdge1, int skippedEdge2, long time) {
+        if (!isTypeCore) {
+            throw new IllegalStateException("Time can be added to shortcuts only for core graph");
+        }
+        int scId = shortcut(a, b, accessFlags, weight, skippedEdge1, skippedEdge2);
+        chEdgeAccess.setTime(chEdgeAccess.toPointer(scId), time);
+        return scId;
+    }
+    // ORS-GH MOD END
 
     class CHEdgeIteratorImpl extends EdgeIterable implements CHEdgeExplorer, CHEdgeIterator {
         public CHEdgeIteratorImpl(BaseGraph baseGraph, EdgeAccess edgeAccess, EdgeFilter filter) {
@@ -675,6 +697,27 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         public int getMergeStatus(int flags) {
             return PrepareEncoder.getScMergeStatus(getShortcutFlags(), flags);
         }
+
+        // ORS-GH MOD START: TD CALT
+        public void checkShortcutCore(String methodName) {
+            if (!isTypeCore)
+                throw new IllegalStateException("Method " + methodName + " only allowed for core graph");
+            checkShortcut(true, methodName);
+        }
+
+        @Override
+        public long getTime() {
+            checkShortcutCore("getTime");
+            return (long) shortcuts.getInt(edgePointer + S_TIME);
+        }
+
+        @Override
+        public CHEdgeIteratorState setTime(long time) {
+            checkShortcutCore("setTime");
+            shortcuts.setInt(edgePointer + S_TIME, (int) time);
+            return this;
+        }
+        // ORS-GH MOD END
     }
 
     class AllCHEdgesIteratorImpl extends AllEdgeIterator implements AllCHEdgesIterator {
@@ -826,6 +869,27 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
                 throw new IllegalStateException("Method " + method + " not supported when turn costs are disabled");
             }
         }
+
+        // ORS-GH MOD START: TD CALT
+        public void checkShortcutCore(String methodName) {
+            if (!isTypeCore)
+                throw new IllegalStateException("Method " + methodName + " only allowed for core graph");
+            checkShortcut(true, methodName);
+        }
+
+        @Override
+        public long getTime() {
+            checkShortcutCore("getTime");
+            return (long) shortcuts.getInt(edgePointer + S_TIME);
+        };
+
+        @Override
+        public CHEdgeIteratorState setTime(long time) {
+            checkShortcutCore("setTime");
+            shortcuts.setInt(edgePointer + S_TIME, (int) time);
+            return this;
+        }
+        // ORS-GH MOD END
     }
 
     private class CHEdgeAccess extends EdgeAccess {
@@ -940,5 +1004,14 @@ public class CHGraphImpl implements CHGraph, Storable<CHGraph> {
         public String toString() {
             return "ch edge access " + name;
         }
+
+        // ORS-GH MOD START: TD CALT
+        public void setTime(long edgePointer, long time) {
+            if (!isTypeCore) {
+                throw new IllegalStateException("Time can be added to shortcuts only for core graph");
+            }
+            shortcuts.setInt(edgePointer + S_TIME, (int) time);
+        }
+        // ORS-GH MOD END
     }
 }

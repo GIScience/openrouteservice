@@ -349,4 +349,14 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState, CHEdgeIterat
         this.reverseEdge = reverseEdge;
     }
 
+    // ORS-GH MOD START: TD CALT
+    public CHEdgeIteratorState setTime(long time) {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public long getTime() {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+    // ORS-GH MOD END
 }
