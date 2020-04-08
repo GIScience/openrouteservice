@@ -64,7 +64,9 @@ public class APIEnums {
         TRAIL_DIFFICULTY("traildifficulty"),
         OSM_ID("osmid"),
         ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions"),
-        COUNTRY_INFO("countryinfo");
+        COUNTRY_INFO("countryinfo"),
+        GREEN("green"),
+        NOISE("noise");
 
         private final String value;
 

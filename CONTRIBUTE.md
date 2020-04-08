@@ -57,7 +57,7 @@ We :heart: pull requests! We also aspire to make our commit history cleaner and 
 We'd like all pull requests to adhere to the following rules:
 
 - a PR has to **close an issue**. If there is none yet for yours, please [create one](https://github.com/GIScience/openrouteservice/issues/new)
-- branch off [development](https://github.com/GIScience/openrouteservice/tree/development)
+- branch off [master](https://github.com/GIScience/openrouteservice/tree/master)
 - name your branch according to `<[hotfix/bugfix/feat/algo]>/<issue#>-<purpose>`, e.g. `[feat]/#381-simplify_geometry`
 - if you introduce new functions/classes, write unit or API tests
 - **limit the number of commits to a minimum**, i.e. use [`git commit --amend [--no-edit]`](https://www.atlassian.com/git/tutorials/rewriting-history#git-commit--amend)
@@ -73,7 +73,7 @@ git stash pop
 
 Be extra careful using `rebase` commands when collaborating on a branch with other people.
 
-**Don't merge** `development` branch into your feature branch.
+**Don't merge** `master` branch into your feature branch.
 
 ### Contributing code
 

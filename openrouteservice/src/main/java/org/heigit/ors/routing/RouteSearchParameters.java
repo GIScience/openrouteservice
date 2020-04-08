@@ -547,14 +547,12 @@ public class RouteSearchParameters {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
 
-    public boolean requiresDynamicWeights() {
+    public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
             || hasAvoidFeatures()
             || hasAvoidBorders()
             || hasAvoidCountries()
             || getConsiderTurnRestrictions()
-            || getWeightingMethod() == WeightingMethod.SHORTEST
-            || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class);
     }
@@ -562,7 +560,7 @@ public class RouteSearchParameters {
     /**
      * Check if the request is compatible with preprocessed graphs
      */
-    public boolean requiresFallbackAlgorithm() {
+    public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
     }

@@ -83,6 +83,8 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
+    private static final String VAL_RECOMMENDED = "recommended";
+    private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
     private static final String KEY_LM_DISABLE = "lm.disable";
@@ -102,6 +104,9 @@ public class RoutingProfile {
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
     private static final String KEY_ASTARBI = "astarbi";
+    private static final int KEY_FLEX_STATIC = 0;
+    private static final int KEY_FLEX_PREPROCESSED = 1;
+    private static final int KEY_FLEX_FULLY = 2;
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -293,9 +298,8 @@ public class RoutingProfile {
                     if (coreOpts.hasPath(VAL_ENABLED) || coreOpts.getBoolean(VAL_ENABLED)) {
                         prepareCore = coreOpts.getBoolean(VAL_ENABLED);
                         if (!prepareCore)
-                            args.put(KEY_PREPARE_CH_WEIGHTINGS, "no");
+                            args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
                     }
-
 
                     if (prepareCore) {
                         if (coreOpts.hasPath(KEY_THREADS))
@@ -752,7 +756,9 @@ public class RoutingProfile {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
-            boolean flexibleMode = searchParams.getFlexibleMode();
+            int flexibleMode = searchParams.getFlexibleMode() ? KEY_FLEX_PREPROCESSED : KEY_FLEX_STATIC;
+            boolean optimized = searchParams.getOptimized();
+
             List<GHPoint> points = new ArrayList<>();
             points.add(new GHPoint(lat0, lon0));
             List<Double> bearings = new ArrayList<>();
@@ -766,7 +772,6 @@ public class RoutingProfile {
             }
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
             req.getHints().put(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
             req.getHints().put(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
 
@@ -781,64 +786,33 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                if (weightingMethod == WeightingMethod.FASTEST) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_FASTEST);
-                } else if (weightingMethod == WeightingMethod.SHORTEST) {
-                    req.setWeighting(VAL_SHORTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_SHORTEST);
-                    flexibleMode = true;
-                } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, "recommended");
-                    flexibleMode = true;
-                }
+                weightingMethod = setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
+                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType, weightingMethod);
             }
-            if (weightingMethod == WeightingMethod.RECOMMENDED && profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
-                req.setWeighting(VAL_FASTEST);
-                req.getHints().put(KEY_WEIGHTING_METHOD, "recommended_pref");
-                flexibleMode = true;
+            else
+                throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
+
+            if(flexibleMode == KEY_FLEX_STATIC)
+                //Speedup order: useCH, useCore, useALT
+                setSpeedups(req, true, true, true);
+
+            if (flexibleMode == KEY_FLEX_PREPROCESSED) {
+                if(optimized)
+                    setSpeedups(req, false, true, true);
+                else
+                    setSpeedups(req, false, false, true);
             }
 
-            if(profileType == RoutingProfileType.WHEELCHAIR) {
-                flexibleMode = true;
-            }
-
-            if (searchParams.requiresDynamicWeights() || flexibleMode) {
-                if (mGraphHopper.isCHEnabled())
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
-                    req.getHints().put(KEY_LM_DISABLE, false);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                }
-            } else {
-                if (mGraphHopper.isCHEnabled()) {
-                    req.getHints().put(KEY_LM_DISABLE, true);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                }
-                else {
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                }
-            }
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if(searchParams.requiresFallbackAlgorithm()) {
-                req.getHints().put(KEY_LM_DISABLE, false);
-                req.getHints().put(KEY_CORE_DISABLE, true);
-                req.getHints().put(KEY_CH_DISABLE, true);
-            }
-
-            if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
-                req.getHints().put(KEY_CUSTOM_WEIGHTINGS, true);
-                req.getHints().put("weighting_#acceleration#", true);
-                req.getHints().put(KEY_LM_DISABLE, true); // REMOVE
-            }
+            if(flexibleMode == KEY_FLEX_FULLY)
+                setSpeedups(req, false, false, true);
 
             if (astarEpsilon != null)
                 req.getHints().put("astarbi.epsilon", astarEpsilon);
             if (astarApproximation != null)
                 req.getHints().put("astarbi.approximation", astarApproximation);
+            //Overwrite algorithm selected in setSpeedups
+            req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
 
             mGraphHopper.setSimplifyResponse(geometrySimplify);
             resp = mGraphHopper.route(req);
@@ -870,7 +844,7 @@ public class RoutingProfile {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
-            boolean flexibleMode = searchParams.getFlexibleMode();
+            int flexibleMode = searchParams.getFlexibleMode() ? KEY_FLEX_PREPROCESSED : KEY_FLEX_STATIC;
             boolean optimized = searchParams.getOptimized();
 
             GHRequest req;
@@ -894,106 +868,26 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                if (weightingMethod == WeightingMethod.FASTEST) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_FASTEST);
-                } else if (weightingMethod == WeightingMethod.SHORTEST) {
-                    req.setWeighting(VAL_SHORTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, VAL_SHORTEST);
-                    flexibleMode = true;
-                } else if (weightingMethod == WeightingMethod.RECOMMENDED) {
-                    req.setWeighting(VAL_FASTEST);
-                    req.getHints().put(KEY_WEIGHTING_METHOD, "recommended");
-                    flexibleMode = true;
-                }
+                weightingMethod = setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
+                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType, weightingMethod);
             }
+            else
+                throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            //Use specially prepared recommended weighting graphs for cycling (and walking)
-            if (weightingMethod == WeightingMethod.RECOMMENDED){
-                if(RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
-                    req.setWeighting("recommended");
-                    req.getHints().put("weighting_method", "recommended");
-                }
-            }
+            if(flexibleMode == KEY_FLEX_STATIC)
+                //Speedup order: useCH, useCore, useALT
+                setSpeedups(req, true, true, true);
 
-            // MARQ24 for what ever reason after the 'weighting_method' hint have been set (based
-            // on the given searchParameter Max have decided that's necessary 'patch' the hint
-            // for certain profiles...
-            // ...and BTW if the flexibleMode set to true, CH will be disabled!
-            if (weightingMethod == WeightingMethod.RECOMMENDED && profileType == RoutingProfileType.DRIVING_HGV && HeavyVehicleAttributes.HGV == searchParams.getVehicleType()){
-                req.setWeighting(VAL_FASTEST);
-                req.getHints().put(KEY_WEIGHTING_METHOD, "recommended_pref");
-                flexibleMode = true;
+            if (flexibleMode == KEY_FLEX_PREPROCESSED) {
+                if(optimized)
+                    setSpeedups(req, false, true, true);
+                else
+                    setSpeedups(req, false, false, true);
             }
-
-            if(profileType == RoutingProfileType.WHEELCHAIR) {
-                flexibleMode = true;
-            }
-
-            if (supportWeightingMethod(profileType)) {
-                if (searchParams.hasUserSpeed()) {
-                    req.getHints().put("user_speed",searchParams.getUserSpeed());
-                    flexibleMode = true;
-                }
-            }
-
-            if (searchParams.requiresDynamicWeights() || flexibleMode) {
-                if (mGraphHopper.isCHEnabled())
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                if (mGraphHopper.isCoreEnabled())
-                   req.getHints().put(KEY_CORE_DISABLE, true);
-                if (mGraphHopper.getLMFactoryDecorator().isEnabled()) {
-                    req.setAlgorithm(KEY_ASTARBI);
-                    req.getHints().put(KEY_LM_DISABLE, false);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                }
-                if (mGraphHopper.isCoreEnabled() && optimized) {
-                    req.getHints().put(KEY_CORE_DISABLE, false);
-                    req.getHints().put(KEY_LM_DISABLE, true);
-                    req.getHints().put(KEY_CH_DISABLE, true);
-                    req.setAlgorithm(KEY_ASTARBI);
-                }
-            } else {
-                if (mGraphHopper.isCHEnabled()) {
-                    req.getHints().put(KEY_LM_DISABLE, true);
-                    req.getHints().put(KEY_CORE_DISABLE, true);
-                }
-                else {
-                    if (mGraphHopper.isCoreEnabled() && optimized) {
-                        req.getHints().put(KEY_CORE_DISABLE, false);
-                        req.getHints().put(KEY_LM_DISABLE, true);
-                        req.getHints().put(KEY_CH_DISABLE, true);
-                        req.setAlgorithm(KEY_ASTARBI);
-                    }
-                    else {
-                        req.getHints().put(KEY_CH_DISABLE, true);
-                        req.getHints().put(RoutingProfile.KEY_CORE_DISABLE, true);
-                    }
-                }
-            }
+            
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if(searchParams.requiresFallbackAlgorithm()) {
-                req.setAlgorithm(KEY_ASTARBI);
-                req.getHints().put(KEY_LM_DISABLE, false);
-                req.getHints().put(KEY_CORE_DISABLE, true);
-                req.getHints().put(KEY_CH_DISABLE, true);
-            }
-
-            //If we have special weightings, we have to fall back to ALT with Beeline
-            ProfileParameters profileParams = searchParams.getProfileParameters();
-            if (profileParams != null && profileParams.hasWeightings()) {
-                req.setAlgorithm("astarbi");
-                req.getHints().put("lm.disable", false);
-                req.getHints().put("core.disable", true);
-                req.getHints().put("ch.disable", true);
-            }
-
-            if (profileType == RoutingProfileType.DRIVING_EMERGENCY) {
-                req.getHints().put(KEY_CUSTOM_WEIGHTINGS, true);
-                req.getHints().put("weighting_#acceleration#", true);
-                req.getHints().put(KEY_LM_DISABLE, true); // REMOVE
-            }
+            if(flexibleMode == KEY_FLEX_FULLY)
+                setSpeedups(req, false, false, true);
 
             if (astarEpsilon != null)
                 req.getHints().put("astarbi.epsilon", astarEpsilon);
@@ -1001,14 +895,12 @@ public class RoutingProfile {
                 req.getHints().put("astarbi.approximation", astarApproximation);
 
             if (searchParams.getAlternativeRoutesCount() > 0) {
+                //TAKB: CH and CORE have to be disabled for alternative routes
+                setSpeedups(req, false, false, true);
                 req.setAlgorithm("alternative_route");
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
-//              TAKB: CH and CORE have to be disabled for alternative routes
-                req.getHints().put(KEY_CH_DISABLE, true);
-                req.getHints().put(KEY_LM_DISABLE, false);
-                req.getHints().put(KEY_CORE_DISABLE, true);
             }
 
             if (directedSegment) {
@@ -1033,6 +925,101 @@ public class RoutingProfile {
         }
 
         return resp;
+    }
+    /**
+     * Get the flexibility mode necessary for the searchParams.
+     * Reults in usage of CH, Core or ALT/AStar
+     *
+     * @param flexibleMode initial flexibleMode
+     * @param searchParams RouteSearchParameters
+     * @param profileType Necessary for HGV
+     * @param weightingMethod weightingmethod previously determined
+     * @return flexibility as int
+     */
+    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType, int weightingMethod){
+        if(searchParams.requiresDynamicPreprocessedWeights())
+            flexibleMode = KEY_FLEX_PREPROCESSED;
+        if(profileType == RoutingProfileType.WHEELCHAIR)
+            flexibleMode = KEY_FLEX_PREPROCESSED;
+        if(weightingMethod == WeightingMethod.RECOMMENDED)
+            flexibleMode = KEY_FLEX_PREPROCESSED;
+
+        if(searchParams.requiresFullyDynamicWeights())
+            flexibleMode = KEY_FLEX_FULLY;
+        //If we have special weightings, we have to fall back to ALT with Beeline
+        ProfileParameters profileParams = searchParams.getProfileParameters();
+        if (profileParams != null && profileParams.hasWeightings())
+            flexibleMode = KEY_FLEX_FULLY;
+
+        return flexibleMode;
+    }
+
+    /**
+     * Set the weighting for the request based on input weighting.
+     * Also set the weighting_method.
+     *
+     * @param req Request to be modified
+     * @param requestWeighting Originally requested weighting
+     * @param profileType Necessary for HGV
+     * @param vehicleType Necessary for HGV
+     * @return Weighting as int
+     */
+    private int setWeighting(GHRequest req, int requestWeighting, int profileType, int vehicleType){
+        //Defaults
+        String weighting = VAL_FASTEST;
+        String weightingMethod = VAL_FASTEST;
+
+        if(requestWeighting == WeightingMethod.FASTEST)
+            weighting = weightingMethod = VAL_FASTEST;
+
+        if(requestWeighting == WeightingMethod.SHORTEST)
+            weighting = weightingMethod = VAL_SHORTEST;
+
+        //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
+        if(requestWeighting == WeightingMethod.RECOMMENDED){
+            if(RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
+                weighting = VAL_RECOMMENDED;
+                weightingMethod = VAL_RECOMMENDED;
+            }
+            if(RoutingProfileType.isHeavyVehicle(profileType) && vehicleType == HeavyVehicleAttributes.HGV) {
+                weighting = VAL_RECOMMENDED;
+                weightingMethod = VAL_RECOMMENDED_PREF;
+            }
+        }
+
+        req.setWeighting(weighting);
+        req.getHints().put(KEY_WEIGHTING_METHOD, weightingMethod);
+        //Return the weighting as integer to set flexibleMode
+        return weighting == VAL_FASTEST ? WeightingMethod.FASTEST : weighting == VAL_SHORTEST ? WeightingMethod.SHORTEST : WeightingMethod.RECOMMENDED;
+    }
+    /**
+     * Set the speedup techniques used for calculating the route.
+     * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
+     *
+     * @param req Request whose hints will be set
+     * @param useCH Should CH be enabled
+     * @param useCore Should Core be enabled
+     * @param useALT Should ALT be enabled
+     */
+    private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
+        //Priority: CH->Core->ALT
+        useCH &= mGraphHopper.isCHEnabled();
+        //If there is either no shortest or fastest profile, CH will be enabled and crash if a missing profile is not present
+        try{
+            mGraphHopper.getCHFactoryDecorator().getPreparation(req.getHints());
+        }
+        catch (Exception e){
+            useCH = false;
+        }
+        useCore = useCore && mGraphHopper.isCoreEnabled() && !useCH;
+        useALT &= mGraphHopper.getLMFactoryDecorator().isEnabled() && !useCH && !useCore;
+
+        req.getHints().put(KEY_CH_DISABLE, !useCH);
+        req.getHints().put(KEY_CORE_DISABLE, !useCore);
+        req.getHints().put(KEY_LM_DISABLE, !useALT);
+
+        if(useCore || useALT)
+            req.setAlgorithm(KEY_ASTARBI);
     }
 
     /**
