@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Querying shortest weighting can now use CH shortest preparation if available
 ### Changed
 - Refactor the algorithm selection process
+- Refactor wheelchair builder
 ### Deprecated
 
 ## [6.1.0] - 2020-03-06

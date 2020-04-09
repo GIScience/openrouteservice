@@ -52,11 +52,22 @@ public class WheelchairGraphStorageBuilderTest {
         WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
         assertAttributeValues(attrs);
     }
+
     @Test
     public void TestProcessWayWithRightSidewalkAttached() {
         ReaderWay way = constructSidedWay("right");
         builder.processWay(way);
         WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.RIGHT);
+        assertAttributeValues(attrs);
+    }
+
+    @Test
+    public void TestProcessWayWithBothSidewalksAttached() {
+        ReaderWay way = constructSidedWay("both");
+        builder.processWay(way);
+        WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.RIGHT);
+        assertAttributeValues(attrs);
+        attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
         assertAttributeValues(attrs);
     }
 
@@ -121,8 +132,6 @@ public class WheelchairGraphStorageBuilderTest {
         nodeTags.put(1, tags);
 
         builder.processWay(way, new Coordinate[0], nodeTags);
-        IntsRef flags = IntsRef.EMPTY;
-        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,flags,"",null, false);
 
         Assert.assertEquals(3, builder.getKerbHeightForEdge(way));
 
