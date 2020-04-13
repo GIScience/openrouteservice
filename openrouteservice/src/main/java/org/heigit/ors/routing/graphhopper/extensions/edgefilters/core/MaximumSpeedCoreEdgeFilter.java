@@ -29,10 +29,11 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
     private HeavyVehicleAttributesGraphStorage storage;
-    private double maxSpeed = Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")); //Minimum speed of the core.
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")) != null) ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")) : 80; //Minimum speed of the core.
     public final FlagEncoder flagEncoder;
 
-    public MaximumSpeedCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
+    public
+    MaximumSpeedCoreEdgeFilter(FlagEncoder encoder, GraphStorage graphStorage) {
         this.flagEncoder = encoder;
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
