@@ -38,8 +38,11 @@ public class MaximumSpeedWeighting implements Weighting {
        this.flagEncoder = flagEncoder;
        this.hintsMap = hintsMap;
        this.superWeighting = weighting;
-        userMaxSpeed = hintsMap.getDouble("user_speed",80);
-        headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
+       if(hintsMap.getDouble("user_speed",80) < 80  ){
+           throw new RuntimeException("User speed should be <= 80.");
+       }
+       userMaxSpeed = hintsMap.getDouble("user_speed",80);
+       headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
     }
 
     private double speedToTime_km_h(double speed, EdgeIteratorState edge){

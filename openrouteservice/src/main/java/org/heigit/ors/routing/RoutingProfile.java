@@ -884,7 +884,7 @@ public class RoutingProfile {
                 else
                     setSpeedups(req, false, false, true);
             }
-            
+
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if(flexibleMode == KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true);
@@ -901,6 +901,10 @@ public class RoutingProfile {
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
+            }
+
+            if(searchParams.hasUserSpeed()){
+                req.getHints().put("user_speed", searchParams.getUserSpeed());
             }
 
             if (directedSegment) {
