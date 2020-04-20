@@ -1222,6 +1222,29 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testMaximumSpeedWeighting() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("user_speed",80);
+
+        // Test that the "right turn only" restriction at the junction is taken into account
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(1694.8f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testNoBearings() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
