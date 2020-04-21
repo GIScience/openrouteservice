@@ -851,8 +851,8 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                weightingMethod = setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
-                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType, weightingMethod);
+                setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
+                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             }
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
@@ -916,15 +916,12 @@ public class RoutingProfile {
      * @param flexibleMode initial flexibleMode
      * @param searchParams RouteSearchParameters
      * @param profileType Necessary for HGV
-     * @param weightingMethod weightingmethod previously determined
      * @return flexibility as int
      */
-    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType, int weightingMethod){
+    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType){
         if(searchParams.requiresDynamicPreprocessedWeights())
             flexibleMode = KEY_FLEX_PREPROCESSED;
         if(profileType == RoutingProfileType.WHEELCHAIR)
-            flexibleMode = KEY_FLEX_PREPROCESSED;
-        if(weightingMethod == WeightingMethod.RECOMMENDED)
             flexibleMode = KEY_FLEX_PREPROCESSED;
 
         if(searchParams.requiresFullyDynamicWeights())
@@ -947,7 +944,7 @@ public class RoutingProfile {
      * @param vehicleType Necessary for HGV
      * @return Weighting as int
      */
-    private int setWeighting(GHRequest req, int requestWeighting, int profileType, int vehicleType){
+    private void setWeighting(GHRequest req, int requestWeighting, int profileType, int vehicleType){
         //Defaults
         String weighting = VAL_FASTEST;
         String weightingMethod = VAL_FASTEST;
@@ -964,7 +961,7 @@ public class RoutingProfile {
                 weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED;
             }
-            if(RoutingProfileType.isHeavyVehicle(profileType) && vehicleType == HeavyVehicleAttributes.HGV) {
+            if(RoutingProfileType.isHeavyVehicle(profileType)) {
                 weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED_PREF;
             }
@@ -972,8 +969,6 @@ public class RoutingProfile {
 
         req.setWeighting(weighting);
         req.getHints().put(KEY_WEIGHTING_METHOD, weightingMethod);
-        //Return the weighting as integer to set flexibleMode
-        return weighting == VAL_FASTEST ? WeightingMethod.FASTEST : weighting == VAL_SHORTEST ? WeightingMethod.SHORTEST : WeightingMethod.RECOMMENDED;
     }
     /**
      * Set the speedup techniques used for calculating the route.
