@@ -95,20 +95,16 @@ public class MaximumSpeedWeighting implements Weighting {
     @Override
     public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId){
 
-        if(hintsMap.getWeighting() == "fastest") {
-            //If it is not a shortcut we need to test both directions
-            double speed = reverse ? edge.get(flagEncoder.getAverageSpeedEnc()) : edge.getReverse(flagEncoder.getAverageSpeedEnc());
-            if (speed > userMaxSpeed) {
-                long testTest= superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
-                long testTestTest = (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
-                long test = superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) + (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
-                return test;
-            } else {
-                return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);// If the speed of the edge is zero or lower than the one defined by user we call the superWeighting calcWEight method.
-            }
+        //If it is not a shortcut we need to test both directions
+        double speed = reverse ? edge.get(flagEncoder.getAverageSpeedEnc()) : edge.getReverse(flagEncoder.getAverageSpeedEnc());
+        if (speed > userMaxSpeed) {
+            long testTest= superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
+            long testTestTest = (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
+            long test = superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) + (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
+            return test;
+        } else {
+            return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);// If the speed of the edge is zero or lower than the one defined by user we call the superWeighting calcWEight method.
         }
-
-        return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
     }
 
 
