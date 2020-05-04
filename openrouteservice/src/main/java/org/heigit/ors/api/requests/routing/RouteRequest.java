@@ -57,6 +57,7 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
+    public static final String PARAM_TURN_RESTRICTIONS = "turn_restrictions";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -244,6 +245,13 @@ public class RouteRequest {
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
+
+    @ApiModelProperty(name = PARAM_TURN_RESTRICTIONS, value= "Parameter to enable or disable turn restrictions in the core.")
+    @JsonProperty(PARAM_TURN_RESTRICTIONS)
+    private boolean turnRestrictions;
+    @JsonIgnore
+    private boolean hasTurnRestrictions = false;
+
 
 
     @JsonCreator
@@ -577,4 +585,11 @@ public class RouteRequest {
     public boolean hasSkipSegments() { return hasSkipSegments;}
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
+
+    public void setTurnRestrictions(boolean turnRestrictions){ this.turnRestrictions = turnRestrictions;}
+
+    public boolean getTurnRestrictions(){ return turnRestrictions; }
+
+    public boolean  hasTurnRestrictions(){ return turnRestrictions; }
+
 }

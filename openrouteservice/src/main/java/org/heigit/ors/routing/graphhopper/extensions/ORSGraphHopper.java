@@ -320,9 +320,12 @@ public class ORSGraphHopper extends GraphHopper {
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+
+				if(hints.has("turn_restrictions")){
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 	                ((TurnWeighting)weighting).setInORS(true);
+				}
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 

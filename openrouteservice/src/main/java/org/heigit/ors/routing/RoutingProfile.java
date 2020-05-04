@@ -107,6 +107,7 @@ public class RoutingProfile {
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
     private static final int KEY_FLEX_FULLY = 2;
+    private static final String KEY_TURN_RESTRICTIONS = "turn_restrictions";
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -885,6 +886,11 @@ public class RoutingProfile {
                     setSpeedups(req, false, false, true);
             }
 
+
+            if(searchParams.hasTurnRestrictions()){
+                req.getHints().put(KEY_TURN_RESTRICTIONS, searchParams.getTurnRestrictions());
+            }
+            
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if(flexibleMode == KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true);
