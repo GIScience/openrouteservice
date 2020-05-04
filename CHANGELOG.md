@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Refactor the algorithm selection process
 - Use ALT/A* Beeline for roundtrips. Enable Core-ALT-only for pedestrian profile.
 - Enable CH and Core-ALT preprocessing with recommended weighting for all profiles.
+- Refactor wheelchair builder
 ### Deprecated
 
 ## [6.1.0] - 2020-03-06
