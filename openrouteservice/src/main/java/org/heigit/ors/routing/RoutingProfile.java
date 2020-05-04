@@ -886,11 +886,10 @@ public class RoutingProfile {
                     setSpeedups(req, false, false, true);
             }
 
-
             if(searchParams.hasTurnRestrictions()){
                 req.getHints().put(KEY_TURN_RESTRICTIONS, searchParams.getTurnRestrictions());
             }
-            
+
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if(flexibleMode == KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true);
