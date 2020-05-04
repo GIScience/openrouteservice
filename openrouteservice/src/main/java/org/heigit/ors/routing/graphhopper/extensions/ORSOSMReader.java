@@ -187,7 +187,7 @@ public class ORSOSMReader extends OSMReader {
 				// find the node
 				long id = osmNodeIds.get(i);
 				// replace the osm id with the internal id
-				int internalId = getInternalNodeIdOfOsmNode(id);
+				int internalId = getNodeMap().get(id);
 				HashMap<String, String> tagsForNode = nodeTags.get(id);
 
 				if(tagsForNode != null) {
