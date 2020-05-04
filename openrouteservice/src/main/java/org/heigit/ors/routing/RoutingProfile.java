@@ -102,6 +102,7 @@ public class RoutingProfile {
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
     private static final String KEY_ASTARBI = "astarbi";
+    private static final String KEY_TURN_RESTRICTIONS = "turn_restrictions";
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -928,6 +929,10 @@ public class RoutingProfile {
 
             if(profileType == RoutingProfileType.WHEELCHAIR) {
                 flexibleMode = true;
+            }
+
+            if(searchParams.hasTurnRestrictions()){
+                req.getHints().put(KEY_TURN_RESTRICTIONS, searchParams.getTurnRestrictions());
             }
 
             if (searchParams.requiresDynamicWeights() || flexibleMode) {

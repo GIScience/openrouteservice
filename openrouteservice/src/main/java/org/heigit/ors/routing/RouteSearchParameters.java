@@ -83,6 +83,8 @@ public class RouteSearchParameters {
 
     private String options;
 
+    private boolean turnRestrictions=false;
+
     public int getProfileType() {
         return profileType;
     }
@@ -534,6 +536,12 @@ public class RouteSearchParameters {
     public boolean isProfileTypeHeavyVehicle() {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
+
+    public void setTurnRestrictions(boolean turnRestrictions){ this.turnRestrictions = turnRestrictions;}
+
+    public boolean getTurnRestrictions(){ return turnRestrictions; }
+
+    public boolean  hasTurnRestrictions(){ return turnRestrictions; }
 
     public boolean requiresDynamicWeights() {
         return hasAvoidAreas()

@@ -155,6 +155,10 @@ public class RouteRequestHandler extends GenericHandler {
             params = processRouteRequestOptions(request, params);
         }
 
+        if(request.hasTurnRestrictions()){
+            params.setTurnRestrictions(request.getTurnRestrictions());
+        }
+
         if (request.hasAlternativeRoutes()) {
             if (request.getCoordinates().size() > 2) {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
