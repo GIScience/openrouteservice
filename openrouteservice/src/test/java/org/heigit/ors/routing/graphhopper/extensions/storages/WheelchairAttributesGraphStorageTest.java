@@ -19,8 +19,8 @@ public class WheelchairAttributesGraphStorageTest {
         storage.create(1);
 
         WheelchairAttributes attrs = new WheelchairAttributes();
-        attrs.setAttribute(WheelchairAttributes.Attribute.WIDTH, "180");
-        attrs.setAttribute(WheelchairAttributes.Attribute.KERB, "3");
+        attrs.setAttribute(WheelchairAttributes.Attribute.WIDTH, 180);
+        attrs.setAttribute(WheelchairAttributes.Attribute.KERB, 3);
 
         storage.setEdgeValues(1, attrs);
 

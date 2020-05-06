@@ -5,15 +5,12 @@ import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import junit.framework.Assert;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
-
-import static org.junit.Assert.fail;
 
 public class WheelchairGraphStorageBuilderTest {
     private WheelchairGraphStorageBuilder builder;
@@ -39,7 +36,7 @@ public class WheelchairGraphStorageBuilderTest {
 
         builder.processWay(way);
 
-        WheelchairAttributes attrs = builder.getStoredAttributes(null);
+        WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.NONE);
         Assert.assertEquals(50, attrs.getWidth());
         Assert.assertEquals(2, attrs.getIncline());
         Assert.assertEquals(3, attrs.getSlopedKerbHeight());
@@ -55,6 +52,7 @@ public class WheelchairGraphStorageBuilderTest {
         WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
         assertAttributeValues(attrs);
     }
+
     @Test
     public void TestProcessWayWithRightSidewalkAttached() {
         ReaderWay way = constructSidedWay("right");
@@ -64,13 +62,23 @@ public class WheelchairGraphStorageBuilderTest {
     }
 
     @Test
+    public void TestProcessWayWithBothSidewalksAttached() {
+        ReaderWay way = constructSidedWay("both");
+        builder.processWay(way);
+        WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.RIGHT);
+        assertAttributeValues(attrs);
+        attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
+        assertAttributeValues(attrs);
+    }
+
+    @Test
     public void TestProcessWayWithMultipleValues() {
         ReaderWay way = new ReaderWay(1);
 
         way.setTag("sidewalk:left:width", "0.6");
         way.setTag("sidewalk:right:width", "0.5");
-        way.setTag("sidewalk:left:kerb:height", "0.01");
-        way.setTag("sidewalk:right:kerb:height", "0.03");
+        way.setTag("sidewalk:left:kerb:height:start", "0.01");
+        way.setTag("sidewalk:right:kerb:height:start", "0.03");
         way.setTag("sidewalk:left:incline", "5");
         way.setTag("sidewalk:right:incline", "2");
         way.setTag("sidewalk:left:tracktype", "grade");
@@ -81,12 +89,12 @@ public class WheelchairGraphStorageBuilderTest {
         way.setTag("sidewalk:right:surface", "paving_stones");
 
         WheelchairAttributes correctWheelchairAttributes = new WheelchairAttributes();
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, "3");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, "50");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.INCLINE, "5");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, "2");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, "3");
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SURFACE, "4");
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, 3);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, 50);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.INCLINE, 5);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, 2);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, 3);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SURFACE, 4);
         builder.processWay(way);
 
         WheelchairAttributes attrs = builder.combineAttributesOfWayWhenBothSidesPresent(new WheelchairAttributes());
@@ -107,7 +115,7 @@ public class WheelchairGraphStorageBuilderTest {
 
         builder.processWay(way, new Coordinate[0], nodeTags);
 
-        Assert.assertEquals(3, builder.getKerbHeightForWayFromNodeTags(1, 2));
+        Assert.assertEquals(3, builder.getKerbHeightFromNodeTags());
     }
 
     @Test
@@ -124,10 +132,8 @@ public class WheelchairGraphStorageBuilderTest {
         nodeTags.put(1, tags);
 
         builder.processWay(way, new Coordinate[0], nodeTags);
-        IntsRef flags = IntsRef.EMPTY;
-        EdgeIteratorState edge = new VirtualEdgeIteratorState(1,1,1,1,2,1,flags,"",null, false);
 
-        Assert.assertEquals(3, builder.getKerbHeightForWay(way, edge));
+        Assert.assertEquals(3, builder.getKerbHeightForEdge(way));
 
         way = new ReaderWay(2);
 
@@ -135,7 +141,7 @@ public class WheelchairGraphStorageBuilderTest {
 
         builder.processWay(way, new Coordinate[0], nodeTags);
 
-        Assert.assertEquals(-1, builder.getKerbHeightForWay(way, edge));
+        Assert.assertEquals(-1, builder.getKerbHeightForEdge(way));
     }
 
     private ReaderWay constructSidedWay(String side) {
@@ -143,7 +149,8 @@ public class WheelchairGraphStorageBuilderTest {
         way.setTag("sidewalk", side);
         way.setTag("sidewalk:" + side + ":width", "0.5");
         way.setTag("sidewalk:" + side + ":incline", "2");
-        way.setTag("sidewalk:" + side + ":kerb:height", "0.03");
+        way.setTag("sidewalk:" + side + ":kerb:height:start", "0.03");
+        way.setTag("sidewalk:" + side + ":kerb:height:end", "0.01");
         way.setTag("sidewalk:" + side + ":smoothness", "good");
         way.setTag("sidewalk:" + side + ":surface", "asphalt");
         way.setTag("sidewalk:" + side + ":tracktype", "grade4");
