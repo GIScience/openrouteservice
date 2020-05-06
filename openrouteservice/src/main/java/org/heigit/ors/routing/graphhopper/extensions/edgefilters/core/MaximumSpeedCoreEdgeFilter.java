@@ -29,7 +29,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
     private HeavyVehicleAttributesGraphStorage storage;
-    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")) != null) ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")) : 80; //Minimum speed of the core.
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null) ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","max_speed")) : 80; //Minimum speed of the core.
     public final FlagEncoder flagEncoder;
 
     public
