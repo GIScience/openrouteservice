@@ -2884,8 +2884,9 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is(1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                //A* Beeline and ALT values, respectively
+                .body("routes[0].summary.distance", anyOf(is(1866.2f), is(1792.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1343.6f), is(1290.8f)))
                 .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
@@ -2902,8 +2903,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                .body("routes[0].summary.distance", anyOf(is(1784.2f), is(1792.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1284.6f), is(1290.8f)))
                 .statusCode(200);
 
         options.remove("avoid_polygons");
@@ -2920,8 +2921,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1559.3f))
-                .body("routes[0].summary.duration", is(1122.7f))
+                .body("routes[0].summary.distance", anyOf(is(1559.3f), is(1559.3f)))
+                .body("routes[0].summary.duration", anyOf(is(1122.7f), is(1122.7f)))
                 .statusCode(200);
 
         body.put("bearings", constructBearings("25,30"));
@@ -2936,8 +2937,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 2496.8f))
-                .body("routes[0].summary.duration", is(1797.6f))
+                .body("routes[0].summary.distance", anyOf(is(2519.8f), is(2496.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1814.2f), is(1797.6f)))
                 .statusCode(200);
     }
     

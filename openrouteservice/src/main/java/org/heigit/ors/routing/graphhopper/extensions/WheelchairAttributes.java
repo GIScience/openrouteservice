@@ -60,8 +60,8 @@ public class WheelchairAttributes {
 		return incline;
 	}
 
-	public void setIncline(int incline) {
-		this.incline = incline;
+	public void setIncline(double incline) {
+		this.incline = (int) Math.round(incline);
 		hasAttributes = true;
 	}
 
@@ -116,19 +116,19 @@ public class WheelchairAttributes {
 		this.side = side;
 	}
 
-	public void setAttribute(Attribute attribute, String valueAsText) {
+	public void setAttribute(Attribute attribute, int value) {
 		switch(attribute) {
-			case INCLINE: setIncline(Integer.parseInt(valueAsText));
+			case INCLINE: setIncline(value);
 			    break;
-			case KERB: setSlopedKerbHeight(Integer.parseInt(valueAsText));
+			case KERB: setSlopedKerbHeight(value);
                 break;
-			case SMOOTHNESS: setSmoothnessType(Integer.parseInt(valueAsText));
+			case SMOOTHNESS: setSmoothnessType(value);
                 break;
-			case SURFACE: setSurfaceType(Integer.parseInt(valueAsText));
+			case SURFACE: setSurfaceType(value);
                 break;
-			case WIDTH: setWidth(Integer.parseInt(valueAsText));
+			case WIDTH: setWidth(value);
                 break;
-			case TRACK: setTrackType(Integer.parseInt(valueAsText));
+			case TRACK: setTrackType(value);
                 break;
 		}
 	}
