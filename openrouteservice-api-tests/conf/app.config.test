@@ -39,6 +39,7 @@
         attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         distance_approximation: true,
         routing_name: "ORSRouting",
+        "elevation_preprocessed": false,
         profiles: {
           active: ["vehicles-car", "vehicles-hgv", "bike", "bike-mtb", "bike-road", "bike-e", "pedestrian-walk", "pedestrian-hike", "wheelchair"],
           default_params: {
