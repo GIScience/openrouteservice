@@ -14,9 +14,18 @@ echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" > /usr/local/tomcat/bin/setenv.sh
 echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 
 if [ "${BUILD_GRAPHS}" = "True" ]; then
-  if [ -d "$graphs" ]; then rm -Rf "$graphs"; fi
+  rm -rf ${graphs}/*
+fi
+
+if [ -d "/usr/local/tomcat/webapps/ors" ]; then
+	if test -f /share/app.config.sample; then
+	  cp -f /share/app.config.sample /usr/local/tomcat/webapps/ors/WEB-INF/classes/app.config
+	fi
+else
+	cp /ors-core/openrouteservice/src/main/resources/app.config /share/app.config.sample
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
+
 # Keep docker running easy
 exec "$@"
