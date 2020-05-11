@@ -1077,7 +1077,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
@@ -1115,7 +1115,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
@@ -1488,7 +1488,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(379.5f))
-                .body("routes[0].summary.duration", is(136.0f))
+                .body("routes[0].summary.duration", is(270.0f))
                 .statusCode(200);
     }
 
@@ -1520,7 +1520,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(549.0f))
-                .body("routes[0].summary.duration", is(163.2f))
+                .body("routes[0].summary.duration", is(185.4f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1543,7 +1543,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(376.5f))
-                .body("routes[0].summary.duration", is(130.0f))
+                .body("routes[0].summary.duration", is(184.2f))
                 .statusCode(200);
     }
 
