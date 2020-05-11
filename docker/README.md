@@ -7,7 +7,7 @@ Use Dockerhub's hosted Openrouteservice image or build your own image and
 - either with `docker run`
 
 ```bash
-docker run \
+docker run -dt \
   -p 8080:8080 \
   -v $PWD/graphs:/ors-core/data/graphs \
   -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
