@@ -3,7 +3,8 @@ services:
   ors-app:
     container_name: ors-app
     ports:
-    - 8080:8080
+      - 8080:8080
+    image: openrouteservice/openrouteservice:v6.1.0
     build:
       context: ../
       args:
@@ -14,7 +15,7 @@ services:
       - ./elevation_cache:/ors-core/data/elevation_cache
       - ./logs/ors/:/var/log/ors/
       - ./logs/tomcat/:/usr/local/tomcat/logs
-      - ./conf:/share  # /share contains the app.config, which is needed for customization
+      - ./conf/app.config.sample:/ors-core/openrouteservice/src/main/resources/app.config
       - ./data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed in app.config

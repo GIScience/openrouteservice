@@ -8,10 +8,11 @@ Use Dockerhub's hosted Openrouteservice image or build your own image and
 
 ```bash
 docker run -dt \
+  --name ors-app \
   -p 8080:8080 \
   -v $PWD/graphs:/ors-core/data/graphs \
   -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
-  -v $PWD/conf:/share \
+  -v $PWD/conf/app.config.sample:/ors-core/openrouteservice/src/main/resources/app.config \
   -v $PWD/data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf \
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
@@ -30,7 +31,7 @@ This will:
 1. Build the openrouteservice [war file](https://www.wikiwand.com/en/WAR_(file_format)) from the local codebase and on container startup it sets `docker/conf/app.config.sample` as the config file and the OpenStreetMap dataset for Heidelberg under `docker/data/heidelberg.osm.gz` as sample data.
 2. Launch the openrouteservice service on port `8080` within a tomcat container at the address `http://localhost:8080/ors`.
 
-After you launched the container (and if not present before), the directory mounted to the container's `/share` path will contain the `app.config.sample`. Modify that to your needs, and restart the container. If you changed the OSM file, don't forget to use `BUILD_GRAPHS=True` to force a rebuild of the graph(s) (or delete the `./graphs` folder, which is the same thing).
+After you launched the container (and if not present before), you'll have a `./conf/app.config.sample` (or whichever path you mapped to the container's `/ors-core/openrouteservice/src/main/resources/app.config`). Modify that to your needs, and restart the container. If you changed the OSM file, don't forget to use `BUILD_GRAPHS=True` to force a rebuild of the graph(s) (or delete the `./graphs` folder, which is the same thing).
 
 ## Volumes
 
@@ -40,7 +41,7 @@ There are some important directories one might want to preserve on the host mach
 - `/ors-core/data/elevation_cache`: Contains the CGIAR elevation tiles if elevation was specified.
 - `/var/log/ors/`: Contains the ORS log.
 - `/usr/local/tomcat/logs`: Contains the Tomcat log.
-- `/share/`: The directory the `app.config` file will be copied to, needed for customization.
+- `/ors-core/data/osm_file.pbf`: The `app.config` which is used to control ORS.
 - `/ors-core/data/osm_file.pbf`: The OSM file being used to generate graphs.
 
 Look at the [`docker-compose.yml`](docker-compose.yml) for examples.
@@ -70,7 +71,7 @@ Either you point the build argument `OSM_FILE` to your desired OSM file during b
 
 Or to change the PBF file when restarting a container:
 
-1. change the path `/ors-core/data/osm_file.pbf` is pointing to
+1. change the path `/ors-core/data/osm_file.pbf` is pointing to to your new PBF
 2. set the `BUILD_GRAPHS` variable to `True`
 
 E.g.

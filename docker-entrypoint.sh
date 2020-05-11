@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 graphs=/ors-core/data/graphs
+tomcat_appconfig=/usr/local/tomcat/webapps/ors/WEB-INF/classes/app.config
+local_appconfig=/ors-core/openrouteservice/src/main/resources/app.config
 
 if [ -z "${CATALINA_OPTS}" ]; then
 	export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
@@ -17,12 +19,11 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
   rm -rf ${graphs}/*
 fi
 
+# if Tomcat built before, copy the mounted app.config to the Tomcat webapp app.config, else the other way around
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
-	if test -f /share/app.config.sample; then
-	  cp -f /share/app.config.sample /usr/local/tomcat/webapps/ors/WEB-INF/classes/app.config
-	fi
+	cp -f $local_appconfig $tomcat_appconfig
 else
-	cp /ors-core/openrouteservice/src/main/resources/app.config /share/app.config.sample
+	cp -f $tomcat_appconfig $local_appconfig
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
