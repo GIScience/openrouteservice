@@ -1,8 +1,24 @@
 # Install and run openrouteservice with docker
 
-Installing the openrouteservice backend service with **Docker** is quite straightforward.
+Installing the openrouteservice backend service with Docker is quite straightforward. All you need is a OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de).
 
-Please clone the repository and run the following command within the `docker/` directory:
+Use Dockerhub's hosted Openrouteservice image or build your own image and
+
+- either with `docker run`
+
+```bash
+docker run \
+  -p 8080:8080 \
+  -v $PWD/graphs:/ors-core/data/graphs \
+  -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
+  -v $PWD/conf:/share \
+  -v $PWD/data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf \
+  -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
+  -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
+  openrouteservice/openrouteservice:6.1.0
+```
+
+- or with `docker-compose`
 
 ```bash
 cd docker
@@ -14,6 +30,8 @@ This will:
 1. Build the openrouteservice [war file](https://www.wikiwand.com/en/WAR_(file_format)) from the local codebase and on container startup it sets `docker/conf/app.config.sample` as the config file and the OpenStreetMap dataset for Heidelberg under `docker/data/heidelberg.osm.gz` as sample data.
 2. Launch the openrouteservice service on port `8080` within a tomcat container at the address `http://localhost:8080/ors`.
 
+After you launched the container (and if not present before), the directory mounted to the container's `/share` path will contain the `app.config.sample`. Modify that to your needs, and restart the container. If you changed the OSM file, don't forget to use `BUILD_GRAPHS=True` to force a rebuild of the graph(s) (or delete the `./graphs` folder, which is the same thing).
+
 ## Volumes
 
 There are some important directories one might want to preserve on the host machine, to survive container regeneration. These directories should be mapped as volumes.
@@ -24,6 +42,8 @@ There are some important directories one might want to preserve on the host mach
 - `/usr/local/tomcat/logs`: Contains the Tomcat log.
 - `/share/`: The directory the `app.config` file will be copied to, needed for customization.
 - `/ors-core/data/osm_file.pbf`: The OSM file being used to generate graphs.
+
+Look at the [`docker-compose.yml`](docker-compose.yml) for examples.
 
 ## Environment variables
 
