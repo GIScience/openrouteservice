@@ -37,10 +37,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     private Graph graph;
     private GraphHopperStorage graphHopperStorage;
 
-    public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage, Graph graph) {
+    public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
         this.flagEncoder = encoder;
 
-        this.graph = graph;
+        this.graph = graphHopperStorage.getBaseGraph();
 
         this.graphHopperStorage = graphHopperStorage;
 
