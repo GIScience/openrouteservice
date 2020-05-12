@@ -23,7 +23,7 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-t
     locale-gen en_US.UTF-8 && \
     mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
     cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war && \
-    mkdir /share
+    mkdir /ors-conf
 
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
