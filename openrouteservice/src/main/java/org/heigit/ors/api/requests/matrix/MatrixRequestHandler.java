@@ -103,8 +103,9 @@ public class MatrixRequestHandler {
     protected static Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        if (numberOfRoutes > MatrixServiceSettings.getMaximumRoutes(false))
-            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + numberOfRoutes + " routes are allowed.");
+        int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
+        if (numberOfRoutes > maximumNumberOfRoutes)
+            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + maximumNumberOfRoutes + " routes are allowed.");
         ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
 
         for (List<Double> coordinate : locations) {
