@@ -56,8 +56,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 		if (Helper.isEmpty(strWeighting))
 			strWeighting = hintsMap.getWeighting();
 
-		if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
-			return createIsochroneWeighting(hintsMap, encoder, graphStorage);
 		Weighting result = null;
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
@@ -154,58 +152,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new AdditionWeighting(arrWeightings, result, encoder);
 			}
 		}
-		return result;
-	}
-
-	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
-		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
-		if (Helper.isEmpty(strWeighting))
-			strWeighting = hintsMap.getWeighting();
-
-//		TraversalMode tMode =  TraversalMode.NODE_BASED;
-//		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
-//			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-//		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
-//			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
-//		}
-
-		Weighting result = null;
-
-		//Isochrones only support fastest or shortest as no path is found.
-		//CalcWeight must be directly comparable to the isochrone limit
-
-		if ("shortest".equalsIgnoreCase(strWeighting))
-		{
-			result = new ShortestWeighting(encoder);
-		}
-		else if ("fastest".equalsIgnoreCase(strWeighting)
-				|| "priority".equalsIgnoreCase(strWeighting)
-				|| "recommended_pref".equalsIgnoreCase(strWeighting)
-				|| "recommended".equalsIgnoreCase(strWeighting))
-		{
-			result = new FastestWeighting(encoder, hintsMap);
-		}
-
-//		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
-//			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
-//			File file = path.toFile();
-//			if (file.exists()) {
-//				TurnCostExtension turnCostExt = null;
-//				synchronized (turnCostExtensionMap) {
-//					turnCostExt = turnCostExtensionMap.get(graphStorage);
-//					if (turnCostExt == null) {
-//						turnCostExt = new TurnCostExtension();
-//						turnCostExt.init(graphStorage, graphStorage.getDirectory());
-//						turnCostExtensionMap.put(graphStorage, turnCostExt);
-//					}
-//				}
-//
-//				result = new TurnWeighting(result, turnCostExt);
-//			}
-//		}
-
-		// No soft weightings for now
-
 		return result;
 	}
 

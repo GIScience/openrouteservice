@@ -11,57 +11,94 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
-import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Partition;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.FastIsochrone;
 
 import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.graphhopper.util.Helper.toLowerCase;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+
 /**
- * Decorator class for partitioning.
- *
+ * Factory for Fast Isochrone Preparation
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
  * @author Hendrik Leuschner
  */
-public class PartitioningFactoryDecorator  {
+public class FastIsochroneFactory {
     private final List<PreparePartition> preparations = new ArrayList<>();
+    private final Set<String> fastisochroneProfileStrings = new LinkedHashSet<>();
     private boolean disablingAllowed = true;
-    // for backward compatibility enable CH by default.
-    private boolean enabled = true;
+    private boolean enabled = false;
     private int preparationThreads;
     private ExecutorService threadPool;
-
-
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
 
-    public PartitioningFactoryDecorator() {
+    public FastIsochroneFactory() {
         setPreparationThreads(1);
     }
 
     public void init(CmdArgs args) {
-        // throw explicit error for deprecated configs
-        //TODO Partitioning parameters
-        if (!args.get("prepare.threads", "").isEmpty())
-            throw new IllegalStateException("Use " + Partition.PREPARE + "threads instead of prepare.threads");
+        setPreparationThreads(args.getInt(FastIsochrone.PREPARE + "threads", getPreparationThreads()));
+        setMaxThreadCount(args.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
+        setMaxCellNodesNumber(args.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
+        String weightingsStr = args.get(FastIsochrone.PREPARE + "weightings", "");
 
-        setPreparationThreads(args.getInt(Partition.PREPARE + "threads", getPreparationThreads()));
+        if ("no".equals(weightingsStr)) {
+            // default is fastest and we need to clear this explicitely
+            fastisochroneProfileStrings.clear();
+        } else if (!weightingsStr.isEmpty()) {
+            setFastIsochroneProfilesAsStrings(Arrays.asList(weightingsStr.split(",")));
+        }
 
-        boolean enableThis = args.getBool("partitioning.enabled", false);
+        boolean enableThis = !fastisochroneProfileStrings.isEmpty();
         setEnabled(enableThis);
         if (enableThis)
-            setDisablingAllowed(args.getBool(Partition.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            setDisablingAllowed(args.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+    }
+
+    /**
+     * @param profileStrings A list of multiple fast isochrone profile strings
+     * @see #addFastIsochroneProfileAsString(String)
+     */
+    public FastIsochroneFactory setFastIsochroneProfilesAsStrings(List<String> profileStrings) {
+        if (profileStrings.isEmpty())
+            throw new IllegalArgumentException("It is not allowed to pass an empty list of CH profile strings");
+
+        fastisochroneProfileStrings.clear();
+        for (String profileString : profileStrings) {
+            profileString = toLowerCase(profileString);
+            profileString = profileString.trim();
+            addFastIsochroneProfileAsString(profileString);
+        }
+        return this;
+    }
+
+    public Set<String> getFastisochroneProfileStrings() {
+        return fastisochroneProfileStrings;
+    }
+
+    /**
+     * Enables the use of fast isochrones to reduce isochrones query times. Disabled by default.
+     *
+     * @param profileString String representation of a weighting.
+     */
+    public FastIsochroneFactory addFastIsochroneProfileAsString(String profileString) {
+        fastisochroneProfileStrings.add(profileString);
+        return this;
     }
 
     public final boolean isEnabled() {
@@ -71,7 +108,7 @@ public class PartitioningFactoryDecorator  {
     /**
      * Enables or disables core calculation..
      */
-    public final PartitioningFactoryDecorator setEnabled(boolean enabled) {
+    public final FastIsochroneFactory setEnabled(boolean enabled) {
         this.enabled = enabled;
         return this;
     }
@@ -83,12 +120,12 @@ public class PartitioningFactoryDecorator  {
     /**
      * This method specifies if it is allowed to disable Core routing at runtime via routing hints.
      */
-    public final PartitioningFactoryDecorator setDisablingAllowed(boolean disablingAllowed) {
+    public final FastIsochroneFactory setDisablingAllowed(boolean disablingAllowed) {
         this.disablingAllowed = disablingAllowed;
         return this;
     }
 
-    public PartitioningFactoryDecorator addPreparation(PreparePartition pp) {
+    public FastIsochroneFactory addPreparation(PreparePartition pp) {
         preparations.add(pp);
         return this;
     }
@@ -113,7 +150,6 @@ public class PartitioningFactoryDecorator  {
 
     public void prepare(final StorableProperties properties) {
         ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
-//        for (final PreparePartition prepare : getPreparations()) {
         final String name = "PreparePartition";
         completionService.submit(new Runnable() {
             @Override
@@ -123,7 +159,7 @@ public class PartitioningFactoryDecorator  {
                 getPreparations().get(0).prepare();
                 setIsochroneNodeStorage(getPreparations().get(0).getIsochroneNodeStorage());
                 setCellStorage(getPreparations().get(0).getCellStorage());
-                properties.put(Partition.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
+                properties.put(FastIsochrone.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
             }
         }, name);
 
@@ -142,11 +178,11 @@ public class PartitioningFactoryDecorator  {
     public void createPreparations(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         if (!isEnabled() || !preparations.isEmpty())
             return;
-            PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
-            addPreparation(tmpPreparePartition);
+        PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
+        addPreparation(tmpPreparePartition);
     }
 
-    public void setExistingStorages(){
+    public void setExistingStorages() {
         setIsochroneNodeStorage(getPreparations().get(0).getIsochroneNodeStorage());
         setCellStorage(getPreparations().get(0).getCellStorage());
     }
@@ -155,13 +191,14 @@ public class PartitioningFactoryDecorator  {
         return isochroneNodeStorage;
     }
 
+    public void setIsochroneNodeStorage(IsochroneNodeStorage isochroneNodeStorage) {
+        this.isochroneNodeStorage = isochroneNodeStorage;
+    }
+
     public CellStorage getCellStorage() {
         return cellStorage;
     }
 
-    public void setIsochroneNodeStorage(IsochroneNodeStorage isochroneNodeStorage) {
-        this.isochroneNodeStorage = isochroneNodeStorage;
-    }
     public void setCellStorage(CellStorage cellStorage) {
         this.cellStorage = cellStorage;
     }

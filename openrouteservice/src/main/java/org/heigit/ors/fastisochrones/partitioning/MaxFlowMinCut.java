@@ -1,4 +1,4 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
@@ -8,6 +8,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+
 /**
  * Abstract MaxFlowMinCut implementation.
  * <p>
@@ -16,24 +17,20 @@ import com.graphhopper.util.EdgeIterator;
  */
 public abstract class MaxFlowMinCut {
 
-    PartitioningData pData;
-
+    protected static int _dummyNodeId = -2;
+    protected static int _dummyEdgeId = -2;
     protected boolean flooded;
     protected int nodes, visitedToken, maxFlow, maxFlowLimit;
     protected int snkNodeId;
     protected double limit;
-    protected static int _dummyNodeId = -2;
-    protected static int _dummyEdgeId = -2;
-
     protected Graph _graph;
     protected EdgeExplorer _edgeExpl;
     protected EdgeIterator _edgeIter;
     protected GraphHopperStorage _ghStorage;
-
     protected IntIntHashMap nodeOrder;
     protected IntArrayList orderedNodes;
-
     protected EdgeFilter edgeFilter;
+    PartitioningData pData;
 
     MaxFlowMinCut(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
         this._ghStorage = ghStorage;
@@ -42,7 +39,7 @@ public abstract class MaxFlowMinCut {
         this.pData = pData;
 
         setAdditionalEdgeFilter(edgeFilter);
-        if(init) {
+        if (init) {
             PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage, pData);
             partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
             partitioningDataBuilder.run();
@@ -52,7 +49,7 @@ public abstract class MaxFlowMinCut {
     MaxFlowMinCut() {
     }
 
-    protected void setGHStorage(GraphHopperStorage ghStorage){
+    protected void setGHStorage(GraphHopperStorage ghStorage) {
         this._ghStorage = ghStorage;
     }
 
@@ -134,36 +131,35 @@ public abstract class MaxFlowMinCut {
 
             _edgeIter = _edgeExpl.setBaseNode(nodeId);
             while (_edgeIter.next()) {
-                if(targSet.contains(_edgeIter.getAdjNode())
+                if (targSet.contains(_edgeIter.getAdjNode())
                         || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
                     continue;
-                if(!acceptForPartitioning(_edgeIter))
+                if (!acceptForPartitioning(_edgeIter))
                     continue;
                 targSet.add(_edgeIter.getAdjNode());
                 //reset
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode());
                 flowEdgeData.flow = false;
                 pData.setFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode(), flowEdgeData);
-
             }
         }
     }
 
-    public void setNodeOrder(){
+    public void setNodeOrder() {
         this.nodeOrder = new IntIntHashMap();
-        for(int i = 0; i < orderedNodes.size(); i++)
+        for (int i = 0; i < orderedNodes.size(); i++)
             nodeOrder.put(orderedNodes.get(i), i);
     }
 
-    public void setOrderedNodes(IntArrayList orderedNodes){
+    public void setOrderedNodes(IntArrayList orderedNodes) {
         this.orderedNodes = orderedNodes;
     }
 
-    protected boolean acceptForPartitioning(EdgeIterator edgeIterator){
+    protected boolean acceptForPartitioning(EdgeIterator edgeIterator) {
         return edgeFilter.accept(edgeIterator);
     }
 
-    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter){
+    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
     }
 
@@ -174,5 +170,4 @@ public abstract class MaxFlowMinCut {
     protected synchronized int getDummyEdgeId() {
         return ++_dummyEdgeId;
     }
-
 }

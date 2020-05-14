@@ -36,8 +36,6 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVANTONLY;
-
 /**
  * calculates maximum range (eccentricity) within a cell.
  * <p>
@@ -45,22 +43,18 @@ import static org.heigit.ors.partitioning.FastIsochroneParameters.ECC__USERELEVA
  * @author Hendrik Leuschner
  */
 public class RangeDijkstra extends AbstractRoutingAlgorithm {
+    private final boolean USERELEVANTONLY = true;
+    public int visitedNodes;
     protected IntObjectMap<SPTEntry> fromMap;
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
-    public int visitedNodes;
+    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
+    protected Boolean reverseDirection = false;
     private double maximumWeight = 0;
     private IntHashSet cellNodes;
     private Set<Integer> visitedIds = new HashSet<>();
     private IntHashSet relevantNodes = new IntHashSet();
-    public int calcs = 0;
-
-
-
     private double acceptedFullyReachablePercentage = 1.0;
-
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
-    protected Boolean reverseDirection = false;
     // ORS-GH MOD END
 
     public RangeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
@@ -74,14 +68,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
         fromMap = new GHIntObjectHashMap<>(size);
     }
 
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new method.
-    public void setReverseDirection(Boolean reverse) {
-        reverseDirection = reverse;
-    }
-    // ORS-GH MOD END
-
     public double calcMaxWeight(int from, IntHashSet relevantNodes) {
-//        checkAlreadyRun();
         currEdge = new SPTEntry(EdgeIterator.NO_EDGE, from, 0);
         this.relevantNodes = relevantNodes;
         if (!traversalMode.isEdgeBased()) {
@@ -94,7 +81,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
 
     private void getMaxWeight() {
         for (IntObjectCursor<SPTEntry> entry : fromMap) {
-            if(ECC__USERELEVANTONLY && !relevantNodes.contains(entry.key))
+            if (USERELEVANTONLY && !relevantNodes.contains(entry.key))
                 continue;
 
             if (maximumWeight < entry.value.weight)
@@ -124,12 +111,11 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
                 // TODO: MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
 
-                if(cellNodes.contains(traversalId))
+                if (cellNodes.contains(traversalId))
                     visitedIds.add(traversalId);
 
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
-                calcs++;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
@@ -172,7 +158,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
 
     @Override
     protected boolean finished() {
-        return(((double)visitedIds.size()) / cellNodes.size() >= acceptedFullyReachablePercentage);
+        return (((double) visitedIds.size()) / cellNodes.size() >= acceptedFullyReachablePercentage);
     }
 
     @Override
@@ -189,7 +175,7 @@ public class RangeDijkstra extends AbstractRoutingAlgorithm {
         this.cellNodes = cellNodes;
     }
 
-    public int getFoundCellNodeSize(){
+    public int getFoundCellNodeSize() {
         return visitedIds.size();
     }
 

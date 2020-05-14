@@ -15,11 +15,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
 /**
- * Used for Astar with EdmondsKarpAstar
- * <p>
+ * Lightweight entry object for ordering nodes in a queue/deque based on weight.
  *
  * @author Hendrik Leuschner
  */

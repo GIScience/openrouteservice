@@ -41,10 +41,10 @@ import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
-import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
-import org.heigit.ors.partitioning.CellStorage;
-import org.heigit.ors.partitioning.EccentricityStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
@@ -60,7 +60,7 @@ import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
 
 /**
  * Calculates isochrone polygons using fast isochrone algorithm.
@@ -96,8 +96,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 	public void initialize(RouteSearchContext searchContext) {
 		_geomFactory = new GeometryFactory();
 		_searchContext = searchContext;
-		cellStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getPartitioningFactoryDecorator().getCellStorage();
-		isochroneNodeStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getPartitioningFactoryDecorator().getIsochroneNodeStorage();
+		cellStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getFastIsochroneFactory().getCellStorage();
+		isochroneNodeStorage = ((ORSGraphHopper) _searchContext.getGraphHopper()).getFastIsochroneFactory().getIsochroneNodeStorage();
 	}
 
 	public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
@@ -253,7 +253,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 					swActiveCellSeparate.stop();
 					swActiveCellBuild.start();
 					for (GHIntObjectHashMap<SPTEntry> splitMap : disconnectedActiveCells) {
-						if(splitMap.size() < PART__MIN_CELL_NODES_NUMBER)
+						if(splitMap.size() < getMinCellNodesNumber())
 							continue;
 						GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<Coordinate>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
 						createPolyFromPoints(isochroneGeometries, points, maxRadius, smoothingFactor);
@@ -375,7 +375,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 				activeCellHulls.add(concaveHull);
 		}
 		catch (Exception e){
-			if(PART__DEBUG) LOGGER.debug(e.getMessage());
+			if(isLogEnabled()) LOGGER.debug(e.getMessage());
 			return;
 		}
 	}
@@ -687,7 +687,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			j++;
 			addPoint(points, qtree, longitude, latitude, true);
 		}
-		if(PART__DEBUG) System.out.println("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
+		if(isLogEnabled()) System.out.println("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
 
 		Geometry[] geometries = new Geometry[points.size()];
 
@@ -702,11 +702,11 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 
 	private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells){
 		//printing for debug
-		if(PART__DEBUG) System.out.println("{" +
+		if(isLogEnabled()) System.out.println("{" +
 				"  \"type\": \"FeatureCollection\"," +
 				"  \"features\": [");
 		Set<Integer> reachableCellsAndSuperCells = new HashSet<>();
-		if(CONTOUR__USE_SUPERCELLS) {
+		if(isSupercellsEnabled()) {
 			Set<Integer> reachableSuperCells = new HashSet<>();
 			for (int cellId : fullyReachableCells) {
 				int superCell = cellStorage.getSuperCellOfCell(cellId);
@@ -726,13 +726,13 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 			}
 		}
 
-		if(!CONTOUR__USE_SUPERCELLS)
+		if(!isSupercellsEnabled())
 			reachableCellsAndSuperCells = fullyReachableCells;
 
 		for (int cellId : reachableCellsAndSuperCells) {
 			addCellPolygon(cellId, isochroneGeometries);
 		}
-		if(PART__DEBUG) System.out.println("]}");
+		if(isLogEnabled()) System.out.println("]}");
 	}
 
 	private void addCellPolygon(int cellId, Set<Geometry> isochronePolygons){
@@ -746,9 +746,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder
 		if(polygon.isValid()) {
 			isochronePolygons.add(polygon);
 		}
-		else if(PART__DEBUG)
+		else if(isLogEnabled())
 			System.out.println("Poly of cell " + cellId + " is invalid at size " + cArray.length);
-		if(PART__DEBUG)printCell(cellStorage.getCellContourOrder(cellId), cellId);
+		if(isLogEnabled())printCell(cellStorage.getCellContourOrder(cellId), cellId);
 	}
 
 	//DEBUG

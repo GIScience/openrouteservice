@@ -6,10 +6,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
-import org.heigit.ors.partitioning.CellStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
-import org.heigit.ors.partitioning.EccentricityStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,6 @@ import java.util.List;
  * @author Hendrik Leuschner
  */
 public abstract class AbstractEccentricity {
-
     protected GraphHopperStorage ghStorage;
     protected Graph baseGraph;
     protected Weighting weighting;
@@ -33,35 +32,33 @@ public abstract class AbstractEccentricity {
     protected List<EccentricityStorage> eccentricityStorages = new ArrayList<>();
     protected List<BorderNodeDistanceStorage> borderNodeDistanceStorages = new ArrayList<>();
 
-
-    public AbstractEccentricity(GraphHopperStorage ghStorage){
+    public AbstractEccentricity(GraphHopperStorage ghStorage) {
         this.ghStorage = ghStorage;
     }
 
-
     public abstract void calcEccentricities();
 
-    public EccentricityStorage getEccentricityStorage(Weighting weighting){
+    public EccentricityStorage getEccentricityStorage(Weighting weighting) {
         if (eccentricityStorages.isEmpty())
             return null;
-        for(EccentricityStorage ecc : eccentricityStorages){
-            if(ecc.getWeighting().getName() == weighting.getName() && ecc.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+        for (EccentricityStorage ecc : eccentricityStorages) {
+            if (ecc.getWeighting().getName() == weighting.getName() && ecc.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
                 return ecc;
         }
         return null;
     }
 
-    public BorderNodeDistanceStorage getBorderNodeDistanceStorage(Weighting weighting){
+    public BorderNodeDistanceStorage getBorderNodeDistanceStorage(Weighting weighting) {
         if (borderNodeDistanceStorages.isEmpty())
             return null;
-        for(BorderNodeDistanceStorage bnds : borderNodeDistanceStorages){
-            if(bnds.getWeighting().getName() == weighting.getName() && bnds.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+        for (BorderNodeDistanceStorage bnds : borderNodeDistanceStorages) {
+            if (bnds.getWeighting().getName() == weighting.getName() && bnds.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
                 return bnds;
         }
         return null;
     }
 
-    public boolean loadExisting(Weighting weighting){
+    public boolean loadExisting(Weighting weighting) {
         EccentricityStorage eccentricityStorage = new EccentricityStorage(ghStorage, ghStorage.getDirectory(), weighting, isochroneNodeStorage);
         eccentricityStorages.add(eccentricityStorage);
 
@@ -91,5 +88,4 @@ public abstract class AbstractEccentricity {
         this.encoder = _encoder;
         return this;
     }
-
 }

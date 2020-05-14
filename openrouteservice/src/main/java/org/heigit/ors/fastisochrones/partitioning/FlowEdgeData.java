@@ -1,17 +1,16 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
+
 /**
  * Data element for partitioning.
- * <p>
  *
  * @author Hendrik Leuschner
  */
 public class FlowEdgeData {
-    public boolean flow = false;
-    public int inverse = -1;
+    public boolean flow;
+    public int inverse;
 
     public FlowEdgeData(boolean flow, int inverse) {
         this.flow = flow;
         this.inverse = inverse;
     }
-
 }

@@ -1,7 +1,6 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning.storage;
 /**
  * Object to store a set of nodeids and respective distances.
- * <p>
  *
  * @author Hendrik Leuschner
  */

@@ -12,7 +12,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.LocationIndex;
-import org.heigit.ors.partitioning.*;
+import org.heigit.ors.fastisochrones.partitioning.storage.*;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
-import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__MAX_CELL_NODES_NUMBER;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
 
 /**
  * Eccentricity implementation. Calculates the maximum value of all shortest paths within a cell given a starting bordernode.
@@ -51,7 +50,7 @@ public class Eccentricity extends AbstractEccentricity {
         EccentricityStorage eccentricityStorage = getEccentricityStorage(weighting);
         if(!eccentricityStorage.loadExisting())
             eccentricityStorage.init();
-        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
 
         ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
 
@@ -77,7 +76,7 @@ public class Eccentricity extends AbstractEccentricity {
                 edgeFilterSequence.add(defaultEdgeFilter);
                 edgeFilterSequence.add(fixedCellEdgeFilter);
                 RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting, traversalMode);
-                rangeDijkstra.setMaxVisitedNodes(PART__MAX_CELL_NODES_NUMBER * eccentricityDijkstraLimitFactor);
+                rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
                 rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                 rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
@@ -136,7 +135,7 @@ public class Eccentricity extends AbstractEccentricity {
         if(!borderNodeDistanceStorage.loadExisting())
             borderNodeDistanceStorage.init();
 
-        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
 
         int cellCount = 0;
@@ -172,7 +171,7 @@ public class Eccentricity extends AbstractEccentricity {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
             algorithm.setEdgeFilter(defaultEdgeFilter);
             algorithm.prepare(new int[]{borderNode}, cellBorderNodes);
-            algorithm.setMaxVisitedNodes(PART__MAX_CELL_NODES_NUMBER * 20);
+            algorithm.setMaxVisitedNodes(getMaxCellNodesNumber() * 20);
             SPTEntry[] targets = algorithm.calcPaths(borderNode, cellBorderNodes);
             int[] ids = new int[targets.length];
             double[] distances = new double[targets.length];

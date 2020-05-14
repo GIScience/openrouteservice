@@ -1,17 +1,22 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
 import com.carrotsearch.hppc.IntHashSet;
 
+/**
+ * Helper class for keeping track of a node partitioning based on IntHashSets.
+ *
+ * @author Hendrik Leuschner
+ */
 class BiPartition {
     private IntHashSet partition0;
     private IntHashSet partition1;
 
-    public BiPartition(){
+    public BiPartition() {
         this.partition0 = new IntHashSet(0);
         this.partition1 = new IntHashSet(0);
     }
 
-    public BiPartition(IntHashSet partition0, IntHashSet partition1){
+    public BiPartition(IntHashSet partition0, IntHashSet partition1) {
         this.partition0 = partition0;
         this.partition1 = partition1;
     }
@@ -23,5 +28,4 @@ class BiPartition {
     public IntHashSet getPartition1() {
         return partition1;
     }
-
 }

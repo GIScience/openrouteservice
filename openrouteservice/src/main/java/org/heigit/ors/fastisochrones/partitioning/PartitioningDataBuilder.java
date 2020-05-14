@@ -1,4 +1,4 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
@@ -9,12 +9,11 @@ import com.graphhopper.util.EdgeIterator;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.heigit.ors.partitioning.MaxFlowMinCut._dummyEdgeId;
-import static org.heigit.ors.partitioning.MaxFlowMinCut._dummyNodeId;
+import static org.heigit.ors.fastisochrones.partitioning.MaxFlowMinCut._dummyEdgeId;
+import static org.heigit.ors.fastisochrones.partitioning.MaxFlowMinCut._dummyNodeId;
 
 /**
- * Implementation of MaxFlowMinCut
- * <p>
+ * Creates the data necessary for running a max flow min cut algorithm.
  *
  * @author Hendrik Leuschner
  */
@@ -25,9 +24,7 @@ public class PartitioningDataBuilder {
     private EdgeIterator _edgeIter;
     private PartitioningData pData;
     private EdgeFilter edgeFilter;
-
     private int maxEdgeId = -1;
-
 
     PartitioningDataBuilder(GraphHopperStorage ghStorage, PartitioningData pData) {
         this._graph = ghStorage.getBaseGraph();
@@ -37,7 +34,7 @@ public class PartitioningDataBuilder {
         initStatics();
     }
 
-    public void run(){
+    public void run() {
         _dummyEdgeId = _graph.getAllEdges().length() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
         //Need entries for all edges + one dummy edge for all nodes
@@ -49,7 +46,6 @@ public class PartitioningDataBuilder {
 
 
     public void initStatics() {
-//        this.flowEdgeMap = new HashMap<>();
         _dummyEdgeId = _graph.getAllEdges().length() + 1;
         _dummyNodeId = _graph.getNodes() + 1;
     }
@@ -62,7 +58,7 @@ public class PartitioningDataBuilder {
             _edgeIter = _edgeExpl.setBaseNode(baseId);
             while (_edgeIter.next()) {
                 int targId = _edgeIter.getAdjNode();
-                if(!acceptForPartitioning(_edgeIter))
+                if (!acceptForPartitioning(_edgeIter))
                     continue;
                 //>> eliminate Loops and MultiEdges
                 if ((baseId != targId) && (!targSet.contains(targId))) {
@@ -78,16 +74,16 @@ public class PartitioningDataBuilder {
                 new FlowEdgeData(false, edgeId));
         pData.setFlowEdgeData(edgeId, targNode,
                 new FlowEdgeData(false, edgeId));
-        if(maxEdgeId < edgeId)
+        if (maxEdgeId < edgeId)
             maxEdgeId = edgeId;
         return edgeId;
     }
 
-    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter){
+    public void setAdditionalEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
     }
 
-    private boolean acceptForPartitioning(EdgeIterator edgeIterator){
+    private boolean acceptForPartitioning(EdgeIterator edgeIterator) {
         return edgeFilter.accept(edgeIterator);
     }
 }

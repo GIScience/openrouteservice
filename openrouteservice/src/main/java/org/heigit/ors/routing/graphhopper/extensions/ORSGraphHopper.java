@@ -41,9 +41,9 @@ import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.partitioning.CellStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
-import org.heigit.ors.partitioning.PartitioningFactoryDecorator;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
@@ -58,7 +58,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.Wheelchair
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
-	private final PartitioningFactoryDecorator partitioningFactoryDecorator = new PartitioningFactoryDecorator();
+	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
 	private double maximumSpeedLowerBound;
 
@@ -111,6 +110,7 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	public GraphHopper init(CmdArgs args) {
 		GraphHopper ret = super.init(args);
+		fastIsochroneFactory.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
 
@@ -573,44 +573,40 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
-
-		if(partitioningFactoryDecorator.isEnabled()) {
-			for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
-//				partitioningEdgeFilter.add(DefaultEdgeFilter.outEdges(encoder));
-				try {
-					partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
-				}
-				catch (Exception e){
-					LOGGER.debug(e.getLocalizedMessage());
-				}
-				partitioningFactoryDecorator.createPreparations(gs, partitioningEdgeFilter);
+		if(fastIsochroneFactory.isEnabled()) {
+			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
+			try {
+				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+			} catch (Exception e) {
+				LOGGER.debug(e.getLocalizedMessage());
 			}
-		}
-		if (!isPartitionPrepared())
-			preparePartition();
-		else{
-			partitioningFactoryDecorator.setExistingStorages();
-			partitioningFactoryDecorator.getCellStorage().loadExisting();
-			partitioningFactoryDecorator.getIsochroneNodeStorage().loadExisting();
-		}
-		//No fast isochrones without partition
-		if(isPartitionPrepared()) {
-		/* Initialize edge filter sequence for fast isochrones*/
+			fastIsochroneFactory.createPreparations(gs, partitioningEdgeFilter);
 
-			calculateContours();
-			List<CHProfile> chProfiles = new ArrayList<>();
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : IsochronesServiceSettings.getWeightings().trim().split("\\s*,\\s*")) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr).put("isochroneWeighting", "true"), encoder, null);
-					chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
-				}
+			if (!isPartitionPrepared())
+				preparePartition();
+			else {
+				fastIsochroneFactory.setExistingStorages();
+				fastIsochroneFactory.getCellStorage().loadExisting();
+				fastIsochroneFactory.getIsochroneNodeStorage().loadExisting();
 			}
+			//No fast isochrones without partition
+			if (isPartitionPrepared()) {
+				/* Initialize edge filter sequence for fast isochrones*/
+				calculateContours();
+				List<CHProfile> chProfiles = new ArrayList<>();
+				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
+//				for (String coreWeightingStr : IsochronesServiceSettings.getWeightings().trim().split("\\s*,\\s*")) {
+						// ghStorage is null at this point
+						Weighting weighting = createWeighting(new HintsMap(coreWeightingStr).put("isochroneWeighting", "true"), encoder, null);
+						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
+					}
+				}
 
-			for(CHProfile chProfile : chProfiles){
-				for(FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-					calculateCellProperties(chProfile.getWeighting(), encoder, TraversalMode.NODE_BASED, partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
+				for (CHProfile chProfile : chProfiles) {
+					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+						calculateCellProperties(chProfile.getWeighting(), encoder, TraversalMode.NODE_BASED, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+					}
 				}
 			}
 		}
@@ -739,38 +735,38 @@ public class ORSGraphHopper extends GraphHopper {
 	
 	public GraphHopper setPartitionEnabled(boolean enable) {
 		ensureNotLoaded();
-		partitioningFactoryDecorator.setEnabled(enable);
+		fastIsochroneFactory.setEnabled(enable);
 		return this;
 	}
 
 	public final boolean isPartitionEnabled() {
-		return partitioningFactoryDecorator.isEnabled();
+		return fastIsochroneFactory.isEnabled();
 	}
 
-	public final PartitioningFactoryDecorator getPartitioningFactoryDecorator() {
-		return partitioningFactoryDecorator;
+	public final FastIsochroneFactory getFastIsochroneFactory() {
+		return fastIsochroneFactory;
 	}
 
 	protected void preparePartition() {
-		boolean tmpPrepare = partitioningFactoryDecorator.isEnabled();
+		boolean tmpPrepare = fastIsochroneFactory.isEnabled();
 		if (tmpPrepare) {
 			ensureWriteAccess();
 
 			getGraphHopperStorage().freeze();
-			partitioningFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
-			getGraphHopperStorage().getProperties().put(ORSParameters.Partition.PREPARE + "done", true);
+			fastIsochroneFactory.prepare(getGraphHopperStorage().getProperties());
+			getGraphHopperStorage().getProperties().put(ORSParameters.FastIsochrone.PREPARE + "done", true);
 		}
 	}
 
 	private boolean isPartitionPrepared() {
-		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.Partition.PREPARE + "done"));
+		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.FastIsochrone.PREPARE + "done"));
 
 	}
 
 	private void calculateContours(){
-		if(partitioningFactoryDecorator.getCellStorage().isContourPrepared())
+		if(fastIsochroneFactory.getCellStorage().isContourPrepared())
 			return;
-		Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), partitioningFactoryDecorator.getIsochroneNodeStorage(), partitioningFactoryDecorator.getCellStorage());
+		Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 		contour.calcCellContourPre();
 	}
 

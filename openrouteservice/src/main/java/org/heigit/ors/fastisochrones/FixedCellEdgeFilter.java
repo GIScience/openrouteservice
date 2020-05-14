@@ -2,7 +2,7 @@ package org.heigit.ors.fastisochrones;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 /**
  * EdgeFilter to stay within cell.

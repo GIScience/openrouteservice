@@ -15,14 +15,14 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
-import org.heigit.ors.partitioning.CellStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.*;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
 
 /**
  * Calculates Outlines (Contour) of cells.
@@ -38,8 +38,12 @@ public class Contour {
     private CellStorage cellStorage;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
-    private int minEdgeLengthLimit = 400;
-    private int maxEdgeLengthLimit = Integer.MAX_VALUE;
+    private final int MINEDGELENGTH = 400;
+    private final int MAXEDGELENGTH = Integer.MAX_VALUE;
+    private final int SUPERCELL_HIERARCHY_LEVEL = 3;
+    private final double CONCAVEHULL_THRESHOLD = 0.010;
+
+
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
         this.ghStorage = ghStorage;
@@ -59,13 +63,13 @@ public class Contour {
         }
 
         cellStorage.flush();
-        IntObjectMap<IntHashSet> superCells;
-        if(CONTOUR__USE_SUPERCELLS) {
+        IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
+        if(isSupercellsEnabled()) {
             //Create supercells for better querytime performance
             //Current implementation supports 2 levels of supercells. Calculated individually
             //For each super(super)cell, we need to know the corresponding basecells (to get the contour from storage)
             //and the corresponding subcells (these are supercells for supersupercells)
-            superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), PART_SUPERCELL_HIERARCHY_LEVEL, true);
+            superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), SUPERCELL_HIERARCHY_LEVEL, true);
             IntHashSet superCellIds = new IntHashSet();
             superCellIds.addAll(superCells.keys());
             IntObjectMap<IntHashSet> superSuperCells = identifySuperCells(superCellIds, 2, false);
@@ -117,7 +121,7 @@ public class Contour {
         cellStorage.storeContourPointerMap();
 
         //Store the supercell->cellIds map
-        if(CONTOUR__USE_SUPERCELLS)
+        if(isSupercellsEnabled())
             cellStorage.storeSuperCells(superCells);
         cellStorage.setContourPrepared(true);
         cellStorage.flush();
@@ -166,7 +170,7 @@ public class Contour {
             geometries[g++] = _geomFactory.createPoint(points.get(i));
         GeometryCollection treePoints = new GeometryCollection(geometries, _geomFactory);
 
-//        if(PART__DEBUG) System.out.println("Coordinates from geometry " + coordinates.size() + ", reduced input coordinates to conchull " + points.size());
+//        if(FASTISO__LOG) System.out.println("Coordinates from geometry " + coordinates.size() + ", reduced input coordinates to conchull " + points.size());
         ConcaveHull ch = new ConcaveHull(treePoints, CONCAVEHULL_THRESHOLD, false);
         Geometry geom = ch.getConcaveHull();
 
@@ -237,7 +241,7 @@ public class Contour {
                 if (cellIds.contains(cellId ^ 1)) {
                     if (cellStorage.getNodesOfCell(cellId).size()
                             + cellStorage.getNodesOfCell(cellId ^ 1).size()
-                            < PART__MAX_CELL_NODES_NUMBER)
+                            < getMaxCellNodesNumber())
                         continue;
                 }
             }
@@ -273,7 +277,7 @@ public class Contour {
             if (cellIds.contains(currentCell ^ 1) && cellIds.contains(currentCell)) {
                 if (cellStorage.getNodesOfCell(currentCell).size()
                         + cellStorage.getNodesOfCell(currentCell ^ 1).size()
-                        < PART__MAX_CELL_NODES_NUMBER)
+                        < getMaxCellNodesNumber())
                     return;
             }
         }
@@ -339,8 +343,8 @@ public class Contour {
                         ring.getPointN(i + 1).getX(),
                         hullLatitudes,
                         hullLongitudes,
-                        minEdgeLengthLimit,
-                        maxEdgeLengthLimit);
+                        MINEDGELENGTH,
+                        MAXEDGELENGTH);
             }
         }
         cellStorage.setCellContourOrder(cellId, hullLatitudes, hullLongitudes);

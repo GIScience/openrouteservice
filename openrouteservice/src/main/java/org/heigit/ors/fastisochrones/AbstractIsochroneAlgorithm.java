@@ -22,10 +22,10 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
-import org.heigit.ors.partitioning.BorderNodeDistanceStorage;
-import org.heigit.ors.partitioning.CellStorage;
-import org.heigit.ors.partitioning.EccentricityStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 /**
  * Calculates an isochrone using a partitioned and core-contracted graph.

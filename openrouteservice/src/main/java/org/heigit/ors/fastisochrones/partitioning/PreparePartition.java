@@ -1,4 +1,4 @@
-package org.heigit.ors.partitioning;
+package org.heigit.ors.fastisochrones.partitioning;
 
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
@@ -7,12 +7,14 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.heigit.ors.partitioning.FastIsochroneParameters.FASTISO_MAXTHREADCOUNT;
-import static org.heigit.ors.partitioning.FastIsochroneParameters.PART__DEBUG;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+
 /**
  * Prepares the partition of the graph.
  * <p>
@@ -56,12 +58,12 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         return this;
     }
 
-    private int[] runInertialFlow(){
+    private int[] runInertialFlow() {
         int[] nodeToCellArray = new int[ghStorage.getNodes()];
-        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(FASTISO_MAXTHREADCOUNT, Runtime.getRuntime().availableProcessors()));
-        InverseSemaphore inverseSemaphore =  new InverseSemaphore();
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
+        InverseSemaphore inverseSemaphore = new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
-        if(PART__DEBUG) System.out.println("Submitting task for cell 1");
+        if (isLogEnabled()) System.out.println("Submitting task for cell 1");
         threadPool.execute(new InertialFlow(nodeToCellArray, ghStorage, new PartitioningData(), edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();
@@ -80,7 +82,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         this.ghStorage = _ghStorage;
         return this;
     }
-
 
     private boolean[] calcBorderNodes(int[] nodeCellId) {
         boolean[] nodeBorderness = new boolean[this.nodes];
@@ -101,17 +102,9 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         return nodeBorderness;
     }
 
-
-    /**
-     * G-E-T
-     **/
     public int getNodes() {
         return nodes;
     }
-
-//    public Weighting getWeighting() {
-//        return weighting;
-//    }
 
     @Override
     public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
@@ -122,7 +115,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         return isochroneNodeStorage;
     }
 
-
     public CellStorage getCellStorage() {
         return cellStorage;
     }
@@ -132,20 +124,20 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         private Object lock = new Object();
 
         public void beforeSubmit() {
-            synchronized(lock) {
+            synchronized (lock) {
                 value++;
             }
         }
 
         public void taskCompleted() {
-            synchronized(lock) {
+            synchronized (lock) {
                 value--;
                 if (value == 0) lock.notifyAll();
             }
         }
 
         public void awaitCompletion() throws InterruptedException {
-            synchronized(lock) {
+            synchronized (lock) {
                 while (value > 0) lock.wait();
             }
         }

@@ -26,8 +26,8 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
-import org.heigit.ors.partitioning.EccentricityStorage;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import java.util.PriorityQueue;
 

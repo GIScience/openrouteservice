@@ -2,7 +2,7 @@ package org.heigit.ors.fastisochrones;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.partitioning.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 /**
  * Allows all edges within a given cell AND all edges to bordernodes
