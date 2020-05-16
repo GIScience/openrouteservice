@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Fixed way surface/type encoding issue ([#677](https://github.com/GIScience/openrouteservice/issues/677))
 - Querying shortest weighting can now use CH shortest preparation if available
 - Roads tagged with destination access are penalized the same way for hgv as for car ([#525](https://github.com/GIScience/openrouteservice/issues/525))
+- Suitability values in extra info are not underestimated ([#722](https://github.com/GIScience/openrouteservice/issues/722))
 ### Changed
 - Refactor the algorithm selection process
 - Use ALT/A* Beeline for roundtrips. Enable Core-ALT-only for pedestrian profile.
