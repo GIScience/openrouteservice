@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 - Configuration option to read elevation tags from pbf data
+- Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
 ### Fixed
 - Allowed the usage of green and noise in extra info parameter ([#688](https://github.com/GIScience/openrouteservice/issues/688))
 - Fixed way surface/type encoding issue ([#677](https://github.com/GIScience/openrouteservice/issues/677))
