@@ -431,12 +431,12 @@ public class ExtraInfoProcessor implements PathProcessor {
 			int priorityIndex;
 			if (encoderWithPriority) {
 				priority = edge.get(encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY)));
-				priorityIndex = (int)(3 + priority*PriorityCode.BEST.getValue()); // normalize values between 3 and 10
+				priorityIndex = (int) Math.round(3 + priority * PriorityCode.BEST.getValue()); // normalize values between 3 and 10
 			} else {
 				priority = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags()) / encoder.getMaxSpeed();
 				if (priority < 0.3)
 					priority = 0.3;
-				priorityIndex = (int)(priority * 10);
+				priorityIndex = (int) Math.round(priority * 10);
 			}
 			waySuitabilityInfoBuilder.addSegment(priority, priorityIndex, geom, dist);
 		}
