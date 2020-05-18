@@ -53,6 +53,9 @@ public class RouteProfileConfiguration {
 	private Envelope extent;
 	private boolean hasMaximumSnappingRadius = false;
 
+	private int locationIndexResolution = 500;
+	private int locationIndexSearchIterations = 4;
+
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
 		graphBuilders = new HashMap<>();
@@ -336,5 +339,21 @@ public class RouteProfileConfiguration {
 	public void setMaximumSnappingRadius(int maximumSnappingRadius) {
 		this.maximumSnappingRadius = maximumSnappingRadius;
 		this.hasMaximumSnappingRadius = true;
+	}
+
+	public int getLocationIndexResolution() {
+		return locationIndexResolution;
+	}
+
+	public void setLocationIndexResolution(int locationIndexResolution) {
+		this.locationIndexResolution = locationIndexResolution;
+	}
+
+	public int getLocationIndexSearchIterations() {
+		return locationIndexSearchIterations;
+	}
+
+	public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
+		this.locationIndexSearchIterations = locationIndexSearchIterations;
 	}
 }
