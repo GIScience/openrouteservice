@@ -44,22 +44,16 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-//    Set<Integer> processedBorderNodes;
     protected SPTEntry currEdge;
+    protected Boolean reverseDirection = false;
     private int visitedNodes;
     private double isochroneLimit = 0;
 
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
-    protected Boolean reverseDirection = false;
-    // ORS-GH MOD END
-
-    public ActiveCellDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm)
-    {
+    public ActiveCellDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
         super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting, fastIsochroneAlgorithm.traversalMode);
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
-//        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -69,26 +63,16 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         fromMap = new GHIntObjectHashMap<>(size);
     }
 
-    protected void addInitialBordernode(int nodeId, double weight){
+    protected void addInitialBordernode(int nodeId, double weight) {
         SPTEntry entry = new SPTEntry(nodeId, weight);
-//        if (!traversalMode.isEdgeBased()) {
-//            fromMap.put(nodeId, entry);
-//        }
-
         fromHeap.add(entry);
     }
 
-    protected void init(){
-        if (fromHeap.peek() != null){
+    protected void init() {
+        if (fromHeap.peek() != null) {
             currEdge = fromHeap.peek();
         }
     }
-
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new method.
-    public void setReverseDirection(Boolean reverse) {
-        reverseDirection = reverse;
-    }
-    // ORS-GH MOD END
 
     protected void runAlgo() {
         EdgeExplorer explorer = outEdgeExplorer;
@@ -103,46 +87,28 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                // ORS-GH MOD START
-                // ORG CODE START
-                //int traversalId = traversalMode.createTraversalId(iter, false);
-                //double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
-                // ORIGINAL END
                 // TODO: MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
-                // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
-
-//                if(tmpWeight > isochroneLimit)
-//                    continue;
-
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
                     nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     nEdge.parent = currEdge;
-                    // ORS-GH MOD START
-                    // Modification by Maxim Rylov: Assign the original edge id.
                     nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    // ORS-GH MOD END
                     fromMap.put(traversalId, nEdge);
                     fromHeap.add(nEdge);
                 } else if (nEdge.weight > tmpWeight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = iter.getEdge();
-                    // ORS-GH MOD START
                     nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    // ORS-GH MOD END
                     nEdge.weight = tmpWeight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
                 } else
                     continue;
-
             }
-
 
             if (fromHeap.isEmpty())
                 break;
@@ -158,11 +124,11 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         return isLimitExceeded();
     }
 
-    private boolean isLimitExceeded(){
+    private boolean isLimitExceeded() {
         return currEdge.getWeightOfVisitedPath() > isochroneLimit;
     }
 
-    public void setIsochroneLimit(double limit){
+    public void setIsochroneLimit(double limit) {
         isochroneLimit = limit;
     }
 
@@ -175,7 +141,6 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
     public int getVisitedNodes() {
         return visitedNodes;
     }
-
 
     @Override
     public Path calcPath(int from, int to) {

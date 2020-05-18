@@ -21,11 +21,9 @@ class BiPartition {
         this.partition1 = partition1;
     }
 
-    public IntHashSet getPartition0() {
-        return partition0;
-    }
-
-    public IntHashSet getPartition1() {
-        return partition1;
+    public IntHashSet getPartition(int partitionNumber) {
+        if(partitionNumber != 0 && partitionNumber != 1)
+            throw new IllegalArgumentException("Only 2 partitions supported");
+        return partitionNumber == 0? partition0 : partition1;
     }
 }

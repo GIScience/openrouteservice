@@ -26,8 +26,8 @@ public class PartitioningDataBuilder {
     private EdgeFilter edgeFilter;
     private int maxEdgeId = -1;
 
-    PartitioningDataBuilder(GraphHopperStorage ghStorage, PartitioningData pData) {
-        this._graph = ghStorage.getBaseGraph();
+    PartitioningDataBuilder(Graph graph, PartitioningData pData) {
+        this._graph = graph;
         this._edgeExpl = _graph.createEdgeExplorer();
         this.pData = pData;
 

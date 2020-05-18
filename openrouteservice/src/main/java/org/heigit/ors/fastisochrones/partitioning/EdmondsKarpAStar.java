@@ -2,7 +2,7 @@ package org.heigit.ors.fastisochrones.partitioning;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.Graph;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -21,8 +21,8 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     private int srcLimit;
     private int snkLimit;
 
-    public EdmondsKarpAStar(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
-        super(ghStorage, pData, edgeFilter, init);
+    public EdmondsKarpAStar(Graph graph, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
+        super(graph, pData, edgeFilter, init);
     }
 
     public boolean getRemainingCapacity(int edgeId, int nodeId) {
@@ -39,6 +39,9 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         pData.setFlowEdgeData(flowEdgeData.inverse, adjId, inverseFlowEdgeData);
     }
 
+    /**
+     * Iterate the search until no more connections can be found.
+     */
     @Override
     public void flood() {
         int flow;
@@ -48,7 +51,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         addSrcNodesToDeque(deque);
         do {
             setUnvisitedAll();
-            flow = bfs(deque);
+            flow = search(deque);
             maxFlow += flow;
 
             if ((maxFlow > maxFlowLimit)) {
@@ -58,14 +61,19 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         } while (flow > 0);
     }
 
-    private int bfs(Deque<Integer> initialDeque) {
+    /**
+     * Search for a connection between source and sink set. Order of node expansion given by distance to sink set.
+     * @param initialDeque Deque for source set. Invariable and thus only calculated once.
+     * @return 1 while connection found. 0 otherwise.
+     */
+    private int search(Deque<Integer> initialDeque) {
         IntObjectHashMap<EdgeInfo> prevMap = new IntObjectHashMap((int) Math.ceil(0.1 * nodes));
         Deque<Integer> deque = copyInitialDeque(initialDeque);
         int calls = srcLimit;
         int node;
 
-        double maxBFSCalls = _graph.getBaseGraph().getAllEdges().length() * 2;
-        double sizeFactor = ((double) nodeOrder.size()) / _graph.getBaseGraph().getNodes();
+        double maxBFSCalls = graph.getBaseGraph().getAllEdges().length() * 2;
+        double sizeFactor = ((double) nodeOrder.size()) / graph.getBaseGraph().getNodes();
         maxBFSCalls = (int) Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
 
         while (!deque.isEmpty()) {
@@ -79,15 +87,14 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
                 break;
             }
 
-            _edgeIter = _edgeExpl.setBaseNode(node);
-            //Iterate over normal edges
+            edgeIterator = edgeExplorer.setBaseNode(node);
             TreeSet<EKEdgeEntry> set = new TreeSet<>(EKEdgeEntry::compareTo);
-            while (_edgeIter.next()) {
-                if (!edgeFilter.accept(_edgeIter))
+            while (edgeIterator.next()) {
+                if (!edgeFilter.accept(edgeIterator))
                     continue;
                 calls++;
-                int adj = _edgeIter.getAdjNode();
-                int edge = _edgeIter.getEdge();
+                int adj = edgeIterator.getAdjNode();
+                int edge = edgeIterator.getEdge();
 
                 if (adj == node)
                     continue;
@@ -123,7 +130,11 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         return bottleNeck;
     }
 
-    private int addSrcNodesToDeque(Deque<Integer> deque) {
+    /**
+     * Create source deque.
+     * @param deque The deque to which source nodes are to be added.
+     */
+    private void addSrcNodesToDeque(Deque<Integer> deque) {
         //Reverse insertion order to maximize offer performance
         int nodeNumber = 0;
         while (nodeNumber < srcLimit) {
@@ -132,7 +143,6 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
             setVisited(node);
             nodeNumber++;
         }
-        return srcLimit;
     }
 
     private Deque<Integer> copyInitialDeque(Deque<Integer> initialDeque) {

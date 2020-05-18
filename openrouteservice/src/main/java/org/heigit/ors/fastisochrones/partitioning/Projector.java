@@ -37,11 +37,9 @@ public class Projector {
     protected Map<Projection, IntArrayList> calculateProjections() {
         //>> Loop through linear combinations and project each Node
         Map<Projection, IntArrayList> nodeListProjMap = new HashMap<>(Projection.values().length);
-//        Integer[] ids = IntStream.of(IntStream.rangeClosed(0, ghStorage.getNodes() - 1).toArray()).boxed().toArray(Integer[]::new);
         Integer[] ids = IntStream.rangeClosed(0, ghStorage.getNodes() - 1).boxed().toArray(Integer[]::new);
 
         Double[] values = new Double[ids.length];
-//        Integer[] ids = IntStream.of(nodeIdSet.toArray()).boxed().toArray(Integer[]::new);
         Sort sort = new Sort();
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
@@ -53,8 +51,8 @@ public class Projector {
         return nodeListProjMap;
     }
 
-    protected BiPartitionProjection prepareProjections(Map<Projection, IntArrayList> originalProjections, BiPartition biPartition) {
-        IntHashSet part0 = biPartition.getPartition0();
+    protected BiPartitionProjection reorderProjections(Map<Projection, IntArrayList> originalProjections, BiPartition biPartition) {
+        IntHashSet part0 = biPartition.getPartition(0);
         Map<Projection, IntArrayList> projections0 = new HashMap<>(Projection.values().length);
         Map<Projection, IntArrayList> projections1 = new HashMap<>(Projection.values().length);
         int origNodeCount = originalProjections.get(Projection.values()[0]).size();

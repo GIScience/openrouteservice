@@ -16,47 +16,35 @@ import com.graphhopper.util.EdgeIterator;
  * @author Hendrik Leuschner
  */
 public abstract class MaxFlowMinCut {
-
     protected static int _dummyNodeId = -2;
     protected static int _dummyEdgeId = -2;
     protected boolean flooded;
-    protected int nodes, visitedToken, maxFlow, maxFlowLimit;
-    protected int snkNodeId;
+    protected int nodes, visitedToken, maxFlow, maxFlowLimit, snkNodeId;
     protected double limit;
-    protected Graph _graph;
-    protected EdgeExplorer _edgeExpl;
-    protected EdgeIterator _edgeIter;
-    protected GraphHopperStorage _ghStorage;
+    protected Graph graph;
+    protected EdgeExplorer edgeExplorer;
+    protected EdgeIterator edgeIterator;
     protected IntIntHashMap nodeOrder;
     protected IntArrayList orderedNodes;
     protected EdgeFilter edgeFilter;
     PartitioningData pData;
 
-    MaxFlowMinCut(GraphHopperStorage ghStorage, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
-        this._ghStorage = ghStorage;
-        this._graph = ghStorage.getBaseGraph();
-        this._edgeExpl = _graph.createEdgeExplorer();
+    MaxFlowMinCut(Graph graph, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
+        this.graph = graph;
+        this.edgeExplorer = this.graph.createEdgeExplorer();
         this.pData = pData;
 
         setAdditionalEdgeFilter(edgeFilter);
         if (init) {
-            PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage, pData);
+            PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(graph, pData);
             partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
             partitioningDataBuilder.run();
         }
     }
 
-    MaxFlowMinCut() {
-    }
-
-    protected void setGHStorage(GraphHopperStorage ghStorage) {
-        this._ghStorage = ghStorage;
-    }
-
-
     protected void initSubNetwork() {
         reset();
-        buildSrcSnkNodes();
+        this.snkNodeId = getDummyNodeId();
         identifySrcSnkEdges();
     }
 
@@ -64,9 +52,6 @@ public abstract class MaxFlowMinCut {
         this.maxFlowLimit = prevMaxFlow;
         return this;
     }
-
-    /*###############################################################################################################*/
-    //>> query call to build individual network
 
     protected void reset() {
         this.nodes = 0;
@@ -92,6 +77,11 @@ public abstract class MaxFlowMinCut {
         return maxFlow;
     }
 
+    /**
+     * Execute the flooding of the flow graph and determine source sink sets from visited attribute.
+     *
+     * @return the bi partition
+     */
     public BiPartition calcNodePartition() {
         IntHashSet srcSet = new IntHashSet();
         IntHashSet snkSet = new IntHashSet();
@@ -116,11 +106,9 @@ public abstract class MaxFlowMinCut {
 
     public abstract void flood();
 
-
-    private void buildSrcSnkNodes() {
-        this.snkNodeId = getDummyNodeId();
-    }
-
+    /**
+     * Set flow data entries for given nodes
+     */
     private void identifySrcSnkEdges() {
         this.nodes = orderedNodes.size();
         for (int i = 0; i < nodes; i++) {
@@ -129,18 +117,18 @@ public abstract class MaxFlowMinCut {
 
             pData.setVisited(nodeId, 0);
 
-            _edgeIter = _edgeExpl.setBaseNode(nodeId);
-            while (_edgeIter.next()) {
-                if (targSet.contains(_edgeIter.getAdjNode())
-                        || _edgeIter.getAdjNode() == _edgeIter.getBaseNode())
+            edgeIterator = edgeExplorer.setBaseNode(nodeId);
+            while (edgeIterator.next()) {
+                if (targSet.contains(edgeIterator.getAdjNode())
+                        || edgeIterator.getAdjNode() == edgeIterator.getBaseNode())
                     continue;
-                if (!acceptForPartitioning(_edgeIter))
+                if (!acceptForPartitioning(edgeIterator))
                     continue;
-                targSet.add(_edgeIter.getAdjNode());
+                targSet.add(edgeIterator.getAdjNode());
                 //reset
-                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode());
+                FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeIterator.getEdge(), edgeIterator.getBaseNode());
                 flowEdgeData.flow = false;
-                pData.setFlowEdgeData(_edgeIter.getEdge(), _edgeIter.getBaseNode(), flowEdgeData);
+                pData.setFlowEdgeData(edgeIterator.getEdge(), edgeIterator.getBaseNode(), flowEdgeData);
             }
         }
     }

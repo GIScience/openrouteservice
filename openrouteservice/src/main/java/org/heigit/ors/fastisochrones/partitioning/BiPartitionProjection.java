@@ -18,11 +18,10 @@ class BiPartitionProjection {
         this.projection1 = partition1;
     }
 
-    public Map<Projector.Projection, IntArrayList> getProjection0() {
-        return projection0;
+    public Map<Projector.Projection, IntArrayList> getProjection(int projectionNumber) {
+        if (projectionNumber != 0 && projectionNumber != 1)
+            throw new IllegalArgumentException("Only 2 projections supported.");
+        return projectionNumber == 0? projection0 : projection1;
     }
 
-    public Map<Projector.Projection, IntArrayList> getProjection1() {
-        return projection1;
-    }
 }
