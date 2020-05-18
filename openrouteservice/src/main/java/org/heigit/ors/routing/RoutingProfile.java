@@ -363,7 +363,8 @@ public class RoutingProfile {
 
         args.put("graph.flag_encoders", flagEncoders.toString().toLowerCase());
 
-        args.put("index.high_resolution", 500);
+        args.put("index.high_resolution", config.getLocationIndexResolution());
+        args.put("index.max_region_search", config.getLocationIndexSearchIterations());
 
         return args;
     }
