@@ -20,10 +20,11 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
 fi
 
 # if Tomcat built before, copy the mounted app.config to the Tomcat webapp app.config, else copy it from the source
-if [ -d "/usr/local/tomcat/webapps/ors" ]; then
+if [ -d "/usr/local/tomcat/webapps/ors/WEB-INF/classes" ]; then
 	cp -f /ors-conf/app.config.sample $tomcat_appconfig
 else
-	cp -f $source_appconfig /ors-conf/app.config.sample
+  mkdir -p "/usr/local/tomcat/webapps/ors/WEB-INF/classes"
+	cp -f /ors-conf/app.config.sample $tomcat_appconfig
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
