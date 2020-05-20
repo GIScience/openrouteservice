@@ -62,7 +62,6 @@ public class MaximumSpeedWeighting implements Weighting {
 
     /** This function is going to add the difference of: (edge speed - maximum_speed) in the calcMillis. */
     private double calcMaximumSpeedMillis(double userMaxSpeed, double speed, EdgeIteratorState edge){
-        // TODO move this to AbstractWeighting? see #485
         //Conversion of the speeds to times including the factor for changing from km/h -> m/ms.
         double time = Math.abs((edge.getDistance() * ( 1 / speed - 1 / userMaxSpeed ))) * SPEED_CONV * 1000;
 
@@ -94,14 +93,9 @@ public class MaximumSpeedWeighting implements Weighting {
 
     @Override
     public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId){
-
-        //If it is not a shortcut we need to test both directions
         double speed = reverse ? edge.get(flagEncoder.getAverageSpeedEnc()) : edge.getReverse(flagEncoder.getAverageSpeedEnc());
         if (speed > userMaxSpeed) {
-            long testTest= superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
-            long testTestTest = (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
-            long test = superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) + (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
-            return test;
+            return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) + (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
         } else {
             return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);// If the speed of the edge is zero or lower than the one defined by user we call the superWeighting calcWEight method.
         }
