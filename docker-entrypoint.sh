@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 graphs=/ors-core/data/graphs
+tomcat_appconfig=/usr/local/tomcat/webapps/ors/WEB-INF/classes/app.config
+source_appconfig=/ors-core/openrouteservice/src/main/resources/app.config
 
 if [ -z "${CATALINA_OPTS}" ]; then
 	export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
@@ -14,9 +16,17 @@ echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" > /usr/local/tomcat/bin/setenv.sh
 echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 
 if [ "${BUILD_GRAPHS}" = "True" ]; then
-  if [ -d "$graphs" ]; then rm -Rf "$graphs"; fi
+  rm -rf ${graphs}/*
+fi
+
+# if Tomcat built before, copy the mounted app.config to the Tomcat webapp app.config, else copy it from the source
+if [ -d "/usr/local/tomcat/webapps/ors" ]; then
+	cp -f /ors-conf/app.config.sample $tomcat_appconfig
+else
+	cp -f $source_appconfig /ors-conf/app.config.sample
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
+
 # Keep docker running easy
 exec "$@"

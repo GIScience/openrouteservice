@@ -184,6 +184,12 @@ public class RoutingManagerConfiguration  {
 					case "maximum_snapping_radius":
 						profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
 						break;
+					case "location_index_resolution":
+						profile.setLocationIndexResolution(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					case "location_index_search_iterations":
+						profile.setLocationIndexSearchIterations(Integer.parseInt(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

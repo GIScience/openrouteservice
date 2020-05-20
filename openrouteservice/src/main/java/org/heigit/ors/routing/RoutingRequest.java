@@ -225,4 +225,8 @@ public class RoutingRequest extends ServiceRequest {
 	public String getResponseFormat() {
 		return this.responseFormat;
 	}
+
+	public boolean isRoundTripRequest() {
+		return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
+	}
 }

@@ -1,6 +1,7 @@
 # Openrouteservice
 
 [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ors%3Aopenrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=org.heigit.ors%3Aopenrouteservice)
+[![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/giscienceopenrouteservice/)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
@@ -31,6 +32,7 @@ We appreciate any kind of contribution - bug reports, new feature suggestion or 
 
 If you want to contribute your improvements, please follow the steps outlined in [our CONTRIBUTION guidelines](./CONTRIBUTE.md)
 
+The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice/) provides a high level overview of the repository including technology summary, module dependencies and other components of the system.
 
 ## Installation
 
