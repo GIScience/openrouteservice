@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Roads tagged with destination access are penalized the same way for hgv as for car ([#525](https://github.com/GIScience/openrouteservice/issues/525))
 - JAVA_OPTS and CATALINA_OPTS were not correctly set in Docker setup ([#696](https://github.com/GIScience/openrouteservice/issues/696))
 - Suitability values in extra info are not underestimated ([#722](https://github.com/GIScience/openrouteservice/issues/722))
+- Fixed problem with incorrect way point values being referenced for round trip ([#724](https://github.com/GIScience/openrouteservice/issues/724))
 ### Changed
 - Refactor the algorithm selection process
 - Use ALT/A* Beeline for roundtrips. Enable Core-ALT-only for pedestrian profile.

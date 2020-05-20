@@ -14,6 +14,7 @@
 package org.heigit.ors.v2.services.routing;
 
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import junit.framework.Assert;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
@@ -2921,6 +2922,58 @@ public class ResultTest extends ServiceTest {
                 .body("routes.size()", is(1))
                 .body("routes[0].summary.distance", anyOf(is(2519.8f), is(2496.8f)))
                 .body("routes[0].summary.duration", anyOf(is(1814.2f), is(1797.6f)))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testWaypointCount() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.673191);
+        coord1.put(49.446812);
+        coordinates.put(coord1);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+
+        JSONObject roundTripOptions = new JSONObject();
+        roundTripOptions.put("length", "2000");
+        JSONObject options = new JSONObject();
+
+        options.put("round_trip", roundTripOptions);
+        body.put("options", options);
+        body.put("instructions", false);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].properties.way_points[1]", is(65))
+                .statusCode(200);
+
+        body = new JSONObject();
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.687782);
+        coord2.put(49.424597);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].properties.way_points[1]", is(93))
                 .statusCode(200);
     }
     

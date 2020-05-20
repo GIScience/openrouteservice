@@ -158,6 +158,10 @@ class RouteResultBuilder
                 RouteStep step = new RouteStep();
 
                 Instruction instr = instructions.get(ii);
+                if (instr instanceof ViaInstruction && request.isRoundTripRequest()) {
+                    // if this is a via instruction, then we don't want to process it in the case of a round trip
+                    continue;
+                }
                 InstructionType instrType = getInstructionType(ii == 0, instr);
 
                 PointList currentStepPoints = instr.getPoints();
