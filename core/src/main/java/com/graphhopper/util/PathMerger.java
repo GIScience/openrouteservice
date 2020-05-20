@@ -56,11 +56,16 @@ public class PathMerger {
 
 
     // ORS-GH MOD START
-    protected PathProcessor pathProcessor = PathProcessor.DEFAULT;
+    protected PathProcessor[] pathProcessor = {PathProcessor.DEFAULT};
 
-    public PathMerger setPathProcessor(PathProcessor pathProcessor) {
+    public PathMerger setPathProcessor(PathProcessor[] pathProcessor) {
         this.pathProcessor = pathProcessor; 
         return this;
+    }
+
+    private int ppIndex = 0;
+    public void setPathProcessorIndex(int newIndex) {
+        ppIndex = newIndex;
     }
     // ORS MOD END
 
@@ -114,7 +119,7 @@ public class PathMerger {
             if (enableInstructions) {
                 // ORS-GH MOD START
 //                InstructionList il = path.calcInstructions(roundaboutEnc, tr);
-                InstructionList il = path.calcInstructions(roundaboutEnc, tr, pathProcessor);
+                InstructionList il = path.calcInstructions(roundaboutEnc, tr, pathProcessor[ppIndex]);
                 // ORS-GH MOD END
 
                 if (!il.isEmpty()) {
@@ -149,7 +154,7 @@ public class PathMerger {
 
         if (!fullPoints.isEmpty()) {
             // ORS-GH MOD START
-            fullPoints = pathProcessor.processPoints(fullPoints);
+            fullPoints = pathProcessor[ppIndex].processPoints(fullPoints);
             // ORS-GH MOD END
 
             String debug = altRsp.getDebugInfo() + ", simplify (" + origPoints + "->" + fullPoints.getSize() + ")";
