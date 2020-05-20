@@ -764,7 +764,7 @@ public class ResultTest extends ServiceTest {
 				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
-		response.then()
+		response.then().log().all()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))

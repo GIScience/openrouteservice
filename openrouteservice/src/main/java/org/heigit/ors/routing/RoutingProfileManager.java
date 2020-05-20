@@ -294,7 +294,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
+            return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -325,7 +325,9 @@ public class RoutingProfileManager {
             throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
-        ExtraInfoProcessor extraInfoProcessor = null;
+        int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount();
+        numberOfExpectedExtraInfoProcessors = numberOfExpectedExtraInfoProcessors < 0 ? 1 : numberOfExpectedExtraInfoProcessors;
+        ExtraInfoProcessor[] extraInfoProcessor = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -409,18 +411,31 @@ public class RoutingProfileManager {
                 }
             }
 
-            try {
-                for (Object obj : gr.getReturnObjects()) {
-                    if (obj instanceof ExtraInfoProcessor) {
-                        if (extraInfoProcessor == null) {
-                            extraInfoProcessor = (ExtraInfoProcessor)obj;
+            List<ExtraInfoProcessor> extraList = new ArrayList<>();
+            for (Object o : gr.getReturnObjects()) {
+                if (o instanceof ExtraInfoProcessor) {
+                    extraList.add((ExtraInfoProcessor)o);
+                }
+            }
+
+            if (numberOfExpectedExtraInfoProcessors > 1) {
+                int extraInfoProcessorIndex = 0;
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        extraInfoProcessor[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
+                        extraInfoProcessorIndex++;
+                    }
+                }
+            } else {
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        if (extraInfoProcessor[0] == null) {
+                            extraInfoProcessor[0] = (ExtraInfoProcessor)o;
                         } else {
-                            extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+                            extraInfoProcessor[0].appendData((ExtraInfoProcessor)o);
                         }
                     }
                 }
-            } catch (Exception e) {
-                LOGGER.error(e);
             }
 
             prevResp = gr;
@@ -428,7 +443,17 @@ public class RoutingProfileManager {
             c0 = c1;
         }
         routes = enrichDirectRoutesTime(routes);
-        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+
+        List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
+        if (numberOfExpectedExtraInfoProcessors > 1) {
+            int i = 0;
+            for (ExtraInfoProcessor e : extraInfoProcessor) {
+                extraInfos[i] = e != null ? e.getExtras() : null;
+                i++;
+            }
+        } else {
+            extraInfos[0] = extraInfoProcessor[0] != null ? extraInfoProcessor[0].getExtras() : null;
+        }
         return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
     }
 

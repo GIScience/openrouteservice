@@ -41,7 +41,7 @@ class RouteResultBuilder
 		distCalc = new DistanceCalcEarth();
 	}
 
-    RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+    RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         if (responses.isEmpty())
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find a route.");
         if (responses.size() > 1) { // request had multiple segments (route with via points)
@@ -67,8 +67,8 @@ class RouteResultBuilder
         return result;
     }
 
-    RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
-        RouteResult result = createInitialRouteResult(request, extras);
+    RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
+        RouteResult result = createInitialRouteResult(request, extras[0]);
 
         for (int ri = 0; ri < responses.size(); ++ri) {
             GHResponse response = responses.get(ri);
@@ -96,18 +96,19 @@ class RouteResultBuilder
         return result;
     }
 
-    private RouteResult[] createMergedRouteResultSetFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+    private RouteResult[] createMergedRouteResultSetFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         return new RouteResult[]{createMergedRouteResultFromBestPaths(responses, request, extras)};
     }
 
-    private RouteResult[] createRouteResultSetFromMultiplePaths(GHResponse response, RoutingRequest request, List<RouteExtraInfo> extras) throws Exception {
+    private RouteResult[] createRouteResultSetFromMultiplePaths(GHResponse response, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         if (response.hasErrors())
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", 0, FormatUtility.formatCoordinate(request.getCoordinates()[0]), 1, FormatUtility.formatCoordinate(request.getCoordinates()[1])));
 
         RouteResult[] resultSet = new RouteResult[response.getAll().size()];
 
+        int pathIndex = 0;
         for (PathWrapper path : response.getAll()) {
-            RouteResult result = createInitialRouteResult(request, extras);
+            RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
 
             result.addPointlist(path.getPoints());
             if (request.getIncludeGeometry()) {
@@ -124,6 +125,7 @@ class RouteResultBuilder
 
             result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
+            pathIndex++;
         }
 
         return resultSet;
