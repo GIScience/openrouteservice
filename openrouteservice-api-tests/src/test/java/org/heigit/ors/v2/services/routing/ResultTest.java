@@ -2800,7 +2800,7 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}")
-            .then().log().all()
+            .then()
             .assertThat()
             .body("any { it.key == 'routes' }", is(true))
             .body("routes.size()", is(2))

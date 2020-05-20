@@ -230,18 +230,13 @@ public class ORSGraphHopper extends GraphHopper {
 			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
 			routingTemplate.setEdgeFilter(edgeFilter);
 
-
-			if (request.getAlgorithm().equals("alternative_route")) {
-				for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 2); c++) {
-					ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
-				}
-			} else {
+			for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 1); c++) {
 				ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
 			}
 			List<PathProcessor> ppList = new ArrayList<>();
-			for (Object o : ghRsp.getReturnObjects()) {
-				if (o instanceof PathProcessor) {
-					ppList.add((PathProcessor)o);
+			for (Object returnObject : ghRsp.getReturnObjects()) {
+				if (returnObject instanceof PathProcessor) {
+					ppList.add((PathProcessor)returnObject);
 				}
 			}
 

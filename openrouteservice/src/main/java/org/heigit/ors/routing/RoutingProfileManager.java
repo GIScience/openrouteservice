@@ -325,8 +325,7 @@ public class RoutingProfileManager {
             throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
-        int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount();
-        numberOfExpectedExtraInfoProcessors = numberOfExpectedExtraInfoProcessors < 0 ? 1 : numberOfExpectedExtraInfoProcessors;
+        int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount() < 0 ? 1 : req.getSearchParameters().getAlternativeRoutesCount();
         ExtraInfoProcessor[] extraInfoProcessor = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
 
         for (int i = 1; i <= nSegments; ++i) {
