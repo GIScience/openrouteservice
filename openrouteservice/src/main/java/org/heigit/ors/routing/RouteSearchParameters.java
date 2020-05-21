@@ -530,14 +530,18 @@ public class RouteSearchParameters {
         return roundTripSeed;
     }
 
-    public double getUserSpeed() {return userSpeed;}
+    public double getUserSpeed() {
+        return userSpeed;
+    }
 
     public void setUserSpeed(double userSpeed) {
         this.userSpeed = userSpeed;
         hasUserSpeed = true;
     }
 
-    public boolean hasUserSpeed() {return hasUserSpeed;}
+    public boolean hasUserSpeed() {
+        return hasUserSpeed;
+    }
 
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
@@ -554,7 +558,8 @@ public class RouteSearchParameters {
             || hasAvoidCountries()
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
-            || isProfileTypeDriving() && hasParameters(VehicleParameters.class);
+            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+            || hasUserSpeed();
     }
 
     /**
