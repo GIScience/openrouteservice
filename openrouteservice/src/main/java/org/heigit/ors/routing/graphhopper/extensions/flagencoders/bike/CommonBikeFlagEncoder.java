@@ -700,13 +700,13 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // MARQ24 MOD START
-        if (pushingSectionsHighways.contains(highway) || (!isRoadBikeEncoder && way.hasTag(KEY_BICYCLE, "use_sidepath")) || "parking_aisle".equals(service)) {
+        if (pushingSectionsHighways.contains(highway) || "parking_aisle".equals(service)) {
         // MARQ24 MOD END
             int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
             // MARQ24 MOD START
             if(!isRoadBikeEncoder) {
             // MARQ24 MOD END
-                if (way.hasTag(KEY_BICYCLE, "yes") || way.hasTag(KEY_BICYCLE, "permissive")) {
+                if (way.hasTag(KEY_BICYCLE, "use_sidepath") || way.hasTag(KEY_BICYCLE, "yes") || way.hasTag(KEY_BICYCLE, "permissive")) {
                     pushingSectionPrio = PREFER.getValue();
                 }
                 if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
@@ -798,7 +798,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 || way.hasTag(KEY_ONEWAY_BICYCLE, oneways)
                 || way.hasTag("vehicle:backward")
                 || way.hasTag("vehicle:forward")
-                || way.hasTag("bicycle:forward");
+                || way.hasTag("bicycle:forward", "yes")
+                || way.hasTag("bicycle:forward", "no");
         //MARQ24 MOD START
         if (!way.hasTag(KEY_BICYCLE_ROAD, "yes") && (isOneway || way.hasTag(KEY_JUNCTION, "roundabout"))
         //MARQ24 MOD END
