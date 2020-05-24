@@ -16,7 +16,7 @@ docker run -dt \
   -v $PWD/data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf \
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
-  openrouteservice/openrouteservice:6.1.0
+  openrouteservice/openrouteservice:v6.1.0
 ```
 
 - or with `docker-compose`
