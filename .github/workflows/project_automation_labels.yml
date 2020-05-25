@@ -1,9 +1,9 @@
-# This is a workflow to automate handling of issues based on labelling
 name: project_automation_labels
 
 on:
   issues:
     types: [labeled]
+
 jobs:
   handle_labels:
     runs-on: ubuntu-latest
