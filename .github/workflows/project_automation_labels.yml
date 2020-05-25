@@ -1,4 +1,4 @@
-# This is a workflow to automate handling action based on labelling
+# This is a workflow to automate handling of issues based on labelling
 name: project_automation_labels
 
 on:
