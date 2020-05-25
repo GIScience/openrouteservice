@@ -1,0 +1,17 @@
+# This is a workflow to automate handling action based on labelling
+name: project_automation_labels
+
+on:
+  issues:
+    types: [labeled]
+jobs:
+  Move_Labeled_Issue_On_Project_Board:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
+      with:
+        action-token: "${{ secrets.PROJECT_AUTOMATION }}"
+        project-url: "https://github.com/GIScience/openrouteservice/projects/16"
+        column-name: "Priority"
+        label-name: ":bug: bug"
+        columns-to-ignore: "Priority,Assigned,In progress,Review,Awaiting release,Last release"
