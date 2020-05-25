@@ -1,0 +1,25 @@
+name: project_automation_add
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+env:
+  GITHUB_TOKEN: ${{ secrets.PROJECT_AUTOMATION }}
+
+jobs:
+  handle_add:
+    runs-on: ubuntu-latest
+    steps:
+    - name: add without label
+      uses: srggrs/assign-one-project-github-action@1.2.0
+      if: "!contains(github.event.issue.labels.*.name, ':bug: bug')"
+      with:
+        project: 'https://github.com/GIScience/openrouteservice/projects/16'
+    - name: add with label
+      uses: srggrs/assign-one-project-github-action@1.2.0
+      if: "contains(github.event.issue.labels.*.name, ':bug: bug')"
+      with:
+        project: 'https://github.com/GIScience/openrouteservice/projects/16'
+        column_name: 'Priority'
