@@ -699,9 +699,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             }
         }
 
-        // MARQ24 MOD START
-        if (pushingSectionsHighways.contains(highway) || "parking_aisle".equals(service)) {
-        // MARQ24 MOD END
+        if (pushingSectionsHighways.contains(highway)
+                || "parking_aisle".equals(service)) {
             int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
             // MARQ24 MOD START
             if(!isRoadBikeEncoder) {
