@@ -5,10 +5,11 @@ on:
   issues:
     types: [labeled]
 jobs:
-  Move_Labeled_Issue_On_Project_Board:
+  handle_labels:
     runs-on: ubuntu-latest
     steps:
-    - uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
+    - name: move bugs to priority
+      uses: konradpabjan/move-labeled-or-milestoned-issue@v2.0
       with:
         action-token: "${{ secrets.PROJECT_AUTOMATION }}"
         project-url: "https://github.com/GIScience/openrouteservice/projects/16"
