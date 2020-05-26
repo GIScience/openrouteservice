@@ -326,7 +326,7 @@ public class RoutingProfileManager {
         }
 
         int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount() < 0 ? 1 : req.getSearchParameters().getAlternativeRoutesCount();
-        ExtraInfoProcessor[] extraInfoProcessor = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
+        ExtraInfoProcessor[] extraInfoProcessors = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -410,28 +410,21 @@ public class RoutingProfileManager {
                 }
             }
 
-            List<ExtraInfoProcessor> extraList = new ArrayList<>();
-            for (Object o : gr.getReturnObjects()) {
-                if (o instanceof ExtraInfoProcessor) {
-                    extraList.add((ExtraInfoProcessor)o);
-                }
-            }
-
             if (numberOfExpectedExtraInfoProcessors > 1) {
                 int extraInfoProcessorIndex = 0;
                 for (Object o : gr.getReturnObjects()) {
                     if (o instanceof ExtraInfoProcessor) {
-                        extraInfoProcessor[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
+                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
                         extraInfoProcessorIndex++;
                     }
                 }
             } else {
                 for (Object o : gr.getReturnObjects()) {
                     if (o instanceof ExtraInfoProcessor) {
-                        if (extraInfoProcessor[0] == null) {
-                            extraInfoProcessor[0] = (ExtraInfoProcessor)o;
+                        if (extraInfoProcessors[0] == null) {
+                            extraInfoProcessors[0] = (ExtraInfoProcessor)o;
                         } else {
-                            extraInfoProcessor[0].appendData((ExtraInfoProcessor)o);
+                            extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
                         }
                     }
                 }
@@ -444,14 +437,10 @@ public class RoutingProfileManager {
         routes = enrichDirectRoutesTime(routes);
 
         List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
-        if (numberOfExpectedExtraInfoProcessors > 1) {
-            int i = 0;
-            for (ExtraInfoProcessor e : extraInfoProcessor) {
-                extraInfos[i] = e != null ? e.getExtras() : null;
-                i++;
-            }
-        } else {
-            extraInfos[0] = extraInfoProcessor[0] != null ? extraInfoProcessor[0].getExtras() : null;
+        int i = 0;
+        for (ExtraInfoProcessor e : extraInfoProcessors) {
+            extraInfos[i] = e != null ? e.getExtras() : null;
+            i++;
         }
         return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
     }
