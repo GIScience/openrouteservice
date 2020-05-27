@@ -38,8 +38,8 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class FastIsochroneFactory {
-    private final List<PreparePartition> preparations = new ArrayList<>();
     private final Set<String> fastisochroneProfileStrings = new LinkedHashSet<>();
+    private PreparePartition partition;
     private boolean disablingAllowed = true;
     private boolean enabled = false;
     private int preparationThreads;
@@ -126,18 +126,17 @@ public class FastIsochroneFactory {
     }
 
     public FastIsochroneFactory addPreparation(PreparePartition pp) {
-        preparations.add(pp);
+        partition = pp;
         return this;
     }
 
-    public List<PreparePartition> getPreparations() {
-        return preparations;
+    public PreparePartition getPartition() {
+        return partition;
     }
 
     public int getPreparationThreads() {
         return preparationThreads;
     }
-
 
     /**
      * This method changes the number of threads used for preparation on import. Default is 1. Make
@@ -156,9 +155,9 @@ public class FastIsochroneFactory {
             public void run() {
                 // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
                 Thread.currentThread().setName(name);
-                getPreparations().get(0).prepare();
-                setIsochroneNodeStorage(getPreparations().get(0).getIsochroneNodeStorage());
-                setCellStorage(getPreparations().get(0).getCellStorage());
+                getPartition().prepare();
+                setIsochroneNodeStorage(getPartition().getIsochroneNodeStorage());
+                setCellStorage(getPartition().getCellStorage());
                 properties.put(FastIsochrone.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
             }
         }, name);
@@ -166,25 +165,23 @@ public class FastIsochroneFactory {
         threadPool.shutdown();
 
         try {
-            for (int i = 0; i < getPreparations().size(); i++) {
-                completionService.take().get();
-            }
+            completionService.take().get();
         } catch (Exception e) {
             threadPool.shutdownNow();
             throw new RuntimeException(e);
         }
     }
 
-    public void createPreparations(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
-        if (!isEnabled() || !preparations.isEmpty())
+    public void createPreparation(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
+        if (!isEnabled() || !(partition == null))
             return;
         PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
         addPreparation(tmpPreparePartition);
     }
 
     public void setExistingStorages() {
-        setIsochroneNodeStorage(getPreparations().get(0).getIsochroneNodeStorage());
-        setCellStorage(getPreparations().get(0).getCellStorage());
+        setIsochroneNodeStorage(getPartition().getIsochroneNodeStorage());
+        setCellStorage(getPartition().getCellStorage());
     }
 
     public IsochroneNodeStorage getIsochroneNodeStorage() {

@@ -29,17 +29,12 @@ public abstract class MaxFlowMinCut {
     protected EdgeFilter edgeFilter;
     PartitioningData pData;
 
-    MaxFlowMinCut(Graph graph, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
+    MaxFlowMinCut(Graph graph, PartitioningData pData, EdgeFilter edgeFilter) {
         this.graph = graph;
         this.edgeExplorer = this.graph.createEdgeExplorer();
         this.pData = pData;
 
         setAdditionalEdgeFilter(edgeFilter);
-        if (init) {
-            PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(graph, pData);
-            partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
-            partitioningDataBuilder.run();
-        }
     }
 
     protected void initSubNetwork() {

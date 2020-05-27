@@ -21,8 +21,8 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     private int srcLimit;
     private int snkLimit;
 
-    public EdmondsKarpAStar(Graph graph, PartitioningData pData, EdgeFilter edgeFilter, boolean init) {
-        super(graph, pData, edgeFilter, init);
+    public EdmondsKarpAStar(Graph graph, PartitioningData pData, EdgeFilter edgeFilter) {
+        super(graph, pData, edgeFilter);
     }
 
     public boolean getRemainingCapacity(int edgeId, int nodeId) {

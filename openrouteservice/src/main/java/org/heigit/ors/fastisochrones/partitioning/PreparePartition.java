@@ -64,7 +64,7 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         InverseSemaphore inverseSemaphore = new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
         if (isLogEnabled()) System.out.println("Submitting task for cell 1");
-        threadPool.execute(new InertialFlow(nodeToCellArray, ghStorage, new PartitioningData(), edgeFilters, threadPool, inverseSemaphore));
+        threadPool.execute(new InertialFlow(nodeToCellArray, ghStorage, edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();
         } catch (InterruptedException e) {

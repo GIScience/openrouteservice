@@ -93,9 +93,8 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
             throw new IllegalStateException("Nodecount and cellIds array do not match");
         isochroneNodes.create(1000);
         isochroneNodes.ensureCapacity((long) CELLBYTES * nodeCount);
-        int cellId;
         for (int node = 0; node < cellIds.length; node++) {
-            cellId = cellIds[node];
+            int cellId = cellIds[node];
             cellIdsSet.add(cellId);
             isochroneNodes.setBytes(node * CELLBYTES + 1, intToByteArray(cellId), 4);
         }

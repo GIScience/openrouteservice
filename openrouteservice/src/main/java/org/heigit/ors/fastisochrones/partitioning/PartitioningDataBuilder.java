@@ -30,8 +30,6 @@ public class PartitioningDataBuilder {
         this._graph = graph;
         this._edgeExpl = _graph.createEdgeExplorer();
         this.pData = pData;
-
-        initStatics();
     }
 
     public void run() {
@@ -42,12 +40,6 @@ public class PartitioningDataBuilder {
         pData.fillFlowEdgeBaseNodes(_graph);
         pData.createNodeDataStructures(_dummyNodeId);
         buildStaticNetwork();
-    }
-
-
-    public void initStatics() {
-        _dummyEdgeId = _graph.getAllEdges().length() + 1;
-        _dummyNodeId = _graph.getNodes() + 1;
     }
 
     public void buildStaticNetwork() {

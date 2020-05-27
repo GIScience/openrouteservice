@@ -20,9 +20,10 @@ public class Projector {
 
     public Projector(GraphHopperStorage graphHopperStorage) {
         this.ghStorage = graphHopperStorage;
+        prepareProjectionMaps();
     }
 
-    protected void prepareProjectionMaps() {
+    private void prepareProjectionMaps() {
         this.correspondingProjMap = new HashMap<>();
         this.correspondingProjMap.put(Line_p90, Line_m00);
         this.correspondingProjMap.put(Line_p675, Line_m225);
@@ -51,7 +52,7 @@ public class Projector {
         return nodeListProjMap;
     }
 
-    protected BiPartitionProjection reorderProjections(Map<Projection, IntArrayList> originalProjections, BiPartition biPartition) {
+    protected BiPartitionProjection partitionProjections(Map<Projection, IntArrayList> originalProjections, BiPartition biPartition) {
         IntHashSet part0 = biPartition.getPartition(0);
         Map<Projection, IntArrayList> projections0 = new HashMap<>(Projection.values().length);
         Map<Projection, IntArrayList> projections1 = new HashMap<>(Projection.values().length);
@@ -121,18 +122,21 @@ public class Projector {
             }
         },
         Line_p675 {
+            //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
-                return lat + Math.tan(Math.toRadians(67.5)) * lon;
+                return lat + 2.414213 * lon;
             }
         },
         Line_p45 {
+            //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
-                return lat + Math.tan(Math.toRadians(45)) * lon;
+                return lat + 1 * lon;
             }
         },
         Line_p225 {
+            //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat + Math.tan(Math.toRadians(22.5)) * lon;
+                return lat + 0.414213  * lon;
             }
         },
         Line_m00 {
@@ -141,18 +145,21 @@ public class Projector {
             }
         },
         Line_m225 {
+            //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat - Math.tan(Math.toRadians(22.5)) * lon;
+                return lat - 0.414213  * lon;
             }
         },
         Line_m45 {
+            //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
-                return lat - Math.tan(Math.toRadians(45)) * lon;
+                return lat - 1 * lon;
             }
         },
         Line_m675 {
+            //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
-                return lat - Math.tan(Math.toRadians(67.5)) * lon;
+                return lat - 2.414213 * lon;
             }
         };
 
