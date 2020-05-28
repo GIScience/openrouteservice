@@ -58,6 +58,6 @@ public class PartitioningDataBuilderTest {
         assertEquals(2, pData.flowEdgeBaseNode[3]);
 
         assertEquals(10, pData.visited.length);
-        assertEquals(-1, pData.visited[0]);
+        assertEquals(0, pData.visited[0]);
     }
 }

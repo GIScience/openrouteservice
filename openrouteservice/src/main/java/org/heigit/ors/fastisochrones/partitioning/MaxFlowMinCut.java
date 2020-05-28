@@ -5,7 +5,6 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
@@ -16,10 +15,9 @@ import com.graphhopper.util.EdgeIterator;
  * @author Hendrik Leuschner
  */
 public abstract class MaxFlowMinCut {
-    protected static int _dummyNodeId = -2;
-    protected static int _dummyEdgeId = -2;
-    protected boolean flooded;
-    protected int nodes, visitedToken, maxFlow, maxFlowLimit, snkNodeId;
+    protected int maxFlowLimit = Integer.MAX_VALUE;
+    protected int nodes, visitedToken;
+    protected int snkNodeId = -3;
     protected double limit;
     protected Graph graph;
     protected EdgeExplorer edgeExplorer;
@@ -37,21 +35,17 @@ public abstract class MaxFlowMinCut {
         setAdditionalEdgeFilter(edgeFilter);
     }
 
-    protected void initSubNetwork() {
-        reset();
-        this.snkNodeId = getDummyNodeId();
-        identifySrcSnkEdges();
-    }
-
-    protected MaxFlowMinCut setMaxFlowLimit(int prevMaxFlow) {
-        this.maxFlowLimit = prevMaxFlow;
-        return this;
-    }
-
     protected void reset() {
+        resetAlgorithm();
+        resetData();
+    }
+
+    protected void setMaxFlowLimit(int prevMaxFlow) {
+        this.maxFlowLimit = prevMaxFlow;
+    }
+
+    protected void resetAlgorithm() {
         this.nodes = 0;
-        this.flooded = false;
-        this.maxFlow = 0;
         this.visitedToken = 1;
     }
 
@@ -67,10 +61,7 @@ public abstract class MaxFlowMinCut {
         ++this.visitedToken;
     }
 
-    public int getMaxFlow() {
-        execute();
-        return maxFlow;
-    }
+    public abstract int getMaxFlow();
 
     /**
      * Execute the flooding of the flow graph and determine source sink sets from visited attribute.
@@ -81,7 +72,6 @@ public abstract class MaxFlowMinCut {
         IntHashSet srcSet = new IntHashSet();
         IntHashSet snkSet = new IntHashSet();
 
-        execute();
         for (int nodeId : nodeOrder.keys) {
             if (isVisited(pData.getVisited(nodeId)))
                 srcSet.add(nodeId);
@@ -91,35 +81,19 @@ public abstract class MaxFlowMinCut {
         return new BiPartition(srcSet, snkSet);
     }
 
-    private void execute() {
-        if (flooded)
-            return;
-
-        this.flooded = true;
-        flood();
-    }
-
-    public abstract void flood();
-
     /**
      * Set flow data entries for given nodes
      */
-    private void identifySrcSnkEdges() {
+    private void resetData() {
         this.nodes = orderedNodes.size();
         for (int i = 0; i < nodes; i++) {
-            IntHashSet targSet = new IntHashSet();
             int nodeId = orderedNodes.get(i);
-
             pData.setVisited(nodeId, 0);
 
             edgeIterator = edgeExplorer.setBaseNode(nodeId);
             while (edgeIterator.next()) {
-                if (targSet.contains(edgeIterator.getAdjNode())
-                        || edgeIterator.getAdjNode() == edgeIterator.getBaseNode())
-                    continue;
                 if (!acceptForPartitioning(edgeIterator))
                     continue;
-                targSet.add(edgeIterator.getAdjNode());
                 //reset
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeIterator.getEdge(), edgeIterator.getBaseNode());
                 flowEdgeData.flow = false;
@@ -139,18 +113,10 @@ public abstract class MaxFlowMinCut {
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator) {
-        return edgeFilter.accept(edgeIterator);
+        return edgeFilter == null ? true : edgeFilter.accept(edgeIterator);
     }
 
     public void setAdditionalEdgeFilter(EdgeFilter edgeFilter) {
         this.edgeFilter = edgeFilter;
-    }
-
-    private synchronized int getDummyNodeId() {
-        return ++_dummyNodeId;
-    }
-
-    protected synchronized int getDummyEdgeId() {
-        return ++_dummyEdgeId;
     }
 }

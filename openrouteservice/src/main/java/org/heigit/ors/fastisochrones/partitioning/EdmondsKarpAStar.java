@@ -43,8 +43,9 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
      * Iterate the search until no more connections can be found.
      */
     @Override
-    public void flood() {
+    public int getMaxFlow() {
         int flow;
+        int maxFlow = 0;
         srcLimit = (int) (getSplitValue() * nodes);
         snkLimit = (int) ((1 - getSplitValue()) * nodes);
         Deque<Integer> deque = new ArrayDeque<>(nodes / 2);
@@ -59,6 +60,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
                 break;
             }
         } while (flow > 0);
+        return maxFlow;
     }
 
     /**
@@ -82,7 +84,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
             node = deque.pop();
 
             if (snkLimit < nodeOrder.get(node)) {
-                prevMap.put(snkNodeId, new EdgeInfo(getDummyEdgeId(), node, snkNodeId));
+                prevMap.put(snkNodeId, new EdgeInfo(-1, node, snkNodeId));
                 //Early stop
                 break;
             }
@@ -90,7 +92,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
             edgeIterator = edgeExplorer.setBaseNode(node);
             TreeSet<EKEdgeEntry> set = new TreeSet<>(EKEdgeEntry::compareTo);
             while (edgeIterator.next()) {
-                if (!edgeFilter.accept(edgeIterator))
+                if (!acceptForPartitioning(edgeIterator))
                     continue;
                 calls++;
                 int adj = edgeIterator.getAdjNode();

@@ -17,8 +17,12 @@ public class PartitioningData {
     //Node data
     int[] visited;
 
-    public PartitioningData() {
+    public PartitioningData() {    }
 
+    public PartitioningData(int[] flowEdgeBaseNode, boolean[] flow, int[] visited) {
+        this.flowEdgeBaseNode = flowEdgeBaseNode;
+        this.flow = flow;
+        this.visited = visited;
     }
 
     public void createEdgeDataStructures(int size) {
@@ -40,7 +44,6 @@ public class PartitioningData {
         //There is data for every node + data for each source/sink node. 2 * numNodes means support for
         //a minimum cell size of 2 nodes per cell, so plenty enough.
         visited = new int[size];
-        Arrays.fill(visited, -1);
     }
 
 
@@ -62,7 +65,7 @@ public class PartitioningData {
         if (flowEdgeBaseNode[2 * edgeId + 1] == baseNode)
             pointer = 2 * edgeId + 1;
         if (pointer == -1)
-            throw new IllegalStateException("Edge and node do not belong together?");
+            throw new IllegalStateException("Edge " + edgeId + " and node " + baseNode + " do not belong together?");
         return new FlowEdgeData(flow[pointer], edgeId);
     }
 

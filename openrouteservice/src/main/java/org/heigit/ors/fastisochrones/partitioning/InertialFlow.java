@@ -8,14 +8,13 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.fastisochrones.partitioning.Projector.Projection;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
-
-import org.heigit.ors.fastisochrones.partitioning.Projector.*;
 
 /**
  * Recursive implementation of InertialFlow algorithm for partitioning a graph.
@@ -48,7 +47,6 @@ public class InertialFlow implements Runnable {
         partitioningDataBuilder.run();
         projector = new Projector(ghStorage);
         this.projections = projector.calculateProjections();
-        createAlgo();
     }
 
     private InertialFlow(int[] nodeToCellArr, int cellId, Graph graph, PartitioningData pData, int partitionNodeCount, Map<Projection, IntArrayList> projections, EdgeFilter edgeFilter, ExecutorService executorService, InverseSemaphore inverseSemaphore) {
@@ -68,7 +66,6 @@ public class InertialFlow implements Runnable {
      */
     public void run() {
         try {
-            createAlgo();
             BiPartition biPartition = graphBiSplit(this.projections);
             saveResults(biPartition);
             BiPartitionProjection biPartitionProjection = projector.partitionProjections(this.projections, biPartition);
@@ -102,7 +99,8 @@ public class InertialFlow implements Runnable {
             //>> sort projected Nodes
             maxFlowMinCut.setOrderedNodes(projections.get(proj));
             maxFlowMinCut.setNodeOrder();
-            maxFlowMinCut.setMaxFlowLimit(mincutScore).initSubNetwork();
+            maxFlowMinCut.setMaxFlowLimit(mincutScore);
+            maxFlowMinCut.reset();
             int cutScore = maxFlowMinCut.getMaxFlow();
             if (cutScore < mincutScore) {
                 //>> store Results
