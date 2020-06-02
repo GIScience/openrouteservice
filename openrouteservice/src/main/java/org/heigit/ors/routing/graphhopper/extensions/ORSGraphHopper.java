@@ -230,8 +230,15 @@ public class ORSGraphHopper extends GraphHopper {
 			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
 			routingTemplate.setEdgeFilter(edgeFilter);
 
-			PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage());
-			ghRsp.addReturnObject(pathProcessor);
+			for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 1); c++) {
+				ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
+			}
+			List<PathProcessor> ppList = new ArrayList<>();
+			for (Object returnObject : ghRsp.getReturnObjects()) {
+				if (returnObject instanceof PathProcessor) {
+					ppList.add((PathProcessor)returnObject);
+				}
+			}
 
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
@@ -339,7 +346,7 @@ public class ORSGraphHopper extends GraphHopper {
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
                         .setEnableInstructions(tmpEnableInstructions)
-						.setPathProcessor(pathProcessor)
+						.setPathProcessor(ppList.toArray(new PathProcessor[]{}))
 						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
 				if (routingTemplate.isReady(pathMerger, tr))
