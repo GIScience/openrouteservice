@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [6.1.1] - 2020-06-02
+### Added
 - Configuration option to read elevation tags from pbf data
 - Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
 ### Fixed
