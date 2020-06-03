@@ -2808,13 +2808,14 @@ public class ResultTest extends ServiceTest {
         coord2.put(8.689499);
         coord2.put(49.398295);
         coordinates.put(coord2);
+
         body.put("coordinates", coordinates);
         body.put("preference", "fastest");
         JSONObject ar = new JSONObject();
         ar.put("target_count", "2");
         ar.put("share_factor", "0.5");
         body.put("alternative_routes", ar);
-
+        body.put("extra_info", getParameter("extra_info"));
         given()
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
@@ -2830,6 +2831,10 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].summary.duration", is(776.1f))
             .body("routes[1].summary.distance", is( 6435.1f))
             .body("routes[1].summary.duration", is(801.5f))
+            .body("routes[0].way_points[-1]", is(223))
+            .body("routes[0].extras.surface.values[0][1]", is(223))
+            .body("routes[1].way_points[-1]", is(202))
+            .body("routes[1].extras.surface.values[6][1]", is(202))
             .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]}}");

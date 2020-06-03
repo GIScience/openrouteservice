@@ -5,16 +5,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [6.1.1] - 2020-06-02
+### Added
 - Configuration option to read elevation tags from pbf data
 - Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
 ### Fixed
 - Allowed the usage of green and noise in extra info parameter ([#688](https://github.com/GIScience/openrouteservice/issues/688))
+- Fixed extra info grouping with alternative routes ([#681](https://github.com/GIScience/openrouteservice/issues/681))
 - Fixed way surface/type encoding issue ([#677](https://github.com/GIScience/openrouteservice/issues/677))
 - Querying shortest weighting can now use CH shortest preparation if available
 - Roads tagged with destination access are penalized the same way for hgv as for car ([#525](https://github.com/GIScience/openrouteservice/issues/525))
 - JAVA_OPTS and CATALINA_OPTS were not correctly set in Docker setup ([#696](https://github.com/GIScience/openrouteservice/issues/696))
 - Suitability values in extra info are not underestimated ([#722](https://github.com/GIScience/openrouteservice/issues/722))
 - Fixed problem with incorrect way point values being referenced for round trip ([#724](https://github.com/GIScience/openrouteservice/issues/724))
+- Fixed oneway handling for bike routing ([#389](https://github.com/GIScience/openrouteservice/issues/389)) [by integrating GH PR [#1769](https://github.com/graphhopper/graphhopper/pull/1769/files/ad4fe02d3d9b5deb66dc0b88d02b61b28b52871c) of BikeCommonFlagEncoder]
 ### Changed
 - Refactor the algorithm selection process
 - Use ALT/A* Beeline for roundtrips. Enable Core-ALT-only for pedestrian profile.
@@ -39,6 +47,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Fixed memory issue at graph building ([#659](https://github.com/GIScience/openrouteservice/issues/659))
 - Improve way category assignment for ferry connections ([#678](https://github.com/GIScience/openrouteservice/issues/678))
 ### Changed
+- improve french translation (directions)
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
