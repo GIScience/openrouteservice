@@ -1230,7 +1230,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", true);
         body.put("user_speed",80);
 
-        // Test that the "right turn only" restriction at the junction is taken into account
+        //Test that the distance of the computed route.
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")

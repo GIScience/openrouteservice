@@ -29,18 +29,19 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
  */
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
-    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null) ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) : 80; //Minimum speed of the core.
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null)
+            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed"))
+            : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
     public final FlagEncoder flagEncoder;
 
     public MaximumSpeedCoreEdgeFilter(FlagEncoder flagEncoder) {
         this.flagEncoder = flagEncoder;
-        if (!flagEncoder.isRegistered())
-            throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
     }
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( (edge.get(flagEncoder.getAverageSpeedEnc()) > maxSpeed) || (edge.getReverse(flagEncoder.getAverageSpeedEnc())) > maxSpeed ) { //If the max speed of the road is greater than that of the limit include it in the core.
+        if ( (edge.get(flagEncoder.getAverageSpeedEnc()) > maxSpeed) || (edge.getReverse(flagEncoder.getAverageSpeedEnc())) > maxSpeed ) {
+            //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {
             return true;

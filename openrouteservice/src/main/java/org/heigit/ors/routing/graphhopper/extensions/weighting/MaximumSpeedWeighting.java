@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
+import org.heigit.ors.config.AppConfig;
 
 /**
  * This class creates the weighting for the routing according to the maximum speed set by user.
@@ -27,28 +28,31 @@ import com.graphhopper.util.Parameters.Routing;
  */
 
 public class MaximumSpeedWeighting implements Weighting {
-    protected final static double SPEED_CONV = 3.6; //From km/h to m/s.
+    protected final static double SPEED_UNIT_CONVERTER = 3.6; //From km/h to m/s.
     private final double headingPenalty;
     private final  double userMaxSpeed;
     private final Weighting superWeighting;
     private final DecimalEncodedValue avSpeedEnc;
     private boolean calculateWeight;
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null)
+            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed"))
+            : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
 
     public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting weighting) {
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
         this.superWeighting = weighting;
-        if(hintsMap.getDouble("user_speed",80) < 80  ){
-            throw new RuntimeException("User speed should be <= 80.");
+        if(hintsMap.getDouble("user_speed",maxSpeed) < maxSpeed  ){
+            throw new RuntimeException("User speed should be <=" + maxSpeed);
         }
         this.headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
-        this.userMaxSpeed = hintsMap.getDouble("user_speed",80);
+        this.userMaxSpeed = hintsMap.getDouble("user_speed",maxSpeed);
         this.calculateWeight = (hintsMap.getWeighting() == "fastest");
     }
 
     /** This function computes the weight when the speed of the edge is greater than the user speed */
     private double calcMaximumSpeedWeight(double speed, EdgeIteratorState edge){
         //Conversion of the speeds to times including the factor for changing from km/h -> m/s.
-        double time = edge.getDistance() / speed * SPEED_CONV;
+        double time = edge.getDistance() / speed * SPEED_UNIT_CONVERTER;
 
         // add direction penalties at start/stop/via points
         boolean unfavoredEdge = edge.get(EdgeIteratorState.UNFAVORED_EDGE);
@@ -61,7 +65,7 @@ public class MaximumSpeedWeighting implements Weighting {
     /** This function is going to add the difference of: (edge speed - maximum_speed) in the calcMillis. */
     private double calcMaximumSpeedMillis(double userMaxSpeed, double speed, EdgeIteratorState edge){
         //Conversion of the speeds to times including the factor for changing from km/h -> m/ms.
-        double time = Math.abs((edge.getDistance() * ( 1 / speed - 1 / userMaxSpeed ))) * SPEED_CONV * 1000;
+        double time = Math.abs((edge.getDistance() * ( 1 / speed - 1 / userMaxSpeed ))) * SPEED_UNIT_CONVERTER * 1000;
 
         return time;
     }
@@ -71,7 +75,7 @@ public class MaximumSpeedWeighting implements Weighting {
         if (calculateWeight) {
             double speed = reverse ? edge.get(avSpeedEnc) : edge.getReverse(avSpeedEnc);
             if (speed > userMaxSpeed)
-                return calcMaximumSpeedWeight(userMaxSpeed, edge);// Use the maximum speed defined }
+                return calcMaximumSpeedWeight(userMaxSpeed, edge);
         }
 
         return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId);
@@ -83,7 +87,7 @@ public class MaximumSpeedWeighting implements Weighting {
         if (speed > userMaxSpeed) {
             return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) + (long) calcMaximumSpeedMillis(userMaxSpeed, speed, edge);
         } else {
-            return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);// If the speed of the edge is zero or lower than the one defined by user we call the superWeighting calcWEight method.
+            return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
         }
     }
 
