@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ProjectorTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -56,6 +57,24 @@ public class ProjectorTest {
         g.getBaseGraph().getNodeAccess().setNode(6, 3, 4);
         g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
         g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
+
+        return g;
+    }
+
+    private GraphHopperStorage createSimpleGraphWithoutLatLon() {
+        // 5--1---2
+        //     \ /|
+        //      0 |
+        //     /  |
+        //    4---3
+        GraphHopperStorage g = createGHStorage();
+        g.edge(0, 1, 1, true);
+        g.edge(0, 2, 1, true);
+        g.edge(0, 4, 3, true);
+        g.edge(1, 2, 2, true);
+        g.edge(2, 3, 1, true);
+        g.edge(4, 3, 2, true);
+        g.edge(5, 1, 2, true);
 
         return g;
     }
@@ -118,5 +137,12 @@ public class ProjectorTest {
         IntArrayList expectedPart1_m45 = new IntArrayList();
         expectedPart1_m45.add(7, 5, 6, 4);
         assertEquals(expectedPart1_m45, biPartitionProjection.getProjection(1).get(Projector.Projection.Line_m45));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCalculateProjectionsWithoutLatLon() {
+        //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
+        Projector projector = new Projector(createSimpleGraphWithoutLatLon());
+        projector.calculateProjections();
     }
 }

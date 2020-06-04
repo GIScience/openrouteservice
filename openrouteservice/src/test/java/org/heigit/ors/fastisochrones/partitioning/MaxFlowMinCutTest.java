@@ -43,6 +43,12 @@ public class MaxFlowMinCutTest {
         return g;
     }
 
+    public GraphHopperStorage createSingleEdgeGraph() {
+        GraphHopperStorage g = createGHStorage();
+        g.edge(0, 1, 1, true);
+        return g;
+    }
+
     @Test
     public void testNodes() {
         GraphHopperStorage graphHopperStorage = createMediumGraph();
@@ -155,5 +161,32 @@ public class MaxFlowMinCutTest {
         maxFlowMinCut.reset();
         int maxFlow = maxFlowMinCut.getMaxFlow();
         assertEquals(4, maxFlow);
+    }
+
+    @Test
+    public void testSingleEdgeGraph() {
+        //Create test graph
+        GraphHopperStorage graphHopperStorage = createSingleEdgeGraph();
+        Graph graph = graphHopperStorage.getBaseGraph();
+        //Create data for test graph
+        //FlowEdgeBaseNode is an array representing base and adj node for each edgeId, ordered by edgeId, i.e. 2 entries/edge
+        int[] flowEdgeBaseNode = new int[]{
+                0, 1
+        };
+        //mock flow
+        boolean[] flow = new boolean[4];
+        //mock visited
+        int[] visited = new int[3];
+        PartitioningData pData = new PartitioningData(flowEdgeBaseNode, flow, visited);
+        //Create mock projection
+        IntArrayList projection_m45 = new IntArrayList();
+        projection_m45.add(0,1);
+
+        MaxFlowMinCut maxFlowMinCut = new EdmondsKarpAStar(graph, pData, null);
+        maxFlowMinCut.setOrderedNodes(projection_m45);
+        maxFlowMinCut.setNodeOrder();
+        maxFlowMinCut.reset();
+        int maxFlow = maxFlowMinCut.getMaxFlow();
+        assertEquals(1, maxFlow);
     }
 }

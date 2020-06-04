@@ -83,7 +83,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
                 return 0;
             node = deque.pop();
 
-            if (snkLimit < nodeOrder.get(node)) {
+            if (snkLimit <= nodeOrder.get(node)) {
                 prevMap.put(snkNodeId, new EdgeInfo(-1, node, snkNodeId));
                 //Early stop
                 break;
@@ -121,12 +121,13 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         EdgeInfo edge = prevMap.getOrDefault(snkNodeId, null);
         edge = prevMap.getOrDefault(edge.baseNode, null);
         while (edge != null) {
-            if (nodeOrder.get(edge.baseNode) < srcLimit)
-                break;
+
             bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge.edge, edge.baseNode) ? 1 : 0);
             if (bottleNeck == 0)
                 return 0;
             augment(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode());
+            if (nodeOrder.get(edge.baseNode) <= srcLimit)
+                break;
             edge = prevMap.getOrDefault(edge.baseNode, null);
         }
         return bottleNeck;
@@ -139,7 +140,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     private void addSrcNodesToDeque(Deque<Integer> deque) {
         //Reverse insertion order to maximize offer performance
         int nodeNumber = 0;
-        while (nodeNumber < srcLimit) {
+        while (nodeNumber <= srcLimit) {
             int node = orderedNodes.get(nodeNumber);
             deque.push(node);
             setVisited(node);
@@ -150,7 +151,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     private Deque<Integer> copyInitialDeque(Deque<Integer> initialDeque) {
         Deque<Integer> deque = new ArrayDeque<>(initialDeque);
         //Reverse insertion order to maximize offer performance
-        int nodeNumber = srcLimit - 1;
+        int nodeNumber = srcLimit;
         while (nodeNumber > 0) {
             int node = orderedNodes.get(nodeNumber);
             setVisited(node);

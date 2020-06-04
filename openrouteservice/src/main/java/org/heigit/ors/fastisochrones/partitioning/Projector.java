@@ -49,6 +49,14 @@ public class Projector {
             }
             nodeListProjMap.put(proj, sort.sortByValueReturnList(ids, values));
         }
+        //Check if there are at least two differing projections. If no lat lon data is set, all projections are the same.
+        boolean valid = false;
+        for(Projection proj : Projection.values()){
+            if(!nodeListProjMap.get(proj).equals(nodeListProjMap.get(Line_m00)))
+                valid = true;
+        }
+        if(!valid)
+            throw new IllegalStateException("All projections of the graph are the same. Maybe NodeAccess is faulty or not initialized?");
         return nodeListProjMap;
     }
 

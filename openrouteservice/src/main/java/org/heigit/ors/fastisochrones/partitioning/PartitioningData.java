@@ -26,6 +26,8 @@ public class PartitioningData {
     }
 
     public void createEdgeDataStructures(int size) {
+        if (size < 1 || size > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Bad size.");
         flowEdgeBaseNode = new int[2 * size];
         flow = new boolean[2 * size];
         Arrays.fill(flowEdgeBaseNode, -1);
@@ -43,6 +45,8 @@ public class PartitioningData {
         //size should be num of nodes. Each node has one dummy edge.
         //There is data for every node + data for each source/sink node. 2 * numNodes means support for
         //a minimum cell size of 2 nodes per cell, so plenty enough.
+        if (size < 1 || size > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Bad size.");
         visited = new int[size];
     }
 
@@ -71,10 +75,14 @@ public class PartitioningData {
 
 
     private void setFlowEdgeData(int dataPosition, FlowEdgeData data) {
+        if(dataPosition > flow.length - 1 || dataPosition < 0)
+            throw new IllegalArgumentException("Index " + dataPosition + " out of bounds for flow with length " + flow.length);
         flow[dataPosition] = data.flow;
     }
 
     public void setVisited(int nodeId, int newVisited) {
+        if(nodeId > visited.length - 1 || nodeId < 0)
+            throw new IllegalArgumentException("Index " + nodeId + " out of bounds for visited with length " + visited.length);
         visited[nodeId] = newVisited;
     }
 
