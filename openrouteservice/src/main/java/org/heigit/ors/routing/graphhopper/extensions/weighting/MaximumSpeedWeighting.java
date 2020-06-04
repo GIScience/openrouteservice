@@ -46,7 +46,7 @@ public class MaximumSpeedWeighting implements Weighting {
         }
         this.headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         this.userMaxSpeed = hintsMap.getDouble("user_speed",maxSpeed);
-        this.calculateWeight = (hintsMap.getWeighting() == "fastest");
+        this.calculateWeight = (superWeighting.getName() == "fastest");
     }
 
     /** This function returns the time needed for a route only if the speed of the edge is bigger than the speed set by the user */

@@ -888,7 +888,7 @@ public class RoutingProfile {
             }
 
             if(searchParams.hasMaximumSpeed()){
-                req.getHints().put("user_speed", searchParams.getMaximumSpeed());
+                req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
             }
 
             if (directedSegment) {

@@ -212,7 +212,9 @@ public class RoutingRequest extends ServiceRequest {
 		this.includeCountryInfo = includeCountryInfo;
 	}
 
-	public void setMaximumSpeed(double maximumSpeed){this.maximumSpeed = maximumSpeed;}
+	public void setMaximumSpeed(double maximumSpeed){
+		this.maximumSpeed = maximumSpeed;
+	}
 
 	public double getMaximumSpeed(){return maximumSpeed;}
 
