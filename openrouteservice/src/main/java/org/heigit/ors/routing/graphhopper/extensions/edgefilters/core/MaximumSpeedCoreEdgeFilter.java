@@ -13,14 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 /**
  * This class includes in the core all edges with speed more than the one set in the app.config file max_speed.
@@ -29,18 +26,19 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
  */
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
-    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null)
-            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed"))
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound")) != null)
+            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound"))
             : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
-    public final FlagEncoder flagEncoder;
+
+    private final DecimalEncodedValue avSpeedEnc;
 
     public MaximumSpeedCoreEdgeFilter(FlagEncoder flagEncoder) {
-        this.flagEncoder = flagEncoder;
+        this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
     }
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( (edge.get(flagEncoder.getAverageSpeedEnc()) > maxSpeed) || (edge.getReverse(flagEncoder.getAverageSpeedEnc())) > maxSpeed ) {
+        if ( (edge.get(avSpeedEnc) > maxSpeed) || (edge.getReverse(avSpeedEnc)) > maxSpeed ) {
             //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {

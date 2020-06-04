@@ -43,7 +43,7 @@ public class RoutingRequest extends ServiceRequest {
     private boolean continueStraight = false;
 	private List<Integer> skipSegments = new ArrayList<>();
 	private boolean includeCountryInfo = false;
-	private double userSpeed;
+	private double maximumSpeed;
 
 	private String responseFormat = "json";
 
@@ -212,9 +212,9 @@ public class RoutingRequest extends ServiceRequest {
 		this.includeCountryInfo = includeCountryInfo;
 	}
 
-	public void setUserSpeed(double userSpeed){this.userSpeed = userSpeed;}
+	public void setMaximumSpeed(double maximumSpeed){this.maximumSpeed = maximumSpeed;}
 
-	public double getUserSpeed(){return userSpeed;}
+	public double getMaximumSpeed(){return maximumSpeed;}
 
 	public void setResponseFormat(String responseFormat) {
 		if (!Helper.isEmpty(responseFormat)) {

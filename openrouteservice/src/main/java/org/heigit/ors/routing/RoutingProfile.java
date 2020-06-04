@@ -887,8 +887,8 @@ public class RoutingProfile {
                 req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
             }
 
-            if(searchParams.hasUserSpeed()){
-                req.getHints().put("user_speed", searchParams.getUserSpeed());
+            if(searchParams.hasMaximumSpeed()){
+                req.getHints().put("user_speed", searchParams.getMaximumSpeed());
             }
 
             if (directedSegment) {

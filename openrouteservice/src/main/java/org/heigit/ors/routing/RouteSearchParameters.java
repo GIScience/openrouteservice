@@ -81,8 +81,8 @@ public class RouteSearchParameters {
     private int roundTripPoints = 2;
     private long roundTripSeed = -1;
 
-    private double userSpeed;
-    private boolean hasUserSpeed = false;
+    private double maximumSpeed;
+    private boolean hasMaximumSpeed = false;
 
     private String options;
 
@@ -530,17 +530,17 @@ public class RouteSearchParameters {
         return roundTripSeed;
     }
 
-    public double getUserSpeed() {
-        return userSpeed;
+    public double getMaximumSpeed() {
+        return maximumSpeed;
     }
 
-    public void setUserSpeed(double userSpeed) {
-        this.userSpeed = userSpeed;
-        hasUserSpeed = true;
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
     }
 
-    public boolean hasUserSpeed() {
-        return hasUserSpeed;
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
     }
 
     public boolean isProfileTypeDriving() {
@@ -559,7 +559,7 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasUserSpeed();
+            || hasMaximumSpeed();
     }
 
     /**

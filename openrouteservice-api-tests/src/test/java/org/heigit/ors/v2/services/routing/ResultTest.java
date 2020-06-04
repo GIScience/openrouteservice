@@ -1223,11 +1223,10 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testMaximumSpeedWeighting() {
+    public void testMaximumSpeed() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
-        body.put("instructions", true);
         body.put("user_speed",80);
 
         //Test that the distance of the computed route.

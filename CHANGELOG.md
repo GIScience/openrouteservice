@@ -5,8 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
-* Added a Maximum Speed Core Edge Filter to include in the core edges with speed more than a value parsed from app.config.
-* Added a Maximum Speed Weighting to perform routing using a user defined maximum speed as a parameter.
+* New `maximum_speed` parameter to the driving profiles of the directions API to specify speed limit above a certain threshold set in the config file.
 
 ### Fixed
 ### Changed

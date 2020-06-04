@@ -57,7 +57,7 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
-    public static final String PARAM_USER_SPEED = "user_speed";
+    public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
 
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -247,11 +247,11 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
 
-    @ApiModelProperty(name = PARAM_USER_SPEED, value = "The maximum speed specified by user.", example = "90")
-    @JsonProperty(PARAM_USER_SPEED)
-    private double userSpeed;
+    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user.", example = "90")
+    @JsonProperty(PARAM_MAXIMUM_SPEED)
+    private double maximumSpeed;
     @JsonIgnore
-    private boolean hasUserSpeed = false;
+    private boolean hasMaximumSpeed = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -511,13 +511,13 @@ public class RouteRequest {
         hasAlternativeRoutes = true;
     }
 
-    public void setUserSpeed(Double userSpeed) {
-        this.userSpeed = userSpeed;
-        hasUserSpeed = true;
+    public void setMaximumSpeed(Double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
     }
 
-    public double getUserSpeed() {
-        return userSpeed;
+    public double getMaximumSpeed() {
+        return maximumSpeed;
     }
 
     public boolean hasIncludeRoundaboutExitInfo() {
@@ -592,5 +592,5 @@ public class RouteRequest {
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
 
-    public boolean hasUserSpeed() { return hasUserSpeed; }
+    public boolean hasMaximumSpeed() { return hasMaximumSpeed; }
 }

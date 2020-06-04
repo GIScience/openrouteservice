@@ -68,7 +68,7 @@
             "maximum_distance_alternative_routes": 100000,
             "maximum_alternative_routes": 3,
             "maximum_distance_round_trip_routes": 100000,
-            "maximum_speed": 80,
+            "maximum_speed_lower_bound": 80,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,

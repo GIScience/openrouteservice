@@ -34,8 +34,8 @@ public class MaximumSpeedWeighting implements Weighting {
     private final Weighting superWeighting;
     private final DecimalEncodedValue avSpeedEnc;
     private boolean calculateWeight;
-    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed")) != null)
-            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed"))
+    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound")) != null)
+            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound"))
             : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
 
     public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting weighting) {
@@ -49,7 +49,7 @@ public class MaximumSpeedWeighting implements Weighting {
         this.calculateWeight = (hintsMap.getWeighting() == "fastest");
     }
 
-    /** This function computes the weight when the speed of the edge is greater than the user speed */
+    /** This function returns the time needed for a route only if the speed of the edge is bigger than the speed set by the user */
     private double calcMaximumSpeedWeight(double speed, EdgeIteratorState edge){
         //Conversion of the speeds to times including the factor for changing from km/h -> m/s.
         double time = edge.getDistance() / speed * SPEED_UNIT_CONVERTER;

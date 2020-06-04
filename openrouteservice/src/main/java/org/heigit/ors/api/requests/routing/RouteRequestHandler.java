@@ -116,8 +116,8 @@ public class RouteRequestHandler extends GenericHandler {
         if (request.hasId())
             routingRequest.setId(request.getId());
 
-        if (request.hasUserSpeed()) {
-            routingRequest.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
+        if (request.hasMaximumSpeed()) {
+            routingRequest.setMaximumSpeed(validateMaximumSpeed(request.getMaximumSpeed()));
         }
 
         int profileType = -1;
@@ -178,8 +178,8 @@ public class RouteRequestHandler extends GenericHandler {
                 params.setAlternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
         }
 
-        if (request.hasUserSpeed()) {
-            params.setUserSpeed(convertUserSpeed(request.getUserSpeed()));
+        if (request.hasMaximumSpeed()) {
+            params.setMaximumSpeed(validateMaximumSpeed(request.getMaximumSpeed()));
         }
 
         params.setConsiderTurnRestrictions(false);
@@ -513,10 +513,12 @@ public class RouteRequestHandler extends GenericHandler {
         return avoidCountryIds;
     }
 
-    private double convertUserSpeed(Double userSpeed) throws ParameterValueException {
-        double maxSpeed = ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed")) != null) ? Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed")) : 80; //Minimum speed of the core.
-        if (userSpeed < maxSpeed) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_SPEED);
+    private double validateMaximumSpeed(Double userSpeed) throws ParameterValueException {
+        double maximumSpeed = ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed_lower_bound")) != null)
+                ? Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed_lower_bound"))
+                : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
+        if (userSpeed < maximumSpeed) {
+            throw new RuntimeException("The maximum speed must not be lower than" + maximumSpeed + "km/h.");
         }
         return userSpeed;
     }
