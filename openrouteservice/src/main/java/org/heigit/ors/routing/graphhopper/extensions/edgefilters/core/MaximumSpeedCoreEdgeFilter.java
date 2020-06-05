@@ -26,13 +26,15 @@ import org.heigit.ors.config.AppConfig;
  */
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
+    private double maximumSpeedLowerBound;
     private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound")) != null)
             ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound"))
-            : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
+            : maximumSpeedLowerBound; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
 
     private final DecimalEncodedValue avSpeedEnc;
 
-    public MaximumSpeedCoreEdgeFilter(FlagEncoder flagEncoder) {
+    public MaximumSpeedCoreEdgeFilter(FlagEncoder flagEncoder, double maximumSpeedLowerBound) {
+        this.maximumSpeedLowerBound = maximumSpeedLowerBound;
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
     }
 

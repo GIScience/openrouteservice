@@ -208,7 +208,7 @@ public class RoutingRequest extends ServiceRequest {
 		return includeCountryInfo;
 	}
 
-	public void setIncludeCountryInfo(boolean includeCountryInfo) {
+	public void setIncludeCountryInfo(boolean includeCountryImnfo) {
 		this.includeCountryInfo = includeCountryInfo;
 	}
 
@@ -216,7 +216,9 @@ public class RoutingRequest extends ServiceRequest {
 		this.maximumSpeed = maximumSpeed;
 	}
 
-	public double getMaximumSpeed(){return maximumSpeed;}
+	public double getMaximumSpeed(){
+		return maximumSpeed;
+	}
 
 	public void setResponseFormat(String responseFormat) {
 		if (!Helper.isEmpty(responseFormat)) {

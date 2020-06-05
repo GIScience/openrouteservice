@@ -28,6 +28,7 @@ import org.heigit.ors.config.AppConfig;
  */
 
 public class MaximumSpeedWeighting implements Weighting {
+    private double maximumSpeedLowerBound;
     protected final static double SPEED_UNIT_CONVERTER = 3.6; //From km/h to m/s.
     private final double headingPenalty;
     private final  double userMaxSpeed;
@@ -36,9 +37,10 @@ public class MaximumSpeedWeighting implements Weighting {
     private boolean calculateWeight;
     private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound")) != null)
             ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound"))
-            : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
+            : maximumSpeedLowerBound; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
 
-    public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting weighting) {
+    public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting weighting, double maximumSpeedLowerBound) {
+        this.maximumSpeedLowerBound = maximumSpeedLowerBound;
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
         this.superWeighting = weighting;
         if(hintsMap.getDouble("user_speed",maxSpeed) < maxSpeed  ){

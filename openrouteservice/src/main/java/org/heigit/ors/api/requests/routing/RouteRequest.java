@@ -592,5 +592,7 @@ public class RouteRequest {
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
 
-    public boolean hasMaximumSpeed() { return hasMaximumSpeed; }
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
 }

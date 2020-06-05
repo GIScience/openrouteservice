@@ -56,6 +56,8 @@ public class RouteProfileConfiguration {
 	private int locationIndexResolution = 500;
 	private int locationIndexSearchIterations = 4;
 
+	private double maximumSpeedLowerBound = 80;
+
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
 		graphBuilders = new HashMap<>();
@@ -355,5 +357,13 @@ public class RouteProfileConfiguration {
 
 	public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
 		this.locationIndexSearchIterations = locationIndexSearchIterations;
+	}
+
+	public void setMaximumSpeedLowerBound(double maximumSpeedLowerBound){
+		this.maximumSpeedLowerBound = maximumSpeedLowerBound;
+	}
+
+	public double getMaximumSpeedLowerBound(){
+		return maximumSpeedLowerBound;
 	}
 }

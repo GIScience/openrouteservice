@@ -37,6 +37,7 @@ public class GraphProcessContext {
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
+	private double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
 		bbox = config.getExtent();
@@ -59,6 +60,8 @@ public class GraphProcessContext {
 				arrGraphBuilders = graphBuilders.toArray(arrGraphBuilders);
 			}
 		}
+
+		maximumSpeedLowerBound = config.getMaximumSpeedLowerBound();
 	}
 
 	public void init(GraphHopper gh) {
@@ -207,5 +210,9 @@ public class GraphProcessContext {
 					arrStorageBuilders[i].finish();
 			}
 		}
+	}
+
+	public double getMaximumSpeedLowerBound(){
+		return maximumSpeedLowerBound;
 	}
 }

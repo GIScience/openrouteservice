@@ -117,7 +117,7 @@ public class RouteRequestHandler extends GenericHandler {
             routingRequest.setId(request.getId());
 
         if (request.hasMaximumSpeed()) {
-            routingRequest.setMaximumSpeed(validateMaximumSpeed(request.getMaximumSpeed()));
+            routingRequest.setMaximumSpeed(request.getMaximumSpeed());
         }
 
         int profileType = -1;
@@ -179,7 +179,7 @@ public class RouteRequestHandler extends GenericHandler {
         }
 
         if (request.hasMaximumSpeed()) {
-            params.setMaximumSpeed(validateMaximumSpeed(request.getMaximumSpeed()));
+            params.setMaximumSpeed(request.getMaximumSpeed());
         }
 
         params.setConsiderTurnRestrictions(false);
@@ -512,15 +512,4 @@ public class RouteRequestHandler extends GenericHandler {
 
         return avoidCountryIds;
     }
-
-    private double validateMaximumSpeed(Double userSpeed) throws ParameterValueException {
-        double maximumSpeed = ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed_lower_bound")) != null)
-                ? Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params", "maximum_speed_lower_bound"))
-                : 80; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
-        if (userSpeed < maximumSpeed) {
-            throw new RuntimeException("The maximum speed must not be lower than" + maximumSpeed + "km/h.");
-        }
-        return userSpeed;
-    }
-
 }

@@ -576,6 +576,10 @@ public class RoutingProfileManager {
             }
         }
 
+        if(searchParams.getMaximumSpeed() !=0 & searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()){
+            throw new RuntimeException("The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+        }
+
         return rp;
     }
 

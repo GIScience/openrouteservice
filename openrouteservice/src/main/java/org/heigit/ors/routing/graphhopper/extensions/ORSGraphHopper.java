@@ -78,6 +78,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
 
+	private double maximumSpeedLowerBound;
+
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		forDesktop();
@@ -87,6 +89,8 @@ public class ORSGraphHopper extends GraphHopper {
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
+		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
+
 	}
 
 
@@ -99,6 +103,7 @@ public class ORSGraphHopper extends GraphHopper {
 		GraphHopper ret = super.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+
 		return ret;
 	}
 
@@ -327,7 +332,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 
 				if(hints.has("user_speed")) {
-					weighting = new MaximumSpeedWeighting(encoder, hints, weighting);
+					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
 				}
 
 
@@ -533,14 +538,14 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		/* Maximum Speed Filter */
-		if (routingProfileCategory !=0 & (encodingManager.hasEncoder("heavyvehicle") || encodingManager.hasEncoder("car-ors")) ) {
+		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
 			FlagEncoder flagEncoder = null;
 			if(encodingManager.hasEncoder("heavyvehicle"))
 				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
 			else if(encodingManager.hasEncoder("car-ors"))
 				flagEncoder = getEncodingManager().getEncoder("car-ors");
 
-			coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder));
+			coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 		}
 
 		/* End filter sequence initialization */
