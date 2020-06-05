@@ -331,7 +331,7 @@ public class ORSGraphHopper extends GraphHopper {
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
 
-				if(hints.has("user_speed")) {
+				if(hints.has("maximum_speed")) {
 					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
 				}
 
