@@ -190,6 +190,9 @@ public class RoutingManagerConfiguration  {
 					case "location_index_search_iterations":
 						profile.setLocationIndexSearchIterations(Integer.parseInt(paramItem.getValue().toString()));
 						break;
+					case "maximum_speed_lower_bound":
+						profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

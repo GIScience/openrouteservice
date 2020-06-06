@@ -93,6 +93,8 @@ public class RouteProfileConfiguration {
 		hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
 
 		extent = rpc.extent;
+
+		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 	}
 
 	public Integer[] getProfilesTypes() {

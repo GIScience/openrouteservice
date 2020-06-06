@@ -1733,4 +1733,63 @@ public class ParamsTest extends ServiceTest {
 				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
 	}
+
+	private JSONArray constructCoords(String coordString) {
+		JSONArray coordinates = new JSONArray();
+		String[] coordPairs = coordString.split("\\|");
+		for (String pair : coordPairs) {
+			JSONArray coord = new JSONArray();
+			String[] pairCoords = pair.split(",");
+			coord.put(Double.parseDouble(pairCoords[0]));
+			coord.put(Double.parseDouble(pairCoords[1]));
+			coordinates.put(coord);
+		}
+
+		return coordinates;
+	}
+
+	@Test
+	public void testMaximumSpeedLowerBound() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+		body.put("preference", getParameter("preference"));
+		body.put("maximum_speed", 75);
+
+		//Test that the distance of the computed route.
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", "driving-car")
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void testMaximumSpeedUnsupportedProfile() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+		body.put("preference", getParameter("preference"));
+		body.put("maximum_speed", 80);
+
+		//Test that the distance of the computed route.
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", "cycling-regular")
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
+
 }
