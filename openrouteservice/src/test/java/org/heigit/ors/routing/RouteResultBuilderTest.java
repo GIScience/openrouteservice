@@ -121,7 +121,7 @@ public class RouteResultBuilderTest {
         List<RouteExtraInfo> extrasList = new ArrayList<>();
 
         RouteResultBuilder builder = new RouteResultBuilder();
-        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, extrasList);
+        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
         Assert.assertEquals("Empty response list should return empty RouteResult (summary.distance = 0.0)", 0.0, result.getSummary().getDistance(), 0.0);
         Assert.assertEquals("Empty response list should return empty RouteResult (no segments)", 0, result.getSegments().size());
         Assert.assertEquals("Empty response list should return empty RouteResult (no extra info)", 0, result.getExtraInfo().size());
@@ -130,7 +130,7 @@ public class RouteResultBuilderTest {
         extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
 
         responseList.add(constructResponse(request1));
-        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, extrasList);
+        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
         Assert.assertEquals("Single response should return valid RouteResult (summary.duration = 1452977.2)", 1452977.2, result.getSummary().getDistance(), 0.0);
         Assert.assertEquals("Single response should return valid RouteResult (summary.bbox = 45.6,56.7,12.3,23.4)", "45.6,56.7,12.3,23.4", result.getSummary().getBBox().toString());
         Assert.assertEquals("Single response should return valid RouteResult (geometry.length = 2)", 2, result.getGeometry().length);
@@ -151,7 +151,7 @@ public class RouteResultBuilderTest {
         Assert.assertEquals("Single response should return valid RouteResult (waypointindices.size = 2)", 2, result.getWayPointsIndices().size());
 
         responseList.add(constructResponse(request2));
-        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, extrasList);
+        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
         Assert.assertEquals("Two responses should return merged RouteResult (summary.duration = 2809674.1)", 2809674.1, result.getSummary().getDistance(), 0.0);
         Assert.assertEquals("Two responses should return merged RouteResult (summary.bbox = 45.6,67.8,12.3,34.5)", "45.6,67.8,12.3,34.5", result.getSummary().getBBox().toString());
         Assert.assertEquals("Two responses should return merged RouteResult (geometry.length = 3)", 3, result.getGeometry().length);
@@ -188,7 +188,7 @@ public class RouteResultBuilderTest {
         routingRequest = new RouteRequestHandler().convertRouteRequest(modRequest);
         responseList = new ArrayList<>();
         responseList.add(constructResponse(modRequest));
-        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, extrasList);
+        result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
         Assert.assertEquals("Response with SkipSegments should return RouteResult with warning", 1, result.getWarnings().size());
         Assert.assertEquals("Response with SkipSegments should return RouteResult with warning (code 3)", 3, result.getWarnings().get(0).getWarningCode());
 
