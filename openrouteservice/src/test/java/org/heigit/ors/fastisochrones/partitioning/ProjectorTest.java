@@ -10,7 +10,6 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,37 +80,40 @@ public class ProjectorTest {
 
     @Test
     public void testCalculateProjections() {
-        Projector projector = new Projector(createMediumGraph());
+        Projector projector = new Projector();
+        projector.setGHStorage(createMediumGraph());
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Projection of nodes onto horizontal axis; Ordered by value
         IntArrayList expected_m00 = new IntArrayList();
         expected_m00.add(1, 2, 3, 0, 4, 6, 8, 5, 7);
-        assertEquals(expected_m00, projections.get(Projector.Projection.Line_m00));
+        assertEquals(expected_m00, projections.get(Projector.Projection.LINE_M00));
         //Projection of nodes onto vertical axis; Ordered by value
         IntArrayList expected_p90 = new IntArrayList();
         expected_p90.add(1, 8, 0, 2, 6, 7, 3, 4, 5);
-        assertEquals(expected_p90, projections.get(Projector.Projection.Line_p90));
+        assertEquals(expected_p90, projections.get(Projector.Projection.LINE_P90));
         //Projection of nodes onto positive diagonal axis; Ordered by value
         IntArrayList expected_p45 = new IntArrayList();
         expected_p45.add(1, 2, 8, 0, 3, 6, 4, 7, 5);
-        assertEquals(expected_p45, projections.get(Projector.Projection.Line_p45));
+        assertEquals(expected_p45, projections.get(Projector.Projection.LINE_P45));
     }
 
     @Test
     public void testCalculateProjectionOrder() {
-        Projector projector = new Projector(createMediumGraph());
+        Projector projector = new Projector();
+        projector.setGHStorage(createMediumGraph());
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         List<Projector.Projection> projectionOrder = projector.calculateProjectionOrder(projections);
         //m00 and p45 should be best as they lead to max flow of 2
-        assertEquals(Projector.Projection.Line_m00, projectionOrder.get(0));
-        assertEquals(Projector.Projection.Line_p45, projectionOrder.get(1));
+        assertEquals(Projector.Projection.LINE_M00, projectionOrder.get(0));
+        assertEquals(Projector.Projection.LINE_P45, projectionOrder.get(1));
         //m45 should be worst as it leads to max flow 3 or 4
-        assertEquals(Projector.Projection.Line_m45, projectionOrder.get(7));
+        assertEquals(Projector.Projection.LINE_M45, projectionOrder.get(7));
     }
 
     @Test
     public void testPartitionProjection() {
-        Projector projector = new Projector(createMediumGraph());
+        Projector projector = new Projector();
+        projector.setGHStorage(createMediumGraph());
         //Calculate global projection
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Mock partition graph
@@ -124,25 +126,26 @@ public class ProjectorTest {
         //partitionProjection separates the original projection into two subsets according to biPartition while maintaining original order
         IntArrayList expectedPart0_m00 = new IntArrayList();
         expectedPart0_m00.add(1, 2, 3, 0, 8);
-        assertEquals(expectedPart0_m00, biPartitionProjection.getProjection(0).get(Projector.Projection.Line_m00));
+        assertEquals(expectedPart0_m00, biPartitionProjection.getProjection(0).get(Projector.Projection.LINE_M00));
 
         IntArrayList expectedPart0_m45 = new IntArrayList();
         expectedPart0_m45.add(8, 0, 1, 2, 3);
-        assertEquals(expectedPart0_m45, biPartitionProjection.getProjection(0).get(Projector.Projection.Line_m45));
+        assertEquals(expectedPart0_m45, biPartitionProjection.getProjection(0).get(Projector.Projection.LINE_M45));
 
         IntArrayList expectedPart1_m00 = new IntArrayList();
         expectedPart1_m00.add(4, 6, 5, 7);
-        assertEquals(expectedPart1_m00, biPartitionProjection.getProjection(1).get(Projector.Projection.Line_m00));
+        assertEquals(expectedPart1_m00, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_M00));
 
         IntArrayList expectedPart1_m45 = new IntArrayList();
         expectedPart1_m45.add(7, 5, 6, 4);
-        assertEquals(expectedPart1_m45, biPartitionProjection.getProjection(1).get(Projector.Projection.Line_m45));
+        assertEquals(expectedPart1_m45, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_M45));
     }
 
     @Test(expected = IllegalStateException.class)
     public void testCalculateProjectionsWithoutLatLon() {
         //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
-        Projector projector = new Projector(createSimpleGraphWithoutLatLon());
+        Projector projector = new Projector();
+        projector.setGHStorage(createSimpleGraphWithoutLatLon());
         projector.calculateProjections();
     }
 }

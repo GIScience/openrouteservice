@@ -1,67 +1,69 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
-
 /**
  * Parameters for fast isochrone algorithm preprocessing and query processing. Some defaults can be changed via app.config
  *
  * @author Hendrik Leuschner
  */
-public class FastIsochroneParameters {
+public final class FastIsochroneParameters {
     //GLOBAL
-    private static int FIA__MAXTHREADCOUNT = 12;
-    private static boolean FIA__LOG = true;
+    private static int maxThreadCount = 12;
+    private static boolean log = true;
     //PARTITIONING
-    private static int FIA__MAX_CELL_NODES_NUMBER = 5000;
-    private static int FIA__MIN_CELL_NODES_NUMBER = 4;
-    private static double FIA__SPLIT_VALUE = 0.2525;
+    private static int maxCellNodesNumber = 5000;
+    private static int minCellNodesNumber = 4;
+    private static double splitValue = 0.2525;
     //CONTOUR + ECCENTRICITY
-    private static boolean FIA__ENABLE_SUPERCELLS = true;
+    private static boolean enableSuperCells = true;
 
-    public static void setMaxThreadCount(int threads) {
-        FIA__MAXTHREADCOUNT = threads;
+    private FastIsochroneParameters() {
     }
 
     public static int getMaxThreadCount() {
-        return FIA__MAXTHREADCOUNT;
+        return maxThreadCount;
+    }
+
+    public static void setMaxThreadCount(int threads) {
+        maxThreadCount = threads;
     }
 
     public static boolean isLogEnabled() {
-        return FIA__LOG;
+        return log;
     }
 
-    public static void setLogEnabled(boolean fia_log) {
-        FIA__LOG = fia_log;
+    public static void setLogEnabled(boolean log) {
+        FastIsochroneParameters.log = log;
     }
 
     public static int getMaxCellNodesNumber() {
-        return FIA__MAX_CELL_NODES_NUMBER;
+        return maxCellNodesNumber;
     }
 
-    public static void setMaxCellNodesNumber(int fia_maxCellNodesNumber) {
-        FIA__MAX_CELL_NODES_NUMBER = fia_maxCellNodesNumber;
+    public static void setMaxCellNodesNumber(int maxCellNodesNumber) {
+        FastIsochroneParameters.maxCellNodesNumber = maxCellNodesNumber;
     }
 
     public static int getMinCellNodesNumber() {
-        return FIA__MIN_CELL_NODES_NUMBER;
+        return minCellNodesNumber;
     }
 
-    public static void setMinCellNodesNumber(int fia_minCellNodesNumber) {
-        FIA__MIN_CELL_NODES_NUMBER = fia_minCellNodesNumber;
+    public static void setMinCellNodesNumber(int minCellNodesNumber) {
+        FastIsochroneParameters.minCellNodesNumber = minCellNodesNumber;
     }
 
     public static double getSplitValue() {
-        return FIA__SPLIT_VALUE;
+        return splitValue;
     }
 
-    public static void setSplitValue(double fia_splitValue) {
-        FIA__SPLIT_VALUE = fia_splitValue;
+    public static void setSplitValue(double splitValue) {
+        FastIsochroneParameters.splitValue = splitValue;
     }
 
     public static boolean isSupercellsEnabled() {
-        return FIA__ENABLE_SUPERCELLS;
+        return enableSuperCells;
     }
 
-    public static void setEnableSupercells(boolean fia_enableSupercells) {
-        FIA__ENABLE_SUPERCELLS = fia_enableSupercells;
+    public static void setEnableSupercells(boolean enableSupercells) {
+        enableSuperCells = enableSupercells;
     }
 }

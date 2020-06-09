@@ -3,6 +3,9 @@ package org.heigit.ors.fastisochrones.partitioning.storage;
 import java.nio.ByteBuffer;
 
 public class ByteConversion {
+    private ByteConversion() {
+    }
+
     public static byte[] doubleToByteArray(double value) {
         byte[] bytes = new byte[Double.BYTES];
         ByteBuffer.wrap(bytes).putDouble(value);

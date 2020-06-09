@@ -14,10 +14,8 @@ import java.util.Set;
  * @author Hendrik Leuschner
  */
 public class PartitioningDataBuilder {
-
     private Graph graph;
     private EdgeExplorer edgeExplorer;
-    private EdgeIterator edgeIter;
     private PartitioningData pData;
     private EdgeFilter edgeFilter;
     private int maxEdgeId = -1;
@@ -29,8 +27,6 @@ public class PartitioningDataBuilder {
     }
 
     public void run() {
-//        dummyEdgeId = _graph.getAllEdges().length() + 1;
-//        dummyNodeId = _graph.getNodes() + 1;
         //Need entries for all edges + one dummy edge for all nodes
         pData.createEdgeDataStructures(graph.getAllEdges().length() + 1);
         pData.fillFlowEdgeBaseNodes(graph);
@@ -40,6 +36,7 @@ public class PartitioningDataBuilder {
 
     public void buildStaticNetwork() {
         Set<Integer> targSet = new HashSet<>();
+        EdgeIterator edgeIter;
 
         for (int baseId = 0; baseId < graph.getNodes(); baseId++) {
             targSet.clear();

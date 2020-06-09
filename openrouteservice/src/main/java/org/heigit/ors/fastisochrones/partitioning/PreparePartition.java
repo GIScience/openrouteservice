@@ -10,6 +10,8 @@ import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
@@ -22,7 +24,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class PreparePartition implements RoutingAlgorithmFactory {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreparePartition.class);
     private GraphHopperStorage ghStorage;
     private EdgeFilterSequence edgeFilters;
     private IsochroneNodeStorage isochroneNodeStorage;
@@ -63,12 +65,13 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         InverseSemaphore inverseSemaphore = new InverseSemaphore();
         inverseSemaphore.beforeSubmit();
-        if (isLogEnabled()) System.out.println("Submitting task for cell 1");
+        LOGGER.debug("Submitting task for cell 1");
         threadPool.execute(new InertialFlow(nodeToCellArray, ghStorage, edgeFilters, threadPool, inverseSemaphore));
         try {
             inverseSemaphore.awaitCompletion();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            LOGGER.error(e.getLocalizedMessage());
         }
 
         threadPool.shutdown();
@@ -78,8 +81,8 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     /**
      * S-E-T
      **/
-    public PreparePartition setGhStorage(GraphHopperStorage _ghStorage) {
-        this.ghStorage = _ghStorage;
+    public PreparePartition setGhStorage(GraphHopperStorage ghStorage) {
+        this.ghStorage = ghStorage;
         return this;
     }
 

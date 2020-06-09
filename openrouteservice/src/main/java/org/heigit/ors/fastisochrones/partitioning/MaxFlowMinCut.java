@@ -96,7 +96,7 @@ public abstract class MaxFlowMinCut {
                     continue;
                 //reset
                 FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeIterator.getEdge(), edgeIterator.getBaseNode());
-                flowEdgeData.flow = false;
+                flowEdgeData.setFlow(false);
                 pData.setFlowEdgeData(edgeIterator.getEdge(), edgeIterator.getBaseNode(), flowEdgeData);
             }
         }

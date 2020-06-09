@@ -198,7 +198,7 @@ public class CellStorage implements Storable<CellStorage> {
      * @param cellId the cell id
      * @return the list
      */
-    public List getCellContourOrder(int cellId) {
+    public List<Double> getCellContourOrder(int cellId) {
         List<Double> order = new ArrayList<>();
         long nodePointer = cellIdToContourPointerMap.get(cellId);
 

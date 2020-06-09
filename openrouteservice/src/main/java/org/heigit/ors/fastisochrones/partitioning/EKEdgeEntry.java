@@ -23,20 +23,49 @@ package org.heigit.ors.fastisochrones.partitioning;
  * @author Hendrik Leuschner
  */
 public class EKEdgeEntry implements Comparable<EKEdgeEntry> {
-    public int node;
-    public int weight;
+    private int node;
+    private int weight;
 
     public EKEdgeEntry(int node, int weight) {
         this.node = node;
         this.weight = weight;
     }
 
+    public int getNode() {
+        return node;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
     @Override
     public int compareTo(EKEdgeEntry o) {
+        if (node == o.node && weight == o.weight)
+            return 0;
+
         if (weight < o.weight)
             return -1;
+        if (weight > o.weight)
+            return 1;
+        //Same weight case
+        return node < o.node ? -1 : 1;
+    }
 
-        // assumption no NaN and no -0
-        return weight > o.weight ? 1 : 0;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EKEdgeEntry other = (EKEdgeEntry) obj;
+        return (node == other.node && weight == other.weight);
+    }
+
+    @Override
+    public int hashCode() {
+        return node * 31 + weight;
     }
 }

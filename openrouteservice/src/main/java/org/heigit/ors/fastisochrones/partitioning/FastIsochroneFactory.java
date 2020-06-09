@@ -148,7 +148,7 @@ public class FastIsochroneFactory {
     }
 
     public void prepare(final StorableProperties properties) {
-        ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
+        ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
         final String name = "PreparePartition";
         completionService.submit(new Runnable() {
             @Override
@@ -168,12 +168,12 @@ public class FastIsochroneFactory {
             completionService.take().get();
         } catch (Exception e) {
             threadPool.shutdownNow();
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
     public void createPreparation(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
-        if (!isEnabled() || !(partition == null))
+        if (!isEnabled() || (partition != null))
             return;
         PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
         addPreparation(tmpPreparePartition);

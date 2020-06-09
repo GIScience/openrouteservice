@@ -20,23 +20,24 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class EdmondsKarpAStar extends MaxFlowMinCut {
     private int srcLimit;
     private int snkLimit;
+    private int maxCalls;
 
     public EdmondsKarpAStar(Graph graph, PartitioningData pData, EdgeFilter edgeFilter) {
         super(graph, pData, edgeFilter);
     }
 
-    public boolean getRemainingCapacity(int edgeId, int nodeId) {
+    public boolean hasRemainingCapacity(int edgeId, int nodeId) {
         FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId, nodeId);
-        return !flowEdgeData.flow;
+        return !flowEdgeData.isFlow();
     }
 
     public void augment(int edgeId, int baseId, int adjId) {
         FlowEdgeData flowEdgeData = pData.getFlowEdgeData(edgeId, baseId);
-        flowEdgeData.flow = true;
-        FlowEdgeData inverseFlowEdgeData = pData.getFlowEdgeData(flowEdgeData.inverse, adjId);
-        inverseFlowEdgeData.flow = false;
+        flowEdgeData.setFlow(true);
+        FlowEdgeData inverseFlowEdgeData = pData.getFlowEdgeData(flowEdgeData.getInverse(), adjId);
+        inverseFlowEdgeData.setFlow(false);
         pData.setFlowEdgeData(edgeId, baseId, flowEdgeData);
-        pData.setFlowEdgeData(flowEdgeData.inverse, adjId, inverseFlowEdgeData);
+        pData.setFlowEdgeData(flowEdgeData.getInverse(), adjId, inverseFlowEdgeData);
     }
 
     /**
@@ -49,6 +50,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         srcLimit = (int) (getSplitValue() * nodes);
         snkLimit = (int) ((1 - getSplitValue()) * nodes);
         Deque<Integer> deque = new ArrayDeque<>(nodes / 2);
+        maxCalls = calculateMaxCalls();
         addSrcNodesToDeque(deque);
         do {
             setUnvisitedAll();
@@ -65,21 +67,18 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
 
     /**
      * Search for a connection between source and sink set. Order of node expansion given by distance to sink set.
+     *
      * @param initialDeque Deque for source set. Invariable and thus only calculated once.
      * @return 1 while connection found. 0 otherwise.
      */
     private int search(Deque<Integer> initialDeque) {
-        IntObjectHashMap<EdgeInfo> prevMap = new IntObjectHashMap((int) Math.ceil(0.1 * nodes));
+        IntObjectHashMap<EdgeInfo> prevMap = new IntObjectHashMap<>((int) Math.ceil(0.1 * nodes));
         Deque<Integer> deque = copyInitialDeque(initialDeque);
         int calls = srcLimit;
         int node;
 
-        double maxBFSCalls = graph.getBaseGraph().getAllEdges().length() * 2;
-        double sizeFactor = ((double) nodeOrder.size()) / graph.getBaseGraph().getNodes();
-        maxBFSCalls = (int) Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
-
         while (!deque.isEmpty()) {
-            if (calls > maxBFSCalls)
+            if (calls > maxCalls)
                 return 0;
             node = deque.pop();
 
@@ -88,32 +87,32 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
                 //Early stop
                 break;
             }
-
+            setVisited(node);
             edgeIterator = edgeExplorer.setBaseNode(node);
             TreeSet<EKEdgeEntry> set = new TreeSet<>(EKEdgeEntry::compareTo);
             while (edgeIterator.next()) {
-                if (!acceptForPartitioning(edgeIterator))
-                    continue;
                 calls++;
                 int adj = edgeIterator.getAdjNode();
                 int edge = edgeIterator.getEdge();
+                if (!acceptForPartitioning(edgeIterator)
+                        || adj == node
+                        || !nodeOrder.containsKey(adj)
+                        || !hasRemainingCapacity(edge, node)
+                        || isVisited(pData.getVisited(adj)))
+                    continue;
 
-                if (adj == node)
-                    continue;
-                if (!nodeOrder.containsKey(adj))
-                    continue;
-                if ((getRemainingCapacity(edge, node))
-                        && !isVisited(pData.getVisited(adj))) {
-                    setVisited(adj);
-                    prevMap.put(adj, new EdgeInfo(edge, node, adj));
-                    set.add(new EKEdgeEntry(adj, this.nodeOrder.get(adj)));
-                }
+                prevMap.put(adj, new EdgeInfo(edge, node, adj));
+                set.add(new EKEdgeEntry(adj, this.nodeOrder.get(adj)));
             }
             for (EKEdgeEntry ekEdgeEntry : set)
-                deque.push(ekEdgeEntry.node);
+                deque.push(ekEdgeEntry.getNode());
             calls++;
         }
 
+        return calculateBottleNeck(prevMap);
+    }
+
+    private int calculateBottleNeck(IntObjectHashMap<EdgeInfo> prevMap) {
         if (prevMap.getOrDefault(snkNodeId, null) == null)
             return 0;
         int bottleNeck = Integer.MAX_VALUE;
@@ -122,7 +121,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         edge = prevMap.getOrDefault(edge.baseNode, null);
         while (edge != null) {
 
-            bottleNeck = Math.min(bottleNeck, getRemainingCapacity(edge.edge, edge.baseNode) ? 1 : 0);
+            bottleNeck = Math.min(bottleNeck, hasRemainingCapacity(edge.edge, edge.baseNode) ? 1 : 0);
             if (bottleNeck == 0)
                 return 0;
             augment(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode());
@@ -135,6 +134,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
 
     /**
      * Create source deque.
+     *
      * @param deque The deque to which source nodes are to be added.
      */
     private void addSrcNodesToDeque(Deque<Integer> deque) {
@@ -143,7 +143,6 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         while (nodeNumber <= srcLimit) {
             int node = orderedNodes.get(nodeNumber);
             deque.push(node);
-            setVisited(node);
             nodeNumber++;
         }
     }
@@ -152,12 +151,18 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         Deque<Integer> deque = new ArrayDeque<>(initialDeque);
         //Reverse insertion order to maximize offer performance
         int nodeNumber = srcLimit;
-        while (nodeNumber > 0) {
+        while (nodeNumber >= 0) {
             int node = orderedNodes.get(nodeNumber);
             setVisited(node);
             nodeNumber--;
         }
         return deque;
+    }
+
+    private int calculateMaxCalls() {
+        int maxBFSCalls = graph.getBaseGraph().getAllEdges().length() * 2;
+        double sizeFactor = ((double) nodeOrder.size()) / graph.getBaseGraph().getNodes();
+        return (int) Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
     }
 
     private class EdgeInfo {

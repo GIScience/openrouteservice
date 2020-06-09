@@ -77,7 +77,7 @@ public class PartitioningData {
     private void setFlowEdgeData(int dataPosition, FlowEdgeData data) {
         if(dataPosition > flow.length - 1 || dataPosition < 0)
             throw new IllegalArgumentException("Index " + dataPosition + " out of bounds for flow with length " + flow.length);
-        flow[dataPosition] = data.flow;
+        flow[dataPosition] = data.isFlow();
     }
 
     public void setVisited(int nodeId, int newVisited) {

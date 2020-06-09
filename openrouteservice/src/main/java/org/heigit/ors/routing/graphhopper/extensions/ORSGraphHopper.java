@@ -596,8 +596,6 @@ public class ORSGraphHopper extends GraphHopper {
 				List<CHProfile> chProfiles = new ArrayList<>();
 				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
-//				for (String coreWeightingStr : IsochronesServiceSettings.getWeightings().trim().split("\\s*,\\s*")) {
-						// ghStorage is null at this point
 						Weighting weighting = createWeighting(new HintsMap(coreWeightingStr).put("isochroneWeighting", "true"), encoder, null);
 						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
 					}

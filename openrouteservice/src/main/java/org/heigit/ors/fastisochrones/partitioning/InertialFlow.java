@@ -10,6 +10,8 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.fastisochrones.partitioning.Projector.Projection;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -22,12 +24,13 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class InertialFlow implements Runnable {
-    private static Projector projector;
-    private final int MIN_SPLITTING_ITERATION = 0;
-    private final int MAX_SPLITTING_ITERATION = 268435456; //==2^28
-    private final int MAX_SUBCELL_NUMBER = 10;
-    private final boolean SEPARATEDISCONNECTED = true;
-    private final int CONSIDERED_PROJECTIONS = 3;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InertialFlow.class);
+    private static final int MIN_SPLITTING_ITERATION = 0;
+    private static final int MAX_SPLITTING_ITERATION = 268435456; //==2^28
+    private static final int MAX_SUBCELL_NUMBER = 10;
+    private static final boolean SEPARATEDISCONNECTED = true;
+    private static final int CONSIDERED_PROJECTIONS = 3;
+    private static Projector projector = new Projector();
     protected Map<Projection, IntArrayList> projections;
     private int cellId;
     private Graph ghGraph;
@@ -39,25 +42,26 @@ public class InertialFlow implements Runnable {
 
     public InertialFlow(int[] nodeToCellArray, GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters, ExecutorService executorService, InverseSemaphore inverseSemaphore) {
         //Start cellId 1 so that bitshifting it causes no zeros at the front
-        this(nodeToCellArray, 1, ghStorage.getBaseGraph(), new PartitioningData(), null, edgeFilters, executorService, inverseSemaphore);
-        if (isLogEnabled()) System.out.println("Number of nodes: " + ghGraph.getNodes());
-        if (isLogEnabled()) System.out.println("Number of edges: " + ghGraph.getAllEdges().length());
-        PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage.getBaseGraph(), pData);
+        setNodeToCellArr(nodeToCellArray);
+        setCellId(1);
+        setGraph(ghStorage.getBaseGraph());
+        setEdgeFilter(edgeFilters);
+        setExecutorService(executorService);
+        setInverseSemaphore(inverseSemaphore);
+
+        PartitioningData partitioningData = new PartitioningData();
+        PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage.getBaseGraph(), partitioningData);
         partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
         partitioningDataBuilder.run();
-        projector = new Projector(ghStorage);
-        this.projections = projector.calculateProjections();
+        setPartitioningData(partitioningData);
+        projector.setGHStorage(ghStorage);
+        setProjections(projector.calculateProjections());
+
+        LOGGER.info("Number of nodes: " + ghGraph.getNodes());
+        LOGGER.info("Number of edges: " + ghGraph.getAllEdges().length());
     }
 
-    private InertialFlow(int[] nodeToCellArr, int cellId, Graph graph, PartitioningData pData, Map<Projection, IntArrayList> projections, EdgeFilter edgeFilter, ExecutorService executorService, InverseSemaphore inverseSemaphore) {
-        this.executorService = executorService;
-        this.pData = pData;
-        this.cellId = cellId;
-        this.ghGraph = graph;
-        this.nodeToCellArr = nodeToCellArr;
-        this.inverseSemaphore = inverseSemaphore;
-        this.edgeFilter = edgeFilter;
-        this.projections = projections;
+    private InertialFlow() {
     }
 
     /**
@@ -66,7 +70,6 @@ public class InertialFlow implements Runnable {
     public void run() {
         try {
             BiPartition biPartition = graphBiSplit(this.projections);
-//            saveResults(biPartition);
             BiPartitionProjection biPartitionProjection = projector.partitionProjections(this.projections, biPartition);
             this.projections = null;
             recursion(getInvokeNextOrSaveResult(biPartition), biPartition.getPartition(0).size(), biPartition.getPartition(1).size(), biPartitionProjection);
@@ -84,8 +87,8 @@ public class InertialFlow implements Runnable {
     private BiPartition graphBiSplit(Map<Projection, IntArrayList> projections) {
         //Estimated maximum iterations
         int mincutScore = ghGraph.getBaseGraph().getAllEdges().length();
-        double sizeFactor = ((double) projections.get(Projection.Line_m00).size()) / ghGraph.getBaseGraph().getNodes();
-        mincutScore = (int) Math.ceil(mincutScore * sizeFactor);
+        double sizeFactor = ((double) projections.get(Projection.LINE_M00).size()) / ghGraph.getBaseGraph().getNodes();
+        mincutScore = Math.max((int) Math.ceil(mincutScore * sizeFactor), 5);
         BiPartition biPartition = new BiPartition();
         MaxFlowMinCut maxFlowMinCut = createEdmondsKarp();
         List<Projection> projOrder = projector.calculateProjectionOrder(projections);
@@ -102,9 +105,7 @@ public class InertialFlow implements Runnable {
             maxFlowMinCut.reset();
             int cutScore = maxFlowMinCut.getMaxFlow();
             if (cutScore < mincutScore) {
-                //>> store Results
                 mincutScore = cutScore;
-                //>> get Data for next Recursion-Step
                 biPartition = maxFlowMinCut.calcNodePartition();
             }
             i++;
@@ -194,7 +195,16 @@ public class InertialFlow implements Runnable {
      */
     private InertialFlow createInertialFlow(int partitionNumber, BiPartitionProjection biPartitionProjection) {
         inverseSemaphore.beforeSubmit();
-        return new InertialFlow(nodeToCellArr, cellId << 1 | partitionNumber, ghGraph, pData, biPartitionProjection.getProjection(partitionNumber), this.edgeFilter, executorService, inverseSemaphore);
+        InertialFlow inertialFlow = new InertialFlow();
+        inertialFlow.setCellId(cellId << 1 | partitionNumber);
+        inertialFlow.setNodeToCellArr(nodeToCellArr);
+        inertialFlow.setGraph(ghGraph);
+        inertialFlow.setPartitioningData(pData);
+        inertialFlow.setProjections(biPartitionProjection.getProjection(partitionNumber));
+        inertialFlow.setEdgeFilter(edgeFilter);
+        inertialFlow.setExecutorService(executorService);
+        inertialFlow.setInverseSemaphore(inverseSemaphore);
+        return inertialFlow;
     }
 
     /**
@@ -262,10 +272,9 @@ public class InertialFlow implements Runnable {
                 edgeIterator = edgeExplorer.setBaseNode(currentNode);
 
                 while (edgeIterator.next()) {
-                    if (!accept(edgeIterator))
-                        continue;
                     int nextNode = edgeIterator.getAdjNode();
-                    if (connectedCell.contains(nextNode)
+                    if (!accept(edgeIterator)
+                            || connectedCell.contains(nextNode)
                             || !nodeSet.contains(nextNode))
                         continue;
                     queue.offer(nextNode);
@@ -288,5 +297,37 @@ public class InertialFlow implements Runnable {
 
     private boolean accept(EdgeIterator edgeIterator) {
         return edgeFilter == null ? true : edgeFilter.accept(edgeIterator);
+    }
+
+    public void setCellId(int cellId) {
+        this.cellId = cellId;
+    }
+
+    public void setGraph(Graph ghGraph) {
+        this.ghGraph = ghGraph;
+    }
+
+    public void setEdgeFilter(EdgeFilter edgeFilter) {
+        this.edgeFilter = edgeFilter;
+    }
+
+    public void setPartitioningData(PartitioningData pData) {
+        this.pData = pData;
+    }
+
+    public void setNodeToCellArr(int[] nodeToCellArr) {
+        this.nodeToCellArr = nodeToCellArr;
+    }
+
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
+    public void setInverseSemaphore(InverseSemaphore inverseSemaphore) {
+        this.inverseSemaphore = inverseSemaphore;
+    }
+
+    public void setProjections(Map<Projection, IntArrayList> projections) {
+        this.projections = projections;
     }
 }

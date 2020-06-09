@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.Contour;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,27 +13,26 @@ import java.util.stream.IntStream;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getSplitValue;
 import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.*;
-import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.Line_p225;
+import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.LINE_P225;
 
 public class Projector {
-    protected static Map<Projection, Projection> correspondingProjMap = new HashMap<>();
+    protected static Map<Projection, Projection> correspondingProjMap;
     private GraphHopperStorage ghStorage;
 
-    public Projector(GraphHopperStorage graphHopperStorage) {
-        this.ghStorage = graphHopperStorage;
+    public Projector() {
         prepareProjectionMaps();
     }
 
-    private void prepareProjectionMaps() {
-        this.correspondingProjMap = new HashMap<>();
-        this.correspondingProjMap.put(Line_p90, Line_m00);
-        this.correspondingProjMap.put(Line_p675, Line_m225);
-        this.correspondingProjMap.put(Line_p45, Line_m45);
-        this.correspondingProjMap.put(Line_p225, Line_m675);
-        this.correspondingProjMap.put(Line_m00, Line_p90);
-        this.correspondingProjMap.put(Line_m225, Line_p675);
-        this.correspondingProjMap.put(Line_m45, Line_p45);
-        this.correspondingProjMap.put(Line_m675, Line_p225);
+    private static void prepareProjectionMaps() {
+        correspondingProjMap = new EnumMap<>(Projection.class);
+        correspondingProjMap.put(LINE_P90, LINE_M00);
+        correspondingProjMap.put(LINE_P675, LINE_M225);
+        correspondingProjMap.put(LINE_P45, LINE_M45);
+        correspondingProjMap.put(LINE_P225, LINE_M675);
+        correspondingProjMap.put(LINE_M00, LINE_P90);
+        correspondingProjMap.put(LINE_M225, LINE_P675);
+        correspondingProjMap.put(LINE_M45, LINE_P45);
+        correspondingProjMap.put(LINE_M675, LINE_P225);
     }
 
     protected Map<Projection, IntArrayList> calculateProjections() {
@@ -51,11 +51,11 @@ public class Projector {
         }
         //Check if there are at least two differing projections. If no lat lon data is set, all projections are the same.
         boolean valid = false;
-        for(Projection proj : Projection.values()){
-            if(!nodeListProjMap.get(proj).equals(nodeListProjMap.get(Line_m00)))
+        for (Projection proj : Projection.values()) {
+            if (!nodeListProjMap.get(proj).equals(nodeListProjMap.get(LINE_M00)))
                 valid = true;
         }
-        if(!valid)
+        if (!valid)
             throw new IllegalStateException("All projections of the graph are the same. Maybe NodeAccess is faulty or not initialized?");
         return nodeListProjMap;
     }
@@ -123,48 +123,52 @@ public class Projector {
         return squareRangeProjMap.get(proj) * squareRangeProjMap.get(proj) / squareRangeProjMap.get(correspondingProjMap.get(proj));
     }
 
+    public void setGHStorage(GraphHopperStorage ghStorage) {
+        this.ghStorage = ghStorage;
+    }
+
     public enum Projection {
-        Line_p90 {
+        LINE_P90 {
             public double sortValue(double lat, double lon) {
                 return lat;
             }
         },
-        Line_p675 {
+        LINE_P675 {
             //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
                 return lat + 2.414213 * lon;
             }
         },
-        Line_p45 {
+        LINE_P45 {
             //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
                 return lat + 1 * lon;
             }
         },
-        Line_p225 {
+        LINE_P225 {
             //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat + 0.414213  * lon;
+                return lat + 0.414213 * lon;
             }
         },
-        Line_m00 {
+        LINE_M00 {
             public double sortValue(double lat, double lon) {
                 return lon;
             }
         },
-        Line_m225 {
+        LINE_M225 {
             //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat - 0.414213  * lon;
+                return lat - 0.414213 * lon;
             }
         },
-        Line_m45 {
+        LINE_M45 {
             //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
                 return lat - 1 * lon;
             }
         },
-        Line_m675 {
+        LINE_M675 {
             //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
                 return lat - 2.414213 * lon;

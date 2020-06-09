@@ -28,12 +28,11 @@ public class Sort {
         return result;
     }
 
-    public <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ASC) {
+    public <K, V extends Comparable<? super V>> List<K> sortByValueReturnList(Map<K, V> map, boolean ascending) {
         List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
         list.sort(Entry.comparingByValue());
-        if (!ASC) {
+        if (!ascending) {
             Collections.reverse(list);
-            //Collections.sort(list, Collections.reverseOrder());
         }
         List<K> result = new ArrayList<>(list.size());
         for (Entry<K, V> entry : list) {

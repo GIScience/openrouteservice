@@ -83,6 +83,16 @@ public class InertialFlowTest {
         return g;
     }
 
+    private GraphHopperStorage createSingleEdgeGraph() {
+        GraphHopperStorage g = createGHStorage();
+        g.edge(0, 1, 1, true);
+
+        g.getBaseGraph().getNodeAccess().setNode(0, 0, 0);
+        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
+
+        return g;
+    }
+
     private GraphHopperStorage createDisconnectedGraph() {
         //   5--1---2
         //       \ /
@@ -142,6 +152,7 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
+        assertFalse(cellId0 == cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0}, nodeToCell);
     }
 
@@ -163,7 +174,27 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
+        assertFalse(cellId0 == cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId0, cellId1, cellId1, cellId1, cellId1, cellId0}, nodeToCell);
+    }
+
+    @Test
+    public void testSingleEdgeGraph() {
+        GraphHopperStorage ghStorage = createSingleEdgeGraph();
+        int[] nodeToCell = new int[ghStorage.getNodes()];
+        ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(1);
+        InverseSemaphore inverseSemaphore = new InverseSemaphore();
+        inverseSemaphore.beforeSubmit();
+        InertialFlow inertialFlow = new InertialFlow(nodeToCell, ghStorage, null, threadPool, inverseSemaphore);
+        threadPool.execute(inertialFlow);
+        try {
+            inverseSemaphore.awaitCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        threadPool.shutdown();
+        //Check for partitioning. Cell numbers are not too relevant.
+        assertFalse(nodeToCell[0] == nodeToCell[1]);
     }
 
     @Test
@@ -190,6 +221,8 @@ public class InertialFlowTest {
         int cellId1 = nodeToCell[3];
         int cellId2 = nodeToCell[6];
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0, cellId2, cellId2, cellId2, cellId2, cellId1, cellId1}, nodeToCell);
+        assertFalse(cellId0 == cellId1);
         assertFalse(cellId1 == cellId2);
+        assertFalse(cellId2 == cellId0);
     }
 }
