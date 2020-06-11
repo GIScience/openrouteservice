@@ -15,23 +15,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.jackson;
+package com.graphhopper.util.shapes;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.graphhopper.util.shapes.BBox;
+import com.graphhopper.util.PointList;
 
-import java.io.IOException;
+/**
+ * A shape interface to implement circles, polygons or rectangles.
+ *
+ * @author Peter Karich
+ */
+public interface Shape {
+    boolean intersects(PointList pointList);
 
-class BBoxSerializer extends JsonSerializer<BBox> {
-    @Override
-    public void serialize(BBox bBox, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-        jsonGenerator.writeStartArray();
-        for (Double number : bBox.toGeoJson()) {
-            jsonGenerator.writeNumber(number);
-        }
-        jsonGenerator.writeEndArray();
-    }
+    /**
+     * @return true only if lat and lon are inside (or on the edge) of this shape
+     */
+    boolean contains(double lat, double lon);
+
+    /**
+     * @return the minimal rectangular bounding box of this shape
+     */
+    BBox getBounds();
 }
