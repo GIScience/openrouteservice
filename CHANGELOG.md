@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
+### Fixed
+### Changed
+### Deprecated
+
+## [6.1.1] - 2020-06-02
+### Added
 - Configuration option to read elevation tags from pbf data
 - Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
 ### Fixed
@@ -41,6 +47,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Fixed memory issue at graph building ([#659](https://github.com/GIScience/openrouteservice/issues/659))
 - Improve way category assignment for ferry connections ([#678](https://github.com/GIScience/openrouteservice/issues/678))
 ### Changed
+- improve french translation (directions)
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
