@@ -2,7 +2,7 @@
 
 Installing the openrouteservice backend service with Docker is quite straightforward. All you need is a OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de).
 
-Use Dockerhub's hosted Openrouteservice image or build your own image and
+Use Dockerhub's hosted Openrouteservice image or build your own image
 
 - either with `docker run`
 
@@ -12,15 +12,11 @@ docker run -dt \
   -p 8080:8080 \
   -v $PWD/graphs:/ors-core/data/graphs \
   -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
-  -v $PWD/conf:/ors-conf \  # will copy the container's app.config
-  -v $PWD/your_osm.pbf:/ors-core/data/osm_file.pbf \  # your local PBF file
+  -v $PWD/conf:/ors-conf \  # will copy the container's app.config to the host
+  #-v $PWD/your_osm.pbf:/ors-core/data/osm_file.pbf \  # your local PBF file
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
-<<<<<<< HEAD
   openrouteservice/openrouteservice:latest
-=======
-  openrouteservice/openrouteservice:v6.1.0
->>>>>>> master
 ```
 
 - or with `docker-compose`

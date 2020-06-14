@@ -36,8 +36,7 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 
 ## Installation
 
-We suggest using docker to install and launch openrouteservice backend. In short, run the following command under the source code tree will get everything done (for this please
-clone the repository, running docker via the archive is currently not supported).
+We recommend using Docker to install and launch the openrouteservice backend. Either pull your desired image from [Dockerhub](https://hub.docker.com/repository/docker/openrouteservice/openrouteservice) or build your own from this repository. Note, you'll have to uncomment the `build` section when building the image from source.
 
 ```bash
 cd docker && docker-compose up
