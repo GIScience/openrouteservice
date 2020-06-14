@@ -8,8 +8,8 @@ services:
     build:
       context: ../
       args:
-        APP_CONFIG: ./docker/conf/app.config.sample
-        OSM_FILE: ./docker/data/heidelberg.osm.gz
+        APP_CONFIG: ./openrouteservice/src/main/resources/app.config.sample
+        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
     volumes:
       - ./graphs:/ors-core/data/graphs
       - ./elevation_cache:/ors-core/data/elevation_cache
@@ -18,6 +18,6 @@ services:
       - ./conf:/ors-conf
       #- ./your_osm.pbf:/ors-core/data/osm_file.pbf
     environment:
-      - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed in app.config
+      - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
       - "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
       - "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
