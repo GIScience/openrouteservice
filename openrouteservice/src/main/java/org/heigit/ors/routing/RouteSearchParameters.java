@@ -503,6 +503,10 @@ public class RouteSearchParameters {
         this.bearings = bearings;
     }
 
+    public boolean hasBearings() {
+        return bearings != null && bearings.length > 0;
+    }
+
     public void setRoundTripLength(float length) {
         roundTripLength = length;
     }
@@ -551,6 +555,7 @@ public class RouteSearchParameters {
      */
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
+                || hasBearings()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
     }
 }
