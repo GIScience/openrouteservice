@@ -2,7 +2,7 @@
 
 Installing the openrouteservice backend service with Docker is quite straightforward. All you need is a OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de).
 
-Use Dockerhub's hosted Openrouteservice image or build your own image and
+Use Dockerhub's hosted Openrouteservice image or build your own image
 
 - either with `docker run`
 
@@ -12,11 +12,11 @@ docker run -dt \
   -p 8080:8080 \
   -v $PWD/graphs:/ors-core/data/graphs \
   -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
-  -v $PWD/conf:/ors-conf \
-  -v $PWD/data/heidelberg.osm.gz:/ors-core/data/osm_file.pbf \
+  -v $PWD/conf:/ors-conf \  # will copy the container's app.config to the host
+  #-v $PWD/your_osm.pbf:/ors-core/data/osm_file.pbf \  # your local PBF file
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
-  openrouteservice/openrouteservice:v6.1.0
+  openrouteservice/openrouteservice:latest
 ```
 
 - or with `docker-compose`
@@ -28,10 +28,10 @@ docker-compose up -d
 
 This will:
 
-1. Build the openrouteservice [war file](https://www.wikiwand.com/en/WAR_(file_format)) from the local codebase and on container startup it sets `docker/conf/app.config.sample` as the config file and the OpenStreetMap dataset for Heidelberg under `docker/data/heidelberg.osm.gz` as sample data.
+1. Build the openrouteservice [war file](https://www.wikiwand.com/en/WAR_(file_format)) from the local codebase and on container startup a local `./conf` folder is created which contains the `app.config` controlling ORS behaviour. If you map a local `your_osm.pbf` to the container's `/ors-core/data/osm_file.pbf`, it will build a graph from that OSM file.
 2. Launch the openrouteservice service on port `8080` within a tomcat container at the address `http://localhost:8080/ors`.
 
-After you launched the container (and if not present before), you'll have a `./conf/app.config.sample` (or whichever path you mapped to the container's `/ors-conf`). Modify that to your needs, and restart the container. If you changed the OSM file, don't forget to use `BUILD_GRAPHS=True` to force a rebuild of the graph(s) (or delete the `./graphs` folder, which is the same thing).
+After container launch, modify the `./conf/app.config` to your needs, and restart the container. Alternatively you can map an existing `app.config` which you have locally to the container's `/ors-conf/app.config` to initialize ORS immediately. If you changed the OSM file after the first container start, don't forget to use `BUILD_GRAPHS=True` to force a rebuild of the graph(s) (or delete the `./graphs` folder, which is the same thing).
 
 ## Volumes
 
@@ -41,7 +41,7 @@ There are some important directories one might want to preserve on the host mach
 - `/ors-core/data/elevation_cache`: Contains the CGIAR elevation tiles if elevation was specified.
 - `/var/log/ors/`: Contains the ORS logs.
 - `/usr/local/tomcat/logs`: Contains the Tomcat logs.
-- `/ors-conf`: Contains the `app.config.sample` which is used to control ORS.
+- `/ors-conf`: Contains the `app.config` which is used to control ORS.
 - `/ors-core/data/osm_file.pbf`: The OSM file being used to generate graphs.
 
 Look at the [`docker-compose.yml`](docker-compose.yml) for examples.
@@ -58,12 +58,12 @@ Specify either during container startup or in `docker-compose.yml`.
 
 When building the image, the following arguments are customizable:
 
-- `APP_CONFIG`: Can be changed to specify the location of a custom `app.config` file. Default: `./docker/conf/app.config.sample`.
-- `OSM_FILE`: Can be changed to point to a local custom OSM file. Default `./docker/data/heidelberg.osm.gz`.
+- `APP_CONFIG`: Can be changed to specify the location of a custom `app.config` file. Default `./openrouteservice/src/main/resources/app.config.sample`.
+- `OSM_FILE`: Can be changed to point to a local custom OSM file. Default `./openrouteservice/src/main/files/heidelberg.osm.gz`.
 
 ## Customization
 
-Once you have a built image you can decide to start a container with differently configured openrouteservice, e.g. changing the OSM file or other settings in the `app.config.sample`.
+Once you have a built image you can decide to start a container with different settings, e.g. changing the OSM file or other settings in the `app.config.sample`.
 
 ### Different OSM file
 
@@ -87,7 +87,7 @@ Either you point the build argument `APP_CONFIG` to your custom `app.config` fil
 
 The `app.config` which is used is also copied to the container's `/share` directory. By mapping a directory to that path, you will get access to the `app.config`. After changing values in the `app.config` just restart the container. Example:
 
-`docker run -d -p 8080:8080 -v .conf:/ors-conf docker_ors-app`
+`docker run -d -p 8080:8080 -v ./conf:/ors-conf ors-app`
 
 ## Checking
 
