@@ -27,9 +27,6 @@ import org.heigit.ors.config.AppConfig;
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
     private double maximumSpeedLowerBound;
-    private double maxSpeed =  ((AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound")) != null)
-            ?   Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing.profiles.default_params","maximum_speed_lower_bound"))
-            : maximumSpeedLowerBound; //If there is a maximum_speed value in the app.config we use that. If not we set a default of 80.
 
     private final DecimalEncodedValue avSpeedEnc;
 
@@ -40,7 +37,7 @@ public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( (edge.get(avSpeedEnc) > maxSpeed) || (edge.getReverse(avSpeedEnc)) > maxSpeed ) {
+        if ( (edge.get(avSpeedEnc) > maximumSpeedLowerBound) || (edge.getReverse(avSpeedEnc)) > maximumSpeedLowerBound ) {
             //If the max speed of the road is greater than that of the limit include it in the core.
             return false;
         } else {

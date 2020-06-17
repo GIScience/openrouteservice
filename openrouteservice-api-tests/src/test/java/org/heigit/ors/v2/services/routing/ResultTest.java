@@ -1240,7 +1240,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(1694.8f))
+                .body("routes[0].summary.duration", is(1736.6f))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound
@@ -1253,8 +1253,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}")
                 .then()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
+                .assertThat().body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.duration", is(1986.6f))
                 .statusCode(200);
     }

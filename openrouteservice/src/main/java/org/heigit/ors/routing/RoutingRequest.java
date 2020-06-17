@@ -208,7 +208,7 @@ public class RoutingRequest extends ServiceRequest {
 		return includeCountryInfo;
 	}
 
-	public void setIncludeCountryInfo(boolean includeCountryImnfo) {
+	public void setIncludeCountryInfo(boolean includeCountryInfo) {
 		this.includeCountryInfo = includeCountryInfo;
 	}
 

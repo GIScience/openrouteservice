@@ -20,10 +20,7 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.exceptions.RouteNotFoundException;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
@@ -576,8 +573,13 @@ public class RoutingProfileManager {
             }
         }
 
-        if(searchParams.getMaximumSpeed() !=0 & searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()){
-            throw new RuntimeException("The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+        if(searchParams.hasMaximumSpeed()){
+            if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
+                throw new ParameterValueException("The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+            }
+            if(!(rp.getGraphhopper().getEncodingManager().hasEncoder("heavyvehicle") || rp.getGraphhopper().getEncodingManager().hasEncoder("car-ors")) ){
+                throw new ParameterValueException("The maximum speed feature can only be used with cars and heavy vehicles.");
+            }
         }
 
         return rp;
