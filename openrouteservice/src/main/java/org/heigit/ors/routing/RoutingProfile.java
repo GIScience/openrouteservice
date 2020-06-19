@@ -237,6 +237,9 @@ public class RoutingProfile {
             args.put("graph.elevation.clear", config.getElevationCacheClear());
         }
 
+        if (config.getInterpolateBridgesAndTunnels())
+             args.put("graph.encoded_values", "road_environment");
+
         boolean prepareCH = false;
         boolean prepareLM = false;
         boolean prepareCore = false;

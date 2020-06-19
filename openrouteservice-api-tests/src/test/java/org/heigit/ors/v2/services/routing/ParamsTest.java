@@ -84,7 +84,17 @@ public class ParamsTest extends ServiceTest {
 
 		addParameter("coordinatesWithViaPoint", coordsVia);
 
+		JSONArray coordsFoot = new JSONArray();
+		JSONArray coordFoot1 = new JSONArray();
+		coordFoot1.put(8.676023);
+		coordFoot1.put(49.416809);
+		coordsFoot.put(coordFoot1);
+		JSONArray coordFoot2 = new JSONArray();
+		coordFoot2.put(8.696837);
+		coordFoot2.put(49.411839);
+		coordsFoot.put(coordFoot2);
 
+		addParameter("coordinatesWalking", coordsFoot);
 
 		JSONArray extraInfo = new JSONArray();
 		extraInfo.put("surface");
@@ -1508,18 +1518,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void testGreenWeightingTooHigh() {
 		JSONObject body = new JSONObject();
-
-		JSONArray coordinates = new JSONArray();
-		JSONArray coord1 = new JSONArray();
-		coord1.put(8.676023);
-		coord1.put(49.416809);
-		coordinates.put(coord1);
-		JSONArray coord2 = new JSONArray();
-		coord2.put(8.696837);
-		coord2.put(49.411839);
-		coordinates.put(coord2);
-		body.put("coordinates", coordinates);
-
+		body.put("coordinates", getParameter("coordinatesWalking"));
 		JSONObject weightings = new JSONObject();
 		weightings.put("green", 1.1);
 		JSONObject params = new JSONObject();
@@ -1544,18 +1543,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void testQuietWeightingTooHigh() {
 		JSONObject body = new JSONObject();
-
-		JSONArray coordinates = new JSONArray();
-		JSONArray coord1 = new JSONArray();
-		coord1.put(8.676023);
-		coord1.put(49.416809);
-		coordinates.put(coord1);
-		JSONArray coord2 = new JSONArray();
-		coord2.put(8.696837);
-		coord2.put(49.411839);
-		coordinates.put(coord2);
-		body.put("coordinates", coordinates);
-
+		body.put("coordinates", getParameter("coordinatesWalking"));
 		JSONObject weightings = new JSONObject();
 		weightings.put("quiet", 1.1);
 		JSONObject params = new JSONObject();
