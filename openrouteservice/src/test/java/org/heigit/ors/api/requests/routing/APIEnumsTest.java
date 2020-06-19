@@ -181,30 +181,72 @@ public class APIEnumsTest {
 
     @Test(expected = ParameterValueException.class)
     public void testLanguagesEnumCreation() throws ParameterValueException {
-        Assert.assertEquals(APIEnums.Languages.EN, APIEnums.Languages.forValue("en"));
-        Assert.assertEquals(APIEnums.Languages.ZH_CN, APIEnums.Languages.forValue("zh-cn"));
         Assert.assertEquals(APIEnums.Languages.DE, APIEnums.Languages.forValue("de"));
+        Assert.assertEquals(APIEnums.Languages.DE_DE, APIEnums.Languages.forValue("de-de"));
+        Assert.assertEquals(APIEnums.Languages.EN, APIEnums.Languages.forValue("en"));
+        Assert.assertEquals(APIEnums.Languages.EN_US, APIEnums.Languages.forValue("en-us"));
         Assert.assertEquals(APIEnums.Languages.ES, APIEnums.Languages.forValue("es"));
-        Assert.assertEquals(APIEnums.Languages.RU, APIEnums.Languages.forValue("re"));
+        Assert.assertEquals(APIEnums.Languages.ES_ES, APIEnums.Languages.forValue("es-es"));
         Assert.assertEquals(APIEnums.Languages.FR, APIEnums.Languages.forValue("fr"));
-        Assert.assertEquals(APIEnums.Languages.IT, APIEnums.Languages.forValue("it"));
-        Assert.assertEquals(APIEnums.Languages.NL, APIEnums.Languages.forValue("nl"));
+        Assert.assertEquals(APIEnums.Languages.FR_FR, APIEnums.Languages.forValue("fr-fr"));
         Assert.assertEquals(APIEnums.Languages.GR, APIEnums.Languages.forValue("gr"));
+        Assert.assertEquals(APIEnums.Languages.GR_GR, APIEnums.Languages.forValue("gr-gr"));
+        Assert.assertEquals(APIEnums.Languages.HE, APIEnums.Languages.forValue("he"));
+        Assert.assertEquals(APIEnums.Languages.HE_IL, APIEnums.Languages.forValue("he-il"));
+        Assert.assertEquals(APIEnums.Languages.HU, APIEnums.Languages.forValue("hu"));
+        Assert.assertEquals(APIEnums.Languages.HU_HU, APIEnums.Languages.forValue("hu-hu"));
+        Assert.assertEquals(APIEnums.Languages.ID, APIEnums.Languages.forValue("id"));
+        Assert.assertEquals(APIEnums.Languages.ID_ID, APIEnums.Languages.forValue("id-id"));
+        Assert.assertEquals(APIEnums.Languages.IT, APIEnums.Languages.forValue("it"));
+        Assert.assertEquals(APIEnums.Languages.IT_IT, APIEnums.Languages.forValue("it-it"));
+        Assert.assertEquals(APIEnums.Languages.NE, APIEnums.Languages.forValue("ne"));
+        Assert.assertEquals(APIEnums.Languages.NE_NP, APIEnums.Languages.forValue("ne-np"));
+        Assert.assertEquals(APIEnums.Languages.NL, APIEnums.Languages.forValue("nl"));
+        Assert.assertEquals(APIEnums.Languages.NL_NL, APIEnums.Languages.forValue("nl-nl"));
+        Assert.assertEquals(APIEnums.Languages.PL, APIEnums.Languages.forValue("pl"));
+        Assert.assertEquals(APIEnums.Languages.PL_PL, APIEnums.Languages.forValue("pl-pl"));
+        Assert.assertEquals(APIEnums.Languages.PT, APIEnums.Languages.forValue("pt"));
+        Assert.assertEquals(APIEnums.Languages.PT_PT, APIEnums.Languages.forValue("pt-pt"));
+        Assert.assertEquals(APIEnums.Languages.RU, APIEnums.Languages.forValue("ru"));
+        Assert.assertEquals(APIEnums.Languages.RU_RU, APIEnums.Languages.forValue("ru-ru"));
+        Assert.assertEquals(APIEnums.Languages.ZH, APIEnums.Languages.forValue("zh"));
+        Assert.assertEquals(APIEnums.Languages.ZH_CN, APIEnums.Languages.forValue("zh-cn"));
 
         APIEnums.Languages.forValue("invalid");
     }
 
     @Test
     public void testLanguagesEnumValue() {
-        Assert.assertEquals("en", APIEnums.Languages.EN.toString());
-        Assert.assertEquals("zh-cn", APIEnums.Languages.ZH_CN.toString());
         Assert.assertEquals("de", APIEnums.Languages.DE.toString());
+        Assert.assertEquals("de-de", APIEnums.Languages.DE_DE.toString());
+        Assert.assertEquals("en", APIEnums.Languages.EN.toString());
+        Assert.assertEquals("en-us", APIEnums.Languages.EN_US.toString());
         Assert.assertEquals("es", APIEnums.Languages.ES.toString());
-        Assert.assertEquals("ru", APIEnums.Languages.RU.toString());
+        Assert.assertEquals("es-es", APIEnums.Languages.ES_ES.toString());
         Assert.assertEquals("fr", APIEnums.Languages.FR.toString());
-        Assert.assertEquals("it", APIEnums.Languages.IT.toString());
-        Assert.assertEquals("nl", APIEnums.Languages.NL.toString());
+        Assert.assertEquals("fr-fr", APIEnums.Languages.FR_FR.toString());
         Assert.assertEquals("gr", APIEnums.Languages.GR.toString());
+        Assert.assertEquals("gr-gr", APIEnums.Languages.GR_GR.toString());
+        Assert.assertEquals("he", APIEnums.Languages.HE.toString());
+        Assert.assertEquals("he-il", APIEnums.Languages.HE_IL.toString());
+        Assert.assertEquals("hu", APIEnums.Languages.HU.toString());
+        Assert.assertEquals("hu-hu", APIEnums.Languages.HU_HU.toString());
+        Assert.assertEquals("id", APIEnums.Languages.ID.toString());
+        Assert.assertEquals("id-id", APIEnums.Languages.ID_ID.toString());
+        Assert.assertEquals("it", APIEnums.Languages.IT.toString());
+        Assert.assertEquals("it-it", APIEnums.Languages.IT_IT.toString());
+        Assert.assertEquals("ne", APIEnums.Languages.NE.toString());
+        Assert.assertEquals("ne-np", APIEnums.Languages.NE_NP.toString());
+        Assert.assertEquals("nl", APIEnums.Languages.NL.toString());
+        Assert.assertEquals("nl-nl", APIEnums.Languages.NL_NL.toString());
+        Assert.assertEquals("pl", APIEnums.Languages.PL.toString());
+        Assert.assertEquals("pl-pl", APIEnums.Languages.PL_PL.toString());
+        Assert.assertEquals("pt", APIEnums.Languages.PT.toString());
+        Assert.assertEquals("pt-pt", APIEnums.Languages.PT_PT.toString());
+        Assert.assertEquals("ru", APIEnums.Languages.RU.toString());
+        Assert.assertEquals("ru-ru", APIEnums.Languages.RU_RU.toString());
+        Assert.assertEquals("zh", APIEnums.Languages.ZH.toString());
+        Assert.assertEquals("zh-cn", APIEnums.Languages.ZH_CN.toString());
     }
 
     @Test(expected = ParameterValueException.class)
