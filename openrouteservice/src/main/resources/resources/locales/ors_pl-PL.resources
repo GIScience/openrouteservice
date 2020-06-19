@@ -34,22 +34,22 @@
 		},
 		"actions": {
 			"arrive": {
-           		 	"default": {
-		                "default": "Dojeżdżasz do celu",
-						"name": "Dojeżdżasz do {way_name}"
-                	},
-					"left": {
-						"default": "Dotrzesz do celu po lewej stronie ",
-						"name": "Dojeżdżasz do {way_name} po lewej stronie"
-					},
-					"right": {
-						"default": "Dotrzesz do celu po prawej stronie ",
-						"name": "Dojeżdżasz do {way_name} po prawej stronie"
-					},
-					"straight": {
-						"default": "Dojeżdżasz do celu prosto przed siebie ",
-						"name": "Dojeżdżasz do {way_name} na wprost"
-					}
+                "default": {
+                    "default": "Dojeżdżasz do celu",
+                    "name": "Dojeżdżasz do {way_name}"
+                },
+                "left": {
+                    "default": "Dotrzesz do celu po lewej stronie ",
+                    "name": "Dojeżdżasz do {way_name} po lewej stronie"
+                },
+                "right": {
+                    "default": "Dotrzesz do celu po prawej stronie ",
+                    "name": "Dojeżdżasz do {way_name} po prawej stronie"
+                },
+                "straight": {
+                    "default": "Dojeżdżasz do celu prosto przed siebie ",
+                    "name": "Dojeżdżasz do {way_name} na wprost"
+                }
 			},        
 			"depart": {
 				"default": {
