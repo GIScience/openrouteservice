@@ -20,6 +20,7 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -575,10 +576,10 @@ public class RoutingProfileManager {
 
         if(searchParams.hasMaximumSpeed()){
             if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
-                throw new ParameterValueException("The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
             }
             if(!(rp.getGraphhopper().getEncodingManager().hasEncoder("heavyvehicle") || rp.getGraphhopper().getEncodingManager().hasEncoder("car-ors")) ){
-                throw new ParameterValueException("The maximum speed feature can only be used with cars and heavy vehicles.");
+                throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }
 
