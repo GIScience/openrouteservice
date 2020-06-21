@@ -14,7 +14,6 @@
 package org.heigit.ors.v2.services.routing;
 
 import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import junit.framework.Assert;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
@@ -45,6 +44,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -1227,7 +1227,7 @@ public class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
-        body.put("maximum_speed", 80);
+        body.put("maximum_speed", 85);
 
         //Test against default maximum speed lower bound setting
         given()
@@ -1240,7 +1240,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(1694.8f))
+                .body("routes[0].summary.duration", is(1658.0f))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound
@@ -3012,20 +3012,6 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("features[0].properties.way_points[1]", is(93))
                 .statusCode(200);
-    }
-    
-    private JSONArray constructCoords(String coordString) {
-        JSONArray coordinates = new JSONArray();
-        String[] coordPairs = coordString.split("\\|");
-        for (String pair : coordPairs) {
-            JSONArray coord = new JSONArray();
-            String[] pairCoords = pair.split(",");
-            coord.put(Double.parseDouble(pairCoords[0]));
-            coord.put(Double.parseDouble(pairCoords[1]));
-            coordinates.put(coord);
-        }
-
-        return coordinates;
     }
 
     private JSONArray constructBearings(String coordString) {

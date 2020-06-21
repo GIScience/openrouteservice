@@ -39,7 +39,7 @@ public class MaximumSpeedWeighting implements Weighting {
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
         this.superWeighting = weighting;
         this.headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
-        this.userMaxSpeed = hintsMap.getDouble("user_speed", maximumSpeedLowerBound);
+        this.userMaxSpeed = hintsMap.getDouble("maximum_speed", maximumSpeedLowerBound);
         this.calculateWeight = (superWeighting.getName() == "fastest");
     }
 

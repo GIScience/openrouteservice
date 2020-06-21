@@ -27,6 +27,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -1732,20 +1733,6 @@ public class ParamsTest extends ServiceTest {
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
-	}
-
-	private JSONArray constructCoords(String coordString) {
-		JSONArray coordinates = new JSONArray();
-		String[] coordPairs = coordString.split("\\|");
-		for (String pair : coordPairs) {
-			JSONArray coord = new JSONArray();
-			String[] pairCoords = pair.split(",");
-			coord.put(Double.parseDouble(pairCoords[0]));
-			coord.put(Double.parseDouble(pairCoords[1]));
-			coordinates.put(coord);
-		}
-
-		return coordinates;
 	}
 
 	@Test
