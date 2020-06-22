@@ -248,7 +248,7 @@ public class RouteRequest {
     private boolean hasAlternativeRoutes = false;
 
     @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':'driving-*'}}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
             example = "90")
     @JsonProperty(PARAM_MAXIMUM_SPEED)
     private double maximumSpeed;
