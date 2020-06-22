@@ -312,6 +312,7 @@
             parameters: {
               encoder_options: "block_fords=false",
               elevation: true,
+              interpolate_bridges_and_tunnels: false;
               ext_storages: {
                 GreenIndex: {
                   filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
