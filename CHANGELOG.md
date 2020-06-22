@@ -5,10 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
-* New `maximum_speed` parameter to the driving profiles of the directions API, for specifying a speed limit, above a certain threshold set in the config file.
-
+- New `maximum_speed` parameter to the driving profiles of the directions API, for specifying a speed limit, above a certain threshold set in the config file.
+- Polish translation ([#690](https://github.com/GIScience/openrouteservice/issues/690))
 ### Fixed
+- Fixed fallback to dynamic routing methods if bearings parameter set ([#702](https://github.com/GIScience/openrouteservice/issues/702))
 ### Changed
+- Improve recommended weighting for cycling and walking profiles ([#665](https://github.com/GIScience/openrouteservice/issues/665))
 ### Deprecated
 
 ## [6.1.1] - 2020-06-02
@@ -16,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Configuration option to read elevation tags from pbf data
 - Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
 ### Fixed
+- Removing maintenance burden of two `app.config` files for native and docker setup ([#742](https://github.com/GIScience/openrouteservice/issues/742))
 - Allowed the usage of green and noise in extra info parameter ([#688](https://github.com/GIScience/openrouteservice/issues/688))
 - Fixed extra info grouping with alternative routes ([#681](https://github.com/GIScience/openrouteservice/issues/681))
 - Fixed way surface/type encoding issue ([#677](https://github.com/GIScience/openrouteservice/issues/677))

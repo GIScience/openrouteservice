@@ -21,9 +21,12 @@ fi
 
 # if Tomcat built before, copy the mounted app.config to the Tomcat webapp app.config, else copy it from the source
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
-	cp -f /ors-conf/app.config.sample $tomcat_appconfig
+	cp -f /ors-conf/app.config $tomcat_appconfig
 else
-	cp -f $source_appconfig /ors-conf/app.config.sample
+	cp -f $source_appconfig /ors-conf/app.config
+	echo "### Package openrouteservice and deploy to Tomcat ###"
+	mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
+	cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
