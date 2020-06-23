@@ -38,7 +38,7 @@ public class SwaggerConfig {
                 .description("This is the openrouteservice API documentation")
                 .license("MIT")
                 .licenseUrl("https://github.com/swagger-api/swagger-ui/blob/master/LICENSE")
-                .contact(new Contact("","", "info@openrouteservice.org"))
+                .contact(new Contact("","", "enquiry@openrouteservice.org"))
                 .build();
     }
     @Bean
