@@ -210,7 +210,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = PARAM_OPTIONS,
             value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
-            example = "{\"maximum_speed\": 100}")
+            example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;
     @JsonIgnore
@@ -241,7 +241,9 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasSkipSegments = false;
 
-    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES, value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.")
+    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES,
+            value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.",
+            example = "{\"target_count\":2,\"weight_factor\":1.6}")
     @JsonProperty(PARAM_ALTERNATIVE_ROUTES)
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
