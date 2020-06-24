@@ -47,6 +47,8 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBorde
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -76,6 +78,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
 
+	private double maximumSpeedLowerBound;
+
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		forDesktop();
@@ -85,6 +89,8 @@ public class ORSGraphHopper extends GraphHopper {
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
+		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
+
 	}
 
 
@@ -97,6 +103,7 @@ public class ORSGraphHopper extends GraphHopper {
 		GraphHopper ret = super.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+
 		return ret;
 	}
 
@@ -323,10 +330,17 @@ public class ORSGraphHopper extends GraphHopper {
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
+
+				if(hints.has("maximum_speed")) {
+					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
+				}
+
+
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 	                ((TurnWeighting)weighting).setInORS(true);
+
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 
@@ -521,6 +535,19 @@ public class ORSGraphHopper extends GraphHopper {
 
 		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
+		}
+
+		/* Maximum Speed Filter */
+		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
+			FlagEncoder flagEncoder = null;
+			if(encodingManager.hasEncoder("heavyvehicle")) {
+				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
+				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+			}
+			else if(encodingManager.hasEncoder("car-ors")) {
+				flagEncoder = getEncodingManager().getEncoder("car-ors");
+				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+			}
 		}
 
 		/* End filter sequence initialization */

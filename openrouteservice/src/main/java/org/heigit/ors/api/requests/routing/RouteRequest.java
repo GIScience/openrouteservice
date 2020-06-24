@@ -57,6 +57,8 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
+    public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
+
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -247,6 +249,13 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
 
+    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            example = "90")
+    @JsonProperty(PARAM_MAXIMUM_SPEED)
+    private double maximumSpeed;
+    @JsonIgnore
+    private boolean hasMaximumSpeed = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -506,6 +515,15 @@ public class RouteRequest {
         hasAlternativeRoutes = true;
     }
 
+    public void setMaximumSpeed(Double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -577,4 +595,8 @@ public class RouteRequest {
     public boolean hasSkipSegments() { return hasSkipSegments;}
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
+
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
 }
