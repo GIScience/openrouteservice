@@ -48,6 +48,7 @@ public class RouteProfileConfiguration {
 	private String elevationCachePath = null;
 	private String elevationDataAccess = "MMAP";
 	private boolean elevationCacheClear = true;
+	private boolean elevationSmoothing = true;
 	private boolean interpolateBridgesAndTunnels = true;
 	private int maximumSnappingRadius = 350;
 
@@ -89,6 +90,7 @@ public class RouteProfileConfiguration {
 		elevationCacheClear = rpc.elevationCacheClear;
 		elevationProvider = rpc.elevationProvider;
 		elevationDataAccess = rpc.elevationDataAccess;
+		elevationSmoothing = rpc.elevationSmoothing;
 		interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
 
 		maximumSnappingRadius = rpc.maximumSnappingRadius;
@@ -308,6 +310,14 @@ public class RouteProfileConfiguration {
 	public boolean getElevationCacheClear()
 	{
 		return elevationCacheClear;
+	}
+
+	public boolean getElevationSmoothing() {
+		return elevationSmoothing;
+	}
+
+	public void setElevationSmoothing(boolean elevationSmoothing) {
+		this.elevationSmoothing = elevationSmoothing;
 	}
 
 	public boolean getInterpolateBridgesAndTunnels() {

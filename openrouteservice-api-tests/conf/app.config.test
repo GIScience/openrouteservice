@@ -48,6 +48,7 @@
             elevation_provider: multi,
             elevation_cache_clear: false,
             elevation_cache_path: "openrouteservice-api-tests/data/elevation",
+            elevation_smoothing: false,
             instructions: true,
             maximum_distance: 100000,
             maximum_distance_round_trip_routes: 100000,
@@ -313,7 +314,7 @@
             parameters: {
               encoder_options: "block_fords=false",
               elevation: true,
-              interpolate_bridges_and_tunnels: false;
+              interpolate_bridges_and_tunnels: false,
               ext_storages: {
                 GreenIndex: {
                   filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
@@ -333,6 +334,7 @@
             parameters: {
               encoder_options: "block_fords=false",
               elevation: true,
+              elevation_smoothing: true,
               ext_storages: {
                 GreenIndex: {
                   filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
