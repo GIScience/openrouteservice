@@ -235,10 +235,11 @@ public class RoutingProfile {
             args.put("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
             args.put("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
             args.put("graph.elevation.clear", config.getElevationCacheClear());
+            if (config.getInterpolateBridgesAndTunnels())
+                args.put("graph.encoded_values", "road_environment");
+            if (config.getElevationSmoothing())
+                args.put("graph.elevation.smoothing", true);
         }
-
-        if (config.getInterpolateBridgesAndTunnels())
-             args.put("graph.encoded_values", "road_environment");
 
         boolean prepareCH = false;
         boolean prepareLM = false;

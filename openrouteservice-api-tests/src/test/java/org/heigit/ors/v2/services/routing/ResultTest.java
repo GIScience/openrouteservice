@@ -2984,7 +2984,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void expectNoInterpolationOfBridgesAndTunnels() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesWalking"));
+        body.put("coordinates", getParameter("coordinatesWalking"));
         body.put("preference", getParameter("preference"));
         body.put("elevation", true);
 
@@ -2999,9 +2999,31 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
                 .body("routes[0].summary.ascent", is(17.1f))
                 .body("routes[0].summary.descent", is(14.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectElevationSmoothing() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("preference", getParameter("preference"));
+        body.put("elevation", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "foot-hiking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2092.0f))
+                .body("routes[0].summary.ascent", is(16.8f))
+                .body("routes[0].summary.descent", is(13.8f))
                 .statusCode(200);
     }
     

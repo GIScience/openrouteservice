@@ -30,6 +30,7 @@ import java.util.Map;
 public class RoutingManagerConfiguration  {
 	public static final String PARAM_ELEVATION_CACHE_CLEAR = "elevation_cache_clear";
 	public static final String PARAM_ELEVATION_DATA_ACCESS = "elevation_data_access";
+	public static final String PARAM_ELEVATION_SMOOTHING = "elevation_smoothing";
 	public static final String PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS = "interpolate_bridges_and_tunnels";
 
 	public RouteUpdateConfiguration getUpdateConfig() {
@@ -126,6 +127,10 @@ public class RoutingManagerConfiguration  {
 							if (profileParams.get(PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS) != null) {
 								String interpolateBridgesAndTunnels = StringUtility.trimQuotes(profileParams.get(PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS).toString());
 								profile.setInterpolateBridgesAndTunnels(Boolean.parseBoolean(interpolateBridgesAndTunnels));
+							}
+							if (profileParams.get(PARAM_ELEVATION_SMOOTHING) != null) {
+								String elevationSmoothing = StringUtility.trimQuotes(profileParams.get(PARAM_ELEVATION_SMOOTHING).toString());
+								profile.setElevationSmoothing(Boolean.parseBoolean(elevationSmoothing));
 							}
 						}
 						break;
