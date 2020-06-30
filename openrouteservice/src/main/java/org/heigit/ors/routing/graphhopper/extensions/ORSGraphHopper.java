@@ -19,6 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.reader.DataReader;
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
@@ -648,5 +649,36 @@ public class ORSGraphHopper extends GraphHopper {
 			if (coreLMFactoryDecorator.loadOrDoWork(getGraphHopperStorage().getProperties()))
 				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
+	}
+
+	public final boolean isCHAvailable(String weighting) {
+		CHAlgoFactoryDecorator chFactoryDecorator = getCHFactoryDecorator();
+		if (chFactoryDecorator.isEnabled() && chFactoryDecorator.hasCHProfiles()) {
+			for (CHProfile chProfile : chFactoryDecorator.getCHProfiles()) {
+				if (weighting.equals(chProfile.getWeighting().getName()))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public final boolean isLMAvailable(String weighting) {
+		LMAlgoFactoryDecorator lmFactoryDecorator = getLMFactoryDecorator();
+		if (lmFactoryDecorator.isEnabled()) {
+			List<String> weightings = lmFactoryDecorator.getWeightingsAsStrings();
+			return weightings.contains(weighting);
+		}
+		return false;
+	}
+
+	public final boolean isCoreAvailable(String weighting) {
+		CoreAlgoFactoryDecorator coreFactoryDecorator = getCoreFactoryDecorator();
+		if (coreFactoryDecorator.isEnabled() && coreFactoryDecorator.hasCHProfiles()) {
+			for (CHProfile chProfile : coreFactoryDecorator.getCHProfiles()) {
+				if (weighting.equals(chProfile.getWeighting().getName()))
+					return true;
+			}
+		}
+		return false;
 	}
 }
