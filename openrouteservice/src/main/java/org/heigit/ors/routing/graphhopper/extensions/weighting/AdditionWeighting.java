@@ -44,11 +44,7 @@ public class AdditionWeighting extends AbstractWeighting {
 	
 	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-    	long sumOfMillis = 0;
-    	for (Weighting w:weightings) {
-    		sumOfMillis += w.calcMillis(edgeState, reverse, prevOrNextEdgeId);
-		}
-		return superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId) + sumOfMillis;
+    	return superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
 	}
 
 	@Override
