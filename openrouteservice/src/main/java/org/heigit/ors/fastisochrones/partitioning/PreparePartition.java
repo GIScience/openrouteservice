@@ -29,7 +29,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     private EdgeFilterSequence edgeFilters;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
-
     private int nodes;
 
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {

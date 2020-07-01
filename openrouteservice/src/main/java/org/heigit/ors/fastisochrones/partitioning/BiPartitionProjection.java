@@ -21,7 +21,6 @@ class BiPartitionProjection {
     public Map<Projector.Projection, IntArrayList> getProjection(int projectionNumber) {
         if (projectionNumber != 0 && projectionNumber != 1)
             throw new IllegalArgumentException("Only 2 projections supported.");
-        return projectionNumber == 0? projection0 : projection1;
+        return projectionNumber == 0 ? projection0 : projection1;
     }
-
 }

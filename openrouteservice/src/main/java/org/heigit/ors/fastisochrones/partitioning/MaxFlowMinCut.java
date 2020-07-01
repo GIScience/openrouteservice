@@ -16,9 +16,7 @@ import com.graphhopper.util.EdgeIterator;
  */
 public abstract class MaxFlowMinCut {
     protected int maxFlowLimit = Integer.MAX_VALUE;
-    protected int nodes, visitedToken;
-    protected int snkNodeId = -3;
-    protected double limit;
+    protected int nodes;
     protected Graph graph;
     protected EdgeExplorer edgeExplorer;
     protected EdgeIterator edgeIterator;
@@ -26,6 +24,7 @@ public abstract class MaxFlowMinCut {
     protected IntArrayList orderedNodes;
     protected EdgeFilter edgeFilter;
     PartitioningData pData;
+    private int visitedToken;
 
     MaxFlowMinCut(Graph graph, PartitioningData pData, EdgeFilter edgeFilter) {
         this.graph = graph;

@@ -6,14 +6,12 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.Contour;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getSplitValue;
 import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.*;
-import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.LINE_P225;
 
 public class Projector {
     protected static Map<Projection, Projection> correspondingProjMap;
@@ -37,7 +35,7 @@ public class Projector {
 
     protected Map<Projection, IntArrayList> calculateProjections() {
         //>> Loop through linear combinations and project each Node
-        Map<Projection, IntArrayList> nodeListProjMap = new HashMap<>(Projection.values().length);
+        EnumMap<Projection, IntArrayList> nodeListProjMap = new EnumMap<>(Projection.class);
         Integer[] ids = IntStream.rangeClosed(0, ghStorage.getNodes() - 1).boxed().toArray(Integer[]::new);
 
         Double[] values = new Double[ids.length];
@@ -62,8 +60,8 @@ public class Projector {
 
     protected BiPartitionProjection partitionProjections(Map<Projection, IntArrayList> originalProjections, BiPartition biPartition) {
         IntHashSet part0 = biPartition.getPartition(0);
-        Map<Projection, IntArrayList> projections0 = new HashMap<>(Projection.values().length);
-        Map<Projection, IntArrayList> projections1 = new HashMap<>(Projection.values().length);
+        EnumMap<Projection, IntArrayList> projections0 = new EnumMap<>(Projection.class);
+        EnumMap<Projection, IntArrayList> projections1 = new EnumMap<>(Projection.class);
         int origNodeCount = originalProjections.get(Projection.values()[0]).size();
         //Add initial lists
         for (Projection proj : Projection.values()) {
@@ -73,12 +71,12 @@ public class Projector {
 
         //Go through the original projections and separate each into two projections for the subsets, maintaining order
         for (int i = 0; i < origNodeCount; i++) {
-            for (Projection proj : originalProjections.keySet()) {
-                int node = originalProjections.get(proj).get(i);
+            for (Map.Entry<Projection, IntArrayList> proj : originalProjections.entrySet()) {
+                int node = proj.getValue().get(i);
                 if (part0.contains(node))
-                    projections0.get(proj).add(node);
+                    projections0.get(proj.getKey()).add(node);
                 else
-                    projections1.get(proj).add(node);
+                    projections1.get(proj.getKey()).add(node);
             }
         }
 
@@ -87,12 +85,12 @@ public class Projector {
 
     protected List<Projection> calculateProjectionOrder(Map<Projection, IntArrayList> projections) {
         List<Projection> order;
-        Map<Projection, Double> squareRangeProjMap = new HashMap<>();
-        Map<Projection, Double> orthogonalDiffProjMap = new HashMap<>();
+        EnumMap<Projection, Double> squareRangeProjMap = new EnumMap<>(Projection.class);
+        EnumMap<Projection, Double> orthogonalDiffProjMap = new EnumMap<>(Projection.class);
         //>> calculate Projection-Distances
-        for (Projection proj : projections.keySet()) {
-            int idx = (int) (projections.get(proj).size() * getSplitValue());
-            squareRangeProjMap.put(proj, projIndividualValue(projections, proj, idx));
+        for (Map.Entry<Projection, IntArrayList> proj : projections.entrySet()) {
+            int idx = (int) (proj.getValue().size() * getSplitValue());
+            squareRangeProjMap.put(proj.getKey(), projIndividualValue(projections, proj.getKey(), idx));
         }
 
         //>> combine inverse Projection-Distances
@@ -108,7 +106,10 @@ public class Projector {
 
     private double projIndividualValue(Map<Projection, IntArrayList> projMap, Projection proj, int idx) {
         IntArrayList tmpNodeList;
-        double fromLat, fromLon, toLat, toLon;
+        double fromLat;
+        double fromLon;
+        double toLat;
+        double toLon;
 
         tmpNodeList = projMap.get(proj);
         toLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(idx));

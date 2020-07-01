@@ -17,7 +17,8 @@ public class PartitioningData {
     //Node data
     int[] visited;
 
-    public PartitioningData() {    }
+    public PartitioningData() {
+    }
 
     public PartitioningData(int[] flowEdgeBaseNode, boolean[] flow, int[] visited) {
         this.flowEdgeBaseNode = flowEdgeBaseNode;
@@ -50,7 +51,6 @@ public class PartitioningData {
         visited = new int[size];
     }
 
-
     public void setFlowEdgeData(int edgeId, int baseNode, FlowEdgeData data) {
         if (flowEdgeBaseNode[2 * edgeId] == baseNode) {
             setFlowEdgeData(2 * edgeId, data);
@@ -73,15 +73,14 @@ public class PartitioningData {
         return new FlowEdgeData(flow[pointer], edgeId);
     }
 
-
     private void setFlowEdgeData(int dataPosition, FlowEdgeData data) {
-        if(dataPosition > flow.length - 1 || dataPosition < 0)
+        if (dataPosition > flow.length - 1 || dataPosition < 0)
             throw new IllegalArgumentException("Index " + dataPosition + " out of bounds for flow with length " + flow.length);
         flow[dataPosition] = data.isFlow();
     }
 
     public void setVisited(int nodeId, int newVisited) {
-        if(nodeId > visited.length - 1 || nodeId < 0)
+        if (nodeId > visited.length - 1 || nodeId < 0)
             throw new IllegalArgumentException("Index " + nodeId + " out of bounds for visited with length " + visited.length);
         visited[nodeId] = newVisited;
     }

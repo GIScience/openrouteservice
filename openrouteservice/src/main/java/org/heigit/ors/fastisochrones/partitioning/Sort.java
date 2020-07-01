@@ -11,7 +11,6 @@ import java.util.Map.Entry;
  *
  * @author Hendrik Leuschner
  */
-
 public class Sort {
     //Sort ids list by values
     public IntArrayList sortByValueReturnList(Integer[] ids, Double[] values) {
@@ -41,7 +40,6 @@ public class Sort {
 
         return result;
     }
-
 
     private class ArrayIndexComparator implements Comparator<Integer> {
         private final Double[] array;

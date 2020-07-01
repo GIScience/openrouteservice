@@ -57,8 +57,8 @@ public class InertialFlow implements Runnable {
         projector.setGHStorage(ghStorage);
         setProjections(projector.calculateProjections());
 
-        LOGGER.info("Number of nodes: " + ghGraph.getNodes());
-        LOGGER.info("Number of edges: " + ghGraph.getAllEdges().length());
+        LOGGER.info("Number of nodes: {}", ghGraph.getNodes());
+        LOGGER.info("Number of edges: {}", ghGraph.getAllEdges().length());
     }
 
     private InertialFlow() {

@@ -1,15 +1,15 @@
 package org.heigit.ors.fastisochrones.partitioning.storage;
+
 /**
  * Object to store a set of nodeids and respective distances.
  *
  * @author Hendrik Leuschner
  */
-
-public class BorderNodeDistanceSet{
+public class BorderNodeDistanceSet {
     int[] adjBorderNodeIds;
     double[] adjBorderNodeDistances;
 
-    public BorderNodeDistanceSet(int[] adjBorderNodeIds, double[] adjBorderNodeDistances){
+    public BorderNodeDistanceSet(int[] adjBorderNodeIds, double[] adjBorderNodeDistances) {
         this.adjBorderNodeIds = adjBorderNodeIds;
         this.adjBorderNodeDistances = adjBorderNodeDistances;
     }

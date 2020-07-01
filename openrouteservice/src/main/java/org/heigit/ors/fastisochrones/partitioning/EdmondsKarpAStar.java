@@ -21,6 +21,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     private int srcLimit;
     private int snkLimit;
     private int maxCalls;
+    private static final int SINK_NODE_ID = -3;
 
     public EdmondsKarpAStar(Graph graph, PartitioningData pData, EdgeFilter edgeFilter) {
         super(graph, pData, edgeFilter);
@@ -83,7 +84,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
             node = deque.pop();
 
             if (snkLimit <= nodeOrder.get(node)) {
-                prevMap.put(snkNodeId, new EdgeInfo(-1, node, snkNodeId));
+                prevMap.put(SINK_NODE_ID, new EdgeInfo(-1, node, SINK_NODE_ID));
                 //Early stop
                 break;
             }
@@ -113,11 +114,11 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
     }
 
     private int calculateBottleNeck(IntObjectHashMap<EdgeInfo> prevMap) {
-        if (prevMap.getOrDefault(snkNodeId, null) == null)
+        if (prevMap.getOrDefault(SINK_NODE_ID, null) == null)
             return 0;
         int bottleNeck = Integer.MAX_VALUE;
 
-        EdgeInfo edge = prevMap.getOrDefault(snkNodeId, null);
+        EdgeInfo edge = prevMap.getOrDefault(SINK_NODE_ID, null);
         edge = prevMap.getOrDefault(edge.baseNode, null);
         while (edge != null) {
 

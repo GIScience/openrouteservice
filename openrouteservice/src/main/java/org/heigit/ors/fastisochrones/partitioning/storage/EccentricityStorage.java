@@ -35,13 +35,13 @@ import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.
  */
 public class EccentricityStorage implements Storable<EccentricityStorage> {
     private final DataAccess eccentricities;
-    private final int ECCENTRICITYBYTES;
-    private final int FULLYREACHABLEPOSITION;
-    private final int ECCENTRICITYPOSITION;
+    private final int eccentricityBytes;
+    private final int fullyReachablePosition;
+    private final int eccentricityPosition;
     private final int nodeCount;
     private final Weighting weighting;
     private final IsochroneNodeStorage isochroneNodeStorage;
-    private int BORDERNODEINDEXOFFSET;
+    private int borderNodeIndexOffset;
     private int borderNodePointer;
     private IntLongHashMap borderNodeToPointerMap;
     private int borderNodeCount;
@@ -61,17 +61,17 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         this.isochroneNodeStorage = isochroneNodeStorage;
         nodeCount = graph.getNodes();
         //  1 int per eccentricity value
-        this.ECCENTRICITYBYTES = 8;
-        this.FULLYREACHABLEPOSITION = 0;
-        this.ECCENTRICITYPOSITION = FULLYREACHABLEPOSITION + 4;
+        this.eccentricityBytes = 8;
+        this.fullyReachablePosition = 0;
+        this.eccentricityPosition = fullyReachablePosition + 4;
     }
 
     @Override
     public boolean loadExisting() {
         if (eccentricities.loadExisting()) {
             borderNodeCount = eccentricities.getHeader(0);
-            BORDERNODEINDEXOFFSET = borderNodeCount * 8;
-            borderNodePointer = BORDERNODEINDEXOFFSET;
+            borderNodeIndexOffset = borderNodeCount * 8;
+            borderNodePointer = borderNodeIndexOffset;
             borderNodeToPointerMap = new IntLongHashMap(borderNodeCount);
             fillBorderNodeToPointerMap();
             return true;
@@ -86,11 +86,11 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         eccentricities.create(1000);
         getNumBorderNodes();
         eccentricities.setHeader(0, borderNodeCount);
-        BORDERNODEINDEXOFFSET = borderNodeCount * 12;
-        borderNodePointer = BORDERNODEINDEXOFFSET;
+        borderNodeIndexOffset = borderNodeCount * 12;
+        borderNodePointer = borderNodeIndexOffset;
         borderNodeToPointerMap = new IntLongHashMap();
         fillMap();
-        eccentricities.ensureCapacity(BORDERNODEINDEXOFFSET + borderNodeCount * ECCENTRICITYBYTES);
+        eccentricities.ensureCapacity((long) borderNodeIndexOffset + borderNodeCount * eccentricityBytes);
     }
 
     private void getNumBorderNodes() {
@@ -107,7 +107,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         for (int node = 0; node < nodeCount; node++) {
             if (isochroneNodeStorage.getBorderness(node)) {
                 borderNodeToPointerMap.put(node, borderNodePointer);
-                borderNodePointer += (long) ECCENTRICITYBYTES;
+                borderNodePointer += (long) eccentricityBytes;
             }
         }
     }
@@ -119,7 +119,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @param eccentricity the eccentricity
      */
     public void setEccentricity(int node, double eccentricity) {
-        eccentricities.setInt(borderNodeToPointerMap.get(node) + ECCENTRICITYPOSITION, (int) Math.ceil(eccentricity));
+        eccentricities.setInt(borderNodeToPointerMap.get(node) + eccentricityPosition, (int) Math.ceil(eccentricity));
     }
 
     /**
@@ -129,7 +129,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @return the eccentricity
      */
     public int getEccentricity(int node) {
-        return eccentricities.getInt(borderNodeToPointerMap.get(node) + ECCENTRICITYPOSITION);
+        return eccentricities.getInt(borderNodeToPointerMap.get(node) + eccentricityPosition);
     }
 
     /**
@@ -140,9 +140,9 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      */
     public void setFullyReachable(int node, boolean isFullyReachable) {
         if (isFullyReachable)
-            eccentricities.setInt(borderNodeToPointerMap.get(node) + FULLYREACHABLEPOSITION, 1);
+            eccentricities.setInt(borderNodeToPointerMap.get(node) + fullyReachablePosition, 1);
         else
-            eccentricities.setInt(borderNodeToPointerMap.get(node) + FULLYREACHABLEPOSITION, 0);
+            eccentricities.setInt(borderNodeToPointerMap.get(node) + fullyReachablePosition, 0);
     }
 
     /**
@@ -152,7 +152,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @return the fully reachable
      */
     public boolean getFullyReachable(int node) {
-        int isFullyReachable = eccentricities.getInt(borderNodeToPointerMap.get(node) + FULLYREACHABLEPOSITION);
+        int isFullyReachable = eccentricities.getInt(borderNodeToPointerMap.get(node) + fullyReachablePosition);
         return isFullyReachable == 1;
     }
 

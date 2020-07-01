@@ -38,7 +38,6 @@ import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.
  * @author Hendrik Leuschner
  */
 public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceStorage> {
-
     private final DataAccess borderNodes;
     private int BYTECOUNT;
     private int BORDERNODEINDEXOFFSET;

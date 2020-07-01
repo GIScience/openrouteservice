@@ -22,8 +22,8 @@ class BiPartition {
     }
 
     public IntHashSet getPartition(int partitionNumber) {
-        if(partitionNumber != 0 && partitionNumber != 1)
+        if (partitionNumber != 0 && partitionNumber != 1)
             throw new IllegalArgumentException("Only 2 partitions supported");
-        return partitionNumber == 0? partition0 : partition1;
+        return partitionNumber == 0 ? partition0 : partition1;
     }
 }

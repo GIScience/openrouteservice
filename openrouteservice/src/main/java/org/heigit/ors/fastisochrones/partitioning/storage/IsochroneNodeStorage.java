@@ -34,9 +34,8 @@ import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.
  * @author Hendrik Leuschner
  */
 public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
-
     private final DataAccess isochroneNodes;
-    private int CELLBYTES;
+    private int cellBytes;
     private int nodeCount;
     private IntSet cellIdsSet = new IntHashSet();
 
@@ -46,7 +45,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         // 1 byte for isBordernode,
         // 4 bytes per node for its cell id.
         // Maximum cell count of ~16M
-        this.CELLBYTES = 5;
+        this.cellBytes = 5;
     }
 
     @Override
@@ -62,26 +61,25 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     public void setBorderness(boolean[] borderness) {
         if (nodeCount != borderness.length)
             throw new IllegalStateException("Nodecount and borderness array do not match");
-        isochroneNodes.ensureCapacity((long) CELLBYTES * nodeCount);
+        isochroneNodes.ensureCapacity((long) cellBytes * nodeCount);
         for (int node = 0; node < borderness.length; node++) {
             if (borderness[node])
-                isochroneNodes.setBytes(node * CELLBYTES, new byte[]{(byte) 1}, 1);
+                isochroneNodes.setBytes((long) node * cellBytes, new byte[]{(byte) 1}, 1);
             else
-                isochroneNodes.setBytes(node * CELLBYTES, new byte[]{(byte) 0}, 1);
+                isochroneNodes.setBytes((long) node * cellBytes, new byte[]{(byte) 0}, 1);
         }
     }
 
     public boolean getBorderness(int node) {
         byte[] buffer = new byte[1];
-        isochroneNodes.getBytes(node * CELLBYTES, buffer, 1);
+        isochroneNodes.getBytes((long) node * cellBytes, buffer, 1);
         return buffer[0] == 1;
     }
 
     public int getCellId(int node) {
         byte[] buffer = new byte[4];
-        isochroneNodes.getBytes(node * CELLBYTES + 1, buffer, 4);
-        int cellId = byteArrayToInteger(buffer);
-        return cellId;
+        isochroneNodes.getBytes((long) node * cellBytes + 1, buffer, 4);
+        return byteArrayToInteger(buffer);
     }
 
     public IntSet getCellIds() {
@@ -92,11 +90,11 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         if (nodeCount != cellIds.length)
             throw new IllegalStateException("Nodecount and cellIds array do not match");
         isochroneNodes.create(1000);
-        isochroneNodes.ensureCapacity((long) CELLBYTES * nodeCount);
+        isochroneNodes.ensureCapacity((long) cellBytes * nodeCount);
         for (int node = 0; node < cellIds.length; node++) {
             int cellId = cellIds[node];
             cellIdsSet.add(cellId);
-            isochroneNodes.setBytes(node * CELLBYTES + 1, intToByteArray(cellId), 4);
+            isochroneNodes.setBytes((long) node * cellBytes + 1, intToByteArray(cellId), 4);
         }
     }
 

@@ -150,16 +150,13 @@ public class FastIsochroneFactory {
     public void prepare(final StorableProperties properties) {
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
         final String name = "PreparePartition";
-        completionService.submit(new Runnable() {
-            @Override
-            public void run() {
-                // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
-                Thread.currentThread().setName(name);
-                getPartition().prepare();
-                setIsochroneNodeStorage(getPartition().getIsochroneNodeStorage());
-                setCellStorage(getPartition().getCellStorage());
-                properties.put(FastIsochrone.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
-            }
+        completionService.submit(() -> {
+            // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
+            Thread.currentThread().setName(name);
+            getPartition().prepare();
+            setIsochroneNodeStorage(getPartition().getIsochroneNodeStorage());
+            setCellStorage(getPartition().getCellStorage());
+            properties.put(FastIsochrone.PREPARE + "date." + name, Helper.createFormatter().format(new Date()));
         }, name);
 
         threadPool.shutdown();
