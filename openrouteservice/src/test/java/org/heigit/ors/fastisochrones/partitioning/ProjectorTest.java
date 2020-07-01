@@ -4,8 +4,6 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.weighting.ShortestWeighting;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.junit.Test;
@@ -13,13 +11,12 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.setSplitValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ProjectorTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final Weighting weighting = new ShortestWeighting(carEncoder);
 
     GraphHopperStorage createGHStorage() {
         return new GraphBuilder(encodingManager).create();
@@ -51,10 +48,10 @@ public class ProjectorTest {
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
         g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
         g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
-        g.getBaseGraph().getNodeAccess().setNode(4, 4, 4);
-        g.getBaseGraph().getNodeAccess().setNode(5, 4, 5);
-        g.getBaseGraph().getNodeAccess().setNode(6, 3, 4);
-        g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
+        g.getBaseGraph().getNodeAccess().setNode(4, 4, 5);
+        g.getBaseGraph().getNodeAccess().setNode(5, 4, 6);
+        g.getBaseGraph().getNodeAccess().setNode(6, 3, 5);
+        g.getBaseGraph().getNodeAccess().setNode(7, 3, 6);
         g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
 
         return g;
@@ -85,7 +82,7 @@ public class ProjectorTest {
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Projection of nodes onto horizontal axis; Ordered by value
         IntArrayList expected_m00 = new IntArrayList();
-        expected_m00.add(1, 2, 3, 0, 4, 6, 8, 5, 7);
+        expected_m00.add(1, 2, 3, 0, 8, 4, 6, 5, 7);
         assertEquals(expected_m00, projections.get(Projector.Projection.LINE_M00));
         //Projection of nodes onto vertical axis; Ordered by value
         IntArrayList expected_p90 = new IntArrayList();
@@ -99,15 +96,19 @@ public class ProjectorTest {
 
     @Test
     public void testCalculateProjectionOrder() {
+        //Set to 0 to incorporate all nodes for splitting. Useful for a small graph like this
+        setSplitValue(0);
         Projector projector = new Projector();
         projector.setGHStorage(createMediumGraph());
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         List<Projector.Projection> projectionOrder = projector.calculateProjectionOrder(projections);
         //m00 and p45 should be best as they lead to max flow of 2
-        assertEquals(Projector.Projection.LINE_M00, projectionOrder.get(0));
+        assertEquals(Projector.Projection.LINE_P675, projectionOrder.get(0));
         assertEquals(Projector.Projection.LINE_P45, projectionOrder.get(1));
         //m45 should be worst as it leads to max flow 3 or 4
-        assertEquals(Projector.Projection.LINE_M45, projectionOrder.get(7));
+        assertEquals(Projector.Projection.LINE_M225, projectionOrder.get(7));
+        //Reset
+        setSplitValue(0.2525);
     }
 
     @Test

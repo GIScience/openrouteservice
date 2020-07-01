@@ -11,10 +11,9 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
  * @author Hendrik Leuschner
  */
 public class CellAndBorderNodeFilter implements EdgeFilter {
+    private final int maxNodes;
     private IsochroneNodeStorage isochroneNodeStorage;
     private int cellId;
-    private final int maxNodes;
-
 
     /* Edge is within a specified Cell */
     public CellAndBorderNodeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes) {
@@ -23,7 +22,7 @@ public class CellAndBorderNodeFilter implements EdgeFilter {
         this.maxNodes = maxNodes - 1;
     }
 
-    public void setCellId(int cellId){
+    public void setCellId(int cellId) {
         this.cellId = cellId;
     }
 
@@ -34,12 +33,9 @@ public class CellAndBorderNodeFilter implements EdgeFilter {
         if (base >= maxNodes || adj >= maxNodes)
             return true;
         if (isochroneNodeStorage.getCellId(base) == cellId
-                && isochroneNodeStorage.getCellId(adj) == cellId){
+                && isochroneNodeStorage.getCellId(adj) == cellId) {
             return true;
         }
-        if(isochroneNodeStorage.getBorderness(adj))
-            return true;
-
-        return false;
+        return isochroneNodeStorage.getBorderness(adj);
     }
 }

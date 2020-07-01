@@ -125,11 +125,12 @@ public class MaxFlowMinCutTest {
         int[] visited = new int[10];
         PartitioningData pData = new PartitioningData(flowEdgeBaseNode, flow, visited);
         //Create mock projection
-        IntArrayList projection_m00 = new IntArrayList();
-        projection_m00.add(1, 2, 3, 0, 4, 6, 8, 5, 7);
+        IntArrayList projection_p675 = new IntArrayList();
+//        projection_m45.add(7, 8, 5, 6, 4, 0, 1, 2, 3);
+        projection_p675.add(1, 2, 3, 0, 8, 6, 4, 7, 5);
 
         MaxFlowMinCut maxFlowMinCut = new EdmondsKarpAStar(graph, pData, null);
-        maxFlowMinCut.setOrderedNodes(projection_m00);
+        maxFlowMinCut.setOrderedNodes(projection_p675);
         maxFlowMinCut.setNodeOrder();
         maxFlowMinCut.reset();
         int maxFlow = maxFlowMinCut.getMaxFlow();

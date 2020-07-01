@@ -34,7 +34,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import java.util.PriorityQueue;
 
 /**
- * Single-source shortest path algorithm bounded by isochrone limit.
+ * Single-source shortest path algorithm bound by isochrone limit.
  * <p>
  *
  * @author Hendrik Leuschner
@@ -47,21 +47,18 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
     protected SPTEntry currEdge;
-    private int visitedNodes;
-    private double isochroneLimit = 0;
-
     // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;
+    private int visitedNodes;
+    private double isochroneLimit = 0;
     // ORS-GH MOD END
 
-    public CoreRangeDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm)
-    {
+    public CoreRangeDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
         super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting, fastIsochroneAlgorithm.traversalMode);
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
         this.borderNodeDistanceStorage = fastIsochroneAlgorithm.borderNodeDistanceStorage;
-//        this.processedBorderNodes = fastIsochroneAlgorithm.processedBorderNodes;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -71,19 +68,13 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         fromMap = new GHIntObjectHashMap<>(size);
     }
 
-    protected void initFrom(int from){
+    protected void initFrom(int from) {
         currEdge = new SPTEntry(from, 0.0D);
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }
         fromHeap.add(currEdge);
     }
-
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new method.
-    public void setReverseDirection(Boolean reverse) {
-        reverseDirection = reverse;
-    }
-    // ORS-GH MOD END
 
     protected void runAlgo() {
         EdgeExplorer explorer = outEdgeExplorer;
@@ -106,81 +97,14 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
 
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
-                    nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                    nEdge.parent = currEdge;
-                    // ORS-GH MOD START
-                    // Modification by Maxim Rylov: Assign the original edge id.
-                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    // ORS-GH MOD END
-                    fromMap.put(traversalId, nEdge);
-                    fromHeap.add(nEdge);
+                    createEntry(iter, traversalId, tmpWeight);
                 } else if (nEdge.weight > tmpWeight) {
-                    fromHeap.remove(nEdge);
-                    nEdge.edge = iter.getEdge();
-                    // ORS-GH MOD START
-                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    // ORS-GH MOD END
-                    nEdge.weight = tmpWeight;
-                    nEdge.parent = currEdge;
-                    fromHeap.add(nEdge);
-                } else
-                    continue;
-
+                    updateEntry(nEdge, iter, tmpWeight);
+                }
             }
 
             /* check distance vs. range limit for Core-Graph Nodes only ! */
-            if (isochroneNodeStorage.getBorderness(baseNode)) {
-                int baseCell = isochroneNodeStorage.getCellId(baseNode);
-                double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
-
-                BorderNodeDistanceSet bnds = borderNodeDistanceStorage.getBorderNodeDistanceSet(baseNode);
-
-                for(int i = 0; i < bnds.getAdjBorderNodeIds().length; i++){
-                    int id = bnds.getAdjBorderNodeIds()[i];
-                    double addWeight = bnds.getAdjBorderNodeDistances()[i];
-
-                    double weight = bnds.getAdjBorderNodeDistances()[i] + currEdge.weight;
-                    if(weight > isochroneLimit)
-                        continue;
-                    if (Double.isInfinite(weight))
-                        continue;
-
-                    SPTEntry nEdge = fromMap.get(id);
-                    if (nEdge == null) {
-                        nEdge = new SPTEntry(EdgeIterator.NO_EDGE, id, weight);
-                        nEdge.parent = currEdge;
-                        fromMap.put(id, nEdge);
-                        fromHeap.add(nEdge);
-                    } else if (nEdge.weight > weight) {
-                        fromHeap.remove(nEdge);
-                        nEdge.edge = EdgeIterator.NO_EDGE;
-                        // ORS-GH MOD START
-                        nEdge.originalEdge = EdgeIterator.NO_EDGE;
-                        // ORS-GH MOD END
-                        nEdge.weight = weight;
-                        nEdge.parent = currEdge;
-                        fromHeap.add(nEdge);
-                    } else
-                        continue;
-                }
-
-                //Fully reachable cell
-                if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
-                        && eccentricityStorage.getFullyReachable(baseNode)) {
-                    fastIsochroneAlgorithm.fullyReachableCells.add(baseCell);
-                    fastIsochroneAlgorithm.addInactiveBorderNode(baseNode);
-                    if (fastIsochroneAlgorithm.activeCells.contains(baseCell))
-                        fastIsochroneAlgorithm.activeCells.remove(baseCell);
-                }
-
-                else {
-//                    processedBorderNodes.add(baseNode);
-                    if (!fastIsochroneAlgorithm.fullyReachableCells.contains(baseCell)) {
-                        fastIsochroneAlgorithm.addActiveCell(baseCell);
-                        fastIsochroneAlgorithm.addActiveBorderNode(baseNode);
-                    }
-                }
-            }
+            handleAdjacentBorderNodes(baseNode);
 
             if (fromHeap.isEmpty())
                 break;
@@ -191,16 +115,89 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         }
     }
 
+    private void createEntry(EdgeIterator iter, int traversalId, double tmpWeight) {
+        SPTEntry nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
+        nEdge.parent = currEdge;
+        // ORS-GH MOD START
+        // Modification by Maxim Rylov: Assign the original edge id.
+        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+        // ORS-GH MOD END
+        fromMap.put(traversalId, nEdge);
+        fromHeap.add(nEdge);
+    }
+
+    private void updateEntry(SPTEntry nEdge, EdgeIterator iter, double tmpWeight) {
+        fromHeap.remove(nEdge);
+        nEdge.edge = iter.getEdge();
+        // ORS-GH MOD START
+        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+        // ORS-GH MOD END
+        nEdge.weight = tmpWeight;
+        nEdge.parent = currEdge;
+        fromHeap.add(nEdge);
+    }
+
+    private void handleAdjacentBorderNodes(int baseNode) {
+        if (isochroneNodeStorage.getBorderness(baseNode)) {
+
+            BorderNodeDistanceSet bnds = borderNodeDistanceStorage.getBorderNodeDistanceSet(baseNode);
+
+            for (int i = 0; i < bnds.getAdjBorderNodeIds().length; i++) {
+                int id = bnds.getAdjBorderNodeIds()[i];
+                double weight = bnds.getAdjBorderNodeDistances()[i] + currEdge.weight;
+                if (weight > isochroneLimit || Double.isInfinite(weight))
+                    continue;
+
+                SPTEntry nEdge = fromMap.get(id);
+                if (nEdge == null) {
+                    nEdge = new SPTEntry(EdgeIterator.NO_EDGE, id, weight);
+                    nEdge.parent = currEdge;
+                    fromMap.put(id, nEdge);
+                    fromHeap.add(nEdge);
+                } else if (nEdge.weight > weight) {
+                    fromHeap.remove(nEdge);
+                    nEdge.edge = EdgeIterator.NO_EDGE;
+                    // ORS-GH MOD START
+                    nEdge.originalEdge = EdgeIterator.NO_EDGE;
+                    // ORS-GH MOD END
+                    nEdge.weight = weight;
+                    nEdge.parent = currEdge;
+                    fromHeap.add(nEdge);
+                }
+            }
+
+            //Fully reachable cell
+            handleCellFullyReachable(baseNode);
+        }
+    }
+
+    private void handleCellFullyReachable(int baseNode) {
+        int baseCell = isochroneNodeStorage.getCellId(baseNode);
+        double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
+        if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
+                && eccentricityStorage.getFullyReachable(baseNode)) {
+            fastIsochroneAlgorithm.fullyReachableCells.add(baseCell);
+            fastIsochroneAlgorithm.addInactiveBorderNode(baseNode);
+            if (fastIsochroneAlgorithm.activeCells.contains(baseCell))
+                fastIsochroneAlgorithm.activeCells.remove(baseCell);
+        } else {
+            if (!fastIsochroneAlgorithm.fullyReachableCells.contains(baseCell)) {
+                fastIsochroneAlgorithm.addActiveCell(baseCell);
+                fastIsochroneAlgorithm.addActiveBorderNode(baseNode);
+            }
+        }
+    }
+
     @Override
     protected boolean finished() {
         return isLimitExceeded();
     }
 
-    private boolean isLimitExceeded(){
+    private boolean isLimitExceeded() {
         return currEdge.getWeightOfVisitedPath() > isochroneLimit;
     }
 
-    public void setIsochroneLimit(double limit){
+    public void setIsochroneLimit(double limit) {
         isochroneLimit = limit;
     }
 
@@ -213,7 +210,6 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     public int getVisitedNodes() {
         return visitedNodes;
     }
-
 
     @Override
     public Path calcPath(int from, int to) {

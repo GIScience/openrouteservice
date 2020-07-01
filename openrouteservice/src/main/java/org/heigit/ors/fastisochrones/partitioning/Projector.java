@@ -105,17 +105,11 @@ public class Projector {
     }
 
     private double projIndividualValue(Map<Projection, IntArrayList> projMap, Projection proj, int idx) {
-        IntArrayList tmpNodeList;
-        double fromLat;
-        double fromLon;
-        double toLat;
-        double toLon;
-
-        tmpNodeList = projMap.get(proj);
-        toLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(idx));
-        toLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(idx));
-        fromLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
-        fromLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+        IntArrayList tmpNodeList = projMap.get(proj);
+        double toLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(idx));
+        double toLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(idx));
+        double fromLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+        double fromLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
 
         return Contour.distance(fromLat, toLat, fromLon, toLon);
     }

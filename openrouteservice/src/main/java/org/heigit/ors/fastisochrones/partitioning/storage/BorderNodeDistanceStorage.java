@@ -39,8 +39,8 @@ import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.
  */
 public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceStorage> {
     private final DataAccess borderNodes;
-    private int BYTECOUNT;
-    private int BORDERNODEINDEXOFFSET;
+    private int byteCount;
+    private int borderNodeIndexOffset;
     private int nodeCount;
     private int borderNodeCount;
     private int necessaryCapacity = 0;
@@ -54,7 +54,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
         this.isochroneNodeStorage = isochroneNodeStorage;
         borderNodes = dir.find("bordernodes_" + name);
         this.weighting = weighting;
-        BYTECOUNT = 12; //adj bordernode id (int 4B) and distance (double 8B)
+        byteCount = 12; //adj bordernode id (int 4B) and distance (double 8B)
         nodeCount = graph.getNodes();
     }
 
@@ -62,8 +62,8 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public boolean loadExisting() {
         if (borderNodes.loadExisting()) {
             borderNodeCount = borderNodes.getHeader(0);
-            BORDERNODEINDEXOFFSET = borderNodeCount * BYTECOUNT;
-            borderNodePointer = BORDERNODEINDEXOFFSET;
+            borderNodeIndexOffset = borderNodeCount * byteCount;
+            borderNodePointer = borderNodeIndexOffset;
             borderNodeToPointerMap = new IntLongHashMap(borderNodeCount);
             fillBorderNodeToPointerMap();
             return true;
@@ -74,10 +74,10 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public void init() {
         borderNodes.create(1000);
         getNumBorderNodes();
-        borderNodes.ensureCapacity(borderNodeCount * BYTECOUNT + necessaryCapacity * BYTECOUNT + borderNodeCount * 4);
+        borderNodes.ensureCapacity((long) borderNodeCount * byteCount + necessaryCapacity * byteCount + borderNodeCount * 4);
         borderNodes.setHeader(0, borderNodeCount);
-        BORDERNODEINDEXOFFSET = borderNodeCount * BYTECOUNT;
-        borderNodePointer = BORDERNODEINDEXOFFSET;
+        borderNodeIndexOffset = borderNodeCount * byteCount;
+        borderNodePointer = borderNodeIndexOffset;
         borderNodeToPointerMap = new IntLongHashMap();
     }
 

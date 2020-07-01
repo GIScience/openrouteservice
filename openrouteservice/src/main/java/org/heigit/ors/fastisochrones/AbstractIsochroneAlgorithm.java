@@ -18,7 +18,6 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
@@ -36,7 +35,6 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
  *
  * @author Hendrik Leuschner
  */
-
 public abstract class AbstractIsochroneAlgorithm {
     protected final Graph graph;
     protected final Weighting weighting;
@@ -48,17 +46,13 @@ public abstract class AbstractIsochroneAlgorithm {
     protected EccentricityStorage eccentricityStorage;
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected EdgeExplorer outEdgeExplorer;
-    private boolean alreadyRun;
+    protected EdgeFilter additionalEdgeFilter;
     int visitedCountPhase1;
     int visitedCountPhase2;
     int visitedCountPhase3;
-
-    CHGraph chGraph;
     double isochroneLimit;
-
-    protected EdgeFilter additionalEdgeFilter;
-
     boolean inCore;
+    private boolean alreadyRun;
 
     public AbstractIsochroneAlgorithm(Graph graph,
                                       Weighting weighting,
@@ -97,7 +91,6 @@ public abstract class AbstractIsochroneAlgorithm {
 
     public abstract void createIsochroneNodeSet();
 
-
     /**
      * Begin the phase that runs outside of the core
      */
@@ -105,6 +98,7 @@ public abstract class AbstractIsochroneAlgorithm {
 
     /**
      * Stopping criterion for phase outside core
+     *
      * @return should stop
      */
     public abstract boolean finishedPhase1();
@@ -116,6 +110,7 @@ public abstract class AbstractIsochroneAlgorithm {
 
     /**
      * Stopping criterion for phase inside core
+     *
      * @return should stop
      */
     public abstract boolean finishedPhase2();
@@ -127,6 +122,7 @@ public abstract class AbstractIsochroneAlgorithm {
 
     /**
      * Stopping criterion for phase in active cells
+     *
      * @return should stop
      */
     public abstract boolean finishedPhase3();
@@ -135,25 +131,21 @@ public abstract class AbstractIsochroneAlgorithm {
         return finishedPhase3();
     }
 
-
     protected void runAlgo() {
         // PHASE 1: run modified CH outside of core to find entry points
         inCore = false;
-//        additionalEdgeFilter.setInCore(false);
         runPhase1();
 
         // PHASE 2 Perform routing in core with the restrictions filter
-//        additionalEdgeFilter.setInCore(true);
         inCore = true;
         runPhase2();
 
         // PHASE 3 Perform routing in active cells
-//        additionalEdgeFilter.setInCore(false);
         inCore = false;
         runPhase3();
     }
 
-    public void calcIsochroneNodes(int from, double isochroneLimit){
+    public void calcIsochroneNodes(int from, double isochroneLimit) {
         checkAlreadyRun();
         init(from, isochroneLimit);
         runAlgo();

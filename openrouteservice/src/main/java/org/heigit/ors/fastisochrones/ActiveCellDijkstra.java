@@ -87,27 +87,16 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                // TODO: MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
-                    nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                    nEdge.parent = currEdge;
-                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    fromMap.put(traversalId, nEdge);
-                    fromHeap.add(nEdge);
+                    createEntry(iter, traversalId, tmpWeight);
                 } else if (nEdge.weight > tmpWeight) {
-                    fromHeap.remove(nEdge);
-                    nEdge.edge = iter.getEdge();
-                    nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    nEdge.weight = tmpWeight;
-                    nEdge.parent = currEdge;
-                    fromHeap.add(nEdge);
-                } else
-                    continue;
+                    updateEntry(nEdge, iter, tmpWeight);
+                }
             }
 
             if (fromHeap.isEmpty())
@@ -117,6 +106,23 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
             if (currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
         }
+    }
+
+    private void createEntry(EdgeIterator iter, int traversalId, double tmpWeight) {
+        SPTEntry nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
+        nEdge.parent = currEdge;
+        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+        fromMap.put(traversalId, nEdge);
+        fromHeap.add(nEdge);
+    }
+
+    private void updateEntry(SPTEntry nEdge, EdgeIterator iter, double tmpWeight) {
+        fromHeap.remove(nEdge);
+        nEdge.edge = iter.getEdge();
+        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+        nEdge.weight = tmpWeight;
+        nEdge.parent = currEdge;
+        fromHeap.add(nEdge);
     }
 
     @Override

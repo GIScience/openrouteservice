@@ -765,7 +765,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if(fastIsochroneFactory.getCellStorage().isContourPrepared())
 			return;
 		Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
-		contour.calcCellContourPre();
+		contour.calculateContour();
 	}
 
 	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){

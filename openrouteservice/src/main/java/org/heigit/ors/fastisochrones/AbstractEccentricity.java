@@ -42,7 +42,8 @@ public abstract class AbstractEccentricity {
         if (eccentricityStorages.isEmpty())
             return null;
         for (EccentricityStorage ecc : eccentricityStorages) {
-            if (ecc.getWeighting().getName() == weighting.getName() && ecc.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+            if (ecc.getWeighting().getName() != null && ecc.getWeighting().getName().equals(weighting.getName())
+                    && ecc.getWeighting().getFlagEncoder().toString() != null && ecc.getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
                 return ecc;
         }
         return null;
@@ -52,7 +53,8 @@ public abstract class AbstractEccentricity {
         if (borderNodeDistanceStorages.isEmpty())
             return null;
         for (BorderNodeDistanceStorage bnds : borderNodeDistanceStorages) {
-            if (bnds.getWeighting().getName() == weighting.getName() && bnds.getWeighting().getFlagEncoder().toString() == weighting.getFlagEncoder().toString())
+            if (bnds.getWeighting().getName() != null && bnds.getWeighting().getName().equals(weighting.getName())
+                    && bnds.getWeighting().getFlagEncoder().toString() != null && bnds.getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
                 return bnds;
         }
         return null;
@@ -69,23 +71,23 @@ public abstract class AbstractEccentricity {
         return eccentricityStorage.loadExisting();
     }
 
-    public AbstractEccentricity setGraph(Graph _baseGraph) {
-        this.baseGraph = _baseGraph;
+    public AbstractEccentricity setGraph(Graph baseGraph) {
+        this.baseGraph = baseGraph;
         return this;
     }
 
-    public AbstractEccentricity setCHGraph(CHGraphImpl _chGraph) {
-        this.chGraph = _chGraph;
+    public AbstractEccentricity setCHGraph(CHGraphImpl chGraph) {
+        this.chGraph = chGraph;
         return this;
     }
 
-    public AbstractEccentricity setWeighting(Weighting _weighting) {
-        this.weighting = _weighting;
+    public AbstractEccentricity setWeighting(Weighting weighting) {
+        this.weighting = weighting;
         return this;
     }
 
-    public AbstractEccentricity setEncoder(FlagEncoder _encoder) {
-        this.encoder = _encoder;
+    public AbstractEccentricity setEncoder(FlagEncoder flagEncoder) {
+        this.encoder = flagEncoder;
         return this;
     }
 }
