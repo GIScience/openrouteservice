@@ -11,8 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Fixed fallback to dynamic routing methods if bearings parameter set ([#702](https://github.com/GIScience/openrouteservice/issues/702))
 - Enable elevation interpolation for bridges and tunnels ([#685](https://github.com/GIScience/openrouteservice/issues/685))
+- Fixed erroneous computation of duration in AdditionWeighting.calcMillis
 ### Changed
 - Improve recommended weighting for cycling and walking profiles ([#665](https://github.com/GIScience/openrouteservice/issues/665))
+- Restructure AdditionWeighting
 ### Deprecated
 
 ## [6.1.1] - 2020-06-02
