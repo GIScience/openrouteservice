@@ -21,13 +21,14 @@ public class AdditionWeightingTest {
 
     @Test
     public void sumOfConstants () {
-        ConstantWeighting const1 = new ConstantWeighting(1,10);
-        ConstantWeighting const2 = new ConstantWeighting(2,20);
-        ConstantWeighting const3 = new ConstantWeighting(3,30);
-        ConstantWeighting factor = new ConstantWeighting(10, 100);
+        ConstantWeighting const1 = new ConstantWeighting(1, 10);
+        ConstantWeighting const2 = new ConstantWeighting(2, 20);
+        ConstantWeighting const3 = new ConstantWeighting(3, 30);
+        ConstantWeighting superWeighting = new ConstantWeighting(10, 100);
 
-        ConstantWeighting[] weightingsShort = {const1, const2, const3};
-        AdditionWeighting additionWeightingShort = new AdditionWeighting(weightingsShort,factor,flagEncoder);
-        assertEquals(60, additionWeightingShort.calcWeight(null, false, 0),0.0001);
+        ConstantWeighting[] weightings = {const1, const2, const3};
+        AdditionWeighting additionWeighting = new AdditionWeighting(weightings, superWeighting, flagEncoder);
+        assertEquals(60, additionWeighting.calcWeight(null, false, 0), 0.0001);
+        assertEquals(100, additionWeighting.calcMillis(null, false, 0), 0.0001);
     }
 }
