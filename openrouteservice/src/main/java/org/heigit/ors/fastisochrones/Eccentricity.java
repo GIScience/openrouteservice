@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
-import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxCellNodesNumber;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxThreadCount;
 
 /**
  * Eccentricity implementation. Calculates the maximum value of all shortest paths within a cell given a starting bordernode.
@@ -31,41 +32,41 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class Eccentricity extends AbstractEccentricity {
-
+    //This value determines how many nodes of a cell need to be reached in order for the cell to count as fully reachable.
+    //Some nodes might be part of a cell but unreachable (disconnected, behind infinite weight, ...)
     double acceptedFullyReachablePercentage = 0.995;
     int eccentricityDijkstraLimitFactor = 10;
     LocationIndex locationIndex;
 
-    public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+    public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         super(graphHopperStorage);
         this.locationIndex = locationIndex;
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.cellStorage = cellStorage;
     }
 
-    public void calcEccentricities(GraphHopperStorage ghStorage, Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
-        if(eccentricityStorages == null) {
+    public void calcEccentricities(Graph graph, Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
+        if (eccentricityStorages == null) {
             eccentricityStorages = new ArrayList<>();
         }
         EccentricityStorage eccentricityStorage = getEccentricityStorage(weighting);
-        if(!eccentricityStorage.loadExisting())
+        if (!eccentricityStorage.loadExisting())
             eccentricityStorage.init();
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
 
-        ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
+        ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
 
-        IntObjectHashMap relevantNodesSets = new IntObjectHashMap(isochroneNodeStorage.getCellIds().size());
-        for(IntCursor cellId : isochroneNodeStorage.getCellIds()){
+        IntObjectHashMap<IntHashSet> relevantNodesSets = new IntObjectHashMap<>(isochroneNodeStorage.getCellIds().size());
+        for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
             relevantNodesSets.put(cellId.value, getRelevantContourNodes(cellId.value, cellStorage, isochroneNodeStorage));
         }
 
         //Calculate the eccentricity without fixed cell edge filter for now
-//        edgeFilterSequence.add(fixedCellEdgeFilter);
         int borderNodeCount = 0;
-        for (int borderNode = 0; borderNode < graph.getNodes(); borderNode++){
-            if(!isochroneNodeStorage.getBorderness(borderNode))
+        for (int borderNode = 0; borderNode < graph.getNodes(); borderNode++) {
+            if (!isochroneNodeStorage.getBorderness(borderNode))
                 continue;
             final int node = borderNode;
             borderNodeCount++;
@@ -80,27 +81,20 @@ public class Eccentricity extends AbstractEccentricity {
                 rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                 rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
-                double eccentricity = rangeDijkstra.calcMaxWeight(node, (IntHashSet)relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
+                double eccentricity = rangeDijkstra.calcMaxWeight(node, relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
                 int cellNodeCount = cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)).size();
-//                    System.out.println("node: " + node + " took visitedNodes: " + rangeDijkstra.visitedNodes + " took calcs: " + rangeDijkstra.calcs + " for  ecc: " + eccentricity + " with foundCellNode %: " + ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount);
                 //Rerun outside of cell if not enough nodes were found in first run
                 if (((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount < acceptedFullyReachablePercentage) {
                     rangeDijkstra.setAcceptedFullyReachablePercentage(acceptedFullyReachablePercentage);
                     edgeFilterSequence = new EdgeFilterSequence();
                     edgeFilterSequence.add(defaultEdgeFilter);
                     rangeDijkstra.setEdgeFilter(edgeFilterSequence);
-                    eccentricity = rangeDijkstra.calcMaxWeight(node, (IntHashSet)relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
-//                        System.out.println("node: " + node + " took visitedNodes: " + rangeDijkstra.visitedNodes + " took calcs: " + rangeDijkstra.calcs + " for  ecc: " + eccentricity + " with foundCellNode %: " + ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount);
+                    eccentricity = rangeDijkstra.calcMaxWeight(node, relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
                 }
 
-                //TODO This is really just a cheap workaround that should be something smart instead
-                //If set to 1, it is okay though
-                if (((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage) {
-                    eccentricityStorage.setFullyReachable(node, true);
-                }
-                else {
-                    eccentricityStorage.setFullyReachable(node, false);
-                }
+                //TODO Maybe implement a smarter logic than having some high percentage for acceptedFullyReachable
+                boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage;
+                eccentricityStorage.setFullyReachable(node, isFullyReachable);
 
                 eccentricityStorage.setEccentricity(node, eccentricity);
             }, String.valueOf(node));
@@ -119,35 +113,30 @@ public class Eccentricity extends AbstractEccentricity {
 
         eccentricityStorage.storeBorderNodeToPointerMap();
         eccentricityStorage.flush();
-//        eccentricityStorages.add(eccentricityStorage);
     }
 
     @Override
     public void calcEccentricities() {
-        calcEccentricities(this.ghStorage, this.baseGraph, this.weighting, this.encoder, this.traversalMode, this.isochroneNodeStorage, this.cellStorage);
+        calcEccentricities(this.baseGraph, this.weighting, this.encoder, this.traversalMode, this.isochroneNodeStorage, this.cellStorage);
     }
 
-    public void calcCoreGraphDistances(Graph graph, Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
-        if(borderNodeDistanceStorages == null) {
+    public void calcCoreGraphDistances(Graph graph, Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
+        if (borderNodeDistanceStorages == null) {
             borderNodeDistanceStorages = new ArrayList<>();
         }
         BorderNodeDistanceStorage borderNodeDistanceStorage = getBorderNodeDistanceStorage(weighting);
-        if(!borderNodeDistanceStorage.loadExisting())
+        if (!borderNodeDistanceStorage.loadExisting())
             borderNodeDistanceStorage.init();
 
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
-        ExecutorCompletionService completionService = new ExecutorCompletionService<>(threadPool);
+        ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
         int cellCount = 0;
-        for (IntCursor cellId : isochroneNodeStorage.getCellIds()){
+        for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
             final int currentCellId = cellId.value;
             cellCount++;
-            completionService.submit(() -> {
-                calculateBorderNodeDistances(borderNodeDistanceStorage, currentCellId, graph, weighting, flagEncoder, isochroneNodeStorage, cellStorage);
-
-            }, String.valueOf(currentCellId));
+            completionService.submit(() -> calculateBorderNodeDistances(borderNodeDistanceStorage, currentCellId, graph, weighting, flagEncoder, isochroneNodeStorage, cellStorage), String.valueOf(currentCellId));
         }
-
 
         threadPool.shutdown();
 //
@@ -167,7 +156,7 @@ public class Eccentricity extends AbstractEccentricity {
         int[] cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage).toArray();
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
 
-        for(int borderNode : cellBorderNodes) {
+        for (int borderNode : cellBorderNodes) {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
             algorithm.setEdgeFilter(defaultEdgeFilter);
             algorithm.prepare(new int[]{borderNode}, cellBorderNodes);
@@ -175,37 +164,34 @@ public class Eccentricity extends AbstractEccentricity {
             SPTEntry[] targets = algorithm.calcPaths(borderNode, cellBorderNodes);
             int[] ids = new int[targets.length];
             double[] distances = new double[targets.length];
-            for(int i = 0; i < targets.length; i++){
+            for (int i = 0; i < targets.length; i++) {
                 ids[i] = cellBorderNodes[i];
-                if(targets[i] == null){
+                if (targets[i] == null) {
                     distances[i] = Double.POSITIVE_INFINITY;
-                    continue;
-                }
-                if(targets[i].adjNode == borderNode){
+                } else if (targets[i].adjNode == borderNode) {
                     distances[i] = 0;
-                    continue;
-                }
-                distances[i] = targets[i].weight;
+                } else
+                    distances[i] = targets[i].weight;
             }
             borderNodeDistanceStorage.storeBorderNodeDistanceSet(borderNode, new BorderNodeDistanceSet(ids, distances));
         }
     }
 
-    private IntHashSet getBorderNodesOfCell(int cellId, CellStorage cellStorage, IsochroneNodeStorage isochroneNodeStorage){
-        IntHashSet borderNodes =  new IntHashSet();
-        for(IntCursor node : cellStorage.getNodesOfCell(cellId)){
-            if(isochroneNodeStorage.getBorderness(node.value))
+    private IntHashSet getBorderNodesOfCell(int cellId, CellStorage cellStorage, IsochroneNodeStorage isochroneNodeStorage) {
+        IntHashSet borderNodes = new IntHashSet();
+        for (IntCursor node : cellStorage.getNodesOfCell(cellId)) {
+            if (isochroneNodeStorage.getBorderness(node.value))
                 borderNodes.add(node.value);
         }
         return borderNodes;
     }
 
-    private IntHashSet getRelevantContourNodes(int cellId, CellStorage cellStorage, IsochroneNodeStorage isochroneNodeStorage){
+    private IntHashSet getRelevantContourNodes(int cellId, CellStorage cellStorage, IsochroneNodeStorage isochroneNodeStorage) {
         List<Double> contourCoordinates = cellStorage.getCellContourOrder(cellId);
         FixedCellEdgeFilter fixedCellEdgeFilter = new FixedCellEdgeFilter(isochroneNodeStorage, cellId, Integer.MAX_VALUE);
         int j = 0;
         IntHashSet contourNodes = new IntHashSet();
-        while (j < contourCoordinates.size()){
+        while (j < contourCoordinates.size()) {
             double latitude = contourCoordinates.get(j);
             j++;
             double longitude = contourCoordinates.get(j);
@@ -215,6 +201,4 @@ public class Eccentricity extends AbstractEccentricity {
         }
         return contourNodes;
     }
-
-
 }

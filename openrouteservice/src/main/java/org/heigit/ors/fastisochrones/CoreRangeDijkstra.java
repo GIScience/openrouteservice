@@ -17,21 +17,15 @@
  */
 package org.heigit.ors.fastisochrones;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.AbstractRoutingAlgorithm;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.Path;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Parameters;
 import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
-import java.util.PriorityQueue;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.CORERANGEDIJKSTRA;
 
 /**
  * Single-source shortest path algorithm bound by isochrone limit.
@@ -39,19 +33,12 @@ import java.util.PriorityQueue;
  *
  * @author Hendrik Leuschner
  */
-public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
-    protected IntObjectMap<SPTEntry> fromMap;
-    protected PriorityQueue<SPTEntry> fromHeap;
+public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-    protected SPTEntry currEdge;
-    // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
-    protected Boolean reverseDirection = false;
-    private int visitedNodes;
     private double isochroneLimit = 0;
-    // ORS-GH MOD END
 
     public CoreRangeDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
         super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting, fastIsochroneAlgorithm.traversalMode);
@@ -59,13 +46,6 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
         this.borderNodeDistanceStorage = fastIsochroneAlgorithm.borderNodeDistanceStorage;
-        int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
-        initCollections(size);
-    }
-
-    protected void initCollections(int size) {
-        fromHeap = new PriorityQueue<>(size);
-        fromMap = new GHIntObjectHashMap<>(size);
     }
 
     protected void initFrom(int from) {
@@ -115,33 +95,9 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
         }
     }
 
-    private void createEntry(EdgeIterator iter, int traversalId, double tmpWeight) {
-        SPTEntry nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-        nEdge.parent = currEdge;
-        // ORS-GH MOD START
-        // Modification by Maxim Rylov: Assign the original edge id.
-        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-        // ORS-GH MOD END
-        fromMap.put(traversalId, nEdge);
-        fromHeap.add(nEdge);
-    }
-
-    private void updateEntry(SPTEntry nEdge, EdgeIterator iter, double tmpWeight) {
-        fromHeap.remove(nEdge);
-        nEdge.edge = iter.getEdge();
-        // ORS-GH MOD START
-        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-        // ORS-GH MOD END
-        nEdge.weight = tmpWeight;
-        nEdge.parent = currEdge;
-        fromHeap.add(nEdge);
-    }
-
     private void handleAdjacentBorderNodes(int baseNode) {
         if (isochroneNodeStorage.getBorderness(baseNode)) {
-
             BorderNodeDistanceSet bnds = borderNodeDistanceStorage.getBorderNodeDistanceSet(baseNode);
-
             for (int i = 0; i < bnds.getAdjBorderNodeIds().length; i++) {
                 int id = bnds.getAdjBorderNodeIds()[i];
                 double weight = bnds.getAdjBorderNodeDistances()[i] + currEdge.weight;
@@ -157,16 +113,12 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
                 } else if (nEdge.weight > weight) {
                     fromHeap.remove(nEdge);
                     nEdge.edge = EdgeIterator.NO_EDGE;
-                    // ORS-GH MOD START
                     nEdge.originalEdge = EdgeIterator.NO_EDGE;
-                    // ORS-GH MOD END
                     nEdge.weight = weight;
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
                 }
             }
-
-            //Fully reachable cell
             handleCellFullyReachable(baseNode);
         }
     }
@@ -202,22 +154,7 @@ public class CoreRangeDijkstra extends AbstractRoutingAlgorithm {
     }
 
     @Override
-    protected Path extractPath() {
-        throw new IllegalStateException("Cannot calc a path with this algorithm");
-    }
-
-    @Override
-    public int getVisitedNodes() {
-        return visitedNodes;
-    }
-
-    @Override
-    public Path calcPath(int from, int to) {
-        throw new IllegalStateException("Cannot calc a path with this algorithm");
-    }
-
-    @Override
     public String getName() {
-        return Parameters.Algorithms.DIJKSTRA;
+        return CORERANGEDIJKSTRA;
     }
 }

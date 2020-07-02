@@ -35,12 +35,14 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -157,6 +159,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         QueryResult res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
         //Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
         int nonvirtualClosestNode = res.getClosestNode();
+        if(nonvirtualClosestNode == -1)
+            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
 
         //This calculates the nodes that are within the limit
@@ -178,6 +182,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                     ((ORSGraphHopper) searchcontext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting),
                     ((ORSGraphHopper) searchcontext.getGraphHopper()).getEccentricity().getBorderNodeDistanceStorage(weighting),
                     edgeFilterSequence);
+            //TODO add distance of virtualnode to nonvirtual at isochrone start
             fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
             fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, parameters.getRanges()[i]);
 

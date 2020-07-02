@@ -89,7 +89,6 @@ public abstract class AbstractIsochroneAlgorithm {
         alreadyRun = true;
     }
 
-    public abstract void createIsochroneNodeSet();
 
     /**
      * Begin the phase that runs outside of the core
@@ -149,7 +148,6 @@ public abstract class AbstractIsochroneAlgorithm {
         checkAlreadyRun();
         init(from, isochroneLimit);
         runAlgo();
-        createIsochroneNodeSet();
     }
 
     public int getVisitedNodes() {

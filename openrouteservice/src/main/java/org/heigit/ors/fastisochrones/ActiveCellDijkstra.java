@@ -17,19 +17,13 @@
  */
 package org.heigit.ors.fastisochrones;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.AbstractRoutingAlgorithm;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.Path;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Parameters;
 import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
-import java.util.PriorityQueue;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.ACTIVECELLDIJKSTRA;
 
 /**
  * Calculates shortest paths within an active isochrones cell.
@@ -38,15 +32,10 @@ import java.util.PriorityQueue;
  *
  * @author Hendrik Leuschner
  */
-public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
-    protected IntObjectMap<SPTEntry> fromMap;
-    protected PriorityQueue<SPTEntry> fromHeap;
+public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     protected IsochroneNodeStorage isochroneNodeStorage;
     protected EccentricityStorage eccentricityStorage;
     protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
-    protected SPTEntry currEdge;
-    protected Boolean reverseDirection = false;
-    private int visitedNodes;
     private double isochroneLimit = 0;
 
     public ActiveCellDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
@@ -54,13 +43,6 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
-        int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
-        initCollections(size);
-    }
-
-    protected void initCollections(int size) {
-        fromHeap = new PriorityQueue<>(size);
-        fromMap = new GHIntObjectHashMap<>(size);
     }
 
     protected void addInitialBordernode(int nodeId, double weight) {
@@ -108,23 +90,6 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
         }
     }
 
-    private void createEntry(EdgeIterator iter, int traversalId, double tmpWeight) {
-        SPTEntry nEdge = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-        nEdge.parent = currEdge;
-        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-        fromMap.put(traversalId, nEdge);
-        fromHeap.add(nEdge);
-    }
-
-    private void updateEntry(SPTEntry nEdge, EdgeIterator iter, double tmpWeight) {
-        fromHeap.remove(nEdge);
-        nEdge.edge = iter.getEdge();
-        nEdge.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-        nEdge.weight = tmpWeight;
-        nEdge.parent = currEdge;
-        fromHeap.add(nEdge);
-    }
-
     @Override
     protected boolean finished() {
         return isLimitExceeded();
@@ -139,22 +104,7 @@ public class ActiveCellDijkstra extends AbstractRoutingAlgorithm {
     }
 
     @Override
-    protected Path extractPath() {
-        throw new IllegalStateException("Cannot calc a path with this algorithm");
-    }
-
-    @Override
-    public int getVisitedNodes() {
-        return visitedNodes;
-    }
-
-    @Override
-    public Path calcPath(int from, int to) {
-        throw new IllegalStateException("Cannot calc a path with this algorithm");
-    }
-
-    @Override
     public String getName() {
-        return Parameters.Algorithms.DIJKSTRA;
+        return ACTIVECELLDIJKSTRA;
     }
 }

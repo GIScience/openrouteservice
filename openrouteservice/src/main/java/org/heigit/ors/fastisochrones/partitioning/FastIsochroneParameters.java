@@ -6,6 +6,11 @@ package org.heigit.ors.fastisochrones.partitioning;
  * @author Hendrik Leuschner
  */
 public final class FastIsochroneParameters {
+    //NAMES
+    public static final String ACTIVECELLDIJKSTRA = "ActiveCellDijkstra";
+    public static final String CORERANGEDIJKSTRA = "CoreRangeDijkstra";
+    public static final String RANGEDIJKSTRA = "RangeDijkstra";
+
     //GLOBAL
     private static int maxThreadCount = 12;
     private static boolean log = true;
