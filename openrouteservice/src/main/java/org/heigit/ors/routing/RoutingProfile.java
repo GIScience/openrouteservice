@@ -487,7 +487,7 @@ public class RoutingProfile {
     }
 
     private static boolean supportWeightingMethod(int profileType) {
-        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType) || profileType == RoutingProfileType.WHEELCHAIR;
+        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isPedestrian(profileType);
     }
 
     /**
@@ -989,19 +989,12 @@ public class RoutingProfile {
      * @param useALT Should ALT be enabled
      */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
+        String weighting = req.getWeighting();
+
         //Priority: CH->Core->ALT
-        useCH &= mGraphHopper.isCHEnabled();
-        //If there is either no shortest or fastest profile, CH will be enabled and crash if a missing profile is not present
-        if(useCH){
-            try{
-                mGraphHopper.getCHFactoryDecorator().getPreparation(req.getHints());
-            }
-            catch (Exception e){
-                useCH = false;
-            }
-        }
-        useCore = useCore && mGraphHopper.isCoreEnabled() && !useCH;
-        useALT &= mGraphHopper.getLMFactoryDecorator().isEnabled() && !useCH && !useCore;
+        useCH = useCH && mGraphHopper.isCHAvailable(weighting);
+        useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(weighting);
+        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(weighting);
 
         req.getHints().put(KEY_CH_DISABLE, !useCH);
         req.getHints().put(KEY_CORE_DISABLE, !useCore);
