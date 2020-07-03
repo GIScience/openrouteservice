@@ -2502,7 +2502,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
                 .body("routes[0].summary.distance", is(2308.3f))
-                .body("routes[0].summary.duration", is(3323.9f))
+                .body("routes[0].summary.duration", is(1662.0f))
                 .statusCode(200);
     }
 
@@ -2546,7 +2546,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
                 .body("routes[0].summary.distance", is(2878.7f))
-                .body("routes[0].summary.duration", is(4145.2f))
+                .body("routes[0].summary.duration", is(2072.6f))
                 .statusCode(200);
     }
 
