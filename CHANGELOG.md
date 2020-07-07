@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Improve recommended weighting for cycling and walking profiles ([#665](https://github.com/GIScience/openrouteservice/issues/665))
 - Restructure AdditionWeighting
 ### Deprecated
+- Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
 
 ## [6.1.1] - 2020-06-02
 ### Added
