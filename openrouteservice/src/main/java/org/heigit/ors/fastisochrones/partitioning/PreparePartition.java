@@ -34,13 +34,15 @@ public class PreparePartition implements RoutingAlgorithmFactory {
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;
         this.edgeFilters = edgeFilters;
-        this.isochroneNodeStorage = new IsochroneNodeStorage(ghStorage, ghStorage.getDirectory());
-        this.cellStorage = new CellStorage(ghStorage, ghStorage.getDirectory(), isochroneNodeStorage);
         this.nodes = ghStorage.getBaseGraph().getNodes();
+        this.isochroneNodeStorage = new IsochroneNodeStorage(this.nodes, ghStorage.getDirectory());
+        this.cellStorage = new CellStorage(this.nodes, ghStorage.getDirectory(), isochroneNodeStorage);
     }
 
     public PreparePartition prepare() {
+        //Use Inertialflow to calculate node id to cell
         int[] nodeCellId = runInertialFlow();
+        //Identify border nodes
         boolean[] nodeBorderness = calcBorderNodes(nodeCellId);
 
         //Create and calculate isochrone info that is ordered by node

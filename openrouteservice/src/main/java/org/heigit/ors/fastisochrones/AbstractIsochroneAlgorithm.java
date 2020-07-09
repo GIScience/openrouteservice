@@ -27,10 +27,10 @@ import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 /**
- * Calculates an isochrone using a partitioned and core-contracted graph.
+ * Calculates an isochrone using a partitioned and graph.
  * The algorithm works in 3 phases
  * 1. Go upwards in start cell to find all distances to all nodes within that cell
- * 2. Traverse core graph
+ * 2. Take all bordernodes of the initial cell and find all reachable other bordernodes
  * 3. Go downwards in active cells
  *
  * @author Hendrik Leuschner
@@ -51,7 +51,6 @@ public abstract class AbstractIsochroneAlgorithm {
     int visitedCountPhase2;
     int visitedCountPhase3;
     double isochroneLimit;
-    boolean inCore;
     private boolean alreadyRun;
 
     public AbstractIsochroneAlgorithm(Graph graph,
@@ -131,16 +130,10 @@ public abstract class AbstractIsochroneAlgorithm {
     }
 
     protected void runAlgo() {
-        // PHASE 1: run modified CH outside of core to find entry points
-        inCore = false;
         runPhase1();
 
-        // PHASE 2 Perform routing in core with the restrictions filter
-        inCore = true;
         runPhase2();
 
-        // PHASE 3 Perform routing in active cells
-        inCore = false;
         runPhase3();
     }
 

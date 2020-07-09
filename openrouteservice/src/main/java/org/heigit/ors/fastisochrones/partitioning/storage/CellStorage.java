@@ -22,7 +22,6 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 import com.graphhopper.util.Helper;
 
@@ -60,11 +59,11 @@ public class CellStorage implements Storable<CellStorage> {
      * @param dir                  the dir
      * @param isochroneNodeStorage the isochrone node storage
      */
-    public CellStorage(GraphHopperStorage graph, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
+    public CellStorage(int nodeCount, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
         this.isochroneNodeStorage = isochroneNodeStorage;
         cells = dir.find("cells");
         byteCount = 4;
-        nodeCount = graph.getNodes();
+        this.nodeCount = nodeCount;
     }
 
     @Override
@@ -154,6 +153,8 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the int hash set
      */
     public IntHashSet getNodesOfCell(int cellId) {
+        if(cellIdToNodesPointerMap.isEmpty())
+            throw new IllegalStateException("CellStorage not filled yet. Was calcCellNodesMap run?");
         long nodePointer = cellIdToNodesPointerMap.get(cellId);
         int currentNode = cells.getInt(nodePointer);
         IntHashSet nodeIds = new IntHashSet();
@@ -197,6 +198,8 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the list
      */
     public List<Double> getCellContourOrder(int cellId) {
+        if(cellIdToContourPointerMap.isEmpty())
+            throw new IllegalStateException("Cell contours not stored yet.");
         List<Double> order = new ArrayList<>();
         long nodePointer = cellIdToContourPointerMap.get(cellId);
 
@@ -231,6 +234,8 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the list
      */
     public List<Integer> getCellsOfSuperCellAsList(int superCell) {
+        if(superCellIdToCellsMap.isEmpty())
+            throw new IllegalStateException("Supercells not calculated yet.");
         return Arrays.stream(superCellIdToCellsMap.get(superCell).toArray()).boxed().collect(Collectors.toList());
     }
 

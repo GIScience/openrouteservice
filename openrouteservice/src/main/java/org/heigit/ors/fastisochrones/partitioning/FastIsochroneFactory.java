@@ -39,20 +39,15 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  */
 public class FastIsochroneFactory {
     private final Set<String> fastisochroneProfileStrings = new LinkedHashSet<>();
+    private final String defaultWeighting = "fastest";
     private PreparePartition partition;
     private boolean disablingAllowed = true;
     private boolean enabled = false;
-    private int preparationThreads;
-    private ExecutorService threadPool;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
 
-    public FastIsochroneFactory() {
-        setPreparationThreads(1);
-    }
 
     public void init(CmdArgs args) {
-        setPreparationThreads(args.getInt(FastIsochrone.PREPARE + "threads", getPreparationThreads()));
         setMaxThreadCount(args.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
         setMaxCellNodesNumber(args.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
         String weightingsStr = args.get(FastIsochrone.PREPARE + "weightings", "");
@@ -63,6 +58,8 @@ public class FastIsochroneFactory {
         } else if (!weightingsStr.isEmpty()) {
             setFastIsochroneProfilesAsStrings(Arrays.asList(weightingsStr.split(",")));
         }
+        else
+            addFastIsochroneProfileAsString(defaultWeighting);
 
         boolean enableThis = !fastisochroneProfileStrings.isEmpty();
         setEnabled(enableThis);
@@ -125,7 +122,7 @@ public class FastIsochroneFactory {
         return this;
     }
 
-    public FastIsochroneFactory addPreparation(PreparePartition pp) {
+    public FastIsochroneFactory setPartition(PreparePartition pp) {
         partition = pp;
         return this;
     }
@@ -134,20 +131,10 @@ public class FastIsochroneFactory {
         return partition;
     }
 
-    public int getPreparationThreads() {
-        return preparationThreads;
-    }
 
-    /**
-     * This method changes the number of threads used for preparation on import. Default is 1. Make
-     * sure that you have enough memory when increasing this number!
-     */
-    public void setPreparationThreads(int preparationThreads) {
-        this.preparationThreads = preparationThreads;
-        this.threadPool = Executors.newFixedThreadPool(preparationThreads);
-    }
 
     public void prepare(final StorableProperties properties) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(1);
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
         final String name = "PreparePartition";
         completionService.submit(() -> {
@@ -173,7 +160,7 @@ public class FastIsochroneFactory {
         if (!isEnabled() || (partition != null))
             return;
         PreparePartition tmpPreparePartition = new PreparePartition(ghStorage, edgeFilters);
-        addPreparation(tmpPreparePartition);
+        setPartition(tmpPreparePartition);
     }
 
     public void setExistingStorages() {

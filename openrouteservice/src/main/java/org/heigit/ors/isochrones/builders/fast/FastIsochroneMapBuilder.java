@@ -19,9 +19,8 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -50,6 +49,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
@@ -142,13 +142,14 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         // only needed for reachfactor property
         double meanMetersPerSecond = meanSpeed / 3.6;
 
-        Weighting weighting = null;
-
+        HintsMap hintsMap;
         if (parameters.getRangeType() == TravelRangeType.TIME) {
-            weighting = new FastestWeighting(searchcontext.getEncoder());
+            hintsMap = new HintsMap("fastest").put("isochroneWeighting", "true");
         } else {
-            weighting = new ShortestWeighting(searchcontext.getEncoder());
+            hintsMap = new HintsMap("shortest").put("isochroneWeighting", "true");
         }
+
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
 
         Coordinate loc = parameters.getLocation();
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
@@ -159,7 +160,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         QueryResult res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
         //Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
         int nonvirtualClosestNode = res.getClosestNode();
-        if(nonvirtualClosestNode == -1)
+        if (nonvirtualClosestNode == -1)
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
 
@@ -182,9 +183,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                     ((ORSGraphHopper) searchcontext.getGraphHopper()).getEccentricity().getEccentricityStorage(weighting),
                     ((ORSGraphHopper) searchcontext.getGraphHopper()).getEccentricity().getBorderNodeDistanceStorage(weighting),
                     edgeFilterSequence);
-            //TODO add distance of virtualnode to nonvirtual at isochrone start
+            //Account for snapping distance
+            double isolimit = parameters.getRanges()[i] - weighting.getMinWeight(res.getQueryDistance());
+            if(isolimit <= 0)
+                throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
             fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
-            fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, parameters.getRanges()[i]);
+            fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Find edges: " + sw.stop().getSeconds());
@@ -317,14 +321,14 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
      * @return
      */
     private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius) {
-        double MINIMUM_DISTANCE = 0.006;
+        double minimumDistance = 0.006;
 
         if (smoothingFactor == -1) {
             // No user defined smoothing factor, so use defaults
 
             // For shorter isochrones, we want to use a smaller minimum distance else we get inaccurate results
             if (maxRadius < 5000)
-                return MINIMUM_DISTANCE;
+                return minimumDistance;
 
             // Use a default length (~1000m)
             return 0.010;
@@ -333,8 +337,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
         double maxLength = (intervalDegrees / 100f) * smoothingFactor;
 
-        if (maxLength < MINIMUM_DISTANCE)
-            maxLength = MINIMUM_DISTANCE;
+        if (maxLength < minimumDistance)
+            maxLength = minimumDistance;
         return maxLength;
     }
 
@@ -428,8 +432,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                                  double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
         double dx = (lon0 - lon1);
         double dy = (lat0 - lat1);
-        double norm_length = Math.sqrt((dx * dx) + (dy * dy));
-        double scale = bufferSize / norm_length;
+        double normLength = Math.sqrt((dx * dx) + (dy * dy));
+        double scale = bufferSize / normLength;
 
         double dx2 = -dy * scale;
         double dy2 = dx * scale;
@@ -438,7 +442,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         addPoint(points, tree, lon0 - dx2, lat0 - dy2, checkNeighbours);
 
         // add a middle point if two points are too far from each other
-        if (norm_length > 2 * bufferSize) {
+        if (normLength > 2 * bufferSize) {
             addPoint(points, tree, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2, checkNeighbours);
             addPoint(points, tree, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2, checkNeighbours);
         }
@@ -626,15 +630,28 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
         //printing for debug
-        if (isLogEnabled()) System.out.println("{" +
-                "  \"type\": \"FeatureCollection\"," +
-                "  \"features\": [");
+        StringBuilder cellsPrintStatement = new StringBuilder();
+
+        if (LOGGER.isDebugEnabled()) {
+            cellsPrintStatement.append(System.lineSeparator());
+            cellsPrintStatement.append("{" +
+                    "  \"type\": \"FeatureCollection\"," +
+                    "  \"features\": [");
+            cellsPrintStatement.append(System.lineSeparator());
+        }
         Set<Integer> reachableCellsAndSuperCells = isSupercellsEnabled() ? handleSuperCells(fullyReachableCells) : fullyReachableCells;
 
         for (int cellId : reachableCellsAndSuperCells) {
             addCellPolygon(cellId, isochroneGeometries);
+            if (LOGGER.isDebugEnabled())
+                cellsPrintStatement.append(printCell(cellStorage.getCellContourOrder(cellId), cellId));
         }
-        if (isLogEnabled()) System.out.println("]}");
+        if (LOGGER.isDebugEnabled()) {
+            cellsPrintStatement.deleteCharAt(cellsPrintStatement.length() - 2);
+            cellsPrintStatement.append("]}");
+            cellsPrintStatement.append(System.lineSeparator());
+        }
+        LOGGER.debug(cellsPrintStatement.toString());
     }
 
     private Set<Integer> handleSuperCells(Set<Integer> fullyReachableCells) {
@@ -671,23 +688,25 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         Polygon polygon = geomFactory.createPolygon(cArray);
         if (polygon.isValid()) {
             isochronePolygons.add(polygon);
-        } else if (LOGGER.isDebugEnabled())
+        } else
             LOGGER.debug("Poly of cell " + cellId + " is invalid at size " + cArray.length);
-        if (isLogEnabled()) printCell(cellStorage.getCellContourOrder(cellId), cellId);
     }
 
     //DEBUG
-    private void printCell(List<Double> coordinates, int cellId) {
+    private String printCell(List<Double> coordinates, int cellId) {
         if (coordinates.size() < 3)
-            return;
-        System.out.print("{\"type\": \"Feature\",\"properties\": {\"name\": \"" + cellId + "\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
+            return "";
+        StringBuilder statement = new StringBuilder();
+        statement.append("{\"type\": \"Feature\",\"properties\": {\"name\": \"" + cellId + "\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
         int i;
         for (i = coordinates.size() - 2; i > 0; i -= 2) {
-            System.out.print("[" + String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length())) + "," + String.valueOf(coordinates.get(i)).substring(0, Math.min(8, String.valueOf(coordinates.get(i)).length())) + "],");
+            statement.append("[" + String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length())) + "," + String.valueOf(coordinates.get(i)).substring(0, Math.min(8, String.valueOf(coordinates.get(i)).length())) + "],");
         }
-        System.out.print("[" + String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length())) + "," + String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length())) + "]");
+        statement.append("[" + String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length())) + "," + String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length())) + "]");
 
-        System.out.println("]]}},");
+        statement.append("]]}},");
+        statement.append(System.lineSeparator());
+        return statement.toString();
     }
 
     private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {

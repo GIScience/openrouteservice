@@ -39,9 +39,9 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private int nodeCount;
     private IntSet cellIdsSet = new IntHashSet();
 
-    public IsochroneNodeStorage(GraphHopperStorage graph, Directory dir) {
+    public IsochroneNodeStorage(int nodeCount, Directory dir) {
         isochroneNodes = dir.find("isochronenodes");
-        nodeCount = graph.getNodes();
+        this.nodeCount = nodeCount;
         // 1 byte for isBordernode,
         // 4 bytes per node for its cell id.
         // Maximum cell count of ~16M

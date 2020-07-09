@@ -91,7 +91,7 @@ public class Contour {
                 cellStorage.setCellContourOrder(cellId.value, new ArrayList<>(), new ArrayList<>());
                 continue;
             }
-            storeContour(cellId.value, ring);
+            expandAndSaveContour(cellId.value, ring);
         }
     }
 
@@ -127,7 +127,7 @@ public class Contour {
                     continue;
                 }
 
-                storeContour(superCell.key, ring);
+                expandAndSaveContour(superCell.key, ring);
             }
         }
         return superCells;
@@ -146,6 +146,9 @@ public class Contour {
                 superCellCoordinates.add(new Coordinate(lon, lat));
             }
         }
+        //Need to sort the coordinates, because they will be added to a search tree
+        //The order of insertion changes the search tree coordinates and we want consistency between runs
+        Collections.sort(superCellCoordinates);
         return superCellCoordinates;
     }
 
@@ -298,16 +301,25 @@ public class Contour {
         EdgeIterator iter;
 
         IntHashSet visitedEdges = new IntHashSet();
-        for (int node : cellNodes.keys) {
-            iter = explorer.setBaseNode(node);
+        PointList towerCoordinates = new PointList(cellNodes.keys.length, false);
+        for (IntCursor node : cellNodes) {
+            towerCoordinates.add(ghStorage.getNodeAccess().getLat(node.value), ghStorage.getNodeAccess().getLon(node.value));
+        }
+        addLatLon(towerCoordinates, coordinates);
+
+        for (IntCursor node : cellNodes) {
+            iter = explorer.setBaseNode(node.value);
             while (iter.next()) {
-                if (!cellNodes.contains(iter.getAdjNode()) || visitedEdges.contains(iter.getEdge()))
+                if (visitedEdges.contains(iter.getEdge()))
                     continue;
                 visitedEdges.add(iter.getEdge());
                 //Add all base nodes + geometry of edge
-                addLatLon(iter.fetchWayGeometry(1), coordinates);
+                addLatLon(iter.fetchWayGeometry(0), coordinates);
             }
         }
+        //Need to sort the coordinates, because they will be added to a search tree
+        //The order of insertion changes the search tree coordinates and we want consistency between runs
+        Collections.sort(coordinates);
         return coordinates;
     }
 
@@ -322,7 +334,7 @@ public class Contour {
         }
     }
 
-    private void storeContour(int cellId, LineString ring) {
+    private void expandAndSaveContour(int cellId, LineString ring) {
         List<Double> hullLatitudes = new ArrayList<>(ring.getNumPoints());
         List<Double> hullLongitudes = new ArrayList<>(ring.getNumPoints());
         for (int i = 0; i < ring.getNumPoints(); i++) {

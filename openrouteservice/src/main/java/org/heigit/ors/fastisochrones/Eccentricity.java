@@ -92,7 +92,7 @@ public class Eccentricity extends AbstractEccentricity {
                     eccentricity = rangeDijkstra.calcMaxWeight(node, relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
                 }
 
-                //TODO Maybe implement a smarter logic than having some high percentage for acceptedFullyReachable
+                //TODO Maybe implement a logic smarter than having some high percentage for acceptedFullyReachable
                 boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage;
                 eccentricityStorage.setFullyReachable(node, isFullyReachable);
 
@@ -139,7 +139,7 @@ public class Eccentricity extends AbstractEccentricity {
         }
 
         threadPool.shutdown();
-//
+
         try {
             for (int i = 0; i < cellCount; i++) {
                 completionService.take().get();
