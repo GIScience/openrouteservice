@@ -153,7 +153,7 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the int hash set
      */
     public IntHashSet getNodesOfCell(int cellId) {
-        if(cellIdToNodesPointerMap.isEmpty())
+        if (cellIdToNodesPointerMap.isEmpty())
             throw new IllegalStateException("CellStorage not filled yet. Was calcCellNodesMap run?");
         long nodePointer = cellIdToNodesPointerMap.get(cellId);
         int currentNode = cells.getInt(nodePointer);
@@ -198,7 +198,7 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the list
      */
     public List<Double> getCellContourOrder(int cellId) {
-        if(cellIdToContourPointerMap.isEmpty())
+        if (cellIdToContourPointerMap.isEmpty())
             throw new IllegalStateException("Cell contours not stored yet.");
         List<Double> order = new ArrayList<>();
         long nodePointer = cellIdToContourPointerMap.get(cellId);
@@ -234,7 +234,7 @@ public class CellStorage implements Storable<CellStorage> {
      * @return the list
      */
     public List<Integer> getCellsOfSuperCellAsList(int superCell) {
-        if(superCellIdToCellsMap.isEmpty())
+        if (superCellIdToCellsMap.isEmpty())
             throw new IllegalStateException("Supercells not calculated yet.");
         return Arrays.stream(superCellIdToCellsMap.get(superCell).toArray()).boxed().collect(Collectors.toList());
     }
@@ -359,15 +359,6 @@ public class CellStorage implements Storable<CellStorage> {
      */
     public void setContourPrepared(boolean prepared) {
         cells.setHeader(16, prepared ? 1 : 0);
-    }
-
-    /**
-     * Is corrupted boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isCorrupted() {
-        return cellIdToContourPointerMap.size() != cellIdToNodesPointerMap.size();
     }
 
     @Override

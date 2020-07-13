@@ -152,7 +152,7 @@ public class Contour {
         return superCellCoordinates;
     }
 
-    public Geometry concHullOfNodes(List<Coordinate> coordinates) {
+    private Geometry concHullOfNodes(List<Coordinate> coordinates) {
         int j = 0;
         double defaultVisitorThreshold = 0.0035;
         double defaultSearchWidth = 0.0008;
@@ -183,7 +183,7 @@ public class Contour {
         return ch.getConcaveHull();
     }
 
-    public Boolean addPoint(PointItemVisitor visitor, List<Coordinate> points, Quadtree tree, Envelope searchEnv, Set<Coordinate> treeSet, double lon, double lat, double searchWidth, double pointWidth, boolean checkNeighbours) {
+    private Boolean addPoint(PointItemVisitor visitor, List<Coordinate> points, Quadtree tree, Envelope searchEnv, Set<Coordinate> treeSet, double lon, double lat, double searchWidth, double pointWidth, boolean checkNeighbours) {
         if (checkNeighbours) {
             visitor.setPoint(lon, lat);
             searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
@@ -215,7 +215,7 @@ public class Contour {
         return false;
     }
 
-    IntObjectMap<IntHashSet> identifySuperCells(IntSet cellIds, int hierarchyLevel, boolean isPrimary) {
+    private IntObjectMap<IntHashSet> identifySuperCells(IntSet cellIds, int hierarchyLevel, boolean isPrimary) {
         //Account for the subcell division in InertialFlow final step
         int maxId = createMaxId(cellIds);
 
@@ -266,7 +266,7 @@ public class Contour {
                 < getMaxCellNodesNumber());
     }
 
-    void createSuperCell(IntSet cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, int level, boolean isPrimary) {
+    private void createSuperCell(IntSet cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, int level, boolean isPrimary) {
         if (currentCell > maxId)
             return;
         //Is it already part of a supercell?
@@ -376,17 +376,6 @@ public class Contour {
                 longitudes.add(lon0 + i * (lon1 - lon0) / n);
             }
         }
-    }
-
-    /**
-     * G-E-T
-     **/
-    protected double getLat(int nodeId) {
-        return nodeAccess.getLat(nodeId);
-    }
-
-    protected double getLon(int nodeId) {
-        return nodeAccess.getLon(nodeId);
     }
 
     private void addLatLon(PointList newCoordinates, List<Coordinate> existingCoordinates) {

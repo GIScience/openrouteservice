@@ -50,6 +50,7 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
     }
 
     public double calcMaxWeight(int from, IntHashSet relevantNodes) {
+        checkAlreadyRun();
         currEdge = new SPTEntry(EdgeIterator.NO_EDGE, from, 0);
         this.relevantNodes = relevantNodes;
         if (!traversalMode.isEdgeBased()) {

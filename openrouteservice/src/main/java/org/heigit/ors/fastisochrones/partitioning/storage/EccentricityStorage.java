@@ -23,7 +23,6 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 
 import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.*;
@@ -36,7 +35,7 @@ import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.
 public class EccentricityStorage implements Storable<EccentricityStorage> {
     private final DataAccess eccentricities;
     private final int eccentricityBytes;
-    private final int fullyReachablePosition;
+    private final int mapBytes;
     private final int eccentricityPosition;
     private final int nodeCount;
     private final Weighting weighting;
@@ -54,26 +53,28 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @param weighting            the weighting
      * @param isochroneNodeStorage the isochrone node storage
      */
-    public EccentricityStorage(GraphHopperStorage graph, Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage) {
+    public EccentricityStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
+        //A map of nodeId to pointer is stored in the first block.
+        //The second block stores 2 values for each pointer, full reachability and eccentricity
         final String name = AbstractWeighting.weightingToFileName(weighting);
         eccentricities = dir.find("eccentricities_" + name);
         this.weighting = weighting;
         this.isochroneNodeStorage = isochroneNodeStorage;
-        nodeCount = graph.getNodes();
-        //  1 int per eccentricity value
+        this.nodeCount = nodeCount;
+        //  2 ints per node, first is fully reachable, second is eccentricity
         this.eccentricityBytes = 8;
-        this.fullyReachablePosition = 0;
-        this.eccentricityPosition = fullyReachablePosition + 4;
+        this.mapBytes = 12;
+        this.eccentricityPosition = 4;
     }
 
     @Override
     public boolean loadExisting() {
         if (eccentricities.loadExisting()) {
             borderNodeCount = eccentricities.getHeader(0);
-            borderNodeIndexOffset = borderNodeCount * 8;
+            borderNodeIndexOffset = borderNodeCount * mapBytes + 1;
             borderNodePointer = borderNodeIndexOffset;
             borderNodeToPointerMap = new IntLongHashMap(borderNodeCount);
-            fillBorderNodeToPointerMap();
+            loadBorderNodeToPointerMap();
             return true;
         }
         return false;
@@ -84,26 +85,26 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      */
     public void init() {
         eccentricities.create(1000);
-        getNumBorderNodes();
+        borderNodeCount = getNumBorderNodes();
         eccentricities.setHeader(0, borderNodeCount);
-        borderNodeIndexOffset = borderNodeCount * 12;
+        borderNodeIndexOffset = borderNodeCount * mapBytes + 1;
         borderNodePointer = borderNodeIndexOffset;
         borderNodeToPointerMap = new IntLongHashMap();
-        fillMap();
+        generateBorderNodeToPointerMap();
         eccentricities.ensureCapacity((long) borderNodeIndexOffset + borderNodeCount * eccentricityBytes);
     }
 
-    private void getNumBorderNodes() {
+    private int getNumBorderNodes() {
         int count = 0;
         for (int node = 0; node < nodeCount; node++) {
             if (isochroneNodeStorage.getBorderness(node)) {
                 count++;
             }
         }
-        borderNodeCount = count;
+        return count;
     }
 
-    private void fillMap() {
+    private void generateBorderNodeToPointerMap() {
         for (int node = 0; node < nodeCount; node++) {
             if (isochroneNodeStorage.getBorderness(node)) {
                 borderNodeToPointerMap.put(node, borderNodePointer);
@@ -129,6 +130,9 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @return the eccentricity
      */
     public int getEccentricity(int node) {
+        long index = borderNodeToPointerMap.get(node);
+        if(index == 0)
+            throw new IllegalArgumentException("Requested node is not a border node");
         return eccentricities.getInt(borderNodeToPointerMap.get(node) + eccentricityPosition);
     }
 
@@ -140,9 +144,9 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      */
     public void setFullyReachable(int node, boolean isFullyReachable) {
         if (isFullyReachable)
-            eccentricities.setInt(borderNodeToPointerMap.get(node) + fullyReachablePosition, 1);
+            eccentricities.setInt(borderNodeToPointerMap.get(node), 1);
         else
-            eccentricities.setInt(borderNodeToPointerMap.get(node) + fullyReachablePosition, 0);
+            eccentricities.setInt(borderNodeToPointerMap.get(node), 0);
     }
 
     /**
@@ -152,7 +156,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      * @return the fully reachable
      */
     public boolean getFullyReachable(int node) {
-        int isFullyReachable = eccentricities.getInt(borderNodeToPointerMap.get(node) + fullyReachablePosition);
+        int isFullyReachable = eccentricities.getInt(borderNodeToPointerMap.get(node));
         return isFullyReachable == 1;
     }
 
@@ -162,7 +166,6 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     public void storeBorderNodeToPointerMap() {
         long listPointer = 0;
         long nodePointer;
-        //Store the number of contours (= num cells + num supercells)
         for (IntLongCursor borderNode : borderNodeToPointerMap) {
             eccentricities.setInt(listPointer, borderNode.key);
             listPointer = listPointer + 4;
@@ -172,7 +175,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         }
     }
 
-    private void fillBorderNodeToPointerMap() {
+    private void loadBorderNodeToPointerMap() {
         byte[] buffer = new byte[8];
         long listPointer = 0;
         for (int i = 0; i < borderNodeCount; i++) {

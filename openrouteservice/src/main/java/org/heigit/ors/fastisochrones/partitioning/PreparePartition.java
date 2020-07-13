@@ -79,14 +79,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
         return nodeToCellArray;
     }
 
-    /**
-     * S-E-T
-     **/
-    public PreparePartition setGhStorage(GraphHopperStorage ghStorage) {
-        this.ghStorage = ghStorage;
-        return this;
-    }
-
     private boolean[] calcBorderNodes(int[] nodeCellId) {
         boolean[] nodeBorderness = new boolean[this.nodes];
         boolean borderness = false;
@@ -104,10 +96,6 @@ public class PreparePartition implements RoutingAlgorithmFactory {
             borderness = false;
         }
         return nodeBorderness;
-    }
-
-    public int getNodes() {
-        return nodes;
     }
 
     @Override

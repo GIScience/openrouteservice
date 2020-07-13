@@ -49,13 +49,13 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     private IntLongHashMap borderNodeToPointerMap;
     private Weighting weighting;
 
-    public BorderNodeDistanceStorage(GraphHopperStorage graph, Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage) {
+    public BorderNodeDistanceStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
         final String name = AbstractWeighting.weightingToFileName(weighting);
         this.isochroneNodeStorage = isochroneNodeStorage;
         borderNodes = dir.find("bordernodes_" + name);
         this.weighting = weighting;
         byteCount = 12; //adj bordernode id (int 4B) and distance (double 8B)
-        nodeCount = graph.getNodes();
+        this.nodeCount = nodeCount;
     }
 
     @Override
