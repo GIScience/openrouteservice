@@ -66,7 +66,7 @@ public class RangeDijkstraTest {
     public void testGetMaxWeight() {
         GraphHopperStorage graphHopperStorage = createSimpleGraph();
         createMockStorages(graphHopperStorage);
-        RangeDijkstra rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder), TraversalMode.NODE_BASED);
+        RangeDijkstra rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder));
         rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * 10);
         rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
         IntHashSet cellNodes = new IntHashSet();
@@ -78,7 +78,7 @@ public class RangeDijkstraTest {
         assertEquals(3.0, rangeDijkstra.calcMaxWeight(0, cellNodes), 1e-10);
 
         //Check eccentricity when all nodes but node 5 are relevant
-        rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder), TraversalMode.NODE_BASED);
+        rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder));
         rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * 10);
         rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
         rangeDijkstra.setCellNodes(cellNodes);

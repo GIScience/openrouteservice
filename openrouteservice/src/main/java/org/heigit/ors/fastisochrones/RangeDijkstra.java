@@ -45,8 +45,8 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
     private IntHashSet relevantNodes = new IntHashSet();
     private double acceptedFullyReachablePercentage = 1.0;
 
-    public RangeDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+    public RangeDijkstra(Graph graph, Weighting weighting) {
+        super(graph, weighting);
     }
 
     public double calcMaxWeight(int from, IntHashSet relevantNodes) {

@@ -17,12 +17,13 @@
  */
 package org.heigit.ors.fastisochrones;
 
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.CORERANGEDIJKSTRA;
@@ -35,17 +36,13 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  */
 public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
     protected IsochroneNodeStorage isochroneNodeStorage;
-    protected EccentricityStorage eccentricityStorage;
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
-    protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
     private double isochroneLimit = 0;
 
-    public CoreRangeDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
-        super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting, fastIsochroneAlgorithm.traversalMode);
-        this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
-        this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
-        this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
-        this.borderNodeDistanceStorage = fastIsochroneAlgorithm.borderNodeDistanceStorage;
+    public CoreRangeDijkstra(Graph graph, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, BorderNodeDistanceStorage borderNodeDistanceStorage) {
+        super(graph, weighting);
+        this.isochroneNodeStorage = isochroneNodeStorage;
+        this.borderNodeDistanceStorage = borderNodeDistanceStorage;
     }
 
     protected void initFrom(int from) {
@@ -71,6 +68,8 @@ public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+                if(tmpWeight > isochroneLimit)
+                    continue;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;
@@ -118,24 +117,6 @@ public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
                     nEdge.parent = currEdge;
                     fromHeap.add(nEdge);
                 }
-            }
-            handleCellFullyReachable(baseNode);
-        }
-    }
-
-    private void handleCellFullyReachable(int baseNode) {
-        int baseCell = isochroneNodeStorage.getCellId(baseNode);
-        double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
-        if (fromMap.get(baseNode).getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
-                && eccentricityStorage.getFullyReachable(baseNode)) {
-            fastIsochroneAlgorithm.fullyReachableCells.add(baseCell);
-            fastIsochroneAlgorithm.addInactiveBorderNode(baseNode);
-            if (fastIsochroneAlgorithm.activeCells.contains(baseCell))
-                fastIsochroneAlgorithm.activeCells.remove(baseCell);
-        } else {
-            if (!fastIsochroneAlgorithm.fullyReachableCells.contains(baseCell)) {
-                fastIsochroneAlgorithm.addActiveCell(baseCell);
-                fastIsochroneAlgorithm.addActiveBorderNode(baseNode);
             }
         }
     }

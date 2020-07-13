@@ -39,7 +39,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     private double isochroneLimit = 0;
 
     public ActiveCellDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
-        super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting, fastIsochroneAlgorithm.traversalMode);
+        super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting);
         this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
         this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
         this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;

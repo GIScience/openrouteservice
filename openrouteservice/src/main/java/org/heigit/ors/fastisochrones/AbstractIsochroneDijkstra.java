@@ -44,8 +44,8 @@ public abstract class AbstractIsochroneDijkstra extends AbstractRoutingAlgorithm
     protected int visitedNodes;
     protected boolean reverseDirection = false;
 
-    public AbstractIsochroneDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+    public AbstractIsochroneDijkstra(Graph graph, Weighting weighting) {
+        super(graph, weighting, TraversalMode.NODE_BASED);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -72,6 +72,10 @@ public abstract class AbstractIsochroneDijkstra extends AbstractRoutingAlgorithm
         nEdge.weight = tmpWeight;
         nEdge.parent = currEdge;
         fromHeap.add(nEdge);
+    }
+
+    public IntObjectMap<SPTEntry> getFromMap() {
+        return fromMap;
     }
 
     @Override

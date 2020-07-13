@@ -14,6 +14,7 @@
 package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
@@ -69,21 +70,21 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     public void init(int from, double isochroneLimit) {
         this.from = from;
         this.isochroneLimit = isochroneLimit;
-        this.activeCells = new HashSet<>();
-        this.activeBorderNodes = new HashSet<>();
-        this.inactiveBorderNodes = new HashSet<>();
-        this.fullyReachableCells = new HashSet<>();
-        this.upAndCoreGraphDistMap = new HashMap<>();
+        activeCells = new HashSet<>();
+        activeBorderNodes = new HashSet<>();
+        inactiveBorderNodes = new HashSet<>();
+        fullyReachableCells = new HashSet<>();
+        upAndCoreGraphDistMap = new HashMap<>();
     }
 
     @Override
     void runPhase1() {
         int startCell = isochroneNodeStorage.getCellId(originalFrom);
-        CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(this);
+        CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(this.additionalEdgeFilter);
+        edgeFilterSequence.add(additionalEdgeFilter);
         edgeFilterSequence.add(
-                new CellAndBorderNodeFilter(this.isochroneNodeStorage,
+                new CellAndBorderNodeFilter(isochroneNodeStorage,
                         startCell,
                         graph.getNodes())
         );
@@ -91,14 +92,14 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         rangeSweepToAndInCore.setIsochroneLimit(isochroneLimit);
         rangeSweepToAndInCore.initFrom(from);
         rangeSweepToAndInCore.runAlgo();
-        this.bestWeightMap = rangeSweepToAndInCore.fromMap;
+        bestWeightMap = rangeSweepToAndInCore.getFromMap();
+        findFullyReachableCells(bestWeightMap);
 
         for (int inactiveBorderNode : inactiveBorderNodes) {
-            this.bestWeightMap.remove(inactiveBorderNode);
+            bestWeightMap.remove(inactiveBorderNode);
             activeBorderNodes.remove(inactiveBorderNode);
         }
 
-        //as far as I can tell this is only duplicate information of bordernodes->weight
         for (int sweepEndNode : activeBorderNodes) {
             double dist = rangeSweepToAndInCore.fromMap.get(sweepEndNode).getWeightOfVisitedPath();
             int cell = isochroneNodeStorage.getCellId(sweepEndNode);
@@ -107,7 +108,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             if (!upAndCoreGraphDistMap.containsKey(cell))
                 upAndCoreGraphDistMap.put(cell, new HashMap<>());
             upAndCoreGraphDistMap.get(cell).put(sweepEndNode, dist);
-            this.bestWeightMap.remove(sweepEndNode);
+            bestWeightMap.remove(sweepEndNode);
         }
     }
 
@@ -133,12 +134,12 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     @Override
     void runPhase3() {
         activeCellMaps = new HashMap<>(upAndCoreGraphDistMap.entrySet().size());
-        activeCellMaps.put(isochroneNodeStorage.getCellId(originalFrom), this.bestWeightMap);
+        activeCellMaps.put(isochroneNodeStorage.getCellId(originalFrom), bestWeightMap);
         for (Map.Entry<Integer, Map<Integer, Double>> entry : upAndCoreGraphDistMap.entrySet()) {
             ActiveCellDijkstra activeCellDijkstra = new ActiveCellDijkstra(this);
             //Add a filter that stays within the cell.
             EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-            edgeFilterSequence.add(new FixedCellEdgeFilter(this.isochroneNodeStorage, entry.getKey(), graph.getNodes()));
+            edgeFilterSequence.add(new FixedCellEdgeFilter(isochroneNodeStorage, entry.getKey(), graph.getNodes()));
             activeCellDijkstra.setEdgeFilter(edgeFilterSequence);
             activeCellDijkstra.setIsochroneLimit(isochroneLimit);
             //Add all the start points with their respective already visited weight
@@ -156,8 +157,35 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         return false;
     }
 
+    private void findFullyReachableCells(IntObjectMap<SPTEntry> entryMap) {
+        for(IntObjectCursor<SPTEntry> entry : entryMap){
+            int baseNode = entry.key;
+            if(!isochroneNodeStorage.getBorderness(baseNode))
+                continue;
+            SPTEntry sptEntry = entry.value;
+            int baseCell = isochroneNodeStorage.getCellId(baseNode);
+            double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
+            if (sptEntry.getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
+                    && eccentricityStorage.getFullyReachable(baseNode)) {
+                addFullyReachableCell(baseCell);
+                addInactiveBorderNode(baseNode);
+                if (getActiveCells().contains(baseCell))
+                    getActiveCells().remove(baseCell);
+            } else {
+                if (!getFullyReachableCells().contains(baseCell)) {
+                    addActiveCell(baseCell);
+                    addActiveBorderNode(baseNode);
+                }
+            }
+        }
+    }
+
     protected void addActiveCell(int cellId) {
         activeCells.add(cellId);
+    }
+
+    private void addFullyReachableCell(int cellId){
+        fullyReachableCells.add(cellId);
     }
 
     protected void addActiveBorderNode(int nodeId) {
@@ -170,6 +198,9 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     public Set<Integer> getFullyReachableCells() {
         return fullyReachableCells;
+    }
+    private Set<Integer> getActiveCells(){
+        return activeCells;
     }
 
     public IntObjectMap<SPTEntry> getBestWeightMap() {

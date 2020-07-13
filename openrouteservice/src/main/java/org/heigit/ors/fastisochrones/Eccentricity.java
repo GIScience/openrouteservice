@@ -77,7 +77,7 @@ public class Eccentricity extends AbstractEccentricity {
                 FixedCellEdgeFilter fixedCellEdgeFilter = new FixedCellEdgeFilter(isochroneNodeStorage, isochroneNodeStorage.getCellId(node), graph.getNodes());
                 edgeFilterSequence.add(defaultEdgeFilter);
                 edgeFilterSequence.add(fixedCellEdgeFilter);
-                RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
+                RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting);
                 rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
                 rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
@@ -86,7 +86,7 @@ public class Eccentricity extends AbstractEccentricity {
                 int cellNodeCount = cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)).size();
                 //Rerun outside of cell if not enough nodes were found in first run, but try to find almost all
                 if (((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount < acceptedFullyReachablePercentage) {
-                    rangeDijkstra = new RangeDijkstra(graph, weighting, TraversalMode.NODE_BASED);
+                    rangeDijkstra = new RangeDijkstra(graph, weighting);
                     rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
                     rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                     rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
