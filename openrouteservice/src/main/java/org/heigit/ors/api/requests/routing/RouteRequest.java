@@ -77,8 +77,8 @@ public class RouteRequest {
     private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_PREFERENCE,
-            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'fastest'}",
-            example = "fastest")
+            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
+            example = "recommended")
     @JsonProperty(value = PARAM_PREFERENCE)
     private APIEnums.RoutePreference routePreference;
     @JsonIgnore

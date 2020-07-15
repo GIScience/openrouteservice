@@ -31,7 +31,7 @@ public class ParamsTest extends ServiceTest {
 		addParameter("coordinatesLong", "8.678613,49.411721|4.78906,53.071752");
 		addParameter("coordinatesShortThree", "8.678613,49.411721|8.687782,49.424597|8.691087,49.425009");
 		addParameter("extra_info", "surface|suitability|steepness");
-		addParameter("preference", "fastest");
+		addParameter("preference", "recommended");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
 	}
@@ -656,9 +656,9 @@ public class ParamsTest extends ServiceTest {
 	public void expectNoNearestEdge() {
 		given()
 				.param("coordinates", "8.689585,49.399733|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
-				.param("profile", "cycling-regular")
+				.param("profile", getParameter("profile"))
 				.param("radiuses", "5|150")
 				.when()
 				.get(getEndPointName())

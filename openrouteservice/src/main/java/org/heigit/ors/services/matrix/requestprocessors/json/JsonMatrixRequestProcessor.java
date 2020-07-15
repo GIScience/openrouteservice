@@ -23,6 +23,7 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import org.heigit.ors.servlet.util.ServletUtility;
@@ -97,8 +98,8 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 		if (request.getUnits() != null)
 			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
 		
-		if (request.getWeightingMethod() != null)
-			jQuery.put("preference", request.getWeightingMethod());
+		if (request.getWeightingMethod() != WeightingMethod.UNKNOWN)
+			jQuery.put("preference", WeightingMethod.getName(request.getWeightingMethod()));
 
 		if (request.getId() != null)
 			jQuery.put("id", request.getId());

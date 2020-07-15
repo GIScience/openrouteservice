@@ -77,7 +77,7 @@
                 "lm": {
                   "enabled": true,
                   "threads": 1,
-                  "weightings": "fastest,shortest",
+                  "weightings": "recommended,shortest",
                   "landmarks": 16
                 }
               }
@@ -164,18 +164,18 @@
                   "ch": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest"
+                    "weightings": "recommended"
                   },
                   "lm": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "recommended,shortest",
                     "landmarks": 16
                   },
                   "core": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "recommended,shortest",
                     "landmarks": 64,
                     "lmsets": "highways;allow_all"
                   }
