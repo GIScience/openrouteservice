@@ -188,7 +188,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
                 <configuration>
-                    <argLine>-Duser.language=en -Duser.region=US --illegal-access=permit</argLine>
+                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit</argLine>
                 </configuration>
             </plugin>
         </plugins>
