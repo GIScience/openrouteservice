@@ -48,7 +48,6 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     /**
      * Instantiates a new Eccentricity storage.
      *
-     * @param graph                the graph
      * @param dir                  the dir
      * @param weighting            the weighting
      * @param isochroneNodeStorage the isochrone node storage
@@ -133,7 +132,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         long index = borderNodeToPointerMap.get(node);
         if(index == 0)
             throw new IllegalArgumentException("Requested node is not a border node");
-        return eccentricities.getInt(borderNodeToPointerMap.get(node) + eccentricityPosition);
+        return eccentricities.getInt(index + eccentricityPosition);
     }
 
     /**

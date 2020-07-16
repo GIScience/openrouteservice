@@ -187,7 +187,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             double isolimit = parameters.getRanges()[i] - weighting.getMinWeight(res.getQueryDistance());
             if(isolimit <= 0)
                 throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
-            fastIsochroneAlgorithm.setOriginalFrom(nonvirtualClosestNode);
             fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
 
             if (LOGGER.isDebugEnabled()) {
@@ -207,7 +206,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             GHPoint3D snappedPosition = res.getSnappedPoint();
 
-            AccessibilityMap edgeMap = new AccessibilityMap(fastIsochroneAlgorithm.getBestWeightMap(), snappedPosition);
+            AccessibilityMap edgeMap = new AccessibilityMap(fastIsochroneAlgorithm.getStartCellMap(), snappedPosition);
 
             final Coordinate snappedLoc = (snappedPosition == null) ? parameters.getLocation() : new Coordinate(snappedPosition.lon, snappedPosition.lat);
 

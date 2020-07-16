@@ -56,6 +56,10 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
         if (!traversalMode.isEdgeBased()) {
             fromMap.put(from, currEdge);
         }
+        if (cellNodes.contains(from))
+            visitedIds.add(from);
+        else
+            throw new IllegalArgumentException("Start node does not belong to cell?");
         runAlgo();
         getMaxWeight();
         return maximumWeight;
@@ -111,7 +115,7 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
 
     @Override
     protected boolean finished() {
-        return (((double) visitedIds.size()) / cellNodes.size() >= acceptedFullyReachablePercentage);
+        return false;
     }
 
     public void setCellNodes(IntHashSet cellNodes) {

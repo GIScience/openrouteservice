@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     private static final String NAME = "FastIsochrone";
-    protected IntObjectMap<SPTEntry> bestWeightMap;
+    protected IntObjectMap<SPTEntry> startCellMap;
     protected Set<Integer> activeCells;
     protected Set<Integer> activeBorderNodes;
     protected Set<Integer> inactiveBorderNodes;
@@ -48,7 +48,6 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     protected Map<Integer, Map<Integer, Double>> upAndCoreGraphDistMap;
     protected Map<Integer, IntObjectMap<SPTEntry>> activeCellMaps;
     int from;
-    int originalFrom;
 
     public FastIsochroneAlgorithm(Graph graph,
                                   Weighting weighting,
@@ -63,7 +62,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     @Override
     protected void initCollections(int size) {
-        bestWeightMap = new GHIntObjectHashMap<>(size);
+        startCellMap = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -79,36 +78,37 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     @Override
     void runPhase1() {
-        int startCell = isochroneNodeStorage.getCellId(originalFrom);
-        CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
+        int startCell = isochroneNodeStorage.getCellId(from);
+        CoreRangeDijkstra coreRangeDijkstra = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(additionalEdgeFilter);
+        if(additionalEdgeFilter != null)
+            edgeFilterSequence.add(additionalEdgeFilter);
         edgeFilterSequence.add(
                 new CellAndBorderNodeFilter(isochroneNodeStorage,
                         startCell,
                         graph.getNodes())
         );
-        rangeSweepToAndInCore.setEdgeFilter(edgeFilterSequence);
-        rangeSweepToAndInCore.setIsochroneLimit(isochroneLimit);
-        rangeSweepToAndInCore.initFrom(from);
-        rangeSweepToAndInCore.runAlgo();
-        bestWeightMap = rangeSweepToAndInCore.getFromMap();
-        findFullyReachableCells(bestWeightMap);
+        coreRangeDijkstra.setEdgeFilter(edgeFilterSequence);
+        coreRangeDijkstra.setIsochroneLimit(isochroneLimit);
+        coreRangeDijkstra.initFrom(from);
+        coreRangeDijkstra.runAlgo();
+        startCellMap = coreRangeDijkstra.getFromMap();
+        findFullyReachableCells(startCellMap);
 
         for (int inactiveBorderNode : inactiveBorderNodes) {
-            bestWeightMap.remove(inactiveBorderNode);
+            startCellMap.remove(inactiveBorderNode);
             activeBorderNodes.remove(inactiveBorderNode);
         }
 
         for (int sweepEndNode : activeBorderNodes) {
-            double dist = rangeSweepToAndInCore.fromMap.get(sweepEndNode).getWeightOfVisitedPath();
+            double dist = coreRangeDijkstra.fromMap.get(sweepEndNode).getWeightOfVisitedPath();
             int cell = isochroneNodeStorage.getCellId(sweepEndNode);
             if (cell == startCell)
                 continue;
             if (!upAndCoreGraphDistMap.containsKey(cell))
                 upAndCoreGraphDistMap.put(cell, new HashMap<>());
             upAndCoreGraphDistMap.get(cell).put(sweepEndNode, dist);
-            bestWeightMap.remove(sweepEndNode);
+            startCellMap.remove(sweepEndNode);
         }
     }
 
@@ -134,13 +134,9 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     @Override
     void runPhase3() {
         activeCellMaps = new HashMap<>(upAndCoreGraphDistMap.entrySet().size());
-        activeCellMaps.put(isochroneNodeStorage.getCellId(originalFrom), bestWeightMap);
+        activeCellMaps.put(isochroneNodeStorage.getCellId(from), startCellMap);
         for (Map.Entry<Integer, Map<Integer, Double>> entry : upAndCoreGraphDistMap.entrySet()) {
-            ActiveCellDijkstra activeCellDijkstra = new ActiveCellDijkstra(this);
-            //Add a filter that stays within the cell.
-            EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-            edgeFilterSequence.add(new FixedCellEdgeFilter(isochroneNodeStorage, entry.getKey(), graph.getNodes()));
-            activeCellDijkstra.setEdgeFilter(edgeFilterSequence);
+            ActiveCellDijkstra activeCellDijkstra = new ActiveCellDijkstra(graph, weighting, isochroneNodeStorage, entry.getKey());
             activeCellDijkstra.setIsochroneLimit(isochroneLimit);
             //Add all the start points with their respective already visited weight
             for (int nodeId : entry.getValue().keySet()) {
@@ -148,7 +144,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             }
             activeCellDijkstra.init();
             activeCellDijkstra.runAlgo();
-            activeCellMaps.put(entry.getKey(), activeCellDijkstra.fromMap);
+            activeCellMaps.put(entry.getKey(), activeCellDijkstra.getFromMap());
         }
     }
 
@@ -165,7 +161,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             SPTEntry sptEntry = entry.value;
             int baseCell = isochroneNodeStorage.getCellId(baseNode);
             double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
-            if (sptEntry.getWeightOfVisitedPath() + baseNodeEccentricity < isochroneLimit
+            if (sptEntry.getWeightOfVisitedPath() + baseNodeEccentricity <= isochroneLimit
                     && eccentricityStorage.getFullyReachable(baseNode)) {
                 addFullyReachableCell(baseCell);
                 addInactiveBorderNode(baseNode);
@@ -203,16 +199,12 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         return activeCells;
     }
 
-    public IntObjectMap<SPTEntry> getBestWeightMap() {
-        return bestWeightMap;
+    public IntObjectMap<SPTEntry> getStartCellMap() {
+        return startCellMap;
     }
 
     public String getName() {
         return NAME;
-    }
-
-    public void setOriginalFrom(int originalFrom) {
-        this.originalFrom = originalFrom;
     }
 
     public Map<Integer, IntObjectMap<SPTEntry>> getActiveCellMaps() {

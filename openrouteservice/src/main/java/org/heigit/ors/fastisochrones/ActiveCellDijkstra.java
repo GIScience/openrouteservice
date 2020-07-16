@@ -17,10 +17,11 @@
  */
 package org.heigit.ors.fastisochrones;
 
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.ACTIVECELLDIJKSTRA;
@@ -33,26 +34,23 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
-    protected IsochroneNodeStorage isochroneNodeStorage;
-    protected EccentricityStorage eccentricityStorage;
-    protected FastIsochroneAlgorithm fastIsochroneAlgorithm;
     private double isochroneLimit = 0;
 
-    public ActiveCellDijkstra(FastIsochroneAlgorithm fastIsochroneAlgorithm) {
-        super(fastIsochroneAlgorithm.graph, fastIsochroneAlgorithm.weighting);
-        this.fastIsochroneAlgorithm = fastIsochroneAlgorithm;
-        this.isochroneNodeStorage = fastIsochroneAlgorithm.isochroneNodeStorage;
-        this.eccentricityStorage = fastIsochroneAlgorithm.eccentricityStorage;
+
+    public ActiveCellDijkstra(Graph graph, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int cellId) {
+        super(graph, weighting);
+        setEdgeFilter(new FixedCellEdgeFilter(isochroneNodeStorage, cellId, graph.getNodes()));
     }
 
     protected void addInitialBordernode(int nodeId, double weight) {
         SPTEntry entry = new SPTEntry(nodeId, weight);
         fromHeap.add(entry);
+        fromMap.put(nodeId, entry);
     }
 
     protected void init() {
         if (fromHeap.peek() != null) {
-            currEdge = fromHeap.peek();
+            currEdge = fromHeap.poll();
         }
     }
 
@@ -96,7 +94,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     }
 
     private boolean isLimitExceeded() {
-        return currEdge.getWeightOfVisitedPath() > isochroneLimit;
+        return currEdge.getWeightOfVisitedPath() >= isochroneLimit;
     }
 
     public void setIsochroneLimit(double limit) {

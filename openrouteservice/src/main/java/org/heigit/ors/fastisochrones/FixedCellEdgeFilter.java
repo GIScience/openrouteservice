@@ -19,7 +19,7 @@ public class FixedCellEdgeFilter implements EdgeFilter {
     public FixedCellEdgeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes) {
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.cellId = cellId;
-        this.maxNodes = maxNodes - 1;
+        this.maxNodes = maxNodes;
     }
 
     public void setCellId(int cellId) {
