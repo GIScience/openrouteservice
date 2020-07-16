@@ -68,7 +68,7 @@
                       {
                         enabled: true,
                         threads: 1,
-                        weightings: "fastest,shortest",
+                        weightings: "recommended,shortest",
                         landmarks: 16
                       }
                   }
@@ -176,20 +176,20 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest"
+                          weightings: "recommended"
                         },
                       lm:
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest",
+                          weightings: "recommended",
                           landmarks: 16
                         },
                       core:
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "recommended,shortest",
                           landmarks: 32
                         }
                     }
@@ -244,7 +244,7 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "recommended,shortest",
                           landmarks: 32
                         }
                     }

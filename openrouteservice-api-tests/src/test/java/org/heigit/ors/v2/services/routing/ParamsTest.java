@@ -103,7 +103,7 @@ public class ParamsTest extends ServiceTest {
 		extraInfo.put("steepness");
 		addParameter("extra_info", extraInfo);
 
-		addParameter("preference", "fastest");
+		addParameter("preference", "recommended");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
 		addParameter("footProfile", "foot-walking");
@@ -946,7 +946,7 @@ public class ParamsTest extends ServiceTest {
 		coordinates.put(coord2);
 
 		body.put("coordinates", coordinates);
-		body.put("preference", "fastest");
+		body.put("preference", getParameter("preference"));
 
 		JSONArray radii = new JSONArray();
 		radii.put(50);
@@ -958,7 +958,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.header("Accept", "application/json")
 				.header("Content-Type", "application/json")
-				.pathParam("profile", "cycling-regular")
+				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath()+"/{profile}/json")
@@ -1734,7 +1734,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.header("Accept", "application/json")
 				.header("Content-Type", "application/json")
-				.pathParam("profile", "driving-car")
+				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath() + "/{profile}")
@@ -1756,7 +1756,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.header("Accept", "application/json")
 				.header("Content-Type", "application/json")
-				.pathParam("profile", "cycling-regular")
+				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath() + "/{profile}")

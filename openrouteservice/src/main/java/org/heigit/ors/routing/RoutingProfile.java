@@ -85,6 +85,7 @@ public class RoutingProfile {
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
+    private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
     private static final String KEY_LM_DISABLE = "lm.disable";
@@ -598,12 +599,13 @@ public class RoutingProfile {
             throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
 
         try {
-            String weightingStr = Helper.isEmpty(req.getWeightingMethod()) ? VAL_FASTEST : req.getWeightingMethod();
+            HintsMap hintsMap = new HintsMap();
+            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
+            setWeighting(hintsMap, weightingMethod, req.getProfileType());
             Graph graph = null;
-            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(weightingStr)) {
-                HintsMap map = new HintsMap(weightingStr);
-                map.setVehicle(encoderName);
-                graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(map)).getCHProfile());
+            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
+                hintsMap.setVehicle(encoderName);
+                graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
@@ -611,8 +613,6 @@ public class RoutingProfile {
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            HintsMap hintsMap = new HintsMap();
-            hintsMap.setWeighting(weightingStr);
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
@@ -788,7 +788,7 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType))
-                setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
+                setWeighting(req.getHints(), weightingMethod, profileType);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
@@ -856,7 +856,7 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeighting(req, weightingMethod, profileType, searchParams.getVehicleType());
+                setWeighting(req.getHints(), weightingMethod, profileType);
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             }
             else
@@ -947,37 +947,37 @@ public class RoutingProfile {
      * Set the weighting for the request based on input weighting.
      * Also set the weighting_method.
      *
-     * @param req Request to be modified
+     * @param map Hints map for setting up the request
      * @param requestWeighting Originally requested weighting
      * @param profileType Necessary for HGV
-     * @param vehicleType Necessary for HGV
      * @return Weighting as int
      */
-    private void setWeighting(GHRequest req, int requestWeighting, int profileType, int vehicleType){
+    private void setWeighting(HintsMap map, int requestWeighting, int profileType){
         //Defaults
-        String weighting = VAL_FASTEST;
-        String weightingMethod = VAL_FASTEST;
-
-        if(requestWeighting == WeightingMethod.FASTEST)
-            weighting = weightingMethod = VAL_FASTEST;
+        String weighting = VAL_RECOMMENDED;
+        String weightingMethod = VAL_RECOMMENDED;
 
         if(requestWeighting == WeightingMethod.SHORTEST)
             weighting = weightingMethod = VAL_SHORTEST;
 
         //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
-        if(requestWeighting == WeightingMethod.RECOMMENDED){
-            if(RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
-                weighting = VAL_RECOMMENDED;
-                weightingMethod = VAL_RECOMMENDED;
+        if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
+            if (profileType == RoutingProfileType.DRIVING_CAR) {
+                weighting = weightingMethod = VAL_FASTEST;
             }
-            if(RoutingProfileType.isHeavyVehicle(profileType)) {
+            else if (RoutingProfileType.isHeavyVehicle(profileType)) {
                 weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED_PREF;
             }
+            if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
+                weighting = VAL_RECOMMENDED;
+                weightingMethod = VAL_RECOMMENDED;
+            }
+
         }
 
-        req.setWeighting(weighting);
-        req.getHints().put(KEY_WEIGHTING_METHOD, weightingMethod);
+        map.put(KEY_WEIGHTING, weighting);
+        map.put(KEY_WEIGHTING_METHOD, weightingMethod);
     }
     /**
      * Set the speedup techniques used for calculating the route.
