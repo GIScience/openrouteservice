@@ -19,7 +19,6 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
-import org.heigit.ors.config.AppConfig;
 
 /**
  * This class creates the weighting for the routing according to the maximum speed set by user.

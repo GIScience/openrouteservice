@@ -29,10 +29,7 @@ import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.CHProfile;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -48,6 +45,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -551,8 +549,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
-			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
+			FlagEncoder flagEncoder = getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
 			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+		}
 
 		/* Maximum Speed Filter */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
