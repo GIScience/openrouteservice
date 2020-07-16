@@ -81,6 +81,9 @@ public class RouteSearchParameters {
     private int roundTripPoints = 2;
     private long roundTripSeed = -1;
 
+    private double maximumSpeed;
+    private boolean hasMaximumSpeed = false;
+
     private String options;
 
     private boolean turnRestrictions=false;
@@ -505,6 +508,10 @@ public class RouteSearchParameters {
         this.bearings = bearings;
     }
 
+    public boolean hasBearings() {
+        return bearings != null && bearings.length > 0;
+    }
+
     public void setRoundTripLength(float length) {
         roundTripLength = length;
     }
@@ -529,6 +536,19 @@ public class RouteSearchParameters {
         return roundTripSeed;
     }
 
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
+
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
     }
@@ -551,7 +571,7 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-        ;
+            || hasMaximumSpeed();
     }
 
     /**
@@ -559,6 +579,7 @@ public class RouteSearchParameters {
      */
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
+                || hasBearings()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
     }
 }

@@ -5,22 +5,52 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
-- Configuration option to read elevation tags from pbf data
 ### Fixed
+### Changed
+### Deprecated
+
+## [6.2.0] - 2020-07-15
+### Added
+- New `maximum_speed` parameter to the driving profiles of the directions API, for specifying a speed limit, above a certain threshold set in the config file.
+- Polish translation ([#690](https://github.com/GIScience/openrouteservice/issues/690))
+- Configuration parameter to enable elevation smoothing ([#725](https://github.com/GIScience/openrouteservice/issues/725))
+### Fixed
+- Fixed fallback to dynamic routing methods if bearings parameter set ([#702](https://github.com/GIScience/openrouteservice/issues/702))
+- Enable elevation interpolation for bridges and tunnels ([#685](https://github.com/GIScience/openrouteservice/issues/685))
+- Fixed erroneous duration computation of soft weightings such as green and quiet weightings
+- Enable recommended weighting for hgv profile and robustify the matching of routing algorithm to the request ([#755](https://github.com/GIScience/openrouteservice/issues/755))
+### Changed
+- Improve recommended weighting for cycling and walking profiles ([#665](https://github.com/GIScience/openrouteservice/issues/665))
+- Restructure AdditionWeighting
+### Deprecated
+- Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
+
+## [6.1.1] - 2020-06-02
+### Added
+- Configuration option to read elevation tags from pbf data
+- Configuration parameters to set location index resolution and the maximum number of iterations in coordinates lookup ([#712](https://github.com/GIScience/openrouteservice/issues/712))
+### Fixed
+- Removing maintenance burden of two `app.config` files for native and docker setup ([#742](https://github.com/GIScience/openrouteservice/issues/742))
 - Allowed the usage of green and noise in extra info parameter ([#688](https://github.com/GIScience/openrouteservice/issues/688))
+- Fixed extra info grouping with alternative routes ([#681](https://github.com/GIScience/openrouteservice/issues/681))
 - Fixed way surface/type encoding issue ([#677](https://github.com/GIScience/openrouteservice/issues/677))
 - Querying shortest weighting can now use CH shortest preparation if available
 - Roads tagged with destination access are penalized the same way for hgv as for car ([#525](https://github.com/GIScience/openrouteservice/issues/525))
+- JAVA_OPTS and CATALINA_OPTS were not correctly set in Docker setup ([#696](https://github.com/GIScience/openrouteservice/issues/696))
+- Suitability values in extra info are not underestimated ([#722](https://github.com/GIScience/openrouteservice/issues/722))
+- Fixed problem with incorrect way point values being referenced for round trip ([#724](https://github.com/GIScience/openrouteservice/issues/724))
+- Fixed oneway handling for bike routing ([#389](https://github.com/GIScience/openrouteservice/issues/389)) [by integrating GH PR [#1769](https://github.com/graphhopper/graphhopper/pull/1769/files/ad4fe02d3d9b5deb66dc0b88d02b61b28b52871c) of BikeCommonFlagEncoder]
 ### Changed
 - Refactor the algorithm selection process
 - Use ALT/A* Beeline for roundtrips. Enable Core-ALT-only for pedestrian profile.
 - Enable CH and Core-ALT preprocessing with recommended weighting for all profiles.
 - Refactor wheelchair builder
+- Running a Docker container will now create a `app.config` on the host machine, so it's now usable from Dockerhub
 ### Deprecated
 
 ## [6.1.0] - 2020-03-06
 ### Added
-- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation) 
+- Hebrew language support (thanks to [citizen-dror](https://github.com/GIScience/openrouteservice/commits?author=citizen-dror) for the translation)
 - Configuration options to limit avoid_polygon routing option by area and/or extent ([#629](https://github.com/GIScience/openrouteservice/issues/629))
 - Configuration options to limit count parameter and distance when using alternative routes algorithm ([#651](https://github.com/GIScience/openrouteservice/issues/651))
 - Configuration options to limit distance when using round trip routing algorithm ([#658](https://github.com/GIScience/openrouteservice/issues/658))
@@ -34,6 +64,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Fixed memory issue at graph building ([#659](https://github.com/GIScience/openrouteservice/issues/659))
 - Improve way category assignment for ferry connections ([#678](https://github.com/GIScience/openrouteservice/issues/678))
 ### Changed
+- improve french translation (directions)
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
@@ -58,7 +89,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Cleanup of a number of code files
 ### Deprecated
 - Removed geocoding endpoint and code
-- Removed accessibilty endpoint and code 
+- Removed accessibilty endpoint and code
 - Removed Brotil encoder from servlet filter
 
 ## [5.0.2] - 2019-07-29

@@ -19,6 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.reader.DataReader;
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
 import com.graphhopper.routing.template.AlternativeRoutingTemplate;
@@ -76,6 +77,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
 
+	private double maximumSpeedLowerBound;
+
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		forDesktop();
@@ -85,6 +88,8 @@ public class ORSGraphHopper extends GraphHopper {
 		algoDecorators.add(getCHFactoryDecorator());
 		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
+		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
+
 	}
 
 
@@ -97,6 +102,7 @@ public class ORSGraphHopper extends GraphHopper {
 		GraphHopper ret = super.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+
 		return ret;
 	}
 
@@ -230,8 +236,15 @@ public class ORSGraphHopper extends GraphHopper {
 			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
 			routingTemplate.setEdgeFilter(edgeFilter);
 
-			PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage());
-			ghRsp.addReturnObject(pathProcessor);
+			for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 1); c++) {
+				ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
+			}
+			List<PathProcessor> ppList = new ArrayList<>();
+			for (Object returnObject : ghRsp.getReturnObjects()) {
+				if (returnObject instanceof PathProcessor) {
+					ppList.add((PathProcessor)returnObject);
+				}
+			}
 
 			List<Path> altPaths = null;
 			int maxRetries = routingTemplate.getMaxRetries();
@@ -321,6 +334,12 @@ public class ORSGraphHopper extends GraphHopper {
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
+
+				if(hints.has("maximum_speed")) {
+					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
+				}
+
+
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
 
 				if(hints.has("turn_restrictions")){
@@ -347,7 +366,7 @@ public class ORSGraphHopper extends GraphHopper {
 				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
 				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
                         .setEnableInstructions(tmpEnableInstructions)
-						.setPathProcessor(pathProcessor)
+						.setPathProcessor(ppList.toArray(new PathProcessor[]{}))
 						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
 
 				if (routingTemplate.isReady(pathMerger, tr))
@@ -524,7 +543,6 @@ public class ORSGraphHopper extends GraphHopper {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
-
 		/* TurnRestrictions */
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
@@ -535,6 +553,18 @@ public class ORSGraphHopper extends GraphHopper {
 		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
 			FlagEncoder flagEncoder=getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
 			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+
+		/* Maximum Speed Filter */
+		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
+			FlagEncoder flagEncoder = null;
+			if(encodingManager.hasEncoder("heavyvehicle")) {
+				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
+				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+			}
+			else if(encodingManager.hasEncoder("car-ors")) {
+				flagEncoder = getEncodingManager().getEncoder("car-ors");
+				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+			}
 		}
 
 		/* End filter sequence initialization */
@@ -635,5 +665,36 @@ public class ORSGraphHopper extends GraphHopper {
 			if (coreLMFactoryDecorator.loadOrDoWork(getGraphHopperStorage().getProperties()))
 				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
+	}
+
+	public final boolean isCHAvailable(String weighting) {
+		CHAlgoFactoryDecorator chFactoryDecorator = getCHFactoryDecorator();
+		if (chFactoryDecorator.isEnabled() && chFactoryDecorator.hasCHProfiles()) {
+			for (CHProfile chProfile : chFactoryDecorator.getCHProfiles()) {
+				if (weighting.equals(chProfile.getWeighting().getName()))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public final boolean isLMAvailable(String weighting) {
+		LMAlgoFactoryDecorator lmFactoryDecorator = getLMFactoryDecorator();
+		if (lmFactoryDecorator.isEnabled()) {
+			List<String> weightings = lmFactoryDecorator.getWeightingsAsStrings();
+			return weightings.contains(weighting);
+		}
+		return false;
+	}
+
+	public final boolean isCoreAvailable(String weighting) {
+		CoreAlgoFactoryDecorator coreFactoryDecorator = getCoreFactoryDecorator();
+		if (coreFactoryDecorator.isEnabled() && coreFactoryDecorator.hasCHProfiles()) {
+			for (CHProfile chProfile : coreFactoryDecorator.getCHProfiles()) {
+				if (weighting.equals(chProfile.getWeighting().getName()))
+					return true;
+			}
+		}
+		return false;
 	}
 }

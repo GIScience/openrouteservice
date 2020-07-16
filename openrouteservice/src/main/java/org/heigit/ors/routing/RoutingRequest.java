@@ -44,6 +44,7 @@ public class RoutingRequest extends ServiceRequest {
 	private List<Integer> skipSegments = new ArrayList<>();
 	private boolean includeCountryInfo = false;
 	private boolean turnRestrictions= false;
+	private double maximumSpeed;
 
 	private String responseFormat = "json";
 
@@ -212,6 +213,14 @@ public class RoutingRequest extends ServiceRequest {
 		this.includeCountryInfo = includeCountryInfo;
 	}
 
+	public void setMaximumSpeed(double maximumSpeed){
+		this.maximumSpeed = maximumSpeed;
+	}
+
+	public double getMaximumSpeed(){
+		return maximumSpeed;
+	}
+
 	public void setResponseFormat(String responseFormat) {
 		if (!Helper.isEmpty(responseFormat)) {
 			this.responseFormat = responseFormat;
@@ -227,4 +236,9 @@ public class RoutingRequest extends ServiceRequest {
 	public boolean getTurnRestrictions(){ return turnRestrictions; }
 
 	public boolean  hasTurnRestrictions(){ return turnRestrictions; }
+
+	public boolean isRoundTripRequest() {
+		return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
+	}
+
 }

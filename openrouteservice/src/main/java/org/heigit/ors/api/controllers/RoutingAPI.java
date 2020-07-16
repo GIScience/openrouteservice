@@ -85,8 +85,8 @@ public class RoutingAPI {
                     response = GeoJSONRouteResponse.class)
     )
     public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                                      @ApiParam(value = "Start coordinate of the route", required = true, example = "8.681495,49.41461") @RequestParam Coordinate start,
-                                                      @ApiParam(value = "Destination coordinate of the route", required = true, example = "8.687872,49.420318") @RequestParam Coordinate end) throws StatusCodeException{
+                                                      @ApiParam(value = "Start coordinate of the route in `longitude,latitude` format.", required = true, example = "8.681495,49.41461") @RequestParam Coordinate start,
+                                                      @ApiParam(value = "Destination coordinate of the route in `longitude,latitude` format.", required = true, example = "8.687872,49.420318") @RequestParam Coordinate end) throws StatusCodeException{
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 

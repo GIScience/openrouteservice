@@ -75,11 +75,11 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
         setPreparationThreads(args.getInt(Core.PREPARE + "threads", getPreparationThreads()));
 
-        // default is enabled & fastest
+        // default is enabled & recommended
         String coreWeightingsStr = args.get(Core.PREPARE + "weightings", "");
 
         if ("no".equals(coreWeightingsStr)) {
-            // default is fastest and we need to clear this explicitely
+            // default is recommended and we need to clear this explicitely
             chProfileStrings.clear();
         } else if (!coreWeightingsStr.isEmpty()) {
             setCHProfilesAsStrings(Arrays.asList(coreWeightingsStr.split(",")));
@@ -236,7 +236,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     private String getDefaultProfile() {
-        return chProfileStrings.isEmpty() ? "fastest" : chProfileStrings.iterator().next();
+        return chProfileStrings.isEmpty() ? "recommended" : chProfileStrings.iterator().next();
     }
 
     public List<PrepareCore> getPreparations() {

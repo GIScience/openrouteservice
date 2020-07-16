@@ -20,10 +20,8 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.exceptions.RouteNotFoundException;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
@@ -294,7 +292,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
+            return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -325,7 +323,8 @@ public class RoutingProfileManager {
             throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
-        ExtraInfoProcessor extraInfoProcessor = null;
+        int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount() < 0 ? 1 : req.getSearchParameters().getAlternativeRoutesCount();
+        ExtraInfoProcessor[] extraInfoProcessors = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -409,18 +408,24 @@ public class RoutingProfileManager {
                 }
             }
 
-            try {
-                for (Object obj : gr.getReturnObjects()) {
-                    if (obj instanceof ExtraInfoProcessor) {
-                        if (extraInfoProcessor == null) {
-                            extraInfoProcessor = (ExtraInfoProcessor)obj;
+            if (numberOfExpectedExtraInfoProcessors > 1) {
+                int extraInfoProcessorIndex = 0;
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
+                        extraInfoProcessorIndex++;
+                    }
+                }
+            } else {
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        if (extraInfoProcessors[0] == null) {
+                            extraInfoProcessors[0] = (ExtraInfoProcessor)o;
                         } else {
-                            extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+                            extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
                         }
                     }
                 }
-            } catch (Exception e) {
-                LOGGER.error(e);
             }
 
             prevResp = gr;
@@ -428,7 +433,13 @@ public class RoutingProfileManager {
             c0 = c1;
         }
         routes = enrichDirectRoutesTime(routes);
-        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+
+        List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
+        int i = 0;
+        for (ExtraInfoProcessor e : extraInfoProcessors) {
+            extraInfos[i] = e != null ? e.getExtras() : null;
+            i++;
+        }
         return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
     }
 
@@ -560,6 +571,15 @@ public class RoutingProfileManager {
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", config.getMaximumDistanceAvoidAreas()));
                 if (useAlternativeRoutes && config.getMaximumDistanceAlternativeRoutes() > 0 && totalDist > config.getMaximumDistanceAlternativeRoutes())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algotirhm.", config.getMaximumDistanceAlternativeRoutes()));
+            }
+        }
+
+        if(searchParams.hasMaximumSpeed()){
+            if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+            }
+            if(!(rp.getGraphhopper().getEncodingManager().hasEncoder("heavyvehicle") || rp.getGraphhopper().getEncodingManager().hasEncoder("car-ors")) ){
+                throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }
 

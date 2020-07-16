@@ -14,23 +14,23 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class OptimizedPriorityWeighting extends FastestWeighting {
-	private static final Double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
-	private  static final Double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double PRIORITY_BEST = PriorityCode.BEST.getValue();
+	private static final double PRIORITY_UNCHANGED = PriorityCode.UNCHANGED.getValue();
 	private final DecimalEncodedValue priorityEncoder;
 
 	public OptimizedPriorityWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
-		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, "priority"));
+		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
 	}
 
 	@Override
@@ -41,12 +41,11 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 
 		double priority = priorityEncoder.getDecimal(reverse, edgeState.getFlags());
 
-		if (priority <= THRESHOLD_REACH_DEST)
-			weight *= 1.25;
-		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
-			weight *= 2;
+		double normalizedPriority = priority * PRIORITY_BEST - PRIORITY_UNCHANGED;
 
-		return weight / (0.5 + priority);
+		double factor = Math.pow(2, normalizedPriority / (PRIORITY_UNCHANGED - PRIORITY_BEST));
+
+		return weight * factor;
 	}
 
 	@Override

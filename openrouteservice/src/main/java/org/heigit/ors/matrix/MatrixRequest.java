@@ -15,6 +15,7 @@ package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.ServiceRequest;
 
 public class MatrixRequest extends ServiceRequest {
@@ -22,7 +23,7 @@ public class MatrixRequest extends ServiceRequest {
 	private Coordinate[] sources;
 	private Coordinate[] destinations;
 	private int metrics =  MatrixMetricsType.DURATION;
-	private String weightingMethod;
+	private int weightingMethod;
 	private DistanceUnit units = DistanceUnit.METERS;
 	private boolean resolveLocations = false;
 	private boolean flexibleMode = false;
@@ -87,12 +88,12 @@ public class MatrixRequest extends ServiceRequest {
 		return destinations.length * sources.length;
 	}
 
-	public String getWeightingMethod() {
+	public int getWeightingMethod() {
 		return weightingMethod;
 	}
 
-	public void setWeightingMethod(String weighting) {
-		weightingMethod = weighting;
+	public void setWeightingMethod(int weightingMethod) {
+		this.weightingMethod = weightingMethod;
 	}
 
 	public boolean getFlexibleMode() {

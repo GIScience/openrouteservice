@@ -48,10 +48,17 @@ public class RouteProfileConfiguration {
 	private String elevationCachePath = null;
 	private String elevationDataAccess = "MMAP";
 	private boolean elevationCacheClear = true;
+	private boolean elevationSmoothing = true;
+	private boolean interpolateBridgesAndTunnels = true;
 	private int maximumSnappingRadius = 350;
 
 	private Envelope extent;
 	private boolean hasMaximumSnappingRadius = false;
+
+	private int locationIndexResolution = 500;
+	private int locationIndexSearchIterations = 4;
+
+	private double maximumSpeedLowerBound = 80;
 
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
@@ -83,11 +90,15 @@ public class RouteProfileConfiguration {
 		elevationCacheClear = rpc.elevationCacheClear;
 		elevationProvider = rpc.elevationProvider;
 		elevationDataAccess = rpc.elevationDataAccess;
+		elevationSmoothing = rpc.elevationSmoothing;
+		interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
 
 		maximumSnappingRadius = rpc.maximumSnappingRadius;
 		hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
 
 		extent = rpc.extent;
+
+		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 	}
 
 	public Integer[] getProfilesTypes() {
@@ -301,6 +312,22 @@ public class RouteProfileConfiguration {
 		return elevationCacheClear;
 	}
 
+	public boolean getElevationSmoothing() {
+		return elevationSmoothing;
+	}
+
+	public void setElevationSmoothing(boolean elevationSmoothing) {
+		this.elevationSmoothing = elevationSmoothing;
+	}
+
+	public boolean getInterpolateBridgesAndTunnels() {
+		return interpolateBridgesAndTunnels;
+	}
+
+	public void setInterpolateBridgesAndTunnels(boolean interpolateBridgesAndTunnels) {
+		this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
+	}
+
 	public Config getPreparationOpts() {
 		return preparationOpts;
 	}
@@ -336,5 +363,29 @@ public class RouteProfileConfiguration {
 	public void setMaximumSnappingRadius(int maximumSnappingRadius) {
 		this.maximumSnappingRadius = maximumSnappingRadius;
 		this.hasMaximumSnappingRadius = true;
+	}
+
+	public int getLocationIndexResolution() {
+		return locationIndexResolution;
+	}
+
+	public void setLocationIndexResolution(int locationIndexResolution) {
+		this.locationIndexResolution = locationIndexResolution;
+	}
+
+	public int getLocationIndexSearchIterations() {
+		return locationIndexSearchIterations;
+	}
+
+	public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
+		this.locationIndexSearchIterations = locationIndexSearchIterations;
+	}
+
+	public void setMaximumSpeedLowerBound(double maximumSpeedLowerBound){
+		this.maximumSpeedLowerBound = maximumSpeedLowerBound;
+	}
+
+	public double getMaximumSpeedLowerBound(){
+		return maximumSpeedLowerBound;
 	}
 }

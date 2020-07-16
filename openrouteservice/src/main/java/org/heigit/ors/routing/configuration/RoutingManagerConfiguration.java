@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 public class RoutingManagerConfiguration  {
+	public static final String PARAM_ELEVATION_CACHE_CLEAR = "elevation_cache_clear";
+	public static final String PARAM_ELEVATION_DATA_ACCESS = "elevation_data_access";
+	public static final String PARAM_ELEVATION_SMOOTHING = "elevation_smoothing";
+	public static final String PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS = "interpolate_bridges_and_tunnels";
+
 	public RouteUpdateConfiguration getUpdateConfig() {
 		return updateConfig;
 	}
@@ -112,14 +117,20 @@ public class RoutingManagerConfiguration  {
 					case "elevation":
 						if (Boolean.parseBoolean(paramItem.getValue().toString())) {
 							profile.setElevationProvider(StringUtility.trimQuotes(profileParams.get("elevation_provider").toString()));
-							if (profileParams.get("elevation_data_access") != null)
-								profile.setElevationDataAccess( StringUtility.trimQuotes(profileParams.get("elevation_data_access").toString()));
+							if (profileParams.get(PARAM_ELEVATION_DATA_ACCESS) != null)
+								profile.setElevationDataAccess( StringUtility.trimQuotes(profileParams.get(PARAM_ELEVATION_DATA_ACCESS).toString()));
 							profile.setElevationCachePath( StringUtility.trimQuotes(profileParams.get("elevation_cache_path").toString()));
-
-							if (profileParams.get("elevation_cache_clear") != null) {
-								String clearCache =  StringUtility.trimQuotes(profileParams.get("elevation_cache_clear").toString());
-								if (!Helper.isEmpty(clearCache))
-									profile.setElevationCacheClear(Boolean.parseBoolean(clearCache));
+							if (profileParams.get(PARAM_ELEVATION_CACHE_CLEAR) != null) {
+								String clearCache = StringUtility.trimQuotes(profileParams.get(PARAM_ELEVATION_CACHE_CLEAR).toString());
+								profile.setElevationCacheClear(Boolean.parseBoolean(clearCache));
+							}
+							if (profileParams.get(PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS) != null) {
+								String interpolateBridgesAndTunnels = StringUtility.trimQuotes(profileParams.get(PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS).toString());
+								profile.setInterpolateBridgesAndTunnels(Boolean.parseBoolean(interpolateBridgesAndTunnels));
+							}
+							if (profileParams.get(PARAM_ELEVATION_SMOOTHING) != null) {
+								String elevationSmoothing = StringUtility.trimQuotes(profileParams.get(PARAM_ELEVATION_SMOOTHING).toString());
+								profile.setElevationSmoothing(Boolean.parseBoolean(elevationSmoothing));
 							}
 						}
 						break;
@@ -183,6 +194,15 @@ public class RoutingManagerConfiguration  {
 						break;
 					case "maximum_snapping_radius":
 						profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					case "location_index_resolution":
+						profile.setLocationIndexResolution(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					case "location_index_search_iterations":
+						profile.setLocationIndexSearchIterations(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					case "maximum_speed_lower_bound":
+						profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
 						break;
 					default:
 					}

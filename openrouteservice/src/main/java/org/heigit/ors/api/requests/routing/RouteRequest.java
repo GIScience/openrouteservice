@@ -58,6 +58,7 @@ public class RouteRequest {
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
     public static final String PARAM_TURN_RESTRICTIONS = "turn_restrictions";
+    public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -76,8 +77,8 @@ public class RouteRequest {
     private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_PREFERENCE,
-            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'fastest'}",
-            example = "fastest")
+            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
+            example = "recommended")
     @JsonProperty(value = PARAM_PREFERENCE)
     private APIEnums.RoutePreference routePreference;
     @JsonIgnore
@@ -209,7 +210,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = PARAM_OPTIONS,
             value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
-            example = "{\"maximum_speed\": 100}")
+            example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;
     @JsonIgnore
@@ -240,7 +241,9 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasSkipSegments = false;
 
-    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES, value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.")
+    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES,
+            value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.",
+            example = "{\"target_count\":2,\"weight_factor\":1.6}")
     @JsonProperty(PARAM_ALTERNATIVE_ROUTES)
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
@@ -252,7 +255,13 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasTurnRestrictions = false;
 
-
+    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            example = "90")
+    @JsonProperty(PARAM_MAXIMUM_SPEED)
+    private double maximumSpeed;
+    @JsonIgnore
+    private boolean hasMaximumSpeed = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -514,6 +523,15 @@ public class RouteRequest {
         hasAlternativeRoutes = true;
     }
 
+    public void setMaximumSpeed(Double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -592,4 +610,7 @@ public class RouteRequest {
 
     public boolean  hasTurnRestrictions(){ return turnRestrictions; }
 
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
 }
