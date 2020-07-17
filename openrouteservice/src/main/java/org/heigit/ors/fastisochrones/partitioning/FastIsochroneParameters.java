@@ -12,7 +12,7 @@ public final class FastIsochroneParameters {
     public static final String RANGEDIJKSTRA = "RangeDijkstra";
 
     //GLOBAL
-    private static int maxThreadCount = 1;
+    private static int maxThreadCount = 12;
     private static boolean log = true;
     //PARTITIONING
     private static int maxCellNodesNumber = 5000;

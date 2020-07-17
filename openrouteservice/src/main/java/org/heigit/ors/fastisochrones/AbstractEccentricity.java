@@ -63,4 +63,8 @@ public abstract class AbstractEccentricity {
 
         return eccentricityStorage.loadExisting();
     }
+
+    public boolean isAvailable(Weighting weighting){
+        return getEccentricityStorage(weighting) != null;
+    }
 }

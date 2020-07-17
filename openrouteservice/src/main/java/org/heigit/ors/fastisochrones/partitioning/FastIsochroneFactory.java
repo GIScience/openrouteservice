@@ -39,7 +39,6 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  */
 public class FastIsochroneFactory {
     private final Set<String> fastisochroneProfileStrings = new LinkedHashSet<>();
-    private final String defaultWeighting = "fastest";
     private PreparePartition partition;
     private boolean disablingAllowed = true;
     private boolean enabled = false;
@@ -58,8 +57,6 @@ public class FastIsochroneFactory {
         } else if (!weightingsStr.isEmpty()) {
             setFastIsochroneProfilesAsStrings(Arrays.asList(weightingsStr.split(",")));
         }
-        else
-            addFastIsochroneProfileAsString(defaultWeighting);
 
         boolean enableThis = !fastisochroneProfileStrings.isEmpty();
         setEnabled(enableThis);

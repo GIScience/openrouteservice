@@ -38,13 +38,16 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
+import org.heigit.ors.isochrones.IsochroneWeightingFactory;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
@@ -726,11 +729,19 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 		return false;
 	}
+	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
+		if(eccentricity ==  null)
+			return false;
+		if(eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType)))
+		    return true;
+		return false;
+	}
+
 
 	/**
 	 * Partitioning
 	 */
-	
+
 	public GraphHopper setPartitionEnabled(boolean enable) {
 		ensureNotLoaded();
 		fastIsochroneFactory.setEnabled(enable);

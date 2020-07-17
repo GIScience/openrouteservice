@@ -38,10 +38,7 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.Isochrone;
-import org.heigit.ors.isochrones.IsochroneMap;
-import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -142,14 +139,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         // only needed for reachfactor property
         double meanMetersPerSecond = meanSpeed / 3.6;
 
-        HintsMap hintsMap;
-        if (parameters.getRangeType() == TravelRangeType.TIME) {
-            hintsMap = new HintsMap("fastest").put("isochroneWeighting", "true");
-        } else {
-            hintsMap = new HintsMap("shortest").put("isochroneWeighting", "true");
-        }
-
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
+        Weighting weighting = IsochroneWeightingFactory.createIsochroneWeighting(searchcontext, parameters.getRangeType());
 
         Coordinate loc = parameters.getLocation();
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
@@ -615,7 +605,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             addPoint(points, qtree, longitude, latitude, true);
         }
         if (LOGGER.isDebugEnabled())
-            LOGGER.info("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
+            LOGGER.debug("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
 
         Geometry[] geometries = new Geometry[points.size()];
 

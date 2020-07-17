@@ -57,7 +57,7 @@ public class FastIsochroneFactoryTest {
     @Test
     public void testInit() {
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
-        fastIsochroneFactory.init(new CmdArgs());
+        fastIsochroneFactory.init(new CmdArgs().put(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
         assertTrue(fastIsochroneFactory.isEnabled());
         assertTrue(fastIsochroneFactory.isDisablingAllowed());
         assertEquals("fastest", fastIsochroneFactory.getFastisochroneProfileStrings().iterator().next());
@@ -67,7 +67,7 @@ public class FastIsochroneFactoryTest {
     public void testAddPreparation() {
         GraphHopperStorage gs = createMediumGraph();
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
-        fastIsochroneFactory.init(new CmdArgs());
+        fastIsochroneFactory.init(new CmdArgs().put(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
         fastIsochroneFactory.createPreparation(gs, null);
         assertNotNull(fastIsochroneFactory.getPartition().getIsochroneNodeStorage());
         assertNotNull(fastIsochroneFactory.getPartition().getCellStorage());
@@ -83,7 +83,7 @@ public class FastIsochroneFactoryTest {
     public void testPrepare() {
         GraphHopperStorage gs = createMediumGraph();
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
-        fastIsochroneFactory.init(new CmdArgs());
+        fastIsochroneFactory.init(new CmdArgs().put(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
         fastIsochroneFactory.createPreparation(gs, null);
 
         fastIsochroneFactory.prepare(gs.getProperties());
