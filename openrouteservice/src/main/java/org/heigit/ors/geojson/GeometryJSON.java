@@ -28,6 +28,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 import org.heigit.ors.util.FormatUtility;
 
@@ -160,6 +161,8 @@ public class GeometryJSON {
 				return readPolygon(arrCoords);
 			case "MultiPolygon":
 				return readMultiPolygon(arrCoords);
+			case "GeometryCollection":
+				throw new Exception("GeometryCollection not yet implemented");
 			default:
 				throw new Exception("invalid type: " + type);
 		}

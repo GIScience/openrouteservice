@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
+import org.heigit.ors.api.requests.common.WeightChanges;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
@@ -180,6 +181,10 @@ public class RouteRequestHandler extends GenericHandler {
 
         if (request.hasMaximumSpeed()) {
             params.setMaximumSpeed(request.getMaximumSpeed());
+        }
+
+        if (request.hasWeightChanges()) {
+            params.setWeightChanges(new WeightChanges(request.getWeightChanges()));
         }
 
         params.setConsiderTurnRestrictions(false);

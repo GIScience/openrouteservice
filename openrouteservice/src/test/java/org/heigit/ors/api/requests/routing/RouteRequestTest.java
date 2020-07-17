@@ -18,6 +18,7 @@ package org.heigit.ors.api.requests.routing;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,5 +127,13 @@ public class RouteRequestTest {
         Assert.assertFalse(request.hasAlternativeRoutes());
         request.setAlternativeRoutes(ar);
         Assert.assertTrue(request.hasAlternativeRoutes());
+    }
+
+    @Test
+    public void testHasWeightChanges() {
+      JSONObject wc = new JSONObject();
+      Assert.assertFalse(request.hasWeightChanges());
+      request.setWeightChanges(wc);
+      Assert.assertTrue(request.hasWeightChanges());
     }
 }

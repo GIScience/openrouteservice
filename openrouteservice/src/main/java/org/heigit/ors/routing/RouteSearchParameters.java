@@ -18,6 +18,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import org.heigit.ors.api.requests.common.WeightChanges;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
@@ -83,6 +84,9 @@ public class RouteSearchParameters {
 
     private double maximumSpeed;
     private boolean hasMaximumSpeed = false;
+
+    private WeightChanges weightChanges = null;
+    private boolean hasWeightChanges = false;
 
     private String options;
 
@@ -547,6 +551,19 @@ public class RouteSearchParameters {
         return hasMaximumSpeed;
     }
 
+    public WeightChanges getWeightChanges() {
+        return weightChanges;
+    }
+
+    public void setWeightChanges(WeightChanges weightChanges) {
+        this.weightChanges = weightChanges;
+        hasWeightChanges = true;
+    }
+
+    public boolean hasWeightChanges() {
+        return hasWeightChanges;
+    }
+
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
     }
@@ -563,7 +580,8 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed();
+            || hasMaximumSpeed()
+            || hasWeightChanges();
     }
 
     /**

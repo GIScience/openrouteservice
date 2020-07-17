@@ -895,6 +895,10 @@ public class RoutingProfile {
                 req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
             }
 
+            if (searchParams.hasWeightChanges()) {
+                req.getHints().put("weight_changes", searchParams.getWeightChanges());
+            }
+
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);
             } else {

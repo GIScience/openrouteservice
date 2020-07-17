@@ -28,6 +28,8 @@ import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -411,6 +413,22 @@ public class RouteRequestHandlerTest {
 
         RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
         Assert.assertEquals(1, generatedRoutingRequest.getCoordinates().length);
+    }
+
+    @Test
+    public void testWeightChanges() throws StatusCodeException, ParseException {
+        String inputJson = "{\"type\": \"FeatureCollection\", " +
+            "\"features\": [{\"type\": \"Feature\", " +
+                "\"properties\": {\"weight\": 5.0}, " +
+                "\"geometry\": {\"type\": \"Polygon\", "+
+                "\"coordinates\": [[[8.691,49.415],[8.691,49.413],[8.699,49.413],[8.691,49.415]]]}}]}";
+        JSONParser parser = new JSONParser();
+        request.setWeightChanges((JSONObject) parser.parse(inputJson));
+
+        RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        System.out.println(generatedRoutingRequest);
+        // TODO if parser is properly implemented, this should check if the route is longer (distance or time) with weight changes
+        // TODO check if the weightCoordinates in generatedRoutingRequest match with the original ones
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {

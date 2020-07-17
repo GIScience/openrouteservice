@@ -29,6 +29,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.json.simple.JSONObject;
 
 @ApiModel(value = "Directions Service", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -58,6 +59,7 @@ public class RouteRequest {
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
+    public static final String PARAM_WEIGHT_CHANGES = "weight_changes";
 
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -256,6 +258,13 @@ public class RouteRequest {
     private double maximumSpeed;
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
+
+    @ApiModelProperty(name = PARAM_WEIGHT_CHANGES, value = "Weight changes TODO",
+            example = "{\"todo\": \"todo\"}")
+    @JsonProperty(PARAM_WEIGHT_CHANGES)
+    private JSONObject weightChanges;
+    @JsonIgnore
+    private boolean hasWeightChanges = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -524,6 +533,15 @@ public class RouteRequest {
         return maximumSpeed;
     }
 
+    public JSONObject getWeightChanges() {
+        return weightChanges;
+    }
+
+    public void setWeightChanges(JSONObject weightChanges) {
+        this.weightChanges = weightChanges;
+        hasWeightChanges = true;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -598,5 +616,9 @@ public class RouteRequest {
 
     public boolean hasMaximumSpeed() {
         return hasMaximumSpeed;
+    }
+
+    public boolean hasWeightChanges() {
+        return hasWeightChanges;
     }
 }
