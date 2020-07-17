@@ -542,26 +542,35 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		/* TurnRestrictions */
-		if (routingProfileCategory !=0 & encodingManager.hasEncoder("heavyvehicle")) {
-			FlagEncoder flagEncoder=getEncodingManager().getEncoder("heavyvehicle"); // Set encoder only for heavy vehicles.
-			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
+			FlagEncoder flagEncoder = null;
+			if(encodingManager.hasEncoder("heavyvehicle")) {
+				flagEncoder = encodingManager.getEncoder("heavyvehicle");
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			}
+			else if(encodingManager.hasEncoder("car-ors")) {
+				flagEncoder = encodingManager.getEncoder("car-ors");
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			}
 		}
 
-
-		if (routingProfileCategory !=0 & encodingManager.hasEncoder("car-ors")) {
-			FlagEncoder flagEncoder = getEncodingManager().getEncoder("car-ors"); // Set encoder only for cars.
-			coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+		if ((routingProfileCategory & RoutingProfileCategory.CYCLING) !=0 ) {
+			FlagEncoder flagEncoder = null;
+			if (encodingManager.hasEncoder("bike-ors")) {
+				flagEncoder = encodingManager.getEncoder("bike-ors");
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			}
 		}
 
 		/* Maximum Speed Filter */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
 			FlagEncoder flagEncoder = null;
 			if(encodingManager.hasEncoder("heavyvehicle")) {
-				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
+				flagEncoder = encodingManager.getEncoder("heavyvehicle");
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
 			else if(encodingManager.hasEncoder("car-ors")) {
-				flagEncoder = getEncodingManager().getEncoder("car-ors");
+				flagEncoder = encodingManager.getEncoder("car-ors");
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
 		}

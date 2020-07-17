@@ -42,7 +42,7 @@ public class RoutingProfileCategory {
 		if (encodingManager.hasEncoder("car-ors") || encodingManager.hasEncoder("heavyvehicle"))
 			return RoutingProfileCategory.DRIVING;
 
-		if (encodingManager.hasEncoder("bike") || encodingManager.hasEncoder("mtb") || encodingManager.hasEncoder("racingbike")
+		if (encodingManager.hasEncoder("bike-ors") || encodingManager.hasEncoder("mtb") || encodingManager.hasEncoder("racingbike")
 		 || encodingManager.hasEncoder("safetybike") || encodingManager.hasEncoder("cycletourbike") || encodingManager.hasEncoder("electrobike"))
 			return RoutingProfileCategory.CYCLING;
 
