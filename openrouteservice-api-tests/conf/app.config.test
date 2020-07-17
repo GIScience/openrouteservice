@@ -191,6 +191,12 @@
                           threads: 1,
                           weightings: "recommended,shortest",
                           landmarks: 32
+                        },
+                      fastisochrone:
+                        {
+                          enabled: true,
+                          threads: 12,
+                          weightings: "fastest, shortest",
                         }
                     }
                 }
