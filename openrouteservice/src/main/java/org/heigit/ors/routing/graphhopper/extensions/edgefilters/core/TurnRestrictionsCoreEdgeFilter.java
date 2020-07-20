@@ -14,14 +14,15 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.TurnCostEncoder;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import com.graphhopper.routing.weighting.TurnWeighting;
+
+import static com.graphhopper.util.EdgeIterator.NO_EDGE;
+import static com.graphhopper.util.EdgeIterator.ANY_EDGE;
 
 /**
  * This class includes in the core all edges with turn restrictions.
@@ -52,7 +53,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
     }
 
-    /* Returns tthe edge id of the first original edge of the current edge if reverse is true or the edge id of the last original edge of the current edge if reverse is false. */
+    /* Returns the edge id of the first original edge of the current edge if reverse is true or the edge id of the last original edge of the current edge if reverse is false. */
     protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
         return reverse ? edge.getOrigEdgeFirst() : edge.getOrigEdgeLast();
     }
@@ -66,6 +67,9 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         while (iter.next()) {
             final int edgeId = getOrigEdgeId(iter, !reverse);
             final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
+            if(prevOrNextOrigEdgeId == NO_EDGE || prevOrNextOrigEdgeId == ANY_EDGE ){
+                continue;
+            }
 
             long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getBaseNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getBaseNode(), iter.getOrigEdgeFirst());
             //Get the turn-flags (returns 1 if there is a turn cost or 0 if there is not) for a route between edgeId and prevOrNextOrigEdgeId depending on reverse.

@@ -541,39 +541,18 @@ public class ORSGraphHopper extends GraphHopper {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
-		/* TurnRestrictions */
-		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder("heavyvehicle")) {
-				flagEncoder = encodingManager.getEncoder("heavyvehicle");
+		/* TurnRestrictions and MaximumSpeed Filters */
+		for(FlagEncoder flagEncoder : getEncodingManager().fetchEdgeEncoders()) {
+			if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
 				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
-			else if(encodingManager.hasEncoder("car-ors")) {
-				flagEncoder = encodingManager.getEncoder("car-ors");
+
+			if ((routingProfileCategory & RoutingProfileCategory.CYCLING) !=0 ) {
 				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 			}
 		}
 
-		if ((routingProfileCategory & RoutingProfileCategory.CYCLING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if (encodingManager.hasEncoder("bike-ors")) {
-				flagEncoder = encodingManager.getEncoder("bike-ors");
-				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
-			}
-		}
-
-		/* Maximum Speed Filter */
-		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder("heavyvehicle")) {
-				flagEncoder = encodingManager.getEncoder("heavyvehicle");
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-			else if(encodingManager.hasEncoder("car-ors")) {
-				flagEncoder = encodingManager.getEncoder("car-ors");
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-		}
 
 		/* End filter sequence initialization */
 
