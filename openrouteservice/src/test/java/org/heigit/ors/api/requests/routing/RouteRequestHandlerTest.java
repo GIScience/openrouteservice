@@ -16,8 +16,13 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.WeightChange;
+import org.heigit.ors.api.requests.common.WeightChanges;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.*;
@@ -426,9 +431,17 @@ public class RouteRequestHandlerTest {
         request.setWeightChanges((JSONObject) parser.parse(inputJson));
 
         RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
-        System.out.println(generatedRoutingRequest);
+        Assert.assertTrue(generatedRoutingRequest.getSearchParameters().hasWeightChanges());
+        Geometry actualGeom = generatedRoutingRequest.getSearchParameters().getWeightChanges().getChanges().get(0).getGeometry();
+
+        double[][] expectedCoordinatesOrig = {{8.691, 49.415}, {8.691, 49.413}, {8.699, 49.413}, {8.691, 49.415}};
+        Coordinate[] expectedCoordinates = Arrays.stream(expectedCoordinatesOrig)
+            .map(coords -> new Coordinate(coords[0], coords[1]))
+            .toArray(Coordinate[]::new);
+        Assert.assertEquals("Polygon", actualGeom.getGeometryType());
+        Assert.assertArrayEquals(expectedCoordinates, actualGeom.getCoordinates());
+
         // TODO if parser is properly implemented, this should check if the route is longer (distance or time) with weight changes
-        // TODO check if the weightCoordinates in generatedRoutingRequest match with the original ones
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {

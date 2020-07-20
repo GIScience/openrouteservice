@@ -4,19 +4,18 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class WeightChange {
   private final Geometry geometry;
+  private final double weight;
 
-  private final Double weight;
-
-  public WeightChange(Geometry geometry, Double weight) {
+  public WeightChange(Geometry geometry, double weight) {
     this.geometry = geometry;
     this.weight = weight;
   }
 
-  public final Geometry getGeometry() {
+  public Geometry getGeometry() {
     return geometry;
   }
 
-  public final Double getWeight() {
+  public double getWeight() {
     return weight;
   }
 }
