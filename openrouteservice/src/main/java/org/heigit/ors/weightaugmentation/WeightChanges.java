@@ -1,4 +1,4 @@
-package org.heigit.ors.api.requests.common;
+package org.heigit.ors.weightaugmentation;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;

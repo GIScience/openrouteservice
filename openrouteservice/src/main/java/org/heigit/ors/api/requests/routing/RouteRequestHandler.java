@@ -22,7 +22,6 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
-import org.heigit.ors.api.requests.common.WeightChanges;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
@@ -34,6 +33,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
+import org.heigit.ors.weightaugmentation.WeightChanges;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;

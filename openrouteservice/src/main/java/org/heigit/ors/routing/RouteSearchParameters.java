@@ -18,7 +18,6 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.heigit.ors.api.requests.common.WeightChanges;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
@@ -38,6 +37,7 @@ import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.weightaugmentation.WeightChanges;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
