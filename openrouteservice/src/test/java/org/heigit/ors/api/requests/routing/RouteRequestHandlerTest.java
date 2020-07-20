@@ -15,6 +15,8 @@
 
 package org.heigit.ors.api.requests.routing;
 
+import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -431,9 +433,7 @@ public class RouteRequestHandlerTest {
         Geometry actualGeom = generatedRoutingRequest.getSearchParameters().getWeightChanges().getChanges().get(0).getGeometry();
 
         double[][] expectedCoordinatesOrig = {{8.691, 49.415}, {8.691, 49.413}, {8.699, 49.413}, {8.691, 49.415}};
-        Coordinate[] expectedCoordinates = Arrays.stream(expectedCoordinatesOrig)
-            .map(coords -> new Coordinate(coords[0], coords[1]))
-            .toArray(Coordinate[]::new);
+        Coordinate[] expectedCoordinates = convertCoordinateArray(expectedCoordinatesOrig);
         Assert.assertEquals("Polygon", actualGeom.getGeometryType());
         Assert.assertArrayEquals(expectedCoordinates, actualGeom.getCoordinates());
 

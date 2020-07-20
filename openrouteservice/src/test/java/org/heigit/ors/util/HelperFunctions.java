@@ -1,5 +1,7 @@
 package org.heigit.ors.util;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import java.util.Arrays;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -116,5 +118,11 @@ public class HelperFunctions {
             }
         }
         return overloadedLocations;
+    }
+
+    public static Coordinate[] convertCoordinateArray(double[][] input) {
+        return Arrays.stream(input)
+            .map(coords -> new Coordinate(coords[0], coords[1]))
+            .toArray(Coordinate[]::new);
     }
 }

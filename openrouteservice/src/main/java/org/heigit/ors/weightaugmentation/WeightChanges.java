@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
@@ -52,5 +53,22 @@ public class WeightChanges {
       double weight = properties.getDouble("weight");
       addChanges(geom, weight);
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    WeightChanges that = (WeightChanges) o;
+    return Objects.equals(changes, that.changes);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(changes);
   }
 }
