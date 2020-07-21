@@ -36,14 +36,11 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     private final EdgeExplorer innerInExplorer;
     private final EdgeExplorer innerOutExplorer;
     private Graph graph;
-    private GraphHopperStorage graphHopperStorage;
 
     public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
         this.flagEncoder = encoder;
 
         this.graph = graphHopperStorage.getBaseGraph();
-
-        this.graphHopperStorage = graphHopperStorage;
 
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
@@ -61,28 +58,18 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     /* Returns true if there are turn-restrictions or u-turn starting from the current edge.  */
     boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
         EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode()); //Set the node as the incoming if reverse is true or outgoing if reverse is false.
-        boolean hasTurnRestrictions = false;
 
+        final int currentEdge = getOrigEdgeId(edge, reverse);
 
         while (iter.next()) {
-            final int edgeId = getOrigEdgeId(iter, !reverse);
-            final int prevOrNextOrigEdgeId = getOrigEdgeId(edge, reverse);
-            if(prevOrNextOrigEdgeId == NO_EDGE || prevOrNextOrigEdgeId == ANY_EDGE ){
-                continue;
-            }
-
-            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getOrigEdgeLast() , iter.getBaseNode(), prevOrNextOrigEdgeId) : turnCostExtension.getTurnCostFlags(prevOrNextOrigEdgeId, iter.getBaseNode(), iter.getOrigEdgeFirst());
-            //Get the turn-flags (returns 1 if there is a turn cost or 0 if there is not) for a route between edgeId and prevOrNextOrigEdgeId depending on reverse.
-
-
-            if (flagEncoder.isTurnRestricted(turnFlags)) { //There is a turn restriction
-                hasTurnRestrictions = true;
-                break;
-            }
+            long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getEdge() , iter.getBaseNode(), currentEdge) : turnCostExtension.getTurnCostFlags(currentEdge, iter.getBaseNode(), iter.getEdge());
+            if (flagEncoder.isTurnRestricted(turnFlags))//There is a turn restriction
+                return true;
         }
 
-        return hasTurnRestrictions;
+        return false;
     }
+
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
