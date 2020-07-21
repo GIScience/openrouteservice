@@ -33,7 +33,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
-import org.heigit.ors.weightaugmentation.WeightChanges;
+import org.heigit.ors.weightaugmentation.UserWeightParser;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -183,8 +183,8 @@ public class RouteRequestHandler extends GenericHandler {
             params.setMaximumSpeed(request.getMaximumSpeed());
         }
 
-        if (request.hasWeightChanges()) {
-            params.setWeightChanges(new WeightChanges(request.getWeightChanges()));
+        if (request.hasUserWeights()) {
+            params.setUserWeightParser(new UserWeightParser(request.getUserWeights()));
         }
 
         params.setConsiderTurnRestrictions(false);

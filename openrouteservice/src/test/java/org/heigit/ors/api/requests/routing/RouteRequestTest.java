@@ -130,10 +130,10 @@ public class RouteRequestTest {
     }
 
     @Test
-    public void testHasWeightChanges() {
+    public void testHasUserWeights() {
       JSONObject wc = new JSONObject();
-      Assert.assertFalse(request.hasWeightChanges());
-      request.setWeightChanges(wc);
-      Assert.assertTrue(request.hasWeightChanges());
+      Assert.assertFalse(request.hasUserWeights());
+      request.setUserWeights(wc);
+      Assert.assertTrue(request.hasUserWeights());
     }
 }

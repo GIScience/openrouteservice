@@ -3,11 +3,11 @@ package org.heigit.ors.weightaugmentation;
 import com.vividsolutions.jts.geom.Geometry;
 import java.util.Objects;
 
-public class WeightChange {
+public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
 
-  public WeightChange(Geometry geometry, double weight) {
+  public AugmentedWeight(Geometry geometry, double weight) {
     this.geometry = geometry;
     this.weight = weight;
   }
@@ -28,7 +28,7 @@ public class WeightChange {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    WeightChange that = (WeightChange) o;
+    AugmentedWeight that = (AugmentedWeight) o;
     return Double.compare(that.weight, weight) == 0 &&
         Objects.equals(geometry, that.geometry);
   }

@@ -59,7 +59,7 @@ public class RouteRequest {
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
-    public static final String PARAM_WEIGHT_CHANGES = "weight_changes";
+    public static final String PARAM_USER_WEIGHTS = "user_weights";
 
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -259,12 +259,12 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
 
-    @ApiModelProperty(name = PARAM_WEIGHT_CHANGES, value = "Weight changes TODO",
+    @ApiModelProperty(name = PARAM_USER_WEIGHTS, value = "Weight changes TODO",
             example = "{\"todo\": \"todo\"}")
-    @JsonProperty(PARAM_WEIGHT_CHANGES)
-    private JSONObject weightChanges;
+    @JsonProperty(PARAM_USER_WEIGHTS)
+    private JSONObject userWeights;
     @JsonIgnore
-    private boolean hasWeightChanges = false;
+    private boolean hasUserWeights = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -533,13 +533,13 @@ public class RouteRequest {
         return maximumSpeed;
     }
 
-    public JSONObject getWeightChanges() {
-        return weightChanges;
+    public JSONObject getUserWeights() {
+        return userWeights;
     }
 
-    public void setWeightChanges(JSONObject weightChanges) {
-        this.weightChanges = weightChanges;
-        hasWeightChanges = true;
+    public void setUserWeights(JSONObject userWeights) {
+        this.userWeights = userWeights;
+        hasUserWeights = true;
     }
 
     public boolean hasIncludeRoundaboutExitInfo() {
@@ -618,7 +618,7 @@ public class RouteRequest {
         return hasMaximumSpeed;
     }
 
-    public boolean hasWeightChanges() {
-        return hasWeightChanges;
+    public boolean hasUserWeights() {
+        return hasUserWeights;
     }
 }

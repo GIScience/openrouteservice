@@ -12,30 +12,30 @@ import org.heigit.ors.routing.RoutingErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class WeightChanges {
-  private final List<WeightChange> changes = new ArrayList<>();
+public class UserWeightParser {
+  private final List<AugmentedWeight> weightAugmentations = new ArrayList<>();
 
-  public WeightChanges(org.json.JSONObject input) throws ParameterValueException {
+  public UserWeightParser(org.json.JSONObject input) throws ParameterValueException {
     parse(input);
   }
 
-  public WeightChanges(String input) throws ParameterValueException {
+  public UserWeightParser(String input) throws ParameterValueException {
     this(new JSONObject(input));
   }
 
-  public WeightChanges(org.json.simple.JSONObject input) throws ParameterValueException {
+  public UserWeightParser(org.json.simple.JSONObject input) throws ParameterValueException {
     this(input.toJSONString());
   }
 
-  public List<WeightChange> getChanges() {
-    return changes;
+  public List<AugmentedWeight> getWeightAugmentations() {
+    return weightAugmentations;
   }
 
-  public void addChanges(Geometry geom, double weight) throws ParameterValueException {
+  public void addWeightAugmentations(Geometry geom, double weight) throws ParameterValueException {
     if (geom instanceof Polygon) {
-      changes.add(new WeightChange(geom, weight));
+      weightAugmentations.add(new AugmentedWeight(geom, weight));
     } else {
-      throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_WEIGHT_CHANGES);
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS);
     }
   }
 
@@ -47,11 +47,11 @@ public class WeightChanges {
       try {
         geom = GeometryJSON.parse(feature.getJSONObject("geometry"));
       } catch (Exception e) {
-        throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_WEIGHT_CHANGES);
+        throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
       }
       JSONObject properties = feature.getJSONObject("properties");
       double weight = properties.getDouble("weight");
-      addChanges(geom, weight);
+      addWeightAugmentations(geom, weight);
     }
   }
 
@@ -63,12 +63,12 @@ public class WeightChanges {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    WeightChanges that = (WeightChanges) o;
-    return Objects.equals(changes, that.changes);
+    UserWeightParser that = (UserWeightParser) o;
+    return Objects.equals(weightAugmentations, that.weightAugmentations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(changes);
+    return Objects.hash(weightAugmentations);
   }
 }

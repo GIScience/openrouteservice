@@ -419,18 +419,18 @@ public class RouteRequestHandlerTest {
     }
 
     @Test
-    public void testWeightChanges() throws StatusCodeException, ParseException {
+    public void testUserWeightParser() throws StatusCodeException, ParseException {
         String inputJson = "{\"type\": \"FeatureCollection\", " +
             "\"features\": [{\"type\": \"Feature\", " +
                 "\"properties\": {\"weight\": 5.0}, " +
                 "\"geometry\": {\"type\": \"Polygon\", "+
                 "\"coordinates\": [[[8.691,49.415],[8.691,49.413],[8.699,49.413],[8.691,49.415]]]}}]}";
         JSONParser parser = new JSONParser();
-        request.setWeightChanges((JSONObject) parser.parse(inputJson));
+        request.setUserWeights((JSONObject) parser.parse(inputJson));
 
         RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
-        Assert.assertTrue(generatedRoutingRequest.getSearchParameters().hasWeightChanges());
-        Geometry actualGeom = generatedRoutingRequest.getSearchParameters().getWeightChanges().getChanges().get(0).getGeometry();
+        Assert.assertTrue(generatedRoutingRequest.getSearchParameters().hasUserWeights());
+        Geometry actualGeom = generatedRoutingRequest.getSearchParameters().getUserWeightParser().getWeightAugmentations().get(0).getGeometry();
 
         double[][] expectedCoordinatesOrig = {{8.691, 49.415}, {8.691, 49.413}, {8.699, 49.413}, {8.691, 49.415}};
         Coordinate[] expectedCoordinates = convertCoordinateArray(expectedCoordinatesOrig);

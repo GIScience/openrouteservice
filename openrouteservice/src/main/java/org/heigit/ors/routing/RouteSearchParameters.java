@@ -37,7 +37,7 @@ import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
-import org.heigit.ors.weightaugmentation.WeightChanges;
+import org.heigit.ors.weightaugmentation.UserWeightParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -85,8 +85,8 @@ public class RouteSearchParameters {
     private double maximumSpeed;
     private boolean hasMaximumSpeed = false;
 
-    private WeightChanges weightChanges = null;
-    private boolean hasWeightChanges = false;
+    private UserWeightParser userWeightParser = null;
+    private boolean hasUserWeights = false;
 
     private String options;
 
@@ -551,17 +551,17 @@ public class RouteSearchParameters {
         return hasMaximumSpeed;
     }
 
-    public WeightChanges getWeightChanges() {
-        return weightChanges;
+    public UserWeightParser getUserWeightParser() {
+        return userWeightParser;
     }
 
-    public void setWeightChanges(WeightChanges weightChanges) {
-        this.weightChanges = weightChanges;
-        hasWeightChanges = true;
+    public void setUserWeightParser(UserWeightParser userWeightParser) {
+        this.userWeightParser = userWeightParser;
+        hasUserWeights = true;
     }
 
-    public boolean hasWeightChanges() {
-        return hasWeightChanges;
+    public boolean hasUserWeights() {
+        return hasUserWeights;
     }
 
     public boolean isProfileTypeDriving() {
@@ -581,7 +581,7 @@ public class RouteSearchParameters {
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
             || hasMaximumSpeed()
-            || hasWeightChanges();
+            || hasUserWeights();
     }
 
     /**
