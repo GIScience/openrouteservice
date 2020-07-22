@@ -51,17 +51,20 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     /* Returns the edge id of the first original edge of the current edge if reverse is true or the edge id of the last original edge of the current edge if reverse is false. */
-    protected int getOrigEdgeId(EdgeIteratorState edge, boolean reverse) {
-        return reverse ? edge.getOrigEdgeFirst() : edge.getOrigEdgeLast();
+    protected int getOrigEdgeId(EdgeIteratorState edge) {
+            return edge.getEdge();
     }
 
     /* Returns true if there are turn-restrictions or u-turn starting from the current edge.  */
     boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
         EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode()); //Set the node as the incoming if reverse is true or outgoing if reverse is false.
 
-        final int currentEdge = getOrigEdgeId(edge, reverse);
+        final int currentEdge = getOrigEdgeId(edge);
+        if(currentEdge == NO_EDGE || currentEdge == ANY_EDGE ){
+            return false;
+        }
 
-        while (iter.next()) {
+        while (EdgeIterator.Edge.isValid(currentEdge) && iter.next()) {
             long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getEdge() , iter.getBaseNode(), currentEdge) : turnCostExtension.getTurnCostFlags(currentEdge, iter.getBaseNode(), iter.getEdge());
             if (flagEncoder.isTurnRestricted(turnFlags))//There is a turn restriction
                 return true;
