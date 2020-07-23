@@ -21,6 +21,10 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import static com.graphhopper.util.EdgeIterator.NO_EDGE;
 import static com.graphhopper.util.EdgeIterator.ANY_EDGE;
 
@@ -36,6 +40,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     private final EdgeExplorer innerInExplorer;
     private final EdgeExplorer innerOutExplorer;
     private Graph graph;
+    public static HashSet<Integer> acceptedEdges = new HashSet<>();
 
     public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
         this.flagEncoder = encoder;
@@ -59,10 +64,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     boolean hasTurnRestrictions(EdgeIteratorState edge, boolean reverse) {
         EdgeIterator iter = reverse ? innerInExplorer.setBaseNode(edge.getAdjNode()) : innerOutExplorer.setBaseNode(edge.getAdjNode()); //Set the node as the incoming if reverse is true or outgoing if reverse is false.
 
-        final int currentEdge = getOrigEdgeId(edge);
-        if(currentEdge == NO_EDGE || currentEdge == ANY_EDGE ){
-            return false;
-        }
+        final int currentEdge = edge.getEdge();
 
         while (EdgeIterator.Edge.isValid(currentEdge) && iter.next()) {
             long turnFlags = reverse ? turnCostExtension.getTurnCostFlags(iter.getEdge() , iter.getBaseNode(), currentEdge) : turnCostExtension.getTurnCostFlags(currentEdge, iter.getBaseNode(), iter.getEdge());
@@ -78,12 +80,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState edge) {
         boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
 
-
         if (hasTurnRestrictions(edge, reverse)) {
+            acceptedEdges.add(edge.getEdge());
             return false;
-        } else if (hasTurnRestrictions(edge, !reverse)) {
-            return false;
-        } else {
+        } else{
             return true;
         }
     }

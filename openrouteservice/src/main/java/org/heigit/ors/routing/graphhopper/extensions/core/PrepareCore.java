@@ -21,7 +21,11 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
@@ -168,6 +172,19 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         if (!prepareNodes())
             return;
         contractNodes();
+
+        try {
+            FileWriter fileWriter = new FileWriter("/home/star_pirate/GIScience/openrouteservice/openrouteservice/acceptedEdges", false);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            for (int i : TurnRestrictionsCoreEdgeFilter.acceptedEdges) {
+                printWriter.print(i + "\n");
+            }
+            printWriter.close();
+        } catch (IOException ex){
+            ex.printStackTrace();
+        }
+
+
     }
 
     boolean prepareNodes() {
