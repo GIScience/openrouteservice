@@ -14,12 +14,13 @@ import com.graphhopper.util.EdgeIterator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WeightTest { // TODO naming
+public class WeightTest extends TestCase { // TODO naming
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -69,19 +70,21 @@ public class WeightTest { // TODO naming
   // TODO naming
   @Test
   public void testSomething() {
-    GraphHopperStorage graphHopperStorage = createMediumGraph();
+    GraphHopperStorage graphHopperStorage1 = createMediumGraph();
 
     Coordinate[] coordinates = convertCoordinateArray(new double[][]{{1,2},{1,5},{3,5},{3,2},{1,2}});
     double weight = 0.75;
+
+    HashSet<Integer> edgesToChange = new HashSet<>(Arrays.asList(0, 1, 2, 6, 7));
 
     GeometryFactory geometryFactory = new GeometryFactory();
     Polygon polygon = geometryFactory.createPolygon(coordinates);
     EdgeFilter edgeFilter = new PolygonEdgeFilter(new Polygon[]{polygon});
 
-    EdgeExplorer edgeExplorer = graphHopperStorage.createEdgeExplorer(edgeFilter);
+    EdgeExplorer edgeExplorer = graphHopperStorage1.createEdgeExplorer(edgeFilter);
     EdgeIterator edges;
-    List<Integer> changedIds = new ArrayList<>();
-    for (int i = 0; i < graphHopperStorage.getNodes(); i++) {
+    HashSet<Integer> changedIds = new HashSet<>();
+    for (int i = 0; i < graphHopperStorage1.getNodes(); i++) {
       edges = edgeExplorer.setBaseNode(i);
       while (edges.next()) {
         if (changedIds.contains(edges.getEdge())) {
@@ -100,9 +103,10 @@ public class WeightTest { // TODO naming
       }
     }
 
+    // print nodes
     System.out.println("NODES");
-    NodeAccess nodes = graphHopperStorage.getNodeAccess();
-    for (int i = 0; i < graphHopperStorage.getNodes(); i++) {
+    NodeAccess nodes = graphHopperStorage1.getNodeAccess();
+    for (int i = 0; i < graphHopperStorage1.getNodes(); i++) {
       System.out.print(i);
       System.out.print(" ");
       System.out.print(nodes.getLat(i));
@@ -110,17 +114,43 @@ public class WeightTest { // TODO naming
       System.out.println(nodes.getLon(i));
     }
 
+    // print edges
     System.out.println();
     System.out.println("EDGES");
-    AllEdgesIterator allEdges = graphHopperStorage.getAllEdges();
-    while (allEdges.next()) {
-      System.out.print(allEdges);
+    edges = graphHopperStorage1.getAllEdges();
+    while (edges.next()) {
+      System.out.print(edges);
       System.out.print(": ");
-      System.out.print(allEdges.getDistance());
-      if (changedIds.contains(allEdges.getEdge())) {
+      System.out.print(edges.getDistance());
+      if (changedIds.contains(edges.getEdge())) {
         System.out.print(" <- changed");
       }
       System.out.println();
     }
+
+    // check nodes
+    GraphHopperStorage graphHopperStorage2 = createMediumGraph();
+    assertEquals(graphHopperStorage2.getNodes(), graphHopperStorage1.getNodes());
+    NodeAccess nodes1 = graphHopperStorage1.getNodeAccess();
+    NodeAccess nodes2 = graphHopperStorage2.getNodeAccess();
+    for (int i = 0; i < graphHopperStorage1.getNodes(); i++) {
+      assertEquals(nodes2.getLat(i), nodes1.getLat(i));
+      assertEquals(nodes2.getLon(i), nodes1.getLon(i));
+    }
+
+    // check edges
+    assertEquals(graphHopperStorage2.getEdges(), graphHopperStorage1.getEdges());
+    AllEdgesIterator edges1 = graphHopperStorage1.getAllEdges();
+    AllEdgesIterator edges2 = graphHopperStorage2.getAllEdges();
+    for (int i = 0; i < graphHopperStorage1.getEdges(); i++) {
+      edges1.next();
+      edges2.next();
+      assertEquals(edges2.getBaseNode(), edges1.getBaseNode());
+      assertEquals(edges2.getAdjNode(), edges1.getAdjNode());
+      assertEquals(edges2.getDistance() * (edgesToChange.contains(i) ? weight : 1.0), edges1.getDistance());
+    }
+
+    // check changed ids
+    assertEquals(edgesToChange, changedIds);
   }
 }
