@@ -1,11 +1,12 @@
 package org.heigit.ors.util;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import java.util.Arrays;
-import org.json.JSONArray;
-
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.json.JSONArray;
 
 public class HelperFunctions {
     /**
@@ -124,5 +125,9 @@ public class HelperFunctions {
         return Arrays.stream(input)
             .map(coords -> new Coordinate(coords[0], coords[1]))
             .toArray(Coordinate[]::new);
+    }
+
+    public static CoordinateSequence convertCoordinateArrayToSequence(double[][] input) {
+        return CoordinateArraySequenceFactory.instance().create(convertCoordinateArray(input));
     }
 }

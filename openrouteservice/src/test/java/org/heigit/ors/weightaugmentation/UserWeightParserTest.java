@@ -35,6 +35,7 @@ public class UserWeightParserTest extends TestCase {
   }
 
   public void testAddWeightAugmentations() throws Exception {
+    int sizeBefore = userWeightParser.getWeightAugmentations().size();
     String geomJson = "{\"type\": \"Polygon\",\"coordinates\": [[[8.681,49.420],[8.685,49.420],[8.684,49.423],[8.681,49.420]]]}";
     Geometry geom = GeometryJSON.parse(new JSONObject(geomJson));
     userWeightParser.addWeightAugmentations(geom, 1.3);
@@ -42,5 +43,6 @@ public class UserWeightParserTest extends TestCase {
     AugmentedWeight actualResult = userWeightParser
         .getWeightAugmentations().get(userWeightParser.getWeightAugmentations().size() - 1);
     assertEquals(expectedResult, actualResult);
+    assertEquals(sizeBefore + 1, userWeightParser.getWeightAugmentations().size());
   }
 }
