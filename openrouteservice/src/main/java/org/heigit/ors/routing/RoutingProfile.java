@@ -710,7 +710,7 @@ public class RoutingProfile {
         }
 
         /*
-         * PARAMETERS FOR EdgeFilterFactory
+         * PARAMETERS FOR AugmentedWeights
          * ======================================================================================================
          */
 
