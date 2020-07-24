@@ -709,6 +709,17 @@ public class RoutingProfile {
             }
         }
 
+        /*
+         * PARAMETERS FOR EdgeFilterFactory
+         * ======================================================================================================
+         */
+
+        /* Avoid areas */
+        if (searchParams.hasUserWeights()) {
+            props.put("user_weights", true);
+            props.putObj("user_weights", searchParams.getUserWeightParser());
+        }
+
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
         searchCntx.setProperties(props);
 
@@ -893,10 +904,6 @@ public class RoutingProfile {
 
             if(searchParams.hasMaximumSpeed()){
                 req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
-            }
-
-            if (searchParams.hasUserWeights()) {
-                req.getHints().put("weight_changes", searchParams.getUserWeightParser());
             }
 
             if (directedSegment) {

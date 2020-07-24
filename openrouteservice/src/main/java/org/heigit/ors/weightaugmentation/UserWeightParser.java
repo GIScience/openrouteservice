@@ -1,5 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
@@ -25,6 +27,16 @@ public class UserWeightParser {
 
   public UserWeightParser(org.json.simple.JSONObject input) throws ParameterValueException {
     this(input.toJSONString());
+  }
+
+  public UserWeightParser(Geometry[] geometries, double[] weights) throws ParameterValueException {
+    if (geometries.length == weights.length) {
+      for (int i = 0; i < geometries.length; i++) {
+        addWeightAugmentations(geometries[i], weights[i]);
+      }
+    } else {
+      throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_USER_WEIGHTS);
+    }
   }
 
   public List<AugmentedWeight> getWeightAugmentations() {
@@ -53,6 +65,20 @@ public class UserWeightParser {
       double weight = properties.getDouble("weight");
       addWeightAugmentations(geom, weight);
     }
+  }
+
+  public void applyAugmentationsToAll(GraphHopperStorage ghs) {
+    for (AugmentedWeight augmentedWeight: weightAugmentations) {
+      augmentedWeight.applyAugmentationToAll(ghs);
+    }
+  }
+
+  public double getAugmentations(EdgeIteratorState edge) {
+    double factor = 1.0;
+    for (AugmentedWeight augmentedWeight: weightAugmentations) {
+      factor *= augmentedWeight.getAugmentation(edge);
+    }
+    return factor;
   }
 
   @Override
