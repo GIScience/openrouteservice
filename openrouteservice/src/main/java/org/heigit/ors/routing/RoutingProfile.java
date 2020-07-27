@@ -717,7 +717,7 @@ public class RoutingProfile {
         /* Avoid areas */
         if (searchParams.hasUserWeights()) {
             props.put("user_weights", true);
-            props.putObj("user_weights", searchParams.getUserWeightParser());
+            props.putObj("user_weights", searchParams.getAugmentedWeights());
         }
 
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);

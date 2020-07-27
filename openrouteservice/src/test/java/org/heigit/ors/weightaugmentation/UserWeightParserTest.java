@@ -19,16 +19,19 @@ public class UserWeightParserTest {
 
   private static final GeometryFactory factory = new GeometryFactory();
   private UserWeightParser userWeightParser;
+  private List<AugmentedWeight> augmentedWeights;
   private List<Geometry> geometries;
   private List<Double> weights;
+  String normalInputJson;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() throws Exception {
-    String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"5.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
-    userWeightParser = new UserWeightParser(inputJson);
+    userWeightParser = new UserWeightParser();
+    normalInputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"5.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
+
     geometries = new ArrayList<>();
     geometries.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]]}")));
     geometries.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}")));
@@ -36,9 +39,10 @@ public class UserWeightParserTest {
   }
 
   @Test
-  public void testGetWeightAugmentations() {
-    List<AugmentedWeight> weightAugmentations = userWeightParser.getWeightAugmentations();
-    ArrayList<AugmentedWeight> expectedWeightAugmentations = new ArrayList<>();
+  public void testParse() throws ParameterValueException {
+    List<AugmentedWeight> weightAugmentations = userWeightParser.parse(normalInputJson);
+
+    List<AugmentedWeight> expectedWeightAugmentations = new ArrayList<>();
     expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(0), weights.get(0)));
     expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(1), weights.get(1)));
     Assert.assertEquals(expectedWeightAugmentations, weightAugmentations);
@@ -46,15 +50,14 @@ public class UserWeightParserTest {
 
   @Test
   public void testAddWeightAugmentations() throws Exception {
-    int sizeBefore = userWeightParser.getWeightAugmentations().size();
+    int sizeBefore = augmentedWeights.size();
     String geomJson = "{\"type\": \"Polygon\",\"coordinates\": [[[8.681,49.420],[8.685,49.420],[8.684,49.423],[8.681,49.420]]]}";
     Geometry geom = GeometryJSON.parse(new JSONObject(geomJson));
-    userWeightParser.addWeightAugmentations(geom, 1.3);
+    userWeightParser.addWeightAugmentations(augmentedWeights, geom, 1.3);
     AugmentedWeight expectedResult = new AugmentedWeight(geom, 1.3);
-    AugmentedWeight actualResult = userWeightParser
-        .getWeightAugmentations().get(userWeightParser.getWeightAugmentations().size() - 1);
+    AugmentedWeight actualResult = augmentedWeights.get(augmentedWeights.size() - 1);
     Assert.assertEquals(expectedResult, actualResult);
-    Assert.assertEquals(sizeBefore + 1, userWeightParser.getWeightAugmentations().size());
+    Assert.assertEquals(sizeBefore + 1, augmentedWeights.size());
   }
 
   @Test
@@ -62,13 +65,13 @@ public class UserWeightParserTest {
     String inputJson = "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}";
     thrown.expect(JSONException.class);
     thrown.expectMessage("TODO"); // TODO
-    userWeightParser = new UserWeightParser(inputJson);
+    userWeightParser.parse(inputJson);
   }
 
   @Test
   public void testParseFeature() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
-    userWeightParser = new UserWeightParser(inputJson);
+    userWeightParser.parse(inputJson);
     // TODO add assert
   }
 
@@ -77,13 +80,13 @@ public class UserWeightParserTest {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
     thrown.expect(JSONException.class);
     thrown.expectMessage("JSONObject[\"weight\"] not found.");
-    userWeightParser = new UserWeightParser(inputJson);
+    userWeightParser.parse(inputJson);
   }
 
   @Test
   public void testParseFeatureCollection() throws ParameterValueException {
     String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
-    new UserWeightParser(inputJson);
+    userWeightParser.parse(inputJson);
     // TODO add assert
   }
 
@@ -92,6 +95,6 @@ public class UserWeightParserTest {
     String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
     thrown.expect(JSONException.class);
     thrown.expectMessage("JSONObject[\"weight\"] not found.");
-    new UserWeightParser(inputJson);
+    userWeightParser.parse(inputJson);
   }
 }

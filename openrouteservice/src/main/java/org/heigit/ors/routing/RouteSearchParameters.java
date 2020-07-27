@@ -18,6 +18,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.List;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
@@ -37,7 +38,7 @@ import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
-import org.heigit.ors.weightaugmentation.UserWeightParser;
+import org.heigit.ors.weightaugmentation.AugmentedWeight;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -85,7 +86,7 @@ public class RouteSearchParameters {
     private double maximumSpeed;
     private boolean hasMaximumSpeed = false;
 
-    private UserWeightParser userWeightParser = null;
+    private List<AugmentedWeight> augmentedWeights = null;
     private boolean hasUserWeights = false;
 
     private String options;
@@ -551,12 +552,12 @@ public class RouteSearchParameters {
         return hasMaximumSpeed;
     }
 
-    public UserWeightParser getUserWeightParser() {
-        return userWeightParser;
+    public List<AugmentedWeight> getAugmentedWeights() {
+        return augmentedWeights;
     }
 
-    public void setUserWeightParser(UserWeightParser userWeightParser) {
-        this.userWeightParser = userWeightParser;
+    public void setAugmentedWeights(List<AugmentedWeight> augmentedWeights) {
+        this.augmentedWeights = augmentedWeights;
         hasUserWeights = true;
     }
 

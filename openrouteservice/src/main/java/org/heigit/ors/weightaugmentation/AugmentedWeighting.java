@@ -5,26 +5,36 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import java.util.ArrayList;
+import java.util.List;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 
 public class AugmentedWeighting implements Weighting {
   private final Weighting superWeighting;
-  private final UserWeightParser weightParser;
+  private final List<AugmentedWeight> augmentedWeights;
 
   public AugmentedWeighting(FlagEncoder encoder, PMap additionalHints, Weighting weighting) {
     ORSPMap params = (ORSPMap) additionalHints;
     this.superWeighting = weighting;
-    this.weightParser = (UserWeightParser) params.getObj("user_weights");
+    this.augmentedWeights = (ArrayList<AugmentedWeight>) params.getObj("user_weights");
+  }
+
+  public double getAugmentations(final EdgeIteratorState edge) {
+    double factor = 1.0;
+    for (AugmentedWeight augmentedWeight: augmentedWeights) {
+      factor *= augmentedWeight.getAugmentation(edge);
+    }
+    return factor;
   }
 
   @Override
   public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-    return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId) * weightParser.getAugmentations(edge);
+    return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId) * getAugmentations(edge);
   }
 
   @Override
   public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-    return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * (long) weightParser.getAugmentations(edge);
+    return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * (long) getAugmentations(edge);
   }
 
   @Override

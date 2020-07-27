@@ -15,6 +15,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,6 +24,7 @@ import org.junit.Test;
 public class AugmentationTest {
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
+  private final UserWeightParser userWeightParser = new UserWeightParser();
 
   @Before
   public void setUp() {
@@ -101,10 +103,12 @@ public class AugmentationTest {
     double weight = 0.75;
     GeometryFactory geometryFactory = new GeometryFactory();
     Polygon polygon = geometryFactory.createPolygon(coordinates);
-    UserWeightParser userWeights = new UserWeightParser(new Geometry[]{polygon}, new double[]{weight});
+    List<AugmentedWeight> weightAugmentations = userWeightParser.parse(new Geometry[]{polygon}, new double[]{weight});
 
     // apply augmentations
-    userWeights.applyAugmentationsToAll(actualGhs);
+    for (AugmentedWeight augmentedWeight: weightAugmentations) {
+      augmentedWeight.applyAugmentationToAll(actualGhs);
+    }
 
     // print nodes
     printNodes(actualGhs);

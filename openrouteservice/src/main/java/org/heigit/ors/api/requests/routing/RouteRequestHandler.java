@@ -184,7 +184,8 @@ public class RouteRequestHandler extends GenericHandler {
         }
 
         if (request.hasUserWeights()) {
-            params.setUserWeightParser(new UserWeightParser(request.getUserWeights()));
+            UserWeightParser parser = new UserWeightParser();
+            params.setAugmentedWeights(parser.parse(request.getUserWeights()));
         }
 
         params.setConsiderTurnRestrictions(false);
