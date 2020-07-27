@@ -128,8 +128,8 @@ public class AugmentationTest {
     NodeAccess actualNodes = actualGhs.getNodeAccess();
     NodeAccess expectedNodes = expectedGhs.getNodeAccess();
     for (int i = 0; i < actualGhs.getNodes(); i++) {
-      Assert.assertEquals(expectedNodes.getLat(i), actualNodes.getLat(i));
-      Assert.assertEquals(expectedNodes.getLon(i), actualNodes.getLon(i));
+      Assert.assertEquals(expectedNodes.getLat(i), actualNodes.getLat(i), 0.0);
+      Assert.assertEquals(expectedNodes.getLon(i), actualNodes.getLon(i), 0.0);
     }
 
     // check edges
@@ -140,7 +140,7 @@ public class AugmentationTest {
       expectedEdges.next();
       Assert.assertEquals(expectedEdges.getBaseNode(), actualEdges.getBaseNode());
       Assert.assertEquals(expectedEdges.getAdjNode(), actualEdges.getAdjNode());
-      Assert.assertEquals(expectedEdges.getDistance(), actualEdges.getDistance());
+      Assert.assertEquals(expectedEdges.getDistance(), actualEdges.getDistance(), 0.0);
     }
   }
 }
