@@ -17,10 +17,12 @@ import java.util.Objects;
 public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
+  private final EdgeFilter edgeFilter;
 
   public AugmentedWeight(Geometry geometry, double weight) {
     this.geometry = geometry;
     this.weight = weight;
+    this.edgeFilter = createEdgeFilter();
   }
 
   public Geometry getGeometry() {
@@ -40,7 +42,6 @@ public class AugmentedWeight {
   }
 
   public double getAugmentation(EdgeIteratorState edge) {
-    EdgeFilter edgeFilter = createEdgeFilter();
     return edgeFilter.accept(edge) ? weight : 1.0;
   }
 

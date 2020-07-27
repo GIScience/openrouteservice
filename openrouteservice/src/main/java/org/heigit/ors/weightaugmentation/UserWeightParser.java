@@ -1,5 +1,6 @@
 package org.heigit.ors.weightaugmentation;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Geometry;
