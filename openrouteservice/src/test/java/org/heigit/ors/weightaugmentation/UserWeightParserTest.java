@@ -19,7 +19,7 @@ public class UserWeightParserTest {
 
   private static final GeometryFactory factory = new GeometryFactory();
   private UserWeightParser userWeightParser;
-  private List<AugmentedWeight> augmentedWeights;
+  private List<AugmentedWeight> weightAugmentations;
   private List<Geometry> geometries;
   private List<Double> weights;
   String normalInputJson;
@@ -40,8 +40,7 @@ public class UserWeightParserTest {
 
   @Test
   public void testParse() throws ParameterValueException {
-    List<AugmentedWeight> weightAugmentations = userWeightParser.parse(normalInputJson);
-
+    weightAugmentations = userWeightParser.parse(normalInputJson);
     List<AugmentedWeight> expectedWeightAugmentations = new ArrayList<>();
     expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(0), weights.get(0)));
     expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(1), weights.get(1)));
@@ -50,14 +49,15 @@ public class UserWeightParserTest {
 
   @Test
   public void testAddWeightAugmentations() throws Exception {
-    int sizeBefore = augmentedWeights.size();
+    weightAugmentations = userWeightParser.parse(normalInputJson);
+    int sizeBefore = weightAugmentations.size();
     String geomJson = "{\"type\": \"Polygon\",\"coordinates\": [[[8.681,49.420],[8.685,49.420],[8.684,49.423],[8.681,49.420]]]}";
     Geometry geom = GeometryJSON.parse(new JSONObject(geomJson));
-    userWeightParser.addWeightAugmentations(augmentedWeights, geom, 1.3);
+    userWeightParser.addWeightAugmentations(weightAugmentations, geom, 1.3);
     AugmentedWeight expectedResult = new AugmentedWeight(geom, 1.3);
-    AugmentedWeight actualResult = augmentedWeights.get(augmentedWeights.size() - 1);
+    AugmentedWeight actualResult = weightAugmentations.get(weightAugmentations.size() - 1);
     Assert.assertEquals(expectedResult, actualResult);
-    Assert.assertEquals(sizeBefore + 1, augmentedWeights.size());
+    Assert.assertEquals(sizeBefore + 1, weightAugmentations.size());
   }
 
   @Test
