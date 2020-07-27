@@ -44,7 +44,16 @@ public class UserWeightParser {
 
   public List<AugmentedWeight> parse(org.json.JSONObject input) throws ParameterValueException {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
-    JSONArray features = input.getJSONArray("features");
+    JSONArray features;
+    String geoJSONtype = input.getString("type");
+    if (geoJSONtype.equals("FeatureCollection")) {
+      features = input.getJSONArray("features");
+    } else if (geoJSONtype.equals("Feature")) {
+      features = new JSONArray();
+      features.put(input);
+    } else {
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
+    }
     for (int i = 0; i < features.length(); i++) {
       JSONObject feature = features.getJSONObject(i);
       Geometry geom;

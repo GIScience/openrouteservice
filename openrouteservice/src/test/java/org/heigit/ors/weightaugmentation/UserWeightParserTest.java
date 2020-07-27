@@ -20,8 +20,10 @@ public class UserWeightParserTest {
   private static final GeometryFactory factory = new GeometryFactory();
   private UserWeightParser userWeightParser;
   private List<AugmentedWeight> weightAugmentations;
-  private List<Geometry> geometries;
-  private List<Double> weights;
+  private List<Geometry> geometries1;
+  private List<Double> weights1;
+  private List<Geometry> geometries2;
+  private List<Double> weights2;
   String normalInputJson;
 
   @Rule
@@ -32,18 +34,21 @@ public class UserWeightParserTest {
     userWeightParser = new UserWeightParser();
     normalInputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"5.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
 
-    geometries = new ArrayList<>();
-    geometries.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]]}")));
-    geometries.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}")));
-    weights = new ArrayList<>(Arrays.asList(5.0, 0.1));
+    geometries1 = new ArrayList<>();
+    geometries1.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]]}")));
+    geometries1.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}")));
+    weights1 = new ArrayList<>(Arrays.asList(5.0, 0.1));
+    geometries2 = new ArrayList<>();
+    geometries2.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}")));
+    weights2 = new ArrayList<>(Arrays.asList(2.3));
   }
 
   @Test
   public void testParse() throws ParameterValueException {
     weightAugmentations = userWeightParser.parse(normalInputJson);
     List<AugmentedWeight> expectedWeightAugmentations = new ArrayList<>();
-    expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(0), weights.get(0)));
-    expectedWeightAugmentations.add(new AugmentedWeight(geometries.get(1), weights.get(1)));
+    expectedWeightAugmentations.add(new AugmentedWeight(geometries1.get(0), weights1.get(0)));
+    expectedWeightAugmentations.add(new AugmentedWeight(geometries1.get(1), weights1.get(1)));
     Assert.assertEquals(expectedWeightAugmentations, weightAugmentations);
   }
 
@@ -63,16 +68,18 @@ public class UserWeightParserTest {
   @Test
   public void testParseGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}";
-    thrown.expect(JSONException.class);
-    thrown.expectMessage("TODO"); // TODO
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value or format.");
     userWeightParser.parse(inputJson);
   }
 
   @Test
   public void testParseFeature() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
-    userWeightParser.parse(inputJson);
-    // TODO add assert
+    weightAugmentations = userWeightParser.parse(inputJson);
+    List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
+    expectedAugmentations.add(new AugmentedWeight(geometries2.get(0), weights2.get(0)));
+    Assert.assertEquals(expectedAugmentations, weightAugmentations);
   }
 
   @Test
@@ -86,8 +93,10 @@ public class UserWeightParserTest {
   @Test
   public void testParseFeatureCollection() throws ParameterValueException {
     String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
-    userWeightParser.parse(inputJson);
-    // TODO add assert
+    weightAugmentations = userWeightParser.parse(inputJson);
+    List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
+    expectedAugmentations.add(new AugmentedWeight(geometries2.get(0), weights2.get(0)));
+    Assert.assertEquals(expectedAugmentations, weightAugmentations);
   }
 
   @Test
