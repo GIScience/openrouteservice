@@ -5,7 +5,6 @@ import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -16,12 +15,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.Arrays;
 import java.util.HashSet;
-import junit.framework.TestCase;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AugmentationTest extends TestCase {
+public class AugmentationTest {
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -125,23 +124,23 @@ public class AugmentationTest extends TestCase {
     }
 
     // check nodes
-    assertEquals(expectedGhs.getNodes(), actualGhs.getNodes());
+    Assert.assertEquals(expectedGhs.getNodes(), actualGhs.getNodes());
     NodeAccess actualNodes = actualGhs.getNodeAccess();
     NodeAccess expectedNodes = expectedGhs.getNodeAccess();
     for (int i = 0; i < actualGhs.getNodes(); i++) {
-      assertEquals(expectedNodes.getLat(i), actualNodes.getLat(i));
-      assertEquals(expectedNodes.getLon(i), actualNodes.getLon(i));
+      Assert.assertEquals(expectedNodes.getLat(i), actualNodes.getLat(i));
+      Assert.assertEquals(expectedNodes.getLon(i), actualNodes.getLon(i));
     }
 
     // check edges
-    assertEquals(expectedGhs.getEdges(), actualGhs.getEdges());
+    Assert.assertEquals(expectedGhs.getEdges(), actualGhs.getEdges());
     AllEdgesIterator actualEdges = actualGhs.getAllEdges();
     AllEdgesIterator expectedEdges = expectedGhs.getAllEdges();
     while (actualEdges.next()) {
       expectedEdges.next();
-      assertEquals(expectedEdges.getBaseNode(), actualEdges.getBaseNode());
-      assertEquals(expectedEdges.getAdjNode(), actualEdges.getAdjNode());
-      assertEquals(expectedEdges.getDistance(), actualEdges.getDistance());
+      Assert.assertEquals(expectedEdges.getBaseNode(), actualEdges.getBaseNode());
+      Assert.assertEquals(expectedEdges.getAdjNode(), actualEdges.getAdjNode());
+      Assert.assertEquals(expectedEdges.getDistance(), actualEdges.getDistance());
     }
   }
 }
