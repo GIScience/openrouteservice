@@ -13,15 +13,22 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import java.util.HashSet;
 import java.util.Objects;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.RoutingErrorCodes;
 
 public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
   private final EdgeFilter edgeFilter;
 
-  public AugmentedWeight(Geometry geometry, double weight) {
+  public AugmentedWeight(Geometry geometry, double weight) throws ParameterValueException {
     this.geometry = geometry;
-    this.weight = weight;
+    if (weight > 0.0) {
+      this.weight = weight;
+    } else {
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
+    }
     this.edgeFilter = createEdgeFilter();
   }
 
