@@ -29,10 +29,19 @@ public class IsochroneMapBuilderFactory {
     }
 
     public IsochroneMap buildMap(IsochroneSearchParameters parameters) throws Exception {
+        IsochroneMapBuilder isochroneBuilder = createIsochroneMapBuilder(parameters);
+
+        isochroneBuilder.initialize(searchContext);
+        return isochroneBuilder.compute(parameters);
+    }
+
+    private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws Exception{
         IsochroneMapBuilder isochroneBuilder;
         String method = parameters.getCalcMethod();
-        if (Helper.isEmpty(method) || "Default".equalsIgnoreCase(method)) {
-            if (((ORSGraphHopper) searchContext.getGraphHopper()).isFastIsochroneAvailable(searchContext, parameters.getRangeType()))
+        boolean canUseFastIsochrones = !(parameters.getRouteParameters().requiresDynamicPreprocessedWeights() || parameters.getRouteParameters().requiresFullyDynamicWeights());
+        if (Helper.isEmpty(method) || "FastIsochrone".equalsIgnoreCase(method) || "Default".equalsIgnoreCase(method)) {
+            if (canUseFastIsochrones &&
+                    ((ORSGraphHopper) searchContext.getGraphHopper()).isFastIsochroneAvailable(searchContext, parameters.getRangeType()))
                 isochroneBuilder = new FastIsochroneMapBuilder();
             else
                 isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
@@ -41,9 +50,8 @@ public class IsochroneMapBuilderFactory {
         } else if ("grid".equalsIgnoreCase(method)) {
             isochroneBuilder = new GridBasedIsochroneMapBuilder();
         } else {
-            throw new Exception("Unknown method.");
+            throw new IllegalArgumentException("Unknown method.");
         }
-        isochroneBuilder.initialize(searchContext);
-        return isochroneBuilder.compute(parameters);
+        return isochroneBuilder;
     }
 }
