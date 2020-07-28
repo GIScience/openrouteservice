@@ -1767,4 +1767,24 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
+	@Test
+	public void testAugmentedWeights() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+		body.put("user_weights", "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}");
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'rroutes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
+				.statusCode(400);
+	}
+
 }
