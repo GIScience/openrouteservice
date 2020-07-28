@@ -39,4 +39,11 @@ public class AugmentedWeightTest {
   public void testGetWeight() {
     Assert.assertEquals(0.5, augmentedWeight.getWeight(), 0.0);
   }
+
+  @Test
+  public void testHasReducingWeight() throws ParameterValueException {
+    Assert.assertTrue(augmentedWeight.hasReducingWeight());
+    augmentedWeight = new AugmentedWeight(geometry, 1.5);
+    Assert.assertFalse(augmentedWeight.hasReducingWeight());
+  }
 }

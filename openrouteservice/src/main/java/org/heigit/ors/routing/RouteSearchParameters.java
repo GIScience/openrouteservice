@@ -87,7 +87,8 @@ public class RouteSearchParameters {
     private boolean hasMaximumSpeed = false;
 
     private List<AugmentedWeight> augmentedWeights = null;
-    private boolean hasUserWeights = false;
+    private boolean hasAugmentedWeights = false;
+    private boolean hasReducingAugmentedWeights = false;
 
     private String options;
 
@@ -558,11 +559,21 @@ public class RouteSearchParameters {
 
     public void setAugmentedWeights(List<AugmentedWeight> augmentedWeights) {
         this.augmentedWeights = augmentedWeights;
-        hasUserWeights = true;
+        hasAugmentedWeights = true;
+        for (AugmentedWeight augmentedWeight: augmentedWeights) {
+            if (augmentedWeight.hasReducingWeight()) {
+              hasReducingAugmentedWeights = true;
+              break;
+            }
+        }
     }
 
-    public boolean hasUserWeights() {
-        return hasUserWeights;
+    public boolean hasAugmentedWeights() {
+        return hasAugmentedWeights;
+    }
+
+    public boolean hasReducingAugmentedWeights() {
+        return hasReducingAugmentedWeights;
     }
 
     public boolean isProfileTypeDriving() {
@@ -581,8 +592,7 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed()
-            || hasUserWeights();
+            || hasMaximumSpeed();
     }
 
     /**
@@ -591,6 +601,7 @@ public class RouteSearchParameters {
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
                 || hasBearings()
-                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+                || hasAugmentedWeights();
     }
 }

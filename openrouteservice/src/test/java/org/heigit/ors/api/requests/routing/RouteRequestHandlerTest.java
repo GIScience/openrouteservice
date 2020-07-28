@@ -429,7 +429,7 @@ public class RouteRequestHandlerTest {
         request.setUserWeights((JSONObject) parser.parse(inputJson));
 
         RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
-        Assert.assertTrue(generatedRoutingRequest.getSearchParameters().hasUserWeights());
+        Assert.assertTrue(generatedRoutingRequest.getSearchParameters().hasAugmentedWeights());
         Geometry actualGeom = generatedRoutingRequest.getSearchParameters().getAugmentedWeights().get(0).getGeometry();
 
         double[][] expectedCoordinatesOrig = {{8.691, 49.415}, {8.691, 49.413}, {8.699, 49.413}, {8.691, 49.415}};

@@ -715,7 +715,7 @@ public class RoutingProfile {
          */
 
         /* Avoid areas */
-        if (searchParams.hasUserWeights()) {
+        if (searchParams.hasAugmentedWeights()) {
             props.put("user_weights", true);
             props.putObj("user_weights", searchParams.getAugmentedWeights());
         }
@@ -906,6 +906,19 @@ public class RoutingProfile {
                 req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
             }
 
+            // if weights are getting better during augmentation (factor < 1.0), dijkstra has to be used
+            if (searchParams.hasAugmentedWeights() && searchParams.hasReducingAugmentedWeights()) {
+                req.setAlgorithm("dijkstrabi");
+                setSpeedups(req, false, false, false);
+            }
+
+            if (DebugUtility.isDebug()) {
+                LOGGER.info("used algorithm: " + req.getAlgorithm()
+                    + ", " + KEY_LM_DISABLE + ": " + req.getHints().get(KEY_LM_DISABLE, "")
+                    + ", " + KEY_CORE_DISABLE + ": " + req.getHints().get(KEY_CORE_DISABLE, "")
+                    + ", " + KEY_CH_DISABLE + ": " + req.getHints().get(KEY_CH_DISABLE, "")
+                );
+            }
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);
             } else {

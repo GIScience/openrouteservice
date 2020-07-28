@@ -52,6 +52,10 @@ public class AugmentedWeight {
     return edgeFilter.accept(edge) ? weight : 1.0;
   }
 
+  public boolean hasReducingWeight() {
+    return weight < 1.0;
+  }
+
 
   public void applyAugmentationToAll(GraphHopperStorage ghs) {
     EdgeExplorer edgeExplorer = ghs.createEdgeExplorer();
