@@ -1,15 +1,23 @@
 package org.heigit.ors.routing;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.ArrayList;
+import java.util.List;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.weightaugmentation.AugmentedWeight;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class RouteSearchParametersTest {
+    String geomJson = "{\"type\": \"Polygon\",\"coordinates\": [[[8.681,49.420],[8.685,49.420],[8.684,49.423],[8.681,49.420]]]}";
+
     @Before
     public void setUp() {
         System.setProperty("ors_app_config", "target/test-classes/app.config.test");
@@ -265,5 +273,51 @@ public class RouteSearchParametersTest {
         Assert.assertEquals(2, routeSearchParameters.getAlternativeRoutesCount());
         Assert.assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
         Assert.assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
+    }
+
+    private RouteSearchParameters setUpAugmentedWeights() throws Exception{
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        Geometry geom = GeometryJSON.parse(new JSONObject(geomJson));
+        List<AugmentedWeight> augmentedWeights = new ArrayList<>();
+        augmentedWeights.add(new AugmentedWeight(geom, 1.2));
+        routeSearchParameters.setAugmentedWeights(augmentedWeights);
+        return routeSearchParameters;
+    }
+
+    @Test
+    public void testGetAugmentedWeights() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        Assert.assertNull(routeSearchParameters.getAugmentedWeights());
+        routeSearchParameters = setUpAugmentedWeights();
+        List<AugmentedWeight> expected = new ArrayList<>();
+        expected.add(new AugmentedWeight(GeometryJSON.parse(new JSONObject(geomJson)), 1.2));
+        Assert.assertEquals(expected, routeSearchParameters.getAugmentedWeights());
+    }
+
+    @Test
+    public void testSetAugmentedWeights() throws Exception {
+        RouteSearchParameters routeSearchParameters = setUpAugmentedWeights();
+        Assert.assertTrue(routeSearchParameters.getAugmentedWeights().size() > 0);
+    }
+
+    @Test
+    public void testHasAugmentedWeights() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        Assert.assertFalse(routeSearchParameters.hasAugmentedWeights());
+        routeSearchParameters = setUpAugmentedWeights();
+        Assert.assertTrue(routeSearchParameters.hasAugmentedWeights());
+    }
+
+    @Test
+    public void testHasReducingAugmentedWeights() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        Assert.assertFalse(routeSearchParameters.hasReducingAugmentedWeights());
+        routeSearchParameters = setUpAugmentedWeights();
+        Assert.assertFalse(routeSearchParameters.hasReducingAugmentedWeights());
+        AugmentedWeight reducingAugmentedWeight = new AugmentedWeight(GeometryJSON.parse(new JSONObject(geomJson)), 0.2);
+        List<AugmentedWeight> augmentedWeights = routeSearchParameters.getAugmentedWeights();
+        augmentedWeights.add(reducingAugmentedWeight);
+        routeSearchParameters.setAugmentedWeights(augmentedWeights);
+        Assert.assertTrue(routeSearchParameters.hasReducingAugmentedWeights());
     }
 }
