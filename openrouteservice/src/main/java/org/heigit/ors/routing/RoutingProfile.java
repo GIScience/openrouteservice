@@ -104,6 +104,7 @@ public class RoutingProfile {
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
+    private static final String KEY_DIJKSTRABI = "dijkstrabi";
     private static final String KEY_ASTARBI = "astarbi";
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
@@ -855,7 +856,7 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm("dijkstrabi");
+            req.setAlgorithm(KEY_DIJKSTRABI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
@@ -908,7 +909,7 @@ public class RoutingProfile {
 
             // if weights are getting better during augmentation (factor < 1.0), dijkstra has to be used
             if (searchParams.hasAugmentedWeights() && searchParams.hasReducingAugmentedWeights()) {
-                req.setAlgorithm("dijkstrabi");
+                req.setAlgorithm(KEY_DIJKSTRABI);
                 setSpeedups(req, false, false, false);
             }
 

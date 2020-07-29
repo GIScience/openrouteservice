@@ -5,7 +5,6 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import java.util.ArrayList;
 import java.util.List;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 
@@ -13,10 +12,11 @@ public class AugmentedWeighting implements Weighting {
   private final Weighting superWeighting;
   private final List<AugmentedWeight> augmentedWeights;
 
-  public AugmentedWeighting(FlagEncoder encoder, PMap additionalHints, Weighting weighting) {
+  public AugmentedWeighting(PMap additionalHints, Weighting weighting) {
     ORSPMap params = (ORSPMap) additionalHints;
     this.superWeighting = weighting;
-    this.augmentedWeights = (ArrayList<AugmentedWeight>) params.getObj("user_weights");
+    //noinspection unchecked
+    this.augmentedWeights = (List<AugmentedWeight>) params.getObj("user_weights");
   }
 
   public double getAugmentations(final EdgeIteratorState edge) {

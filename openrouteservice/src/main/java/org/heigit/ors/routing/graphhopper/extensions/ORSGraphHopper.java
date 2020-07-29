@@ -346,7 +346,7 @@ public class ORSGraphHopper extends GraphHopper {
 				}
 
 				if (additionalHints.has("user_weights")) {
-					weighting = new AugmentedWeighting(encoder, additionalHints, weighting);
+					weighting = new AugmentedWeighting(additionalHints, weighting);
 				}
 
 
