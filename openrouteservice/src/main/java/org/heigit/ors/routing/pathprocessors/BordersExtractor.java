@@ -2,6 +2,8 @@ package org.heigit.ors.routing.pathprocessors;
 
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class BordersExtractor {
     public enum Avoid { CONTROLLED, NONE, ALL }
@@ -41,5 +43,16 @@ public class BordersExtractor {
             }
         }
         return false;
+    }
+
+    public boolean isSameCountry(List<Integer> edgeIds){
+        List<Short> countryIds = new ArrayList<>();
+        for(int edgeId : edgeIds) {
+            countryIds.add(storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START));
+            countryIds.add(storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END));
+        }
+
+        return countryIds.isEmpty() || countryIds.stream().allMatch(countryIds.get(0)::equals);
+
     }
 }
