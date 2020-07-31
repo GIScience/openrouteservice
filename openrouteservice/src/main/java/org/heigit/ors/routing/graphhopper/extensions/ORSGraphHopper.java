@@ -52,8 +52,10 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -263,7 +265,7 @@ public class ORSGraphHopper extends GraphHopper {
 				StopWatch sw = new StopWatch().start();
 				List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
 				double[] radiuses = request.getMaxSearchDistances();
-				checkAvoidBorders(request, qResults);
+				checkAvoidBorders(processContext, request, qResults);
 				if (points.size() == qResults.size()) {
 					for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
 						QueryResult qr = qResults.get(placeIndex);
@@ -442,13 +444,14 @@ public class ORSGraphHopper extends GraphHopper {
 		return result;
 	}
 
-	private void checkAvoidBorders(GHRequest request, List<QueryResult> queryResult) {
+	private void checkAvoidBorders(GraphProcessContext processContext, GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
 		ORSPMap params = (ORSPMap)request.getAdditionalHints();
 		boolean isRouteable = true;
 
 			if (params.hasObj("avoid_borders")) {
 				RouteSearchParameters routeSearchParameters = (RouteSearchParameters) params.getObj("avoid_borders");
+				//Avoiding All borders
 				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.ALL) {
 					List<Integer> edgeIds =  new ArrayList<>();
 					for (int placeIndex = 0; placeIndex < queryResult.size(); placeIndex++) {
@@ -457,8 +460,33 @@ public class ORSGraphHopper extends GraphHopper {
 					BordersExtractor bordersExtractor = new BordersExtractor(GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), BordersGraphStorage.class), null);
 					isRouteable = bordersExtractor.isSameCountry(edgeIds);
 				}
+				//TODO Avoiding CONTROLLED borders
+				//Currently this is extremely messy, as for some reason the READER stores data in addition to the BordersStorage.
+				//At the same time, it is not possible to get isOpen from the Reader via ids, because it only takes Strings. But there are no Strings in the Storage.
+				//So no controlled borders for now until this whole thing is refactored and the Reader is an actual reader and not a storage.
+
+//				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.CONTROLLED) {
+//					GraphStorageBuilder countryBordersReader;
+//					if(processContext.getStorageBuilders().size() > 0) {
+//						countryBordersReader = processContext.getStorageBuilders().get(0);
+//						int i = 1;
+//						while (i < processContext.getStorageBuilders().size() && !(countryBordersReader instanceof CountryBordersReader)) {
+//							countryBordersReader = processContext.getStorageBuilders().get(i);
+//							i++;
+//						}
+//
+//						List<Integer> edgeIds = new ArrayList<>();
+//						for (int placeIndex = 0; placeIndex < queryResult.size(); placeIndex++) {
+//							edgeIds.add(queryResult.get(placeIndex).getClosestEdge().getEdge());
+//						}
+//						BordersExtractor bordersExtractor = new BordersExtractor(GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), BordersGraphStorage.class), null);
+//						if (!bordersExtractor.isSameCountry(edgeIds)) {
+//							isRouteable == ((CountryBordersReader) countryBordersReader).isOpen(id0, id1)
+//							...
+//						}
+//					}
+//				}
 			}
-			//TODO add support for avoiding controlled borders
 		if(!isRouteable)
 			throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.<String, Object>emptyMap());
 
