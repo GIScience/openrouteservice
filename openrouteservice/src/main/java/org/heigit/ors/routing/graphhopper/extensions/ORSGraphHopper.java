@@ -444,6 +444,13 @@ public class ORSGraphHopper extends GraphHopper {
 		return result;
 	}
 
+	/**
+	 * Check whether the route processing has to start. If avoid all borders is set and the routing points are in different countries,
+	 * there is no need to even start routing.
+	 * @param processContext Used to get the bordersReader to check isOpen for avoid Controlled. Currently not used
+	 * @param request To get the avoid borders setting
+	 * @param queryResult To get the edges of the queries and check which country they're in
+	 */
 	private void checkAvoidBorders(GraphProcessContext processContext, GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
 		ORSPMap params = (ORSPMap)request.getAdditionalHints();

@@ -48,7 +48,7 @@ public class BordersExtractor {
 
     /**
      * Check whether the start and end nodes of a list of edges are in the same country.
-     * @param edgeIds
+     * @param edgeIds Edges that the country should be checked for
      * @return true if at least one node is in the same country
      */
     public boolean isSameCountry(List<Integer> edgeIds){
