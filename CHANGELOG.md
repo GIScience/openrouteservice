@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
+- Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
 ### Fixed
 ### Changed
 ### Deprecated
