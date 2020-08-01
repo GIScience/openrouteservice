@@ -81,7 +81,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add(VAL_SECONDARY_LINK);
         preferHighwayTags.add(VAL_TERTIARY);
         preferHighwayTags.add(VAL_TERTIARY_LINK);
-        preferHighwayTags.add(VAL_RESIDENTIAL);
+        preferHighwayTags.add(VAL_UNCLASSIFIED);
 
         setTrackTypeSpeed(VAL_GRADE_1, 20); // paved
         setTrackTypeSpeed("grade2", 10); // now unpaved ...
@@ -123,17 +123,17 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setHighwaySpeed("road", 12);
         setHighwaySpeed(VAL_TRACK, PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed(VAL_SERVICE, 12);
-        setHighwaySpeed(VAL_UNCLASSIFIED, 16);
-        setHighwaySpeed(VAL_RESIDENTIAL, 16);
+        setHighwaySpeed(VAL_UNCLASSIFIED, 20);
+        setHighwaySpeed(VAL_RESIDENTIAL, 18);
 
         setHighwaySpeed("trunk", 20);
         setHighwaySpeed("trunk_link", 20);
-        setHighwaySpeed("primary", 20);
-        setHighwaySpeed("primary_link", 20);
-        setHighwaySpeed(VAL_SECONDARY, 20);
-        setHighwaySpeed(VAL_SECONDARY_LINK, 20);
-        setHighwaySpeed(VAL_TERTIARY, 20);
-        setHighwaySpeed(VAL_TERTIARY_LINK, 20);
+        setHighwaySpeed("primary", 22);
+        setHighwaySpeed("primary_link", 22);
+        setHighwaySpeed(VAL_SECONDARY, 24);
+        setHighwaySpeed(VAL_SECONDARY_LINK, 24);
+        setHighwaySpeed(VAL_TERTIARY, 26);
+        setHighwaySpeed(VAL_TERTIARY_LINK, 26);
 
         addPushingSection("path");
         addPushingSection("footway");
@@ -156,20 +156,8 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         // REQUIRED ADDON OR OVERWRITE OF Default GH-RoadBikeProfile
         // created by MARQ24
         //**********************************************************************
-        preferHighwayTags.remove(VAL_RESIDENTIAL);
-        preferHighwayTags.add(VAL_UNCLASSIFIED);
 
         // adjusted speeds...
-        setHighwaySpeed("trunk",           20);
-        setHighwaySpeed("trunk_link",      20);
-        setHighwaySpeed("primary",         22);
-        setHighwaySpeed("primary_link",    22);
-        setHighwaySpeed(VAL_SECONDARY,       24);
-        setHighwaySpeed(VAL_SECONDARY_LINK,  24);
-        setHighwaySpeed(VAL_TERTIARY,        26);
-        setHighwaySpeed(VAL_TERTIARY_LINK,   26);
-        setHighwaySpeed("road",            20);
-        setHighwaySpeed(VAL_UNCLASSIFIED,    20);
         setHighwaySpeed(VAL_RESIDENTIAL,      new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
         // make sure that we will avoid 'cycleway' & 'service' ways where ever
