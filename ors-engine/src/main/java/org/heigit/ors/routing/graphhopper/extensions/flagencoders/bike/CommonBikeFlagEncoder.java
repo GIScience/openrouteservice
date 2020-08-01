@@ -821,6 +821,10 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         surfaceSpeeds.put(surface, new SpeedValue(speed));
     }
 
+    protected void setSurfaceSpeed(String surface, int speed, UpdateType type) {
+        surfaceSpeeds.put(surface, new SpeedValue(speed, type));
+    }
+
     protected void setSurfaceSpeed(String surface, SpeedValue speed) {
         surfaceSpeeds.put(surface, speed);
     }
