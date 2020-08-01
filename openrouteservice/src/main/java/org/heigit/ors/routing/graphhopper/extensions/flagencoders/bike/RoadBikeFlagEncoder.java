@@ -89,16 +89,16 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setTrackTypeSpeed("grade4", PUSHING_SECTION_SPEED);
         setTrackTypeSpeed("grade5", PUSHING_SECTION_SPEED);
 
-        setSurfaceSpeed("paved", 20);
-        setSurfaceSpeed("asphalt", 20);
-        setSurfaceSpeed("cobblestone", 10);
-        setSurfaceSpeed("cobblestone:flattened", 10);
-        setSurfaceSpeed("sett", 10);
-        setSurfaceSpeed("concrete", 20);
-        setSurfaceSpeed("concrete:lanes", 16);
-        setSurfaceSpeed("concrete:plates", 16);
-        setSurfaceSpeed("paving_stones", 10);
-        setSurfaceSpeed("paving_stones:30", 10);
+        setSurfaceSpeed("paved", 26, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("asphalt", 26, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("cobblestone", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("cobblestone:flattened", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("sett", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("concrete", 26, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("concrete:lanes", 16, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("concrete:plates", 16, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones:30", 10, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("unpaved", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("compacted", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("dirt", PUSHING_SECTION_SPEED / 2);
@@ -151,44 +151,12 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
 
-        // MARQ24 MOD START
-        //**********************************************************************
-        // REQUIRED ADDON OR OVERWRITE OF Default GH-RoadBikeProfile
-        // created by MARQ24
-        //**********************************************************************
-
-        // adjusted speeds...
-        setHighwaySpeed(VAL_RESIDENTIAL,      new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
-
-        // make sure that we will avoid 'cycleway' & 'service' ways where ever
-        // it is possible...
-        setHighwaySpeed("cycleway",                new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
-        setHighwaySpeed(VAL_SERVICE,                 new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
-
-        // overwriting also the SurfaceSpeeds... to the "max" of the residential speed
-        setSurfaceSpeed("paved",                    new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("asphalt",                  new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete",                 new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-
-        setSurfaceSpeed("concrete:lanes",           new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete:plates",          new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones",            new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones:30",         new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone",              new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone:flattened",    new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("sett",                     new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-
-        // overwriting also the trackTypeSpeeds... to the "max" of the residential speed
-        setTrackTypeSpeed(VAL_GRADE_1,                new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setTrackTypeSpeed("grade2",                new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-
         // HSW - asphalt cycleway vs asphalt roundabout
         // http://localhost:3035/directions?n1=51.965101&n2=8.24595&n3=18&a=51.965555,8.243968,51.964878,8.245057&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
 
         // Aschloh roundabout vs cycleway (cycle relation) & service shortcut
         // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-        LOGGER.info("NextGen RoadBike FlagEncoder is active...");
-        // MARQ24 MOD END
+
         this.init();
     }
 
