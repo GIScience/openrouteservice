@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
 ### Fixed
 ### Changed
+- Improved road bike average speed to be faster on cycleways and slower on bad road surface or certain road types such as footways.
 ### Deprecated
 
 ## [6.2.0] - 2020-07-15
