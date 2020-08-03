@@ -176,7 +176,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         try {
             FileWriter fileWriter = new FileWriter("/home/star_pirate/GIScience/openrouteservice/openrouteservice/acceptedEdges", false);
             PrintWriter printWriter = new PrintWriter(fileWriter);
-            for (int i : TurnRestrictionsCoreEdgeFilter.acceptedEdges) {
+            for (String i : TurnRestrictionsCoreEdgeFilter.acceptedEdges) {
                 printWriter.print(i + "\n");
             }
             printWriter.close();
