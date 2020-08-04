@@ -32,10 +32,9 @@ import java.util.HashSet;
 public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     private TurnCostExtension turnCostExtension;
     public final FlagEncoder flagEncoder;
-    private final EdgeExplorer inEdgeExplorer;
-    private final EdgeExplorer outEdgeExplorer;
+    private final  EdgeExplorer allEdgesExplorer;
     private Graph graph;
-    public static HashSet<String> acceptedEdges = new HashSet<>();
+    public static HashSet<Integer> acceptedEdges = new HashSet<>();
 
     public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
         this.flagEncoder = encoder;
@@ -45,25 +44,15 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         if (!flagEncoder.isRegistered())
             throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
         turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
-        inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
-        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        allEdgesExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(flagEncoder));
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
-        //Search all outgoing turn restrictions.
-        EdgeIterator iterationTo = outEdgeExplorer.setBaseNode(edge.getAdjNode());
+        EdgeIterator iterationTo = allEdgesExplorer.setBaseNode(edge.getAdjNode());
+
 
         while ( iterationTo.next()) {
             long turnFlags = turnCostExtension.getTurnCostFlags( edge.getEdge() , edge.getAdjNode(), iterationTo.getEdge());
-            if (flagEncoder.isTurnRestricted(turnFlags))
-                return true;
-        }
-
-        //Search all incoming turn restrictions.
-        EdgeIterator iterationFrom = inEdgeExplorer.setBaseNode(edge.getBaseNode());
-
-        while ( iterationFrom.next()) {
-            long turnFlags = turnCostExtension.getTurnCostFlags(  iterationFrom.getEdge(), edge.getBaseNode(), edge.getEdge());
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
         }
@@ -74,11 +63,9 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        boolean reverse = edge.get(EdgeIteratorState.REVERSE_STATE);
-        String test = Integer.toString(edge.getEdge()) + "\t" + Boolean.toString(reverse);
-        acceptedEdges.add(test);
 
         if ( hasTurnRestrictions(edge) ) {
+            acceptedEdges.add(edge.getEdge());
             return false;
         } else{
             return true;
