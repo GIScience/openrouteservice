@@ -25,8 +25,10 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class BordersExtractorTest {
     private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
@@ -37,13 +39,17 @@ public class BordersExtractorTest {
         // Initialise a graph storage with dummy data
         _graphstorage = new BordersGraphStorage();
         _graphstorage.init(null, new GHDirectory("", DAType.RAM_STORE));
-        _graphstorage.create(3);
+        _graphstorage.create(5);
 
         // (edgeId, borderType, startCountry, endCountry)
 
         _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short)1, (short)2);
         _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short)3, (short)4);
         _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short)5, (short)5);
+        _graphstorage.setEdgeValue(4, BordersGraphStorage.NO_BORDER, (short)5, (short)6);
+        _graphstorage.setEdgeValue(5, BordersGraphStorage.NO_BORDER, (short)7, (short)7);
+        _graphstorage.setEdgeValue(6, BordersGraphStorage.NO_BORDER, (short)7, (short)7);
+
     }
 
     private VirtualEdgeIteratorState generateEdge(int id) {
@@ -102,5 +108,30 @@ public class BordersExtractorTest {
         assertEquals(true, be.restrictedCountry(1));
         assertEquals(true, be.restrictedCountry(2));
         assertEquals(false, be.restrictedCountry(3));
+    }
+
+    @Test
+    public void TestIsSameCountry() {
+        VirtualEdgeIteratorState ve1 = generateEdge(1);
+        VirtualEdgeIteratorState ve2 = generateEdge(2);
+        VirtualEdgeIteratorState ve3 = generateEdge(3);
+
+        BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
+        List<Integer> countries = new ArrayList<>();
+        countries.add(1);
+        countries.add(2);
+        assertFalse(be.isSameCountry(countries));
+        countries = new ArrayList<>();
+        countries.add(3);
+        countries.add(4);
+        assertTrue(be.isSameCountry(countries));
+        countries = new ArrayList<>();
+        countries.add(4);
+        countries.add(5);
+        assertFalse(be.isSameCountry(countries));
+        countries = new ArrayList<>();
+        countries.add(5);
+        countries.add(6);
+        assertTrue(be.isSameCountry(countries));
     }
 }
