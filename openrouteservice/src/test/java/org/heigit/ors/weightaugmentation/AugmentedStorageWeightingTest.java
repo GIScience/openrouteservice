@@ -157,13 +157,13 @@ public class AugmentedStorageWeightingTest {
 
   @Test
   public void getFlagEncoder() {
-    Assert.assertEquals(augmentedStorageWeighting.getFlagEncoder(), superWeighting.getFlagEncoder());
+    Assert.assertEquals(superWeighting.getFlagEncoder(), augmentedStorageWeighting.getFlagEncoder());
   }
 
   @Test
   public void matches() {
-    // TODO implement
-    Assert.assertTrue(true);
+    HintsMap hintsMap = new HintsMap();
+    Assert.assertEquals(superWeighting.matches(hintsMap), augmentedStorageWeighting.matches(hintsMap));
   }
 
   @Test

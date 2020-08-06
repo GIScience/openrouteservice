@@ -157,13 +157,13 @@ public class AugmentedWeightingTest {
 
   @Test
   public void getFlagEncoder() {
-    Assert.assertEquals(augmentedWeighting.getFlagEncoder(), superWeighting.getFlagEncoder());
+    Assert.assertEquals(superWeighting.getFlagEncoder(), augmentedWeighting.getFlagEncoder());
   }
 
   @Test
   public void matches() {
-    // TODO implement
-    Assert.assertTrue(true);
+    HintsMap hintsMap = new HintsMap();
+    Assert.assertEquals(superWeighting.matches(hintsMap), augmentedWeighting.matches(hintsMap));
   }
 
   @Test
