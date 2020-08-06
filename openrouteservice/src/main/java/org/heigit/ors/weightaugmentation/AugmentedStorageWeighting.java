@@ -16,23 +16,34 @@ public class AugmentedStorageWeighting implements Weighting {
   private final Weighting superWeighting;
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
+  private double minAugmentationWeight = 1.0;
 
-  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) {
+  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper, double stepSize, double searchRadius) {
     ORSPMap params = (ORSPMap) additionalHints;
     this.superWeighting = weighting;
     this.augmentationStorage = new AugmentationStorage();
     this.polygonMatcher = new PolygonMatcher();
     polygonMatcher.setGraphHopper(graphHopper);
     polygonMatcher.setLocationIndex();
+    if (stepSize > 0) {
+      polygonMatcher.setNodeGridStepSize(stepSize);
+    }
+    if (searchRadius > 0) {
+      polygonMatcher.setSearchRadius(searchRadius);
+    }
     //noinspection unchecked
-    List<AugmentedWeight> augmentedWeights = (List<AugmentedWeight>) params.getObj("user_weights");
-    fillAugmentationStorage(augmentedWeights);
+    fillAugmentationStorage((List<AugmentedWeight>) params.getObj("user_weights"));
+  }
+
+  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) {
+    this(additionalHints, weighting, graphHopper, -1, -1);
   }
 
   private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights) {
     for (AugmentedWeight augmentedWeight: augmentedWeights) {
       Polygon polygon = (Polygon) augmentedWeight.getGeometry();
       Set<Integer> edges = polygonMatcher.match(polygon);
+      minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());
       for (int edge: edges) {
         augmentationStorage.applyAugmentation(edge, augmentedWeight.getWeight());
       }
@@ -50,13 +61,12 @@ public class AugmentedStorageWeighting implements Weighting {
 
   @Override
   public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-    return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * (long) getAugmentations(edge);
+    return (long) (superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * getAugmentations(edge));
   }
 
   @Override
   public double getMinWeight(double distance) {
-    // TODO implement
-    return superWeighting.getMinWeight(distance);
+    return superWeighting.getMinWeight(distance) * minAugmentationWeight;
   }
 
   @Override

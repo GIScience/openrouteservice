@@ -34,13 +34,16 @@ public class AugmentedWeighting implements Weighting {
 
   @Override
   public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-    return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * (long) getAugmentations(edge);
+    return (long) (superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId) * getAugmentations(edge));
   }
 
   @Override
   public double getMinWeight(double distance) {
-    // TODO implement
-    return superWeighting.getMinWeight(distance);
+    double minAugmentationWeight = 1.0;
+    for (AugmentedWeight augmentedWeight: augmentedWeights) {
+      minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());
+    }
+    return superWeighting.getMinWeight(distance) * minAugmentationWeight;
   }
 
   @Override
