@@ -38,6 +38,9 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
+import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
+
 public class IsochronesRequestHandler extends GenericHandler {
 
     private IsochroneMapCollection isoMaps;
@@ -182,6 +185,10 @@ public class IsochronesRequestHandler extends GenericHandler {
             convertedIsochroneRequest.setSmoothingFactor(convertSmoothing(request.getSmoothing()));
         if (request.hasIntersections())
             convertedIsochroneRequest.setIncludeIntersections(request.getIntersections());
+        if(request.hasOptions())
+            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(CONCAVE_BALLS));
+        else
+            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(FASTISOCHRONE));
         return convertedIsochroneRequest;
 
     }
@@ -245,7 +252,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
         for (int i = 0; i < travellers.size(); ++i) {
             TravellerInfo traveller = travellers.get(i);
-            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());
             double maxRange = traveller.getMaximumRange();
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
@@ -296,6 +303,8 @@ public class IsochronesRequestHandler extends GenericHandler {
                     return "concaveballs";
                 case GRID:
                     return "grid";
+                case FASTISOCHRONE:
+                    return "fastisochrone";
                 default:
                     return "none";
             }

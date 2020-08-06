@@ -20,6 +20,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.FastIsochrone;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 
 import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
@@ -60,8 +61,10 @@ public class FastIsochroneFactory {
 
         boolean enableThis = !fastisochroneProfileStrings.isEmpty();
         setEnabled(enableThis);
-        if (enableThis)
+        if (enableThis) {
             setDisablingAllowed(args.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            IsochronesServiceSettings.setFastIsochronesActive(args.get(FastIsochrone.PROFILE, ""));
+        }
     }
 
     /**

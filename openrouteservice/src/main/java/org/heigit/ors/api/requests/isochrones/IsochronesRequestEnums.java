@@ -91,7 +91,8 @@ public class IsochronesRequestEnums {
 
     public enum CalculationMethod {
         GRID("grid"),
-        CONCAVE_BALLS("concaveballs");
+        CONCAVE_BALLS("concaveballs"),
+        FASTISOCHRONE("fastisochrone");
 
         private final String value;
 
