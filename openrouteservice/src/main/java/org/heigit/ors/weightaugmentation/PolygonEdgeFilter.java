@@ -40,5 +40,4 @@ public class PolygonEdgeFilter implements EdgeFilter {
 
     return gf.createLineString(coordinates);
   }
-
 }
