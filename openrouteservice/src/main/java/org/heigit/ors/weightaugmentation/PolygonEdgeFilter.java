@@ -19,7 +19,7 @@ public class PolygonEdgeFilter implements EdgeFilter {
   public boolean accept(EdgeIteratorState edgeIteratorState) {
     LineString edgeGeometry = toLineString(edgeIteratorState.fetchWayGeometry(3));
     for (Polygon polygon: polygons) {
-      if (polygon.contains(edgeGeometry) || polygon.crosses(edgeGeometry)) {
+      if (polygon.contains(edgeGeometry) || polygon.crosses(edgeGeometry) || polygon.touches(edgeGeometry)) {
         return true;
       }
     }

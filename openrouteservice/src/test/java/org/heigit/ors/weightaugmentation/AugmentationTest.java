@@ -118,7 +118,7 @@ public class AugmentationTest {
     printEdges(actualGhs);
 
     // apply changes to reference/expected graph
-    HashSet<Integer> edgesToChange = new HashSet<>(Arrays.asList(0, 1, 2, 6, 7));
+    HashSet<Integer> edgesToChange = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 6, 7));
     GraphHopperStorage expectedGhs = createMediumGraph();
     EdgeIterator edges = expectedGhs.getAllEdges();
     while (edges.next()) {
