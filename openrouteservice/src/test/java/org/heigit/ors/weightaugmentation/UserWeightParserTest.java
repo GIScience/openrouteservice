@@ -91,6 +91,38 @@ public class UserWeightParserTest {
   }
 
   @Test
+  public void testParseFeatureWithWrongWeightType0() throws ParameterValueException {
+    testParseNotANumber("\"2..3\"");
+  }
+
+  @Test
+  public void testParseFeatureWithWrongWeightType1() throws ParameterValueException {
+    testParseNotANumber("foo");
+  }
+
+  @Test
+  public void testParseFeatureWithWrongWeightType2() throws ParameterValueException {
+    testParseNotANumber("null");
+  }
+
+  @Test
+  public void testParseFeatureWithWrongWeightType3() throws ParameterValueException {
+    testParseNotANumber( "\"foo\"");
+  }
+
+  @Test
+  public void testParseFeatureWithWrongWeightType4() throws ParameterValueException {
+    testParseNotANumber("\"\"");
+  }
+
+  private void testParseNotANumber(String weightString) throws ParameterValueException {
+    thrown.expect(JSONException.class);
+    thrown.expectMessage("JSONObject[\"weight\"] is not a number.");
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": " + weightString + "}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
   public void testParseFeatureCollection() throws ParameterValueException {
     String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
     weightAugmentations = userWeightParser.parse(inputJson);
