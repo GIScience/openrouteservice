@@ -116,9 +116,9 @@ public class UserWeightParserTest {
   }
 
   private void testParseNotANumber(String weightString) throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": " + weightString + "}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
     thrown.expect(JSONException.class);
     thrown.expectMessage("JSONObject[\"weight\"] is not a number.");
-    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": " + weightString + "}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
     userWeightParser.parse(inputJson);
   }
 

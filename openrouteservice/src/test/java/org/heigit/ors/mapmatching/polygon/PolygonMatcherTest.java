@@ -8,6 +8,7 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PolygonMatcherTest extends TestCase {
+  private final GeometryFactory geometryFactory = new GeometryFactory();
   private PolygonMatcher polygonMatcher;
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
@@ -81,10 +83,31 @@ public class PolygonMatcherTest extends TestCase {
   @Test
   public void testMatch() {
     Coordinate[] coordinates = convertCoordinateArray(new double[][]{{0.9,1.9},{0.9,5.1},{3.1,5.1},{3.1,1.9},{0.9,1.9}});
-    Polygon polygon = new GeometryFactory().createPolygon(coordinates);
+    Polygon polygon = geometryFactory.createPolygon(coordinates);
 
     Set<Integer> actualEdges = polygonMatcher.match(polygon);
     Set<Integer> expectedEdges = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 6, 7));
+    assertEquals(expectedEdges, actualEdges);
+  }
+
+  @Test
+  public void testSelfIntersectingPolygon() {
+    Coordinate[] coordinates = convertCoordinateArray(new double[][]{{0.9,1.9},{4.1,4.1},{3.1,5.1},{3.1,1.9},{0.9,1.9}});
+    Polygon polygon = geometryFactory.createPolygon(coordinates);
+
+    Set<Integer> actualEdges = polygonMatcher.match(polygon);
+    Set<Integer> expectedEdges = new HashSet<>(Arrays.asList(0, 1, 2, 3));
+    assertEquals(expectedEdges, actualEdges);
+  }
+
+  @Test
+  public void testPolygonWithHoles() {
+    LinearRing shell = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{0.9,1.9},{0.9,5.1},{3.1,5.1},{3.1,1.9},{0.9,1.9}}));
+    LinearRing[] holes = new LinearRing[]{geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{1.5,2.5},{1.5,4.5},{2.5,4.5},{1.5,2.5},{1.5,2.5}}))};
+    Polygon polygon = geometryFactory.createPolygon(shell, holes);
+
+    Set<Integer> actualEdges = polygonMatcher.match(polygon);
+    Set<Integer> expectedEdges = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 6));
     assertEquals(expectedEdges, actualEdges);
   }
 }
