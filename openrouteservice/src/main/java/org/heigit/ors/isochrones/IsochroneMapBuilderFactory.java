@@ -28,14 +28,15 @@ public class IsochroneMapBuilderFactory {
         this.searchContext = searchContext;
     }
 
+
     public IsochroneMap buildMap(IsochroneSearchParameters parameters) throws Exception {
         IsochroneMapBuilder isochroneBuilder = createIsochroneMapBuilder(parameters);
 
         isochroneBuilder.initialize(searchContext);
         return isochroneBuilder.compute(parameters);
     }
-
-    private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws Exception{
+    
+    private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws IllegalArgumentException{
         IsochroneMapBuilder isochroneBuilder;
         String method = parameters.getCalcMethod();
         boolean canUseFastIsochrones = !(parameters.getRouteParameters().requiresDynamicPreprocessedWeights() || parameters.getRouteParameters().requiresFullyDynamicWeights());

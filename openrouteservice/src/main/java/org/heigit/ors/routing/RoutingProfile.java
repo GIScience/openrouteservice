@@ -50,6 +50,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
@@ -330,6 +331,8 @@ public class RoutingProfile {
                         prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
                         if (!prepareFI)
                             args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
+                        else
+                            args.put(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
                     }
 
                     if (prepareFI) {

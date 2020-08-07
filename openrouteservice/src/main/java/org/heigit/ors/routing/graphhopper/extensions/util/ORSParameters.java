@@ -88,7 +88,7 @@ public class ORSParameters {
         /**
          * This property name in HintsMap configures at runtime if CH routing should be ignored.
          */
-        public static final String DISABLE = "fastisochrone.disable";
+        public static final String PROFILE = "fastisochrone.profile";
         /**
          * This property name configures at start if the DISABLE parameter can have an effect.
          */
