@@ -1,7 +1,5 @@
 package org.heigit.ors.weightaugmentation;
 
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
@@ -13,15 +11,69 @@ import org.heigit.ors.routing.RoutingErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * <p>Parser to parse the given GeoJSON input to a list of {@link AugmentedWeight AugmentedWeights}.</p>
+ *
+ * <ul>
+ *   <li>GeoJSON input has to follow <a href="https://tools.ietf.org/html/rfc7946">RFC7946</a>.</li>
+ *   <li>{@code "FeatureCollection"} and {@code "Feature"} are supported.</li>
+ *   <li>{@code "Geometry"} is not possible because of the missing {@code "properties"}.</li>
+ *   <li>The augmentation (or weight factor) has to be stored as {@code "weight"} in {@code "properties"}.</li>
+ *   <li>Currently, the only supported geometry type is {@code "Polygon"}.</li>
+ * </ul>
+ * <p>Example GeoJSON:<br>
+ * <pre>
+ * {
+ *     "type": "Feature",
+ *     "properties": {
+ *         "weight": 1.5
+ *     },
+ *     "geometry": {
+ *         "type": "Polygon",
+ *         "coordinates": [
+ *             [
+ *                 [
+ *                     8.674982786178589,
+ *                     49.37891531029554
+ *                 ],
+ *                 [
+ *                     8.674918413162231,
+ *                     49.378621937439284
+ *                 ],
+ *                 [
+ *                     8.674982786178589,
+ *                     49.37891531029554
+ *                 ]
+ *             ]
+ *         ]
+ *     }
+ * }
+ * </pre>
+ * </p>
+ */
 public class UserWeightParser {
+
+  /**
+   * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
+   */
   public List<AugmentedWeight> parse(String input) throws ParameterValueException {
     return parse(new JSONObject(input));
   }
 
+  /**
+   * Overloaded function for {@link #parse(JSONObject)} that receives a {@link org.json.simple.JSONObject org.json.simple.JSONObject} instead of a {@link JSONObject org.json.JSONObject}.
+   */
   public List<AugmentedWeight> parse(org.json.simple.JSONObject input) throws ParameterValueException {
     return parse(input.toJSONString());
   }
 
+  /**
+   * Alternative parsing method that parses arrays of geometries and weights instead of JSONs.
+   * @param geometries array of geometries with the same length as {@code weights}
+   * @param weights array of weights with the same length as {@code geometries}
+   * @return {@link ArrayList} of {@link AugmentedWeight}
+   * @throws ParameterValueException for wrong parameters
+   */
   public List<AugmentedWeight> parse(Geometry[] geometries, double[] weights) throws ParameterValueException {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
     if (geometries.length == weights.length) {
@@ -34,6 +86,13 @@ public class UserWeightParser {
     return weightAugmentations;
   }
 
+  /**
+   * Adds the given weight augmentations an existing list and checks first if the geometry is supported.
+   * @param weightAugmentations list to add the augmentation to
+   * @param geom geometry to be added
+   * @param weight weight factor to be added
+   * @throws ParameterValueException is thrown if the geometry is not supported
+   */
   public void addWeightAugmentations(List<AugmentedWeight> weightAugmentations, Geometry geom, double weight) throws ParameterValueException {
     if (geom instanceof Polygon) {
       weightAugmentations.add(new AugmentedWeight(geom, weight));
@@ -42,6 +101,14 @@ public class UserWeightParser {
     }
   }
 
+  /**
+   * Regular parser for GeoJSON input.
+   *
+   * It uses {@link GeometryJSON} to parse the {@code "Geometry"} objects.
+   * @param input {@link org.json.JSONObject} to be parsed
+   * @return {@link ArrayList} of {@link AugmentedWeight}
+   * @throws ParameterValueException for wrong parameters
+   */
   public List<AugmentedWeight> parse(org.json.JSONObject input) throws ParameterValueException {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
     JSONArray features;

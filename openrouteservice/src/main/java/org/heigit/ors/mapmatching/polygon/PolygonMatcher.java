@@ -19,6 +19,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * <p>Similar to a classical map matching algorithm, but for polygons.</p>
+ *
+ * <p>Basically it returns all edges that are in a polygon.</p>
+ *
+ * <p>In more detail:
+ * <ol>
+ *   <li>For the bounding box of the given polygon a node grid is created and stored in a {@link ObjectHashSet}.</li>
+ *   <li>The grid is cleaned up by coordinates outside of the polygon.</li>
+ *   <li>All remaining grid nodes are then used to find the nodes in the graph using {@link LocationIndexTree#findNClosest(double, double, EdgeFilter, double)}.</li>
+ *   <li>After each iteration, the grid is cleaned up by grid nodes that would only return already found graph nodes.</li>
+ *   <li>The found graph nodes are filtered with the polygon.</li>
+ *   <li>All edges connected to the remaining graph nodes are returned.</li>
+ * </ol>
+ * </p>
+ */
 public class PolygonMatcher {
   private final GeometryFactory gf = new GeometryFactory();
   private GraphHopper graphHopper;
@@ -27,23 +43,43 @@ public class PolygonMatcher {
   private double searchRadius = 50; // in meters
   private double nodeGridStepSize = 0.001;
 
+  /**
+   * Set {@link GraphHopper} instance to work on.
+   * @param graphHopper existing {@link GraphHopper} instance
+   */
   public void setGraphHopper(GraphHopper graphHopper) {
     this.graphHopper = graphHopper;
     encoder = graphHopper.getEncodingManager().fetchEdgeEncoders().get(0);
   }
 
+  /**
+   * Set {@link LocationIndexTree LocationIndex} given by {@link #graphHopper}.
+   */
   public void setLocationIndex() {
     locationIndex = (LocationIndexTree) graphHopper.getLocationIndex();
   }
 
+  /**
+   * Set {@link #searchRadius} for the node search.
+   * @param searchRadius given search radius in meters
+   */
   public void setSearchRadius(double searchRadius) {
     this.searchRadius = searchRadius;
   }
 
+  /**
+   * Set {@link #nodeGridStepSize} for the node grid to search for nodes in the graph.
+   * @param stepSize given step size in degrees
+   */
   public void setNodeGridStepSize(double stepSize) {
     this.nodeGridStepSize = stepSize;
   }
 
+  /**
+   * Find all matching edges in the given polygon.
+   * @param polygon given {@link Polygon}
+   * @return {@link Set} of internal edge ids ({@link Integer}).
+   */
   public Set<Integer> match(Polygon polygon) {
     Set<Integer> edges = new HashSet<>();
     EdgeExplorer edgeExplorer = graphHopper.getGraphHopperStorage().createEdgeExplorer();
@@ -122,9 +158,9 @@ public class PolygonMatcher {
     return new double[]{min.x, min.y, max.x, max.y};
   }
 
-  /*
-   Calculates the distance between two coordinates in meters
-    */
+  /**
+   * Calculates the distance between two coordinates in meters.
+   */
   public static double distance(Coordinate coord1, Coordinate coord2) {
     double lat1 = coord1.y;
     double lon1 = coord1.x;
