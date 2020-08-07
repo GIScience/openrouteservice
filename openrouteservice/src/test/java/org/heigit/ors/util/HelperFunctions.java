@@ -1,10 +1,14 @@
 package org.heigit.ors.util;
 
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.NodeAccess;
+import com.graphhopper.util.EdgeIterator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import org.json.JSONArray;
 
@@ -129,5 +133,35 @@ public class HelperFunctions {
 
     public static CoordinateSequence convertCoordinateArrayToSequence(double[][] input) {
         return CoordinateArraySequenceFactory.instance().create(convertCoordinateArray(input));
+    }
+
+    public static void printNodes(GraphHopperStorage ghs) {
+      System.out.println("NODES");
+      NodeAccess nodes = ghs.getNodeAccess();
+      for (int i = 0; i < ghs.getNodes(); i++) {
+        System.out.print(i);
+        System.out.print(" ");
+        System.out.print(nodes.getLat(i));
+        System.out.print(",");
+        System.out.println(nodes.getLon(i));
+      }
+    }
+
+    public static void printEdges(GraphHopperStorage ghs) {
+      printEdges(ghs, null);
+    }
+
+    public static void printEdges(GraphHopperStorage ghs, Collection<Integer> changedEdges) {
+      System.out.println("EDGES");
+      EdgeIterator edges = ghs.getAllEdges();
+      while (edges.next()) {
+        System.out.print(edges);
+        System.out.print(": ");
+        System.out.print(edges.getDistance());
+        if (changedEdges != null && changedEdges.contains(edges.getEdge())) {
+          System.out.print(" <- changed");
+        }
+        System.out.println();
+      }
     }
 }

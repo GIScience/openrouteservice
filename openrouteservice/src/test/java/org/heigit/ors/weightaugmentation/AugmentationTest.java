@@ -1,6 +1,8 @@
 package org.heigit.ors.weightaugmentation;
 
 import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
+import static org.heigit.ors.util.HelperFunctions.printEdges;
+import static org.heigit.ors.util.HelperFunctions.printNodes;
 
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.CarFlagEncoder;
@@ -67,32 +69,6 @@ public class AugmentationTest {
     g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
     g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
     return g;
-  }
-
-  private static void printNodes(GraphHopperStorage ghs) {
-    System.out.println("NODES");
-    NodeAccess nodes = ghs.getNodeAccess();
-    for (int i = 0; i < ghs.getNodes(); i++) {
-      System.out.print(i);
-      System.out.print(" ");
-      System.out.print(nodes.getLat(i));
-      System.out.print(",");
-      System.out.println(nodes.getLon(i));
-    }
-  }
-
-  private static void printEdges(GraphHopperStorage ghs) {
-    System.out.println("EDGES");
-    EdgeIterator edges = ghs.getAllEdges();
-    while (edges.next()) {
-      System.out.print(edges);
-      System.out.print(": ");
-      System.out.print(edges.getDistance());
-      if (false) { // TODO implement change detection
-        System.out.print(" <- changed");
-      }
-      System.out.println();
-    }
   }
 
 
