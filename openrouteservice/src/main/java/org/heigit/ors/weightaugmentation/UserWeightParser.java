@@ -52,6 +52,7 @@ import org.json.JSONObject;
  * </p>
  */
 public class UserWeightParser {
+  public static final String ALLOWED_GEOMETRY_TYPES = "Polygon";
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
@@ -81,7 +82,7 @@ public class UserWeightParser {
         addWeightAugmentations(weightAugmentations, geometries[i], weights[i]);
       }
     } else {
-      throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_USER_WEIGHTS);
+      throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_USER_WEIGHTS, geometries.length + " != " + weights.length, "Given weights and geometries length not equal.");
     }
     return weightAugmentations;
   }
@@ -97,7 +98,8 @@ public class UserWeightParser {
     if (geom instanceof Polygon) {
       weightAugmentations.add(new AugmentedWeight(geom, weight));
     } else {
-      throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS);
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS, geom.getGeometryType(),
+          "Only these geometry types are currently implemented: " + ALLOWED_GEOMETRY_TYPES);
     }
   }
 
@@ -119,15 +121,16 @@ public class UserWeightParser {
       features = new JSONArray();
       features.put(input);
     } else {
-      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, geoJSONtype, "Invalid GeoJSON type. Only 'FeatureCollection' or 'Feature' is allowed.");
     }
     for (int i = 0; i < features.length(); i++) {
       JSONObject feature = features.getJSONObject(i);
+      JSONObject geometry = feature.getJSONObject("geometry");
       Geometry geom;
       try {
-        geom = GeometryJSON.parse(feature.getJSONObject("geometry"));
+        geom = GeometryJSON.parse(geometry);
       } catch (Exception e) {
-        throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
+        throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, feature.toString(), "Geometry could not be parsed.");
       }
       JSONObject properties = feature.getJSONObject("properties");
       double weight = properties.getDouble("weight");

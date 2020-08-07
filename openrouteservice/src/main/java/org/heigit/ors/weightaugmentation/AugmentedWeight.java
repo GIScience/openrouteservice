@@ -40,7 +40,7 @@ public class AugmentedWeight {
     if ((MIN_WEIGHT < weight) && (weight <= MAX_WEIGHT)) {
       this.weight = weight;
     } else {
-      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, String.valueOf(weight), "Weight has to be between " + MIN_WEIGHT + " and " + MAX_WEIGHT + "!");
     }
     this.edgeFilter = createEdgeFilter();
   }

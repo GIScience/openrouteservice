@@ -1,5 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
+import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import java.util.ArrayList;
@@ -16,8 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class UserWeightParserTest {
-
-  private static final GeometryFactory factory = new GeometryFactory();
+  private final GeometryFactory geometryFactory = new GeometryFactory();
   private UserWeightParser userWeightParser;
   private List<AugmentedWeight> weightAugmentations;
   private List<Geometry> geometries1;
@@ -53,6 +54,26 @@ public class UserWeightParserTest {
   }
 
   @Test
+  public void testAlternativeParse() throws ParameterValueException {
+    Geometry[] geometries = new Geometry[]{geometries1.get(0), geometries1.get(1)};
+    double[] weights = new double[]{weights1.get(0), weights1.get(1)};
+    weightAugmentations = userWeightParser.parse(geometries, weights);
+    for (int i = 0; i < weightAugmentations.size(); i++) {
+      Assert.assertEquals(weightAugmentations.get(i).getGeometry(), geometries[i]);
+      Assert.assertEquals(weightAugmentations.get(i).getWeight(), weights[i], 0.0);
+    }
+  }
+
+  @Test
+  public void testAlternativeParseWrongParameterSize() throws ParameterValueException {
+    Geometry[] geometries = new Geometry[]{geometries1.get(0), geometries1.get(1)};
+    double[] weights = new double[]{weights1.get(0)};
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '2 != 1'. Given weights and geometries length not equal.");
+    weightAugmentations = userWeightParser.parse(geometries, weights);
+  }
+
+  @Test
   public void testAddWeightAugmentations() throws Exception {
     weightAugmentations = userWeightParser.parse(normalInputJson);
     int sizeBefore = weightAugmentations.size();
@@ -66,10 +87,19 @@ public class UserWeightParserTest {
   }
 
   @Test
+  public void testAddWeightAugmentationsWrongGeometry() throws ParameterValueException {
+    weightAugmentations = new ArrayList<>();
+    Geometry geom = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{8.680,49.416}, {8.664,49.399}, {8.692,49.401}, {8.680,49.416}}));
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LinearRing'. Only these geometry types are currently implemented: Polygon");
+    userWeightParser.addWeightAugmentations(weightAugmentations, geom, 1.2);
+  }
+
+  @Test
   public void testParseGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}";
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value or format.");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'Polygon'. Invalid GeoJSON type. Only 'FeatureCollection' or 'Feature' is allowed.");
     userWeightParser.parse(inputJson);
   }
 
@@ -119,6 +149,47 @@ public class UserWeightParserTest {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": " + weightString + "}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
     thrown.expect(JSONException.class);
     thrown.expectMessage("JSONObject[\"weight\"] is not a number.");
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParseWrongGeometryType() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LineString'. Only these geometry types are currently implemented: Polygon");
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParseBrokenGeometry() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, \"name\"], [8.664, 49.399]]}}";
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of");
+    thrown.expectMessage("Geometry could not be parsed.");
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParseMissingGeometry() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}}";
+    thrown.expect(JSONException.class);
+    thrown.expectMessage("JSONObject[\"geometry\"] not found.");
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParseMissingProperties() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
+    thrown.expect(JSONException.class);
+    thrown.expectMessage("JSONObject[\"properties\"] not found.");
+    userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParseMissingWeight() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
+    thrown.expect(JSONException.class);
+    thrown.expectMessage("JSONObject[\"weight\"] not found.");
     userWeightParser.parse(inputJson);
   }
 
