@@ -24,13 +24,15 @@ public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
   private final EdgeFilter edgeFilter;
+  /** weight should not be 0.0 or lower */
   public static final double MIN_WEIGHT = 0.0;
+  /** weight should not be higher than 2.0 */
   public static final double MAX_WEIGHT = 2.0;
 
   /**
    * Create augmented weight and create a fitting {@link EdgeFilter}. Checks if the weight is proper and creates an {@link EdgeFilter}.
    * @param geometry given {@link Geometry}
-   * @param weight given weight factor
+   * @param weight given weight factor. Allowed values: {@link #MIN_WEIGHT} ({@value #MIN_WEIGHT}) &lt; {@code weight} &leq; {@link #MAX_WEIGHT} ({@value #MAX_WEIGHT})
    * @throws ParameterValueException thrown for a weight factor out of range
    */
   public AugmentedWeight(Geometry geometry, double weight) throws ParameterValueException {
