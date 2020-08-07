@@ -3,7 +3,7 @@ package org.heigit.ors.mapmatching.polygon;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
@@ -18,30 +18,26 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.heigit.ors.mapmatching.LocationIndexMatch;
 
 public class PolygonMatcher {
   private final GeometryFactory gf = new GeometryFactory();
   private GraphHopper graphHopper;
   private FlagEncoder encoder;
-  private LocationIndexMatch locationIndex;
+  private LocationIndexTree locationIndex;
   private double searchRadius = 50; // in meters
   private double nodeGridStepSize = 0.001;
 
   public void setGraphHopper(GraphHopper graphHopper) {
     this.graphHopper = graphHopper;
+    encoder = graphHopper.getEncodingManager().fetchEdgeEncoders().get(0);
   }
 
   public void setLocationIndex() {
-    encoder = graphHopper.getEncodingManager().fetchEdgeEncoders().get(0);
-    locationIndex = new LocationIndexMatch(graphHopper.getGraphHopperStorage(),
-        (com.graphhopper.storage.index.LocationIndexTree) graphHopper.getLocationIndex(), (int) searchRadius);
+    locationIndex = (LocationIndexTree) graphHopper.getLocationIndex();
   }
 
-  public void setSearchRadius(double radius) {
-    searchRadius = radius;
-    if (locationIndex != null)
-      locationIndex.setGpxAccuracy(radius);
+  public void setSearchRadius(double searchRadius) {
+    this.searchRadius = searchRadius;
   }
 
   public void setNodeGridStepSize(double stepSize) {
@@ -52,8 +48,8 @@ public class PolygonMatcher {
     Set<Integer> edges = new HashSet<>();
     EdgeExplorer edgeExplorer = graphHopper.getGraphHopperStorage().createEdgeExplorer();
 
-    Set<Integer> nodesInPolygon = getNodesInPolygon(polygon);
-    for (Integer node: nodesInPolygon) {
+    Set<Integer> nodesInPolygonBBox = getNodesInPolygonBBox(polygon);
+    for (Integer node: nodesInPolygonBBox) {
       if (nodeInPolygon(node, polygon)) {
         // here an additional check can be added if the edge should really be added to the set
         EdgeIterator edgeIterator = edgeExplorer.setBaseNode(node);
@@ -75,12 +71,12 @@ public class PolygonMatcher {
     return point.within(polygon) || point.intersects(polygon);
   }
 
-  private Set<Integer> getNodesInPolygon(Polygon polygon) {
+  private Set<Integer> getNodesInPolygonBBox(Polygon polygon) {
     Set<Integer> nodes = new HashSet<>();
     Geometry boundary = polygon.getBoundary();
     List<Coordinate> coordinates = generatePoints(getBoundingBox(boundary));
     for (Coordinate coord: coordinates) {
-      List<QueryResult> qResults = locationIndex.findNClosest(coord.y, coord.x, EdgeFilter.ALL_EDGES);
+      List<QueryResult> qResults = locationIndex.findNClosest(coord.y, coord.x, EdgeFilter.ALL_EDGES, searchRadius);
       if (!qResults.isEmpty()) {
         nodes.add(qResults.get(0).getClosestNode());
       }
