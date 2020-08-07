@@ -106,7 +106,7 @@ public class AugmentedStorageWeightingTest {
     ORSPMap additionalHints = new ORSPMap();
     additionalHints.putObj("user_weights", createAugmentedWeightList());
 
-    augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper, 1, 1000);
+    augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper, .1, 1000);
   }
 
   @Test

@@ -422,7 +422,7 @@ public class RouteRequestHandlerTest {
     public void testUserWeightParser() throws StatusCodeException, ParseException {
         String inputJson = "{\"type\": \"FeatureCollection\", " +
             "\"features\": [{\"type\": \"Feature\", " +
-                "\"properties\": {\"weight\": 5.0}, " +
+                "\"properties\": {\"weight\": 1.2}, " +
                 "\"geometry\": {\"type\": \"Polygon\", "+
                 "\"coordinates\": [[[8.691,49.415],[8.691,49.413],[8.699,49.413],[8.691,49.415]]]}}]}";
         JSONParser parser = new JSONParser();

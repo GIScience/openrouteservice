@@ -32,15 +32,15 @@ public class UserWeightParserTest {
   @Before
   public void setUp() throws Exception {
     userWeightParser = new UserWeightParser();
-    normalInputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"5.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
+    normalInputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"2.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
 
     geometries1 = new ArrayList<>();
     geometries1.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]]}")));
     geometries1.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}")));
-    weights1 = new ArrayList<>(Arrays.asList(5.0, 0.1));
+    weights1 = new ArrayList<>(Arrays.asList(2.0, 0.1));
     geometries2 = new ArrayList<>();
     geometries2.add(GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}")));
-    weights2 = new ArrayList<>(Arrays.asList(2.3));
+    weights2 = new ArrayList<>(Arrays.asList(1.9));
   }
 
   @Test
@@ -75,7 +75,7 @@ public class UserWeightParserTest {
 
   @Test
   public void testParseFeature() throws ParameterValueException {
-    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.9}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
     weightAugmentations = userWeightParser.parse(inputJson);
     List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
     expectedAugmentations.add(new AugmentedWeight(geometries2.get(0), weights2.get(0)));
@@ -124,7 +124,7 @@ public class UserWeightParserTest {
 
   @Test
   public void testParseFeatureCollection() throws ParameterValueException {
-    String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": 2.3}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
+    String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": 1.9}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
     weightAugmentations = userWeightParser.parse(inputJson);
     List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
     expectedAugmentations.add(new AugmentedWeight(geometries2.get(0), weights2.get(0)));

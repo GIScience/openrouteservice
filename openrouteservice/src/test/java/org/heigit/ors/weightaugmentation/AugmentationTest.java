@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.util.DebugUtility;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,12 +111,14 @@ public class AugmentationTest {
       augmentedWeight.applyAugmentationToAll(actualGhs);
     }
 
-    // print nodes
-    printNodes(actualGhs);
-    System.out.println();
+    if (DebugUtility.isDebug()) {
+      // print nodes
+      printNodes(actualGhs);
+      System.out.println();
 
-    // print edges
-    printEdges(actualGhs);
+      // print edges
+      printEdges(actualGhs);
+    }
 
     // apply changes to reference/expected graph
     HashSet<Integer> edgesToChange = new HashSet<>(Arrays.asList(0, 1, 2, 3, 4, 6, 7));
