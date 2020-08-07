@@ -31,6 +31,21 @@ public class AugmentedWeightTest {
   }
 
   @Test
+  public void testNullWeight() throws ParameterValueException {
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value or format.");
+    new AugmentedWeight(geometry, 0.0);
+  }
+
+  @Test
+  public void testOverMaxWeight() throws ParameterValueException {
+    // max weight should be 2.0
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value or format.");
+    new AugmentedWeight(geometry, 2.1);
+  }
+
+  @Test
   public void testGetGeometry() {
     Assert.assertEquals(geometry, augmentedWeight.getGeometry());
   }

@@ -24,6 +24,8 @@ public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
   private final EdgeFilter edgeFilter;
+  public static final double MIN_WEIGHT = 0.0;
+  public static final double MAX_WEIGHT = 2.0;
 
   /**
    * Create augmented weight and create a fitting {@link EdgeFilter}. Checks if the weight is proper and creates an {@link EdgeFilter}.
@@ -33,7 +35,7 @@ public class AugmentedWeight {
    */
   public AugmentedWeight(Geometry geometry, double weight) throws ParameterValueException {
     this.geometry = geometry;
-    if (weight > 0.0) {
+    if ((MIN_WEIGHT < weight) && (weight <= MAX_WEIGHT)) {
       this.weight = weight;
     } else {
       throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS);
