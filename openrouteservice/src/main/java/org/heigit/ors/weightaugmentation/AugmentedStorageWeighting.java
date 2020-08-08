@@ -7,10 +7,14 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.mapmatching.point.PointMatcher;
 import org.heigit.ors.mapmatching.polygon.PolygonMatcher;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
@@ -23,6 +27,7 @@ public class AugmentedStorageWeighting implements Weighting {
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
   private final PointMatcher pointMatcher;
+  private final HiddenMarkovMapMatcher lineStringMatcher;
   private double minAugmentationWeight = 1.0;
 
   /**
@@ -39,15 +44,19 @@ public class AugmentedStorageWeighting implements Weighting {
     this.augmentationStorage = new AugmentationStorage();
     this.polygonMatcher = new PolygonMatcher();
     this.pointMatcher = new PointMatcher();
+    this.lineStringMatcher = new HiddenMarkovMapMatcher();
     polygonMatcher.setGraphHopper(graphHopper);
     pointMatcher.setGraphHopper(graphHopper);
+    lineStringMatcher.setGraphHopper(graphHopper);
     polygonMatcher.setLocationIndex();
     pointMatcher.setLocationIndex();
+    lineStringMatcher.setEdgeFilter(null);
     if (stepSize > 0) {
       polygonMatcher.setNodeGridStepSize(stepSize);
     }
     if (searchRadius > 0) {
       polygonMatcher.setSearchRadius(searchRadius);
+      lineStringMatcher.setSearchRadius(searchRadius);
     }
     //noinspection unchecked
     fillAugmentationStorage((List<AugmentedWeight>) params.getObj("user_weights"));
@@ -68,6 +77,13 @@ public class AugmentedStorageWeighting implements Weighting {
         edges = polygonMatcher.match((Polygon) geometry);
       } else if (geometry instanceof Point) {
         edges = pointMatcher.match((Point) geometry);
+      } else if (geometry instanceof LineString) {
+        LineString lineString = (LineString) geometry;
+        RouteSegmentInfo[] routeSegments = lineStringMatcher.match(lineString.getCoordinates(), true);
+        edges = new HashSet<>();
+        for (RouteSegmentInfo routeSegment: routeSegments) {
+          edges.addAll(routeSegment.getEdges());
+        }
       } else {
         throw new UnsupportedOperationException("AugmentationStorage is not implemented for " + geometry.getGeometryType());
       }
