@@ -1,5 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
+import static org.heigit.ors.weightaugmentation.UserWeightParser.ALLOWED_MULTI_GEOMETRY_TYPES;
+
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
@@ -7,10 +9,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,11 +84,11 @@ public class AugmentedStorageWeighting implements Weighting {
 
   private Set<Integer> getMatchedEdges(Geometry geometry) {
     Set<Integer> edges = new HashSet<>();
-    if (geometry instanceof Polygon) {
+    if (geometry.getGeometryType().equals("Polygon")) {
       edges.addAll(polygonMatcher.match((Polygon) geometry));
-    } else if (geometry instanceof Point) {
+    } else if (geometry.getGeometryType().equals("Point")) {
       edges.addAll(pointMatcher.match((Point) geometry));
-    } else if (geometry instanceof LineString) {
+    } else if (geometry.getGeometryType().equals("LineString")) {
       LineString lineString = (LineString) geometry;
       RouteSegmentInfo[] routeSegments = lineStringMatcher
           .match(lineString.getCoordinates(), true);
@@ -94,7 +96,7 @@ public class AugmentedStorageWeighting implements Weighting {
         if (routeSegment != null)
           edges.addAll(routeSegment.getEdges());
       }
-    } else if (geometry instanceof GeometryCollection) { // covers MultiPolygon, MultiPoint, MultiLineString as well
+    } else if (Arrays.asList(ALLOWED_MULTI_GEOMETRY_TYPES).contains(geometry.getGeometryType())) {
       for (int g = 0; g < geometry.getNumGeometries(); g++) {
         edges.addAll(getMatchedEdges(geometry.getGeometryN(g)));
       }

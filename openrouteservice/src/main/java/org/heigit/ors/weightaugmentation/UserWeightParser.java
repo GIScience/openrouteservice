@@ -2,7 +2,9 @@ package org.heigit.ors.weightaugmentation;
 
 import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
@@ -51,7 +53,9 @@ import org.json.JSONObject;
  * </p>
  */
 public class UserWeightParser {
-  public static final String ALLOWED_GEOMETRY_TYPES = "Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection";
+  public static final String[] ALLOWED_SIMPLE_GEOMETRY_TYPES = {"Point", "LineString", "Polygon"};
+  public static final String[] ALLOWED_MULTI_GEOMETRY_TYPES = {"MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection"};
+  public static final String[] ALLOWED_GEOMETRY_TYPES = Stream.concat(Arrays.stream(ALLOWED_SIMPLE_GEOMETRY_TYPES), Arrays.stream(ALLOWED_MULTI_GEOMETRY_TYPES)).toArray(String[]::new);
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
@@ -94,11 +98,11 @@ public class UserWeightParser {
    * @throws ParameterValueException is thrown if the geometry is not supported
    */
   public void addWeightAugmentations(List<AugmentedWeight> weightAugmentations, Geometry geom, double weight) throws ParameterValueException {
-    if (ALLOWED_GEOMETRY_TYPES.contains(geom.getGeometryType())) {
+    if (Arrays.asList(ALLOWED_GEOMETRY_TYPES).contains(geom.getGeometryType())) {
       weightAugmentations.add(new AugmentedWeight(geom, weight));
     } else {
       throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS, geom.getGeometryType(),
-          "Only these geometry types are currently implemented: " + ALLOWED_GEOMETRY_TYPES);
+          "Only these geometry types are currently implemented: " + String.join(", ", ALLOWED_GEOMETRY_TYPES));
     }
   }
 
