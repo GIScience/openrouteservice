@@ -13,6 +13,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class AugmentedStorageWeightingTest {
     {put(2, 0.75);};
     {put(3, 0.75);};
     {put(4, 0.75);};
-    {put(5, 1.0);};
+    {put(5, 1.1);};
     {put(6, 0.75);};
     {put(7, 0.75);};
     {put(8, 1.0);};
@@ -94,8 +95,12 @@ public class AugmentedStorageWeightingTest {
     // point
     double pointWeight = 1.5;
     Point point = geometryFactory.createPoint(new Coordinate(4.5, 2.0));
-    Geometry[] geometries = new Geometry[]{polygon, point};
-    double[] weights = new double[]{polygonWeight, pointWeight};
+    // lineString
+    double lineStringWeight = 1.1;
+    Coordinate[] lineStringCoordinates = convertCoordinateArray(new double[][]{{1,1},{4,1}});
+    LineString lineString = geometryFactory.createLineString(lineStringCoordinates);
+    Geometry[] geometries = new Geometry[]{polygon, point, lineString};
+    double[] weights = new double[]{polygonWeight, pointWeight, lineStringWeight};
     return new UserWeightParser().parse(geometries, weights);
   }
 

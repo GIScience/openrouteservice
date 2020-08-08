@@ -1,7 +1,5 @@
 package org.heigit.ors.mapmatching.point;
 
-import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
-
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphBuilder;
@@ -9,7 +7,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import junit.framework.TestCase;

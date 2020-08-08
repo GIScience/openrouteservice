@@ -92,7 +92,7 @@ public class UserWeightParserTest {
     weightAugmentations = new ArrayList<>();
     Geometry geom = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{8.680,49.416}, {8.664,49.399}, {8.692,49.401}, {8.680,49.416}}));
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LinearRing'. Only these geometry types are currently implemented: Point, Polygon");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LinearRing'. Only these geometry types are currently implemented: Point, LineString, Polygon");
     userWeightParser.addWeightAugmentations(weightAugmentations, geom, 1.2);
   }
 
@@ -155,9 +155,10 @@ public class UserWeightParserTest {
 
   @Test
   public void testParseWrongGeometryType() throws ParameterValueException {
-    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"SomethingInvalid\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LineString'. Only these geometry types are currently implemented: Point, Polygon");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of");
+    thrown.expectMessage("Geometry could not be parsed.");
     userWeightParser.parse(inputJson);
   }
 
@@ -200,6 +201,15 @@ public class UserWeightParserTest {
     weightAugmentations = userWeightParser.parse(inputJson);
     List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
     expectedAugmentations.add(new AugmentedWeight(geometryFactory.createPoint(new Coordinate(8.680, 49.416)), 1.9));
+    Assert.assertEquals(expectedAugmentations, weightAugmentations);
+  }
+
+  @Test
+  public void testParseLineStringFeature() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.1}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
+    weightAugmentations = userWeightParser.parse(inputJson);
+    List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
+    expectedAugmentations.add(new AugmentedWeight(geometryFactory.createLineString(convertCoordinateArray(new double[][]{{8.680,49.416}, {8.664,49.399}})), 1.1));
     Assert.assertEquals(expectedAugmentations, weightAugmentations);
   }
 
