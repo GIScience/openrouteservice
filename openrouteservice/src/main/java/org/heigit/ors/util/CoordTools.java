@@ -71,4 +71,28 @@ public class CoordTools {
 
 		return coords;
 	}
+
+	/**
+	 * Calculates the distance between two coordinates in meters.
+	 */
+	public static double distance(Coordinate coord1, Coordinate coord2) {
+		double lat1 = coord1.y;
+		double lon1 = coord1.x;
+		double lat2 = coord2.y;
+		double lon2 = coord2.x;
+
+		final int R = 6371; // Radius of the earth
+
+		double latDistance = toRadians(lat2 - lat1);
+		double lonDistance = toRadians(lon2 - lon1);
+		double a = sin(latDistance / 2) * sin(latDistance / 2)
+				+ cos(toRadians(lat1)) * cos(toRadians(lat2))
+				* sin(lonDistance / 2) * sin(lonDistance / 2);
+		double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+		double distance = R * c * 1000; // convert to meters
+
+		distance = pow(distance, 2);
+
+		return sqrt(distance);
+	}
 }

@@ -1,10 +1,11 @@
 package org.heigit.ors.mapmatching.polygon;
 
+import static org.heigit.ors.util.CoordTools.distance;
+
 import com.carrotsearch.hppc.ObjectHashSet;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.EdgeExplorer;
@@ -38,7 +39,6 @@ import java.util.Set;
 public class PolygonMatcher {
   private final GeometryFactory gf = new GeometryFactory();
   private GraphHopper graphHopper;
-  private FlagEncoder encoder;
   private LocationIndexTree locationIndex;
   private double searchRadius = 50; // in meters
   private double nodeGridStepSize = 0.001;
@@ -49,7 +49,6 @@ public class PolygonMatcher {
    */
   public void setGraphHopper(GraphHopper graphHopper) {
     this.graphHopper = graphHopper;
-    encoder = graphHopper.getEncodingManager().fetchEdgeEncoders().get(0);
   }
 
   /**
@@ -156,29 +155,5 @@ public class PolygonMatcher {
       }
     }
     return new double[]{min.x, min.y, max.x, max.y};
-  }
-
-  /**
-   * Calculates the distance between two coordinates in meters.
-   */
-  public static double distance(Coordinate coord1, Coordinate coord2) {
-    double lat1 = coord1.y;
-    double lon1 = coord1.x;
-    double lat2 = coord2.y;
-    double lon2 = coord2.x;
-
-    final int R = 6371; // Radius of the earth
-
-    double latDistance = Math.toRadians(lat2 - lat1);
-    double lonDistance = Math.toRadians(lon2 - lon1);
-    double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-        * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    double distance = R * c * 1000; // convert to meters
-
-    distance = Math.pow(distance, 2);
-
-    return Math.sqrt(distance);
   }
 }
