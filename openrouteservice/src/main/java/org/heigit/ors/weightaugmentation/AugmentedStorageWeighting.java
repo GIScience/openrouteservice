@@ -7,6 +7,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -71,27 +72,36 @@ public class AugmentedStorageWeighting implements Weighting {
 
   private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights) {
     for (AugmentedWeight augmentedWeight: augmentedWeights) {
-      Set<Integer> edges;
-      Geometry geometry = augmentedWeight.getGeometry();
-      if (geometry instanceof Polygon) {
-        edges = polygonMatcher.match((Polygon) geometry);
-      } else if (geometry instanceof Point) {
-        edges = pointMatcher.match((Point) geometry);
-      } else if (geometry instanceof LineString) {
-        LineString lineString = (LineString) geometry;
-        RouteSegmentInfo[] routeSegments = lineStringMatcher.match(lineString.getCoordinates(), true);
-        edges = new HashSet<>();
-        for (RouteSegmentInfo routeSegment: routeSegments) {
-          edges.addAll(routeSegment.getEdges());
-        }
-      } else {
-        throw new UnsupportedOperationException("AugmentationStorage is not implemented for " + geometry.getGeometryType());
-      }
+      Set<Integer> edges = getMatchedEdges(augmentedWeight.getGeometry());
       minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());
       for (int edge: edges) {
         augmentationStorage.applyAugmentation(edge, augmentedWeight.getWeight());
       }
     }
+  }
+
+  private Set<Integer> getMatchedEdges(Geometry geometry) {
+    Set<Integer> edges = new HashSet<>();
+    if (geometry instanceof Polygon) {
+      edges.addAll(polygonMatcher.match((Polygon) geometry));
+    } else if (geometry instanceof Point) {
+      edges.addAll(pointMatcher.match((Point) geometry));
+    } else if (geometry instanceof LineString) {
+      LineString lineString = (LineString) geometry;
+      RouteSegmentInfo[] routeSegments = lineStringMatcher
+          .match(lineString.getCoordinates(), true);
+      for (RouteSegmentInfo routeSegment: routeSegments) {
+        if (routeSegment != null)
+          edges.addAll(routeSegment.getEdges());
+      }
+    } else if (geometry instanceof GeometryCollection) { // covers MultiPolygon, MultiPoint, MultiLineString as well
+      for (int g = 0; g < geometry.getNumGeometries(); g++) {
+        edges.addAll(getMatchedEdges(geometry.getGeometryN(g)));
+      }
+    } else {
+      throw new UnsupportedOperationException("AugmentationStorage is not implemented for " + geometry.getGeometryType());
+    }
+    return edges;
   }
 
   /**
