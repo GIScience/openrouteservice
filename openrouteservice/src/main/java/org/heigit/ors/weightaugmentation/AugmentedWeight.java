@@ -111,16 +111,6 @@ public class AugmentedWeight {
     }
   }
 
-  // doesn't work properly at the moment. If further used: TODO debug
-  private static boolean nodeInPolygon(GraphHopperStorage ghs, int node, Polygon polygon) {
-    GeometryFactory geometryFactory = new GeometryFactory();
-    double x = ghs.getNodeAccess().getLon(node);
-    double y = ghs.getNodeAccess().getLat(node);
-    Coordinate[] c = new Coordinate[]{new Coordinate(x,y)};
-    Point p = new Point(new CoordinateArraySequence(c), geometryFactory);
-    return polygon.contains(p);
-  }
-
   /**
    * Check if objects are equal.
    */
