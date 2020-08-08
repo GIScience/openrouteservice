@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+// TODO extend tests with other polygon types
 public class AugmentationTest {
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);

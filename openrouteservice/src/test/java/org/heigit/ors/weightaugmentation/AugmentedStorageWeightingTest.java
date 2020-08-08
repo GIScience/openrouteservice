@@ -11,10 +11,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class AugmentedStorageWeightingTest {
+  private final GeometryFactory geometryFactory = new GeometryFactory();
   private AugmentedStorageWeighting augmentedStorageWeighting;
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
@@ -43,7 +44,7 @@ public class AugmentedStorageWeightingTest {
     {put(9, 1.0);};
     {put(10, 1.0);};
     {put(11, 1.0);};
-    {put(12, 1.0);};
+    {put(12, 1.5);};
   };
   private final Weighting superWeighting = new FastestWeighting(carEncoder, new HintsMap());
 
@@ -86,11 +87,16 @@ public class AugmentedStorageWeightingTest {
   }
 
   private List<AugmentedWeight> createAugmentedWeightList() throws ParameterValueException {
-    Coordinate[] coordinates = convertCoordinateArray(new double[][]{{1,2},{1,5},{3,5},{3,2},{1,2}});
-    double weight = 0.75;
-    GeometryFactory geometryFactory = new GeometryFactory();
-    Polygon polygon = geometryFactory.createPolygon(coordinates);
-    return new ArrayList<>(Collections.singletonList(new AugmentedWeight(polygon, weight)));
+    // polygon
+    Coordinate[] polygonCoordinates = convertCoordinateArray(new double[][]{{1,2},{1,5},{3,5},{3,2},{1,2}});
+    double polygonWeight = 0.75;
+    Polygon polygon = geometryFactory.createPolygon(polygonCoordinates);
+    // point
+    double pointWeight = 1.5;
+    Point point = geometryFactory.createPoint(new Coordinate(4.5, 2.0));
+    Geometry[] geometries = new Geometry[]{polygon, point};
+    double[] weights = new double[]{polygonWeight, pointWeight};
+    return new UserWeightParser().parse(geometries, weights);
   }
 
   @Before

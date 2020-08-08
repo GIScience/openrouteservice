@@ -2,6 +2,7 @@ package org.heigit.ors.weightaugmentation;
 
 import static org.heigit.ors.util.HelperFunctions.convertCoordinateArray;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class UserWeightParserTest {
     weightAugmentations = new ArrayList<>();
     Geometry geom = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{8.680,49.416}, {8.664,49.399}, {8.692,49.401}, {8.680,49.416}}));
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LinearRing'. Only these geometry types are currently implemented: Polygon");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LinearRing'. Only these geometry types are currently implemented: Point, Polygon");
     userWeightParser.addWeightAugmentations(weightAugmentations, geom, 1.2);
   }
 
@@ -156,7 +157,7 @@ public class UserWeightParserTest {
   public void testParseWrongGeometryType() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LineString'. Only these geometry types are currently implemented: Polygon");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of 'LineString'. Only these geometry types are currently implemented: Point, Polygon");
     userWeightParser.parse(inputJson);
   }
 
@@ -191,6 +192,15 @@ public class UserWeightParserTest {
     thrown.expect(JSONException.class);
     thrown.expectMessage("JSONObject[\"weight\"] not found.");
     userWeightParser.parse(inputJson);
+  }
+
+  @Test
+  public void testParsePointFeature() throws ParameterValueException {
+    String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.9}, \"geometry\": {\"type\": \"Point\", \"coordinates\": [8.680, 49.416]}}";
+    weightAugmentations = userWeightParser.parse(inputJson);
+    List<AugmentedWeight> expectedAugmentations = new ArrayList<>();
+    expectedAugmentations.add(new AugmentedWeight(geometryFactory.createPoint(new Coordinate(8.680, 49.416)), 1.9));
+    Assert.assertEquals(expectedAugmentations, weightAugmentations);
   }
 
   @Test
