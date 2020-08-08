@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,9 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class AugmentedStorageWeightingTest {
   private final GeometryFactory geometryFactory = new GeometryFactory();
@@ -53,6 +56,7 @@ public class AugmentedStorageWeightingTest {
     {put(12, 1.0 * 1.5 * 1.2 * 1.7);};
   };
   private final Weighting superWeighting = new FastestWeighting(carEncoder, new HintsMap());
+  private ORSPMap additionalHints;
 
   private GraphHopperStorage createGHStorage() {
     return new GraphBuilder(encodingManager).create();
@@ -169,11 +173,14 @@ public class AugmentedStorageWeightingTest {
     graphHopper.setGraphHopperStorage(createMediumGraph());
     graphHopper.postProcessing();
 
-    ORSPMap additionalHints = new ORSPMap();
+    additionalHints = new ORSPMap();
     additionalHints.putObj("user_weights", createAugmentedWeightList());
 
     augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper, .1, 1000);
   }
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void getAugmentations() {
@@ -240,5 +247,17 @@ public class AugmentedStorageWeightingTest {
   @Test
   public void getName() {
     Assert.assertEquals("augmented|" + superWeighting.getName(), augmentedStorageWeighting.getName());
+  }
+
+  @Test
+  public void unsupportedGeometry() throws ParameterValueException {
+    LinearRing linearRing = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.5,2.5},{4.5,4.5},{5.5,4.5},{5.5,2.5},{4.5,2.5}}));
+    List<AugmentedWeight> augmentedWeights = new ArrayList<>();
+    augmentedWeights.add(new AugmentedWeight(linearRing, 0.85));
+    additionalHints.putObj("user_weights", augmentedWeights);
+
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("AugmentationStorage is not implemented for LinearRing");
+    augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper);
   }
 }

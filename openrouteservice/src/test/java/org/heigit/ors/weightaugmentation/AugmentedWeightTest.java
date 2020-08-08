@@ -1,6 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
 import com.vividsolutions.jts.geom.Geometry;
+import java.util.Objects;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.json.JSONObject;
@@ -59,5 +60,18 @@ public class AugmentedWeightTest {
     Assert.assertTrue(augmentedWeight.hasReducingWeight());
     augmentedWeight = new AugmentedWeight(geometry, 1.5);
     Assert.assertFalse(augmentedWeight.hasReducingWeight());
+  }
+
+  @Test
+  public void testEquals() throws ParameterValueException {
+    Assert.assertEquals(augmentedWeight, augmentedWeight);
+    Assert.assertNotEquals(augmentedWeight, null);
+    Assert.assertEquals(augmentedWeight, new AugmentedWeight(geometry, 0.5));
+  }
+
+  @Test
+  public void testHashCode() throws Exception {
+    geometry = GeometryJSON.parse(new JSONObject("{\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]]}"));
+    Assert.assertEquals(augmentedWeight.hashCode(), Objects.hash(geometry, 0.5));
   }
 }
