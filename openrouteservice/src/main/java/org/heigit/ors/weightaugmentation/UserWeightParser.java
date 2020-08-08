@@ -1,6 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ import org.json.JSONObject;
  * </p>
  */
 public class UserWeightParser {
-  public static final String ALLOWED_GEOMETRY_TYPES = "Polygon";
+  public static final String ALLOWED_GEOMETRY_TYPES = "Point, Polygon";
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
@@ -96,6 +97,8 @@ public class UserWeightParser {
    */
   public void addWeightAugmentations(List<AugmentedWeight> weightAugmentations, Geometry geom, double weight) throws ParameterValueException {
     if (geom instanceof Polygon) {
+      weightAugmentations.add(new AugmentedWeight(geom, weight));
+    } else if (geom instanceof Point) {
       weightAugmentations.add(new AugmentedWeight(geom, weight));
     } else {
       throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS, geom.getGeometryType(),

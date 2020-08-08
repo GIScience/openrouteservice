@@ -6,9 +6,12 @@ import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.List;
 import java.util.Set;
+import org.heigit.ors.mapmatching.point.PointMatcher;
 import org.heigit.ors.mapmatching.polygon.PolygonMatcher;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 
@@ -19,6 +22,7 @@ public class AugmentedStorageWeighting implements Weighting {
   private final Weighting superWeighting;
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
+  private final PointMatcher pointMatcher;
   private double minAugmentationWeight = 1.0;
 
   /**
@@ -34,8 +38,11 @@ public class AugmentedStorageWeighting implements Weighting {
     this.superWeighting = weighting;
     this.augmentationStorage = new AugmentationStorage();
     this.polygonMatcher = new PolygonMatcher();
+    this.pointMatcher = new PointMatcher();
     polygonMatcher.setGraphHopper(graphHopper);
+    pointMatcher.setGraphHopper(graphHopper);
     polygonMatcher.setLocationIndex();
+    pointMatcher.setLocationIndex();
     if (stepSize > 0) {
       polygonMatcher.setNodeGridStepSize(stepSize);
     }
@@ -55,8 +62,15 @@ public class AugmentedStorageWeighting implements Weighting {
 
   private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights) {
     for (AugmentedWeight augmentedWeight: augmentedWeights) {
-      Polygon polygon = (Polygon) augmentedWeight.getGeometry();
-      Set<Integer> edges = polygonMatcher.match(polygon);
+      Set<Integer> edges;
+      Geometry geometry = augmentedWeight.getGeometry();
+      if (geometry instanceof Polygon) {
+        edges = polygonMatcher.match((Polygon) geometry);
+      } else if (geometry instanceof Point) {
+        edges = pointMatcher.match((Point) geometry);
+      } else {
+        throw new UnsupportedOperationException("AugmentationStorage is not implemented for " + geometry.getGeometryType());
+      }
       minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());
       for (int edge: edges) {
         augmentationStorage.applyAugmentation(edge, augmentedWeight.getWeight());
