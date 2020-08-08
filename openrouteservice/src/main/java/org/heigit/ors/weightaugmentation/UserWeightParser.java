@@ -51,7 +51,7 @@ import org.json.JSONObject;
  * </p>
  */
 public class UserWeightParser {
-  public static final String ALLOWED_GEOMETRY_TYPES = "Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon";
+  public static final String ALLOWED_GEOMETRY_TYPES = "Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection";
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.

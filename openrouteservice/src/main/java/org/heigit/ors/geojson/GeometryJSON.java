@@ -142,12 +142,18 @@ public class GeometryJSON {
 	public static Geometry parse(JSONObject json) throws Exception {
 		if (!json.has("type"))
 			throw new Exception("type element is missing.");
+		String type = json.getString("type");
+
+		if (type.equals("GeometryCollection")) {
+			if (!json.has("geometries"))
+				throw new Exception("geometries element is missing.");
+			return readGeometryCollection(json.getJSONArray("geometries"));
+		}
 
 		if (!json.has("coordinates"))
 			throw new Exception("coordinates element is missing.");
-
-		String type = json.getString("type");
 		JSONArray arrCoords = json.getJSONArray("coordinates");
+
 		switch(type) {
 			case "Point":
 				return readPoint(arrCoords);
@@ -161,8 +167,6 @@ public class GeometryJSON {
 				return readPolygon(arrCoords);
 			case "MultiPolygon":
 				return readMultiPolygon(arrCoords);
-			case "GeometryCollection":
-				throw new Exception("GeometryCollection not yet implemented");
 			default:
 				throw new Exception("invalid type: " + type);
 		}
@@ -238,5 +242,17 @@ public class GeometryJSON {
 		}
 
 		return coords;
+	}
+
+	private static GeometryCollection readGeometryCollection(JSONArray value) throws Exception {
+		int n = value.length();
+		Geometry[] geometries = new Geometry[n];
+
+		for (int i = 0; i < n; i++) {
+			JSONObject arrGeometry = value.getJSONObject(i);
+			geometries[i] = parse(arrGeometry);
+		}
+
+		return factory.createGeometryCollection(geometries);
 	}
 }
