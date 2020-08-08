@@ -14,6 +14,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import java.util.HashMap;
@@ -33,19 +36,19 @@ public class AugmentedStorageWeightingTest {
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
   private ORSGraphHopper graphHopper;
   private final Map<Integer, Double> expectedAugmentations = new HashMap<Integer, Double>(){
-    {put(0, 0.75);};
-    {put(1, 0.75);};
-    {put(2, 0.75);};
-    {put(3, 0.75);};
-    {put(4, 0.75);};
-    {put(5, 1.1);};
-    {put(6, 0.75);};
-    {put(7, 0.75);};
-    {put(8, 1.0);};
-    {put(9, 1.0);};
-    {put(10, 1.0);};
-    {put(11, 1.0);};
-    {put(12, 1.5);};
+    {put(0,  1.0 * 0.75);};
+    {put(1,  1.0 * 0.75);};
+    {put(2,  1.0 * 0.75);};
+    {put(3,  1.0 * 0.75 * 1.2);};
+    {put(4,  1.0 * 0.75 * 1.4);};
+    {put(5,  1.0 * 1.1 * 1.2);};
+    {put(6,  1.0 * 0.75);};
+    {put(7,  1.0 * 0.75);};
+    {put(8,  1.0 * 1.2 * 1.3);};
+    {put(9,  1.0 * 1.3);};
+    {put(10, 1.0 * 1.2);};
+    {put(11, 1.0 * 1.4);};
+    {put(12, 1.0 * 1.5 * 1.2);};
   };
   private final Weighting superWeighting = new FastestWeighting(carEncoder, new HintsMap());
 
@@ -89,18 +92,52 @@ public class AugmentedStorageWeightingTest {
 
   private List<AugmentedWeight> createAugmentedWeightList() throws ParameterValueException {
     // polygon
+    // expected edges: 0-4, 6-7
     Coordinate[] polygonCoordinates = convertCoordinateArray(new double[][]{{1,2},{1,5},{3,5},{3,2},{1,2}});
     double polygonWeight = 0.75;
     Polygon polygon = geometryFactory.createPolygon(polygonCoordinates);
+
     // point
+    // expected edges: 12
     double pointWeight = 1.5;
     Point point = geometryFactory.createPoint(new Coordinate(4.5, 2.0));
+
     // lineString
+    // expected edges: 5
     double lineStringWeight = 1.1;
     Coordinate[] lineStringCoordinates = convertCoordinateArray(new double[][]{{1,1},{4,1}});
     LineString lineString = geometryFactory.createLineString(lineStringCoordinates);
-    Geometry[] geometries = new Geometry[]{polygon, point, lineString};
-    double[] weights = new double[]{polygonWeight, pointWeight, lineStringWeight};
+
+    // multiPolygon
+    // expected edges: 3, 5, 8, 10, 12
+    double multiPolygonWeight = 1.2;
+    Polygon[] polygons = new Polygon[]{
+        geometryFactory.createPolygon(convertCoordinateArray(new double[][]{{3.5,0.5},{4.0,1.5},{4.5,0.5},{3.5,0.5}})),
+        geometryFactory.createPolygon(convertCoordinateArray(new double[][]{{4.5,3.5},{5.0,4.5},{5.5,3.5},{4.5,3.5}}))
+    };
+    MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(polygons);
+
+    // multiPoint
+    // expected edges: 8, 9
+    double multiPointWeight = 1.3;
+    Point[] points = new Point[]{
+        geometryFactory.createPoint(new Coordinate(4.5, 4.5)),
+        geometryFactory.createPoint(new Coordinate(3.99, 3.5))
+    };
+    MultiPoint multiPoint = geometryFactory.createMultiPoint(points);
+
+    // multiLineString
+    // expected edges: 4, 11
+    double multiLineStringWeight = 1.4;
+    LineString[] lineStrings = new LineString[]{
+        geometryFactory.createLineString(convertCoordinateArray(new double[][]{{1,1},{1,3}})),
+        geometryFactory.createLineString(convertCoordinateArray(new double[][]{{4,3},{5,3}}))
+    };
+    MultiLineString multiLineString = geometryFactory.createMultiLineString(lineStrings);
+
+    // assemble geometries and parse
+    Geometry[] geometries = new Geometry[]{polygon, point, lineString, multiPolygon, multiPoint, multiLineString};
+    double[] weights = new double[]{polygonWeight, pointWeight, lineStringWeight, multiPolygonWeight, multiPointWeight, multiLineStringWeight};
     return new UserWeightParser().parse(geometries, weights);
   }
 
