@@ -12,8 +12,10 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -40,15 +42,15 @@ public class AugmentedStorageWeightingTest {
     {put(1,  1.0 * 0.75);};
     {put(2,  1.0 * 0.75);};
     {put(3,  1.0 * 0.75 * 1.2);};
-    {put(4,  1.0 * 0.75 * 1.4);};
-    {put(5,  1.0 * 1.1 * 1.2);};
+    {put(4,  1.0 * 0.75 * 1.4 * 1.7);};
+    {put(5,  1.0 * 1.1 * 1.2 * 1.7);};
     {put(6,  1.0 * 0.75);};
-    {put(7,  1.0 * 0.75);};
+    {put(7,  1.0 * 0.75 * 1.7);};
     {put(8,  1.0 * 1.2 * 1.3);};
     {put(9,  1.0 * 1.3);};
-    {put(10, 1.0 * 1.2);};
-    {put(11, 1.0 * 1.4);};
-    {put(12, 1.0 * 1.5 * 1.2);};
+    {put(10, 1.0 * 1.2 * 1.7);};
+    {put(11, 1.0 * 1.4 * 1.7);};
+    {put(12, 1.0 * 1.5 * 1.2 * 1.7);};
   };
   private final Weighting superWeighting = new FastestWeighting(carEncoder, new HintsMap());
 
@@ -135,9 +137,25 @@ public class AugmentedStorageWeightingTest {
     };
     MultiLineString multiLineString = geometryFactory.createMultiLineString(lineStrings);
 
+    // geometryCollection
+    // expected edges: 4-5 (multiPoint), 7 (point), 10-12 (polygon),
+    double geometryCollectionWeight = 1.7;
+    Geometry[] gcGeometries = new Geometry[]{
+        geometryFactory.createPoint(new Coordinate(2.5, 4.0)),
+        geometryFactory.createPolygon(
+            geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.5,2.5},{4.5,4.5},{5.5,4.5},{5.5,2.5},{4.5,2.5}})),
+            new LinearRing[]{geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.75,3.75},{4.75,4.25},{5.25,4.25},{5.25,3.75},{4.75,3.75}}))}
+        ),
+        geometryFactory.createMultiPoint(new Point[]{
+            geometryFactory.createPoint(new Coordinate(1.5, 1.0)),
+            geometryFactory.createPoint(new Coordinate(1.0, 1.5)),
+        })
+    };
+    GeometryCollection geometryCollection = geometryFactory.createGeometryCollection(gcGeometries);
+
     // assemble geometries and parse
-    Geometry[] geometries = new Geometry[]{polygon, point, lineString, multiPolygon, multiPoint, multiLineString};
-    double[] weights = new double[]{polygonWeight, pointWeight, lineStringWeight, multiPolygonWeight, multiPointWeight, multiLineStringWeight};
+    Geometry[] geometries = new Geometry[]{polygon, point, lineString, multiPolygon, multiPoint, multiLineString, geometryCollection};
+    double[] weights = new double[]{polygonWeight, pointWeight, lineStringWeight, multiPolygonWeight, multiPointWeight, multiLineStringWeight, geometryCollectionWeight};
     return new UserWeightParser().parse(geometries, weights);
   }
 
