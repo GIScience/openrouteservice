@@ -23,8 +23,9 @@ fi
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
 	cp -f /ors-conf/app.config $tomcat_appconfig
 else
-	if [ ! -f /ors-conf/app.config ]; then
-		cp -f $source_appconfig /ors-conf/app.config
+	# if the user mounts an app.config file in /ors-conf, use the custom app.config
+	if [ -f /ors-conf/app.config ]; then
+		cp -f /ors-conf/app.config $source_appconfig
 	fi
 	echo "### Package openrouteservice and deploy to Tomcat ###"
 	mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
