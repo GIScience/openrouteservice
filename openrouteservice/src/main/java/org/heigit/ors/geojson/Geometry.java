@@ -1,6 +1,7 @@
 package org.heigit.ors.geojson;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONException;
@@ -42,5 +43,23 @@ public class Geometry extends GeoJSON {
     geoJson.put("type", getGeometryType());
     geoJson.put("coordinates", GeometryJSON.toJSON(geometry));
     return geoJson;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Geometry geometry1 = (Geometry) o;
+    return Objects.equals(geometry, geometry1.geometry) &&
+        Objects.equals(geoJSONType, geometry1.geoJSONType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(geometry, geoJSONType);
   }
 }

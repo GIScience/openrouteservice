@@ -1,6 +1,7 @@
 package org.heigit.ors.geojson;
 
 import java.util.Arrays;
+import java.util.Objects;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
 
@@ -51,5 +52,9 @@ public abstract class GeoJSON {
   public String toJSONString() {
     return toJSON().toString();
   }
+
+  public abstract boolean equals(Object o);
+
+  public abstract int hashCode();
 }
 

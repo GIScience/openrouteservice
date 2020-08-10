@@ -1,6 +1,7 @@
 package org.heigit.ors.geojson;
 
 import java.util.Arrays;
+import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,5 +34,23 @@ public class FeatureCollection extends GeoJSON {
     for (Feature feature: features) { featuresJson.put(feature.toJSON()); }
     geoJson.put("features", featuresJson);
     return geoJson;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FeatureCollection that = (FeatureCollection) o;
+    return Arrays.equals(features, that.features) &&
+        Objects.equals(geoJSONType, that.geoJSONType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(features, geoJSONType);
   }
 }

@@ -1,5 +1,6 @@
 package org.heigit.ors.geojson;
 
+import java.util.Objects;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
 
@@ -47,5 +48,25 @@ public class Feature extends GeoJSON {
     geoJson.put("properties", properties);
     geoJson.put("id", id);
     return geoJson;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Feature feature = (Feature) o;
+    return Objects.equals(geometry, feature.geometry) &&
+        Objects.equals(properties, feature.properties) &&
+        Objects.equals(id, feature.id) &&
+        Objects.equals(geoJSONType, feature.geoJSONType);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(geometry, properties, id, geoJSONType);
   }
 }
