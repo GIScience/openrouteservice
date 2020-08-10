@@ -9,7 +9,6 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.Feature;
 import org.heigit.ors.geojson.GeoJSON;
-import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.json.JSONObject;
@@ -22,7 +21,6 @@ import org.json.JSONObject;
  *   <li>{@code "FeatureCollection"} and {@code "Feature"} are supported.</li>
  *   <li>{@code "Geometry"} is not possible because of the missing {@code "properties"}.</li>
  *   <li>The augmentation (or weight factor) has to be stored as {@code "weight"} in {@code "properties"}.</li>
- *   <li>Currently, the only supported geometry type is {@code "Polygon"}.</li>
  * </ul>
  * <p>Example GeoJSON:<br>
  * <pre>
@@ -109,9 +107,7 @@ public class UserWeightParser {
   }
 
   /**
-   * Regular parser for GeoJSON input.
-   *
-   * It uses {@link GeometryJSON} to parse the {@code "Geometry"} objects.
+   * Regular parser for GeoJSON formatted input using the {@link org.heigit.ors.geojson} classes
    * @param input {@link org.json.JSONObject} to be parsed
    * @return {@link ArrayList} of {@link AugmentedWeight}
    * @throws ParameterValueException for wrong parameters

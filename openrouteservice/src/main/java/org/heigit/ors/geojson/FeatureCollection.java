@@ -6,9 +6,16 @@ import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * GeoJSON FeatureCollection representation.
+ */
 public class FeatureCollection extends GeoJSON {
   private final Feature[] features;
 
+  /**
+   * Create FeatureCollection from JSON.
+   * @param input {@link JSONObject} representing a FeatureCollection.
+   */
   public FeatureCollection(JSONObject input) {
     this.geoJSONType = "FeatureCollection";
     JSONArray jsonFeatures = input.getJSONArray("features");
@@ -18,10 +25,19 @@ public class FeatureCollection extends GeoJSON {
     }
   }
 
+  /**
+   * Returns all {@link Feature Features} of the FeatureCollection.
+   * @return Features as array.
+   */
   public Feature[] getFeatures() {
     return features;
   }
 
+  /**
+   * Returns all {@link Feature Features} of the FeatureCollection matching a certain geometry type.
+   * @param type Geometry type to filter the features.
+   * @return Features as array.
+   */
   public Feature[] getFeatures(String type) {
     if (!Arrays.asList(Geometry.ALLOWED_GEOMETRY_TYPES).contains(type)) {
       throw new GeoJSONException(String.format("'%s' is no valid geometry type", type));
@@ -31,6 +47,7 @@ public class FeatureCollection extends GeoJSON {
         .toArray(Feature[]::new);
   }
 
+  @Override
   public JSONObject toJSON() {
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", geoJSONType);
