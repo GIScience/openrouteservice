@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.geojson.Feature;
+import org.heigit.ors.geojson.GeoJSON;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.RoutingErrorCodes;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -60,14 +61,14 @@ public class UserWeightParser {
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
    */
-  public List<AugmentedWeight> parse(String input) throws ParameterValueException {
+  public List<AugmentedWeight> parse(String input) throws Exception {
     return parse(new JSONObject(input));
   }
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link org.json.simple.JSONObject org.json.simple.JSONObject} instead of a {@link JSONObject org.json.JSONObject}.
    */
-  public List<AugmentedWeight> parse(org.json.simple.JSONObject input) throws ParameterValueException {
+  public List<AugmentedWeight> parse(org.json.simple.JSONObject input) throws Exception {
     return parse(input.toJSONString());
   }
 
@@ -114,30 +115,12 @@ public class UserWeightParser {
    * @return {@link ArrayList} of {@link AugmentedWeight}
    * @throws ParameterValueException for wrong parameters
    */
-  public List<AugmentedWeight> parse(org.json.JSONObject input) throws ParameterValueException {
+  public List<AugmentedWeight> parse(org.json.JSONObject input) throws Exception {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
-    JSONArray features;
-    String geoJSONtype = input.getString("type");
-    if (geoJSONtype.equals("FeatureCollection")) {
-      features = input.getJSONArray("features");
-    } else if (geoJSONtype.equals("Feature")) {
-      features = new JSONArray();
-      features.put(input);
-    } else {
-      throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, geoJSONtype, "Invalid GeoJSON type. Only 'FeatureCollection' or 'Feature' is allowed.");
-    }
-    for (int i = 0; i < features.length(); i++) {
-      JSONObject feature = features.getJSONObject(i);
-      JSONObject geometry = feature.getJSONObject("geometry");
-      Geometry geom;
-      try {
-        geom = GeometryJSON.parse(geometry);
-      } catch (Exception e) {
-        throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, feature.toString(), "Geometry could not be parsed.");
-      }
-      JSONObject properties = feature.getJSONObject("properties");
-      double weight = properties.getDouble("weight");
-      addWeightAugmentations(weightAugmentations, geom, weight);
+    GeoJSON geoJSON = GeoJSON.parse(input);
+    for (Feature feature: geoJSON.getFeatures()) {
+      double weight = feature.getPropertyDouble("weight");
+      addWeightAugmentations(weightAugmentations, feature.getGeometry(), weight);
     }
     return weightAugmentations;
   }
