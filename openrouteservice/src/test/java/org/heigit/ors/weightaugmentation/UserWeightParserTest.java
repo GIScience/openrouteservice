@@ -33,7 +33,7 @@ public class UserWeightParserTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     userWeightParser = new UserWeightParser();
     normalInputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {\"weight\": \"2.0\"}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.691, 49.415], [8.691, 49.413], [8.699, 49.413], [8.691, 49.415]]] } }, { \"type\": \"Feature\", \"properties\": { \"weight\": 0.1 }, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[8.682, 49.413], [8.689, 49.413], [8.689, 49.419], [8.682, 49.419], [8.682, 49.413]], [[8.684, 49.418], [8.684, 49.414], [8.687, 49.414], [8.687, 49.418], [8.684, 49.418]]]}}]}";
 
@@ -100,7 +100,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}";
-    thrown.expect(GeoJSONException.class);
+    thrown.expect(ParameterValueException.class);
     thrown.expectMessage("Geometry does not contain any features.");
     userWeightParser.parse(inputJson);
   }
@@ -157,7 +157,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseWrongGeometryType() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"SomethingInvalid\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONException.class);
+    thrown.expect(ParameterValueException.class);
     thrown.expectMessage("invalid type: SomethingInvalid");
     userWeightParser.parse(inputJson);
   }
@@ -165,7 +165,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseBrokenGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, \"name\"], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONException.class);
+    thrown.expect(ParameterValueException.class);
     thrown.expectMessage("Geometry could not be parsed.");
     userWeightParser.parse(inputJson);
   }
@@ -181,7 +181,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseMissingProperties() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONException.class);
+    thrown.expect(ParameterValueException.class);
     thrown.expectMessage("Properties missing in GeoJSON");
     userWeightParser.parse(inputJson);
   }

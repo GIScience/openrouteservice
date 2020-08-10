@@ -35,6 +35,10 @@ public class Geometry extends GeoJSON {
     throw new GeoJSONException("Geometry does not contain any features.");
   }
 
+  public Feature[] getFeatures(String type) {
+    throw new GeoJSONException("Geometry does not contain any features.");
+  }
+
   public JSONObject toJSON() {
     if (!Arrays.asList(ALLOWED_GEOMETRY_TYPES).contains(getGeometryType())) {
       throw new GeoJSONException("Invalid geometry type building GeoJSON.");

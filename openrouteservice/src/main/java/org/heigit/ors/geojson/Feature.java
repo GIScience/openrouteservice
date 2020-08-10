@@ -1,5 +1,6 @@
 package org.heigit.ors.geojson;
 
+import java.util.Arrays;
 import java.util.Objects;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
@@ -29,6 +30,9 @@ public class Feature extends GeoJSON {
   }
 
   public Feature[] getFeatures(String type) {
+    if (!Arrays.asList(Geometry.ALLOWED_GEOMETRY_TYPES).contains(type)) {
+      throw new GeoJSONException(String.format("'%s' is no valid geometry type", type));
+    }
     if (getGeometry().getGeometryType().equals(type)) {
       return new Feature[]{this};
     } else {
@@ -39,6 +43,10 @@ public class Feature extends GeoJSON {
   public JSONObject getProperties() {
     if (properties == null) throw new GeoJSONException("Properties missing in GeoJSON.");
     return properties;
+  }
+
+  public String getId() {
+    return id;
   }
 
   public JSONObject toJSON() {
@@ -60,7 +68,7 @@ public class Feature extends GeoJSON {
     }
     Feature feature = (Feature) o;
     return Objects.equals(geometry, feature.geometry) &&
-        Objects.equals(properties, feature.properties) &&
+        Objects.equals(properties.toMap(), feature.properties.toMap()) &&
         Objects.equals(id, feature.id) &&
         Objects.equals(geoJSONType, feature.geoJSONType);
   }
