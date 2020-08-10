@@ -1,6 +1,6 @@
 package org.heigit.ors.geojson;
 
-import org.heigit.ors.geojson.exception.GeoJSONParseException;
+import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
 
 public class Feature extends GeoJSON {
@@ -36,7 +36,7 @@ public class Feature extends GeoJSON {
   }
 
   public JSONObject getProperties() {
-    if (properties == null) throw new GeoJSONParseException("Properties missing in GeoJSON.");
+    if (properties == null) throw new GeoJSONException("Properties missing in GeoJSON.");
     return properties;
   }
 

@@ -10,6 +10,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.Feature;
 import org.heigit.ors.geojson.GeoJSON;
 import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.json.JSONObject;
 
@@ -117,10 +118,20 @@ public class UserWeightParser {
    */
   public List<AugmentedWeight> parse(org.json.JSONObject input) throws ParameterValueException {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
-    GeoJSON geoJSON = GeoJSON.parse(input);
-    for (Feature feature: geoJSON.getFeatures()) {
-      double weight = feature.getProperties().getDouble("weight");
-      addWeightAugmentations(weightAugmentations, feature.getGeometry(), weight);
+    GeoJSON geoJSON;
+    double weight;
+    try {
+      geoJSON = GeoJSON.parse(input);
+      for (Feature feature: geoJSON.getFeatures()) {
+        if (feature.getProperties().has("weight")) {
+          weight = feature.getProperties().getDouble("weight");
+          addWeightAugmentations(weightAugmentations, feature.getGeometry(), weight);
+        } else {
+          throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS, "properties: " + feature.getProperties().toString(), "Property 'weight' missing.");
+        }
+      }
+    } catch (GeoJSONException e) {
+      throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_USER_WEIGHTS, input.toString(), e.getMessage());
     }
     return weightAugmentations;
   }

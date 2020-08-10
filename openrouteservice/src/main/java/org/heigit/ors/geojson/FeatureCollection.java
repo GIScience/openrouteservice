@@ -29,7 +29,9 @@ public class FeatureCollection extends GeoJSON {
   public JSONObject toJSON() {
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", geoJSONType);
-    geoJson.put("features", new JSONArray(Arrays.stream(features).map(Feature::toJSON).toArray(JSONObject[]::new)));
+    JSONArray featuresJson = new JSONArray(features.length);
+    for (Feature feature: features) { featuresJson.put(feature.toJSON()); }
+    geoJson.put("features", featuresJson);
     return geoJson;
   }
 }

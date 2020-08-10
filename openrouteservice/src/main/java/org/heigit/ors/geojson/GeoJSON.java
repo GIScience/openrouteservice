@@ -1,7 +1,7 @@
 package org.heigit.ors.geojson;
 
 import java.util.Arrays;
-import org.heigit.ors.geojson.exception.GeoJSONParseException;
+import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
 
 public abstract class GeoJSON {
@@ -36,7 +36,7 @@ public abstract class GeoJSON {
     } else if (Arrays.asList(Geometry.ALLOWED_GEOMETRY_TYPES).contains(type)) {
       return new Geometry(input);
     } else {
-      throw new GeoJSONParseException("Invalid GeoJSON type: " + type);
+      throw new GeoJSONException("Invalid GeoJSON type: " + type);
     }
   }
 

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
-import org.heigit.ors.geojson.exception.GeoJSONParseException;
+import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -100,7 +100,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}";
-    thrown.expect(GeoJSONParseException.class);
+    thrown.expect(GeoJSONException.class);
     thrown.expectMessage("Geometry does not contain any features.");
     userWeightParser.parse(inputJson);
   }
@@ -117,8 +117,8 @@ public class UserWeightParserTest {
   @Test
   public void testParseFeatureWithoutWeight() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}";
-    thrown.expect(JSONException.class);
-    thrown.expectMessage("JSONObject[\"weight\"] not found.");
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Property 'weight' missing.");
     userWeightParser.parse(inputJson);
   }
 
@@ -157,7 +157,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseWrongGeometryType() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"SomethingInvalid\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONParseException.class);
+    thrown.expect(GeoJSONException.class);
     thrown.expectMessage("invalid type: SomethingInvalid");
     userWeightParser.parse(inputJson);
   }
@@ -165,7 +165,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseBrokenGeometry() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {\"weight\": 1.0}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, \"name\"], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONParseException.class);
+    thrown.expect(GeoJSONException.class);
     thrown.expectMessage("Geometry could not be parsed.");
     userWeightParser.parse(inputJson);
   }
@@ -181,7 +181,7 @@ public class UserWeightParserTest {
   @Test
   public void testParseMissingProperties() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
-    thrown.expect(GeoJSONParseException.class);
+    thrown.expect(GeoJSONException.class);
     thrown.expectMessage("Properties missing in GeoJSON");
     userWeightParser.parse(inputJson);
   }
@@ -189,8 +189,8 @@ public class UserWeightParserTest {
   @Test
   public void testParseMissingWeight() throws ParameterValueException {
     String inputJson = "{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[8.680, 49.416], [8.664, 49.399]]}}";
-    thrown.expect(JSONException.class);
-    thrown.expectMessage("JSONObject[\"weight\"] not found.");
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Property 'weight' missing.");
     userWeightParser.parse(inputJson);
   }
 
@@ -224,8 +224,8 @@ public class UserWeightParserTest {
   @Test
   public void testParseFeatureCollectionWithoutWeight() throws ParameterValueException {
     String inputJson = "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}}]}";
-    thrown.expect(JSONException.class);
-    thrown.expectMessage("JSONObject[\"weight\"] not found.");
+    thrown.expect(ParameterValueException.class);
+    thrown.expectMessage("Property 'weight' missing.");
     userWeightParser.parse(inputJson);
   }
 }

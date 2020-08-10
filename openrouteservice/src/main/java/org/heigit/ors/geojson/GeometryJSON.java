@@ -14,7 +14,7 @@
 package org.heigit.ors.geojson;
 
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
-import org.heigit.ors.geojson.exception.GeoJSONParseException;
+import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -50,7 +50,7 @@ public class GeometryJSON {
 		} else if (geom instanceof MultiPolygon) {
 			return toJSON((MultiPolygon)geom);
 		} else {
-			throw new GeoJSONParseException("toJSON function is not implemented for " + geom.getGeometryType());
+			throw new GeoJSONException("toJSON function is not implemented for " + geom.getGeometryType());
 		}
 	}
 
@@ -142,17 +142,17 @@ public class GeometryJSON {
 
 	public static Geometry parse(JSONObject json) {
 		if (!json.has("type"))
-			throw new GeoJSONParseException("type element is missing.");
+			throw new GeoJSONException("type element is missing.");
 		String type = json.getString("type");
 
 		if (type.equals("GeometryCollection")) {
 			if (!json.has("geometries"))
-				throw new GeoJSONParseException("geometries element is missing.");
+				throw new GeoJSONException("geometries element is missing.");
 			return readGeometryCollection(json.getJSONArray("geometries"));
 		}
 
 		if (!json.has("coordinates"))
-			throw new GeoJSONParseException("coordinates element is missing.");
+			throw new GeoJSONException("coordinates element is missing.");
 		JSONArray arrCoords = json.getJSONArray("coordinates");
 
 		switch(type) {
@@ -169,7 +169,7 @@ public class GeometryJSON {
 			case "MultiPolygon":
 				return readMultiPolygon(arrCoords);
 			default:
-				throw new GeoJSONParseException("invalid type: " + type);
+				throw new GeoJSONException("invalid type: " + type);
 		}
 	}
 
