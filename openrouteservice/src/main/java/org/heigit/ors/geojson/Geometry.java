@@ -3,6 +3,7 @@ package org.heigit.ors.geojson;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import org.heigit.ors.geojson.exception.GeoJSONParseException;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Geometry extends GeoJSON {
@@ -12,8 +13,12 @@ public class Geometry extends GeoJSON {
 
   private com.vividsolutions.jts.geom.Geometry geometry;
 
-  public Geometry(JSONObject input) throws Exception {
-    this.geometry = GeometryJSON.parse(input);
+  public Geometry(JSONObject input) {
+    try {
+      this.geometry = GeometryJSON.parse(input);
+    } catch (JSONException e) {
+      throw new GeoJSONParseException("Geometry could not be parsed.\n" + e.getMessage());
+    }
     this.geoJSONType = "Geometry";
   }
 
@@ -25,11 +30,11 @@ public class Geometry extends GeoJSON {
     return geometry.getGeometryType();
   }
 
-  public Feature[] getFeatures() throws GeoJSONParseException {
+  public Feature[] getFeatures() {
     throw new GeoJSONParseException("Geometry does not contain any features.");
   }
 
-  public JSONObject toJSON() throws Exception {
+  public JSONObject toJSON() {
     if (!Arrays.asList(ALLOWED_GEOMETRY_TYPES).contains(getGeometryType())) {
       throw new GeoJSONParseException("Invalid geometry type building GeoJSON.");
     }

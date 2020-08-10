@@ -14,6 +14,7 @@
 package org.heigit.ors.geojson;
 
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
+import org.heigit.ors.geojson.exception.GeoJSONParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,7 +40,7 @@ public class GeometryJSON {
 
 	private GeometryJSON() {}
 
-	public static JSONArray toJSON(Geometry geom) throws Exception {
+	public static JSONArray toJSON(Geometry geom) {
 		if (geom instanceof Polygon) {
 			return toJSON((Polygon)geom);
 		} else if (geom instanceof LineString) {
@@ -49,7 +50,7 @@ public class GeometryJSON {
 		} else if (geom instanceof MultiPolygon) {
 			return toJSON((MultiPolygon)geom);
 		} else {
-			throw new Exception("toJSON function is not implemented for " + geom.getGeometryType());
+			throw new GeoJSONParseException("toJSON function is not implemented for " + geom.getGeometryType());
 		}
 	}
 
@@ -139,19 +140,19 @@ public class GeometryJSON {
 		return bbox;
 	}
 
-	public static Geometry parse(JSONObject json) throws Exception {
+	public static Geometry parse(JSONObject json) {
 		if (!json.has("type"))
-			throw new Exception("type element is missing.");
+			throw new GeoJSONParseException("type element is missing.");
 		String type = json.getString("type");
 
 		if (type.equals("GeometryCollection")) {
 			if (!json.has("geometries"))
-				throw new Exception("geometries element is missing.");
+				throw new GeoJSONParseException("geometries element is missing.");
 			return readGeometryCollection(json.getJSONArray("geometries"));
 		}
 
 		if (!json.has("coordinates"))
-			throw new Exception("coordinates element is missing.");
+			throw new GeoJSONParseException("coordinates element is missing.");
 		JSONArray arrCoords = json.getJSONArray("coordinates");
 
 		switch(type) {
@@ -168,7 +169,7 @@ public class GeometryJSON {
 			case "MultiPolygon":
 				return readMultiPolygon(arrCoords);
 			default:
-				throw new Exception("invalid type: " + type);
+				throw new GeoJSONParseException("invalid type: " + type);
 		}
 	}
 
@@ -244,7 +245,7 @@ public class GeometryJSON {
 		return coords;
 	}
 
-	private static GeometryCollection readGeometryCollection(JSONArray value) throws Exception {
+	private static GeometryCollection readGeometryCollection(JSONArray value) {
 		int n = value.length();
 		Geometry[] geometries = new Geometry[n];
 

@@ -61,14 +61,14 @@ public class UserWeightParser {
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link String} instead of a {@link JSONObject org.json.JSONObject}.
    */
-  public List<AugmentedWeight> parse(String input) throws Exception {
+  public List<AugmentedWeight> parse(String input) throws ParameterValueException {
     return parse(new JSONObject(input));
   }
 
   /**
    * Overloaded function for {@link #parse(JSONObject)} that receives a {@link org.json.simple.JSONObject org.json.simple.JSONObject} instead of a {@link JSONObject org.json.JSONObject}.
    */
-  public List<AugmentedWeight> parse(org.json.simple.JSONObject input) throws Exception {
+  public List<AugmentedWeight> parse(org.json.simple.JSONObject input) throws ParameterValueException {
     return parse(input.toJSONString());
   }
 
@@ -115,11 +115,11 @@ public class UserWeightParser {
    * @return {@link ArrayList} of {@link AugmentedWeight}
    * @throws ParameterValueException for wrong parameters
    */
-  public List<AugmentedWeight> parse(org.json.JSONObject input) throws Exception {
+  public List<AugmentedWeight> parse(org.json.JSONObject input) throws ParameterValueException {
     List<AugmentedWeight> weightAugmentations = new ArrayList<>();
     GeoJSON geoJSON = GeoJSON.parse(input);
     for (Feature feature: geoJSON.getFeatures()) {
-      double weight = feature.getPropertyDouble("weight");
+      double weight = feature.getProperties().getDouble("weight");
       addWeightAugmentations(weightAugmentations, feature.getGeometry(), weight);
     }
     return weightAugmentations;

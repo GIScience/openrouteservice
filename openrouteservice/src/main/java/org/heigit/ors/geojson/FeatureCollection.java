@@ -7,7 +7,7 @@ import org.json.JSONObject;
 public class FeatureCollection extends GeoJSON {
   private final Feature[] features;
 
-  public FeatureCollection(JSONObject input) throws Exception {
+  public FeatureCollection(JSONObject input) {
     this.geoJSONType = "FeatureCollection";
     JSONArray jsonFeatures = input.getJSONArray("features");
     features = new Feature[jsonFeatures.length()];
@@ -29,7 +29,7 @@ public class FeatureCollection extends GeoJSON {
   public JSONObject toJSON() {
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", geoJSONType);
-    geoJson.put("features", new JSONArray(Arrays.asList(features).forEach(Feature::toJSON);));
+    geoJson.put("features", new JSONArray(Arrays.stream(features).map(Feature::toJSON).toArray(JSONObject[]::new)));
     return geoJson;
   }
 }

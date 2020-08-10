@@ -1,5 +1,6 @@
 package org.heigit.ors.geojson;
 
+import org.heigit.ors.geojson.exception.GeoJSONParseException;
 import org.json.JSONObject;
 
 public class Feature extends GeoJSON {
@@ -7,11 +8,11 @@ public class Feature extends GeoJSON {
   private JSONObject properties;
   private String id;
 
-  public Feature(JSONObject input) throws Exception {
+  public Feature(JSONObject input) {
     this.geoJSONType = "Feature";
     this.geometry = new Geometry(input.getJSONObject("geometry"));
-    this.properties = input.getJSONObject("properties");
-    this.id = input.getString("id");
+    this.properties = input.has("properties") ? input.getJSONObject("properties") : null;
+    this.id = input.has("id") ? input.getString("id") : null;
   }
 
   public com.vividsolutions.jts.geom.Geometry getGeometry() {
@@ -35,18 +36,11 @@ public class Feature extends GeoJSON {
   }
 
   public JSONObject getProperties() {
+    if (properties == null) throw new GeoJSONParseException("Properties missing in GeoJSON.");
     return properties;
   }
 
-  public Object getProperty(String key) {
-    return properties.get(key);
-  }
-
-  public double getPropertyDouble(String key) {
-    return properties.getDouble(key);
-  }
-
-  public JSONObject toJSON() throws Exception {
+  public JSONObject toJSON() {
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", geoJSONType);
     geoJson.put("geometry", geometry.toJSON());
