@@ -454,9 +454,12 @@ public class ORSGraphHopper extends GraphHopper {
 	private void checkAvoidBorders(GraphProcessContext processContext, GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
 		ORSPMap params = (ORSPMap)request.getAdditionalHints();
+		if (params == null) {
+			params = new ORSPMap();
+		}
 		boolean isRouteable = true;
 
-			if (params.hasObj("avoid_borders")) {
+		if (params.hasObj("avoid_borders")) {
 				RouteSearchParameters routeSearchParameters = (RouteSearchParameters) params.getObj("avoid_borders");
 				//Avoiding All borders
 				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.ALL) {
