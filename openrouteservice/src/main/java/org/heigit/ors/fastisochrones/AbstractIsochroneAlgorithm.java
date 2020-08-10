@@ -47,9 +47,9 @@ public abstract class AbstractIsochroneAlgorithm {
     protected BorderNodeDistanceStorage borderNodeDistanceStorage;
     protected EdgeExplorer outEdgeExplorer;
     protected EdgeFilter additionalEdgeFilter;
-    int visitedCountPhase1;
-    int visitedCountPhase2;
-    int visitedCountPhase3;
+    int visitedCountStartCellPhase;
+    int visitedCountBorderNodesPhase;
+    int visitedCountActiveCellPhase;
     double isochroneLimit;
     private boolean alreadyRun;
 
@@ -90,51 +90,51 @@ public abstract class AbstractIsochroneAlgorithm {
 
 
     /**
-     * Begin the phase that runs outside of the core
+     * Run phase from start to border nodes
      */
-    abstract void runPhase1();
+    abstract void runStartCellPhase();
 
     /**
      * Stopping criterion for phase outside core
      *
      * @return should stop
      */
-    public abstract boolean finishedPhase1();
+    public abstract boolean finishedStartCellPhase();
 
     /**
-     * Begin running of the algorithm phase inside the core
+     * Run algorithm on border nodes
      */
-    abstract void runPhase2();
+    abstract void runBorderNodePhase();
 
     /**
      * Stopping criterion for phase inside core
      *
      * @return should stop
      */
-    public abstract boolean finishedPhase2();
+    public abstract boolean finishedBorderNodePhase();
 
     /**
      * Begin running of the algorithm phase in the active cells
      */
-    abstract void runPhase3();
+    abstract void runActiveCellPhase();
 
     /**
      * Stopping criterion for phase in active cells
      *
      * @return should stop
      */
-    public abstract boolean finishedPhase3();
+    public abstract boolean finishedActiveCellPhase();
 
     protected boolean finished() {
-        return finishedPhase3();
+        return finishedActiveCellPhase();
     }
 
     protected void runAlgo() {
-        runPhase1();
+        runStartCellPhase();
 
-        runPhase2();
+        runBorderNodePhase();
 
-        runPhase3();
+        runActiveCellPhase();
     }
 
     public void calcIsochroneNodes(int from, double isochroneLimit) {
@@ -148,14 +148,14 @@ public abstract class AbstractIsochroneAlgorithm {
     }
 
     public int getVisitedNodesPhase1() {
-        return visitedCountPhase1;
+        return visitedCountStartCellPhase;
     }
 
     public int getVisitedNodesPhase2() {
-        return visitedCountPhase2;
+        return visitedCountBorderNodesPhase;
     }
 
     public int getVisitedNodesPhase3() {
-        return visitedCountPhase3;
+        return visitedCountActiveCellPhase;
     }
 }

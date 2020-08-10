@@ -93,15 +93,6 @@ public class IsochronesServiceSettings {
 			allowComputeArea = Boolean.parseBoolean(value);
 
 		//Fast isochrones
-//		List<String> fastIsochronesActiveParams = AppConfig.getGlobal().getServiceParametersList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "active");
-//		for(String activeProfile : fastIsochronesActiveParams){
-//			try{
-//			APIEnums.Profile.valueOf()APIEnums.Profile.forValue(activeProfile);
-//			}
-//			catch (Exception e){
-//				throw new IllegalArgumentException("Unknown profile. " + e.getMessage());
-//			}
-//		}
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
 		if (value != null)
 			fastIsochronesMaximumRangeDistance = Integer.parseInt(value);

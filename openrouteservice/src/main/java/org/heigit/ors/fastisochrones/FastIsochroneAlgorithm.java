@@ -77,11 +77,11 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     }
 
     @Override
-    void runPhase1() {
+    void runStartCellPhase() {
         int startCell = isochroneNodeStorage.getCellId(from);
         CoreRangeDijkstra coreRangeDijkstra = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        if(additionalEdgeFilter != null)
+        if (additionalEdgeFilter != null)
             edgeFilterSequence.add(additionalEdgeFilter);
         edgeFilterSequence.add(
                 new CellAndBorderNodeFilter(isochroneNodeStorage,
@@ -113,7 +113,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     }
 
     @Override
-    public boolean finishedPhase1() {
+    public boolean finishedStartCellPhase() {
         return true;
     }
 
@@ -121,18 +121,18 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
      * Run the ALT algo in the core
      */
     @Override
-    void runPhase2() {
-        //This implementation combines phases 1 and 2 in phase 1
+    void runBorderNodePhase() {
+        //This implementation combines running in the start cell and running on the border nodes in one phase
     }
 
     @Override
-    public boolean finishedPhase2() {
-        //This implementation combines phases 1 and 2 in phase 1
+    public boolean finishedBorderNodePhase() {
+        //This implementation combines running in the start cell and running on the border nodes in one phase
         return true;
     }
 
     @Override
-    void runPhase3() {
+    void runActiveCellPhase() {
         activeCellMaps = new HashMap<>(upAndCoreGraphDistMap.entrySet().size());
         activeCellMaps.put(isochroneNodeStorage.getCellId(from), startCellMap);
         for (Map.Entry<Integer, Map<Integer, Double>> entry : upAndCoreGraphDistMap.entrySet()) {
@@ -149,24 +149,23 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     }
 
     @Override
-    public boolean finishedPhase3() {
+    public boolean finishedActiveCellPhase() {
         return false;
     }
 
     private void findFullyReachableCells(IntObjectMap<SPTEntry> entryMap) {
-        for(IntObjectCursor<SPTEntry> entry : entryMap){
+        for (IntObjectCursor<SPTEntry> entry : entryMap) {
             int baseNode = entry.key;
-            if(!isochroneNodeStorage.getBorderness(baseNode))
+            if (!isochroneNodeStorage.getBorderness(baseNode))
                 continue;
             SPTEntry sptEntry = entry.value;
             int baseCell = isochroneNodeStorage.getCellId(baseNode);
-            double baseNodeEccentricity = eccentricityStorage.getEccentricity(baseNode);
-            if (sptEntry.getWeightOfVisitedPath() + baseNodeEccentricity <= isochroneLimit
+            int eccentricity = eccentricityStorage.getEccentricity(baseNode);
+            if (isWithinLimit(sptEntry, eccentricity)
                     && eccentricityStorage.getFullyReachable(baseNode)) {
                 addFullyReachableCell(baseCell);
                 addInactiveBorderNode(baseNode);
-                if (getActiveCells().contains(baseCell))
-                    getActiveCells().remove(baseCell);
+                getActiveCells().remove(baseCell);
             } else {
                 if (!getFullyReachableCells().contains(baseCell)) {
                     addActiveCell(baseCell);
@@ -176,11 +175,15 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
         }
     }
 
+    private boolean isWithinLimit(SPTEntry sptEntry, int eccentricity) {
+        return sptEntry.getWeightOfVisitedPath() + eccentricity <= isochroneLimit;
+    }
+
     protected void addActiveCell(int cellId) {
         activeCells.add(cellId);
     }
 
-    private void addFullyReachableCell(int cellId){
+    private void addFullyReachableCell(int cellId) {
         fullyReachableCells.add(cellId);
     }
 
@@ -195,7 +198,8 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     public Set<Integer> getFullyReachableCells() {
         return fullyReachableCells;
     }
-    private Set<Integer> getActiveCells(){
+
+    private Set<Integer> getActiveCells() {
         return activeCells;
     }
 

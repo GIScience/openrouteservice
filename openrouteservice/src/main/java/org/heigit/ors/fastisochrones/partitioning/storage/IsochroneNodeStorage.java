@@ -21,7 +21,6 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.Storable;
 
 import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.byteArrayToInteger;

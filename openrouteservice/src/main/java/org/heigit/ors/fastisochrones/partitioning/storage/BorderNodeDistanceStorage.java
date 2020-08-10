@@ -184,4 +184,13 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public Weighting getWeighting() {
         return weighting;
     }
+
+    public boolean hasWeighting(Weighting weighting) {
+        if (getWeighting().getName() != null
+                && getWeighting().getName().equals(weighting.getName())
+                && getWeighting().getFlagEncoder().toString() != null
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
+            return true;
+        return false;
+    }
 }

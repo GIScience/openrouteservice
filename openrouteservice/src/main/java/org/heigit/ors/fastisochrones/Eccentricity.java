@@ -34,9 +34,9 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class Eccentricity extends AbstractEccentricity {
     //This value determines how many nodes of a cell need to be reached in order for the cell to count as fully reachable.
     //Some nodes might be part of a cell but unreachable (disconnected, behind infinite weight, ...)
-    double acceptedFullyReachablePercentage = 0.995;
-    int eccentricityDijkstraLimitFactor = 10;
-    LocationIndex locationIndex;
+    private static final double acceptedFullyReachablePercentage = 0.995;
+    private static final int eccentricityDijkstraLimitFactor = 10;
+    private LocationIndex locationIndex;
 
     public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         super(graphHopperStorage);
@@ -79,7 +79,6 @@ public class Eccentricity extends AbstractEccentricity {
                 edgeFilterSequence.add(fixedCellEdgeFilter);
                 RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting);
                 rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
-                rangeDijkstra.setAcceptedFullyReachablePercentage(1.0);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                 rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
                 double eccentricity = rangeDijkstra.calcMaxWeight(node, relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
@@ -90,7 +89,6 @@ public class Eccentricity extends AbstractEccentricity {
                     rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
                     rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                     rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
-                    rangeDijkstra.setAcceptedFullyReachablePercentage(acceptedFullyReachablePercentage);
                     edgeFilterSequence = new EdgeFilterSequence();
                     edgeFilterSequence.add(defaultEdgeFilter);
                     rangeDijkstra.setEdgeFilter(edgeFilterSequence);
@@ -167,7 +165,7 @@ public class Eccentricity extends AbstractEccentricity {
             double[] distances = new double[targets.length - 1];
             int index = 0;
             for (int i = 0; i < targets.length; i++) {
-                if(cellBorderNodes[i] == borderNode)
+                if (cellBorderNodes[i] == borderNode)
                     continue;
                 ids[index] = cellBorderNodes[i];
                 if (targets[i] == null) {

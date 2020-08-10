@@ -19,7 +19,6 @@ package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -43,7 +42,6 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
     private IntHashSet cellNodes;
     private Set<Integer> visitedIds = new HashSet<>();
     private IntHashSet relevantNodes = new IntHashSet();
-    private double acceptedFullyReachablePercentage = 1.0;
 
     public RangeDijkstra(Graph graph, Weighting weighting) {
         super(graph, weighting);
@@ -124,10 +122,6 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
 
     public int getFoundCellNodeSize() {
         return visitedIds.size();
-    }
-
-    public void setAcceptedFullyReachablePercentage(double acceptedFullyReachablePercentage) {
-        this.acceptedFullyReachablePercentage = acceptedFullyReachablePercentage;
     }
 
     @Override

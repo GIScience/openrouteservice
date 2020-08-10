@@ -37,6 +37,7 @@ public class Contour {
     private static final int MIN_EDGE_LENGTH = 400;
     private static final int MAX_EDGE_LENGTH = Integer.MAX_VALUE;
     private static final int SUPER_CELL_HIERARCHY_LEVEL = 3;
+    private static final int SUPER_SUPER_CELL_HIERARCHY_LEVEL = 2; // level above super cell level
     private static final double CONCAVE_HULL_THRESHOLD = 0.010;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
@@ -71,19 +72,23 @@ public class Contour {
         return Math.sqrt(distance);
     }
 
+    /**
+     * Calculates Contours of base cells and (if enabled) supercells and stores the data in cellStorage
+     */
     public void calculateContour() {
-        //The order is important for the storage
         handleBaseCells();
         cellStorage.flush();
         IntObjectMap<IntHashSet> superCells = handleSuperCells();
         cellStorage.storeContourPointerMap();
-        //Store the supercell->cellIds map
         if (isSupercellsEnabled())
             cellStorage.storeSuperCells(superCells);
         cellStorage.setContourPrepared(true);
         cellStorage.flush();
     }
 
+    /**
+     * Create contour for each base cell and store it
+     */
     private void handleBaseCells() {
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
             LineString ring = createContour(createCoordinates(cellId.value));
@@ -95,44 +100,64 @@ public class Contour {
         }
     }
 
+    /**
+     * Create Contour for each supercell and store it
+     * Create supercells for better querytime performance
+     * Current implementation supports 2 levels of supercells. Calculated individually
+     * For each super(super)cell, we need to know the corresponding basecells (to get the contour from storage)
+     * and the corresponding subcells (these are supercells for supersupercells)
+     *
+     * @return Mapping of supercell Id -> Set of subcell ids
+     */
     private IntObjectMap<IntHashSet> handleSuperCells() {
         IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
         if (isSupercellsEnabled()) {
-            //Create supercells for better querytime performance
-            //Current implementation supports 2 levels of supercells. Calculated individually
-            //For each super(super)cell, we need to know the corresponding basecells (to get the contour from storage)
-            //and the corresponding subcells (these are supercells for supersupercells)
             superCells = identifySuperCells(isochroneNodeStorage.getCellIds(), SUPER_CELL_HIERARCHY_LEVEL, true);
-            IntHashSet superCellIds = new IntHashSet();
-            superCellIds.addAll(superCells.keys());
-            IntObjectMap<IntHashSet> superSuperCells = identifySuperCells(superCellIds, 2, false);
-            IntObjectMap<IntHashSet> superSuperCellsToBaseCells = new IntObjectHashMap<>();
-            for (IntObjectCursor<IntHashSet> superSuperCell : superSuperCells) {
-                IntHashSet newSuperCell = new IntHashSet();
-                for (IntCursor cell : superSuperCell.value)
-                    newSuperCell.addAll(superCells.get(cell.value));
-                superSuperCellsToBaseCells.put(superSuperCell.key, newSuperCell);
-            }
-            superSuperCellsToBaseCells.putAll(superCells);
+            IntObjectMap<IntHashSet> superSuperCells = identifySuperCells(new IntHashSet(superCells.keys()), SUPER_SUPER_CELL_HIERARCHY_LEVEL, false);
+
+            IntObjectMap<IntHashSet> superCellsToBaseCells = getBaseCellsOfSuperSuperCells(superSuperCells, superCells);
+            superCellsToBaseCells.putAll(superCells);
             superCells.putAll(superSuperCells);
 
-            //Calculate the concave hull for all super(super)cells
-            for (IntObjectCursor<IntHashSet> superCell : superSuperCellsToBaseCells) {
-
+            //Calculate the concave hull for all super cells and super super cells
+            for (IntObjectCursor<IntHashSet> superCell : superCellsToBaseCells) {
                 List<Coordinate> superCellCoordinates = createSuperCellCoordinates(superCell.value);
-
                 LineString ring = createContour(superCellCoordinates);
                 if (ring == null || ring.getNumPoints() < 2) {
                     cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(), new ArrayList<>());
                     continue;
                 }
-
                 expandAndSaveContour(superCell.key, ring);
             }
         }
         return superCells;
     }
 
+    /**
+     * From the superCells Map get all the base cells for each super super cell
+     *
+     * @param superSuperCells the super super cells for which to get the base cells
+     * @param superCells      the mapping of super cells to base cells
+     * @return mapping of super super cells to base cells
+     */
+    private IntObjectMap<IntHashSet> getBaseCellsOfSuperSuperCells(IntObjectMap<IntHashSet> superSuperCells, IntObjectMap<IntHashSet> superCells) {
+        IntObjectMap<IntHashSet> baseCellsOfSuperSuperCells = new IntObjectHashMap<>();
+        for (IntObjectCursor<IntHashSet> superSuperCell : superSuperCells) {
+            IntHashSet newSuperCell = new IntHashSet();
+            for (IntCursor cell : superSuperCell.value)
+                newSuperCell.addAll(superCells.get(cell.value));
+            baseCellsOfSuperSuperCells.put(superSuperCell.key, newSuperCell);
+        }
+        return baseCellsOfSuperSuperCells;
+    }
+
+    /**
+     * For a super cell: get the base cell coordinates from storage.
+     * Create a sorted list of coordinates
+     *
+     * @param superCell super cell for which to create the coordinates
+     * @return list of contour coordinates of base cells
+     */
     private List<Coordinate> createSuperCellCoordinates(IntHashSet superCell) {
         List<Coordinate> superCellCoordinates = new ArrayList<>(superCell.size() * 10);
         for (IntCursor subcell : superCell) {
@@ -158,32 +183,37 @@ public class Contour {
         double defaultSearchWidth = 0.0008;
         double defaulPointWidth = 0.005;
 
-        List<Coordinate> points = new ArrayList<>(1 / 20 * coordinates.size());
+        List<Coordinate> points = new ArrayList<>((int)(1 / 20.0 * coordinates.size()));
         PointItemVisitor visitor = new PointItemVisitor(0, 0, defaultVisitorThreshold);
         Quadtree qtree = new Quadtree();
         Envelope searchEnv = new Envelope();
         TreeSet<Coordinate> treeSet = new TreeSet<>();
 
-        while (j < coordinates.size()) {
-            double latitude = coordinates.get(j).y;
-            double longitude = coordinates.get(j).x;
-            j++;
-            addPoint(visitor, points, qtree, searchEnv, treeSet, longitude, latitude, defaultSearchWidth, defaulPointWidth, true);
-        }
+        for (Coordinate coordinate : coordinates)
+            addPoint(visitor, points, qtree, searchEnv, treeSet, coordinate.x, coordinate.y, defaultSearchWidth, defaulPointWidth, true);
 
         GeometryFactory geomFactory = new GeometryFactory();
         int size = points.size();
         Geometry[] geometries = new Geometry[size];
         int g = 0;
-        for (int i = 0; i < size; i++)
-            geometries[g++] = geomFactory.createPoint(points.get(i));
+        for (Coordinate point : points)
+            geometries[g++] = geomFactory.createPoint(point);
         GeometryCollection treePoints = new GeometryCollection(geometries, geomFactory);
 
         ConcaveHull ch = new ConcaveHull(treePoints, CONCAVE_HULL_THRESHOLD, false);
         return ch.getConcaveHull();
     }
 
-    private Boolean addPoint(PointItemVisitor visitor, List<Coordinate> points, Quadtree tree, Envelope searchEnv, Set<Coordinate> treeSet, double lon, double lat, double searchWidth, double pointWidth, boolean checkNeighbours) {
+    private Boolean addPoint(PointItemVisitor visitor,
+                             List<Coordinate> points,
+                             Quadtree tree,
+                             Envelope searchEnv,
+                             Set<Coordinate> treeSet,
+                             double lon,
+                             double lat,
+                             double searchWidth,
+                             double pointWidth,
+                             boolean checkNeighbours) {
         if (checkNeighbours) {
             visitor.setPoint(lon, lat);
             searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
@@ -215,14 +245,24 @@ public class Contour {
         return false;
     }
 
+    /**
+     * Find the supercells of base cells.
+     * For a given cellId, find cells that are connected to it via cellId bitshifting
+     * E.g. cells 100 and 101 are subcells of cell 10
+     *
+     * @param cellIds        cellIds whose super cells should be found
+     * @param hierarchyLevel how many bits should be pruned from the id to find a supercell. Influences size of super cell
+     * @param isPrimary      Whether super cells are found for base cells or for existing super cells
+     * @return a map of supercellId to base cell ids
+     */
     private IntObjectMap<IntHashSet> identifySuperCells(IntSet cellIds, int hierarchyLevel, boolean isPrimary) {
         //Account for the subcell division in InertialFlow final step
         int maxId = createMaxId(cellIds);
 
         IntHashSet visitedCells = new IntHashSet();
         IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
-        List<Integer> orderedCellIds = Arrays.stream(cellIds.toArray()).boxed().collect(Collectors.toList());
-        Collections.sort(orderedCellIds);
+        //Sorting the ids creates better supercells as close Ids are also geographically closer
+        List<Integer> orderedCellIds = Arrays.stream(cellIds.toArray()).boxed().sorted().collect(Collectors.toList());
         for (int cellId : orderedCellIds) {
             if (visitedCells.contains(cellId))
                 continue;
@@ -231,7 +271,7 @@ public class Contour {
                 continue;
 
             int motherId = cellId >> hierarchyLevel;
-            //This cell is too high up in the hierarchy
+            //This cell is too high up in the hierarchy, so we need to adapt the hierarchy level and id
             while (motherId == 0) {
                 hierarchyLevel -= 1;
                 motherId = cellId >> hierarchyLevel;
@@ -239,7 +279,7 @@ public class Contour {
 
             IntHashSet superCell = new IntHashSet();
 
-            createSuperCell(cellIds, visitedCells, superCell, maxId, motherId, hierarchyLevel, isPrimary);
+            createSuperCell(cellIds, visitedCells, superCell, maxId, motherId, isPrimary);
             for (IntCursor cell : superCell)
                 visitedCells.add(cell.value);
             if (superCell.size() > 0)
@@ -256,42 +296,62 @@ public class Contour {
         return maxId;
     }
 
+    /**
+     * Check whether a base cell is valid. It is valid if no cells were disconnected from it and if it is no disconnected cell itself
+     *
+     * @param cellIds All existing cellIds
+     * @param cellId  the cellId to check
+     * @return isValid
+     */
     private boolean isValidBaseCell(IntSet cellIds, int cellId) {
         //Check if it is part of a separated cell: Has daughter?
         if (cellIds.contains(cellId << 1))
             return false;
+        return !isDisconnectedCell(cellIds, cellId);
+    }
+
+    private boolean isDisconnectedCell(IntSet cellIds, int cellId) {
         //If it has sister, check if their combined size is smaller than minimum cell size -> disconnected
-        return !(cellIds.contains(cellId ^ 1) && cellStorage.getNodesOfCell(cellId).size()
+        return (cellIds.contains(cellId ^ 1) && cellStorage.getNodesOfCell(cellId).size()
                 + cellStorage.getNodesOfCell(cellId ^ 1).size()
                 < getMaxCellNodesNumber());
     }
 
-    private void createSuperCell(IntSet cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, int level, boolean isPrimary) {
+    /**
+     * Recursively iterate over cellIds to collect all cells that belong to a super cell id
+     *
+     * @param cellIds      all cellIds
+     * @param visitedCells cellIds that have already been added to a supercell
+     * @param superCell    the super cell to which other cell ids are added
+     * @param maxId        maximum possible search id
+     * @param currentCell  the cell currently examined
+     * @param isPrimary    true if super cell is built from base cells
+     */
+    private void createSuperCell(IntSet cellIds, IntHashSet visitedCells, IntHashSet superCell, int maxId, int currentCell, boolean isPrimary) {
         if (currentCell > maxId)
             return;
-        //Is it already part of a supercell?
+        //Cells should be only part of one supercell
         if (visitedCells.contains(currentCell))
             return;
         if (isPrimary) {
-            //Is a disconnected cell?
-            if (cellIds.contains(currentCell) && cellIds.contains(currentCell << 1))
-                return;
-            //If it has sister, check if their combined size is smaller than minimum cell size -> disconnected
-            if (cellIds.contains(currentCell ^ 1) && cellIds.contains(currentCell)
-                    && cellStorage.getNodesOfCell(currentCell).size()
-                    + cellStorage.getNodesOfCell(currentCell ^ 1).size()
-                    < getMaxCellNodesNumber())
+            if (cellIds.contains(currentCell) && !isValidBaseCell(cellIds, currentCell))
                 return;
         }
 
         if (!cellIds.contains(currentCell)) {
-            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1, level, isPrimary);
-            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1 | 1, level, isPrimary);
+            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1, isPrimary);
+            createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1 | 1, isPrimary);
         } else {
             superCell.add(currentCell);
         }
     }
 
+    /**
+     * Get all coordinates of nodes and edges in a cell
+     *
+     * @param cellId the cell id
+     * @return list of coordinates that represent all edges and nodes in the cell
+     */
     private List<Coordinate> createCoordinates(int cellId) {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
@@ -313,7 +373,6 @@ public class Contour {
                 if (visitedEdges.contains(iter.getEdge()))
                     continue;
                 visitedEdges.add(iter.getEdge());
-                //Add all base nodes + geometry of edge
                 addLatLon(iter.fetchWayGeometry(0), coordinates);
             }
         }
@@ -334,6 +393,13 @@ public class Contour {
         }
     }
 
+    /**
+     * Fill the edges of the polygon representing the contour so that even long straights are represented by regular points.
+     * If these long edges were not split, it would lead to "holes" in the edge that can be misinterpreted when building the overall isochrone from multiple contours
+     *
+     * @param cellId cellId of the contour
+     * @param ring   LineString representing the contour in order
+     */
     private void expandAndSaveContour(int cellId, LineString ring) {
         List<Double> hullLatitudes = new ArrayList<>(ring.getNumPoints());
         List<Double> hullLongitudes = new ArrayList<>(ring.getNumPoints());
@@ -359,8 +425,15 @@ public class Contour {
         return this;
     }
 
-    /*
-     splits a distance between two coordinates if theyre above a certain limit
+    /**
+     * Splits a line between two points of the distance is longer than a limit
+     *
+     * @param point0     point0 of line
+     * @param point1     point1 of line
+     * @param latitudes  latitudes to which the new coordinates are added
+     * @param longitudes longitudes to which th enew coordinates are added
+     * @param minlim     limit above which the edge will be split (in meters)
+     * @param maxlim     limit above which the edge will NOT be split anymore (in meters)
      */
     private void splitEdge(Point point0, Point point1, List<Double> latitudes, List<Double> longitudes, double minlim, double maxlim) {
         double lat0 = point0.getY();

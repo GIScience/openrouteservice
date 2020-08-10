@@ -1,7 +1,6 @@
 package org.heigit.ors.fastisochrones;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
@@ -35,8 +34,7 @@ public abstract class AbstractEccentricity {
         if (eccentricityStorages.isEmpty())
             return null;
         for (EccentricityStorage ecc : eccentricityStorages) {
-            if (ecc.getWeighting().getName() != null && ecc.getWeighting().getName().equals(weighting.getName())
-                    && ecc.getWeighting().getFlagEncoder().toString() != null && ecc.getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
+            if (ecc.hasWeighting(weighting))
                 return ecc;
         }
         return null;
@@ -46,8 +44,7 @@ public abstract class AbstractEccentricity {
         if (borderNodeDistanceStorages.isEmpty())
             return null;
         for (BorderNodeDistanceStorage bnds : borderNodeDistanceStorages) {
-            if (bnds.getWeighting().getName() != null && bnds.getWeighting().getName().equals(weighting.getName())
-                    && bnds.getWeighting().getFlagEncoder().toString() != null && bnds.getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
+            if (bnds.hasWeighting(weighting))
                 return bnds;
         }
         return null;
@@ -64,7 +61,7 @@ public abstract class AbstractEccentricity {
         return eccentricityStorage.loadExisting();
     }
 
-    public boolean isAvailable(Weighting weighting){
+    public boolean isAvailable(Weighting weighting) {
         return getEccentricityStorage(weighting) != null;
     }
 }

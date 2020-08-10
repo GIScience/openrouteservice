@@ -19,6 +19,7 @@ package org.heigit.ors.fastisochrones.partitioning.storage;
 
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
@@ -130,7 +131,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      */
     public int getEccentricity(int node) {
         long index = borderNodeToPointerMap.get(node);
-        if(index == 0)
+        if (index == 0)
             throw new IllegalArgumentException("Requested node is not a border node");
         return eccentricities.getInt(index + eccentricityPosition);
     }
@@ -218,5 +219,14 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
      */
     public Weighting getWeighting() {
         return weighting;
+    }
+
+    public boolean hasWeighting(Weighting weighting) {
+        if (getWeighting().getName() != null
+                && getWeighting().getName().equals(weighting.getName())
+                && getWeighting().getFlagEncoder().toString() != null
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
+            return true;
+        return false;
     }
 }
