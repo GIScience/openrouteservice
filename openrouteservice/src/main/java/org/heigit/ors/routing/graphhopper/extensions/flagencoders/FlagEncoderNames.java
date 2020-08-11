@@ -4,9 +4,8 @@ public class FlagEncoderNames {
     public static final String CAR_ORS          = "car-ors";
     public static final String HEAVYVEHICLE     = "heavyvehicle";
     public static final String EMERGENCY        = "emergency";
-    // MARQ24 NO eVEHICLE FlagEncoder implemented yet!!!
-    public static final String EVEHICLE         = "evehicle";       // NOT IN USE!
-    public static final String RUNNING          = "running";        // NOT IN USE!
+    public static final String EVEHICLE         = "evehicle";       // NOT IMPLEMENTED
+    public static final String RUNNING          = "running";        // NOT IMPLEMENTED
 
     public static final String WHEELCHAIR       = "wheelchair";
 
@@ -28,8 +27,6 @@ public class FlagEncoderNames {
     public static final String GH_MTB           = "mtb";
     public static final String GH_BIKE          = "bike";
     public static final String GH_BIKE2         = "bike2";
-    public static final String GH_GENERIC       = "generic";
-    public static final String GH_PT            = "pt";
 
     private FlagEncoderNames() {}
 }
