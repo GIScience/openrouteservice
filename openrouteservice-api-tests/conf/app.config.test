@@ -207,6 +207,7 @@
                           enabled: true,
                           threads: 12,
                           weightings: "recommended, shortest",
+                          maxcellnodes: 5000
                         }
                     }
                 }
