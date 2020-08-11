@@ -19,7 +19,6 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -46,7 +45,6 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
@@ -175,7 +173,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                     edgeFilterSequence);
             //Account for snapping distance
             double isolimit = parameters.getRanges()[i] - weighting.getMinWeight(res.getQueryDistance());
-            if(isolimit <= 0)
+            if (isolimit <= 0)
                 throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
             fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
 
@@ -254,9 +252,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Separate disconnected: " + swActiveCellSeparate.stop().getSeconds());
                 LOGGER.debug("Build active cells: " + swActiveCellBuild.stop().getSeconds());
-            }
-
-            if (LOGGER.isDebugEnabled()) {
                 swActiveCell = new StopWatch();
                 swActiveCell.start();
             }

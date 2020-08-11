@@ -670,7 +670,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 				for (CHProfile chProfile : chProfiles) {
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-						calculateCellProperties(chProfile.getWeighting(), encoder, TraversalMode.NODE_BASED, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+						calculateCellProperties(chProfile.getWeighting(), encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 					}
 				}
 			}
@@ -794,9 +794,7 @@ public class ORSGraphHopper extends GraphHopper {
 		return false;
 	}
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-		if(eccentricity ==  null)
-			return false;
-		if(eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType)))
+		if(eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType)))
 		    return true;
 		return false;
 	}
@@ -805,24 +803,12 @@ public class ORSGraphHopper extends GraphHopper {
 	/**
 	 * Partitioning
 	 */
-
-	public GraphHopper setPartitionEnabled(boolean enable) {
-		ensureNotLoaded();
-		fastIsochroneFactory.setEnabled(enable);
-		return this;
-	}
-
-	public final boolean isPartitionEnabled() {
-		return fastIsochroneFactory.isEnabled();
-	}
-
 	public final FastIsochroneFactory getFastIsochroneFactory() {
 		return fastIsochroneFactory;
 	}
 
 	protected void preparePartition() {
-		boolean tmpPrepare = fastIsochroneFactory.isEnabled();
-		if (tmpPrepare) {
+		if (fastIsochroneFactory.isEnabled()) {
 			ensureWriteAccess();
 
 			getGraphHopperStorage().freeze();
@@ -833,7 +819,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private boolean isPartitionPrepared() {
 		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.FastIsochrone.PREPARE + "done"));
-
 	}
 
 	private void calculateContours(){
@@ -843,21 +828,16 @@ public class ORSGraphHopper extends GraphHopper {
 		contour.calculateContour();
 	}
 
-	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, TraversalMode traversalMode, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
-		Eccentricity ecc = this.eccentricity;
-		if (ecc == null)
-			ecc = new Eccentricity(getGraphHopperStorage(), getLocationIndex(), isochroneNodeStorage, cellStorage);
-		if(!ecc.loadExisting(weighting)) {
-			ecc.calcEccentricities(weighting, flagEncoder);
-			ecc.calcBorderNodeDistances(weighting, flagEncoder);
+	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+		if (eccentricity == null)
+			eccentricity = new Eccentricity(getGraphHopperStorage(), getLocationIndex(), isochroneNodeStorage, cellStorage);
+		if(!eccentricity.loadExisting(weighting)) {
+			eccentricity.calcEccentricities(weighting, flagEncoder);
+			eccentricity.calcBorderNodeDistances(weighting, flagEncoder);
 		}
-
-		this.eccentricity = ecc;
 	}
 
-
-
 	public Eccentricity getEccentricity(){
-		return this.eccentricity;
+		return eccentricity;
 	}
 }
