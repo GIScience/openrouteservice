@@ -28,7 +28,8 @@ public class WheelchairWayFilter implements OSMFeatureFilter {
             } else if (osmPedestrianProcessor.isPedestrianisedWay(way)) {
                 this.osmWay = new WheelchairSeparateWay(way);
             } else {
-                this.osmWay = new NonPedestrianWay();
+                // this.osmWay = new NonPedestrianWay();
+                this.osmWay = new WheelchairSeparateWay(way);
             }
         } else {
             throw new InvalidObjectException("Wheelchair Filtering can only be applied to ways");
