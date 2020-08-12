@@ -45,17 +45,15 @@ import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidBordersEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -585,7 +583,7 @@ public class ORSGraphHopper extends GraphHopper {
 		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
 		/* Heavy vehicle filter */
 
-		if (encodingManager.hasEncoder("heavyvehicle")) {
+		if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
 
@@ -608,12 +606,12 @@ public class ORSGraphHopper extends GraphHopper {
 		/* Maximum Speed Filter */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
 			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder("heavyvehicle")) {
-				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
+			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
+				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
-			else if(encodingManager.hasEncoder("car-ors")) {
-				flagEncoder = getEncodingManager().getEncoder("car-ors");
+			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
+				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
 		}
