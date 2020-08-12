@@ -62,10 +62,9 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -466,9 +465,12 @@ public class ORSGraphHopper extends GraphHopper {
 	private void checkAvoidBorders(GraphProcessContext processContext, GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
 		ORSPMap params = (ORSPMap)request.getAdditionalHints();
+		if (params == null) {
+			params = new ORSPMap();
+		}
 		boolean isRouteable = true;
 
-			if (params.hasObj("avoid_borders")) {
+		if (params.hasObj("avoid_borders")) {
 				RouteSearchParameters routeSearchParameters = (RouteSearchParameters) params.getObj("avoid_borders");
 				//Avoiding All borders
 				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.ALL) {
@@ -594,7 +596,7 @@ public class ORSGraphHopper extends GraphHopper {
 		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
 		/* Heavy vehicle filter */
 
-		if (encodingManager.hasEncoder("heavyvehicle")) {
+		if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
 			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
 		}
 
@@ -617,12 +619,12 @@ public class ORSGraphHopper extends GraphHopper {
 		/* Maximum Speed Filter */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
 			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder("heavyvehicle")) {
-				flagEncoder = getEncodingManager().getEncoder("heavyvehicle");
+			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
+				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
-			else if(encodingManager.hasEncoder("car-ors")) {
-				flagEncoder = getEncodingManager().getEncoder("car-ors");
+			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
+				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
 		}
