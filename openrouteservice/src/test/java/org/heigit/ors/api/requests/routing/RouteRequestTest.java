@@ -21,13 +21,18 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.rules.ExpectedException;
 
 public class RouteRequestTest {
     RouteRequest request;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup() throws ParameterValueException {
@@ -130,10 +135,25 @@ public class RouteRequestTest {
     }
 
     @Test
-    public void testHasUserWeights() {
+    public void testHasUserWeights() throws ParameterValueException {
       JSONObject wc = new JSONObject();
       Assert.assertFalse(request.hasUserWeights());
       request.setUserWeights(wc);
       Assert.assertTrue(request.hasUserWeights());
+    }
+
+    @Test
+    public void testSetLargeUserWeights() throws ParameterValueException {
+        JSONObject wc = new JSONObject();
+        StringBuilder foo = new StringBuilder(50*100000); // this string should have a size of 2*50*100,000 (~9.5 MiB)
+        for (int i = 0; i < 100000; i++) {
+            foo.append("fooooooooooooooooooooooooooooooooooooooooooooooooo"); // 50 characters
+        }
+        for (int i = 0; i < 2; i++) {
+          wc.put("foo" + i, foo);
+        }
+        thrown.expect(ParameterValueException.class);
+        thrown.expectMessage("Parameter value too large.");
+        request.setUserWeights(wc);
     }
 }

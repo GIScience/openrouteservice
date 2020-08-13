@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
+import javax.validation.constraints.Size;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.RoutingErrorCodes;
@@ -60,6 +61,8 @@ public class RouteRequest {
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
     public static final String PARAM_USER_WEIGHTS = "user_weights";
+
+    public static final long MAX_LENGTH_USER_WEIGHTS = 5242880; // 10 * 2^20 / 2 (10 MiB) (assuming 1 Character = 2 Byte)
 
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -537,7 +540,10 @@ public class RouteRequest {
         return userWeights;
     }
 
-    public void setUserWeights(JSONObject userWeights) {
+    public void setUserWeights(JSONObject userWeights) throws ParameterValueException {
+        if (userWeights.toJSONString().length() > MAX_LENGTH_USER_WEIGHTS) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_USER_WEIGHTS, "-not displayed-", "Parameter value too large.");
+        }
         this.userWeights = userWeights;
         hasUserWeights = true;
     }
