@@ -1,11 +1,13 @@
 package org.heigit.ors.weightaugmentation;
 
 import java.util.HashMap;
+import org.heigit.ors.exceptions.AugmentationStorageException;
 
 /**
  * This class stores augmentations. It consists of a HashMap storing internal edge ids and their weight factor.
  */
 public class AugmentationStorage {
+  public static final int MAX_AUGMENTATIONS = 50000;
   private final HashMap<Integer, Double> augmentations;
 
   /**
@@ -20,8 +22,11 @@ public class AugmentationStorage {
    * @param edge internal edge id
    * @param weight weight factor
    */
-  public void applyAugmentation(int edge, double weight) {
+  public void applyAugmentation(int edge, double weight) throws AugmentationStorageException {
     augmentations.put(edge, this.get(edge) * weight);
+    if (augmentations.size() > MAX_AUGMENTATIONS) {
+      throw new AugmentationStorageException(String.format("Augmentations exceeded the maximum number of edges: %s > %s", augmentations.size(), MAX_AUGMENTATIONS));
+    }
   }
 
   /**

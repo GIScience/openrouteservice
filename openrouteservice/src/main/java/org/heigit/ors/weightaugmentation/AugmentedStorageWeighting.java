@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.heigit.ors.exceptions.AugmentationStorageException;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.mapmatching.point.PointMatcher;
@@ -41,7 +42,7 @@ public class AugmentedStorageWeighting implements Weighting {
    * @param stepSize custom step size for generating the node search grid
    * @param searchRadius custom search radius for the node search
    */
-  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper, double stepSize, double searchRadius) {
+  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper, double stepSize, double searchRadius) throws AugmentationStorageException {
     ORSPMap params = (ORSPMap) additionalHints;
     this.superWeighting = weighting;
     this.augmentationStorage = new AugmentationStorage();
@@ -68,11 +69,12 @@ public class AugmentedStorageWeighting implements Weighting {
   /**
    * Overload of the {@link #AugmentedStorageWeighting(PMap, Weighting, GraphHopper, double, double)} with a default {@code stepSize} and {@code searchRadius}.
    */
-  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) {
+  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) throws AugmentationStorageException {
     this(additionalHints, weighting, graphHopper, -1, -1);
   }
 
-  private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights) {
+  private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights)
+      throws AugmentationStorageException {
     for (AugmentedWeight augmentedWeight: augmentedWeights) {
       Set<Integer> edges = getMatchedEdges(augmentedWeight.getGeometry());
       minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());

@@ -39,8 +39,12 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.exceptions.AugmentationStorageException;
+import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
@@ -384,7 +388,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 			return altPaths;
 
-		} catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException | AugmentationStorageException ex) {
 			ghRsp.addError(ex);
 			return Collections.emptyList();
 		} finally {

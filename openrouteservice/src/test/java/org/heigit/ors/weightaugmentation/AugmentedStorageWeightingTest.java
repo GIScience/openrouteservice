@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.heigit.ors.exceptions.AugmentationStorageException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
@@ -164,7 +165,7 @@ public class AugmentedStorageWeightingTest {
   }
 
   @Before
-  public void setUp() throws ParameterValueException {
+  public void setUp() throws ParameterValueException, AugmentationStorageException {
     graphHopper = new ORSGraphHopper();
     graphHopper.setCHEnabled(false);
     graphHopper.setCoreEnabled(false);
@@ -250,7 +251,7 @@ public class AugmentedStorageWeightingTest {
   }
 
   @Test
-  public void unsupportedGeometry() throws ParameterValueException {
+  public void unsupportedGeometry() throws ParameterValueException, AugmentationStorageException {
     LinearRing linearRing = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.5,2.5},{4.5,4.5},{5.5,4.5},{5.5,2.5},{4.5,2.5}}));
     List<AugmentedWeight> augmentedWeights = new ArrayList<>();
     augmentedWeights.add(new AugmentedWeight(linearRing, 0.85));
