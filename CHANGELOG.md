@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 - New fast isochrone algorithm based on preprocessed data
+### Fixed
+### Changed
+### Deprecated
+
+## [6.2.1] - 2020-08-13
+### Added
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
 ### Fixed
 - Updated Docker process to use Java 11 ([#777](https://github.com/GIScience/openrouteservice/issues/777))
