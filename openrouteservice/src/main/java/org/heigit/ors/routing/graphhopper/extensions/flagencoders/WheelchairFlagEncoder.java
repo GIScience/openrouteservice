@@ -470,6 +470,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+
         if (access.canSkip())
             return edgeFlags;
 
@@ -524,6 +525,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
             if (speed > 10d)
                 speed = 10d;
+
+            if (speed < 1d)
+                speed = 1d;
 
             // *****************************************
         	
