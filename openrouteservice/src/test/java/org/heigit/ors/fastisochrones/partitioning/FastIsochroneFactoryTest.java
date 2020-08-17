@@ -8,6 +8,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -15,6 +16,11 @@ import static org.junit.Assert.*;
 public class FastIsochroneFactoryTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
+
+    @Before
+    public void setUp() {
+        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+    }
 
     GraphHopperStorage createGHStorage() {
         return new GraphBuilder(encodingManager).create();
