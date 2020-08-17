@@ -64,7 +64,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
 import org.heigit.ors.weightaugmentation.AugmentedStorageWeighting;
-import org.heigit.ors.weightaugmentation.AugmentedWeighting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
