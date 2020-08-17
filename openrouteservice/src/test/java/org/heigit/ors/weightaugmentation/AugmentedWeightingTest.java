@@ -35,9 +35,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class AugmentedStorageWeightingTest {
+public class AugmentedWeightingTest {
   private final GeometryFactory geometryFactory = new GeometryFactory();
-  private AugmentedStorageWeighting augmentedStorageWeighting;
+  private AugmentedWeighting augmentedWeighting;
   private final CarFlagEncoder carEncoder = new CarFlagEncoder();
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
   private ORSGraphHopper graphHopper;
@@ -177,7 +177,7 @@ public class AugmentedStorageWeightingTest {
     additionalHints = new ORSPMap();
     additionalHints.putObj("user_weights", createAugmentedWeightList());
 
-    augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper, .1, 1000);
+    augmentedWeighting = new AugmentedWeighting(additionalHints, superWeighting, graphHopper, .1, 1000);
   }
 
   @Rule
@@ -188,7 +188,7 @@ public class AugmentedStorageWeightingTest {
     AllEdgesIterator allEdges = graphHopper.getGraphHopperStorage().getAllEdges();
     Map<Integer, Double> actualAugmentations = new HashMap<>();
     while (allEdges.next()) {
-      double weight = augmentedStorageWeighting.getAugmentations(allEdges);
+      double weight = augmentedWeighting.getAugmentations(allEdges);
       actualAugmentations.put(allEdges.getEdge(), weight);
     }
 
@@ -201,7 +201,7 @@ public class AugmentedStorageWeightingTest {
     Map<Integer, Double> actualWeights = new HashMap<>();
     Map<Integer, Double> expectedWeights = new HashMap<>();
     while (allEdges.next()) {
-      double weight = augmentedStorageWeighting.calcWeight(allEdges, true, 0);
+      double weight = augmentedWeighting.calcWeight(allEdges, true, 0);
       actualWeights.put(allEdges.getEdge(), weight);
       expectedWeights.put(allEdges.getEdge(), expectedAugmentations.get(allEdges.getEdge()) * superWeighting.calcWeight(allEdges, true, 0));
     }
@@ -214,7 +214,7 @@ public class AugmentedStorageWeightingTest {
     Map<Integer, Long> actualMillis = new HashMap<>();
     Map<Integer, Long> expectedMillis = new HashMap<>();
     while (allEdges.next()) {
-      long millis = augmentedStorageWeighting.calcMillis(allEdges, true, 0);
+      long millis = augmentedWeighting.calcMillis(allEdges, true, 0);
       actualMillis.put(allEdges.getEdge(), millis);
       expectedMillis.put(allEdges.getEdge(), (long) (expectedAugmentations.get(allEdges.getEdge()) * (double) superWeighting.calcMillis(allEdges, true, 0)));
     }
@@ -225,29 +225,29 @@ public class AugmentedStorageWeightingTest {
   public void getMinWeight() {
     double distance = 3.5;
     double expectedMinWeight = superWeighting.getMinWeight(distance) * 0.75;
-    double actualMinWeight = augmentedStorageWeighting.getMinWeight(distance);
+    double actualMinWeight = augmentedWeighting.getMinWeight(distance);
     Assert.assertEquals(expectedMinWeight, actualMinWeight, 0.0);
   }
 
   @Test
   public void getFlagEncoder() {
-    Assert.assertEquals(superWeighting.getFlagEncoder(), augmentedStorageWeighting.getFlagEncoder());
+    Assert.assertEquals(superWeighting.getFlagEncoder(), augmentedWeighting.getFlagEncoder());
   }
 
   @Test
   public void matches() {
     HintsMap hintsMap = new HintsMap();
-    Assert.assertEquals(superWeighting.matches(hintsMap), augmentedStorageWeighting.matches(hintsMap));
+    Assert.assertEquals(superWeighting.matches(hintsMap), augmentedWeighting.matches(hintsMap));
   }
 
   @Test
   public void testToString() {
-    Assert.assertEquals("augmented|" + superWeighting.toString(), augmentedStorageWeighting.toString());
+    Assert.assertEquals("augmented|" + superWeighting.toString(), augmentedWeighting.toString());
   }
 
   @Test
   public void getName() {
-    Assert.assertEquals("augmented|" + superWeighting.getName(), augmentedStorageWeighting.getName());
+    Assert.assertEquals("augmented|" + superWeighting.getName(), augmentedWeighting.getName());
   }
 
   @Test
@@ -259,6 +259,6 @@ public class AugmentedStorageWeightingTest {
 
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("AugmentationStorage is not implemented for LinearRing");
-    augmentedStorageWeighting = new AugmentedStorageWeighting(additionalHints, superWeighting, graphHopper);
+    augmentedWeighting = new AugmentedWeighting(additionalHints, superWeighting, graphHopper);
   }
 }

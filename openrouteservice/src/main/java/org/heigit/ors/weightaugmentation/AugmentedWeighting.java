@@ -26,7 +26,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 /**
  * Weighting method using the {@link AugmentationStorage} that is created first and then used altering given weights of {@link #superWeighting}.
  */
-public class AugmentedStorageWeighting implements Weighting {
+public class AugmentedWeighting implements Weighting {
   private final Weighting superWeighting;
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
@@ -42,7 +42,7 @@ public class AugmentedStorageWeighting implements Weighting {
    * @param stepSize custom step size for generating the node search grid
    * @param searchRadius custom search radius for the node search
    */
-  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper, double stepSize, double searchRadius) throws AugmentationStorageException {
+  public AugmentedWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper, double stepSize, double searchRadius) throws AugmentationStorageException {
     ORSPMap params = (ORSPMap) additionalHints;
     this.superWeighting = weighting;
     this.augmentationStorage = new AugmentationStorage();
@@ -67,9 +67,9 @@ public class AugmentedStorageWeighting implements Weighting {
   }
 
   /**
-   * Overload of the {@link #AugmentedStorageWeighting(PMap, Weighting, GraphHopper, double, double)} with a default {@code stepSize} and {@code searchRadius}.
+   * Overload of the {@link #AugmentedWeighting(PMap, Weighting, GraphHopper, double, double)} with a default {@code stepSize} and {@code searchRadius}.
    */
-  public AugmentedStorageWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) throws AugmentationStorageException {
+  public AugmentedWeighting(PMap additionalHints, Weighting weighting, GraphHopper graphHopper) throws AugmentationStorageException {
     this(additionalHints, weighting, graphHopper, -1, -1);
   }
 
