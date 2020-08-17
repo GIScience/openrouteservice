@@ -21,9 +21,9 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 

@@ -22,8 +22,8 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceSet;
-import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.CORERANGEDIJKSTRA;

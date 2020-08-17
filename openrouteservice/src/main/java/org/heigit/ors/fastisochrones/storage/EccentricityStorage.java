@@ -15,18 +15,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.fastisochrones.partitioning.storage;
+package org.heigit.ors.fastisochrones.storage;
 
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
-import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.*;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
 /**
  * Stores eccentricities of cell border nodes for fast isochrones. Eccentricities are weighting dependent, therefore they are stored separately from cells.

@@ -3,9 +3,9 @@ package org.heigit.ors.fastisochrones;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.EccentricityStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import java.util.ArrayList;

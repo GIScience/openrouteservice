@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.isSupercellsEnabled;
-import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.byteArrayToLong;
-import static org.heigit.ors.fastisochrones.partitioning.storage.ByteConversion.longToByteArray;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToLong;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.longToByteArray;
 
 /**
  * Stores nodes ordered by cell and contours of cells.

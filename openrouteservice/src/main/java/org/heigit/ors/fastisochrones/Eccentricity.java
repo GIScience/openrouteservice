@@ -13,6 +13,9 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.LocationIndex;
 import org.heigit.ors.fastisochrones.partitioning.storage.*;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 

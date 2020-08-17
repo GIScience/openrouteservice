@@ -1,4 +1,4 @@
-package org.heigit.ors.fastisochrones.partitioning.storage;
+package org.heigit.ors.fastisochrones.storage;
 
 import java.nio.ByteBuffer;
 

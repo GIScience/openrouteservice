@@ -7,7 +7,7 @@ import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.BorderNodeDistanceSet;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.junit.Test;
