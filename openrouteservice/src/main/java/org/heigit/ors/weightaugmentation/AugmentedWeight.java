@@ -1,9 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import java.util.Objects;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -15,7 +13,6 @@ import org.heigit.ors.routing.RoutingErrorCodes;
 public class AugmentedWeight {
   private final Geometry geometry;
   private final double weight;
-  private final EdgeFilter edgeFilter;
   /** weight should not be 0.0 or lower */
   public static final double MIN_WEIGHT = 0.0;
   /** weight should not be higher than 2.0 */
@@ -34,7 +31,6 @@ public class AugmentedWeight {
     } else {
       throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, String.valueOf(weight), "Weight has to be between " + MIN_WEIGHT + " and " + MAX_WEIGHT + "!");
     }
-    this.edgeFilter = createEdgeFilter();
   }
 
   /**
@@ -49,23 +45,6 @@ public class AugmentedWeight {
    */
   public double getWeight() {
     return weight;
-  }
-
-  private EdgeFilter createEdgeFilter() {
-    if (geometry instanceof Polygon) {
-      return new PolygonEdgeFilter(new Polygon[]{(Polygon) geometry});
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Check if given edge applies to the {@link EdgeFilter}. Returns weight factor if yes.
-   * @param edge internal edge id
-   * @return weight factor or 1.0
-   */
-  public double getAugmentation(EdgeIteratorState edge) {
-    return edgeFilter.accept(edge) ? weight : 1.0;
   }
 
   /**
