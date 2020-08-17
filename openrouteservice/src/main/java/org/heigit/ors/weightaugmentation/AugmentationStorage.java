@@ -1,6 +1,6 @@
 package org.heigit.ors.weightaugmentation;
 
-import java.util.HashMap;
+import com.carrotsearch.hppc.IntDoubleHashMap;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 
 /**
@@ -8,13 +8,13 @@ import org.heigit.ors.exceptions.AugmentationStorageException;
  */
 public class AugmentationStorage {
   public static final int MAX_AUGMENTATIONS = 50000;
-  private final HashMap<Integer, Double> augmentations;
+  private final IntDoubleHashMap augmentations;
 
   /**
    * Initializes new storage.
    */
   AugmentationStorage() {
-    this.augmentations = new HashMap<>();
+    this.augmentations = new IntDoubleHashMap();
   }
 
   /**
