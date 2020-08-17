@@ -10,6 +10,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -73,6 +74,10 @@ public class AugmentationTest {
   }
 
 
+  /**
+   * This Test checks if the graph should actually be changed. In production the graph is only
+   * augmented via a separate store, not actually changed.
+   */
   @Test
   public void testPolygonChange() throws ParameterValueException {
     GraphHopperStorage actualGhs = createMediumGraph();
@@ -85,7 +90,21 @@ public class AugmentationTest {
 
     // apply augmentations
     for (AugmentedWeight augmentedWeight: weightAugmentations) {
-      augmentedWeight.applyAugmentationToAll(actualGhs);
+      EdgeExplorer edgeExplorer = actualGhs.createEdgeExplorer();
+      EdgeIterator edges;
+
+      HashSet<Integer> visitedEdges = new HashSet<>();
+      // inefficient, should only be used for testing purposes
+      for (int i = 0; i < actualGhs.getNodes(); i++) {
+        edges = edgeExplorer.setBaseNode(i);
+        while (edges.next()) {
+          if (visitedEdges.contains(edges.getEdge())) {
+            continue;
+          }
+          edges.setDistance(edges.getDistance() * augmentedWeight.getAugmentation(edges));
+          visitedEdges.add(edges.getEdge());
+        }
+      }
     }
 
     if (DebugUtility.isDebug()) {

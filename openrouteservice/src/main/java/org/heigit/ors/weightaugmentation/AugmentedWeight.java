@@ -1,17 +1,9 @@
 package org.heigit.ors.weightaugmentation;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import java.util.HashSet;
 import java.util.Objects;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -83,32 +75,6 @@ public class AugmentedWeight {
    */
   public boolean hasReducingWeight() {
     return weight < 1.0;
-  }
-
-
-  /**
-   * Applies augmentations to all edges in a {@link GraphHopperStorage}.
-   *
-   * @deprecated Use more efficient methods to apply augmentations. See {@link AugmentationStorage} for an example.
-   * @param ghs {@link GraphHopperStorage}
-   */
-  public void applyAugmentationToAll(GraphHopperStorage ghs) {
-    EdgeExplorer edgeExplorer = ghs.createEdgeExplorer();
-    EdgeIterator edges;
-
-    HashSet<Integer> visitedEdges = new HashSet<>();
-    // currently inefficient
-    for (int i = 0; i < ghs.getNodes(); i++) {
-      edges = edgeExplorer.setBaseNode(i);
-      while (edges.next()) {
-        if (visitedEdges.contains(edges.getEdge())) {
-          continue;
-        }
-        // should be replaced
-        edges.setDistance(edges.getDistance() * getAugmentation(edges));
-        visitedEdges.add(edges.getEdge());
-      }
-    }
   }
 
   /**
