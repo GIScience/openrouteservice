@@ -27,6 +27,9 @@ public class InertialFlow implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(InertialFlow.class);
     private static final int MIN_SPLITTING_ITERATION = 0;
     private static final int MAX_SPLITTING_ITERATION = 268435456; //==2^28
+    //Defines the number of disconnected cells a cell can be split into after the final InertialFlow step.
+    //Using an estimate of 10 as most cells are disconnected into 1 - 5 independent cells.
+    //If the value is too high and the graph has (e.g. by faulty data) many disconnected nodes, we do not want to create a separate cell for all of them
     private static final int MAX_SUBCELL_NUMBER = 10;
     private static final boolean SEPARATEDISCONNECTED = true;
     private static final int CONSIDERED_PROJECTIONS = 3;
@@ -51,7 +54,6 @@ public class InertialFlow implements Runnable {
 
         PartitioningData partitioningData = new PartitioningData();
         PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage.getBaseGraph(), partitioningData);
-        partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
         partitioningDataBuilder.run();
         setPartitioningData(partitioningData);
         projector.setGHStorage(ghStorage);
@@ -146,6 +148,8 @@ public class InertialFlow implements Runnable {
     /**
      * Recursively invoke InertialFlow for partitioning areas of the graph further.
      * Either invoke a further partition on both partitions or just one.
+     * This is a parallel computation. When the cells get too small, the overhead of creating new threads can be more costly
+     * than just running the remaining InertialFlows in serial in the same thread. That's why there is a check of the node size.
      *
      * @param invokeNext            which partitions to further divide
      * @param nodesPartition0       size of partition 0
@@ -153,35 +157,15 @@ public class InertialFlow implements Runnable {
      * @param biPartitionProjection reference to projection
      */
     private void recursion(boolean[] invokeNext, int nodesPartition0, int nodesPartition1, BiPartitionProjection biPartitionProjection) {
-        //Partition both areas
         int totalNodes = nodesPartition0 + nodesPartition1;
-        if (invokeNext[0] && invokeNext[1]) {
-            if (totalNodes > getMaxCellNodesNumber() * 4) {
-                executorService.execute(createInertialFlow(0, biPartitionProjection));
-                executorService.execute(createInertialFlow(1, biPartitionProjection));
-            } else {
-                InertialFlow inertialFlow0 = createInertialFlow(0, biPartitionProjection);
-                inertialFlow0.run();
-                InertialFlow inertialFlow1 = createInertialFlow(1, biPartitionProjection);
-                inertialFlow1.run();
-            }
-        }
-        //Partition only area 0
-        else if (invokeNext[0]) {
-            if (totalNodes > getMaxCellNodesNumber() * 4) {
-                executorService.execute(createInertialFlow(0, biPartitionProjection));
-            } else {
-                InertialFlow inertialFlow = createInertialFlow(0, biPartitionProjection);
-                inertialFlow.run();
-            }
-        }
-        //Partition only area 1
-        else if (invokeNext[1]) {
-            if (totalNodes > getMaxCellNodesNumber() * 4) {
-                executorService.execute(createInertialFlow(1, biPartitionProjection));
-            } else {
-                InertialFlow inertialFlow = createInertialFlow(1, biPartitionProjection);
-                inertialFlow.run();
+        for(int i : new int[]{0,1}) {
+            if (invokeNext[i]) {
+                if (totalNodes > getMaxCellNodesNumber() * 4) {
+                    executorService.execute(createInertialFlow(i, biPartitionProjection));
+                } else {
+                    InertialFlow inertialFlow = createInertialFlow(i, biPartitionProjection);
+                    inertialFlow.run();
+                }
             }
         }
     }

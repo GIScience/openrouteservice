@@ -12,6 +12,7 @@ import java.util.Arrays;
  */
 public class PartitioningData {
     //Edge data
+    //Edge ids are the same for forward and reverse edges, but we need different data for each, so each edgeId has an entry at x and x+1
     int[] flowEdgeBaseNode;
     boolean[] flow;
     //Node data
@@ -27,7 +28,7 @@ public class PartitioningData {
     }
 
     public void createEdgeDataStructures(int size) {
-        if (size < 1 || size > Integer.MAX_VALUE)
+        if (size < 1 || size > Integer.MAX_VALUE / 2)
             throw new IllegalArgumentException("Bad size.");
         flowEdgeBaseNode = new int[2 * size];
         flow = new boolean[2 * size];
@@ -43,9 +44,7 @@ public class PartitioningData {
     }
 
     public void createNodeDataStructures(int size) {
-        //size should be num of nodes. Each node has one dummy edge.
-        //There is data for every node + data for each source/sink node. 2 * numNodes means support for
-        //a minimum cell size of 2 nodes per cell, so plenty enough.
+
         if (size < 1 || size > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Bad size.");
         visited = new int[size];

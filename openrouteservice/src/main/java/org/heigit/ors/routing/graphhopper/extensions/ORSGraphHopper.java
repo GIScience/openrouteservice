@@ -55,7 +55,6 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorat
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidBordersEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;

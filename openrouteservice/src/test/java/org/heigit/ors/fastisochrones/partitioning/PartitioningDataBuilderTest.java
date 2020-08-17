@@ -48,7 +48,6 @@ public class PartitioningDataBuilderTest {
         PartitioningData pData = new PartitioningData();
         EdgeFilter edgeFilter = new EdgeFilterSequence();
         PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage.getBaseGraph(), pData);
-        partitioningDataBuilder.setAdditionalEdgeFilter(edgeFilter);
         partitioningDataBuilder.run();
         assertEquals(28, pData.flowEdgeBaseNode.length);
         assertEquals(28, pData.flow.length);
