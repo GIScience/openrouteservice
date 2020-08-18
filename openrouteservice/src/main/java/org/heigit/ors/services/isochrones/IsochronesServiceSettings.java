@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.services.isochrones;
 
+import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigObject;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.TravelRangeType;
@@ -43,6 +44,7 @@ public class IsochronesServiceSettings {
 	private static Map<String, StatisticsProviderConfiguration> statsProviders;
 	private static String attribution = "";
 	private static String weightings = "";
+	private static AppConfig config;
 
 	private IsochronesServiceSettings() {}
 
@@ -55,6 +57,7 @@ public class IsochronesServiceSettings {
 	public static final String KEY_ATTRIBUTION = "attribution";
 
 	static {
+		config = AppConfig.getGlobal();
 		String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);
@@ -148,6 +151,10 @@ public class IsochronesServiceSettings {
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, KEY_ATTRIBUTION);
 		if (value != null)
 			attribution = value;
+	}
+
+	public static void loadFromFile(String path) {
+		config = new AppConfig(path);
 	}
 
 	private static Map<Integer, Integer> getParameters(List<? extends ConfigObject> params) {
@@ -245,5 +252,29 @@ public class IsochronesServiceSettings {
 
 	public static String getAttribution() {
 		return attribution;
-	}	
+	}
+
+	public static String getParameter(String paramName)  {
+		return config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static String getParameter(String paramName, boolean notNull) throws Exception  {
+		String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
+		if (notNull && Helper.isEmpty(value))
+			throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
+
+		return value;
+	}
+
+	public static List<String> getParametersList(String paramName)  {
+		return config.getServiceParametersList(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static List<Double> getDoubleList(String paramName)  {
+		return config.getDoubleList(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static Map<String, Object> getParametersMap(String paramName, boolean quotedStrings) {
+		return config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, paramName, quotedStrings);
+	}
 }

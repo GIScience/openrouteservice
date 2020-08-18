@@ -255,6 +255,27 @@ public class RoutingProfile {
         args.put(KEY_PREPARE_LM_WEIGHTINGS, "no");
         args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
+        if (config.getIsochronePreparationOpts() != null) {
+            Config fastisochroneOpts = config.getIsochronePreparationOpts();
+            prepareFI = true;
+            if (fastisochroneOpts.hasPath(VAL_ENABLED) || fastisochroneOpts.getBoolean(VAL_ENABLED)) {
+                prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
+                if (!prepareFI)
+                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
+                else
+                    args.put(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
+            }
+
+            if (prepareFI) {
+                if (fastisochroneOpts.hasPath(KEY_THREADS))
+                    args.put("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
+                if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS))
+                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
+                if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
+                    args.put("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
+            }
+        }
+
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
             if (opts.hasPath("min_network_size"))
@@ -320,28 +341,6 @@ public class RoutingProfile {
                             args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
                         if (coreOpts.hasPath(KEY_LANDMARKS))
                             args.put("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
-                    }
-                }
-
-                if (opts.hasPath(KEY_METHODS_FASTISOCHRONE)) {
-                    prepareFI = true;
-                    Config fastisochroneOpts = opts.getConfig(KEY_METHODS_FASTISOCHRONE);
-
-                    if (fastisochroneOpts.hasPath(VAL_ENABLED) || fastisochroneOpts.getBoolean(VAL_ENABLED)) {
-                        prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
-                        if (!prepareFI)
-                            args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
-                        else
-                            args.put(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
-                    }
-
-                    if (prepareFI) {
-                        if (fastisochroneOpts.hasPath(KEY_THREADS))
-                            args.put("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
-                        if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS))
-                            args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
-                        if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
-                            args.put("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
                     }
                 }
             }
