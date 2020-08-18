@@ -21,7 +21,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +176,7 @@ public class AugmentedWeightingTest {
     additionalHints = new ORSPMap();
     additionalHints.putObj("user_weights", createAugmentedWeightList());
 
-    augmentedWeighting = new AugmentedWeighting(additionalHints, superWeighting, graphHopper, .1, 1000);
+    augmentedWeighting = new UserWeightFactory(additionalHints, graphHopper, .1, 1000).getWeighting(superWeighting);
   }
 
   @Rule
@@ -248,17 +247,5 @@ public class AugmentedWeightingTest {
   @Test
   public void getName() {
     Assert.assertEquals("augmented|" + superWeighting.getName(), augmentedWeighting.getName());
-  }
-
-  @Test
-  public void unsupportedGeometry() throws ParameterValueException, AugmentationStorageException {
-    LinearRing linearRing = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.5,2.5},{4.5,4.5},{5.5,4.5},{5.5,2.5},{4.5,2.5}}));
-    List<AugmentedWeight> augmentedWeights = new ArrayList<>();
-    augmentedWeights.add(new AugmentedWeight(linearRing, 0.85));
-    additionalHints.putObj("user_weights", augmentedWeights);
-
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("AugmentationStorage is not implemented for LinearRing");
-    augmentedWeighting = new AugmentedWeighting(additionalHints, superWeighting, graphHopper);
   }
 }

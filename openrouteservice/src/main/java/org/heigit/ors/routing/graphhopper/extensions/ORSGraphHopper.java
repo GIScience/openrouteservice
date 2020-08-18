@@ -63,7 +63,7 @@ import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeigh
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
-import org.heigit.ors.weightaugmentation.AugmentedWeighting;
+import org.heigit.ors.weightaugmentation.UserWeightFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,7 +350,7 @@ public class ORSGraphHopper extends GraphHopper {
 				}
 
 				if (additionalHints != null &&  additionalHints.has("user_weights")) {
-					weighting = new AugmentedWeighting(additionalHints, weighting, this);
+					weighting = new UserWeightFactory(additionalHints, this).getWeighting(weighting);
 				}
 
 

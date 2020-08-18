@@ -10,6 +10,7 @@ import org.heigit.ors.exceptions.AugmentationStorageException;
 public class AugmentationStorage {
   public static final int MAX_AUGMENTATIONS = 50000;
   private final IntDoubleHashMap augmentations;
+  private double minAugmentationWeight = 1.0;
 
   /**
    * Initializes new storage.
@@ -28,6 +29,7 @@ public class AugmentationStorage {
     if (augmentations.size() > MAX_AUGMENTATIONS) {
       throw new AugmentationStorageException(String.format("Augmentations exceeded the maximum number of edges: %s > %s", augmentations.size(), MAX_AUGMENTATIONS));
     }
+    minAugmentationWeight = Math.min(minAugmentationWeight, weight);
   }
 
   /**
@@ -48,5 +50,13 @@ public class AugmentationStorage {
    */
   public double get(int edge) {
     return augmentations.getOrDefault(edge, 1.0);
+  }
+
+  /**
+   * Returns the minimum augmentation.
+   * @return minimum weight or 1.0
+   */
+  public double getMinAugmentationWeight() {
+    return minAugmentationWeight;
   }
 }
