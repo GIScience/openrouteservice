@@ -4,13 +4,13 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.GraphBuilder;
-import com.graphhopper.storage.GraphHopperStorage;
+import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getSplitValue;
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.setSplitValue;
 import static org.junit.Assert.assertEquals;
 
@@ -18,67 +18,10 @@ public class ProjectorTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).create();
-    }
-
-    public GraphHopperStorage createMediumGraph() {
-        //    3---4--5
-        //   /\   |  |
-        //  2--0  6--7
-        //  | / \   /
-        //  |/   \ /
-        //  1-----8
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
-        //Set test lat lon
-        g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
-        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
-        g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
-        g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
-        g.getBaseGraph().getNodeAccess().setNode(4, 4, 5);
-        g.getBaseGraph().getNodeAccess().setNode(5, 4, 6);
-        g.getBaseGraph().getNodeAccess().setNode(6, 3, 5);
-        g.getBaseGraph().getNodeAccess().setNode(7, 3, 6);
-        g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
-
-        return g;
-    }
-
-    private GraphHopperStorage createSimpleGraphWithoutLatLon() {
-        // 5--1---2
-        //     \ /|
-        //      0 |
-        //     /  |
-        //    4---3
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
-
-        return g;
-    }
-
     @Test
     public void testCalculateProjections() {
         Projector projector = new Projector();
-        projector.setGHStorage(createMediumGraph());
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Projection of nodes onto horizontal axis; Ordered by value
         IntArrayList expected_m00 = new IntArrayList();
@@ -96,25 +39,26 @@ public class ProjectorTest {
 
     @Test
     public void testCalculateProjectionOrder() {
+        double originalSplitValue = getSplitValue();
         //Set to 0 to incorporate all nodes for splitting. Useful for a small graph like this
         setSplitValue(0);
         Projector projector = new Projector();
-        projector.setGHStorage(createMediumGraph());
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         List<Projector.Projection> projectionOrder = projector.calculateProjectionOrder(projections);
-        //m00 and p45 should be best as they lead to max flow of 2
+        //p675 and p45 should be best as they lead to max flow of 2
         assertEquals(Projector.Projection.LINE_P675, projectionOrder.get(0));
         assertEquals(Projector.Projection.LINE_P45, projectionOrder.get(1));
-        //m45 should be worst as it leads to max flow 3 or 4
+        //m225 should be worst as it leads to max flow 3 or 4
         assertEquals(Projector.Projection.LINE_M225, projectionOrder.get(7));
         //Reset
-        setSplitValue(0.2525);
+        setSplitValue(originalSplitValue);
     }
 
     @Test
     public void testPartitionProjection() {
         Projector projector = new Projector();
-        projector.setGHStorage(createMediumGraph());
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
         //Calculate global projection
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Mock partition graph
@@ -129,24 +73,24 @@ public class ProjectorTest {
         expectedPart0_m00.add(1, 2, 3, 0, 8);
         assertEquals(expectedPart0_m00, biPartitionProjection.getProjection(0).get(Projector.Projection.LINE_M00));
 
-        IntArrayList expectedPart0_m45 = new IntArrayList();
-        expectedPart0_m45.add(8, 0, 1, 2, 3);
-        assertEquals(expectedPart0_m45, biPartitionProjection.getProjection(0).get(Projector.Projection.LINE_M45));
+        IntArrayList expectedPart0_p45 = new IntArrayList();
+        expectedPart0_p45.add(1, 2, 8, 0, 3);
+        assertEquals(expectedPart0_p45, biPartitionProjection.getProjection(0).get(Projector.Projection.LINE_P45));
 
         IntArrayList expectedPart1_m00 = new IntArrayList();
         expectedPart1_m00.add(4, 6, 5, 7);
         assertEquals(expectedPart1_m00, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_M00));
 
-        IntArrayList expectedPart1_m45 = new IntArrayList();
-        expectedPart1_m45.add(7, 5, 6, 4);
-        assertEquals(expectedPart1_m45, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_M45));
+        IntArrayList expectedPart1_p45 = new IntArrayList();
+        expectedPart1_p45.add(6, 4, 7, 5);
+        assertEquals(expectedPart1_p45, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_P45));
     }
 
     @Test(expected = IllegalStateException.class)
     public void testCalculateProjectionsWithoutLatLon() {
         //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
         Projector projector = new Projector();
-        projector.setGHStorage(createSimpleGraphWithoutLatLon());
+        projector.setGHStorage(ToyGraphCreationUtil.createSimpleGraphWithoutLatLon(encodingManager));
         projector.calculateProjections();
     }
 }

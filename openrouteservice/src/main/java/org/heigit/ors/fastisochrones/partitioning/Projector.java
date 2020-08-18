@@ -16,6 +16,10 @@ import static org.heigit.ors.fastisochrones.partitioning.Projector.Projection.*;
 public class Projector {
     protected static Map<Projection, Projection> correspondingProjMap;
     private GraphHopperStorage ghStorage;
+    private static final double TAN_67_5 = 2.414213;
+    private static final double TAN_45 = 1;
+    private static final double TAN_22_5 = 0.414213;
+
 
     public Projector() {
         prepareProjectionMaps();
@@ -129,21 +133,18 @@ public class Projector {
             }
         },
         LINE_P675 {
-            //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
-                return lat + 2.414213 * lon;
+                return lat + TAN_67_5 * lon;
             }
         },
         LINE_P45 {
-            //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
-                return lat + 1 * lon;
+                return lat + TAN_45 * lon;
             }
         },
         LINE_P225 {
-            //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat + 0.414213 * lon;
+                return lat + TAN_22_5 * lon;
             }
         },
         LINE_M00 {
@@ -152,21 +153,18 @@ public class Projector {
             }
         },
         LINE_M225 {
-            //0.414213 = Math.tan(Math.toRadians(22.5))
             public double sortValue(double lat, double lon) {
-                return lat - 0.414213 * lon;
+                return lat - TAN_22_5 * lon;
             }
         },
         LINE_M45 {
-            //1 = Math.tan(Math.toRadians(45))
             public double sortValue(double lat, double lon) {
-                return lat - 1 * lon;
+                return lat - TAN_45 * lon;
             }
         },
         LINE_M675 {
-            //2.414213 = Math.tan(Math.toRadians(67.5))
             public double sortValue(double lat, double lon) {
-                return lat - 2.414213 * lon;
+                return lat - TAN_67_5 * lon;
             }
         };
 

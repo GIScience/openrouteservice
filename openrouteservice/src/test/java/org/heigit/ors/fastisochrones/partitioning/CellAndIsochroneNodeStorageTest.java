@@ -19,6 +19,15 @@ public class CellAndIsochroneNodeStorageTest {
         return new GraphBuilder(encodingManager).create();
     }
 
+    private IsochroneNodeStorage initIsochroneNodeStorage(GraphHopperStorage graphHopperStorage) {
+        IsochroneNodeStorage isochroneNodeStorage = new IsochroneNodeStorage(5, graphHopperStorage.getDirectory());
+        int[] cellIds = new int[]{2, 2, 3, 3, 3};
+        boolean[] borderNess = new boolean[]{true, false, true, false, false};
+        isochroneNodeStorage.setCellIds(cellIds);
+        isochroneNodeStorage.setBorderness(borderNess);
+        return isochroneNodeStorage;
+    }
+
     @Test
     public void testIsochroneNodeStorage() {
         GraphHopperStorage ghStorage = createGHStorage();
@@ -48,13 +57,8 @@ public class CellAndIsochroneNodeStorageTest {
     @Test(expected = IllegalStateException.class)
     public void testUnfilledCells() {
         GraphHopperStorage ghStorage = createGHStorage();
-        IsochroneNodeStorage ins = new IsochroneNodeStorage(5, ghStorage.getDirectory());
-        int[] cellIds = new int[]{2, 2, 3, 3, 3};
-        boolean[] borderNess = new boolean[]{true, false, true, false, false};
-        ins.setCellIds(cellIds);
-        ins.setBorderness(borderNess);
-
-        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), ins);
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
         cs.init();
         //Storage not filled, should throw exception
         cs.getNodesOfCell(2);
@@ -63,13 +67,9 @@ public class CellAndIsochroneNodeStorageTest {
     @Test(expected = IllegalStateException.class)
     public void testUnfilledContour() {
         GraphHopperStorage ghStorage = createGHStorage();
-        IsochroneNodeStorage ins = new IsochroneNodeStorage(5, ghStorage.getDirectory());
-        int[] cellIds = new int[]{2, 2, 3, 3, 3};
-        boolean[] borderNess = new boolean[]{true, false, true, false, false};
-        ins.setCellIds(cellIds);
-        ins.setBorderness(borderNess);
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
 
-        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), ins);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
         cs.init();
         //Storage not filled, should throw exception
         cs.getCellContourOrder(2);
@@ -78,13 +78,8 @@ public class CellAndIsochroneNodeStorageTest {
     @Test(expected = IllegalStateException.class)
     public void testUnfilledSuperCell() {
         GraphHopperStorage ghStorage = createGHStorage();
-        IsochroneNodeStorage ins = new IsochroneNodeStorage(5, ghStorage.getDirectory());
-        int[] cellIds = new int[]{2, 2, 3, 3, 3};
-        boolean[] borderNess = new boolean[]{true, false, true, false, false};
-        ins.setCellIds(cellIds);
-        ins.setBorderness(borderNess);
-
-        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), ins);
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
         cs.init();
         //Storage not filled, should throw exception
         cs.getCellsOfSuperCellAsList(2);
@@ -93,19 +88,14 @@ public class CellAndIsochroneNodeStorageTest {
     @Test
     public void testCellStorage() {
         GraphHopperStorage ghStorage = createGHStorage();
-        IsochroneNodeStorage ins = new IsochroneNodeStorage(5, ghStorage.getDirectory());
-        int[] cellIds = new int[]{2, 2, 3, 3, 3};
-        boolean[] borderNess = new boolean[]{true, false, true, false, false};
-        ins.setCellIds(cellIds);
-        ins.setBorderness(borderNess);
-
-        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), ins);
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
         cs.init();
         cs.calcCellNodesMap();
         IntHashSet nodesCell2 = new IntHashSet();
-        nodesCell2.addAll(0,1);
+        nodesCell2.addAll(0, 1);
         IntHashSet nodesCell3 = new IntHashSet();
-        nodesCell3.addAll(2,3,4);
+        nodesCell3.addAll(2, 3, 4);
         assertEquals(nodesCell2, cs.getNodesOfCell(2));
         assertEquals(nodesCell3, cs.getNodesOfCell(3));
     }

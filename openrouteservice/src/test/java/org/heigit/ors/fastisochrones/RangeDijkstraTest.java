@@ -17,8 +17,6 @@ import static org.junit.Assert.assertEquals;
 public class RangeDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private IsochroneNodeStorage ins;
-    private CellStorage cs;
 
     GraphHopperStorage createGHStorage() {
         return new GraphBuilder(encodingManager).create();
@@ -48,24 +46,10 @@ public class RangeDijkstraTest {
         return g;
     }
 
-    private void createMockStorages(GraphHopperStorage ghStorage) {
-        IsochroneNodeStorage isochroneNodeStorage = new IsochroneNodeStorage(6, ghStorage.getDirectory());
-        int[] cellIds = new int[]{2, 2, 2, 3, 3, 2};
-        boolean[] borderNess = new boolean[]{true, false, true, true, true, false};
-        isochroneNodeStorage.setCellIds(cellIds);
-        isochroneNodeStorage.setBorderness(borderNess);
-
-        CellStorage cellStorage = new CellStorage(6, ghStorage.getDirectory(), isochroneNodeStorage);
-        cellStorage.init();
-        cellStorage.calcCellNodesMap();
-        this.ins = isochroneNodeStorage;
-        this.cs = cellStorage;
-    }
 
     @Test
     public void testGetMaxWeight() {
         GraphHopperStorage graphHopperStorage = createSimpleGraph();
-        createMockStorages(graphHopperStorage);
         RangeDijkstra rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder));
         rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * 10);
         IntHashSet cellNodes = new IntHashSet();

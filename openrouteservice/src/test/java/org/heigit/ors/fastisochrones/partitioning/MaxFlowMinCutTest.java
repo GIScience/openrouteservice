@@ -5,8 +5,8 @@ import com.carrotsearch.hppc.IntIntHashMap;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
+import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -15,43 +15,9 @@ public class MaxFlowMinCutTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).create();
-    }
-
-    public GraphHopperStorage createMediumGraph() {
-        //    3---4--5
-        //   /\   |  |
-        //  2--0  6--7
-        //  | / \   /
-        //  |/   \ /
-        //  1-----8
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
-        return g;
-    }
-
-    public GraphHopperStorage createSingleEdgeGraph() {
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        return g;
-    }
-
     @Test
     public void testNodes() {
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create mock projection
         IntArrayList projection_m00 = new IntArrayList();
@@ -75,7 +41,7 @@ public class MaxFlowMinCutTest {
     @Test
     public void testReset() {
         //Create test graph
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create data for test graph
         //FlowEdgeBaseNode is an array representing base and adj node for each edgeId, ordered by edgeId, i.e. 2 entries/edge
@@ -112,7 +78,7 @@ public class MaxFlowMinCutTest {
     @Test
     public void testGetMaxFlowGoodProjection() {
         //Create test graph
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create data for test graph
         //FlowEdgeBaseNode is an array representing base and adj node for each edgeId, ordered by edgeId, i.e. 2 entries/edge
@@ -140,7 +106,7 @@ public class MaxFlowMinCutTest {
     @Test
     public void testGetMaxFlowBadProjection() {
         //Create test graph
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create data for test graph
         //FlowEdgeBaseNode is an array representing base and adj node for each edgeId, ordered by edgeId, i.e. 2 entries/edge
@@ -167,7 +133,7 @@ public class MaxFlowMinCutTest {
     @Test
     public void testSingleEdgeGraph() {
         //Create test graph
-        GraphHopperStorage graphHopperStorage = createSingleEdgeGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSingleEdgeGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create data for test graph
         //FlowEdgeBaseNode is an array representing base and adj node for each edgeId, ordered by edgeId, i.e. 2 entries/edge
@@ -181,7 +147,7 @@ public class MaxFlowMinCutTest {
         PartitioningData pData = new PartitioningData(flowEdgeBaseNode, flow, visited);
         //Create mock projection
         IntArrayList projection_m45 = new IntArrayList();
-        projection_m45.add(0,1);
+        projection_m45.add(0, 1);
 
         MaxFlowMinCut maxFlowMinCut = new EdmondsKarpAStar(graph, pData, null);
         maxFlowMinCut.setOrderedNodes(projection_m45);

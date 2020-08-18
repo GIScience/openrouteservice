@@ -5,11 +5,10 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,34 +18,6 @@ public class CellPropertiesTest {
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
     private CellStorage cs;
-
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).create();
-    }
-
-    private GraphHopperStorage createSimpleGraph() {
-        // 5--1---2
-        //     \ /|
-        //      0 |
-        //     /  |
-        //    4---3
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
-
-        g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
-        g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
-        g.getBaseGraph().getNodeAccess().setNode(2, 3, 3);
-        g.getBaseGraph().getNodeAccess().setNode(3, 1, 3);
-        g.getBaseGraph().getNodeAccess().setNode(4, 1, 2);
-        g.getBaseGraph().getNodeAccess().setNode(5, 3, 1);
-        return g;
-    }
 
     private void createMockStorages(GraphHopperStorage ghStorage) {
         IsochroneNodeStorage isochroneNodeStorage = new IsochroneNodeStorage(6, ghStorage.getDirectory());
@@ -64,7 +35,7 @@ public class CellPropertiesTest {
 
     @Test
     public void testLoadExisting() {
-        GraphHopperStorage graphHopperStorage = createSimpleGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting fastestWeighting = new FastestWeighting(carEncoder);
@@ -79,7 +50,7 @@ public class CellPropertiesTest {
 
     @Test
     public void testCalcEccentricities() {
-        GraphHopperStorage graphHopperStorage = createSimpleGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
@@ -94,7 +65,7 @@ public class CellPropertiesTest {
 
     @Test
     public void testCalcBorderNodeDistances() {
-        GraphHopperStorage graphHopperStorage = createSimpleGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
@@ -124,7 +95,7 @@ public class CellPropertiesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetEccentricityOfNonBorderNode() {
-        GraphHopperStorage graphHopperStorage = createSimpleGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);

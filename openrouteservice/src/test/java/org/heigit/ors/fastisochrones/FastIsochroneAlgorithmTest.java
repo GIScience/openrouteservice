@@ -6,7 +6,6 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
@@ -24,46 +23,6 @@ public class FastIsochroneAlgorithmTest {
     private IsochroneNodeStorage ins;
     private CellStorage cs;
 
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).create();
-    }
-
-    public GraphHopperStorage createMediumGraph() {
-        //    3---4--5--9
-        //   /\   |  |
-        //  2--0  6--7
-        //  | / \   /
-        //  |/   \ /
-        //  1-----8
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(5, 9, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
-        //Set test lat lon
-        g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
-        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
-        g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
-        g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
-        g.getBaseGraph().getNodeAccess().setNode(4, 4, 4);
-        g.getBaseGraph().getNodeAccess().setNode(5, 4, 5);
-        g.getBaseGraph().getNodeAccess().setNode(6, 3, 4);
-        g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
-        g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
-        g.getBaseGraph().getNodeAccess().setNode(9, 4, 6);
-        return g;
-    }
-
     private void createMockStorages(GraphHopperStorage ghStorage) {
         IsochroneNodeStorage isochroneNodeStorage = new IsochroneNodeStorage(10, ghStorage.getDirectory());
         int[] cellIds = new int[]{2, 2, 2, 2, 3, 3, 3, 3, 2, 3};
@@ -80,7 +39,7 @@ public class FastIsochroneAlgorithmTest {
 
     @Test
     public void testExactWeightActiveCell() {
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -114,7 +73,7 @@ public class FastIsochroneAlgorithmTest {
 
     @Test
     public void testLimitInBetweenNodesActiveCell() {
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -152,7 +111,7 @@ public class FastIsochroneAlgorithmTest {
 
     @Test
     public void testStartCell() {
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -192,7 +151,7 @@ public class FastIsochroneAlgorithmTest {
 
     @Test
     public void testFullyReachableCells() {
-        GraphHopperStorage graphHopperStorage = createMediumGraph();
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -212,7 +171,7 @@ public class FastIsochroneAlgorithmTest {
 
         fastIsochroneAlgorithm.calcIsochroneNodes(1, 5.5);
 
-        Set<Integer> cellIds =  fastIsochroneAlgorithm.getFullyReachableCells();
+        Set<Integer> cellIds = fastIsochroneAlgorithm.getFullyReachableCells();
         Set<Integer> expectedCellIds = new HashSet<>();
 
         assertEquals(expectedCellIds, cellIds);
@@ -229,7 +188,7 @@ public class FastIsochroneAlgorithmTest {
 
         fastIsochroneAlgorithm.calcIsochroneNodes(1, 6);
 
-        cellIds =  fastIsochroneAlgorithm.getFullyReachableCells();
+        cellIds = fastIsochroneAlgorithm.getFullyReachableCells();
         expectedCellIds = new HashSet<>();
         expectedCellIds.add(2);
         assertEquals(expectedCellIds, cellIds);
@@ -246,11 +205,10 @@ public class FastIsochroneAlgorithmTest {
 
         fastIsochroneAlgorithm.calcIsochroneNodes(8, 6);
 
-        cellIds =  fastIsochroneAlgorithm.getFullyReachableCells();
+        cellIds = fastIsochroneAlgorithm.getFullyReachableCells();
         expectedCellIds = new HashSet<>();
         expectedCellIds.add(2);
         expectedCellIds.add(3);
         assertEquals(expectedCellIds, cellIds);
-
     }
 }

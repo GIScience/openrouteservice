@@ -99,7 +99,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
 
     @Override
     public IsochroneNodeStorage create(long byteCount) {
-        throw new IllegalStateException("Do not call LandmarkStore.create directly");
+        throw new IllegalStateException("Do not call IsochroneNodeStorage.create directly");
     }
 
     @Override
