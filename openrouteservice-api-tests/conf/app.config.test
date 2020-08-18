@@ -35,7 +35,21 @@
           maximum_range_time: [
             {profiles: "any", value: 18000 }
             {profiles: "driving-car, driving-hgv", value: 10800 }
-          ]
+          ].
+          profiles: {
+            default_params: {
+              enabled: false,
+              threads: 12,
+              weightings: "recommended",
+              maxcellnodes: 5000
+            },
+            profile-vehicles-hgv: {
+              enabled: true,
+              threads: 12,
+              weightings: "recommended, shortest",
+              maxcellnodes: 5000
+            }
+          }
         },
         maximum_intervals: 10,
         maximum_locations: 2,
@@ -201,13 +215,6 @@
                           threads: 1,
                           weightings: "recommended,shortest",
                           landmarks: 32
-                        },
-                      fastisochrone:
-                        {
-                          enabled: true,
-                          threads: 12,
-                          weightings: "recommended, shortest",
-                          maxcellnodes: 5000
                         }
                     }
                 }
