@@ -4,6 +4,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
+import java.util.Objects;
 
 /**
  * Weighting method using the {@link AugmentationStorage} that is created first and then used altering given weights of {@link #superWeighting}.
@@ -95,5 +96,29 @@ public class AugmentedWeighting implements Weighting {
   @Override
   public String getName() {
     return "augmented|" + superWeighting.getName();
+  }
+
+  /**
+   * Check if objects are equal.
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AugmentedWeighting that = (AugmentedWeighting) o;
+    return Objects.equals(superWeighting, that.superWeighting) &&
+        augmentationStorage.equals(that.augmentationStorage);
+  }
+
+  /**
+   * Returns hash value for object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(superWeighting, augmentationStorage);
   }
 }

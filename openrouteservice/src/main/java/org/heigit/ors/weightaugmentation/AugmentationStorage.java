@@ -2,6 +2,7 @@ package org.heigit.ors.weightaugmentation;
 
 import com.carrotsearch.hppc.IntDoubleHashMap;
 import java.util.Collection;
+import java.util.Objects;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 
 /**
@@ -58,5 +59,29 @@ public class AugmentationStorage {
    */
   public double getMinAugmentationWeight() {
     return minAugmentationWeight;
+  }
+
+  /**
+   * Check if objects are equal.
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AugmentationStorage that = (AugmentationStorage) o;
+    return Double.compare(that.minAugmentationWeight, minAugmentationWeight) == 0 &&
+        augmentations.equals(that.augmentations);
+  }
+
+  /**
+   * Returns hash value for object.
+   */
+  @Override
+  public int hashCode() {
+    return Objects.hash(augmentations, minAugmentationWeight);
   }
 }
