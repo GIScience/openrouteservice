@@ -2,6 +2,8 @@ package org.heigit.ors.weightaugmentation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +29,10 @@ public class AugmentationStorageTest {
     assertEquals(0.75, augmentationStorage.get(5), 0.0);
     augmentationStorage.applyAugmentation(5, 1.25);
     assertEquals(0.9375, augmentationStorage.get(5), 0.0);
+    augmentationStorage.applyAllAugmentation(new HashSet<>(Arrays.asList(3, 4, 5)), 2.0);
+    assertEquals(2.0, augmentationStorage.get(3), 0.0);
+    assertEquals(2.0, augmentationStorage.get(4), 0.0);
+    assertEquals(1.875, augmentationStorage.get(5), 0.0);
   }
 
   @Test

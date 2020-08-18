@@ -1,6 +1,7 @@
 package org.heigit.ors.weightaugmentation;
 
 import com.carrotsearch.hppc.IntDoubleHashMap;
+import java.util.Collection;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 
 /**
@@ -26,6 +27,17 @@ public class AugmentationStorage {
     augmentations.put(edge, this.get(edge) * weight);
     if (augmentations.size() > MAX_AUGMENTATIONS) {
       throw new AugmentationStorageException(String.format("Augmentations exceeded the maximum number of edges: %s > %s", augmentations.size(), MAX_AUGMENTATIONS));
+    }
+  }
+
+  /**
+   * Applies given augmentation to all given edges.
+   * @param edges internal edge ids
+   * @param weight weight factor
+   */
+  public void applyAllAugmentation(Collection<Integer> edges, double weight) throws AugmentationStorageException {
+    for (int edge: edges) {
+      applyAugmentation(edge, weight);
     }
   }
 

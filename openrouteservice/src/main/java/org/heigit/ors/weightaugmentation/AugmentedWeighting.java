@@ -63,7 +63,7 @@ public class AugmentedWeighting implements Weighting {
       lineStringMatcher.setSearchRadius(searchRadius);
     }
     //noinspection unchecked
-    fillAugmentationStorage((List<AugmentedWeight>) params.getObj("user_weights"));
+    getEdgesAndFillStorage((List<AugmentedWeight>) params.getObj("user_weights"));
   }
 
   /**
@@ -73,14 +73,12 @@ public class AugmentedWeighting implements Weighting {
     this(additionalHints, weighting, graphHopper, -1, -1);
   }
 
-  private void fillAugmentationStorage(List<AugmentedWeight> augmentedWeights)
+  private void getEdgesAndFillStorage(List<AugmentedWeight> augmentedWeights)
       throws AugmentationStorageException {
     for (AugmentedWeight augmentedWeight: augmentedWeights) {
       Set<Integer> edges = getMatchedEdges(augmentedWeight.getGeometry());
       minAugmentationWeight = Math.min(minAugmentationWeight, augmentedWeight.getWeight());
-      for (int edge: edges) {
-        augmentationStorage.applyAugmentation(edge, augmentedWeight.getWeight());
-      }
+      augmentationStorage.applyAllAugmentation(edges, augmentedWeight.getWeight());
     }
   }
 
