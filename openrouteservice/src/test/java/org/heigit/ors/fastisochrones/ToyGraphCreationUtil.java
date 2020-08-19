@@ -43,6 +43,40 @@ public class ToyGraphCreationUtil {
         return g;
     }
 
+    public static GraphHopperStorage createMediumGraph2(EncodingManager encodingManager) {
+        //    3---4--5
+        //   /\   |  |
+        //  2--0  6--7
+        //  | / \   /
+        //  |/   \ /
+        //  1-----8
+        GraphHopperStorage g = createGHStorage(encodingManager);
+        g.edge(0, 1, 1, true);
+        g.edge(0, 2, 1, true);
+        g.edge(0, 3, 5, true);
+        g.edge(0, 8, 1, true);
+        g.edge(1, 2, 1, true);
+        g.edge(1, 8, 2, true);
+        g.edge(2, 3, 2, true);
+        g.edge(3, 4, 2, true);
+        g.edge(4, 5, 1, true);
+        g.edge(4, 6, 1, true);
+        g.edge(5, 7, 1, true);
+        g.edge(6, 7, 2, true);
+        g.edge(7, 8, 3, true);
+        //Set test lat lon
+        g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
+        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
+        g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
+        g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
+        g.getBaseGraph().getNodeAccess().setNode(4, 4, 5);
+        g.getBaseGraph().getNodeAccess().setNode(5, 4, 6);
+        g.getBaseGraph().getNodeAccess().setNode(6, 3, 5);
+        g.getBaseGraph().getNodeAccess().setNode(7, 3, 6);
+        g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
+        return g;
+    }
+
     public static GraphHopperStorage createMediumGraphWithAdditionalEdge(EncodingManager encodingManager) {
         //    3---4--5--9
         //   /\   |  |

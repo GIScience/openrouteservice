@@ -21,7 +21,7 @@ public class ProjectorTest {
     @Test
     public void testCalculateProjections() {
         Projector projector = new Projector();
-        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph2(encodingManager));
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Projection of nodes onto horizontal axis; Ordered by value
         IntArrayList expected_m00 = new IntArrayList();
@@ -43,7 +43,7 @@ public class ProjectorTest {
         //Set to 0 to incorporate all nodes for splitting. Useful for a small graph like this
         setSplitValue(0);
         Projector projector = new Projector();
-        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph2(encodingManager));
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         List<Projector.Projection> projectionOrder = projector.calculateProjectionOrder(projections);
         //p675 and p45 should be best as they lead to max flow of 2
@@ -58,7 +58,7 @@ public class ProjectorTest {
     @Test
     public void testPartitionProjection() {
         Projector projector = new Projector();
-        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph(encodingManager));
+        projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph2(encodingManager));
         //Calculate global projection
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
         //Mock partition graph
