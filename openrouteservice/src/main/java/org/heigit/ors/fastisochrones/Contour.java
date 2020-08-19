@@ -28,15 +28,21 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 /**
  * Calculates Outlines (Contour) of cells.
  * Contours are concave hulls of a given set of points.
- * Additionally, contours for supercells can be created.
+ * Additionally, contours for super cells can be created.
+ * Super cells are again grouped into another set of super super cells.
+ * Super cells contain a maximum amount of base cells given by the hierarchy level parameter.
+ * Usually, there will be fewer base cells in a super cell, as some branches of the partitioning end earlier than others.
  * <p>
  *
  * @author Hendrik Leuschner
  */
 public class Contour {
+    //Length that a polygon edge has to have in m to be split into smaller subedges so that there are no artifacts from later concave hull calculations with it
     private static final int MIN_EDGE_LENGTH = 400;
     private static final int MAX_EDGE_LENGTH = Integer.MAX_VALUE;
+    //This means that one supercell can contain at most 2^3 = 8 base cells.
     private static final int SUPER_CELL_HIERARCHY_LEVEL = 3;
+    //This means that one supersupercell can contain at most 2^(3 + 2) = 32 base cells.
     private static final int SUPER_SUPER_CELL_HIERARCHY_LEVEL = 2; // level above super cell level
     private static final double CONCAVE_HULL_THRESHOLD = 0.010;
     protected NodeAccess nodeAccess;

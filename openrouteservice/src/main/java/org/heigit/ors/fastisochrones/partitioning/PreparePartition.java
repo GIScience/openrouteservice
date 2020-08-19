@@ -1,9 +1,5 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
-import com.graphhopper.routing.AlgorithmOptions;
-import com.graphhopper.routing.RoutingAlgorithm;
-import com.graphhopper.routing.RoutingAlgorithmFactory;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
@@ -15,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxThreadCount;
 
 /**
  * Prepares the partition of the graph.
@@ -23,7 +19,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  *
  * @author Hendrik Leuschner
  */
-public class PreparePartition implements RoutingAlgorithmFactory {
+public class PreparePartition {
     private static final Logger LOGGER = LoggerFactory.getLogger(PreparePartition.class);
     private GraphHopperStorage ghStorage;
     private EdgeFilterSequence edgeFilters;
@@ -89,18 +85,15 @@ public class PreparePartition implements RoutingAlgorithmFactory {
             edgeIter = ghEdgeExpl.setBaseNode(baseNode);
             while (edgeIter.next()) {
                 adjNode = edgeIter.getAdjNode();
-                if (nodeCellId[baseNode] != nodeCellId[adjNode])
+                if (nodeCellId[baseNode] != nodeCellId[adjNode]) {
                     borderness = true;
+                    break;
+                }
             }
             nodeBorderness[baseNode] = borderness;
             borderness = false;
         }
         return nodeBorderness;
-    }
-
-    @Override
-    public RoutingAlgorithm createAlgo(Graph g, AlgorithmOptions opts) {
-        return null;
     }
 
     public IsochroneNodeStorage getIsochroneNodeStorage() {

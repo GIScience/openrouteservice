@@ -36,7 +36,6 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     private double isochroneLimit = 0;
 
-
     public ActiveCellDijkstra(Graph graph, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int cellId) {
         super(graph, weighting);
         setEdgeFilter(new FixedCellEdgeFilter(isochroneNodeStorage, cellId, graph.getNodes()));

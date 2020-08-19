@@ -43,7 +43,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         this.nodeCount = nodeCount;
         // 1 byte for isBordernode,
         // 4 bytes per node for its cell id.
-        // Maximum cell count of ~16M
+        // Maximum cell id = Integer.MAX_VALUE
         this.cellBytes = 5;
     }
 

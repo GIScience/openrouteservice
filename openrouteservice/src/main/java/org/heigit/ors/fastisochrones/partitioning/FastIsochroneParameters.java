@@ -15,8 +15,12 @@ public final class FastIsochroneParameters {
     private static int maxThreadCount = 12;
     private static boolean log = true;
     //PARTITIONING
+    //Based on Implementierung eines Algorithmus zur schnellen Berechnung metrik-affiner Isochronen in einem Straßennetzwerk by Stefan Panig, 2019
     private static int maxCellNodesNumber = 5000;
     private static int minCellNodesNumber = 4;
+    //Factor based on Aaron Schild & Christian Sommer. On Balanced Seperators in Road Networks, Springer
+    //International Publishing Switzerland, 2015 and
+    //Implementierung eines Algorithmus zur schnellen Berechnung metrik-affiner Isochronen in einem Straßennetzwerk by Stefan Panig, 2019
     private static double splitValue = 0.2525;
     //CONTOUR + ECCENTRICITY
     private static boolean enableSuperCells = true;

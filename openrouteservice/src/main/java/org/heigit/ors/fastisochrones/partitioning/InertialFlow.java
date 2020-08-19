@@ -26,12 +26,13 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class InertialFlow implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(InertialFlow.class);
     private static final int MIN_SPLITTING_ITERATION = 0;
-    private static final int MAX_SPLITTING_ITERATION = 268435456; //==2^28
+    private static final int MAX_SPLITTING_ITERATION = Integer.MAX_VALUE; //==2^32
     //Defines the number of disconnected cells a cell can be split into after the final InertialFlow step.
     //Using an estimate of 10 as most cells are disconnected into 1 - 5 independent cells.
     //If the value is too high and the graph has (e.g. by faulty data) many disconnected nodes, we do not want to create a separate cell for all of them
     private static final int MAX_SUBCELL_NUMBER = 10;
     private static final boolean SEPARATEDISCONNECTED = true;
+    //The projections are evaluated before the max flow algorithm. Only the best CONSIDERED_PROJECTIONS are actually run through the algorithm, as MaxFlow is relatively costly
     private static final int CONSIDERED_PROJECTIONS = 3;
     private static Projector projector = new Projector();
     protected Map<Projection, IntArrayList> projections;
