@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
@@ -21,6 +22,8 @@ import org.heigit.ors.mapmatching.polygon.PolygonMatcher;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 
 public class UserWeightFactory {
+  public static final String USED_PARAM = RouteRequest.PARAM_USER_WEIGHTS;
+
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
   private final PointMatcher pointMatcher;
@@ -33,7 +36,7 @@ public class UserWeightFactory {
    * @param stepSize custom step size for generating the node search grid
    * @param searchRadius custom search radius for the node search
    */
-  public UserWeightFactory(PMap additionalHints, GraphHopper graphHopper, double stepSize, double searchRadius) throws AugmentationStorageException {
+  public UserWeightFactory(PMap additionalHints, GraphHopper graphHopper, double stepSize, double searchRadius) throws AugmentationStorageException, NoSuchFieldException {
     ORSPMap params = (ORSPMap) additionalHints;
     this.augmentationStorage = new AugmentationStorage();
     this.polygonMatcher = new PolygonMatcher();
@@ -52,14 +55,17 @@ public class UserWeightFactory {
       polygonMatcher.setSearchRadius(searchRadius);
       lineStringMatcher.setSearchRadius(searchRadius);
     }
+    if (params == null || !params.hasObj(USED_PARAM)) {
+      throw new NoSuchFieldException(String.format("Field '%s' missing in params.", USED_PARAM));
+    }
     //noinspection unchecked
-    getEdgesAndFillStorage((List<AugmentedWeight>) params.getObj("user_weights"));
+    getEdgesAndFillStorage((List<AugmentedWeight>) params.getObj(USED_PARAM));
   }
 
   /**
    * Overload of the {@link #UserWeightFactory(PMap, GraphHopper, double, double)} with a default {@code stepSize} and {@code searchRadius}.
    */
-  public UserWeightFactory(PMap additionalHints, GraphHopper graphHopper) throws AugmentationStorageException {
+  public UserWeightFactory(PMap additionalHints, GraphHopper graphHopper) throws AugmentationStorageException, NoSuchFieldException {
     this(additionalHints, graphHopper, -1, -1);
   }
 

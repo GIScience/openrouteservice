@@ -387,7 +387,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 			return altPaths;
 
-		} catch (IllegalArgumentException | AugmentationStorageException ex) {
+		} catch (IllegalArgumentException | AugmentationStorageException | NoSuchFieldException ex) {
 			ghRsp.addError(ex);
 			return Collections.emptyList();
 		} finally {

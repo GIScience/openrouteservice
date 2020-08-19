@@ -70,7 +70,7 @@ public class UserWeightFactoryTest {
   }
 
   @Before
-  public void setUp() throws AugmentationStorageException {
+  public void setUp() throws AugmentationStorageException, NoSuchFieldException {
     graphHopper = new ORSGraphHopper();
     graphHopper.setCHEnabled(false);
     graphHopper.setCoreEnabled(false);
@@ -100,7 +100,7 @@ public class UserWeightFactoryTest {
   }
 
   @Test
-  public void unsupportedGeometry() throws ParameterValueException, AugmentationStorageException {
+  public void unsupportedGeometry() throws ParameterValueException, AugmentationStorageException, NoSuchFieldException {
     LinearRing linearRing = geometryFactory.createLinearRing(convertCoordinateArray(new double[][]{{4.5,2.5},{4.5,4.5},{5.5,4.5},{5.5,2.5},{4.5,2.5}}));
     List<AugmentedWeight> augmentedWeights = new ArrayList<>();
     augmentedWeights.add(new AugmentedWeight(linearRing, 0.85));
@@ -108,6 +108,22 @@ public class UserWeightFactoryTest {
 
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("AugmentationStorage is not implemented for LinearRing");
+    new UserWeightFactory(additionalHints, graphHopper);
+  }
+
+  @Test
+  public void checkNoParam() throws AugmentationStorageException, NoSuchFieldException {
+    additionalHints = new ORSPMap();
+    thrown.expect(NoSuchFieldException.class);
+    thrown.expectMessage("Field 'user_weights' missing in params.");
+    new UserWeightFactory(additionalHints, graphHopper);
+  }
+
+  @Test
+  public void checkNoParams() throws AugmentationStorageException, NoSuchFieldException {
+    additionalHints = null;
+    thrown.expect(NoSuchFieldException.class);
+    thrown.expectMessage("Field 'user_weights' missing in params.");
     new UserWeightFactory(additionalHints, graphHopper);
   }
 }

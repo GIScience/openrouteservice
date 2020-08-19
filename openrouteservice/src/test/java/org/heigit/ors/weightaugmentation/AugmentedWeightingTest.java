@@ -164,7 +164,7 @@ public class AugmentedWeightingTest {
   }
 
   @Before
-  public void setUp() throws ParameterValueException, AugmentationStorageException {
+  public void setUp() throws ParameterValueException, AugmentationStorageException, NoSuchFieldException {
     graphHopper = new ORSGraphHopper();
     graphHopper.setCHEnabled(false);
     graphHopper.setCoreEnabled(false);
