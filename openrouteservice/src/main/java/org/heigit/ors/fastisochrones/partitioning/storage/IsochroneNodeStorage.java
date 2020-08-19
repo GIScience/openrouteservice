@@ -23,8 +23,9 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToInteger;
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.intToByteArray;
+import java.util.BitSet;
+
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
 /**
  * Storage that maps nodeIds to their respective cells and borderness.
@@ -41,10 +42,10 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     public IsochroneNodeStorage(int nodeCount, Directory dir) {
         isochroneNodes = dir.find("isochronenodes");
         this.nodeCount = nodeCount;
-        // 1 byte for isBordernode,
         // 4 bytes per node for its cell id.
         // Maximum cell id = Integer.MAX_VALUE
-        this.cellBytes = 5;
+        // Borderness of nodes is stored in a block after cellIds block. As it is one bit per node, it is condensed into blocks of 8 node information per byte.
+        this.cellBytes = 4;
     }
 
     @Override
@@ -60,24 +61,21 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     public void setBorderness(boolean[] borderness) {
         if (nodeCount != borderness.length)
             throw new IllegalStateException("Nodecount and borderness array do not match");
-        isochroneNodes.ensureCapacity((long) cellBytes * nodeCount);
-        for (int node = 0; node < borderness.length; node++) {
-            if (borderness[node])
-                isochroneNodes.setBytes((long) node * cellBytes, new byte[]{(byte) 1}, 1);
-            else
-                isochroneNodes.setBytes((long) node * cellBytes, new byte[]{(byte) 0}, 1);
-        }
+        BitSet bordernessBits = booleanArrayToBitSet(borderness);
+        byte[] denseBorderness = bordernessBits.toByteArray();
+        isochroneNodes.ensureCapacity((long) cellBytes * nodeCount + denseBorderness.length);
+        isochroneNodes.setBytes(nodeCount * cellBytes + 1 , denseBorderness, denseBorderness.length);
     }
 
     public boolean getBorderness(int node) {
         byte[] buffer = new byte[1];
-        isochroneNodes.getBytes((long) node * cellBytes, buffer, 1);
-        return buffer[0] == 1;
+        isochroneNodes.getBytes((long) nodeCount * cellBytes + 1 + node / 8, buffer, 1);
+        return isByteSetAtPosition(buffer[0], (byte)(node % 8));
     }
 
     public int getCellId(int node) {
         byte[] buffer = new byte[4];
-        isochroneNodes.getBytes((long) node * cellBytes + 1, buffer, 4);
+        isochroneNodes.getBytes((long) node * cellBytes, buffer, 4);
         return byteArrayToInteger(buffer);
     }
 
@@ -93,7 +91,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         for (int node = 0; node < cellIds.length; node++) {
             int cellId = cellIds[node];
             cellIdsSet.add(cellId);
-            isochroneNodes.setBytes((long) node * cellBytes + 1, intToByteArray(cellId), 4);
+            isochroneNodes.setBytes((long) node * cellBytes, intToByteArray(cellId), 4);
         }
     }
 
