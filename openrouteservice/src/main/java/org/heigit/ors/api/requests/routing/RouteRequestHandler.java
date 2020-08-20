@@ -349,58 +349,9 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
-    @Override
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
-        // It seems that arrays in json.simple cannot be converted to strings simply
-        org.json.JSONObject complexJson = new org.json.JSONObject();
-        complexJson.put("type", geoJson.get("type"));
-        List<List<Double[]>> coordinates = (List<List<Double[]>>) geoJson.get("coordinates");
-        complexJson.put("coordinates", coordinates);
-
-        Geometry convertedGeom;
-        try {
-            convertedGeom = GeometryJSON.parse(complexJson);
-        } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-        }
-
-        Polygon[] avoidAreas;
-
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
-        } else if (convertedGeom instanceof MultiPolygon) {
-            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
-            avoidAreas = new Polygon[multiPoly.getNumGeometries()];
-            for (int i = 0; i < multiPoly.getNumGeometries(); i++)
-                avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
-        } else {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-        }
-
-        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
-        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
-        for (Polygon avoidArea : avoidAreas) {
-            try {
-                if (areaLimit > 0) {
-                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
-                    if (area > areaLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
-                    }
-                }
-                if (extentLimit > 0) {
-                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
-                    if (extent > extentLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
-                    }
-                }
-            } catch (InternalServerException e) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-            }
-        }
-
-        return avoidAreas;
+    public Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+        Polygon[] avoidAreas = super.convertAvoidAreas(geoJson, profileType);
+        return checkAvoidAreas(avoidAreas, profileType);
     }
 
     private WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {

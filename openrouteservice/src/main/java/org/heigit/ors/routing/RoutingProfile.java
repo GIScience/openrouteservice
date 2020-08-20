@@ -617,6 +617,11 @@ public class RoutingProfile {
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+        PMap props = searchCntx.getProperties();
+        if (props.has("avoid_areas")) {
+            req.setFlexibleMode(true);
+        }
 
         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
 
@@ -640,7 +645,9 @@ public class RoutingProfile {
 
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
-            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
+            EdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
+            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(props, flagEncoder, gh.getGraphHopperStorage());
+            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
@@ -714,7 +721,7 @@ public class RoutingProfile {
         int profileType = searchParams.getProfileType();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
 
-        if ("UNKNOWN".equals(encoderName))
+        if ("UNKNOWN".  equals(encoderName))
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
 
         if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {

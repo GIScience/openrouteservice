@@ -14,6 +14,7 @@
 package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -23,7 +24,7 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
-  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);
+  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter filter);
   
   public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception;
 }

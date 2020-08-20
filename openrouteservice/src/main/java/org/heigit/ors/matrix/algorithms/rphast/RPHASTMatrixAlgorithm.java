@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -37,8 +38,8 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private MultiTreeMetricsExtractor pathMetricsExtractor;
 
 	@Override
-	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
-		super.init(req, gh, graph, encoder, weighting);
+	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter filter) {
+		super.init(req, gh, graph, encoder, weighting, filter);
 
 		prepareCH = graphHopper.getCHFactoryDecorator().getPreparations().get(0);
 		pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting,

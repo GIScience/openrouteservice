@@ -87,12 +87,12 @@ public class MatrixRequestHandlerTest {
     }
 
     @Test
-    public void convertMatrixRequestTest() throws StatusCodeException {
+    public void convertMatrixRequestTest() throws Exception {
         org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
-        MatrixRequest matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        MatrixRequest matrixRequest = new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
         Assert.assertEquals(1, matrixRequest.getProfileType());
         Assert.assertEquals(3, matrixRequest.getSources().length);
         Assert.assertEquals(3, matrixRequest.getDestinations().length);
@@ -111,49 +111,49 @@ public class MatrixRequestHandlerTest {
         metrics[0] = MatrixRequestEnums.Metrics.DURATION;
         metrics[1] = MatrixRequestEnums.Metrics.DISTANCE;
         springMatrixRequest.setMetrics(metrics);
-        matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        matrixRequest = new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
 
         Assert.assertEquals(3, matrixRequest.getMetrics());
     }
 
     @Test(expected = ParameterValueException.class)
-    public void invalidLocationsTest() throws StatusCodeException {
+    public void invalidLocationsTest() throws Exception {
         org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
-    public void invalidMetricsTest() throws StatusCodeException {
+    public void invalidMetricsTest() throws Exception {
         org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
-    public void invalidSourceIndexTest() throws StatusCodeException {
+    public void invalidSourceIndexTest() throws Exception {
         org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
-    public void invalidDestinationIndexTest() throws StatusCodeException {
+    public void invalidDestinationIndexTest() throws Exception {
         org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"foo"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test
