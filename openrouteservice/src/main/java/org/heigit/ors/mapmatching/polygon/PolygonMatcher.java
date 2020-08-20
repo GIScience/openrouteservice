@@ -85,14 +85,12 @@ public class PolygonMatcher {
     Set<Integer> edges = new HashSet<>();
     EdgeExplorer edgeExplorer = graphHopper.getGraphHopperStorage().createEdgeExplorer();
 
-    Set<Integer> nodesInPolygonBBox = getNodesInPolygonBBox(polygon);
-    for (Integer node: nodesInPolygonBBox) {
-      if (nodeInPolygon(node, polygon)) {
-        // here an additional check can be added if the edge should really be added to the set
-        EdgeIterator edgeIterator = edgeExplorer.setBaseNode(node);
-        while (edgeIterator.next()) {
-          edges.add(edgeIterator.getEdge());
-        }
+    Set<Integer> nodesInPolygon = getNodesInPolygon(polygon);
+    for (Integer node: nodesInPolygon) {
+      EdgeIterator edgeIterator = edgeExplorer.setBaseNode(node);
+      // here an additional check can be added if the edge should really be added to the set
+      while (edgeIterator.next()) {
+        edges.add(edgeIterator.getEdge());
       }
     }
 
@@ -110,7 +108,7 @@ public class PolygonMatcher {
     return point.within(polygon) || point.intersects(polygon);
   }
 
-  private Set<Integer> getNodesInPolygonBBox(Polygon polygon) {
+  private Set<Integer> getNodesInPolygon(Polygon polygon) {
     Set<Integer> nodes = new HashSet<>();
     Geometry boundary = polygon.getBoundary();
     ObjectHashSet<Coordinate> coordinates = generatePointsInPolygon(getBoundingBox(boundary), polygon);
@@ -119,7 +117,10 @@ public class PolygonMatcher {
       if (qResults.isEmpty()) continue;
       coordinates.removeAll(c -> distance(coord.value, c) < searchRadius);
       for (QueryResult qResult: qResults) {
-        nodes.add(qResult.getClosestNode());
+        int node = qResult.getClosestNode();
+        if (nodeInPolygon(node, polygon)) {
+          nodes.add(node);
+        }
       }
     }
     return nodes;
