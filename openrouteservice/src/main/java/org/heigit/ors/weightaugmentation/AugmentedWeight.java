@@ -15,19 +15,23 @@ public class AugmentedWeight {
   private final double weight;
   /** weight should not be 0.0 or lower */
   public static final double MIN_WEIGHT = 0.0;
-  /** weight should not be higher than 2.0 */
-  public static final double MAX_WEIGHT = 2.0;
+  /** weights higher than 10.0 are treated as positive infinity weight factor */
+  public static final double MAX_WEIGHT = 10.0;
 
   /**
    * Create augmented weight and create a fitting {@link EdgeFilter}. Checks if the weight is proper and creates an {@link EdgeFilter}.
    * @param geometry given {@link Geometry}
-   * @param weight given weight factor. Allowed values: {@link #MIN_WEIGHT} ({@value #MIN_WEIGHT}) &lt; {@code weight} &leq; {@link #MAX_WEIGHT} ({@value #MAX_WEIGHT})
+   * @param weight given weight factor. Allowed values: {@link #MIN_WEIGHT} ({@value #MIN_WEIGHT}) &lt; {@code weight} &leq; {@link #MAX_WEIGHT} ({@value #MAX_WEIGHT}). All values above this range are treated as {@link Double#POSITIVE_INFINITY}.
    * @throws ParameterValueException thrown for a weight factor out of range
    */
   public AugmentedWeight(Geometry geometry, double weight) throws ParameterValueException {
     this.geometry = geometry;
-    if ((MIN_WEIGHT < weight) && (weight <= MAX_WEIGHT)) {
-      this.weight = weight;
+    if (MIN_WEIGHT < weight) {
+      if (weight < MAX_WEIGHT) {
+        this.weight = weight;
+      } else {
+        this.weight = Double.POSITIVE_INFINITY;
+      }
     } else {
       throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequest.PARAM_USER_WEIGHTS, String.valueOf(weight), "Weight has to be between " + MIN_WEIGHT + " and " + MAX_WEIGHT + "!");
     }

@@ -27,22 +27,21 @@ public class AugmentedWeightTest {
   @Test
   public void testNegativeWeight() throws ParameterValueException {
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '-1.5'. Weight has to be between 0.0 and 2.0!");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '-1.5'. Weight has to be between 0.0 and 10.0!");
     new AugmentedWeight(geometry, -1.5);
   }
 
   @Test
   public void testNullWeight() throws ParameterValueException {
     thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '0.0'. Weight has to be between 0.0 and 2.0!");
+    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '0.0'. Weight has to be between 0.0 and 10.0!");
     new AugmentedWeight(geometry, 0.0);
   }
 
   @Test
-  public void testOverMaxWeight() throws ParameterValueException {
-    thrown.expect(ParameterValueException.class);
-    thrown.expectMessage("Parameter 'user_weights' has incorrect value of '2.1'. Weight has to be between 0.0 and 2.0!");
-    new AugmentedWeight(geometry, 2.1);
+  public void testMaxWeight() throws ParameterValueException {
+    augmentedWeight = new AugmentedWeight(geometry, 10.0);
+    Assert.assertEquals(Double.POSITIVE_INFINITY, augmentedWeight.getWeight(), 0.0);
   }
 
   @Test
