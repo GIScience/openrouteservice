@@ -40,10 +40,10 @@ public class PolygonMatcher {
   private final GeometryFactory gf = new GeometryFactory();
   private GraphHopper graphHopper;
   private LocationIndexTree locationIndex;
-  /** in meters */
+  /** in meters, default 50 */
   private double searchRadius = 50;
-  /** in degree, 0.0001 is about 11.132m at equator */
-  private double nodeGridStepSize = 0.0001;
+  /** in degree, default 0.0004 is about 44.528m at equator */
+  private double nodeGridStepSize = 0.0004;
 
   /**
    * Set {@link GraphHopper} instance to work on.
