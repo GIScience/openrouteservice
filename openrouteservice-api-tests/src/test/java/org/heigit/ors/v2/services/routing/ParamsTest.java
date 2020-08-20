@@ -1768,7 +1768,7 @@ public class ParamsTest extends ServiceTest {
 	}
 
 	@Test
-	public void testAugmentedWeights() {
+	public void testAugmentedWeightsMissingWeight() {
 		JSONObject body = new JSONObject();
 		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
 		body.put("user_weights", "{\"type\": \"Polygon\", \"coordinates\": [[[8.680, 49.416], [8.664, 49.399], [8.692, 49.401], [8.680, 49.416]]]}");

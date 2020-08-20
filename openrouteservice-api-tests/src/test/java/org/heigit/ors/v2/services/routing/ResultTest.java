@@ -3020,7 +3020,7 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    /** route changes through the polygon */
+    /** Route changes through the polygon */
     @Test
     public void testAugmentedRoutingLowerWeight() {
         String polygonCoords = "8.684885,49.423717|8.683619,49.423536|8.685014,49.420577|8.688426,49.421107|8.684885,49.423717";
