@@ -39,12 +39,22 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.fastisochrones.Contour;
+import org.heigit.ors.fastisochrones.Eccentricity;
+import org.heigit.ors.isochrones.IsochroneWeightingFactory;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
+import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
@@ -78,13 +88,14 @@ public class ORSGraphHopper extends GraphHopper {
 	private GraphProcessContext processContext;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
+	private Eccentricity eccentricity;
 
 	private int minNetworkSize = 200;
 	private int minOneWayNetworkSize = 0;
 
 	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
-
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
+	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
 	private double maximumSpeedLowerBound;
 
@@ -109,6 +120,7 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	public GraphHopper init(CmdArgs args) {
 		GraphHopper ret = super.init(args);
+		fastIsochroneFactory.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
 
@@ -629,6 +641,42 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
+		if(fastIsochroneFactory.isEnabled()) {
+			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
+			try {
+				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+			} catch (Exception e) {
+				LOGGER.debug(e.getLocalizedMessage());
+			}
+			fastIsochroneFactory.createPreparation(gs, partitioningEdgeFilter);
+
+			if (!isPartitionPrepared())
+				preparePartition();
+			else {
+				fastIsochroneFactory.setExistingStorages();
+				fastIsochroneFactory.getCellStorage().loadExisting();
+				fastIsochroneFactory.getIsochroneNodeStorage().loadExisting();
+			}
+			//No fast isochrones without partition
+			if (isPartitionPrepared()) {
+				/* Initialize edge filter sequence for fast isochrones*/
+				calculateContours();
+				List<CHProfile> chProfiles = new ArrayList<>();
+				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
+						Weighting weighting = createWeighting(new HintsMap(coreWeightingStr).put("isochroneWeighting", "true"), encoder, null);
+						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
+					}
+				}
+
+				for (CHProfile chProfile : chProfiles) {
+					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+						calculateCellProperties(chProfile.getWeighting(), encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+					}
+				}
+			}
+		}
+
 	}
 
 
@@ -745,5 +793,52 @@ public class ORSGraphHopper extends GraphHopper {
 			}
 		}
 		return false;
+	}
+	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
+		if(eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType)))
+		    return true;
+		return false;
+	}
+
+
+	/**
+	 * Partitioning
+	 */
+	public final FastIsochroneFactory getFastIsochroneFactory() {
+		return fastIsochroneFactory;
+	}
+
+	protected void preparePartition() {
+		if (fastIsochroneFactory.isEnabled()) {
+			ensureWriteAccess();
+
+			getGraphHopperStorage().freeze();
+			fastIsochroneFactory.prepare(getGraphHopperStorage().getProperties());
+			getGraphHopperStorage().getProperties().put(ORSParameters.FastIsochrone.PREPARE + "done", true);
+		}
+	}
+
+	private boolean isPartitionPrepared() {
+		return "true".equals(getGraphHopperStorage().getProperties().get(ORSParameters.FastIsochrone.PREPARE + "done"));
+	}
+
+	private void calculateContours(){
+		if(fastIsochroneFactory.getCellStorage().isContourPrepared())
+			return;
+		Contour contour = new Contour(getGraphHopperStorage(), getGraphHopperStorage().getNodeAccess(), fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+		contour.calculateContour();
+	}
+
+	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+		if (eccentricity == null)
+			eccentricity = new Eccentricity(getGraphHopperStorage(), getLocationIndex(), isochroneNodeStorage, cellStorage);
+		if(!eccentricity.loadExisting(weighting)) {
+			eccentricity.calcEccentricities(weighting, flagEncoder);
+			eccentricity.calcBorderNodeDistances(weighting, flagEncoder);
+		}
+	}
+
+	public Eccentricity getEccentricity(){
+		return eccentricity;
 	}
 }

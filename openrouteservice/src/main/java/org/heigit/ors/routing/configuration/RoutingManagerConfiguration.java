@@ -17,6 +17,7 @@ import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Envelope;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 
@@ -52,14 +53,33 @@ public class RoutingManagerConfiguration  {
 	private RouteUpdateConfiguration updateConfig;
 	private RouteProfileConfiguration[] profiles;
 
+	private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String,Object> defaultFastIsochroneParams, RouteProfileConfiguration profile){
+		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.profile-" + profile.getName();
+		Map<String, Object> profileParams = IsochronesServiceSettings.getParametersMap(profileRef, true);
+
+		if (profileParams == null)
+			profileParams = defaultFastIsochroneParams;
+		else if (defaultFastIsochroneParams != null) {
+			for (Map.Entry<String, Object> defParamItem : defaultFastIsochroneParams.entrySet()) {
+				if (!profileParams.containsKey(defParamItem.getKey()))
+					profileParams.put(defParamItem.getKey(), defParamItem.getValue());
+			}
+		}
+		profile.setIsochronePreparationOpts(ConfigFactory.parseString(profileParams.toString()));
+	}
+
 	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception {
 		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
-		if (!Helper.isEmpty(path))
+		if (!Helper.isEmpty(path)) {
 			RoutingServiceSettings.loadFromFile(path);
+			IsochronesServiceSettings.loadFromFile(path);
+		}
 
 		// Read profile settings
 		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
+		List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
+		Map<String,Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
 		List<String> profileList = RoutingServiceSettings.getParametersList("profiles.active");
 		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params", true);
 		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"') : null;
@@ -81,6 +101,8 @@ public class RoutingManagerConfiguration  {
 			}
 
 			profile.setGraphPath(graphPath);
+
+			addFastIsochronesToProfileConfiguration(fastIsochroneProfileList, defaultFastIsochroneParams, profile);
 
 			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters", true);
 

@@ -80,5 +80,25 @@ public class ORSParameters {
         public static final String INIT_DISABLING_ALLOWED = ROUTING_INIT_PREFIX + "corelm.disabling_allowed";
     }
 
+    /**
+     * Properties for partition preparation
+     */
+    public static final class FastIsochrone {
+        public static final String PREPARE = "prepare.fastisochrone.";
+        /**
+         * This property name in HintsMap configures at runtime if CH routing should be ignored.
+         */
+        public static final String PROFILE = "fastisochrone.profile";
+        /**
+         * This property name configures at start if the DISABLE parameter can have an effect.
+         */
+        public static final String INIT_DISABLING_ALLOWED = ROUTING_INIT_PREFIX + "fastisochrone.disabling_allowed";
+        /**
+         * The property name in HintsMap if heading should be used for CH regardless of the possible
+         * routing errors.
+         */
+        public static final String FORCE_HEADING = "fastisochrone.force_heading";
+    }
+
 
 }
