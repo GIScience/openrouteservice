@@ -3076,6 +3076,8 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
             .then()
                 .assertThat()
+                    .body("any { it.key == 'routes' }", is(false))
+                    .body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
                     .statusCode(404);
         }
 
