@@ -1782,7 +1782,7 @@ public class ParamsTest extends ServiceTest {
 				.post(getEndPointPath() + "/{profile}")
 				.then()
 				.assertThat()
-				.body("any { it.key == 'rroutes' }", is(false))
+				.body("any { it.key == 'routes' }", is(false))
 				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
 				.statusCode(400);
 	}

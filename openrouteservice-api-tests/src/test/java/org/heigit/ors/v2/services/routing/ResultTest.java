@@ -3020,6 +3020,67 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    /** route changes through the polygon */
+    @Test
+    public void testAugmentedRoutingLowerWeight() {
+        String polygonCoords = "8.684885,49.423717|8.683619,49.423536|8.685014,49.420577|8.688426,49.421107|8.684885,49.423717";
+        testAugmentedRouting(polygonCoords, 0.2, 2140.2f, 1259.9f, true);
+    }
+
+    /** Route changes around the polygon */
+    @Test
+    public void testAugmentedRoutingHigherWeight() {
+        String polygonCoords = "8.681237,49.423662|8.682804,49.418204|8.689563,49.418874|8.684842,49.424429|8.681237,49.423662";
+        testAugmentedRouting(polygonCoords, 2, 2267.7f, 1632.7f, true);
+    }
+
+    /** Route stays the same but the duration gets higher */
+    @Test
+    public void testAugmentedRoutingHigherWeightInPolygon() {
+        String polygonCoords = "8.690485,49.425853|8.672633,49.423983|8.677225,49.410023|8.694648,49.412313|8.690485,49.425853";
+        testAugmentedRouting(polygonCoords, 2, 2002.4f, 2796.2f, true);
+    }
+
+    /** No route to be found because weighting should be set to infinity (weightFactor >= 10) */
+    @Test
+    public void testAugmentedRoutingNoRouteFound() {
+        String polygonCoords = "8.690485,49.425853|8.672633,49.423983|8.677225,49.410023|8.694648,49.412313|8.690485,49.425853";
+        testAugmentedRouting(polygonCoords, 100, 0, 0, false);
+    }
+
+    private void testAugmentedRouting(String polygonCoords, double weightFactor, float expectedDistance, float expectedDuration, boolean expectRoute) {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("user_weights", constructPolygonGeoJSON(polygonCoords, weightFactor));
+
+        if (expectRoute) {
+            given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "foot-hiking")
+                .body(body.toString())
+            .when()
+                .post(getEndPointPath() + "/{profile}/json")
+            .then()
+                .assertThat()
+                    .body("routes[0].summary.distance", is(expectedDistance))
+                    .body("routes[0].summary.duration", is(expectedDuration))
+                    .statusCode(200);
+        } else {
+            given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "foot-hiking")
+                .body(body.toString())
+            .when()
+                .post(getEndPointPath() + "/{profile}/json")
+            .then()
+                .assertThat()
+                    .statusCode(404);
+        }
+
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
@@ -3047,5 +3108,35 @@ public class ResultTest extends ServiceTest {
             items.put(extra);
         }
         return items;
+    }
+
+    private JSONObject constructPolygonGeoJSON(String coordString, Double weightFactor) {
+        // create geometry
+        JSONObject geometry = new JSONObject();
+        geometry.put("type", "Polygon");
+        geometry.put("coordinates", new JSONArray("[" + constructBearings(coordString) + "]"));
+        // create geoJSON
+        JSONObject geoJSON = new JSONObject();
+        geoJSON.put("type", "Feature");
+        if (weightFactor != null) {
+            geoJSON.put("properties", new JSONObject(String.format("{weight: %s}", weightFactor)));
+        }
+        geoJSON.put("geometry", geometry);
+        return geoJSON;
+    }
+
+    private JSONObject constructLineStringGeoJSON(String coordString, Double weightFactor) {
+        // create geometry
+        JSONObject geometry = new JSONObject();
+        geometry.put("type", "LineString");
+        geometry.put("coordinates", constructBearings(coordString));
+        // create geoJSON
+        JSONObject geoJSON = new JSONObject();
+        geoJSON.put("type", "Feature");
+        if (weightFactor != null) {
+            geoJSON.put("properties", new JSONObject(String.format("{weight: %s}", weightFactor)));
+        }
+        geoJSON.put("geometry", geometry);
+        return geoJSON;
     }
 }
