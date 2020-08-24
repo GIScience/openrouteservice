@@ -80,7 +80,7 @@ public class RoutingManagerConfiguration  {
 		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
 		List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
 		Map<String,Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
-		if (defaultFastIsochroneParams == null) {
+		if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in app.config
 			defaultFastIsochroneParams = new HashMap<>();
 			defaultFastIsochroneParams.put("enabled", false);
 		}
