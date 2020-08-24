@@ -80,6 +80,10 @@ public class RoutingManagerConfiguration  {
 		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
 		List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
 		Map<String,Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
+		if (defaultFastIsochroneParams == null) {
+			defaultFastIsochroneParams = new HashMap<>();
+			defaultFastIsochroneParams.put("enabled", false);
+		}
 		List<String> profileList = RoutingServiceSettings.getParametersList("profiles.active");
 		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params", true);
 		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"') : null;
