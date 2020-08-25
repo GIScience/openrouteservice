@@ -109,6 +109,28 @@ public class PolygonMatcher {
     return point.within(polygon) || point.intersects(polygon);
   }
 
+  private Set<Integer> getNodesInPolygonAlternative(Polygon polygon) {
+    Set<Integer> nodes = new HashSet<>();
+    Point searchPoint = polygon.getCentroid();
+    double maxDistance = 0.0;
+    for (Coordinate polygonCoordinate: polygon.getCoordinates()) {
+      maxDistance = Math.max(maxDistance, searchPoint.distance(gf.createPoint(polygonCoordinate)));
+    }
+    System.out.println("maxDistance = " + maxDistance + " => " + degreesToMetres(maxDistance));
+    maxDistance = degreesToMetres(maxDistance*200);
+    System.out.println("searchPoint = " + searchPoint);
+    List<QueryResult> qResults = locationIndex.findNClosest(searchPoint.getY(), searchPoint.getX(), EdgeFilter.ALL_EDGES, maxDistance);
+    System.out.println("qResults = " + qResults.size());
+    for (QueryResult qResult: qResults) {
+      int node = qResult.getClosestNode();
+      if (nodeInPolygon(node, polygon)) {
+        nodes.add(node);
+      }
+    }
+    System.out.println("nodes = " + nodes);
+    return nodes;
+  }
+
   private Set<Integer> getNodesInPolygon(Polygon polygon) {
     Set<Integer> nodes = new HashSet<>();
     Geometry boundary = polygon.getBoundary();
