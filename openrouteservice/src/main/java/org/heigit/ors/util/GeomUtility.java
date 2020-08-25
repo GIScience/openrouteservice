@@ -139,6 +139,11 @@ public class GeomUtility {
 		return metres / 111139;
 	}
 
+	public static double degreesToMetres(double metres) {
+		// One degree latitude is approximately 111,139 metres on a spherical earth
+		return 111139 / metres;
+	}
+
 	public static double getArea(Geometry geom, boolean inMeters) throws InternalServerException {
 		try {
 			if (inMeters) {

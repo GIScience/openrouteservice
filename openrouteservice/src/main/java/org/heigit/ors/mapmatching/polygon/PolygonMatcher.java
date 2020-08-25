@@ -1,6 +1,7 @@
 package org.heigit.ors.mapmatching.polygon;
 
 import static org.heigit.ors.util.CoordTools.distance;
+import static org.heigit.ors.util.GeomUtility.degreesToMetres;
 
 import com.carrotsearch.hppc.ObjectHashSet;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
@@ -115,7 +116,8 @@ public class PolygonMatcher {
     for (ObjectCursor<Coordinate> coord: coordinates) {
       List<QueryResult> qResults = locationIndex.findNClosest(coord.value.y, coord.value.x, EdgeFilter.ALL_EDGES, searchRadius);
       if (qResults.isEmpty()) continue;
-      coordinates.removeAll(c -> distance(coord.value, c) < searchRadius);
+      // remove all grid coordinates within searchRadius * 0.75, to prevent missing nodes
+      coordinates.removeAll(c -> distance(coord.value, c) < searchRadius * 0.75);
       for (QueryResult qResult: qResults) {
         int node = qResult.getClosestNode();
         if (nodeInPolygon(node, polygon)) {

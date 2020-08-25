@@ -62,6 +62,14 @@ public class AugmentationStorage {
   }
 
   /**
+   * Returns the number of augmentations.
+   * @return number of augmentations
+   */
+  public int size() {
+    return augmentations.size();
+  }
+
+  /**
    * Check if objects are equal.
    */
   @Override
