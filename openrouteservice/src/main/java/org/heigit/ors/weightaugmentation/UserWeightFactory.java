@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.AugmentationStorageException;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
@@ -20,9 +21,11 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.mapmatching.point.PointMatcher;
 import org.heigit.ors.mapmatching.polygon.PolygonMatcher;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.util.DebugUtility;
 
 public class UserWeightFactory {
   public static final String USED_PARAM = RouteRequest.PARAM_USER_WEIGHTS;
+  private static final Logger LOGGER = Logger.getLogger(UserWeightFactory.class.getName());
 
   private final AugmentationStorage augmentationStorage;
   private final PolygonMatcher polygonMatcher;
@@ -60,6 +63,9 @@ public class UserWeightFactory {
     }
     //noinspection unchecked
     getEdgesAndFillStorage((List<AugmentedWeight>) params.getObj(USED_PARAM));
+    if (DebugUtility.isDebug()) {
+      LOGGER.info(String.format("Number of augmentations: %s", augmentationStorage.size()));
+    }
   }
 
   /**
