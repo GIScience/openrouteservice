@@ -118,11 +118,14 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 		try {
 			ORSPMap params = (ORSPMap)opts;
+			if (params == null) {
+				params = new ORSPMap();
+			}
 
 			int extraInfo = params.getInt("routing_extra_info", 0);
 			profileType = params.getInt("routing_profile_type", 0);
 			ProfileParameters profileParameters = (ProfileParameters) params.getObj("routing_profile_params");
-			boolean suppressWarnings = opts.getBool("routing_suppress_warnings", false);
+			boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
 			warningExtensions = new ArrayList<>();
 

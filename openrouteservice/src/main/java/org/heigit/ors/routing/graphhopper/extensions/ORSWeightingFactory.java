@@ -58,6 +58,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 
 		Weighting result = null;
 
+        if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
+            return createIsochroneWeighting(hintsMap, encoder);
+
 		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
 			result = new ShortestWeighting(encoder); 
@@ -153,6 +156,31 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		return result;
 	}
+
+    public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
+        String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+        if (Helper.isEmpty(strWeighting))
+            strWeighting = hintsMap.getWeighting();
+
+        Weighting result = null;
+
+        //Isochrones only support fastest or shortest as no path is found.
+        //CalcWeight must be directly comparable to the isochrone limit
+
+        if ("shortest".equalsIgnoreCase(strWeighting))
+        {
+            result = new ShortestWeighting(encoder);
+        }
+        else if ("fastest".equalsIgnoreCase(strWeighting)
+                || "priority".equalsIgnoreCase(strWeighting)
+                || "recommended_pref".equalsIgnoreCase(strWeighting)
+                || "recommended".equalsIgnoreCase(strWeighting))
+        {
+            result = new FastestWeighting(encoder, hintsMap);
+        }
+
+        return result;
+    }
 
 	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
 		return encoder instanceof FootFlagEncoder;
