@@ -14,6 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
@@ -578,7 +579,7 @@ public class RoutingProfileManager {
             if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
             }
-            if(!(rp.getGraphhopper().getEncodingManager().hasEncoder("heavyvehicle") || rp.getGraphhopper().getEncodingManager().hasEncoder("car-ors")) ){
+            if(RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING){
                 throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }

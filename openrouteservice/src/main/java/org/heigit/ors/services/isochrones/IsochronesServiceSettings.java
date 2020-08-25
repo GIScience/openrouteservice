@@ -13,15 +13,16 @@
  */
 package org.heigit.ors.services.isochrones;
 
+import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigObject;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.RoutingProfileType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static org.heigit.ors.common.TravelRangeType.DISTANCE;
@@ -33,26 +34,40 @@ public class IsochronesServiceSettings {
 	private static Map<Integer, Integer> profileMaxRangeDistances;
 	private static int maximumRangeTime = 3600; // in seconds
 	private static Map<Integer, Integer> profileMaxRangeTimes;
+	private static int fastIsochronesMaximumRangeDistance = 100000; //  in meters
+	private static Map<Integer, Integer> fastIsochronesProfileMaxRangeDistances;
+	private static int fastIsochronesMaximumRangeTime = 3600; // in seconds
+	private static Map<Integer, Integer> fastIsochronesProfileMaxRangeTimes;
+	private static Set<Integer> fastIsochroneProfiles = new HashSet<>();
 	private static int maximumIntervals = 1;
 	private static boolean allowComputeArea = true;
 	private static Map<String, StatisticsProviderConfiguration> statsProviders;
 	private static String attribution = "";
+	private static String weightings = "";
+	private static AppConfig config;
 
 	private IsochronesServiceSettings() {}
 
 	public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
+
+	public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
 
 	public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
 
 	public static final String KEY_ATTRIBUTION = "attribution";
 
 	static {
+		config = AppConfig.getGlobal();
 		String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
 		if (value != null)
 			maximumLocations = Integer.parseInt(value);
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "weightings");
+		if (value != null)
+			weightings = value;
+
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
 		if (value != null)
 			maximumRangeDistance = Integer.parseInt(value);
@@ -79,6 +94,27 @@ public class IsochronesServiceSettings {
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
 		if (value != null)
 			allowComputeArea = Boolean.parseBoolean(value);
+
+		//Fast isochrones
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+		if (value != null)
+			fastIsochronesMaximumRangeDistance = Integer.parseInt(value);
+		else {
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+			fastIsochronesProfileMaxRangeDistances = getParameters(params);
+			if (fastIsochronesProfileMaxRangeDistances.containsKey(-1))
+				fastIsochronesMaximumRangeDistance = fastIsochronesProfileMaxRangeDistances.get(-1);
+		}
+
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+		if (value != null)
+			fastIsochronesMaximumRangeTime = Integer.parseInt(value);
+		else {
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+			fastIsochronesProfileMaxRangeTimes = getParameters(params);
+			if (fastIsochronesProfileMaxRangeTimes.containsKey(-1))
+				fastIsochronesMaximumRangeTime = fastIsochronesProfileMaxRangeTimes.get(-1);
+		}
 
 		statsProviders = new HashMap<>();
 
@@ -117,6 +153,10 @@ public class IsochronesServiceSettings {
 			attribution = value;
 	}
 
+	public static void loadFromFile(String path) {
+		config = new AppConfig(path);
+	}
+
 	private static Map<Integer, Integer> getParameters(List<? extends ConfigObject> params) {
 		Map<Integer, Integer> result = new HashMap<>();
 
@@ -139,6 +179,17 @@ public class IsochronesServiceSettings {
 		return enabled;
 	}
 
+	public static void setFastIsochronesActive(String profile) {
+		int routingProfile = RoutingProfileType.getFromString(profile);
+		fastIsochroneProfiles.add(routingProfile);
+	}
+
+	public static String getWeightings() {
+		if (weightings == "")
+			return "fastest";
+		return weightings;
+	}
+
 	public static boolean getAllowComputeArea() {
 		return allowComputeArea;
 	}
@@ -147,8 +198,10 @@ public class IsochronesServiceSettings {
 		return maximumLocations;
 	}
 
-	public static int getMaximumRange(int profileType, TravelRangeType range) {
+	public static int getMaximumRange(int profileType, String calcMethod, TravelRangeType range) {
 		Integer res;
+		if(fastIsochroneProfiles.contains(profileType) && calcMethod.equalsIgnoreCase("fastisochrone"))
+			return getMaximumRangeFastIsochrone(profileType, range);
 		if (range == DISTANCE) {
 			res = maximumRangeDistance;
 			if (profileMaxRangeDistances != null && profileMaxRangeDistances.containsKey(profileType)) {
@@ -158,6 +211,23 @@ public class IsochronesServiceSettings {
 			res = maximumRangeTime;
 			if (profileMaxRangeTimes != null && profileMaxRangeTimes.containsKey(profileType)) {
 				res = profileMaxRangeTimes.get(profileType);
+			}
+		}
+
+		return res;
+	}
+
+	private static int getMaximumRangeFastIsochrone(int profileType, TravelRangeType range) {
+		Integer res;
+		if (range == DISTANCE) {
+			res = fastIsochronesMaximumRangeDistance;
+			if (fastIsochronesProfileMaxRangeDistances != null && fastIsochronesProfileMaxRangeDistances.containsKey(profileType)) {
+				res = fastIsochronesProfileMaxRangeDistances.get(profileType);
+			}
+		} else {
+			res = fastIsochronesMaximumRangeTime;
+			if (fastIsochronesProfileMaxRangeTimes != null && fastIsochronesProfileMaxRangeTimes.containsKey(profileType)) {
+				res = fastIsochronesProfileMaxRangeTimes.get(profileType);
 			}
 		}
 
@@ -182,5 +252,29 @@ public class IsochronesServiceSettings {
 
 	public static String getAttribution() {
 		return attribution;
-	}	
+	}
+
+	public static String getParameter(String paramName)  {
+		return config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static String getParameter(String paramName, boolean notNull) throws Exception  {
+		String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
+		if (notNull && Helper.isEmpty(value))
+			throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
+
+		return value;
+	}
+
+	public static List<String> getParametersList(String paramName)  {
+		return config.getServiceParametersList(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static List<Double> getDoubleList(String paramName)  {
+		return config.getDoubleList(SERVICE_NAME_ISOCHRONES, paramName);
+	}
+
+	public static Map<String, Object> getParametersMap(String paramName, boolean quotedStrings) {
+		return config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, paramName, quotedStrings);
+	}
 }

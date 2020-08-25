@@ -79,7 +79,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
         for (int i = 0; i < travellers.size(); ++i) {
             TravellerInfo traveller = travellers.get(i);
-            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), req.getCalcMethod(), traveller.getRangeType());
             double maxRange = traveller.getMaximumRange();
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Double.toString(maxRange), Integer.toString(maxAllowedRange));

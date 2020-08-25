@@ -50,6 +50,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
@@ -93,13 +94,16 @@ public class RoutingProfile {
     private static final String KEY_PREPARE_CH_WEIGHTINGS = "prepare.ch.weightings";
     private static final String KEY_PREPARE_LM_WEIGHTINGS = "prepare.lm.weightings";
     private static final String KEY_PREPARE_CORE_WEIGHTINGS = "prepare.core.weightings";
+    private static final String KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS = "prepare.fastisochrone.weightings";
     private static final String KEY_METHODS_CH = "methods.ch";
     private static final String VAL_ENABLED = "enabled";
     private static final String KEY_THREADS = "threads";
     private static final String KEY_WEIGHTINGS = "weightings";
+    private static final String KEY_MAXCELLNODES = "maxcellnodes";
     private static final String KEY_METHODS_LM = "methods.lm";
     private static final String KEY_LANDMARKS = "landmarks";
     private static final String KEY_METHODS_CORE = "methods.core";
+    private static final String KEY_METHODS_FASTISOCHRONE = "methods.fastisochrone";
     private static final String KEY_DISABLING_ALLOWED = "disabling_allowed";
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
@@ -245,10 +249,32 @@ public class RoutingProfile {
         boolean prepareCH = false;
         boolean prepareLM = false;
         boolean prepareCore = false;
+        boolean prepareFI= false;
 
         args.put(KEY_PREPARE_CH_WEIGHTINGS, "no");
         args.put(KEY_PREPARE_LM_WEIGHTINGS, "no");
         args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
+
+        if (config.getIsochronePreparationOpts() != null) {
+            Config fastisochroneOpts = config.getIsochronePreparationOpts();
+            prepareFI = true;
+            if (fastisochroneOpts.hasPath(VAL_ENABLED) || fastisochroneOpts.getBoolean(VAL_ENABLED)) {
+                prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
+                if (!prepareFI)
+                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
+                else
+                    args.put(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
+            }
+
+            if (prepareFI) {
+                if (fastisochroneOpts.hasPath(KEY_THREADS))
+                    args.put("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
+                if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS))
+                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
+                if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
+                    args.put("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
+            }
+        }
 
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
