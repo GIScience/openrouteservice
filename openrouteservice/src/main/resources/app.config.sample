@@ -28,11 +28,11 @@
         ],
         "fastisochrones": {
           "maximum_range_distance": [
-            { "profiles": "any", "value": 50000 }
+            { "profiles": "any", "value": 50000 },
             { "profiles": "driving-car, driving-hgv", "value": 500000 }
           ],
           "maximum_range_time": [
-            { "profiles": "any", "value": 18000 }
+            { "profiles": "any", "value": 18000 },
             { "profiles": "driving-car, driving-hgv", "value": 10800 }
           ],
           "profiles": {
