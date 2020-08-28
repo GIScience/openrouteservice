@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.GHResponse;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
@@ -281,6 +281,9 @@ public class RoutingProfileManager {
                 if (obj instanceof ExtraInfoProcessor) {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor)obj;
+                        if (!Strings.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                        }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
                     }
@@ -293,7 +296,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
+        return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -415,6 +418,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
                         extraInfoProcessorIndex++;
+                        if (!Strings.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                        }
                     }
                 }
             } else {
@@ -422,6 +428,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor)o;
+                            if (!Strings.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
                         }

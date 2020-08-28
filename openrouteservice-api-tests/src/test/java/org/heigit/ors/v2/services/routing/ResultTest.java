@@ -1182,6 +1182,37 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testInvalidExtraInfoWarning() {
+        JSONObject body = new JSONObject();
+        body.put("preference", "recommended");
+        body.put("coordinates", new JSONArray("[[8.682386, 49.417412],[8.690583, 49.413347]]"));
+        body.put("extra_info", new JSONArray("[\"steepness\",\"suitability\",\"surface\",\"waycategory\",\"waytype\",\"tollways\",\"traildifficulty\",\"osmid\",\"roadaccessrestrictions\",\"countryinfo\",\"green\",\"noise\"]"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/foot-walking/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].extras.size()", is(8))
+                .body("routes[0].extras.containsKey('steepness')", is(true))
+                .body("routes[0].extras.containsKey('suitability')", is(true))
+                .body("routes[0].extras.containsKey('surface')", is(true))
+                .body("routes[0].extras.containsKey('waycategory')", is(true))
+                .body("routes[0].extras.containsKey('waytypes')", is(true))
+                .body("routes[0].extras.containsKey('traildifficulty')", is(true))
+                .body("routes[0].extras.containsKey('green')", is(true))
+                .body("routes[0].extras.containsKey('noise')", is(true))
+                .body("routes[0].warnings.size()", is(1))
+                .body("routes[0].warnings[0].code", is(4))
+                .body("routes[0].warnings[0].message", is("Extra info requested but not available: tollways, osmid, roadaccessrestrictions, countryinfo"))
+                .statusCode(200);
+    }
+
+    @Test
     public void testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));

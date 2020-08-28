@@ -75,6 +75,8 @@ class RouteResultBuilder
             if (response.hasErrors())
                 throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri + 1])));
 
+            handleResponseWarnings(result, response);
+
             PathWrapper path = response.getBest();
 
             result.addPointlist(path.getPoints());
@@ -109,6 +111,8 @@ class RouteResultBuilder
         int pathIndex = 0;
         for (PathWrapper path : response.getAll()) {
             RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
+
+            handleResponseWarnings(result, response);
 
             result.addPointlist(path.getPoints());
             if (request.getIncludeGeometry()) {
@@ -385,4 +389,11 @@ class RouteResultBuilder
 		double degree = Math.toDegrees(orientation);
 		return directions[(int)Math.floor(((degree+ 22.5) % 360) / 45)];
 	}
+
+    private void handleResponseWarnings(RouteResult result, GHResponse response) {
+        String skippedExtras = response.getHints().get("skipped_extra_info", "");
+        if (!skippedExtras.isEmpty()) {
+            result.addWarning(new RouteWarning(RouteWarning.SKIPPED_EXTRAS, skippedExtras));
+        }
+    }
 }
