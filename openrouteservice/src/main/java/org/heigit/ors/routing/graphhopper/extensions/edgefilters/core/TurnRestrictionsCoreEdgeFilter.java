@@ -48,13 +48,16 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
-        EdgeIterator iterationTo = allEdgesExplorer.setBaseNode(edge.getAdjNode());
+        EdgeIterator iterationTo = allEdgesExplorer.setBaseNode(edge.getBaseNode());
+        int edgeFrom = edge.getEdge();
+        int node = edge.getBaseNode();
+        int edgeTo = iterationTo.getEdge();
 
         while ( iterationTo.next()) {
-            long turnFlags = turnCostExtension.getTurnCostFlags( edge.getEdge() , edge.getAdjNode(), iterationTo.getEdge());
+            long turnFlags = turnCostExtension.getTurnCostFlags( edgeFrom , node, edgeTo);
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
-            turnFlags = turnCostExtension.getTurnCostFlags( iterationTo.getEdge() , edge.getAdjNode(), edge.getEdge());
+            turnFlags = turnCostExtension.getTurnCostFlags( edgeTo , node, edgeFrom);
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
         }
