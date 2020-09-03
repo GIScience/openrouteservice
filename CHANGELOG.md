@@ -3,12 +3,39 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
+<!--
+This is how a Changelog entry should look like:
+
+## [version] - YYYY-MM-DD
+
+### Added
+- for new features.
+### Changed
+- existing functionality.
+### Deprecated
+- soon-to-be removed features.
+### Removed
+- now removed features.
+### Fixed
+- any bug.
+### Security
+- in case of vulnerabilities. (Use for vulnerability fixes)
+
+RELEASING:
+1. Change Unreleased to new release number
+2. Add today's Date
+3. Change unreleased link to compare new release:
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/vnew...HEAD
+4. Add new compare link below
+[new]: https://github.com/GIScience/openrouteservice/compare/vlast...vnew
+5. Git tag release commit with vX.X.X to enable links
+6. Double check issue links are valid
+7. Bump version in pom.xml
+ -->
+
 ## [Unreleased]
 ### Added
 - New fast isochrone algorithm based on preprocessed data
-### Fixed
-### Changed
-### Deprecated
 
 ## [6.2.1] - 2020-08-13
 ### Added
@@ -16,8 +43,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Updated Docker process to use Java 11 ([#777](https://github.com/GIScience/openrouteservice/issues/777))
 - Correctly resolve routing profile categories when initializing core edge filters in preprocessing ([#785](https://github.com/GIScience/openrouteservice/issues/785))
-### Changed
-### Deprecated
 
 ## [6.2.0] - 2020-07-15
 ### Added
@@ -57,7 +82,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Enable CH and Core-ALT preprocessing with recommended weighting for all profiles.
 - Refactor wheelchair builder
 - Running a Docker container will now create a `app.config` on the host machine, so it's now usable from Dockerhub
-### Deprecated
 
 ## [6.1.0] - 2020-03-06
 ### Added
@@ -79,7 +103,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
-### Deprecated
 
 ## [6.0.0] - 2019-12-03
 ### Added
@@ -126,7 +149,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Removed obsolete storages ([#536](https://github.com/GIScience/openrouteservice/issues/536))
 - Refactor fallback to preprocessing-independent algorithm for certain routing request params
 - Removed some landmark sets as default from app.config.sample
-### Deprecated
 
 ## [5.0.1] - 2019-04-08
 ### Added
@@ -152,7 +174,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Removed the code that was inserted for the prototype traffic weightings as it was not used and made GH updates more complicated.
 
 
-## [5.0] - 2019-02-25
+## [5.0.0] - 2019-02-25
 ### Added
 - Updated api code to use the Spring framework, with the v2 api being added ([Issue #233](https://github.com/GIScience/openrouteservice/issues/233))
 - Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries ([Issue #195](https://github.com/GIScience/openrouteservice/issues/195))
@@ -169,7 +191,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Added /directions as an endpoint for routing ([Issue #384](https://github.com/GIScience/openrouteservice/issues/384))
 - Removed the following avoid features: pavedroads, unpavedroads, tunnels, tracks and hills, as well as the option to set maximum speed; for cycling and walking profiles the option to specify difficulty settings such as fitness level and maximum steepness ([issue #396](https://github.com/GIScience/openrouteservice/issues/396))
 - Updated pom to always build ors.war ([Issue #432](https://github.com/GIScience/openrouteservice/issues/432))
-### Deprecated
 
 ## [4.7.2] - 2018-12-10
 ### Added
@@ -187,7 +208,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Updated checks on pedestrian way filter for access restrictions
 ### Changed
 - Allowed access for cars and hgvs on access=destination roads ([Issue #342](https://github.com/GIScience/openrouteservice/issues/342))
-### Deprecated
 
 ## [4.7.1] - 2018-10-24
 ### Added
@@ -203,9 +223,8 @@ Added area_units for isochrones API as units being misleading ([Issue #272](http
 - Changed app.config.sample for docker to consider split profiles ([Issue #320](https://github.com/GIScience/openrouteservice/issues/320))
 - Changed minor information in pom.xml
 - Updated API test starting coordinates to be on a road ([Issue #328](https://github.com/GIScience/openrouteservice/issues/328))
-### Deprecated
 
-## [4.7] - 2018-10-10
+## [4.7.0] - 2018-10-10
 ### Added
 - Removed locations code as this will be handled by openpoiservice in the future ([Issue #120](https://github.com/GIScience/openrouteservice/issues/120))
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
@@ -264,7 +283,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Updated the error response for geocding when no address found ([Issue #134](https://github.com/GIScience/openrouteservice/issues/134))
 
 
-## [4.5] - 2018-02-27
+## [4.5.0] - 2018-02-27
 ### Added
 - Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries ([Issue #41](https://github.com/GIScience/openrouteservice/issues/41))
 - Added GeoJson export for routing exports ([Issue #54](https://github.com/GIScience/openrouteservice/issues/54))
@@ -326,11 +345,20 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-### Changed
--
-
-### Removed
--
-
-### Deprecated
--
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...HEAD
+[6.2.1]: https://github.com/GIScience/openrouteservice/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/GIScience/openrouteservice/compare/v6.1.1...v6.2.0
+[6.1.1]: https://github.com/GIScience/openrouteservice/compare/v6.1.0...v6.1.1
+[6.1.0]: https://github.com/GIScience/openrouteservice/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/GIScience/openrouteservice/compare/v5.0.2...v6.0.0
+[5.0.2]: https://github.com/GIScience/openrouteservice/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/GIScience/openrouteservice/compare/5.0.0...v5.0.1
+[5.0.0]: https://github.com/GIScience/openrouteservice/compare/v4.7.2...5.0.0
+[4.7.2]: https://github.com/GIScience/openrouteservice/compare/4.7.1...v4.7.2
+[4.7.1]: https://github.com/GIScience/openrouteservice/compare/4.7.0...4.7.1
+[4.7.0]: https://github.com/GIScience/openrouteservice/compare/4.5.1...4.7.0
+[4.5.1]: https://github.com/GIScience/openrouteservice/compare/4.5.0...4.5.1
+[4.5.0]: https://github.com/GIScience/openrouteservice/compare/4.4.2...4.5.0
+[4.4.2]: https://github.com/GIScience/openrouteservice/compare/4.4.1...4.4.2
+[4.4.1]: https://github.com/GIScience/openrouteservice/compare/4.4.0...4.4.1
+[4.4.0]: https://github.com/GIScience/openrouteservice/compare/4.3.0...4.4.0

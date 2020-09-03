@@ -34,11 +34,11 @@ import javax.servlet.ServletContext;
 public class SwaggerConfig {
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("OpenRouteService")
+                .title("Openrouteservice")
                 .description("This is the openrouteservice API documentation")
                 .license("MIT")
                 .licenseUrl("https://github.com/swagger-api/swagger-ui/blob/master/LICENSE")
-                .contact(new Contact("","", "enquiry@openrouteservice.org"))
+                .contact(new Contact("","", "enquiry@openrouteservice.heigit.org"))
                 .build();
     }
     @Bean
