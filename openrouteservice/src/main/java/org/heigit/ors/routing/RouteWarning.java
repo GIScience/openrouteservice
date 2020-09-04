@@ -22,6 +22,7 @@ public class RouteWarning {
     public static final int ACCESS_RESTRICTION = 1;
     public static final int TOLLWAYS = 2;
     public static final int SKIPPED_SEGMENTS = 3;
+    public static final int SKIPPED_EXTRAS = 4;
 
     private int warningCode = 0;
     private String warningMessage = "";
@@ -30,7 +31,7 @@ public class RouteWarning {
      * Generate the warning object and initialise the contents based on the warning code passed
      * @param warning   The warning code for the warning that should be generated
      */
-    public RouteWarning(int warning) {
+    public RouteWarning(int warning, String additionalInfo) {
         warningCode = warning;
         switch(warning) {
             case ACCESS_RESTRICTION:
@@ -42,10 +43,17 @@ public class RouteWarning {
             case SKIPPED_SEGMENTS:
                 warningMessage = "There are skipped segments along the route. Durations and accessibility may not be correct";
                 break;
+            case SKIPPED_EXTRAS:
+                warningMessage = "Extra info requested but not available: ".concat(additionalInfo);
+                break;
             default:
                 warningMessage = "Unknown error";
                 break;
         }
+    }
+
+    public RouteWarning(int warning) {
+        this(warning, "");
     }
 
     public int getWarningCode() {
