@@ -16,7 +16,7 @@ public class Geometry extends GeoJSON {
   public static final String[] ALLOWED_MULTI_GEOMETRY_TYPES = {"MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection"};
   public static final String[] ALLOWED_GEOMETRY_TYPES = Stream.concat(Arrays.stream(ALLOWED_SIMPLE_GEOMETRY_TYPES), Arrays.stream(ALLOWED_MULTI_GEOMETRY_TYPES)).toArray(String[]::new);
 
-  private com.vividsolutions.jts.geom.Geometry geometry;
+  private final com.vividsolutions.jts.geom.Geometry geometryObject;
 
   /**
    * Create Geometry from JSON.
@@ -26,7 +26,7 @@ public class Geometry extends GeoJSON {
    */
   public Geometry(JSONObject input) {
     try {
-      this.geometry = GeometryJSON.parse(input);
+      this.geometryObject = GeometryJSON.parse(input);
     } catch (JSONException e) {
       throw new GeoJSONException("Geometry could not be parsed.\n" + e.getMessage());
     }
@@ -38,7 +38,7 @@ public class Geometry extends GeoJSON {
    * @return {@link com.vividsolutions.jts.geom.Geometry}.
    */
   public com.vividsolutions.jts.geom.Geometry getGeometry() {
-    return geometry;
+    return geometryObject;
   }
 
   /**
@@ -46,18 +46,18 @@ public class Geometry extends GeoJSON {
    * @return Geometry type as {@link String}.
    */
   public String getGeometryType() {
-    return geometry.getGeometryType();
+    return geometryObject.getGeometryType();
   }
 
   /**
-   * Implemented for compatiblity reasons. Only throws an exception.
+   * Implemented for compatibility reasons. Only throws an exception.
    */
   public Feature[] getFeatures() {
     throw new GeoJSONException("Geometry does not contain any features.");
   }
 
   /**
-   * Implemented for compatiblity reasons. Only throws an exception.
+   * Implemented for compatibility reasons. Only throws an exception.
    */
   public Feature[] getFeatures(String type) {
     throw new GeoJSONException("Geometry does not contain any features.");
@@ -70,7 +70,7 @@ public class Geometry extends GeoJSON {
     }
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", getGeometryType());
-    geoJson.put("coordinates", GeometryJSON.toJSON(geometry));
+    geoJson.put("coordinates", GeometryJSON.toJSON(geometryObject));
     return geoJson;
   }
 
@@ -83,12 +83,12 @@ public class Geometry extends GeoJSON {
       return false;
     }
     Geometry geometry1 = (Geometry) o;
-    return Objects.equals(geometry, geometry1.geometry) &&
+    return Objects.equals(geometryObject, geometry1.geometryObject) &&
         Objects.equals(geoJSONType, geometry1.geoJSONType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(geometry, geoJSONType);
+    return Objects.hash(geometryObject, geoJSONType);
   }
 }

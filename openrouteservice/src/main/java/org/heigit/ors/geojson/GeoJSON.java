@@ -1,7 +1,6 @@
 package org.heigit.ors.geojson;
 
 import java.util.Arrays;
-import java.util.Objects;
 import org.heigit.ors.geojson.exception.GeoJSONException;
 import org.json.JSONObject;
 
@@ -11,8 +10,6 @@ import org.json.JSONObject;
  * This class throws {@link GeoJSONException} as {@link RuntimeException}, for all possible errors.
  */
 public abstract class GeoJSON {
-
-  public static String[] ALLOWED_TYPES = {"FeatureCollection", "Feature", "Geometry"};
 
   protected String geoJSONType;
 

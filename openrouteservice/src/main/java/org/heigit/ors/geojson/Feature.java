@@ -9,9 +9,11 @@ import org.json.JSONObject;
  * GeoJSON Feature representation.
  */
 public class Feature extends GeoJSON {
-  private Geometry geometry;
-  private JSONObject properties;
-  private String id;
+  private static final String PROPERTIES_KEY = "properties";
+
+  private final Geometry geometry;
+  private final JSONObject properties;
+  private final String id;
 
   /**
    * Create Feature from JSON.
@@ -20,7 +22,7 @@ public class Feature extends GeoJSON {
   public Feature(JSONObject input) {
     this.geoJSONType = "Feature";
     this.geometry = new Geometry(input.getJSONObject("geometry"));
-    this.properties = input.has("properties") ? input.getJSONObject("properties") : null;
+    this.properties = input.has(PROPERTIES_KEY) ? input.getJSONObject(PROPERTIES_KEY) : null;
     this.id = input.has("id") ? input.getString("id") : null;
   }
 
@@ -86,7 +88,7 @@ public class Feature extends GeoJSON {
     JSONObject geoJson = new JSONObject();
     geoJson.put("type", geoJSONType);
     geoJson.put("geometry", geometry.toJSON());
-    geoJson.put("properties", properties);
+    geoJson.put(PROPERTIES_KEY, properties);
     geoJson.put("id", id);
     return geoJson;
   }
