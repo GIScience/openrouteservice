@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - New fast isochrone algorithm based on preprocessed data
+### Fixed
+- Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
 ## [6.2.1] - 2020-08-13
 ### Added
