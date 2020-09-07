@@ -21,6 +21,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Calculates best path using core routing algorithm.
@@ -38,6 +39,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountFrom2;
     int visitedCountTo2;
     int visitedEdgesALTCount;
+    protected final TraversalMode coreTraversalMode = TraversalMode.EDGE_BASED;
 
     private CoreDijkstraFilter additionalCoreEdgeFilter;
 
@@ -59,7 +61,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     CHGraph chGraph;
     int coreNodeLevel;
-
 
     public abstract void initFrom(int from, double weight);
 

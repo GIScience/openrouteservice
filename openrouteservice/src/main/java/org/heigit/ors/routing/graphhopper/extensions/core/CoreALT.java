@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.TraversalMode;
@@ -26,6 +27,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
 
+import java.util.Iterator;
 import java.util.PriorityQueue;
 
 
@@ -44,6 +46,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     protected AStarEntry currTo;
     protected IntObjectMap<AStarEntry> bestWeightMapFrom;
     protected IntObjectMap<AStarEntry> bestWeightMapTo;
+    protected IntObjectMap<AStarEntry> bestWeightMapFromCore;
+    protected IntObjectMap<AStarEntry> bestWeightMapToCore;
     private IntObjectMap<AStarEntry> bestWeightMapOther;
     private ConsistentWeightApproximator weightApprox;
     private IntHashSet ignoreExplorationFrom = new IntHashSet();
@@ -80,6 +84,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         fromPriorityQueueCore = new PriorityQueue<>(size);
         toPriorityQueueCore = new PriorityQueue<>(size);
+
+        bestWeightMapFromCore = new GHIntObjectHashMap<>(size);
+        bestWeightMapToCore = new GHIntObjectHashMap<>(size);
     }
 
     /**
@@ -105,7 +112,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             bestWeightMapFrom.put(from, currFrom);
             if (currTo != null) {
                 bestWeightMapOther = bestWeightMapTo;
-                updateBestPath(GHUtility.getEdge(graph, from, currTo.adjNode), currTo, from);
+                updateBestPath(GHUtility.getEdge(graph, from, currTo.adjNode), currTo, from, traversalMode);
             }
         } else if (currTo != null && currTo.adjNode == from) {
             // special case of identical start and end
@@ -126,7 +133,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             bestWeightMapTo.put(to, currTo);
             if (currFrom != null) {
                 bestWeightMapOther = bestWeightMapFrom;
-                updateBestPath(GHUtility.getEdge(graph, currFrom.adjNode, to), currFrom, to);
+                updateBestPath(GHUtility.getEdge(graph, currFrom.adjNode, to), currFrom, to, traversalMode);
             }
         } else if (currFrom != null && currFrom.adjNode == to) {
             // special case of identical start and end
@@ -144,7 +151,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         currFrom = fromPriorityQueueCH.poll();
 
-        if (!inCore && chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
+        if (chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
             fromPriorityQueueCore.add(currFrom);
         }
@@ -164,7 +171,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         currTo = toPriorityQueueCH.poll();
 
-        if (!inCore && chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
+        if (chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
             toPriorityQueueCore.add(currTo);
         }
@@ -215,6 +222,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
             currTo = toPriorityQueueCore.peek();
             currFrom = fromPriorityQueueCore.peek();
+
+            bestWeightMapFrom = bestWeightMapFromCore;
+            bestWeightMapTo = bestWeightMapToCore;
         }
 
         while (!finishedPhase2() && !isMaxVisitedNodesExceeded()) {
@@ -296,7 +306,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 continue;
 
             if (doUpdateBestPath)
-                updateBestPath(iter, aStarEntry, traversalId);
+                updateBestPath(iter, aStarEntry, traversalId, traversalMode);
         }
     }
 
@@ -335,7 +345,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
 
             int neighborNode = iter.getAdjNode();
-            int traversalId = traversalMode.createTraversalId(iter, reverse);
+            int traversalId = coreTraversalMode.createTraversalId(iter, reverse);
             if (ignoreExploration.contains(traversalId))
                 continue;
 
@@ -367,12 +377,12 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 prioQueueOpenSet.add(aStarEntry);
 
                 if (doUpdateBestPath)
-                    updateBestPath(iter, aStarEntry, traversalId);
+                    updateBestPath(iter, aStarEntry, traversalId, coreTraversalMode);
             }
         }
     }
 
-    protected void updateBestPath(EdgeIteratorState edgeState, AStarEntry entryCurrent, int traversalId) {
+    protected void updateBestPath(EdgeIteratorState edgeState, AStarEntry entryCurrent, int traversalId, TraversalMode tMode) {
         AStarEntry entryOther = bestWeightMapOther.get(traversalId);
         if (entryOther == null)
             return;
@@ -381,7 +391,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
         // update μ
         double newWeight = entryCurrent.weightOfVisitedPath + entryOther.weightOfVisitedPath;
-        if (traversalMode.isEdgeBased()) {
+        if (tMode.isEdgeBased()) {
             if (entryOther.edge != entryCurrent.edge)
                 throw new IllegalStateException("cannot happen for edge based execution of " + getName());
 
