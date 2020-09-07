@@ -1,7 +1,6 @@
 package org.heigit.ors.mapmatching.polygon;
 
 import static org.heigit.ors.util.CoordTools.distance;
-import static org.heigit.ors.util.GeomUtility.degreesToMetres;
 
 import com.carrotsearch.hppc.ObjectHashSet;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
@@ -12,11 +11,13 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.PointList;
+import com.vividsolutions.jts.algorithm.locate.PointOnGeometryLocator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Location;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.prep.PreparedPolygon;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -98,29 +99,30 @@ public class PolygonMatcher {
     return edges;
   }
 
-  private boolean nodeInPolygon(int node, Polygon polygon) {
+  private boolean nodeInPolygon(int node, PointOnGeometryLocator pointLocator) {
     double x = graphHopper.getGraphHopperStorage().getNodeAccess().getLon(node);
     double y = graphHopper.getGraphHopperStorage().getNodeAccess().getLat(node);
-    return nodeInPolygon(new Coordinate(x,y), polygon);
+    return nodeInPolygon(new Coordinate(x,y), pointLocator);
   }
 
-  private boolean nodeInPolygon(Coordinate coordinate, Polygon polygon) {
-    Point point = gf.createPoint(coordinate);
-    return point.within(polygon) || point.intersects(polygon);
+  private boolean nodeInPolygon(Coordinate coordinate, PointOnGeometryLocator pointLocator) {
+    int location = pointLocator.locate(coordinate);
+    // getting rid of location.BOUNDARY check would improve the speed
+    return location == Location.INTERIOR || location == Location.BOUNDARY;
   }
 
   private Set<Integer> getNodesInPolygon(Polygon polygon) {
     Set<Integer> nodes = new HashSet<>();
     Geometry boundary = polygon.getBoundary();
-    ObjectHashSet<Coordinate> coordinates = generatePointsInPolygon(getBoundingBox(boundary), polygon);
+    PreparedPolygon pPolygon = new PreparedPolygon(polygon);
+    PointOnGeometryLocator pointLocator = pPolygon.getPointLocator();
+    ObjectHashSet<Coordinate> coordinates = generatePointsInPolygon(getBoundingBox(boundary), pointLocator);
     for (ObjectCursor<Coordinate> coord: coordinates) {
       List<QueryResult> qResults = locationIndex.findNClosest(coord.value.y, coord.value.x, EdgeFilter.ALL_EDGES, searchRadius);
       if (qResults.isEmpty()) continue;
-      // remove all grid coordinates within searchRadius * 0.75, to prevent missing nodes
-      coordinates.removeAll(c -> distance(coord.value, c) < searchRadius * 0.75);
       for (QueryResult qResult: qResults) {
         int node = qResult.getClosestNode();
-        if (nodeInPolygon(node, polygon)) {
+        if (nodeInPolygon(node, pointLocator)) {
           nodes.add(node);
         }
       }
@@ -128,7 +130,7 @@ public class PolygonMatcher {
     return nodes;
   }
 
-  private ObjectHashSet<Coordinate> generatePointsInPolygon(double[] bbox, Polygon polygon) {
+  private ObjectHashSet<Coordinate> generatePointsInPolygon(double[] bbox, PointOnGeometryLocator pointLocator) {
     // bbox = [minX, minY, maxX, maxY]
     int dimX = (int) Math.ceil((bbox[2]-bbox[0]) / nodeGridStepSize) + 1;
     int dimY = (int) Math.ceil((bbox[3]-bbox[1]) / nodeGridStepSize) + 1;
@@ -136,7 +138,7 @@ public class PolygonMatcher {
     for (double x = bbox[0]; x <= bbox[2]; x += nodeGridStepSize) {
       for (double y = bbox[1]; y <= bbox[3]; y += nodeGridStepSize) {
         Coordinate coord = new Coordinate(PointList.round6(x), PointList.round6(y));
-        if (nodeInPolygon(coord, polygon)) coordinates.add(coord);
+        if (nodeInPolygon(coord, pointLocator)) coordinates.add(coord);
       }
     }
     return coordinates;
