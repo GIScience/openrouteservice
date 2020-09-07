@@ -21,11 +21,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
@@ -61,7 +57,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     // the most important nodes comes last
     private GHTreeMapComposed sortedNodes;
     private int[] oldPriorities;
-    private int restrictedNodes = 0;
+    private boolean [] restrictedNodes;
+    private int restrictedNodesCount = 0;
 
     private double meanDegree;
     private int periodicUpdatesPercentage = 10;
@@ -172,31 +169,27 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         if (!prepareNodes())
             return;
         contractNodes();
-
-        try {
-            FileWriter fileWriter = new FileWriter("/home/star_pirate/GIScience/openrouteservice/openrouteservice/acceptedEdges", false);
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            for (Integer i : TurnRestrictionsCoreEdgeFilter.acceptedEdges) {
-                printWriter.print(i + "\n");
-            }
-            printWriter.close();
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-
-
     }
 
     boolean prepareNodes() {
         int nodes = prepareGraph.getNodes();
+        
         for (int node = 0; node < nodes; node++) {
             prepareGraph.setLevel(node, maxLevel);
+
+            CHEdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);
+            while (edgeIterator.next()) {
+                if (edgeIterator.isShortcut())
+                    throw new IllegalStateException("No shortcuts are expected on an uncontracted graph");
+                if (!restrictionFilter.accept(edgeIterator))
+                    restrictedNodes[node] = restrictedNodes[edgeIterator.getAdjNode()] = true;
+            }
         }
 
         for (int node = 0; node < nodes; node++) {
             int priority = oldPriorities[node] = calculatePriority(node);
             sortedNodes.insert(node, priority);
-            if(priority == RESTRICTION_PRIORITY) restrictedNodes++;
+            if (priority == RESTRICTION_PRIORITY) restrictedNodesCount++;
         }
 
         return !sortedNodes.isEmpty();
@@ -228,7 +221,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // we don't need to wait for all nodes to be contracted
 
         //Avoid contrtacting core nodes  +  the additional percentage
-        long nodesToAvoidContract = Math.round((100 - nodesContractedPercentage) / 100 * (sortedNodes.getSize() - restrictedNodes))  + restrictedNodes ;
+        long nodesToAvoidContract = Math.round((100 - nodesContractedPercentage) / 100 * (sortedNodes.getSize() - restrictedNodesCount))  + restrictedNodesCount;
         StopWatch lazySW = new StopWatch();
 
         // Recompute priority of uncontracted neighbors.
@@ -302,7 +295,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             if (sortedNodes.getSize() < nodesToAvoidContract) {
                 // skipped nodes are already set to maxLevel
-                double test = sortedNodes.getSize() +1;
                 prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
                 //Disconnect all shortcuts that lead out of the core
                 while (!sortedNodes.isEmpty()) {
@@ -422,15 +414,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
      * lead to a slowish or even endless loop.
      */
     int calculatePriority(int v) {
+        if (restrictedNodes[v])
+            return RESTRICTION_PRIORITY;
 
-
-        // set the priority of a node that is next to a restricted edge to a HIGH value
-        CHEdgeIterator restrictionIterator = restrictionExplorer.setBaseNode(v);
-        while (restrictionIterator.next()) {
-            if(restrictionIterator.isShortcut()) continue;
-            if (!restrictionFilter.accept(restrictionIterator))
-                return RESTRICTION_PRIORITY;
-        }
         nodeContractor.setMaxVisitedNodes(getMaxVisitedNodesEstimate());
         CoreNodeContractor.CalcShortcutsResult calcShortcutsResult = nodeContractor.calcShortcutCount(v);
 
@@ -511,6 +497,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         //   but we need the additional oldPriorities array to keep the old value which is necessary for the update method
         sortedNodes = new GHTreeMapComposed();
         oldPriorities = new int[prepareGraph.getNodes()];
+        restrictedNodes = new boolean[prepareGraph.getNodes()];
         nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, prepareGraph.getCHProfile());
         nodeContractor.setRestrictionFilter(restrictionFilter);
         nodeContractor.initFromGraph();
@@ -559,6 +546,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         nodeContractor.close();
         sortedNodes = null;
         oldPriorities = null;
+        restrictedNodes = null;
     }
 
     public long getDijkstraCount() {
