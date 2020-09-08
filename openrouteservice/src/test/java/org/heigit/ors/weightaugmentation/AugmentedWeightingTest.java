@@ -41,11 +41,11 @@ public class AugmentedWeightingTest {
   private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
   private ORSGraphHopper graphHopper;
   private final Map<Integer, Double> expectedAugmentations = new HashMap<Integer, Double>(){
-    {put(0,  1.0 * 0.75);};
-    {put(1,  1.0 * 0.75);};
+    {put(0,  1.0);};
+    {put(1,  1.0);};
     {put(2,  1.0 * 0.75);};
-    {put(3,  1.0 * 0.75 * 1.2);};
-    {put(4,  1.0 * 0.75 * 1.4 * 1.7);};
+    {put(3,  1.0 * 1.2);};
+    {put(4,  1.0 * 1.4 * 1.7);};
     {put(5,  1.0 * 1.1 * 1.2 * 1.7);};
     {put(6,  1.0 * 0.75);};
     {put(7,  1.0 * 0.75 * 1.7);};

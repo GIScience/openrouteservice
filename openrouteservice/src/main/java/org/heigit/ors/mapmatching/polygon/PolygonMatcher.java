@@ -106,9 +106,7 @@ public class PolygonMatcher {
   }
 
   private boolean nodeInPolygon(Coordinate coordinate, PointOnGeometryLocator pointLocator) {
-    int location = pointLocator.locate(coordinate);
-    // getting rid of location.BOUNDARY check would improve the speed
-    return location == Location.INTERIOR || location == Location.BOUNDARY;
+    return pointLocator.locate(coordinate) == Location.INTERIOR;
   }
 
   private Set<Integer> getNodesInPolygon(Polygon polygon) {
