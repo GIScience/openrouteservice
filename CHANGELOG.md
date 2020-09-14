@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.3.0] - 2020-09-14
 ### Added
 - New fast isochrone algorithm based on preprocessed data
 ### Fixed
@@ -347,7 +349,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...HEAD
+[6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
 [6.2.1]: https://github.com/GIScience/openrouteservice/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/GIScience/openrouteservice/compare/v6.1.1...v6.2.0
 [6.1.1]: https://github.com/GIScience/openrouteservice/compare/v6.1.0...v6.1.1
