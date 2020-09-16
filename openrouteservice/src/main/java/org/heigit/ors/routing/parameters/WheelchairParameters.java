@@ -22,6 +22,11 @@ public class WheelchairParameters extends ProfileParameters {
 	private int trackType;
 	private int smoothnessType;
 	private float minWidth = 0.0f;
+	private boolean inclineReliable = false;
+	private boolean widthReliable = false;
+	private boolean surfaceReliable = false;
+	private boolean trackTypeReliable = false;
+	private boolean smoothnessReliable = false;
 
 	public float getMaximumIncline() {
 		return maxIncline;
@@ -67,6 +72,26 @@ public class WheelchairParameters extends ProfileParameters {
 
 	public void setMinimumWidth(float width) { minWidth = width; }
 
+	public boolean isInclineReliable() { return inclineReliable; }
+
+	public void setInclineReliable(boolean inclineReliable) { this.inclineReliable = inclineReliable; }
+
+	public boolean isWidthReliable() { return widthReliable; }
+
+	public void setWidthReliable(boolean widthReliable) { this.widthReliable = widthReliable; }
+
+	public boolean isSurfaceReliable() { return surfaceReliable; }
+
+	public void setSurfaceReliable(boolean surfaceReliable) { this.surfaceReliable = surfaceReliable; }
+
+	public boolean isTrackTypeReliable() { return trackTypeReliable; }
+
+	public void setTrackTypeReliable(boolean trackTypeReliable) { this.trackTypeReliable = trackTypeReliable; }
+
+	public boolean isSmoothnessReliable() { return smoothnessReliable; }
+
+	public void setSmoothnessReliable(boolean smoothnessReliable) { this.smoothnessReliable = smoothnessReliable; }
+
 	@Override
 	public List<String> getValidRestrictions() {
 		List<String> valid = super.getValidRestrictions();
@@ -76,6 +101,11 @@ public class WheelchairParameters extends ProfileParameters {
 		valid.add("maximum_sloped_kerb");
 		valid.add("maximum_incline");
 		valid.add("minimum_width");
+		valid.add("surface_reliable");
+		valid.add("smoothness_reliable");
+		valid.add("tracktype_reliable");
+		valid.add("incline_reliable");
+		valid.add("width_reliable");
 		return valid;
 	}
 }

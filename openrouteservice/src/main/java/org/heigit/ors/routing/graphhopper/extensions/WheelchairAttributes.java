@@ -39,6 +39,11 @@ public class WheelchairAttributes {
 	private int smoothnessType = EMPTY_INT;
 	private Side side = Side.UNKNOWN;
 	private boolean hasAttributes = false;
+	private boolean inclineReliable = false;
+	private boolean widthReliable = false;
+	private boolean surfaceReliable = false;
+	private boolean trackTypeReliable = false;
+	private boolean smoothnessReliable = false;
 
 	public boolean hasValues()
 	{
@@ -54,6 +59,12 @@ public class WheelchairAttributes {
 		trackType = EMPTY_INT;
 		smoothnessType = EMPTY_INT;
 		side = Side.UNKNOWN;
+		inclineReliable = false;
+		widthReliable = false;
+		surfaceReliable = false;
+		trackTypeReliable = false;
+		smoothnessReliable = false;
+
 	}
 
 	public int getIncline() {
@@ -116,6 +127,46 @@ public class WheelchairAttributes {
 		this.side = side;
 	}
 
+	public boolean isInclineReliable() {
+		return inclineReliable;
+	}
+
+	public void setInclineReliable(boolean inclineReliable) {
+		this.inclineReliable = inclineReliable;
+	}
+
+	public boolean isWidthReliable() {
+		return widthReliable;
+	}
+
+	public void setWidthReliable(boolean widthReliable) {
+		this.widthReliable = widthReliable;
+	}
+
+	public boolean isSurfaceReliable() {
+		return surfaceReliable;
+	}
+
+	public void setSurfaceReliable(boolean surfaceReliable) {
+		this.surfaceReliable = surfaceReliable;
+	}
+
+	public boolean isTrackTypeReliable() {
+		return trackTypeReliable;
+	}
+
+	public void setTrackTypeReliable(boolean trackTypeReliable) {
+		this.trackTypeReliable = trackTypeReliable;
+	}
+
+	public boolean isSmoothnessReliable() {
+		return smoothnessReliable;
+	}
+
+	public void setSmoothnessReliable(boolean smoothnessReliable) {
+		this.smoothnessReliable = smoothnessReliable;
+	}
+
 	public void setAttribute(Attribute attribute, int value) {
 		switch(attribute) {
 			case INCLINE: setIncline(value);
@@ -132,11 +183,37 @@ public class WheelchairAttributes {
                 break;
 		}
 	}
-	
+
+
+	public void setReliableAttribute(Attribute attribute, int value) {
+		switch(attribute) {
+			case INCLINE: setIncline(value);
+				setInclineReliable(true);
+				break;
+			case KERB: setSlopedKerbHeight(value);
+				break;
+			case SMOOTHNESS: setSmoothnessType(value);
+				setSmoothnessReliable(true);
+				break;
+			case SURFACE: setSurfaceType(value);
+				setSurfaceReliable(true);
+				break;
+			case WIDTH: setWidth(value);
+				setWidthReliable(true);
+				break;
+			case TRACK: setTrackType(value);
+				setTrackTypeReliable(true);
+				break;
+		}
+	}
+
 	public boolean equalsWheelchairAttributes(WheelchairAttributes attrs) {
 		return surfaceType == attrs.surfaceType && smoothnessType == attrs.smoothnessType
 				&& trackType == attrs.trackType && slopedKerbHeight == attrs.slopedKerbHeight
-				&& incline == attrs.incline && width == attrs.width && side == attrs.side;
+				&& incline == attrs.incline && width == attrs.width && side == attrs.side
+				&& surfaceReliable == attrs.surfaceReliable && smoothnessReliable == attrs.smoothnessReliable
+				&& trackTypeReliable == attrs.trackTypeReliable && inclineReliable == attrs.inclineReliable
+				&& widthReliable == attrs.widthReliable;
 	}
 
 	/**
@@ -166,6 +243,16 @@ public class WheelchairAttributes {
 	        at.smoothnessType = src.smoothnessType;
 		if(src.side != Side.UNKNOWN)
 			at.side = src.side;
+		if(src.surfaceReliable)
+			at.surfaceReliable = true;
+		if(src.smoothnessReliable)
+			at.smoothnessReliable = true;
+		if(src.trackTypeReliable)
+			at.trackTypeReliable = true;
+		if(src.inclineReliable)
+			at.inclineReliable = true;
+		if(src.widthReliable)
+			at.widthReliable = true;
 	    return at;
     }
 
@@ -179,6 +266,11 @@ public class WheelchairAttributes {
 		at.trackType = this.trackType;
 		at.slopedKerbHeight = this.slopedKerbHeight;
 		at.side = this.side;
+		at.surfaceReliable = this.surfaceReliable;
+		at.smoothnessReliable = this.smoothnessReliable;
+		at.trackTypeReliable = this.trackTypeReliable;
+		at.inclineReliable = this.inclineReliable;
+		at.widthReliable = this.widthReliable;
 		return at;
 	}
 }

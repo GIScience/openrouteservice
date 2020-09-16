@@ -39,6 +39,11 @@ public class RequestProfileParamsRestrictions {
     public static final String PARAM_MAXIMUM_SLOPED_KERB = "maximum_sloped_kerb";
     public static final String PARAM_MAX_INCLINE = "maximum_incline";
     public static final String PARAM_MIN_WIDTH = "minimum_width";
+    public static final String PARAM_SURFACE_RELIABLE = "surface_reliable";
+    public static final String PARAM_SMOOTHNESS_RELIABLE = "smoothness_reliable";
+    public static final String PARAM_TRACKTYPE_RELIABLE = "tracktype_reliable";
+    public static final String PARAM_INCLINE_RELIABLE = "incline_reliable";
+    public static final String PARAM_WIDTH_RELIABLE = "width_reliable";
 
     @ApiModelProperty(name = PARAM_LENGTH, value = "Length restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "8.4")
     @JsonProperty(PARAM_LENGTH)
@@ -126,6 +131,46 @@ public class RequestProfileParamsRestrictions {
     private Float minWidth;
     @JsonIgnore
     private boolean hasMinWidth = false;
+
+    @ApiModelProperty(name = PARAM_SURFACE_RELIABLE, value = "Specifies if the information on surface needs to be reliable - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_SURFACE_RELIABLE)
+    private boolean surfaceReliable;
+    @JsonIgnore
+    private boolean hasSurfaceReliable = false;
+
+    @ApiModelProperty(name = PARAM_SMOOTHNESS_RELIABLE, value = "Specifies if the information on smoothness needs to be reliable - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_SMOOTHNESS_RELIABLE)
+    private boolean smoothnessReliable;
+    @JsonIgnore
+    private boolean hasSmoothnessReliable = false;
+
+    @ApiModelProperty(name = PARAM_TRACKTYPE_RELIABLE, value = "Specifies if the information on track type needs to be reliable - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_TRACKTYPE_RELIABLE)
+    private boolean trackTypeReliable;
+    @JsonIgnore
+    private boolean hasTrackTypeReliable = false;
+
+    @ApiModelProperty(name = PARAM_INCLINE_RELIABLE, value = "Specifies if the information on incline needs to be reliable - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_INCLINE_RELIABLE)
+    private boolean inclineReliable;
+    @JsonIgnore
+    private boolean hasInclineReliable = false;
+
+    @ApiModelProperty(name = PARAM_WIDTH_RELIABLE, value = "Specifies if the information on width needs to be reliable - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_WIDTH_RELIABLE)
+    private boolean widthReliable;
+    @JsonIgnore
+    private boolean hasWidthReliable = false;
 
     public Float getLength() {
         return length;
@@ -231,6 +276,41 @@ public class RequestProfileParamsRestrictions {
         this.hasMinWidth = true;
     }
 
+    public boolean getSurfaceReliable() { return surfaceReliable; }
+
+    public void setSurfaceReliable(boolean surfaceReliable) {
+        this.surfaceReliable = surfaceReliable;
+        hasSurfaceReliable = true;
+    }
+
+    public boolean getSmoothnessReliable() { return smoothnessReliable; }
+
+    public void setSmoothnessReliable(boolean smoothnessReliable) {
+        this.smoothnessReliable = smoothnessReliable;
+        hasSmoothnessReliable = true;
+    }
+
+    public boolean getTrackTypeReliable() { return trackTypeReliable; }
+
+    public void setTrackTypeReliable(boolean trackTypeReliable) {
+        this.trackTypeReliable = trackTypeReliable;
+        hasTrackTypeReliable = true;
+    }
+
+    public boolean getInclineReliable() { return inclineReliable; }
+
+    public void setInclineReliable(boolean inclineReliable) {
+        this.inclineReliable = inclineReliable;
+        hasInclineReliable = true;
+    }
+
+    public boolean getWidthReliable() { return widthReliable; }
+
+    public void setWidthReliable(boolean widthReliable) {
+        this.widthReliable = widthReliable;
+        hasWidthReliable = true;
+    }
+
     public boolean hasLength() {
         return hasLength;
     }
@@ -283,6 +363,16 @@ public class RequestProfileParamsRestrictions {
         return hasMinWidth;
     }
 
+    public boolean hasSurfaceReliable() { return hasSurfaceReliable; }
+
+    public boolean hasSmoothnessReliable() { return hasSmoothnessReliable; }
+
+    public boolean hasTrackTypeReliable() { return hasTrackTypeReliable; }
+
+    public boolean hasInclineReliable() { return hasInclineReliable; }
+
+    public boolean hasWidthReliable() { return hasWidthReliable; }
+
     @JsonIgnore
     public List<String> getRestrictionsThatAreSet() {
         List<String> setRestrictions = new ArrayList<>();
@@ -310,6 +400,16 @@ public class RequestProfileParamsRestrictions {
             setRestrictions.add(PARAM_MAX_INCLINE);
         if(hasMinWidth)
             setRestrictions.add(PARAM_MIN_WIDTH);
+        if(hasSurfaceReliable)
+            setRestrictions.add(PARAM_SURFACE_RELIABLE);
+        if(hasSmoothnessReliable)
+            setRestrictions.add(PARAM_SMOOTHNESS_RELIABLE);
+        if(hasTrackTypeReliable)
+            setRestrictions.add(PARAM_TRACKTYPE_RELIABLE);
+        if(hasInclineReliable)
+            setRestrictions.add(PARAM_INCLINE_RELIABLE);
+        if(hasWidthReliable)
+            setRestrictions.add(PARAM_WIDTH_RELIABLE);
 
         return setRestrictions;
     }

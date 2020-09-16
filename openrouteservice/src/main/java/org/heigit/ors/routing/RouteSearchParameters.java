@@ -358,6 +358,26 @@ public class RouteSearchParameters {
                     wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
                 }
 
+                if (jRestrictions.has("surface_reliable")) {
+                    wheelchairParams.setSurfaceReliable((boolean) jRestrictions.getBoolean("surface_reliable"));
+                }
+
+                if (jRestrictions.has("smoothness_reliable")) {
+                    wheelchairParams.setSmoothnessReliable((boolean) jRestrictions.getBoolean("smoothness_reliable"));
+                }
+
+                if (jRestrictions.has("tracktype_reliable")) {
+                    wheelchairParams.setTrackTypeReliable((boolean) jRestrictions.getBoolean("tracktype_reliable"));
+                }
+
+                if (jRestrictions.has("incline_reliable")) {
+                    wheelchairParams.setInclineReliable((boolean) jRestrictions.getBoolean("incline_reliable"));
+                }
+
+                if (jRestrictions.has("width_reliable")) {
+                    wheelchairParams.setWidthReliable((boolean) jRestrictions.getBoolean("width_reliable"));
+                }
+
                 profileParams = wheelchairParams;
             } else
                 profileParams = new ProfileParameters();

@@ -271,6 +271,16 @@ public class GenericHandler {
             params.setMaximumIncline(restrictions.getMaxIncline());
         if(restrictions.hasMinWidth())
             params.setMinimumWidth(restrictions.getMinWidth());
+        if(restrictions.hasSurfaceReliable())
+            params.setSurfaceReliable(restrictions.getSurfaceReliable());
+        if(restrictions.hasSmoothnessReliable())
+            params.setSmoothnessReliable(restrictions.getSmoothnessReliable());
+        if(restrictions.hasTrackTypeReliable())
+            params.setTrackTypeReliable(restrictions.getTrackTypeReliable());
+        if(restrictions.hasInclineReliable())
+            params.setInclineReliable(restrictions.getInclineReliable());
+        if(restrictions.hasWidthReliable())
+            params.setWidthReliable(restrictions.getWidthReliable());
 
         return params;
     }

@@ -40,27 +40,46 @@ public class WheelchairEdgeFilter implements EdgeFilter  {
 	@Override
 	public boolean accept(EdgeIteratorState iter) {
 		storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-		return !attributes.hasValues() || !(checkSurfaceType() || checkSmoothnessType() || checkTrackType() || checkMaximumIncline() || checkMaximumSlopedKerb() || checkMinimumWidth());
+		return !attributes.hasValues()
+				|| !(checkSurfaceType()
+				|| checkSmoothnessType()
+				|| checkTrackType()
+				|| checkMaximumIncline()
+				|| checkMaximumSlopedKerb()
+				|| checkMinimumWidth());
 	}
 
 	private boolean checkSurfaceType() {
 		return params.getSurfaceType() > 0
-			&& params.getSurfaceType() < attributes.getSurfaceType();
+			&& (
+				(params.getSurfaceType() < attributes.getSurfaceType())
+						|| (!attributes.isSurfaceReliable() && params.isSurfaceReliable())
+				);
 	}
 
 	private boolean checkSmoothnessType() {
 		return params.getSmoothnessType() > 0
-			&& params.getSmoothnessType() < attributes.getSmoothnessType();
+				&& (
+				(params.getSmoothnessType() < attributes.getSmoothnessType())
+						|| (!attributes.isSmoothnessReliable() && params.isSmoothnessReliable())
+		);
 	}
 
 	private boolean checkTrackType() {
 		return params.getTrackType() > 0 && attributes.getTrackType() != 0
-			&& params.getTrackType() <= attributes.getTrackType();
+				&& (
+				(params.getTrackType() < attributes.getTrackType())
+						|| (!attributes.isTrackTypeReliable() && params.isTrackTypeReliable())
+		);
 	}
 
 	private boolean checkMaximumIncline() {
 		return params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f)
-			&& params.getMaximumIncline() < attributes.getIncline();
+			&& (
+				(params.getMaximumIncline() < attributes.getIncline())
+						|| (!attributes.isInclineReliable() && params.isInclineReliable())
+		);
+
 	}
 
 	private boolean checkMaximumSlopedKerb() {
@@ -71,6 +90,9 @@ public class WheelchairEdgeFilter implements EdgeFilter  {
 	private boolean checkMinimumWidth() {
 		return params.getMinimumWidth() > 0.0
 			&& attributes.getWidth() > 0.0 // if the attribute value is 0, this signifies that no data is available
-			&& params.getMinimumWidth()*100.0 > attributes.getWidth(); // stored in storage in cm
+				&& (
+				(params.getMinimumWidth()*100.0 < attributes.getWidth()) // stored in storage in cm
+						|| (!attributes.isWidthReliable() && params.isWidthReliable())
+		);
 	}
 }

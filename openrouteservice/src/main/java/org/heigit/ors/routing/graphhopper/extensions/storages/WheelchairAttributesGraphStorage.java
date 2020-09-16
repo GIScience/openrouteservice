@@ -21,7 +21,12 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 
+import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+
 public class WheelchairAttributesGraphStorage implements GraphExtension {
+	private static final Logger LOGGER = Logger.getLogger(WheelchairFlagEncoder.class.getName());
+
 	protected static final int WIDTH_MAX_VALUE = 300;
 	protected static final int KERB_MAX_VALUE = 15;
 	protected static final int INCLINE_MAX_VALUE = 30;
@@ -49,7 +54,12 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 	private EncodedValueOld inclineEncoder;
 	private EncodedValueOld hasInclineEncoder;
 	private EncodedValueOld widthEncoder;
-	
+	private EncodedValueOld surfaceReliableEncoder;
+	private EncodedValueOld smoothnessReliableEncoder;
+	private EncodedValueOld trackTypeReliableEncoder;
+	private EncodedValueOld inclineReliableEncoder;
+	private EncodedValueOld widthReliableEncoder;
+
 	public static final int BYTE_COUNT = 5;
 
 	public WheelchairAttributesGraphStorage()  {
@@ -83,6 +93,21 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		shift += widthEncoder.getBits();
 
 		sideFlagEncoder = new EncodedValueOld("side", shift, 2, 1,0,2);
+		shift += sideFlagEncoder.getBits();
+
+		surfaceReliableEncoder = new EncodedValueOld("surfaceReliable", shift, 1, 1, 0, 1);
+		shift += 1;
+
+		smoothnessReliableEncoder = new EncodedValueOld("smoothnessReliable", shift, 1, 1, 0, 1);
+		shift += 1;
+
+		trackTypeReliableEncoder = new EncodedValueOld("trackTypeReliable", shift, 1, 1, 0, 1);
+		shift += 1;
+
+		inclineReliableEncoder = new EncodedValueOld("inclineReliable", shift, 1, 1, 0, 1);
+		shift += 1;
+
+		widthReliableEncoder = new EncodedValueOld("widthReliable", shift, 1, 1, 0, 1);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -141,13 +166,20 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 		encodeAttributes(attrs, buffer);
 
+
 		orsEdges.setBytes(edgePointer + efWheelchairAttributes, buffer, BYTE_COUNT);
+		/* Dieser Teil wird momentan nur zu Debuging-Zwecken verwendet
+		WheelchairAttributes test_attrs = new WheelchairAttributes();
+ 		test_attrs.reset();
+		orsEdges.getBytes(edgePointer + efWheelchairAttributes, buffer, BYTE_COUNT);
+		decodeAttributes(attrs, buffer);
+		*/
 	}
 
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer) {
 		/*
-		 *       | flag  | surface | smoothness | tracktype | hasKerbHeight | kerbHeight | hasIncline | incline | width  | side |
-		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 1 bit         | 6 bits     | 1 bit      | 4 bits  | 6 bits | 2 bit 	   | 33 bits in total which can fit into 5 bytes
+		 *       | flag  | surface | smoothness | tracktype | hasKerbHeight | kerbHeight | hasIncline | incline | width  | side  | reliability
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 1 bit         | 6 bits     | 1 bit      | 4 bits  | 6 bits | 2 bit | 5 bits	   | 38 bits in total which can fit into 5 bytes
 		 * 	
 		 * 
 		 */
@@ -190,6 +222,27 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 					break;
 			}
 
+			if (attrs.isSurfaceReliable()) {
+				encodedValue = surfaceReliableEncoder.setValue(encodedValue, 1);
+			}
+
+			if (attrs.isSmoothnessReliable()) {
+				encodedValue = smoothnessReliableEncoder.setValue(encodedValue, 1);
+			}
+
+			if (attrs.isTrackTypeReliable()) {
+				encodedValue = trackTypeReliableEncoder.setValue(encodedValue, 1);
+			}
+
+			if (attrs.isInclineReliable()) {
+				encodedValue = inclineReliableEncoder.setValue(encodedValue, 1);
+			}
+
+			if (attrs.isWidthReliable()) {
+				encodedValue = widthReliableEncoder.setValue(encodedValue, 1);
+			}
+
+
 			buffer[4] = (byte) ((encodedValue >> 32) & 0xFF);
 			buffer[3] = (byte) ((encodedValue >> 24) & 0xFF);
 			buffer[2] = (byte) ((encodedValue >> 16) & 0xFF);
@@ -210,7 +263,11 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		if (buffer[0] == 0)
 			return;
 
-		long encodedValue = ((buffer[0] & 0xFF) | (buffer[1] & 0xFF) << 8 |	(buffer[2] & 0xFF) << 16 | (buffer[3] & 0xFF) << 24 | (buffer[4] & 0xFF) << 32);
+		long encodedValue = buffer[0] & 0xFF;
+		encodedValue = encodedValue | (buffer[1] & 0xFF) << 8;
+		encodedValue = encodedValue | (buffer[2] & 0xFF) << 16;
+		encodedValue = encodedValue | (buffer[3] & 0xFF) << 24;
+		encodedValue = encodedValue | (long) (buffer[4] & 0xFF) << 32;
 
 		if ((1 & encodedValue) != 0) {
 			long iValue = surfaceEncoder.getValue(encodedValue);
@@ -252,6 +309,24 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 				default:
 					attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
 			}
+
+			iValue = surfaceReliableEncoder.getValue(encodedValue);
+			attrs.setSurfaceReliable((iValue != 0));
+
+			iValue = smoothnessReliableEncoder.getValue(encodedValue);
+			attrs.setSmoothnessReliable((iValue != 0));
+
+			iValue = trackTypeReliableEncoder.getValue(encodedValue);
+			attrs.setTrackTypeReliable((iValue != 0));
+
+			iValue = inclineReliableEncoder.getValue(encodedValue);
+			attrs.setInclineReliable((iValue != 0));
+
+			iValue = widthReliableEncoder.getValue(encodedValue);
+			attrs.setWidthReliable((iValue != 0));
+
+
+
 		}
 	}
 
