@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 
 ## [6.3.0] - 2020-09-14
 ### Added
