@@ -263,11 +263,11 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		if (buffer[0] == 0)
 			return;
 
-		long encodedValue = buffer[0] & 0xFF;
-		encodedValue = encodedValue | (buffer[1] & 0xFF) << 8;
-		encodedValue = encodedValue | (buffer[2] & 0xFF) << 16;
-		encodedValue = encodedValue | (buffer[3] & 0xFF) << 24;
-		encodedValue = encodedValue | (long) (buffer[4] & 0xFF) << 32;
+		long encodedValue = (long) buffer[0] & 0xFF;
+		encodedValue |= (long) (buffer[1] & 0xFF) << 8;
+		encodedValue |= (long) (buffer[2] & 0xFF) << 16;
+		encodedValue |= (long) (buffer[3] & 0xFF) << 24;
+		encodedValue |= (long) (buffer[4] & 0xFF) << 32;
 
 		if ((1 & encodedValue) != 0) {
 			long iValue = surfaceEncoder.getValue(encodedValue);

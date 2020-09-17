@@ -37,7 +37,7 @@ public class WheelchairAttributesGraphStorageTest {
         assertEquals(3, attrsRet.getSlopedKerbHeight(), 0.0);
         assertTrue(attrsRet.isSurfaceReliable());
         assertTrue(attrsRet.isSmoothnessReliable());
-        assertTrue(attrsRet.isTrackTypeReliable());
+        assertFalse(attrsRet.isTrackTypeReliable());
         assertTrue(attrsRet.isInclineReliable());
         assertFalse(attrsRet.isWidthReliable());
 

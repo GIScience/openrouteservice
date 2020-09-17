@@ -648,6 +648,36 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		int in = getWorseAttributeValueFromSeparateItems(WheelchairAttributes.Attribute.INCLINE);
 		if (in > 0) at.setIncline(in);
 
+		at.setSurfaceReliable(
+				wheelchairAttributesLeftSide.isSurfaceReliable()
+				&& wheelchairAttributesRightSide.isSurfaceReliable()
+				&& attributes.isSurfaceReliable()
+		);
+
+		at.setSmoothnessReliable(
+				wheelchairAttributesLeftSide.isSmoothnessReliable()
+						&& wheelchairAttributesRightSide.isSmoothnessReliable()
+						&& attributes.isSmoothnessReliable()
+		);
+
+		at.setTrackTypeReliable(
+				wheelchairAttributesLeftSide.isTrackTypeReliable()
+						&& wheelchairAttributesRightSide.isTrackTypeReliable()
+						&& attributes.isTrackTypeReliable()
+		);
+
+		at.setInclineReliable(
+				wheelchairAttributesLeftSide.isInclineReliable()
+						&& wheelchairAttributesRightSide.isInclineReliable()
+						&& attributes.isInclineReliable()
+		);
+
+		at.setWidthReliable(
+				wheelchairAttributesLeftSide.isWidthReliable()
+						&& wheelchairAttributesRightSide.isWidthReliable()
+						&& attributes.isWidthReliable()
+		);
+
 		return at;
 	}
 
