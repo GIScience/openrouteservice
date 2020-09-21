@@ -25,8 +25,8 @@
 		"turn_maneuvers": {
 			"left": "左",
 			"right": "右",
-			"sharp_left": "左折",
-			"sharp_right": "右折",
+			"sharp_left": "左急角度",
+			"sharp_right": "右急角度",
 			"slight_left": "左方向",
 			"slight_right": "右方向",
 			"straight": "直進",
