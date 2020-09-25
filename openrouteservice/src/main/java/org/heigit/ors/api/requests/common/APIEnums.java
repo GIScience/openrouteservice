@@ -317,6 +317,8 @@ public class APIEnums {
         ID_ID("id-id"),
         IT("it"),
         IT_IT("it-it"),
+        JA("ja"),
+        JA_JP("ja-jp"),
         NE("ne"),
         NE_NP("ne-np"),
         NL("nl"),
