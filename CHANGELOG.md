@@ -34,6 +34,9 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
+- Enabled turning off elevation data handling for profiles 
 
 ## [6.3.0] - 2020-09-14
 ### Added
