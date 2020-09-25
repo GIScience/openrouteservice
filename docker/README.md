@@ -14,7 +14,7 @@ docker run -dt \
   -v $PWD/elevation_cache:/ors-core/data/elevation_cache \
   -v $PWD/conf:/ors-conf \  # will copy the container's app.config to the host
   #-v $PWD/your_osm.pbf:/ors-core/data/osm_file.pbf \  # your local PBF file
-  -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
+  -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
   openrouteservice/openrouteservice:latest
 ```
@@ -91,6 +91,6 @@ The `app.config` which is used is also copied to the container's `/share` direct
 
 ## Checking
 
-By default the service status is queriable via the `http://localhost:8080/ors/health` endpoint. When the service is ready, you will be able to request `http://localhost:8080/ors/status` for further information on the running services.
+By default the service status is queriable via the `http://localhost:8080/ors/v2/health` endpoint. When the service is ready, you will be able to request `http://localhost:8080/ors/v2/status` for further information on the running services.
 
-If you use the default dataset you will be able to request `http://localhost:8080/ors/routes?profile=foot-walking&coordinates=8.676581,49.418204|8.692803,49.409465` for test purposes.
+If you use the default dataset you will be able to request `http://localhost:8080/ors/v2/directions?profile=foot-walking&start=8.676581,49.418204&end=8.692803,49.409465` for test purposes.

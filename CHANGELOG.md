@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Fixed
+- Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
 - Enabled turning off elevation data handling for profiles 
 
