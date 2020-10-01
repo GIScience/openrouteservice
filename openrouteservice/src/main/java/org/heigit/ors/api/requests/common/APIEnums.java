@@ -146,6 +146,28 @@ public class APIEnums {
     }
 
     @ApiModel
+    public enum CentralityResponseType {
+        JSON("json");
+
+        private final String value;
+
+        CentralityResponseType(String value) { this.value = value; }
+
+        @JsonCreator
+        public static CentralityResponseType forValue(String v) throws ParameterValueException {
+            for (CentralityResponseType enumItem: CentralityResponseType.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "format", v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() { return value; }
+    }
+
+    @ApiModel
     public enum VehicleType {
         HGV("hgv"),
         BUS("bus"),

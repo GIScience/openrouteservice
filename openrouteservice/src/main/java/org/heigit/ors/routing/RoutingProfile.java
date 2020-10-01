@@ -33,6 +33,10 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
+import org.heigit.ors.centrality.algorithms.floydwarshall.FloydWarshallCentralityAlgorithm;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
@@ -658,6 +662,28 @@ public class RoutingProfile {
         }
 
         return mtxResult;
+    }
+
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        CentralityResult res = null;
+
+        GraphHopper gh = getGraphhopper();
+        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
+
+        HintsMap hintsMap = new HintsMap();
+        int weightingMethod = WeightingMethod.SHORTEST;
+        setWeighting(hintsMap, weightingMethod, req.getProfileType());
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+
+
+        CentralityAlgorithm alg = new FloydWarshallCentralityAlgorithm();
+        alg.init(req, gh, graph, flagEncoder, weighting);
+
+        res = alg.compute(0);
+
+        return res;
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
