@@ -39,6 +39,7 @@ import com.graphhopper.routing.util.PathProcessor;
  * @author Peter Karich
  * @author Robin Boldt
  * @author jan soe
+ * @author Andrzej Oles
  */
 public class InstructionsFromEdges implements Path.EdgeVisitor {
 

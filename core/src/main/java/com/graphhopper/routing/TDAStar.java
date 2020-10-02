@@ -17,25 +17,18 @@
  */
 package com.graphhopper.routing;
 
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.BeelineWeightApproximator;
-import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
 
-import java.util.PriorityQueue;
-
 /**
- * This class implements the A* algorithm according to
- * http://en.wikipedia.org/wiki/A*_search_algorithm
- * <p>
- * Different distance calculations can be used via setApproximation.
+ * Implements time-dependent A* algorithm
  * <p>
  *
  * @author Peter Karich
+ * @author Michael Zilske
+ * @author Andrzej Oles
  */
 public class TDAStar extends AStar {
     private boolean reverse = false;

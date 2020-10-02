@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Robin Boldt
+ * @author Andrzej Oles
  */
 public class ConditionalOSMTagInspectorTest extends CalendarBasedTest {
     private static Set<String> getSampleRestrictedValues() {

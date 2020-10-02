@@ -339,7 +339,6 @@ class BaseGraph implements Graph {
         edges.setSegmentSize(bytes);
         wayGeometry.setSegmentSize(bytes);
         nameIndex.setSegmentSize(bytes);
-        //conditionalEdges.setSegmentSize(bytes);
         extStorage.setSegmentSize(bytes);
     }
 
@@ -367,7 +366,6 @@ class BaseGraph implements Graph {
         initSize = Math.min(initSize, 2000);
         wayGeometry.create(initSize);
         nameIndex.create(initSize);
-        //conditionalEdges.create(initSize);
         extStorage.create(initSize);
         initStorage();
         // 0 stands for no separate geoRef
@@ -380,7 +378,6 @@ class BaseGraph implements Graph {
         return "edges:" + nf(edgeCount) + "(" + edges.getCapacity() / Helper.MB + "MB), "
                 + "nodes:" + nf(getNodes()) + "(" + nodes.getCapacity() / Helper.MB + "MB), "
                 + "name:(" + nameIndex.getCapacity() / Helper.MB + "MB), "
-                //+ "conditionals:(" + conditionalEdges.getCapacity() / Helper.MB + "MB), "
                 + "geo:" + nf(maxGeoRef) + "(" + wayGeometry.getCapacity() / Helper.MB + "MB), "
                 + "bounds:" + bounds;
     }
@@ -424,7 +421,6 @@ class BaseGraph implements Graph {
 
         wayGeometry.flush();
         nameIndex.flush();
-        //conditionalEdges.flush();
         edges.flush();
         nodes.flush();
         extStorage.flush();
@@ -433,14 +429,13 @@ class BaseGraph implements Graph {
     void close() {
         wayGeometry.close();
         nameIndex.close();
-        //conditionalEdges.close();
         edges.close();
         nodes.close();
         extStorage.close();
     }
 
     long getCapacity() {
-        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity() //+ conditionalEdges.getCapacity()
+        return edges.getCapacity() + nodes.getCapacity() + nameIndex.getCapacity()
                 + wayGeometry.getCapacity() + extStorage.getCapacity();
     }
 
@@ -464,11 +459,6 @@ class BaseGraph implements Graph {
 
         if (!nameIndex.loadExisting())
             throw new IllegalStateException("Cannot load name index. corrupt file or directory? " + dir);
-
-        /*
-        if (!conditionalEdges.loadExisting())
-            throw new IllegalStateException("Cannot load conditionals. corrupt file or directory? " + dir);
-            */
 
         if (!extStorage.loadExisting())
             throw new IllegalStateException("Cannot load extended storage. corrupt file or directory? " + dir);
@@ -615,9 +605,6 @@ class BaseGraph implements Graph {
 
         // name
         nameIndex.copyTo(clonedG.nameIndex);
-
-        // conditionals
-        //conditionalEdges.copyTo(clonedG.conditionalEdges);
 
         // geometry
         setWayGeometryHeader();

@@ -53,6 +53,7 @@ import com.graphhopper.routing.util.PathProcessor;
  * @author Peter Karich
  * @author Ottavio Campana
  * @author jan soe
+ * @author Andrzej Oles
  */
 public class Path {
     private final Logger logger = LoggerFactory.getLogger(getClass());

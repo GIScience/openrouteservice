@@ -5,6 +5,9 @@ import com.graphhopper.search.ConditionalIndex;
 
 import java.util.*;
 
+/**
+ * @author Andrzej Oles
+ */
 public class ConditionalEdges implements GraphExtension {
     Map<Integer, Integer> values = new HashMap<>();
     private final Map<String, ConditionalEdgesMap> conditionalEdgesMaps = new LinkedHashMap<>();
@@ -109,18 +112,7 @@ public class ConditionalEdges implements GraphExtension {
 
     @Override
     public GraphExtension copyTo(GraphExtension clonedStorage) {
-
-        if (!(clonedStorage instanceof ConditionalEdges)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        ConditionalEdges clonedTC = (ConditionalEdges) clonedStorage;
-
         throw new IllegalStateException("NOT IMPLEMENTED");
-
-        //conditionalIndex.copyTo(clonedTC.conditionalIndex);
-
-        //return clonedStorage;
     }
 
     @Override

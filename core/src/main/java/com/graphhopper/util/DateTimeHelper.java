@@ -2,7 +2,6 @@ package com.graphhopper.util;
 
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.util.EdgeIteratorState;
 import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.time.Instant;
@@ -10,6 +9,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/**
+ * @author Andrzej Oles
+ */
 public class DateTimeHelper {
     private final NodeAccess nodeAccess;
     private final TimeZoneMap timeZoneMap;

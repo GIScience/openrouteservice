@@ -5,6 +5,9 @@ import ch.poole.openinghoursparser.*;
 import java.time.ZonedDateTime;
 import java.time.temporal.IsoFields;
 
+/**
+ * @author Andrzej Oles
+ */
 public class TimePoint {
     int year;
     int week;

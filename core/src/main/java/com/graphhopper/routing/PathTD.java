@@ -24,10 +24,10 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 
 /**
- * This class creates a DijkstraPath from two Edge's resulting from a BidirectionalDijkstra
+ * This class creates a path from a time-dependent Dijkstra
  * <p>
  *
- * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class PathTD extends Path {
     private boolean reverse = false;

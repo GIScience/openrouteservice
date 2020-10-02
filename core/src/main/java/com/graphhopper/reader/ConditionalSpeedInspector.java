@@ -18,7 +18,7 @@
 package com.graphhopper.reader;
 
 /**
- * @author Peter Karich
+ * @author Andrzej Oles
  */
 public interface ConditionalSpeedInspector {
     boolean hasConditionalSpeed(ReaderWay way);

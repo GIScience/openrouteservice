@@ -38,6 +38,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  * @author Nop
  * @author ratrun
+ * @author Andrzej Oles
  */
 abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
     /**

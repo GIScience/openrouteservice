@@ -26,11 +26,12 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
 
 /**
- * Implements a single source shortest path algorithm
- * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
+ * Implements time-dependent Dijkstra algorithm
  * <p>
  *
  * @author Peter Karich
+ * @author Michael Zilske
+ * @author Andrzej Oles
  */
 public class TDDijkstra extends Dijkstra {
     private boolean reverse = false;

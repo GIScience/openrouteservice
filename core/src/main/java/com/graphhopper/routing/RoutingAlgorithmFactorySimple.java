@@ -36,6 +36,7 @@ import com.graphhopper.routing.util.EdgeFilter;
  * <p>
  *
  * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
     @Override

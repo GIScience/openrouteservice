@@ -29,6 +29,9 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Andrzej Oles
+ */
 public class ConditionalAccessTest {
     private static final String CONDITIONAL = "no @ (Mar 15-Jun 15)";
     private final CarFlagEncoder encoder = new CarFlagEncoder();

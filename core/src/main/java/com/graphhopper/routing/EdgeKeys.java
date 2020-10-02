@@ -18,7 +18,6 @@
 
 package com.graphhopper.routing;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 
@@ -28,7 +27,7 @@ public class EdgeKeys {
         if (inst instanceof VirtualEdgeIteratorState) {
             return GHUtility.getEdgeFromEdgeKey(((VirtualEdgeIteratorState) inst).getOriginalEdgeKey());
         } else if (inst instanceof VirtualEdgeIterator) {
-            return getOriginalEdge(((VirtualEdgeIterator) inst).detach(false));
+            return getOriginalEdge(inst.detach(false));
         } else {
             return inst.getEdge();
         }

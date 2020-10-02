@@ -43,6 +43,7 @@ import java.util.Set;
  *
  * @author Peter Karich
  * @author Nop
+ * @author Andrzej Oles
  * @see EncodingManager
  */
 public abstract class AbstractFlagEncoder implements FlagEncoder {
