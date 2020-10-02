@@ -29,7 +29,7 @@ import com.graphhopper.util.Parameters.Routing;
  * in seconds.
  * <p>
  *
- * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class TimeDependentFastestWeighting extends AbstractWeighting {
     /**
@@ -40,7 +40,7 @@ public class TimeDependentFastestWeighting extends AbstractWeighting {
     private final double headingPenalty;
     private final double maxSpeed;
 
-    private final SpeedCalculator speedCalculator;
+    private SpeedCalculator speedCalculator;
 
 
     public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graph) {
@@ -87,7 +87,20 @@ public class TimeDependentFastestWeighting extends AbstractWeighting {
     }
 
     @Override
+    public boolean isTimeDependent() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "td_fastest";
+    }
+
+    public SpeedCalculator getSpeedCalculator() {
+        return speedCalculator;
+    }
+
+    public void setSpeedCalculator(SpeedCalculator speedCalculator) {
+        this.speedCalculator = speedCalculator;
     }
 }

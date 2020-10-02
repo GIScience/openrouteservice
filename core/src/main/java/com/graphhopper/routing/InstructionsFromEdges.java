@@ -34,6 +34,7 @@ import com.graphhopper.util.shapes.GHPoint;
  * @author Peter Karich
  * @author Robin Boldt
  * @author jan soe
+ * @author Andrzej Oles
  */
 public class InstructionsFromEdges implements Path.EdgeVisitor {
 

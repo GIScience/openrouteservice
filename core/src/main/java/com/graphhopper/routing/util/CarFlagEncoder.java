@@ -36,6 +36,7 @@ import java.util.*;
  *
  * @author Peter Karich
  * @author Nop
+ * @author Andrzej Oles
  */
 public class CarFlagEncoder extends AbstractFlagEncoder {
     protected final Map<String, Integer> trackTypeSpeedMap = new HashMap<>();

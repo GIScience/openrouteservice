@@ -35,6 +35,7 @@ import java.util.Set;
  * <p>
  *
  * @author Robin Boldt
+ * @author Andrzej Oles
  */
 public class ConditionalParser {
     private final Logger logger = LoggerFactory.getLogger(getClass());

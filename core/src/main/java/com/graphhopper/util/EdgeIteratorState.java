@@ -179,7 +179,6 @@ public interface EdgeIteratorState {
 
     EdgeIteratorState setName(String name);
 
-
     /**
      * Clones this EdgeIteratorState.
      *

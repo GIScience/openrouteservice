@@ -7,6 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+/**
+ * @author Andrzej Oles
+ */
 public class TimeDependentConditionalEvaluator {
 
     public static boolean match(List<Condition> conditions, ZonedDateTime zonedDateTime) {

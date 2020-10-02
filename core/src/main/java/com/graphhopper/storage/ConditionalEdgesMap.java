@@ -5,6 +5,9 @@ import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.*;
 
+/**
+ * @author Andrzej Oles
+ */
 public class ConditionalEdgesMap implements GraphExtension {
     private static final int EF_EDGE_BYTES = 4;
     private static final int EF_CONDITION_BYTES = 4;

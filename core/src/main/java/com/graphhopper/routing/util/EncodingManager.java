@@ -45,6 +45,7 @@ import static com.graphhopper.util.Helper.toLowerCase;
  *
  * @author Peter Karich
  * @author Nop
+ * @author Andrzej Oles
  */
 public class EncodingManager implements EncodedValueLookup {
     private static final String ERR = "Encoders are requesting %s bits, more than %s bits of %s flags. ";

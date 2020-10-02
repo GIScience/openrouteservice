@@ -14,6 +14,11 @@ import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
+/**
+ * Calculate time-dependent conditional speed
+ *
+ * @author Andrzej Oles
+ */
 public class SpeedCalculator {
     //protected final FlagEncoder flagEncoder;
     protected final DecimalEncodedValue avSpeedEnc;

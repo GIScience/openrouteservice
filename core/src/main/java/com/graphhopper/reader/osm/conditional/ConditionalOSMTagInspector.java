@@ -29,6 +29,7 @@ import java.util.*;
  * <p>
  *
  * @author Robin Boldt
+ * @author Andrzej Oles
  */
 public class ConditionalOSMTagInspector implements ConditionalTagInspector {
     private final Logger logger = LoggerFactory.getLogger(getClass());

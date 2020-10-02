@@ -210,6 +210,7 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     public EdgeIteratorState setName(String name) {
         return edges.get(current).setName(name);
     }
+
     @Override
     public String toString() {
         if (current >= 0 && current < edges.size()) {

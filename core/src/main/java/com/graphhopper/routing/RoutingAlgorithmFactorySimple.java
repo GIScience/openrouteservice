@@ -31,6 +31,7 @@ import static com.graphhopper.util.Parameters.Algorithms.AltRoute.*;
  * <p>
  *
  * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class RoutingAlgorithmFactorySimple implements RoutingAlgorithmFactory {
     @Override

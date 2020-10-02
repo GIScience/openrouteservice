@@ -5,6 +5,9 @@ import com.graphhopper.storage.Directory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Andrzej Oles
+ */
 public class ConditionalIndex extends NameIndex {
     Map<String, Long> values = new HashMap<>();
 

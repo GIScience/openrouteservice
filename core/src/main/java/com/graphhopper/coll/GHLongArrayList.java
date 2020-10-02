@@ -19,10 +19,8 @@ package com.graphhopper.coll;
 
 import com.carrotsearch.hppc.LongArrayList;
 
-import java.util.Random;
-
 /**
- * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class GHLongArrayList extends LongArrayList {
     public GHLongArrayList() {

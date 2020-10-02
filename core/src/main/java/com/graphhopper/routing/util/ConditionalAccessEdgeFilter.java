@@ -15,7 +15,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Filter out temporarily blocked edges
+ *
+ * @author Andrzej Oles
+ */
 public class ConditionalAccessEdgeFilter implements TimeDependentEdgeFilter {
     private final BooleanEncodedValue conditionalEnc;
     private final ConditionalEdgesMap conditionalEdges;

@@ -46,6 +46,7 @@ import java.util.*;
  * @author Peter Karich
  * @author Ottavio Campana
  * @author jan soe
+ * @author Andrzej Oles
  */
 public class Path {
     private final Logger logger = LoggerFactory.getLogger(getClass());

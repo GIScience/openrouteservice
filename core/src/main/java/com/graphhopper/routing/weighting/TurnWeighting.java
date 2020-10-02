@@ -30,6 +30,7 @@ import com.graphhopper.util.EdgeIteratorState;
  *
  * @author Karl Hübner
  * @author Peter Karich
+ * @author Andrzej Oles
  */
 public class TurnWeighting implements Weighting {
     public static final int INFINITE_U_TURN_COSTS = -1;

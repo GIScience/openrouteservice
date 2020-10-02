@@ -29,7 +29,7 @@ import java.util.List;
  * Inspects the conditional tags of an OSMWay according to the given conditional tags.
  * <p>
  *
- * @author Robin Boldt
+ * @author Andrzej Oles
  */
 public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
     private final Logger logger = LoggerFactory.getLogger(getClass());

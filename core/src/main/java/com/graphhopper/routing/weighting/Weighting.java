@@ -20,13 +20,13 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 
 /**
  * Specifies how the best route is calculated. E.g. the fastest or shortest route.
  * <p>
  *
  * @author Peter Karich
+ * @author Andrzej Oles
  */
 public interface Weighting {
     /**
