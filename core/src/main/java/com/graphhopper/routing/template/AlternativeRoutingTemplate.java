@@ -80,6 +80,7 @@ final public class AlternativeRoutingTemplate extends ViaRoutingTemplate {
             PathWrapper tmpAltRsp = new PathWrapper();
             tmpAltRsp.setWaypoints(wpList);
             ghResponse.add(tmpAltRsp);
+            pathMerger.setPathProcessorIndex(index);
             pathMerger.doWork(tmpAltRsp, Collections.singletonList(pathList.get(index)), encodingManager, tr);
         }
         return true;

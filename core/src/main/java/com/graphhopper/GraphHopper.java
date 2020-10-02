@@ -1148,9 +1148,19 @@ public class GraphHopper implements GraphHopperAPI {
             EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, ghStorage);
             routingTemplate.setEdgeFilter(edgeFilter);
 
-            PathProcessor pathProcessor = pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, ghStorage);
-            ghRsp.addReturnObject(pathProcessor);
-
+            if (request.getAlgorithm().equals("alternative_route")) {
+                for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 2); c++) {
+                    ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
+                }
+            } else {
+                ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
+            }
+            List<PathProcessor> ppList = new ArrayList<>();
+            for (Object o : ghRsp.getReturnObjects()) {
+                if (o instanceof PathProcessor) {
+                    ppList.add((PathProcessor)o);
+                }
+            }
             // ORS MOD END
 
             List<Path> altPaths = null;
@@ -1250,7 +1260,7 @@ public class GraphHopper implements GraphHopperAPI {
                         setEnableInstructions(tmpEnableInstructions).
                         setPathDetailsBuilders(pathBuilderFactory, request.getPathDetails()).
                         // ORS MOD START
-                        setPathProcessor(pathProcessor).
+                        setPathProcessor(ppList.toArray(new PathProcessor[]{})).
                         // ORS MOD END
                         setSimplifyResponse(simplifyResponse && wayPointMaxDistance > 0);
 
