@@ -20,6 +20,7 @@ package com.graphhopper.routing;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIndexedContainer;
 import com.graphhopper.coll.GHIntArrayList;
+import com.graphhopper.coll.GHLongArrayList;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.util.DefaultPathProcessor;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -52,6 +53,7 @@ import com.graphhopper.routing.util.PathProcessor;
  * @author Peter Karich
  * @author Ottavio Campana
  * @author jan soe
+ * @author Andrzej Oles
  */
 public class Path {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -62,6 +64,7 @@ public class Path {
     // we go upwards (via SPTEntry.parent) from the goal node to the origin node
     protected boolean reverseOrder = true;
     protected long time;
+    protected GHLongArrayList times;
     /**
      * Shortest path tree entry
      */
@@ -83,6 +86,7 @@ public class Path {
         this.weighting = weighting;
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
+        this.times = new GHLongArrayList();
     }
 
     /**
@@ -92,6 +96,7 @@ public class Path {
         this(p.graph, p.weighting);
         weight = p.weight;
         edgeIds = new GHIntArrayList(p.edgeIds);
+        times = new GHLongArrayList(p.times);
         sptEntry = p.sptEntry;
     }
 
@@ -117,6 +122,11 @@ public class Path {
 
     protected void addEdge(int edge) {
         edgeIds.add(edge);
+    }
+
+    protected void addTime(long duration) {
+        times.add(duration);
+        time += duration;
     }
 
     protected Path setEndNode(int end) {
@@ -161,6 +171,7 @@ public class Path {
 
         reverseOrder = false;
         edgeIds.reverse();
+        times.reverse();
     }
 
     public Path setDistance(double distance) {
@@ -246,7 +257,7 @@ public class Path {
     protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         distance += iter.getDistance();
-        time += weighting.calcMillis(iter, false, prevEdgeId);
+        addTime(weighting.calcMillis(iter, false, prevEdgeId));
         addEdge(edgeId);
     }
 
@@ -258,7 +269,7 @@ public class Path {
      * @param visitor callback to handle every edge. The edge is decoupled from the iterator and can
      *                be stored.
      */
-    private void forEveryEdge(EdgeVisitor visitor) {
+    protected void forEveryEdge(EdgeVisitor visitor) {
         int tmpNode = getFromNode();
         int len = edgeIds.size();
         int prevEdgeId = EdgeIterator.NO_EDGE;
@@ -380,7 +391,7 @@ public class Path {
         }
         // ORS-GH MOD START
 //        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways));
-        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor));
+        forEveryEdge(new InstructionsFromEdges(getFromNode(), graph, weighting, encoder, roundaboutEnc, nodeAccess, tr, ways, pathProcessor, times));
         // ORS-GH MOD END
         return ways;
     }

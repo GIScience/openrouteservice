@@ -38,12 +38,12 @@ import java.util.PriorityQueue;
  * @author Peter Karich
  */
 public class AStar extends AbstractRoutingAlgorithm {
-    private WeightApproximator weightApprox;
-    private int visitedCount;
-    private GHIntObjectHashMap<AStarEntry> fromMap;
-    private PriorityQueue<AStarEntry> prioQueueOpenSet;
-    private AStarEntry currEdge;
-    private int to1 = -1;
+    protected WeightApproximator weightApprox;
+    protected int visitedCount;
+    protected GHIntObjectHashMap<AStarEntry> fromMap;
+    protected PriorityQueue<AStarEntry> prioQueueOpenSet;
+    protected AStarEntry currEdge;
+    protected int to = -1;
 
     public AStar(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -70,8 +70,7 @@ public class AStar extends AbstractRoutingAlgorithm {
     @Override
     public Path calcPath(int from, int to) {
         checkAlreadyRun();
-        to1 = to;
-
+        this.to = to;
         weightApprox.setTo(to);
         double weightToGoal = weightApprox.approximate(from);
         currEdge = new AStarEntry(EdgeIterator.NO_EDGE, from, 0 + weightToGoal, 0);
@@ -149,7 +148,7 @@ public class AStar extends AbstractRoutingAlgorithm {
 
     @Override
     protected boolean finished() {
-        return currEdge.adjNode == to1;
+        return currEdge.adjNode == to;
     }
 
     @Override

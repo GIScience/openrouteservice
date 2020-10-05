@@ -51,6 +51,16 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ch.poole</groupId>
+            <artifactId>ConditionalRestrictionParser</artifactId>
+            <version>${crparser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.poole</groupId>
+            <artifactId>OpeningHoursParser</artifactId>
+            <version>${ohparser.version}</version>
+        </dependency>
 
         <!-- for using CGIAR: elevation data importing via tif files-->
         <dependency>
@@ -95,6 +105,12 @@
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>us.dustinj.timezonemap</groupId>
+            <artifactId>timezonemap</artifactId>
+            <version>3.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -138,6 +154,14 @@
                     <dotGitDirectory>${parent.basedir}/.git</dotGitDirectory>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>

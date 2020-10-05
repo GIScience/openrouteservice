@@ -55,7 +55,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import us.dustinj.timezonemap.TimeZoneMap;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -802,18 +802,18 @@ public class GraphHopper implements GraphHopperAPI {
             GraphExtension ext = encodingManager.needsTurnCostsSupport()
                     ? new TurnCostExtension() : new GraphExtension.NoOpExtension();
 
-            if (lmFactoryDecorator.isEnabled())
-                initLMAlgoFactoryDecorator();
-
             if (chFactoryDecorator.isEnabled()) {
                 initCHAlgoFactoryDecorator();
                 ghStorage = new GraphHopperStorage(chFactoryDecorator.getCHProfiles(), dir, encodingManager, hasElevation(), ext);
             } else {
                 ghStorage = new GraphHopperStorage(dir, encodingManager, hasElevation(), ext);
             }
-        //ORS-GH MOD START
+
         }
         //ORS-GH MOD END
+
+        if (lmFactoryDecorator.isEnabled())
+            initLMAlgoFactoryDecorator();
 
         ghStorage.setSegmentSize(defaultSegmentSize);
 
@@ -935,6 +935,9 @@ public class GraphHopper implements GraphHopperAPI {
             interpolateBridgesAndOrTunnels();
         }
 
+        BBox bb = ghStorage.getBounds();
+        ghStorage.setTimeZoneMap(TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon));
+
         initLocationIndex();
 
         if (chFactoryDecorator.isEnabled())
@@ -1011,6 +1014,9 @@ public class GraphHopper implements GraphHopperAPI {
             weighting = new ShortFastestWeighting(encoder, hints);
         }
 
+        else if ("td_fastest".equalsIgnoreCase(weightingStr))
+            weighting = new TimeDependentFastestWeighting(encoder, hints, ghStorage);
+
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
 
@@ -1020,7 +1026,6 @@ public class GraphHopper implements GraphHopperAPI {
                     parseBlockArea(blockAreaStr, DefaultEdgeFilter.allEdges(encoder), hints.getDouble("block_area.edge_id_max_area", 1000 * 1000));
             return new BlockAreaWeighting(weighting, blockArea);
         }
-
         return weighting;
     }
 
@@ -1040,6 +1045,18 @@ public class GraphHopper implements GraphHopperAPI {
             }
         }
         return weighting;
+    }
+
+    /**
+     * Potentially wraps the specified weighting into a TimeDependentAccessWeighting.
+     */
+    public Weighting createTimeDependentAccessWeighting(Weighting weighting, TraversalMode tMode, String algo) {
+        return tMode.isEdgeBased() && isAlgorithmTimeDependent(algo) ?
+            new TimeDependentAccessWeighting(weighting, ghStorage, weighting.getFlagEncoder()) : weighting;
+    }
+
+    private boolean isAlgorithmTimeDependent(String algo) {
+        return ("td_dijkstra".equals(algo) || "td_astar".equals(algo)) ? true : false;
     }
 
     @Override
@@ -1187,12 +1204,20 @@ public class GraphHopper implements GraphHopperAPI {
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
                     throw new IllegalArgumentException("The max_visited_nodes parameter has to be below or equal to:" + maxVisitedNodes);
 
+                weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
+
                 int uTurnCostInt = request.getHints().getInt(Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
                 if (uTurnCostInt != INFINITE_U_TURN_COSTS && !tMode.isEdgeBased()) {
                     throw new IllegalArgumentException("Finite u-turn costs can only be used for edge-based routing, use `" + Routing.EDGE_BASED + "=true'");
                 }
                 double uTurnCosts = uTurnCostInt == INFINITE_U_TURN_COSTS ? Double.POSITIVE_INFINITY : uTurnCostInt;
                 weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
+
+                if (weighting.isTimeDependent()) {
+                    String departureTimeString = hints.get("pt.earliest_departure_time", "");
+                    if (!departureTimeString.isEmpty())
+                        hints.put("departure", departureTimeString);
+                }
 
                 AlgorithmOptions algoOpts = AlgorithmOptions.start().
                         algorithm(algoStr).traversalMode(tMode).weighting(weighting).

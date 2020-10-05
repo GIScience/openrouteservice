@@ -15,17 +15,35 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.reader;
+package com.graphhopper.coll;
+
+import com.carrotsearch.hppc.LongArrayList;
 
 /**
- * @author Peter Karich
+ * @author Andrzej Oles
  */
-public interface ConditionalTagInspector {
-    boolean isRestrictedWayConditionallyPermitted(ReaderWay way);
+public class GHLongArrayList extends LongArrayList {
+    public GHLongArrayList() {
+        super(10);
+    }
 
-    boolean isPermittedWayConditionallyRestricted(ReaderWay way);
+    public GHLongArrayList(int capacity) {
+        super(capacity);
+    }
 
-    boolean isConditionLazyEvaluated();
+    public GHLongArrayList(GHLongArrayList list) {
+        super(list);
+    }
 
-    String getTagValue();
+    public final GHLongArrayList reverse() {
+        final long[] buffer = this.buffer;
+        long tmp;
+        for (int start = 0, end = size() - 1; start < end; start++, end--) {
+            // swap the values
+            tmp = buffer[start];
+            buffer[start] = buffer[end];
+            buffer[end] = tmp;
+        }
+        return this;
+    }
 }

@@ -38,6 +38,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Peter Karich
  * @author Nop
  * @author ratrun
+ * @author Andrzej Oles
  */
 abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
     /**
@@ -67,6 +68,8 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
 
     // This is the specific bicycle class
     private String classBicycleKey;
+
+    private BooleanEncodedValue conditionalEncoder;
 
     protected BikeCommonFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
@@ -218,6 +221,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
         registerNewEncodedValue.add(unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false));
         registerNewEncodedValue.add(wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false));
         registerNewEncodedValue.add(priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false));
+        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
     }
 
     @Override
@@ -247,8 +251,14 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
                 accept = EncodingManager.Access.WAY;
 
             if (!accept.canSkip()) {
-                if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                    return EncodingManager.Access.CAN_SKIP;
+                if (way.hasTag(restrictions, restrictedValues)) {
+                    if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
+                        if (getConditionalTagInspector().isConditionLazyEvaluated())
+                            return EncodingManager.Access.CONDITIONAL;
+                    }
+                    else
+                        return EncodingManager.Access.CAN_SKIP;
+                }
                 return accept;
             }
 
@@ -271,7 +281,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
         if (way.hasTag("bicycle", intendedValues) ||
                 way.hasTag("bicycle", "dismount") ||
                 way.hasTag("highway", "cycleway"))
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
 
         // accept only if explicitly tagged for bike usage
         if ("motorway".equals(highwayValue) || "motorway_link".equals(highwayValue))
@@ -285,13 +295,10 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-            return EncodingManager.Access.CAN_SKIP;
+        if (way.hasTag(restrictions, restrictedValues))
+            return isRestrictedWayConditionallyPermitted(way);
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            return EncodingManager.Access.CAN_SKIP;
-        else
-            return EncodingManager.Access.WAY;
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     boolean isSacScaleAllowed(String sacScale) {
@@ -350,6 +357,8 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
             handleBikeRelated(edgeFlags, way, relationFlags > UNCHANGED.getValue());
+            if (access.isConditional())
+                conditionalEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = getFerrySpeed(way);
             handleSpeed(edgeFlags, way, ferrySpeed);

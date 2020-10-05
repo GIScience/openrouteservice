@@ -18,12 +18,10 @@
 package com.graphhopper.reader;
 
 /**
- * @author Peter Karich
+ * @author Andrzej Oles
  */
-public interface ConditionalTagInspector {
-    boolean isRestrictedWayConditionallyPermitted(ReaderWay way);
-
-    boolean isPermittedWayConditionallyRestricted(ReaderWay way);
+public interface ConditionalSpeedInspector {
+    boolean hasConditionalSpeed(ReaderWay way);
 
     boolean isConditionLazyEvaluated();
 

@@ -20,10 +20,12 @@ package com.graphhopper.storage;
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.BBox;
+import us.dustinj.timezonemap.TimeZoneMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,6 +50,37 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     private final EncodingManager encodingManager;
     private final StorableProperties properties;
     private final BaseGraph baseGraph;
+
+    private final ConditionalEdges conditionalAccess;
+    private final ConditionalEdges conditionalSpeed;
+
+    public ConditionalEdgesMap getConditionalAccess(FlagEncoder encoder) {
+        return getConditionalAccess(encoder.toString());
+    }
+
+    public ConditionalEdgesMap getConditionalAccess(String encoderName) {
+        return conditionalAccess.getConditionalEdgesMap(encoderName);
+    }
+
+    public ConditionalEdgesMap getConditionalSpeed(FlagEncoder encoder) {
+        return getConditionalSpeed(encoder.toString());
+    }
+
+    public ConditionalEdgesMap getConditionalSpeed(String encoderName) {
+        return conditionalSpeed.getConditionalEdgesMap(encoderName);
+    }
+
+    // FIXME: temporal solution until an external storage for time zones is introduced.
+    private TimeZoneMap timeZoneMap;
+
+    public TimeZoneMap getTimeZoneMap() {
+        return timeZoneMap;
+    }
+
+    public void setTimeZoneMap(TimeZoneMap timeZoneMap) {
+        this.timeZoneMap = timeZoneMap;
+    }
+
     // same flush order etc
     private final Collection<CHGraphImpl> chGraphs;
 
@@ -90,6 +123,12 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHProfile chProfile : chProfiles) {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
+
+        this.conditionalAccess = new ConditionalEdges(encodingManager, "conditional_access");
+        this.conditionalAccess.init(this, dir);
+
+        this.conditionalSpeed = new ConditionalEdges(encodingManager, "conditional_speed");
+        this.conditionalSpeed.init(this, dir);
     }
 
     public CHGraph getCHGraph() {
@@ -190,6 +229,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.setSegmentSize(bytes);
         }
+
+        conditionalAccess.setSegmentSize(bytes);
+        conditionalSpeed.setSegmentSize(bytes);
     }
 
     /**
@@ -220,6 +262,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         }
 
         properties.put("graph.ch.profiles", getCHProfiles().toString());
+
+        conditionalAccess.create(initSize);
+        conditionalSpeed.create(initSize);
         return this;
     }
 
@@ -305,6 +350,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                     throw new IllegalStateException("Cannot load " + cg);
             }
 
+            conditionalAccess.loadExisting();
+            conditionalSpeed.loadExisting();
+
             return true;
         }
         return false;
@@ -356,6 +404,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         baseGraph.flush();
         properties.flush();
+        conditionalAccess.flush();
+        conditionalSpeed.flush();
     }
 
     @Override
@@ -366,6 +416,9 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.close();
         }
+
+        conditionalAccess.close();
+        conditionalSpeed.close();
     }
 
     @Override

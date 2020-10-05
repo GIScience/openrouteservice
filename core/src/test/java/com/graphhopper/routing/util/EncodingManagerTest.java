@@ -82,7 +82,7 @@ public class EncodingManagerTest {
             EncodingManager.create(new FootFlagEncoder(), new CarFlagEncoder(), new BikeFlagEncoder(), new MountainBikeFlagEncoder(), new RacingBikeFlagEncoder());
             fail("There should have been an exception");
         } catch (Exception ex) {
-            assertTrue(ex.getMessage(), ex.getMessage().startsWith("Encoders are requesting 36 bits, more than 32 bits of edge flags"));
+            assertTrue(ex.getMessage(), ex.getMessage().startsWith("Encoders are requesting 34 bits, more than 32 bits of edge flags"));
         }
     }
 
@@ -270,7 +270,7 @@ public class EncodingManagerTest {
 
     @Test
     public void testSharedEncodedValues() {
-        EncodingManager manager = EncodingManager.create("car,foot,bike,motorcycle,mtb", 8);
+        EncodingManager manager = EncodingManager.create("car,foot,bike,motorcycle,mtb", 12);
 
         for (FlagEncoder tmp : manager.fetchEdgeEncoders()) {
             AbstractFlagEncoder encoder = (AbstractFlagEncoder) tmp;

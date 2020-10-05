@@ -15,17 +15,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.reader;
 
-/**
- * @author Peter Karich
- */
-public interface ConditionalTagInspector {
-    boolean isRestrictedWayConditionallyPermitted(ReaderWay way);
+package com.graphhopper.routing;
 
-    boolean isPermittedWayConditionallyRestricted(ReaderWay way);
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.GHUtility;
 
-    boolean isConditionLazyEvaluated();
+public class EdgeKeys {
 
-    String getTagValue();
+    public static int getOriginalEdge(EdgeIteratorState inst){
+        if (inst instanceof VirtualEdgeIteratorState) {
+            return GHUtility.getEdgeFromEdgeKey(((VirtualEdgeIteratorState) inst).getOriginalEdgeKey());
+        } else if (inst instanceof VirtualEdgeIterator) {
+            return getOriginalEdge(inst.detach(false));
+        } else {
+            return inst.getEdge();
+        }
+    }
+
 }

@@ -45,6 +45,7 @@ import static com.graphhopper.util.Helper.toLowerCase;
  *
  * @author Peter Karich
  * @author Nop
+ * @author Andrzej Oles
  */
 public class EncodingManager implements EncodedValueLookup {
     private static final String ERR = "Encoders are requesting %s bits, more than %s bits of %s flags. ";
@@ -445,12 +446,13 @@ public class EncodingManager implements EncodedValueLookup {
         for (AbstractFlagEncoder encoder : edgeEncoders) {
             acceptWay.put(encoder.toString(), encoder.getAccess(way));
         }
-        return acceptWay.hasAccepted();
+        return acceptWay.hasAccepted() || acceptWay.hasConditional();
     }
 
     public static class AcceptWay {
         private Map<String, Access> accessMap;
         boolean hasAccepted = false;
+        boolean hasConditional = false;
 
         public AcceptWay() {
             this.accessMap = new HashMap<>(5);
@@ -468,6 +470,8 @@ public class EncodingManager implements EncodedValueLookup {
             accessMap.put(key, access);
             if (access != Access.CAN_SKIP)
                 hasAccepted = true;
+            if (access == Access.CONDITIONAL)
+                hasConditional = true;
             return this;
         }
 
@@ -488,10 +492,18 @@ public class EncodingManager implements EncodedValueLookup {
                 throw new IllegalStateException("Cannot determine Access if map is empty");
             return accessMap.values().iterator().next();
         }
+
+        public Access getAccess(String key) {
+            return accessMap.get(key);
+        }
+
+        public boolean hasConditional () {
+            return hasConditional;
+        }
     }
 
     public enum Access {
-        WAY, FERRY, OTHER, CAN_SKIP;
+        WAY, FERRY, OTHER, CAN_SKIP, CONDITIONAL;
 
         public boolean isFerry() {
             return this.ordinal() == FERRY.ordinal();
@@ -508,6 +520,11 @@ public class EncodingManager implements EncodedValueLookup {
         public boolean canSkip() {
             return this.ordinal() == CAN_SKIP.ordinal();
         }
+
+        public boolean isConditional() {
+            return this.ordinal() == CONDITIONAL.ordinal();
+        }
+
     }
 
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {

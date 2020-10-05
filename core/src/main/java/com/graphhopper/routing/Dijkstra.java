@@ -41,8 +41,8 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     protected IntObjectMap<SPTEntry> fromMap;
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
-    private int visitedNodes;
-    private int to = -1;
+    protected int visitedNodes;
+    protected int to = -1;
 
     // ORS-GH MOD START Modification by Maxim Rylov: Added a new class variable used for computing isochrones.
     protected Boolean reverseDirection = false;

@@ -53,11 +53,21 @@ public class PreparationWeighting implements Weighting {
     }
 
     @Override
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcWeight(edge, reverse, prevOrNextEdgeId);
+    }
+
+    @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if (edgeState instanceof CHEdgeIteratorState && ((CHEdgeIteratorState) edgeState).isShortcut()) {
             throw new IllegalStateException("calcMillis should only be called on original edges");
         }
         return userWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    }
+
+    @Override
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcMillis(edgeState, reverse, prevOrNextEdgeId);
     }
 
     @Override
@@ -78,5 +88,10 @@ public class PreparationWeighting implements Weighting {
     @Override
     public String toString() {
         return getName();
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return false;
     }
 }
