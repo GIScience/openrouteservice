@@ -938,23 +938,6 @@ public class GraphHopper implements GraphHopperAPI {
         BBox bb = ghStorage.getBounds();
         ghStorage.setTimeZoneMap(TimeZoneMap.forRegion(bb.minLat, bb.minLon, bb.maxLat, bb.maxLon));
 
-        // FIXME: print out debug info on stored conditionals
-        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
-            String name = encodingManager.getKey(encoder, "conditional_access");
-            if (encodingManager.hasEncodedValue(name)) {
-                ConditionalEdgesMap ca = ghStorage.getConditionalAccess(encoder);
-                System.out.println("CONDITIONAL ACCESS " + encoder.toString().toUpperCase() + ": [" + ca.entries()+ "]");
-                ca.printStoredValues();
-            }
-
-            name = encodingManager.getKey(encoder, "conditional_speed");
-            if (encodingManager.hasEncodedValue(name)) {
-                ConditionalEdgesMap cs = ghStorage.getConditionalSpeed(encoder);
-                System.out.println("CONDITIONAL SPEED " + encoder.toString().toUpperCase() + ": [" + cs.entries()+ "]");
-                cs.printStoredValues();
-            }
-        }
-
         initLocationIndex();
 
         if (chFactoryDecorator.isEnabled())
