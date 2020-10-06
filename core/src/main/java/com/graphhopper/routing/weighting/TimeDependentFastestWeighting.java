@@ -48,7 +48,7 @@ public class TimeDependentFastestWeighting extends AbstractWeighting {
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
 
-        this.speedCalculator = new SpeedCalculator(graph, encoder);
+        this.speedCalculator = new ConditionalSpeedCalculator(graph, encoder);
     }
 
     @Override
