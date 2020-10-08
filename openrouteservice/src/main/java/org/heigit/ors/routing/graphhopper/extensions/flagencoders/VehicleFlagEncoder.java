@@ -202,7 +202,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             // TODO: save conditional speeds only if their value is different from the default speed
-            if (getConditionalSpeedInspector().hasConditionalSpeed(way))
+            if (getConditionalSpeedInspector()!=null && getConditionalSpeedInspector().hasConditionalSpeed(way))
                 if (getConditionalSpeedInspector().isConditionLazyEvaluated())
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
                 else

@@ -86,9 +86,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
 		}
 
-		//if (gh.getLMFactoryDecorator().isEnabled())
-		//	gh.initLMAlgoFactoryDecorator();
-
 		if (gh.getCHFactoryDecorator().isEnabled())
 			gh.initCHAlgoFactoryDecorator();
 
