@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing;
 
-import com.google.common.base.Strings;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -81,6 +80,9 @@ public class RouteSearchParameters {
     private float roundTripLength = -1;
     private int roundTripPoints = 2;
     private long roundTripSeed = -1;
+
+    private double maximumSpeed;
+    private boolean hasMaximumSpeed = false;
 
     private String options;
 
@@ -386,8 +388,8 @@ public class RouteSearchParameters {
 
             String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
             String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-            double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-            double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+            double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+            double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
             for (Polygon avoidArea : avoidAreas) {
                 try {
                     if (areaLimit > 0) {
@@ -415,7 +417,7 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
             }
             String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
-            int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+            int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
             if (countLimit > 0 && alternativeRoutesCount > countLimit) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
@@ -507,6 +509,10 @@ public class RouteSearchParameters {
         this.bearings = bearings;
     }
 
+    public boolean hasBearings() {
+        return bearings != null && bearings.length > 0;
+    }
+
     public void setRoundTripLength(float length) {
         roundTripLength = length;
     }
@@ -531,6 +537,19 @@ public class RouteSearchParameters {
         return roundTripSeed;
     }
 
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
+
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
     }
@@ -539,24 +558,23 @@ public class RouteSearchParameters {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
 
-    public boolean requiresDynamicWeights() {
+    public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
             || hasAvoidFeatures()
             || hasAvoidBorders()
             || hasAvoidCountries()
             || getConsiderTurnRestrictions()
-            || getWeightingMethod() == WeightingMethod.SHORTEST
-            || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-        ;
+            || hasMaximumSpeed();
     }
 
     /**
      * Check if the request is compatible with preprocessed graphs
      */
-    public boolean requiresFallbackAlgorithm() {
+    public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
+                || hasBearings()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
     }
 

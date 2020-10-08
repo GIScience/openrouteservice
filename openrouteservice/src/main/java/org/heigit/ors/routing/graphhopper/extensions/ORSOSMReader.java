@@ -23,6 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
@@ -47,6 +48,9 @@ public class ORSOSMReader extends OSMReader {
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
 	private boolean detachSidewalksFromRoad = false;
+
+	private boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
+	private boolean getElevationFromPreprocessedDataErrorLogged = false;
 
 	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
@@ -187,7 +191,7 @@ public class ORSOSMReader extends OSMReader {
 				// find the node
 				long id = osmNodeIds.get(i);
 				// replace the osm id with the internal id
-				int internalId = getInternalNodeIdOfOsmNode(id);
+				int internalId = getNodeMap().get(id);
 				HashMap<String, String> tagsForNode = nodeTags.get(id);
 
 				if(tagsForNode != null) {
@@ -412,5 +416,19 @@ public class ORSOSMReader extends OSMReader {
 		procCntx.finish();
 	}
 
-
+	@Override
+	protected double getElevation(ReaderNode node) {
+		if (getElevationFromPreprocessedData) {
+			double ele = node.getEle();
+			if (Double.isNaN(ele)) {
+				if (!getElevationFromPreprocessedDataErrorLogged) {
+					LOGGER.error("elevation_preprocessed set to true in app.config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					getElevationFromPreprocessedDataErrorLogged = true;
+				}
+				ele = 0;
+			}
+			return ele;
+		}
+		return super.getElevation(node);
+	}
 }

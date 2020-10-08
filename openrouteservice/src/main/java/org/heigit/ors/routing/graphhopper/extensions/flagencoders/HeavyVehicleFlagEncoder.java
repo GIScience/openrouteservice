@@ -117,9 +117,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         backwardKeys.add("forestry:backward");
         backwardKeys.add("delivery:backward");
 
-        // Disable reduction of speed on roads with destination only tag - this was only enabled in the car and emergency vehicle profiles
-        destinationSpeed = -1;
-
         init();
     }
 

@@ -16,17 +16,14 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.*;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import com.graphhopper.routing.weighting.Weighting;
 
 public class ORSGraphStorageFactory implements GraphStorageFactory {
 
@@ -105,6 +102,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 		if (!profiles.isEmpty())
 			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
+
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 	}

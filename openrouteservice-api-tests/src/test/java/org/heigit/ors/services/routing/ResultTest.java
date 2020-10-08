@@ -50,7 +50,7 @@ public class ResultTest extends ServiceTest {
 		addParameter("coordinatesShort", "8.678613,49.411721|8.687782,49.424597");
 		addParameter("coordinatesLong", "8.678613,49.411721|8.714733,49.393267|8.687782,49.424597");
 		addParameter("extra_info", "surface|suitability|steepness");
-		addParameter("preference", "fastest");
+		addParameter("preference", "recommended");
 		addParameter("bikeProfile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
 
@@ -617,10 +617,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].summary.distance", is(11137.6f))
-                .body("routes[0].summary.duration", is(2522.6f))
-                .body("routes[0].summary.ascent", is(343.1f))
-                .body("routes[0].summary.descent", is(339.7f))
+                .body("routes[0].summary.distance", is(13079))
+                .body("routes[0].summary.duration", is(2737))
+                .body("routes[0].summary.ascent", is(351))
+                .body("routes[0].summary.descent", is(347.6f))
                 .statusCode(200);
     }
 
@@ -639,10 +639,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].segments[0].distance", is(5544.1f))
-                .body("routes[0].segments[0].duration", is(1260.6f))
-                .body("routes[0].segments[1].distance", is(5593.5f))
-                .body("routes[0].segments[1].duration", is(1262))
+                .body("routes[0].segments[0].distance", is(6696.6f))
+                .body("routes[0].segments[0].duration", is(1398.4f))
+                .body("routes[0].segments[1].distance", is(6382.4f))
+                .body("routes[0].segments[1].duration", is(1338.6f))
                 .statusCode(200);
     }
 
@@ -663,8 +663,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body(
                         "routes[0].geometry",
-                        is(
-                                "gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwBAKq@AQ{@?Gq@AMq@AGq@Gm@q@WwC{EGg@S?MSJES~CcAg@|@[z@HARFAR?CRIaCrD?Mz@Ce@x@NMv@RCj@HAf@l@e@jANK`@tBwAkQFIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                        is("gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JFAd@d@K?`AAw@HDA?~HsArCF?VF@XF@XB@VBDVBBRFRz@HVz@FJv@LZv@JTr@BBt@D@p@B@p@RAl@HCl@RGl@PIcAvAu@{IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHDDHBHH`DVnAJ@Ht@XIlDtA{Oz@PmGx@R}D~A\\uD`HbBfCtBv@{Av@ZwAnGrAcJBB[B@]D@BHBNF@\\D?\\F@ZFJ\\BBXFEXROXBEXJIVNOVRSVHIVRORpAo@QNKSLKeAh@q@kCHIeABCeA~Ay@uMTa@mBVu@mDHe@oAH[oAJ[qERWoFJIeFTQ{EPM{ENU}D\\_A{JNo@_IF}@wRAoBwp@?]aM?YqMH{BkbAByCsoA?u@_b@@o@mL?[mL@GmL@GaKD]gHNc@{FT[qEVUqE@?qE@SkDFSgCx@{AqP`@cAoIx@eDyZZw@eRr@}Agh@V_Am[BKaMAI_L?E{J?[{JFaBq_@A[sHUsBen@CWsKAMgJ@a@gJH_@gJ@CgJBAgJJEsBJBQ`AjAqA\\J_@ZAo@|AUcLl@?H|ADcGz@ImVP@yFHJyF@TyFMf@cGWh@mNo@d@eKEH{C?NaC?BaC?@aCFLiBN@qAdAe@oBdBc@uMTFkC^b@wGBBiCFDmCTHkC\\E_DlBeB_b@PO_DPOaCLMWBI@NY^n@uApFhAgCfNLc@\\Fa@^BMUF]Sj@{CaTJe@}DVu@{Jb@_A{TRa@cGNUmD`@}@cJFUmBJa@qEF[_DHa@_D@QqC@IaCDaA}I@UmD?_A_I@{BgTD[kCHYkCHYeFPc@kHJe@kH@k@kH?EgE?CgE?MgEAIgEAQgEC[aFKe@sDS_@sDQUsDECsDECiDKG_DCAuCSIkCgG_CseAg@E_I{@F_NGAsCCIkCAC_COEgC]E_CgBFwMqAKqI[CoAy@KoFSEoAUEoAuC_A}]}DcAyd@aCO_O{ASaBA?SMASuAW_NsFu@obAIEkCKKkCZAkC@GcBBC{@vDiAoU\\OoCFCoCD?sCz@GkLhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRGFRCBRODRSERUYq@Mg@fEyAeK`}AGq@jCO{CpOS{BeGk@sEnf@k@uDx|@YkA~OGOzCSM~CK?nBIB~@IHPGJ]QXmAg@p@i@QNq@MLa@c@b@U_@f@h@MVj@IPp@s@pAxU_@j@~MGLnFEFnFg@j@nUKJzHGFdFs@j@lLk@v@jHKRbBMT`Ho@tA~\\_@lAxPa@fB~HW`B`H?JfE?DfE@DfEJFfED?fEFCR\\oAg@Vk@q@l@q@hIz@a@|N|@SxKn@B`Mr@XjWZPbGPRrGHNdH@FtHDVtHARtHU`AnUStA~\\Gb@~HIf@dKIb@dKQ~@dUMr@pOMr@zOObAzOYhBle@IlAbSAr@lLFbC`x@C~Ahg@Ex@|XO~@`YKd@bLEPbLERtKOx@rSKf@`HSv@bISf@HGPiCGPyCS^kDG@}DGIxF?AxFACxF?GxF?AxF@ArFb@uAbB@GeA?Ca@@m@?OoAjCEy@lG?i@fE?SfECw@w@CGyFEAoF??oFA@oFU\\oFKTrACFxDGL`HKT`Hm@rAlYEHrFEFzE]b@pOoCrBd~AEN~C?@~C?@~CBBjH@?jH@@jHj@CvQ@?jHTC`Cx@M`AD@a@@@k@?@w@BHiB?NuBEN_CKLjCi@`@vGo@VjCQF?IB?ID?GB?GD?s@`@nZuArAzaA_@^v[CBrDOP~HAD~HA?~Ha@bA~\\IZ~HG\\~HWlDpe@Kr@tCAJrDIh@rDIPrDE@rDJpEjM?d@p@?tAhB?rAdA?v@f@?n@I@`@I?HIiBHEB|CfA@tApB@x@nA@Lf@BXf@HbBvBP|BnCHv@fA@H^Fn@ZFn@B@J??B?D^?Fv@??F?FbA]?BS@RS?RSBnAQ@ZG?^I?RM@f@SBrASBb@HDtB{@F~BeA?V]BV]KDg@{C~@iBoHhBxm@K?`BSCxAGBnAO@hAUJdACB`AEBz@oIxAsHE@gAk@HsCG?gA[BaAU@_AG^{@CBw@qADiFqAFkEK?i@I@e@gA?mC{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
                 .statusCode(200);
     }
 
@@ -682,7 +681,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 271, 509))
+                .body("routes[0].way_points", hasItems(0, 332, 624))
                 .statusCode(200);
     }
 
@@ -699,7 +698,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 8.719662f, 49.424603f))
 				.statusCode(200);
 	}
 
@@ -717,7 +716,7 @@ public class ResultTest extends ServiceTest {
 				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 8.714833f, 49.424603f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 8.719662f, 49.424603f))
 				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
 				//.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
@@ -768,10 +767,10 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(44))
-                .body("routes[0].extras.surface.values[26][1]", is(281))
-                .body("routes[0].extras.suitability.values[29][0]", is(429))
-                .body("routes[0].extras.steepness.values[11][1]", is(265))
+                .body("routes[0].extras.surface.values.size()", is(28))
+                .body("routes[0].extras.surface.values[18][1]", is(342))
+                .body("routes[0].extras.suitability.values[18][0]", is(521))
+                .body("routes[0].extras.steepness.values[10][1]", is(326))
 
                 .statusCode(200);
 
@@ -800,7 +799,7 @@ public class ResultTest extends ServiceTest {
 		Response response = given()
 				.param("coordinates", "8.763442,49.388882|8.762927,49.397541")
 				.param("instructions", "true")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("profile", "cycling-regular")
 				.param("extra_info", "suitability|traildifficulty")
 				.when().log().ifValidationFails()
@@ -825,7 +824,7 @@ public class ResultTest extends ServiceTest {
 		response = given()
 				.param("coordinates", "8.724174,49.390223|8.716536,49.399622")
 				.param("instructions", "true")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("profile", "foot-hiking")
 				.param("extra_info", "traildifficulty")
 				.when().log().ifValidationFails()
@@ -857,7 +856,7 @@ public class ResultTest extends ServiceTest {
 		Response response = given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
                 .param("profile", "driving-car")
                 .param("extra_info", "suitability|tollways")
                 .when().log().ifValidationFails()
@@ -878,7 +877,7 @@ public class ResultTest extends ServiceTest {
         response = given()
                 .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
                 .param("instructions", "true")
-                .param("preference", "fastest")
+                .param("preference", getParameter("preference"))
                 .param("profile", "driving-hgv")
 				.param("extra_info", "suitability|tollways")
 				.when().log().ifValidationFails()
@@ -896,7 +895,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 
@@ -905,7 +904,7 @@ public class ResultTest extends ServiceTest {
 		response = given()
 				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
 				.param("instructions", "true")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("profile", "driving-hgv")
 				.param("continue_straight", "false")
 				.param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
@@ -925,7 +924,7 @@ public class ResultTest extends ServiceTest {
 				.body("routes[0].extras.tollways.values[1][1]", is(66))
 				.body("routes[0].extras.tollways.values[1][2]", is(1))
 				.body("routes[0].extras.tollways.values[2][0]", is(66))
-				.body("routes[0].extras.tollways.values[2][1]", is(86))
+				.body("routes[0].extras.tollways.values[2][1]", is(101))
 				.body("routes[0].extras.tollways.values[2][2]", is(0))
 				.statusCode(200);
 
@@ -954,7 +953,7 @@ public class ResultTest extends ServiceTest {
 	public void testNoBearings() {
 		given()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.when().log().ifValidationFails()
@@ -971,7 +970,7 @@ public class ResultTest extends ServiceTest {
 	public void testBearingsForStartAndEndPoints() {
 		given()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", "cycling-road")
 				.param("bearings", "25,30|90,20")
@@ -988,7 +987,7 @@ public class ResultTest extends ServiceTest {
 	public void testBearingsExceptLastPoint() {
 		given()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", "cycling-road")
 				.param("bearings", "25,30")
@@ -1005,7 +1004,7 @@ public class ResultTest extends ServiceTest {
 	public void testBearingsSkipwaypoint() {
 		given()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
 				.param("profile", "cycling-regular")
 				.param("bearings", "|90,20")
@@ -1033,10 +1032,8 @@ public class ResultTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].segments[0].containsKey('steps')", is(true))
 				.body("routes[0].segments[1].containsKey('steps')", is(true))
-				//.body("routes[0].segments[0].steps.size()", is(55))
-                .body("routes[0].segments[0].steps.size()", is(39))
-				//.body("routes[0].segments[1].steps.size()", is(28))
-                .body("routes[0].segments[1].steps.size()", is(25))
+                .body("routes[0].segments[0].steps.size()", is(34))
+                .body("routes[0].segments[1].steps.size()", is(17))
 				.statusCode(200);
 	}
 
@@ -1055,8 +1052,8 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].containsKey('steps')", is(true))
                 .body("routes[0].segments[1].containsKey('steps')", is(true))
-                .body("routes[0].segments[0].steps.size()", is(39))
-                .body("routes[0].segments[1].steps.size()", is(25))
+                .body("routes[0].segments[0].steps.size()", is(34))
+                .body("routes[0].segments[1].steps.size()", is(17))
                 .body("routes[0].segments[0].steps[3].distance", is(337.3f))
                 .body("routes[0].segments[0].steps[3].duration", is(67.5f))
                 .body("routes[0].segments[0].steps[3].type", is(0))
@@ -1145,7 +1142,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(136))
+				.body("routes[0].summary.duration", is(270))
 				.statusCode(200);
 	}
 
@@ -1164,7 +1161,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(549))
-				.body("routes[0].summary.duration", is(163.2f))
+				.body("routes[0].summary.duration", is(185.4f))
 				.statusCode(200);
 
 		given()
@@ -1180,7 +1177,7 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].summary.distance", is(376.5f))
-				.body("routes[0].summary.duration", is(130))
+				.body("routes[0].summary.duration", is(184.2f))
 				.statusCode(200);
 	}
 

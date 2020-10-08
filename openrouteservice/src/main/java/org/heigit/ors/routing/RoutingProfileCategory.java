@@ -14,6 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.routing.util.EncodingManager;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public class RoutingProfileCategory {
 	public static final int UNKNOWN = 0;
@@ -39,17 +40,17 @@ public class RoutingProfileCategory {
 	}
 
 	public static int getFromEncoder(EncodingManager encodingManager) {
-		if (encodingManager.hasEncoder("car-ors") || encodingManager.hasEncoder("heavyvehicle"))
+		if (encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS) || encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE))
 			return RoutingProfileCategory.DRIVING;
 
-		if (encodingManager.hasEncoder("bike") || encodingManager.hasEncoder("mtb") || encodingManager.hasEncoder("racingbike")
-		 || encodingManager.hasEncoder("safetybike") || encodingManager.hasEncoder("cycletourbike") || encodingManager.hasEncoder("electrobike"))
+		if (encodingManager.hasEncoder(FlagEncoderNames.BIKE_ORS) || encodingManager.hasEncoder(FlagEncoderNames.MTB_ORS) || encodingManager.hasEncoder(FlagEncoderNames.ROADBIKE_ORS)
+		 || encodingManager.hasEncoder(FlagEncoderNames.BIKE_ELECTRO))
 			return RoutingProfileCategory.CYCLING;
 
-		if (encodingManager.hasEncoder("foot") || encodingManager.hasEncoder("hiking"))
+		if (encodingManager.hasEncoder(FlagEncoderNames.PEDESTRIAN_ORS) || encodingManager.hasEncoder(FlagEncoderNames.HIKING_ORS))
 			return RoutingProfileCategory.WALKING;
 
-		if (encodingManager.hasEncoder("wheelchair"))
+		if (encodingManager.hasEncoder(FlagEncoderNames.WHEELCHAIR))
 			return RoutingProfileCategory.WHEELCHAIR;
 
 		return RoutingProfileCategory.UNKNOWN;

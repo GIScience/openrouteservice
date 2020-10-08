@@ -36,14 +36,16 @@ public class RouteRequestOptions {
     public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
 
     @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
-            "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}")
+            "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}",
+            example = "[\"highways\"]")
     @JsonProperty(PARAM_AVOID_FEATURES)
     private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
     @ApiModelProperty(name = PARAM_AVOID_BORDERS, value = "`all` for no border crossing. `controlled` to cross open borders but avoid controlled ones. Only for `driving-*` profiles. " +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}")
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            example = "controlled")
     @JsonProperty(PARAM_AVOID_BORDERS)
     private APIEnums.AvoidBorders avoidBorders;
     @JsonIgnore
@@ -60,13 +62,14 @@ public class RouteRequestOptions {
     private boolean hasAvoidCountries = false;
 
     @ApiModelProperty(name = PARAM_VEHICLE_TYPE, value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}")
+            "CUSTOM_KEYS:{'apiDefault':'hgv','validWhen':{'ref':'profile','value':['driving-hgv']}}")
     @JsonProperty(value = PARAM_VEHICLE_TYPE)
     private APIEnums.VehicleType vehicleType;
     @JsonIgnore
     private boolean hasVehicleType = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional routing parameters.")
+    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional routing parameters." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','valueNot':['driving-car']}}")
     @JsonProperty(PARAM_PROFILE_PARAMS)
     private RequestProfileParams profileParams;
     @JsonIgnore
@@ -78,7 +81,8 @@ public class RouteRequestOptions {
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
 
-    @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.")
+    @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.",
+            example = "{\"length\":10000,\"points\":5}")
     @JsonProperty(PARAM_ROUND_TRIP_OPTIONS)
     private RouteRequestRoundTripOptions roundTripOptions;
     @JsonIgnore

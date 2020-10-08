@@ -44,6 +44,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -77,6 +78,18 @@ public class ResultTest extends ServiceTest {
         coordsLong.put(coordLong3);
         addParameter("coordinatesLong", coordsLong);
 
+        JSONArray coordsFoot = new JSONArray();
+        JSONArray coordFoot1 = new JSONArray();
+        coordFoot1.put(8.676023);
+        coordFoot1.put(49.416809);
+        coordsFoot.put(coordFoot1);
+        JSONArray coordFoot2 = new JSONArray();
+        coordFoot2.put(8.696837);
+        coordFoot2.put(49.411839);
+        coordsFoot.put(coordFoot2);
+
+        addParameter("coordinatesWalking", coordsFoot);
+
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
         extraInfo.put("suitability");
@@ -84,7 +97,7 @@ public class ResultTest extends ServiceTest {
         extraInfo.put("countryinfo");
         addParameter("extra_info", extraInfo);
 
-        addParameter("preference", "fastest");
+        addParameter("preference", "recommended");
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
@@ -747,10 +760,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].summary.distance", is(11137.6f))
-                .body("routes[0].summary.duration", is(2522.6f))
-                .body("routes[0].summary.ascent", is(343.1f))
-                .body("routes[0].summary.descent", is(339.7f))
+                .body("routes[0].summary.distance", is(13079.0f))
+                .body("routes[0].summary.duration", is(2737.0f))
+                .body("routes[0].summary.ascent", is(351.0f))
+                .body("routes[0].summary.descent", is(347.6f))
                 .statusCode(200);
     }
 
@@ -775,10 +788,10 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
 
-                .body("routes[0].segments[0].distance", is(5544.1f))
-                .body("routes[0].segments[0].duration", is(1260.6f))
-                .body("routes[0].segments[1].distance", is(5593.5f))
-                .body("routes[0].segments[1].duration", is(1262f))
+                .body("routes[0].segments[0].distance", is(6696.6f))
+                .body("routes[0].segments[0].duration", is(1398.4f))
+                .body("routes[0].segments[1].distance", is(6382.4f))
+                .body("routes[0].segments[1].duration", is(1338.6f))
                 .statusCode(200);
     }
 
@@ -802,10 +815,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body(
                         "routes[0].geometry",
-                        is(
-                                //"yrqlHkn~s@sqT\\jG}IVrHpE@bInLKpD~@SdCy@YpBi@S|@JIAJBi@LBkBb@?iBL@cA@EkAOAy@SAUI?KICGICIICoACQeA?Q@BAk@DEiA`@Ck@RCk@RAQ?Gw@sA?Cq@Ek@q@S{BaFScBqEa@mCuJQmAaCM{@cBNEIC]RMaBdBM_CbHCIxAKcApDAItA?GrAGqArEEsA\\Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RAQPAKN?GNAILAKJAUJ@OHAQHJSFE]_@OcBiBO_CuDCq@q@IoAcB]gE}IEm@q@Em@q@OqBaAAOOEs@VCsAvAAM\\CS\\HM\\BI\\BC\\HE\\FA\\D?\\D@\\DD\\@E\\Lg@|@?C`A?A`A@EdALwBlBFYyAFSyALOyAPIyA~@OmGn@IsDB?yAF?cBFAcB`B_@cSjA]qHzAa@p@BAHHCHAMHAy@\\AuAz@C}CX?YOG{DsA?aASGmEaAE_CNEmBS?MOF?Sx@@{@B?S@?SJ?q@VGq@@Jq@DrAuC?FSB~@g@DAMJAILCE@_@?@K?BiAk@VmD{CF]IH[I`@cA{@@?g@@Eg@NQsDBCsD^_@gJtAsAuWr@a@sWFEaIFC_IHE_IHC_IPG}Hn@WaSh@a@sNJMiMDOmM?OkMCIcL?AcLFGcL`@g@gYHOgJBEkH@?oF@@oFD?oFN?oF??oF@?oFBCoFDEoFBEoFJMoF@Sf@?Af@ACf@EG?ES?AU{@DO{@JK{@@G{@?C{@?C{@@M{@AM{@AA{@BC{@@G{@HQ{@?E{@CM{@EG{@JUwGT]wG@AwG??wGD@aHBFeFBv@{L?R{E?h@{EDx@wLNnA_XAl@aH?BaHAFaHc@tA]A@nF?@nF?FnF@BxFGJxFALrF?LnF@@nFJNnF@@gEh@a@wJC\\yCI^aC@@aCFFaCFFaCADcMAJmPARsS@?sSXu@}]JKwL\\a@oZRWwLtA_Cqr@dAcD_NLm@bBL{@aCHw@_FD}@{E@yBuc@ToDmbAJo@qKPiAaXLdBkf@^vAah@DbAaW^lCsDZ`BtCZr@{JNJ}GN?kHbAMeYhAO{u@xBMelBn@Eun@DAiXTOiSGa@iNMgAs]]qC_iAIcAsTIaDeb@@GuC@Iu@@If@BIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC_BDGaC@G_D@G}DDK{EBGyFTc@wGVi@oPN[wGBBeArAo@mQv@UaM|BS{TdBJkMjEd@kRvBN_@fCSaFh@@_DVDiAZHgA\\OaAFC_AD?{@z@GyFhAQmNfCi@kDlGk@pKmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@[I]WE]i@Ay@gCRfNwBO~OkEe@lTeBKoA}BRrHw@TzBsAn@xJCC~AOZzAWh@jDUb@nACFnAEJnAAFnAAFnAEFtCEBtCDFtCITtCEDtCCFtCDFdCNTtB?LdBQnI|q@GhBtMEn@hDAJhDF`@hDBPhDR`ApLTz@hLJTbEDFxDb@d@dHh@j@|EPNzA^f@tCv@nAg@^x@tFb@fApLf@v@bBjAbBdF`@t@xKv@nCtn@~@nCdMNnAlLLfCl[G`AjGI`@vAWl@bM[`@zPaBdAju@q@n@xZY\\bGg@t@nKUh@jCUx@hNS~@`KcBvMbrA?F`C?DfE@DlGBF|FFLlFIL|Ei@f@jKw@h@`VaCrAxl@aAT`K{@FfJm@@nFg@GfJ{@[rI_Ae@pEgAu@bQm@q@xFwCiEhN[Up@m@U`Jk@KhIeA@pOGA`H?LvGbAXtWj@h@~MLN`FJJXT\\fDHd@~CD`AjHEhA`F@PbBHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
-                                //"gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHEAHMCHICHWCHgAKf@CGq@?Cq@IaCwB?MSCe@SNMSRC]HA]l@e@{@NK]tBwAu\\FIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
-                                "gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JHAd@f@K?dAAw@RDAF~HsAxDF?RF@RF@RB@RBDPBBNFRv@HVt@FJr@LZr@JTp@BBp@D@n@B@n@RAl@HCj@RGj@PIcAvAu@}IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwBAKq@AQ{@?Gq@AMq@AGq@Gm@q@WwC{EGg@S?MSJES~CcAg@|@[z@HARFAR?CRIaCrD?Mz@Ce@x@NMv@RCj@HAf@l@e@jANK`@tBwAkQFIiDBAsD??}DZjBkL@?q@@Ai@?{@_ID]gEF[gEBUiDJqAsMD@aF@LcEBx@cBPy@qEBIkCBEqDJSiO@KoPQkAmVEMkHGEyEW?mCAEkCn@e@uONEkM\\CeKXHeKJFeKDBkMRXwLn@hBuf@Xd@qMPLkMv@L}g@NB}I?G}I@OkOBIwLMU{EQk@{EC[{E@qA}QQo@gYIm@cLAQcLDiA}ZEaAsNIe@oIU]}PKKuMMOuMk@i@gTcAYuR?MqEGA{CEAcBECcBCEcBOUjCQk@ReA_IpW[eA{@M]]HF]V`@]N`@]Ph@mG\\jBeIRz@YRl@qIHRqEDLeEN^wDPHmDRG_DHO_D?O_DCQ_D]aAqOEWkHAGkHAU_IOiDslAe@oEmLG{BlEAcApD@GxABUlBV{@sKTg@}GvFwH{aG~CwCov@~Am@sj@BCkIDAgIRMaIhAeAeXzAcB{f@z@s@{Nr@uAgM^m@oFLOwBDB_DFDgEDIoFPOyFZSsEKUmDU{@eFSaAwDCQ}BGa@cDMgAgJ]qCwLIcAgGIaDgK@G[@I]@IBBIiDBEiDn@i@}NLKaDBGyCDEqCHUiCEGaCDC}ADGaCHK_Db@c@yKZ[yFj@_@qPbAWsRbAOmBdAG}@fABmAj@HrAzE~@dCpADsHh@CgEZA_B@GyABCwAvDiAyo@\\OqEFCcED?qDz@G}LhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRDFRITREDRCFRMJRo@h@lBCDdACHvGAHvGAHvGAFvGH`Dt\\HbA~E\\pC`WLfArIF`@hDBPhDR`AXTz@z@JTz@[RxAQNxAEHvBGEtCECpBMNnA_@l@fCs@tAfQ{@r@zJ{AbB~\\iAdAnUSLvBE@vBCBvB_Bl@fR_DvCp~@wFvH|zBUf@|BWz@vZCT~OAFxO@bAb`@FzBbiAd@nE`{ANhD|V@TyA@FyADVyA\\`AcABPo@?NoAIN_@SFLQIz@O_@lBEMzCIShESm@hYS{@vZ]kB~i@Qi@jHOa@jHWa@dFIG~CL\\~CZdA~HdA~Hll@Pj@lGNT\\BD\\DB\\D@\\F@\\?L\\bAXr@j@h@YLNa@JJiFT\\aBHd@mBD`AaGEhA_B@PkCHl@bBPn@fEApAjJBZpEPj@pELTpECHpEANtM?FtMOCtMw@Mfc@QMxFYe@~Zo@iBns@SYhIECpGKGzEYIzE]BzEODvLo@d@jZ@D|IV?|IFDrLDLjOPjA`WAJxCKRjHCDjHCHjHQx@hXCy@pYAMdKEAdKKpA`WCT`FGZjCE\\jC?z@fOA@jHA?`M[kBvj@??jCC@dAGH?uBvAni@OJfEm@d@~HI@f@SBp@OLp@Bd@xA?L`CH`CzT?BhDG@jCI@pB}@ZdD_DbAqJKD{@KDq@{C~@zBoHhBls@K?`BSCxAGBnAO@hAUJdACB`AEB|@oIxApDE@Sk@HaCG?mA[BkAU@kAG^iACBiAqADkIqAFwIK?sAI@qAgA?{H{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
+                        is("gvqlHk`~s@cwUB?tC?Cp@NAdIAE`EQaCi@WiCaDcAuG?C]g@MaBVM_C`HCInAKcA~CAIjA?GhAGqAzDEsAh@Eu@a@CcA{@GqAuCAQeAC_A_DAOoAEcAaCEgAsB@Wu@E?q@KB]AYIEo@?AOBcAyGbBIiADIaA?EmBq@CyA]AaAHAa@HAgAeARCHHAHCqBp@BIHAy@VAURJQX@M\\?E\\?]\\Cm@\\ATR@RH?JFAd@d@K?`AAw@HDA?~HsArCF?VF@XF@XB@VBDVBBRFRz@HVz@FJv@LZv@JTr@BBt@D@p@B@p@RAl@HCl@RGl@PIcAvAu@{IPGeA~@e@uHVMkCFCkCJCkCRCkCZFkCNFkCDFkC\\ZiDBBiDJDiDPD{@JB{@J?{@R?{@PA{@b@CwB^Eq@L?H@?RB?RFBRBBRJ@R|BObG@?p@FAnAF?nAFFnA@FnALEnAFCnA@?\\HG\\BA\\NK?HC?LA?BG?FS??K?AG?@M?DI?DK?@K??[]?M]@K]BMSAgAg@@MS@IS?o@SC]HCIHDDHBHH`DVnAJ@Ht@XIlDtA{Oz@PmGx@R}D~A\\uD`HbBfCtBv@{Av@ZwAnGrAcJBB[B@]D@BHBNF@\\D?\\F@ZFJ\\BBXFEXROXBEXJIVNOVRSVHIVRORpAo@QNKSLKeAh@q@kCHIeABCeA~Ay@uMTa@mBVu@mDHe@oAH[oAJ[qERWoFJIeFTQ{EPM{ENU}D\\_A{JNo@_IF}@wRAoBwp@?]aM?YqMH{BkbAByCsoA?u@_b@@o@mL?[mL@GmL@GaKD]gHNc@{FT[qEVUqE@?qE@SkDFSgCx@{AqP`@cAoIx@eDyZZw@eRr@}Agh@V_Am[BKaMAI_L?E{J?[{JFaBq_@A[sHUsBen@CWsKAMgJ@a@gJH_@gJ@CgJBAgJJEsBJBQ`AjAqA\\J_@ZAo@|AUcLl@?H|ADcGz@ImVP@yFHJyF@TyFMf@cGWh@mNo@d@eKEH{C?NaC?BaC?@aCFLiBN@qAdAe@oBdBc@uMTFkC^b@wGBBiCFDmCTHkC\\E_DlBeB_b@PO_DPOaCLMWBI@NY^n@uApFhAgCfNLc@\\Fa@^BMUF]Sj@{CaTJe@}DVu@{Jb@_A{TRa@cGNUmD`@}@cJFUmBJa@qEF[_DHa@_D@QqC@IaCDaA}I@UmD?_A_I@{BgTD[kCHYkCHYeFPc@kHJe@kH@k@kH?EgE?CgE?MgEAIgEAQgEC[aFKe@sDS_@sDQUsDECsDECiDKG_DCAuCSIkCgG_CseAg@E_I{@F_NGAsCCIkCAC_COEgC]E_CgBFwMqAKqI[CoAy@KoFSEoAUEoAuC_A}]}DcAyd@aCO_O{ASaBA?SMASuAW_NsFu@obAIEkCKKkCZAkC@GcBBC{@vDiAoU\\OoCFCoCD?sCz@GkLhAQoPfCi@_NlGk@bJmGj@f@gCh@gBiAP}A{@FwAE?_@GB]]N_@wDhAzQCBjCAFjC[@jCi@BzGqAEhV{E_Aju@k@IbEgAC`JeAFbCcANAcAViAk@^_A[Za@c@b@mAIJk@EFREBRGFRCBRODRSERUYq@Mg@fEyAeK`}AGq@jCO{CpOS{BeGk@sEnf@k@uDx|@YkA~OGOzCSM~CK?nBIB~@IHPGJ]QXmAg@p@i@QNq@MLa@c@b@U_@f@h@MVj@IPp@s@pAxU_@j@~MGLnFEFnFg@j@nUKJzHGFdFs@j@lLk@v@jHKRbBMT`Ho@tA~\\_@lAxPa@fB~HW`B`H?JfE?DfE@DfEJFfED?fEFCR\\oAg@Vk@q@l@q@hIz@a@|N|@SxKn@B`Mr@XjWZPbGPRrGHNdH@FtHDVtHARtHU`AnUStA~\\Gb@~HIf@dKIb@dKQ~@dUMr@pOMr@zOObAzOYhBle@IlAbSAr@lLFbC`x@C~Ahg@Ex@|XO~@`YKd@bLEPbLERtKOx@rSKf@`HSv@bISf@HGPiCGPyCS^kDG@}DGIxF?AxFACxF?GxF?AxF@ArFb@uAbB@GeA?Ca@@m@?OoAjCEy@lG?i@fE?SfECw@w@CGyFEAoF??oFA@oFU\\oFKTrACFxDGL`HKT`Hm@rAlYEHrFEFzE]b@pOoCrBd~AEN~C?@~C?@~CBBjH@?jH@@jHj@CvQ@?jHTC`Cx@M`AD@a@@@k@?@w@BHiB?NuBEN_CKLjCi@`@vGo@VjCQF?IB?ID?GB?GD?s@`@nZuArAzaA_@^v[CBrDOP~HAD~HA?~Ha@bA~\\IZ~HG\\~HWlDpe@Kr@tCAJrDIh@rDIPrDE@rDJpEjM?d@p@?tAhB?rAdA?v@f@?n@I@`@I?HIiBHEB|CfA@tApB@x@nA@Lf@BXf@HbBvBP|BnCHv@fA@H^Fn@ZFn@B@J??B?D^?Fv@??F?FbA]?BS@RS?RSBnAQ@ZG?^I?RM@f@SBrASBb@HDtB{@F~BeA?V]BV]KDg@{C~@iBoHhBxm@K?`BSCxAGBnAO@hAUJdACB`AEBz@oIxAsHE@gAk@HsCG?gA[BaAU@_AG^{@CBw@qADiFqAFkEK?i@I@e@gA?mC{@ByAO?][@]o@Bg@iCHMO@HC?Hk@@Xm@Hd@ODR]VRgAlAnD_AfAfEURp@EDp@C?p@Q?p@OBRE@RqBn@xCA@RSHHOJ]ELg@CDg@gAb@_Dq@\\wBmAt@{@y@f@q@y@X{@eBt@XYJ?E@?_@LSmA`@Bc@NR{C`Av@_DfAf@uAf@{BMHYKJWG@WGCUINSCGSI?SKBQ"))
                 .statusCode(200);
     }
 
@@ -827,7 +837,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 271, 509))
+                .body("routes[0].way_points", hasItems(0, 332, 624))
                 .statusCode(200);
     }
 
@@ -849,7 +859,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 107.82f, 8.714833f, 49.424603f, 404.73f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 107.83f, 8.719662f, 49.424603f, 404.73f))
                 .statusCode(200);
     }
 
@@ -872,16 +882,12 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.393272f, 107.82f, 8.714833f, 49.424603f, 404.73f))
+                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 107.83f, 8.719662f, 49.424603f, 404.73f))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
-                //.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
                 .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
-                //.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(175))
-                //.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(80))
-                //.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
                 .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.678618f, 49.411697f))
                 .statusCode(200);
     }
@@ -932,10 +938,10 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(44))
-                .body("routes[0].extras.surface.values[26][1]", is(281))
-                .body("routes[0].extras.suitability.values[29][0]", is(429))
-                .body("routes[0].extras.steepness.values[11][1]", is(265))
+                .body("routes[0].extras.surface.values.size()", is(28))
+                .body("routes[0].extras.surface.values[18][1]", is(342))
+                .body("routes[0].extras.suitability.values[18][0]", is(521))
+                .body("routes[0].extras.steepness.values[10][1]", is(326))
                 .statusCode(200);
 
         checkExtraConsistency(response);
@@ -966,14 +972,14 @@ public class ResultTest extends ServiceTest {
     public void testTrailDifficultyExtraDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.763442,49.388882|8.762927,49.397541"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("suitability|traildifficulty"));
 
         Response response = given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "cycling-regular")
+                .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}");
@@ -987,7 +993,6 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.traildifficulty.values[0][1]", is(2))
                 .body("routes[0].extras.traildifficulty.values[0][2]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][0]", is(2))
-                //.body("routes[0].extras.traildifficulty.values[1][1]", is(20))
                 .body("routes[0].extras.traildifficulty.values[1][1]", is(6))
                 .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
                 .statusCode(200);
@@ -996,7 +1001,7 @@ public class ResultTest extends ServiceTest {
 
         body = new JSONObject();
         body.put("coordinates", constructCoords("8.724174,49.390223|8.716536,49.399622"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("traildifficulty"));
 
@@ -1031,7 +1036,7 @@ public class ResultTest extends ServiceTest {
     public void testTollwaysExtraDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676281,49.414715|8.6483,49.413291"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("suitability|tollways"));
 
@@ -1077,7 +1082,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
@@ -1115,11 +1120,96 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(86))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
         checkExtraConsistency(response);
+    }
+
+    @Test
+    public void testGreenExtraInfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("extra_info", constructExtras("green"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.green.values[0][0]", is(0))
+                .body("routes[0].extras.green.values[0][1]", is(8))
+                .body("routes[0].extras.green.values[0][2]", is(9))
+                .body("routes[0].extras.green.values[3][0]", is(15))
+                .body("routes[0].extras.green.values[3][1]", is(34))
+                .body("routes[0].extras.green.values[3][2]", is(10))
+
+                .statusCode(200);
+    }
+
+    @Test
+    public void testNoiseExtraInfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("extra_info", constructExtras("noise"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.noise.values[0][0]", is(0))
+                .body("routes[0].extras.noise.values[0][1]", is(10))
+                .body("routes[0].extras.noise.values[0][2]", is(10))
+                .body("routes[0].extras.noise.values[4][0]", is(27))
+                .body("routes[0].extras.noise.values[4][1]", is(34))
+                .body("routes[0].extras.noise.values[4][2]", is(9))
+
+                .statusCode(200);
+    }
+
+    @Test
+    public void testInvalidExtraInfoWarning() {
+        JSONObject body = new JSONObject();
+        body.put("preference", "recommended");
+        body.put("coordinates", new JSONArray("[[8.682386, 49.417412],[8.690583, 49.413347]]"));
+        body.put("extra_info", new JSONArray("[\"steepness\",\"suitability\",\"surface\",\"waycategory\",\"waytype\",\"tollways\",\"traildifficulty\",\"osmid\",\"roadaccessrestrictions\",\"countryinfo\",\"green\",\"noise\"]"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/foot-walking/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].extras.size()", is(8))
+                .body("routes[0].extras.containsKey('steepness')", is(true))
+                .body("routes[0].extras.containsKey('suitability')", is(true))
+                .body("routes[0].extras.containsKey('surface')", is(true))
+                .body("routes[0].extras.containsKey('waycategory')", is(true))
+                .body("routes[0].extras.containsKey('waytypes')", is(true))
+                .body("routes[0].extras.containsKey('traildifficulty')", is(true))
+                .body("routes[0].extras.containsKey('green')", is(true))
+                .body("routes[0].extras.containsKey('noise')", is(true))
+                .body("routes[0].warnings.size()", is(1))
+                .body("routes[0].warnings[0].code", is(4))
+                .body("routes[0].warnings[0].message", is("Extra info requested but not available: tollways, osmid, roadaccessrestrictions, countryinfo"))
+                .statusCode(200);
     }
 
     @Test
@@ -1146,23 +1236,61 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testNoBearings() {
+    public void testMaximumSpeed() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
-        body.put("preference", "fastest");
-        body.put("geometry", true);
+        body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("preference", getParameter("preference"));
+        body.put("maximum_speed", 85);
 
+        //Test against default maximum speed lower bound setting
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "cycling-regular")
+                .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                //.body("routes[0].summary.distance", is(620.1f))
+                .body("routes[0].summary.duration", is(1658.0f))
+                .statusCode(200);
+
+        //Test profile-specific maximum speed lower bound
+        body.put("maximum_speed", 75);
+        body.put("optimized", false); //FIXME: remove once turn restrictions are supported by CALT
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(2148.5f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testNoBearings() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
+        body.put("preference", getParameter("preference"));
+        body.put("geometry", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("bikeProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(617.1f))
                 .statusCode(200);
     }
@@ -1171,7 +1299,7 @@ public class ResultTest extends ServiceTest {
     public void testBearingsForStartAndEndPoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("25,30|90,20"));
 
@@ -1193,7 +1321,7 @@ public class ResultTest extends ServiceTest {
     public void testBearingsExceptLastPoint() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("25,30"));
 
@@ -1215,21 +1343,20 @@ public class ResultTest extends ServiceTest {
     public void testBearingsSkipwaypoint() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("|90,20"));
 
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "cycling-regular")
+                .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                //.body("routes[0].summary.distance", is(714.7f))
                 .body("routes[0].summary.distance", is(751.5f))
                 .statusCode(200);
     }
@@ -1253,10 +1380,8 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].containsKey('steps')", is(true))
                 .body("routes[0].segments[1].containsKey('steps')", is(true))
-                //.body("routes[0].segments[0].steps.size()", is(55))
-                .body("routes[0].segments[0].steps.size()", is(39))
-                //.body("routes[0].segments[1].steps.size()", is(28))
-                .body("routes[0].segments[1].steps.size()", is(25))
+                .body("routes[0].segments[0].steps.size()", is(34))
+                .body("routes[0].segments[1].steps.size()", is(17))
                 .statusCode(200);
     }
 
@@ -1279,8 +1404,8 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].containsKey('steps')", is(true))
                 .body("routes[0].segments[1].containsKey('steps')", is(true))
-                .body("routes[0].segments[0].steps.size()", is(39))
-                .body("routes[0].segments[1].steps.size()", is(25))
+                .body("routes[0].segments[0].steps.size()", is(34))
+                .body("routes[0].segments[1].steps.size()", is(17))
                 .body("routes[0].segments[0].steps[3].distance", is(337.3f))
                 .body("routes[0].segments[0].steps[3].duration", is(67.5f))
                 .body("routes[0].segments[0].steps[3].type", is(0))
@@ -1389,7 +1514,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(379.5f))
-                .body("routes[0].summary.duration", is(136.0f))
+                .body("routes[0].summary.duration", is(270.0f))
                 .statusCode(200);
     }
 
@@ -1421,7 +1546,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(549.0f))
-                .body("routes[0].summary.duration", is(163.2f))
+                .body("routes[0].summary.duration", is(185.4f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1444,7 +1569,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(376.5f))
-                .body("routes[0].summary.duration", is(130.0f))
+                .body("routes[0].summary.duration", is(184.2f))
                 .statusCode(200);
     }
 
@@ -2364,17 +2489,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testPreferGreen() {
         JSONObject body = new JSONObject();
-
-        JSONArray coordinates = new JSONArray();
-        JSONArray coord1 = new JSONArray();
-        coord1.put(8.676023);
-        coord1.put(49.416809);
-        coordinates.put(coord1);
-        JSONArray coord2 = new JSONArray();
-        coord2.put(8.696837);
-        coord2.put(49.411839);
-        coordinates.put(coord2);
-        body.put("coordinates", coordinates);
+        body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
                 .header("Accept", "application/json")
@@ -2411,24 +2526,14 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
                 .body("routes[0].summary.distance", is(2308.3f))
-                .body("routes[0].summary.duration", is(3323.9f))
+                .body("routes[0].summary.duration", is(1662.0f))
                 .statusCode(200);
     }
 
     @Test
     public void testPreferQuiet() {
         JSONObject body = new JSONObject();
-
-        JSONArray coordinates = new JSONArray();
-        JSONArray coord1 = new JSONArray();
-        coord1.put(8.676023);
-        coord1.put(49.416809);
-        coordinates.put(coord1);
-        JSONArray coord2 = new JSONArray();
-        coord2.put(8.696837);
-        coord2.put(49.411839);
-        coordinates.put(coord2);
-        body.put("coordinates", coordinates);
+        body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
                 .header("Accept", "application/json")
@@ -2465,7 +2570,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
                 .body("routes[0].summary.distance", is(2878.7f))
-                .body("routes[0].summary.duration", is(4145.2f))
+                .body("routes[0].summary.duration", is(2072.6f))
                 .statusCode(200);
     }
 
@@ -2473,7 +2578,7 @@ public class ResultTest extends ServiceTest {
     public void testRouteMergeIndexing() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
 
         // ensure indexing of merged routes waypoints dont get messed up
         given()
@@ -2503,7 +2608,7 @@ public class ResultTest extends ServiceTest {
     public void testRouteMergeInstructionsWithoutGeometry() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         body.put("geometry", "false");
 
         // ensure indexing of merged routes waypoints dont get messed up
@@ -2708,13 +2813,14 @@ public class ResultTest extends ServiceTest {
         coord2.put(8.689499);
         coord2.put(49.398295);
         coordinates.put(coord2);
+
         body.put("coordinates", coordinates);
-        body.put("preference", "fastest");
+        body.put("preference", getParameter("preference"));
         JSONObject ar = new JSONObject();
         ar.put("target_count", "2");
         ar.put("share_factor", "0.5");
         body.put("alternative_routes", ar);
-
+        body.put("extra_info", getParameter("extra_info"));
         given()
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
@@ -2730,6 +2836,10 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].summary.duration", is(776.1f))
             .body("routes[1].summary.distance", is( 6435.1f))
             .body("routes[1].summary.duration", is(801.5f))
+            .body("routes[0].way_points[-1]", is(223))
+            .body("routes[0].extras.surface.values[0][1]", is(223))
+            .body("routes[1].way_points[-1]", is(202))
+            .body("routes[1].extras.surface.values[6][1]", is(202))
             .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]}}");
@@ -2785,8 +2895,9 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is(1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                //A* Beeline and ALT values, respectively
+                .body("routes[0].summary.distance", anyOf(is(1866.2f), is(1792.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1343.6f), is(1290.8f)))
                 .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
@@ -2803,8 +2914,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1792.8f))
-                .body("routes[0].summary.duration", is(1290.8f))
+                .body("routes[0].summary.distance", anyOf(is(1784.2f), is(1792.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1284.6f), is(1290.8f)))
                 .statusCode(200);
 
         options.remove("avoid_polygons");
@@ -2821,8 +2932,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 1559.3f))
-                .body("routes[0].summary.duration", is(1122.7f))
+                .body("routes[0].summary.distance", anyOf(is(1559.3f), is(1559.3f)))
+                .body("routes[0].summary.duration", anyOf(is(1122.7f), is(1122.7f)))
                 .statusCode(200);
 
         body.put("bearings", constructBearings("25,30"));
@@ -2837,23 +2948,107 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 2496.8f))
-                .body("routes[0].summary.duration", is(1797.6f))
+                .body("routes[0].summary.distance", anyOf(is(2519.8f), is(2496.8f)))
+                .body("routes[0].summary.duration", anyOf(is(1814.2f), is(1797.6f)))
                 .statusCode(200);
     }
-    
-    private JSONArray constructCoords(String coordString) {
-        JSONArray coordinates = new JSONArray();
-        String[] coordPairs = coordString.split("\\|");
-        for (String pair : coordPairs) {
-            JSONArray coord = new JSONArray();
-            String[] pairCoords = pair.split(",");
-            coord.put(Double.parseDouble(pairCoords[0]));
-            coord.put(Double.parseDouble(pairCoords[1]));
-            coordinates.put(coord);
-        }
 
-        return coordinates;
+    @Test
+    public void testWaypointCount() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.673191);
+        coord1.put(49.446812);
+        coordinates.put(coord1);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+
+        JSONObject roundTripOptions = new JSONObject();
+        roundTripOptions.put("length", "2000");
+        JSONObject options = new JSONObject();
+
+        options.put("round_trip", roundTripOptions);
+        body.put("options", options);
+        body.put("instructions", false);
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].properties.way_points[1]", is(65))
+                .statusCode(200);
+
+        body = new JSONObject();
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.687782);
+        coord2.put(49.424597);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+        body.put("preference", "shortest");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].properties.way_points[1]", is(93))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectNoInterpolationOfBridgesAndTunnels() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("preference", getParameter("preference"));
+        body.put("elevation", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2097.2f))
+                .body("routes[0].summary.ascent", is(17.1f))
+                .body("routes[0].summary.descent", is(14.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectElevationSmoothing() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
+        body.put("elevation", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "foot-hiking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2002.4f))
+                .body("routes[0].summary.ascent", is(7.5f))
+                .body("routes[0].summary.descent", is(6.2f))
+                .statusCode(200);
     }
 
     private JSONArray constructBearings(String coordString) {
@@ -2871,7 +3066,6 @@ public class ResultTest extends ServiceTest {
 
         return coordinates;
     }
-
 
     private JSONArray constructExtras(String extrasString) {
         return constructFromPipedList(extrasString);

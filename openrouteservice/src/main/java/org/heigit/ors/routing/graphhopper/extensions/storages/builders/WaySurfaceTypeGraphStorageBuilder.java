@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
+	public static final String TAG_HIGHWAY = "highway";
+	public static final String TAG_SURFACE = "surface";
+	public static final String TAG_ROUTE = "route";
 	private WaySurfaceTypeGraphStorage storage;
 	private final WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
 	protected final HashSet<String> ferries;
@@ -48,39 +51,26 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 	public void processWay(ReaderWay way) {
 		waySurfaceDesc.reset();
 
-		boolean hasHighway = way.hasTag("highway");
-		boolean isFerryRoute = way.hasTag("route", ferries);
+		int wayType;
+		if (way.hasTag(TAG_ROUTE, ferries)) {
+			wayType = WayType.FERRY;
+		} else if (way.hasTag(TAG_HIGHWAY)) {
+			wayType = WayType.getFromString(way.getTag(TAG_HIGHWAY));
+		} else {
+			return;
+		}
+		waySurfaceDesc.setWayType(wayType);
 
-		Iterator<Entry<String, Object>> it = way.getProperties();
-
-		if (isFerryRoute) {
-            waySurfaceDesc.setWayType((byte) WayType.FERRY);
-        }
-
-		while (it.hasNext()) {
-			Entry<String, Object> pairs = it.next();
-			String key = pairs.getKey();
-			String value = pairs.getValue().toString();
-
-			if (hasHighway || isFerryRoute) {
-				if (key.equals("highway")) {
-					byte wayType = (isFerryRoute) ? WayType.FERRY : (byte)WayType.getFromString(value);
-
-					if (waySurfaceDesc.getSurfaceType() == 0) {
-						if (wayType == WayType.ROAD ||  wayType == WayType.STATE_ROAD || wayType == WayType.STREET) {
-                            waySurfaceDesc.setSurfaceType((byte) SurfaceType.ASPHALT);
-                        } else if (wayType == WayType.PATH) {
-                            waySurfaceDesc.setSurfaceType((byte) SurfaceType.UNPAVED);
-                        }
-					}
-                    if (waySurfaceDesc.getWayType() == 0) {
-                        waySurfaceDesc.setWayType(wayType);
-                    }
-				} else if (key.equals("surface")) {
-					waySurfaceDesc.setSurfaceType((byte)SurfaceType.getFromString(value));
-				}
+		int surfaceType = way.hasTag(TAG_SURFACE) ? SurfaceType.getFromString(way.getTag(TAG_SURFACE)) : SurfaceType.UNKNOWN;
+		if (surfaceType == SurfaceType.UNKNOWN) {
+			if (wayType == WayType.ROAD || wayType == WayType.STATE_ROAD || wayType == WayType.STREET) {
+				surfaceType = SurfaceType.ASPHALT;
+			} else if (wayType == WayType.PATH) {
+				surfaceType = SurfaceType.UNPAVED;
 			}
 		}
+		waySurfaceDesc.setSurfaceType(surfaceType);
+
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {

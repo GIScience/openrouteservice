@@ -64,7 +64,9 @@ public class APIEnums {
         TRAIL_DIFFICULTY("traildifficulty"),
         OSM_ID("osmid"),
         ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions"),
-        COUNTRY_INFO("countryinfo");
+        COUNTRY_INFO("countryinfo"),
+        GREEN("green"),
+        NOISE("noise");
 
         private final String value;
 
@@ -315,10 +317,14 @@ public class APIEnums {
         ID_ID("id-id"),
         IT("it"),
         IT_IT("it-it"),
+        JA("ja"),
+        JA_JP("ja-jp"),
         NE("ne"),
         NE_NP("ne-np"),
         NL("nl"),
         NL_NL("nl-nl"),
+        PL("pl"),
+        PL_PL("pl-pl"),
         PT("pt"),
         PT_PT("pt-pt"),
         RU("ru"),

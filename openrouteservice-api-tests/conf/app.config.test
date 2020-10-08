@@ -27,6 +27,30 @@
             {profiles: "any", value: 18000}
             {profiles: "driving-car, driving-hgv", value: 3600}
           ],
+        fastisochrones: {
+          maximum_range_distance: [
+            {profiles: "any", value: 50000 }
+            {profiles: "driving-car, driving-hgv", value: 500000 }
+          ],
+          maximum_range_time: [
+            {profiles: "any", value: 18000 }
+            {profiles: "driving-car, driving-hgv", value: 10800 }
+          ].
+          profiles: {
+            default_params: {
+              enabled: false,
+              threads: 12,
+              weightings: "recommended",
+              maxcellnodes: 5000
+            },
+            profile-vehicles-hgv: {
+              enabled: true,
+              threads: 12,
+              weightings: "recommended, shortest",
+              maxcellnodes: 5000
+            }
+          }
+        },
         maximum_intervals: 10,
         maximum_locations: 2,
         allow_compute_area: true
@@ -39,6 +63,7 @@
         attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         distance_approximation: true,
         routing_name: "ORSRouting",
+        "elevation_preprocessed": false,
         profiles: {
           active: ["vehicles-car", "vehicles-hgv", "bike", "bike-mtb", "bike-road", "bike-e", "pedestrian-walk", "pedestrian-hike", "wheelchair"],
           default_params: {
@@ -47,6 +72,7 @@
             elevation_provider: multi,
             elevation_cache_clear: false,
             elevation_cache_path: "openrouteservice-api-tests/data/elevation",
+            elevation_smoothing: false,
             instructions: true,
             maximum_distance: 100000,
             maximum_distance_round_trip_routes: 100000,
@@ -66,7 +92,7 @@
                       {
                         enabled: true,
                         threads: 1,
-                        weightings: "fastest,shortest",
+                        weightings: "recommended,shortest",
                         landmarks: 16
                       }
                   }
@@ -162,6 +188,7 @@
               encoder_options: "turn_costs=true|block_fords=false|use_acceleration=true",
               maximum_distance: 100000,
               elevation: true,
+              maximum_speed_lower_bound: 75,
               preparation:
                 {
                   min_network_size: 200,
@@ -173,20 +200,20 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest"
+                          weightings: "recommended"
                         },
                       lm:
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest",
+                          weightings: "recommended",
                           landmarks: 16
                         },
                       core:
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "recommended,shortest",
                           landmarks: 32
                         }
                     }
@@ -241,7 +268,7 @@
                         {
                           enabled: true,
                           threads: 1,
-                          weightings: "fastest,shortest",
+                          weightings: "recommended,shortest",
                           landmarks: 32
                         }
                     }
@@ -311,6 +338,7 @@
             parameters: {
               encoder_options: "block_fords=false",
               elevation: true,
+              interpolate_bridges_and_tunnels: false,
               ext_storages: {
                 GreenIndex: {
                   filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"
@@ -330,6 +358,7 @@
             parameters: {
               encoder_options: "block_fords=false",
               elevation: true,
+              elevation_smoothing: true,
               ext_storages: {
                 GreenIndex: {
                   filepath: "openrouteservice-api-tests/data/green_streets_hd.csv"

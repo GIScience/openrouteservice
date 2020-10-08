@@ -27,10 +27,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <prerequisites>
+      <!-- Java 11 upgrade -->
+      <maven>3.0</maven>
+    </prerequisites>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.0.0</version>
+    <version>6.3.0</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -44,6 +48,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <scm>
         <url>git@github.com:GIScience/openrouteservice.git</url>
@@ -86,6 +91,14 @@
 
         <plugins>
             <plugin>
+              <!-- Java 11 upgrade -->
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>versions-maven-plugin</artifactId>
+              <configuration>
+                <generateBackupPoms>false</generateBackupPoms>
+              </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
@@ -106,7 +119,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -114,7 +127,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.2.3</version>
                 <configuration>
                     <warSourceDirectory>WebContent</warSourceDirectory>
                     <webXml>WebContent/WEB-INF/web.xml</webXml>
@@ -155,26 +168,27 @@
             </plugin>
             <plugin><!-- clean up from war:inplace  -->
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.1.0</version>
                 <configuration>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
+                <version>3.0.0-M1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.2.0</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
                 <configuration>
-                    <argLine>-Duser.language=en -Duser.region=US</argLine>
+                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -190,6 +204,25 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <!-- Java 11 upgrade -->
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <!-- Java 11 upgrade -->
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <!-- Java 11 upgrade -->
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
@@ -285,18 +318,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.2</version>
+            <version>v0.13.5</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.2</version>
+            <version>v0.13.5</version>
         </dependency>
+
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.2</version>
+            <version>v0.13.5</version>
         </dependency>
 
         -->
