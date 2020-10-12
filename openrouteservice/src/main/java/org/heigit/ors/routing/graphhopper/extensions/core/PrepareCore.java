@@ -21,6 +21,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.RestrictedCoreNodeEdgeFilter;
 
 import java.util.*;
 
@@ -499,7 +501,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         oldPriorities = new int[prepareGraph.getNodes()];
         restrictedNodes = new boolean[prepareGraph.getNodes()];
         nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, prepareGraph.getCHProfile());
-        nodeContractor.setRestrictionFilter(restrictionFilter);
+        EdgeFilterSequence contractionFilter = new EdgeFilterSequence();
+        contractionFilter.add(new RestrictedCoreNodeEdgeFilter(restrictedNodes));
+        nodeContractor.setRestrictionFilter(contractionFilter);
         nodeContractor.initFromGraph();
         return this;
     }
