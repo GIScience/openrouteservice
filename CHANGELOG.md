@@ -38,6 +38,7 @@ RELEASING:
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
 ### Fixed
 - Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
+- Fixed a bug in fast isochrones preprocessing
 
 ## [6.3.0] - 2020-09-14
 ### Added
