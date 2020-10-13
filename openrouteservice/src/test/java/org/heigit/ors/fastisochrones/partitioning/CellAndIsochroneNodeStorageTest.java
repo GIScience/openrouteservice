@@ -54,6 +54,19 @@ public class CellAndIsochroneNodeStorageTest {
         assertEquals(expectedCellIds, ins.getCellIds());
     }
 
+    @Test
+    public void testBigIsochroneNodeStorage() {
+        GraphHopperStorage ghStorage = createGHStorage();
+        int size = 1048576*16 + 2;
+        IsochroneNodeStorage ins = new IsochroneNodeStorage(size, ghStorage.getDirectory());
+        assertFalse(ins.loadExisting());
+        int[] cellIds = new int[size];
+        boolean[] borderNess = new boolean[size];
+        borderNess[1048576*16 + 1] = true;
+        ins.setCellIds(cellIds);
+        ins.setBorderness(borderNess);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testUnfilledCells() {
         GraphHopperStorage ghStorage = createGHStorage();
