@@ -85,6 +85,7 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
+    private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING = "weighting";
@@ -906,8 +907,8 @@ public class RoutingProfile {
                 setSpeedups(req, false, false, true);
 
             if (flexibleMode == KEY_FLEX_TIMEDEPENDENT) {
-                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                 setSpeedups(req, false, false, true);
+                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                 if (searchParams.hasDeparture())
                     req.getHints().put("departure", searchParams.getDeparture());
                 else if (searchParams.hasArrival())
@@ -1004,7 +1005,7 @@ public class RoutingProfile {
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
                 weighting = VAL_FASTEST;
-                weightingMethod = hasTimeDependentSpeed ? "td_fastest" : VAL_FASTEST;
+                weightingMethod = hasTimeDependentSpeed ? VAL_TD_FASTEST : VAL_FASTEST;
             }
             else if (RoutingProfileType.isHeavyVehicle(profileType)) {
                 weighting = VAL_RECOMMENDED;
