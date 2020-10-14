@@ -61,6 +61,7 @@ public class ORSOSMReader extends OSMReader {
 
 		setCalcDistance3D(false);
 		this.procCntx = procCntx;
+		this.procCntx.initArrays();
 		this.readerCntx = new OSMDataReaderContext(this);
 
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
