@@ -599,8 +599,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             j++;
             addPoint(points, qtree, longitude, latitude, true);
         }
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
+//        if (LOGGER.isDebugEnabled())
+//            LOGGER.debug("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
 
         Geometry[] geometries = new Geometry[points.size()];
 
@@ -616,13 +616,13 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         //printing for debug
         StringBuilder cellsPrintStatement = new StringBuilder();
 
-        if (LOGGER.isDebugEnabled()) {
-            cellsPrintStatement.append(System.lineSeparator());
-            cellsPrintStatement.append("{" +
-                    "  \"type\": \"FeatureCollection\"," +
-                    "  \"features\": [");
-            cellsPrintStatement.append(System.lineSeparator());
-        }
+//        if (LOGGER.isDebugEnabled()) {
+//            cellsPrintStatement.append(System.lineSeparator());
+//            cellsPrintStatement.append("{" +
+//                    "  \"type\": \"FeatureCollection\"," +
+//                    "  \"features\": [");
+//            cellsPrintStatement.append(System.lineSeparator());
+//        }
         Set<Integer> reachableCellsAndSuperCells = isSupercellsEnabled() ? handleSuperCells(fullyReachableCells) : fullyReachableCells;
 
         for (int cellId : reachableCellsAndSuperCells) {
@@ -635,7 +635,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             cellsPrintStatement.append("]}");
             cellsPrintStatement.append(System.lineSeparator());
         }
-        LOGGER.debug(cellsPrintStatement.toString());
+//        LOGGER.debug(cellsPrintStatement.toString());
     }
 
     private Set<Integer> handleSuperCells(Set<Integer> fullyReachableCells) {
