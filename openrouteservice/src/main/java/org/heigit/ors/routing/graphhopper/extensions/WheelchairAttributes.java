@@ -39,11 +39,8 @@ public class WheelchairAttributes {
 	private int smoothnessType = EMPTY_INT;
 	private Side side = Side.UNKNOWN;
 	private boolean hasAttributes = false;
-	private boolean inclineReliable = false;
-	private boolean widthReliable = false;
-	private boolean surfaceReliable = false;
-	private boolean trackTypeReliable = false;
-	private boolean smoothnessReliable = false;
+	private boolean surfaceQualityKnown = false;
+	private boolean pedestrianised = false;
 
 	public boolean hasValues()
 	{
@@ -59,12 +56,8 @@ public class WheelchairAttributes {
 		trackType = EMPTY_INT;
 		smoothnessType = EMPTY_INT;
 		side = Side.UNKNOWN;
-		inclineReliable = false;
-		widthReliable = false;
-		surfaceReliable = false;
-		trackTypeReliable = false;
-		smoothnessReliable = false;
-
+		surfaceQualityKnown = false;
+		pedestrianised = false;
 	}
 
 	public int getIncline() {
@@ -127,82 +120,56 @@ public class WheelchairAttributes {
 		this.side = side;
 	}
 
-	public boolean isInclineReliable() {
-		return inclineReliable;
+	public boolean isSurfaceQualityKnown() {
+		return surfaceQualityKnown;
 	}
 
-	public void setInclineReliable(boolean inclineReliable) {
-		this.inclineReliable = inclineReliable;
+	public void setSurfaceQualityKnown(boolean surfaceQualityKnown) {
+		this.surfaceQualityKnown = surfaceQualityKnown;
 	}
 
-	public boolean isWidthReliable() {
-		return widthReliable;
+	public boolean isPedestrianised() {
+		return pedestrianised;
 	}
 
-	public void setWidthReliable(boolean widthReliable) {
-		this.widthReliable = widthReliable;
-	}
-
-	public boolean isSurfaceReliable() {
-		return surfaceReliable;
-	}
-
-	public void setSurfaceReliable(boolean surfaceReliable) {
-		this.surfaceReliable = surfaceReliable;
-	}
-
-	public boolean isTrackTypeReliable() {
-		return trackTypeReliable;
-	}
-
-	public void setTrackTypeReliable(boolean trackTypeReliable) {
-		this.trackTypeReliable = trackTypeReliable;
-	}
-
-	public boolean isSmoothnessReliable() {
-		return smoothnessReliable;
-	}
-
-	public void setSmoothnessReliable(boolean smoothnessReliable) {
-		this.smoothnessReliable = smoothnessReliable;
+	public void setPedestrianised(boolean pedestrianised) {
+		this.pedestrianised = pedestrianised;
 	}
 
 	public void setAttribute(Attribute attribute, int value) {
 		switch(attribute) {
-			case INCLINE: setIncline(value);
-			    break;
-			case KERB: setSlopedKerbHeight(value);
-                break;
+			case SURFACE: setSurfaceType(value);
+				break;
 			case SMOOTHNESS: setSmoothnessType(value);
                 break;
-			case SURFACE: setSurfaceType(value);
-                break;
-			case WIDTH: setWidth(value);
-                break;
 			case TRACK: setTrackType(value);
+				break;
+			case INCLINE: setIncline(value);
+				break;
+			case KERB: setSlopedKerbHeight(value);
+				break;
+			case WIDTH: setWidth(value);
                 break;
 		}
 	}
 
 
-	public void setReliableAttribute(Attribute attribute, int value) {
+	public void setKnownAttribute(Attribute attribute, int value) {
 		switch(attribute) {
+			case SURFACE: setSurfaceType(value);
+				setSurfaceQualityKnown(true);
+				break;
+			case SMOOTHNESS: setSmoothnessType(value);
+				setSurfaceQualityKnown(true);
+				break;
+			case TRACK: setTrackType(value);
+				setSurfaceQualityKnown(true);
+				break;
 			case INCLINE: setIncline(value);
-				setInclineReliable(true);
 				break;
 			case KERB: setSlopedKerbHeight(value);
 				break;
-			case SMOOTHNESS: setSmoothnessType(value);
-				setSmoothnessReliable(true);
-				break;
-			case SURFACE: setSurfaceType(value);
-				setSurfaceReliable(true);
-				break;
 			case WIDTH: setWidth(value);
-				setWidthReliable(true);
-				break;
-			case TRACK: setTrackType(value);
-				setTrackTypeReliable(true);
 				break;
 		}
 	}
@@ -211,9 +178,7 @@ public class WheelchairAttributes {
 		return surfaceType == attrs.surfaceType && smoothnessType == attrs.smoothnessType
 				&& trackType == attrs.trackType && slopedKerbHeight == attrs.slopedKerbHeight
 				&& incline == attrs.incline && width == attrs.width && side == attrs.side
-				&& surfaceReliable == attrs.surfaceReliable && smoothnessReliable == attrs.smoothnessReliable
-				&& trackTypeReliable == attrs.trackTypeReliable && inclineReliable == attrs.inclineReliable
-				&& widthReliable == attrs.widthReliable;
+				&& surfaceQualityKnown == attrs.surfaceQualityKnown && pedestrianised == attrs.pedestrianised;
 	}
 
 	/**
@@ -243,16 +208,10 @@ public class WheelchairAttributes {
 	        at.smoothnessType = src.smoothnessType;
 		if(src.side != Side.UNKNOWN)
 			at.side = src.side;
-		if(src.surfaceReliable)
-			at.surfaceReliable = true;
-		if(src.smoothnessReliable)
-			at.smoothnessReliable = true;
-		if(src.trackTypeReliable)
-			at.trackTypeReliable = true;
-		if(src.inclineReliable)
-			at.inclineReliable = true;
-		if(src.widthReliable)
-			at.widthReliable = true;
+		if(src.surfaceQualityKnown)
+			at.surfaceQualityKnown = true;
+		if(src.pedestrianised)
+			at.pedestrianised = true;
 	    return at;
     }
 
@@ -266,11 +225,8 @@ public class WheelchairAttributes {
 		at.trackType = this.trackType;
 		at.slopedKerbHeight = this.slopedKerbHeight;
 		at.side = this.side;
-		at.surfaceReliable = this.surfaceReliable;
-		at.smoothnessReliable = this.smoothnessReliable;
-		at.trackTypeReliable = this.trackTypeReliable;
-		at.inclineReliable = this.inclineReliable;
-		at.widthReliable = this.widthReliable;
+		at.surfaceQualityKnown = this.surfaceQualityKnown;
+		at.pedestrianised = this.pedestrianised;
 		return at;
 	}
 }

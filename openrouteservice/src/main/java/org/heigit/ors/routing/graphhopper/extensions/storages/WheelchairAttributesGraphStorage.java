@@ -48,17 +48,14 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 	private EncodedValueOld surfaceEncoder;
 	private EncodedValueOld smoothnessEncoder;
 	private EncodedValueOld trackTypeEncoder;
-	private EncodedValueOld sideFlagEncoder;
-	private EncodedValueOld kerbHeightEncoder;
-	private EncodedValueOld hasKerbHeightEncoder;
 	private EncodedValueOld inclineEncoder;
-	private EncodedValueOld hasInclineEncoder;
+	private EncodedValueOld kerbHeightEncoder;
 	private EncodedValueOld widthEncoder;
-	private EncodedValueOld surfaceReliableEncoder;
-	private EncodedValueOld smoothnessReliableEncoder;
-	private EncodedValueOld trackTypeReliableEncoder;
-	private EncodedValueOld inclineReliableEncoder;
-	private EncodedValueOld widthReliableEncoder;
+	private EncodedValueOld sideFlagEncoder;
+	private EncodedValueOld hasKerbHeightEncoder;
+	private EncodedValueOld hasInclineEncoder;
+	private EncodedValueOld surfaceQualityKnownEncoder;
+	private EncodedValueOld pedestrianisedEncoder;
 
 	public static final int BYTE_COUNT = 5;
 
@@ -79,13 +76,9 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		trackTypeEncoder = new EncodedValueOld("tracktype", shift, 3, 1, 0, TRACK_TYPE_MAX_VALUE);
 		shift += trackTypeEncoder.getBits();
 
-		hasInclineEncoder = new EncodedValueOld("hasIncline", shift, 1, 1, 0, 1);
-		shift += 1;
 		inclineEncoder = new EncodedValueOld("incline", shift, 5, 1, 0, INCLINE_MAX_VALUE);
 		shift += inclineEncoder.getBits();
 
-		hasKerbHeightEncoder = new EncodedValueOld("hasKerbHeight", shift, 1, 1, 0, 1);
-		shift += 1;
 		kerbHeightEncoder = new EncodedValueOld("kerbHeight", shift, 4, 1, 0, KERB_MAX_VALUE);
 		shift += kerbHeightEncoder.getBits();
 
@@ -95,19 +88,17 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		sideFlagEncoder = new EncodedValueOld("side", shift, 2, 1,0,2);
 		shift += sideFlagEncoder.getBits();
 
-		surfaceReliableEncoder = new EncodedValueOld("surfaceReliable", shift, 1, 1, 0, 1);
+		hasKerbHeightEncoder = new EncodedValueOld("hasKerbHeight", shift, 1, 1, 0, 1);
 		shift += 1;
 
-		smoothnessReliableEncoder = new EncodedValueOld("smoothnessReliable", shift, 1, 1, 0, 1);
+		hasInclineEncoder = new EncodedValueOld("hasIncline", shift, 1, 1, 0, 1);
 		shift += 1;
 
-		trackTypeReliableEncoder = new EncodedValueOld("trackTypeReliable", shift, 1, 1, 0, 1);
+		surfaceQualityKnownEncoder = new EncodedValueOld("surfaceQualityKnown", shift, 1, 1, 0, 1);
 		shift += 1;
 
-		inclineReliableEncoder = new EncodedValueOld("inclineReliable", shift, 1, 1, 0, 1);
-		shift += 1;
+		pedestrianisedEncoder = new EncodedValueOld("pedestrianised", shift, 1, 1, 0, 1);
 
-		widthReliableEncoder = new EncodedValueOld("widthReliable", shift, 1, 1, 0, 1);
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -178,8 +169,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer) {
 		/*
-		 *       | flag  | surface | smoothness | tracktype | hasKerbHeight | kerbHeight | hasIncline | incline | width  | side  | reliability
-		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 1 bit         | 6 bits     | 1 bit      | 4 bits  | 6 bits | 2 bit | 5 bits	   | 38 bits in total which can fit into 5 bytes
+		 *       | flag  | surface | smoothness | tracktype | incline | kerbHeight | width  | side  | hasKerbHeight | hasIncline | surfaceQualityKnown | pedestrianised
+		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 5 bits  | 4 bits     | 5 bits | 2 bit | 1 bit         | 1 bit      | 1 bit               | 1 bit          | 33 bits in total which can fit into 5 bytes
 		 * 	
 		 * 
 		 */
@@ -222,26 +213,13 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 					break;
 			}
 
-			if (attrs.isSurfaceReliable()) {
-				encodedValue = surfaceReliableEncoder.setValue(encodedValue, 1);
+			if (attrs.isSurfaceQualityKnown()) {
+				encodedValue = surfaceQualityKnownEncoder.setValue(encodedValue, 1);
 			}
 
-			if (attrs.isSmoothnessReliable()) {
-				encodedValue = smoothnessReliableEncoder.setValue(encodedValue, 1);
+			if (attrs.isPedestrianised()) {
+				encodedValue = pedestrianisedEncoder.setValue(encodedValue, 1);
 			}
-
-			if (attrs.isTrackTypeReliable()) {
-				encodedValue = trackTypeReliableEncoder.setValue(encodedValue, 1);
-			}
-
-			if (attrs.isInclineReliable()) {
-				encodedValue = inclineReliableEncoder.setValue(encodedValue, 1);
-			}
-
-			if (attrs.isWidthReliable()) {
-				encodedValue = widthReliableEncoder.setValue(encodedValue, 1);
-			}
-
 
 			buffer[4] = (byte) ((encodedValue >> 32) & 0xFF);
 			buffer[3] = (byte) ((encodedValue >> 24) & 0xFF);
@@ -310,23 +288,11 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 					attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
 			}
 
-			iValue = surfaceReliableEncoder.getValue(encodedValue);
-			attrs.setSurfaceReliable((iValue != 0));
+			iValue = surfaceQualityKnownEncoder.getValue(encodedValue);
+			attrs.setSurfaceQualityKnown((iValue != 0));
 
-			iValue = smoothnessReliableEncoder.getValue(encodedValue);
-			attrs.setSmoothnessReliable((iValue != 0));
-
-			iValue = trackTypeReliableEncoder.getValue(encodedValue);
-			attrs.setTrackTypeReliable((iValue != 0));
-
-			iValue = inclineReliableEncoder.getValue(encodedValue);
-			attrs.setInclineReliable((iValue != 0));
-
-			iValue = widthReliableEncoder.getValue(encodedValue);
-			attrs.setWidthReliable((iValue != 0));
-
-
-
+			iValue = pedestrianisedEncoder.getValue(encodedValue);
+			attrs.setPedestrianised((iValue != 0));
 		}
 	}
 

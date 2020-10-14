@@ -43,14 +43,30 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(3, attrs.getSlopedKerbHeight());
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
-        Assert.assertFalse(attrs.isSurfaceReliable());
-        Assert.assertFalse(attrs.isSmoothnessReliable());
-        Assert.assertFalse(attrs.isTrackTypeReliable());
-        Assert.assertFalse(attrs.isInclineReliable());
-        Assert.assertFalse(attrs.isWidthReliable());
+        Assert.assertFalse(attrs.isSurfaceQualityKnown());
+        Assert.assertFalse(attrs.isPedestrianised());
+    }
 
 
+    @Test
+    public void TestPedestrianisedWay() {
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("highway", "track");
+        way.setTag("width", "0.5");
+        way.setTag("incline", "2");
+        way.setTag("tracktype", "grade1");
+        way.setTag("surface", "asphalt");
 
+
+        builder.processWay(way);
+
+        WheelchairAttributes attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.NONE);
+        Assert.assertEquals(50, attrs.getWidth());
+        Assert.assertEquals(2, attrs.getIncline());
+        Assert.assertEquals(2, attrs.getSurfaceType());
+        Assert.assertEquals(1, attrs.getTrackType());
+        Assert.assertTrue(attrs.isSurfaceQualityKnown());
+        Assert.assertTrue(attrs.isPedestrianised());
     }
 
     @Test
@@ -103,33 +119,21 @@ public class WheelchairGraphStorageBuilderTest {
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, 2);
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, 3);
         correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SURFACE, 4);
-        Assert.assertFalse(correctWheelchairAttributes.isSurfaceReliable());
-        Assert.assertFalse(correctWheelchairAttributes.isSmoothnessReliable());
-        Assert.assertFalse(correctWheelchairAttributes.isTrackTypeReliable());
-        Assert.assertFalse(correctWheelchairAttributes.isInclineReliable());
-        Assert.assertFalse(correctWheelchairAttributes.isWidthReliable());
+        Assert.assertFalse(correctWheelchairAttributes.isSurfaceQualityKnown());
+        Assert.assertFalse(correctWheelchairAttributes.isPedestrianised());
 
         builder.processWay(way);
         WheelchairAttributes left_attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
-        Assert.assertTrue(left_attrs.isSurfaceReliable());
-        Assert.assertTrue(left_attrs.isSmoothnessReliable());
-        Assert.assertTrue(left_attrs.isTrackTypeReliable());
-        Assert.assertTrue(left_attrs.isInclineReliable());
-        Assert.assertTrue(left_attrs.isWidthReliable());
+        Assert.assertTrue(left_attrs.isSurfaceQualityKnown());
+        Assert.assertTrue(left_attrs.isPedestrianised());
 
         WheelchairAttributes right_attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.RIGHT);
-        Assert.assertTrue(right_attrs.isSurfaceReliable());
-        Assert.assertTrue(right_attrs.isSmoothnessReliable());
-        Assert.assertTrue(right_attrs.isTrackTypeReliable());
-        Assert.assertTrue(right_attrs.isInclineReliable());
-        Assert.assertTrue(right_attrs.isWidthReliable());
+        Assert.assertTrue(right_attrs.isSurfaceQualityKnown());
+        Assert.assertTrue(right_attrs.isPedestrianised());
 
         WheelchairAttributes attrs = builder.combineAttributesOfWayWhenBothSidesPresent(new WheelchairAttributes());
-        Assert.assertFalse(attrs.isSurfaceReliable());
-        Assert.assertFalse(attrs.isSmoothnessReliable());
-        Assert.assertFalse(attrs.isTrackTypeReliable());
-        Assert.assertFalse(attrs.isInclineReliable());
-        Assert.assertFalse(attrs.isWidthReliable());
+        Assert.assertFalse(attrs.isSurfaceQualityKnown());
+        Assert.assertFalse(attrs.isPedestrianised());
 
         Assert.assertEquals(wheelchairAttributesAsString(correctWheelchairAttributes), wheelchairAttributesAsString(attrs));
     }
@@ -197,6 +201,8 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertEquals(4, attrs.getTrackType());
+        Assert.assertTrue(attrs.isPedestrianised());
+        Assert.assertTrue(attrs.isSurfaceQualityKnown());
     }
 
     private String wheelchairAttributesAsString(WheelchairAttributes attrs) {

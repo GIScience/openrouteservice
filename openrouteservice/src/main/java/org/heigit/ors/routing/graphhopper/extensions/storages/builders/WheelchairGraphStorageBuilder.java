@@ -125,6 +125,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// separate footway can still have sidewalk tags...)
 		processSidewalksAttachedToWay(way);
 
+		// the way itself is pedestrianised if it can be classified as seperate footway
+		wheelchairAttributes.setPedestrianised(isSeparateFootway(way));
+
+		// the sidewalks are always pedestrianised
+		wheelchairAttributesLeftSide.setPedestrianised(true);
+		wheelchairAttributesRightSide.setPedestrianised(true);
+
 		// Process the kerb tags.
 		processKerbTags();
 	}
@@ -288,11 +295,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		switch(side) {
 			case LEFT:
 				hasLeftSidewalk = true;
-				wheelchairAttributesLeftSide.setReliableAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesLeftSide.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 				break;
 			case RIGHT:
 				hasRightSidewalk = true;
-				wheelchairAttributesRightSide.setReliableAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesRightSide.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 				break;
 			default:
 		}
@@ -306,7 +313,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 */
 	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute, ReaderWay way) {
 		if (isSeparateFootway(way)) {
-			wheelchairAttributes.setReliableAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+			wheelchairAttributes.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 		} else {
 			wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 		}
@@ -648,34 +655,16 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		int in = getWorseAttributeValueFromSeparateItems(WheelchairAttributes.Attribute.INCLINE);
 		if (in > 0) at.setIncline(in);
 
-		at.setSurfaceReliable(
-				wheelchairAttributesLeftSide.isSurfaceReliable()
-				&& wheelchairAttributesRightSide.isSurfaceReliable()
-				&& attributes.isSurfaceReliable()
+		at.setSurfaceQualityKnown(
+				wheelchairAttributesLeftSide.isSurfaceQualityKnown()
+				&& wheelchairAttributesRightSide.isSurfaceQualityKnown()
+				&& attributes.isSurfaceQualityKnown()
 		);
 
-		at.setSmoothnessReliable(
-				wheelchairAttributesLeftSide.isSmoothnessReliable()
-						&& wheelchairAttributesRightSide.isSmoothnessReliable()
-						&& attributes.isSmoothnessReliable()
-		);
-
-		at.setTrackTypeReliable(
-				wheelchairAttributesLeftSide.isTrackTypeReliable()
-						&& wheelchairAttributesRightSide.isTrackTypeReliable()
-						&& attributes.isTrackTypeReliable()
-		);
-
-		at.setInclineReliable(
-				wheelchairAttributesLeftSide.isInclineReliable()
-						&& wheelchairAttributesRightSide.isInclineReliable()
-						&& attributes.isInclineReliable()
-		);
-
-		at.setWidthReliable(
-				wheelchairAttributesLeftSide.isWidthReliable()
-						&& wheelchairAttributesRightSide.isWidthReliable()
-						&& attributes.isWidthReliable()
+		at.setPedestrianised(
+				wheelchairAttributesLeftSide.isPedestrianised()
+						&& wheelchairAttributesRightSide.isPedestrianised()
+						&& attributes.isPedestrianised()
 		);
 
 		return at;
