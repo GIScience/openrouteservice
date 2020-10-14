@@ -176,7 +176,9 @@ public class RoutingProfile {
         // so the caching for elevation data will/can be reused across different vehicles. [the loadCntx is a single
         // Object that will shared across the (potential) multiple running instances]
         if(loadCntx.getElevationProvider() != null) {
-            gh.setElevationProvider(loadCntx.getElevationProvider());
+            if (args.has("graph.elevation.provider")) {
+                gh.setElevationProvider(loadCntx.getElevationProvider());
+            }
         }else {
             loadCntx.setElevationProvider(gh.getElevationProvider());
         }
