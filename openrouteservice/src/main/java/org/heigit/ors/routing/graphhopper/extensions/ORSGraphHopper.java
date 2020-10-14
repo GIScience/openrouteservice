@@ -124,7 +124,6 @@ public class ORSGraphHopper extends GraphHopper {
 		fastIsochroneFactory.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
-
 		return ret;
 	}
 
@@ -142,6 +141,7 @@ public class ORSGraphHopper extends GraphHopper {
 			if (LOGGER.isInfoEnabled())
 				LOGGER.info(String.format("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
 			);
+			ghs.getProperties().put("elevation", hasElevation());
 		} else {
 			LOGGER.info("graph GraphHopperStorage is null?!");
 		}

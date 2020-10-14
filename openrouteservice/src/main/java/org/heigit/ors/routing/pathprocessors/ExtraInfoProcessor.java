@@ -162,8 +162,12 @@ public class ExtraInfoProcessor implements PathProcessor {
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.STEEPNESS)) {
-				steepnessInfo = new RouteExtraInfo("steepness");
-				steepnessInfoBuilder = new AppendableSteepnessExtraInfoBuilder(steepnessInfo);
+				if ("true".equals(graphHopperStorage.getProperties().get("elevation"))) {
+					steepnessInfo = new RouteExtraInfo("steepness");
+					steepnessInfoBuilder = new AppendableSteepnessExtraInfoBuilder(steepnessInfo);
+				} else {
+					skippedExtras.add("steepness");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SUITABILITY)) {
