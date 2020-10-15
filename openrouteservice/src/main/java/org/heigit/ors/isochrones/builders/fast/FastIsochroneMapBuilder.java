@@ -627,14 +627,14 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
         for (int cellId : reachableCellsAndSuperCells) {
             addCellPolygon(cellId, isochroneGeometries);
-            if (LOGGER.isDebugEnabled())
-                cellsPrintStatement.append(printCell(cellStorage.getCellContourOrder(cellId), cellId));
+//            if (LOGGER.isDebugEnabled())
+//                cellsPrintStatement.append(printCell(cellStorage.getCellContourOrder(cellId), cellId));
         }
-        if (LOGGER.isDebugEnabled()) {
-            cellsPrintStatement.deleteCharAt(cellsPrintStatement.length() - 2);
-            cellsPrintStatement.append("]}");
-            cellsPrintStatement.append(System.lineSeparator());
-        }
+//        if (LOGGER.isDebugEnabled()) {
+//            cellsPrintStatement.deleteCharAt(cellsPrintStatement.length() - 2);
+//            cellsPrintStatement.append("]}");
+//            cellsPrintStatement.append(System.lineSeparator());
+//        }
 //        LOGGER.debug(cellsPrintStatement.toString());
     }
 
