@@ -361,7 +361,7 @@ public class ORSGraphHopper extends GraphHopper {
 				if (weighting instanceof TurnWeighting)
 	                ((TurnWeighting)weighting).setInORS(true);
 
-				weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
+				weighting = createTimeDependentAccessWeighting(weighting, algoStr);
 
 				if (weighting.isTimeDependent()) {
 					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
