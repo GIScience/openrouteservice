@@ -42,13 +42,15 @@ public class TimeDependentFastestWeighting extends AbstractWeighting {
 
     private SpeedCalculator speedCalculator;
 
+    public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map) {
+        this(encoder, map, new DefaultSpeedCalculator(encoder));
+    }
 
-    public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graph) {
+    public TimeDependentFastestWeighting(FlagEncoder encoder, PMap map, SpeedCalculator speedCalculator) {
         super(encoder);
         headingPenalty = map.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         maxSpeed = encoder.getMaxSpeed() / SPEED_CONV;
-
-        this.speedCalculator = new ConditionalSpeedCalculator(graph, encoder);
+        this.speedCalculator = speedCalculator;
     }
 
     @Override
