@@ -178,6 +178,13 @@ public class RouteRequestHandler extends GenericHandler {
                 params.setAlternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
         }
 
+        if (request.hasDeparture() && request.hasArrival())
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+        else if (request.hasDeparture())
+            params.setDeparture(request.getDeparture());
+        else if (request.hasArrival())
+            params.setArrival(request.getArrival());
+
         if (request.hasMaximumSpeed()) {
             params.setMaximumSpeed(request.getMaximumSpeed());
         }

@@ -36,6 +36,7 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -238,8 +239,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 			String algoStr = request.getAlgorithm();
 			if (algoStr.isEmpty())
-				algoStr = getCHFactoryDecorator().isEnabled() && !disableCH
-						&& !(getLMFactoryDecorator().isEnabled() && !disableLM) ? DIJKSTRA_BI : ASTAR_BI;
+				throw new IllegalStateException("No routing algorithm set.");
 
 			List<GHPoint> points = request.getPoints();
 			// TODO Maybe we should think about a isRequestValid method that checks all that stuff that we could do to fail fast
@@ -360,6 +360,29 @@ public class ORSGraphHopper extends GraphHopper {
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 	                ((TurnWeighting)weighting).setInORS(true);
+
+				weighting = createTimeDependentAccessWeighting(weighting, algoStr);
+
+				if (weighting.isTimeDependent()) {
+					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
+					String key;
+					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
+					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
+					ghRsp.getHints().put("timezone.departure", dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
+					ghRsp.getHints().put("timezone.arrival", dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
+					if (hints.has("departure")) {
+						key = "departure";
+						point = departurePoint;
+					} else {
+						key = "arrival";
+						point = arrivalPoint;
+					}
+					String time = hints.get(key, "");
+					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
+				} else {
+					hints.remove("departure");
+					hints.remove("arrival");
+				}
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();

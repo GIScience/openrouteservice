@@ -28,8 +28,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <prerequisites>
-      <!-- Java 11 upgrade -->
-      <maven>3.0</maven>
+        <!-- Java 11 upgrade -->
+        <maven>3.0</maven>
     </prerequisites>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
@@ -91,12 +91,12 @@
 
         <plugins>
             <plugin>
-              <!-- Java 11 upgrade -->
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>versions-maven-plugin</artifactId>
-              <configuration>
-                <generateBackupPoms>false</generateBackupPoms>
-              </configuration>
+                <!-- Java 11 upgrade -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -317,19 +317,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.5</version>
+            <version>v0.13.8</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.5</version>
+            <version>v0.13.8</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.5</version>
+            <version>v0.13.8</version>
         </dependency>
 
         <!-- remove the comment to enable debugging
@@ -422,6 +422,14 @@
             <groupId>com.bedatadriven</groupId>
             <artifactId>jackson-datatype-jts</artifactId>
             <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
 

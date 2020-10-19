@@ -13,10 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
@@ -72,6 +69,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
+		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
+			EncodingManager encodingManager = graphStorage.getEncodingManager();
+			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, "conditional_speed"))
+					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
+					: new TimeDependentFastestWeighting(encoder, hintsMap);
+		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
@@ -93,6 +96,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
+		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
+		/*
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
@@ -110,7 +115,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new TurnWeighting(result, turnCostExt);
 			}
 		}
-
+		*/
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
