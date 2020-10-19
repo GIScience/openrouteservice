@@ -55,7 +55,6 @@ public class CellStorage implements Storable<CellStorage> {
     /**
      * Instantiates a new Cell storage.
      *
-     * @param graph                the graph
      * @param dir                  the dir
      * @param isochroneNodeStorage the isochrone node storage
      */

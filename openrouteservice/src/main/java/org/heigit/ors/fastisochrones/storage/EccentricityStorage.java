@@ -71,7 +71,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     public boolean loadExisting() {
         if (eccentricities.loadExisting()) {
             borderNodeCount = eccentricities.getHeader(0);
-            borderNodeIndexOffset = borderNodeCount * mapBytes + 1;
+            borderNodeIndexOffset = borderNodeCount * mapBytes;
             borderNodePointer = borderNodeIndexOffset;
             borderNodeToPointerMap = new IntLongHashMap(borderNodeCount);
             loadBorderNodeToPointerMap();
@@ -87,7 +87,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         eccentricities.create(1000);
         borderNodeCount = getNumBorderNodes();
         eccentricities.setHeader(0, borderNodeCount);
-        borderNodeIndexOffset = borderNodeCount * mapBytes + 1;
+        borderNodeIndexOffset = borderNodeCount * mapBytes;
         borderNodePointer = borderNodeIndexOffset;
         borderNodeToPointerMap = new IntLongHashMap();
         generateBorderNodeToPointerMap();
