@@ -1014,8 +1014,11 @@ public class GraphHopper implements GraphHopperAPI {
             weighting = new ShortFastestWeighting(encoder, hints);
         }
 
-        else if ("td_fastest".equalsIgnoreCase(weightingStr))
-            weighting = new TimeDependentFastestWeighting(encoder, hints, ghStorage);
+        else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
+            weighting = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, "conditional_speed"))
+                    ? new TimeDependentFastestWeighting(encoder, hints, new ConditionalSpeedCalculator(ghStorage, encoder))
+                    : new TimeDependentFastestWeighting(encoder, hints);
+        }
 
         if (weighting == null)
             throw new IllegalArgumentException("weighting " + weightingStr + " not supported");
@@ -1050,9 +1053,12 @@ public class GraphHopper implements GraphHopperAPI {
     /**
      * Potentially wraps the specified weighting into a TimeDependentAccessWeighting.
      */
-    public Weighting createTimeDependentAccessWeighting(Weighting weighting, TraversalMode tMode, String algo) {
-        return tMode.isEdgeBased() && isAlgorithmTimeDependent(algo) ?
-            new TimeDependentAccessWeighting(weighting, ghStorage, weighting.getFlagEncoder()) : weighting;
+    public Weighting createTimeDependentAccessWeighting(Weighting weighting, String algo) {
+        FlagEncoder flagEncoder = weighting.getFlagEncoder();
+        if (encodingManager.hasEncodedValue(encodingManager.getKey(flagEncoder, "conditional_access")) && isAlgorithmTimeDependent(algo))
+            return new TimeDependentAccessWeighting(weighting, ghStorage, flagEncoder);
+        else
+            return weighting;
     }
 
     private boolean isAlgorithmTimeDependent(String algo) {
@@ -1204,7 +1210,7 @@ public class GraphHopper implements GraphHopperAPI {
                 if (maxVisitedNodesForRequest > maxVisitedNodes)
                     throw new IllegalArgumentException("The max_visited_nodes parameter has to be below or equal to:" + maxVisitedNodes);
 
-                weighting = createTimeDependentAccessWeighting(weighting, tMode, algoStr);
+                weighting = createTimeDependentAccessWeighting(weighting, algoStr);
 
                 int uTurnCostInt = request.getHints().getInt(Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
                 if (uTurnCostInt != INFINITE_U_TURN_COSTS && !tMode.isEdgeBased()) {
