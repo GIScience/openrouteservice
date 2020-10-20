@@ -259,9 +259,6 @@ public class ResultTest extends ServiceTest {
         json.put("attributes", "area|reachfactor");
         json.put("intersections", true);
 
-        // Updated in the GH 0.12 update from size = 22 as there is a difference in the order that edges are returned and
-        // so neighbourhood search results in slightly different results
-
         given()
                 .body(json.toString())
                 .when().log().ifValidationFails()
@@ -272,11 +269,11 @@ public class ResultTest extends ServiceTest {
                 .body("features.size()", is(5))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
-                .body("features[0].geometry.coordinates[0].size", is(23))
+                .body("features[0].geometry.coordinates[0].size", is(22))
                 .body("features[0].properties.containsKey('area')", is(true))
                 .body("features[1].type", is("Feature"))
                 .body("features[1].geometry.type", is("Polygon"))
-                .body("features[1].geometry.coordinates[0].size", is(56))
+                .body("features[1].geometry.coordinates[0].size", is(57))
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size", is(25))

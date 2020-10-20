@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
 
 ## [6.3.1] - 2020-10-20
 ### Fixed

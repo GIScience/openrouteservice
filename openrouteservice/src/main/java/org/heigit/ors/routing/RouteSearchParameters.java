@@ -40,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 
 /**
@@ -84,6 +85,9 @@ public class RouteSearchParameters {
     private boolean hasMaximumSpeed = false;
 
     private String options;
+
+    private LocalDateTime departure;
+    private LocalDateTime arrival;
 
     public int getProfileType() {
         return profileType;
@@ -572,5 +576,32 @@ public class RouteSearchParameters {
         return hasAvoidAreas()
                 || hasBearings()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+    }
+
+    // time-dependent stuff
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+    }
+
+    public boolean hasDeparture() {
+        return departure!=null;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+    }
+
+    public boolean hasArrival() { return arrival!=null; }
+
+    public boolean isTimeDependent() {
+        return (hasDeparture() || hasArrival());
     }
 }
