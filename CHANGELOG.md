@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.3.1] - 2020-10-20
 ### Fixed
 - Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
@@ -354,7 +356,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...HEAD
+[6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
 [6.2.1]: https://github.com/GIScience/openrouteservice/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/GIScience/openrouteservice/compare/v6.1.1...v6.2.0
