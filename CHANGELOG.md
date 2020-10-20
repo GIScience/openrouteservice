@@ -36,11 +36,18 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
+- added flag "surface quality known" to external storage for wheelchair routing which signals whether if the surface quality (i. e. surface, smoothness, tracktype) of the sidewalk for nonpedestrian ways is known or only derived from the main tags, respectivly for pedestranised ways, whether a tag indicating the surface quality was found
+- added flag "pedestrianised" to external storage to signal whether a way is pedestrianised (i. e. either is a footway/track/etc or has sidewalks)
+- added boolean parameters "surface_quolity_known" and "pedestrianised" to the restrictions object in the api to reflect the new flags for wheelchair routing. If the parameter is set to true in the request, the corresponding flag has to be set in the external storage for an edge to be considered 
+ 
 ### Fixed
 - Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
 - Enabled turning off elevation data handling for profiles 
 - Fixed a bug in fast isochrones preprocessing
+- before, non-pedestrianised ways (i.e. ways which ame not a footway/track/etc and do not have a sidewalk) where excluded fom the graph. Now, they are included but flagged, so that they can be filtered at request time
+- some bug fixes in external storage for wheelchair routing
+- adapted speeds for wheelchair routiong especially for ways with bad surface quality 
 
 ## [6.3.0] - 2020-09-14
 ### Added
