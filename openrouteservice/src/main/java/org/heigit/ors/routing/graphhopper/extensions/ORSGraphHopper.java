@@ -544,12 +544,12 @@ public class ORSGraphHopper extends GraphHopper {
 		/* TurnRestrictions and MaximumSpeed Filters */
 		for(FlagEncoder flagEncoder : getEncodingManager().fetchEdgeEncoders()) {
 			if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-				//coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
 			}
 
 			if ((routingProfileCategory & RoutingProfileCategory.CYCLING) !=0 ) {
-				//coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 			}
 		}
 

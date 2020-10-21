@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
-
 public class ORSWeightingFactory implements WeightingFactory {
 	private Map<Object, TurnCostExtension> turnCostExtensionMap;
 
@@ -106,8 +104,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 					}
 				}
 
-				int uTurnCosts = hintsMap.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
-				result = new TurnWeighting(result, turnCostExt, uTurnCosts);
+				result = new TurnWeighting(result, turnCostExt);
 			}
 		}
 
