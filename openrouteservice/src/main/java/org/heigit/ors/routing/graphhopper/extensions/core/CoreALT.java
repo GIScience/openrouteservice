@@ -273,7 +273,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         if (finishedFrom || finishedTo)
             return true;
             // AO: in order to guarantee that the shortest path is found it is neccesary to account for possible precision loss in LM distance approximation by introducing the additional offset
-        return currFrom.weight + currTo.weight >= bestPath.getWeight() + approximatorOffset;
+        return currFrom.weight + currTo.weight >= bestPath.getWeight() + approximatorOffset +1000;
     }
 
     void fillEdges(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueue, IntObjectMap<AStarEntry> bestWeightMap,

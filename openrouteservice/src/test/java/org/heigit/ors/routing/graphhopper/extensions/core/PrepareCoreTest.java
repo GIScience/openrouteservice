@@ -286,6 +286,10 @@ public class PrepareCoreTest {
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(7,4));
         shortcuts.put(14, new Pair<>(7,3));
+        shortcuts.put(15, new Pair<>(3,8));
+        shortcuts.put(16, new Pair<>(3,0));
+        shortcuts.put(17, new Pair<>(1,0));
+        shortcuts.put(18, new Pair<>(3,1));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {0, 1, 2, 3};
@@ -401,7 +405,7 @@ public class PrepareCoreTest {
 
 
     /**
-     * Test whether all the expected shortcuts are built and they are no addtional shortcuts
+     * Test whether all the expected shortcuts are built and they are no additional shortcuts
      * @param g contraction hierarchy Graph
      * @param shortcuts map with edge ids as key and as a value a pair of the nodes of the corresponding edge
      */
