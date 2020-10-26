@@ -43,7 +43,6 @@ public class RoutingRequest extends ServiceRequest {
     private boolean continueStraight = false;
 	private List<Integer> skipSegments = new ArrayList<>();
 	private boolean includeCountryInfo = false;
-	private boolean turnRestrictions= false;
 	private double maximumSpeed;
 
 	private String responseFormat = "json";
@@ -231,14 +230,7 @@ public class RoutingRequest extends ServiceRequest {
 		return this.responseFormat;
 	}
 
-	public void setTurnRestrictions(boolean turnRestrictions){ this.turnRestrictions = turnRestrictions;}
-
-	public boolean getTurnRestrictions(){ return turnRestrictions; }
-
-	public boolean  hasTurnRestrictions(){ return turnRestrictions; }
-
 	public boolean isRoundTripRequest() {
 		return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
 	}
-
 }

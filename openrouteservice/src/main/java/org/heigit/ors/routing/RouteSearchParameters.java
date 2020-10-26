@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing;
 
-import com.google.common.base.Strings;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -41,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 
 /**
@@ -86,7 +86,8 @@ public class RouteSearchParameters {
 
     private String options;
 
-    private boolean turnRestrictions=false;
+    private LocalDateTime departure;
+    private LocalDateTime arrival;
 
     public int getProfileType() {
         return profileType;
@@ -387,8 +388,8 @@ public class RouteSearchParameters {
 
             String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
             String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-            double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-            double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+            double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+            double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
             for (Polygon avoidArea : avoidAreas) {
                 try {
                     if (areaLimit > 0) {
@@ -416,7 +417,7 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
             }
             String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
-            int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+            int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
             if (countLimit > 0 && alternativeRoutesCount > countLimit) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
@@ -557,12 +558,6 @@ public class RouteSearchParameters {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
 
-    public void setTurnRestrictions(boolean turnRestrictions){ this.turnRestrictions = turnRestrictions;}
-
-    public boolean getTurnRestrictions(){ return turnRestrictions; }
-
-    public boolean  hasTurnRestrictions(){ return turnRestrictions; }
-
     public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
             || hasAvoidFeatures()
@@ -581,5 +576,32 @@ public class RouteSearchParameters {
         return hasAvoidAreas()
                 || hasBearings()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+    }
+
+    // time-dependent stuff
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+    }
+
+    public boolean hasDeparture() {
+        return departure!=null;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+    }
+
+    public boolean hasArrival() { return arrival!=null; }
+
+    public boolean isTimeDependent() {
+        return (hasDeparture() || hasArrival());
     }
 }

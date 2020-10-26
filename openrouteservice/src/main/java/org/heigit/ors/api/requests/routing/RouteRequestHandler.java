@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import com.google.common.base.Strings;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -33,6 +32,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
+import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -159,10 +159,6 @@ public class RouteRequestHandler extends GenericHandler {
             params = processRouteRequestOptions(request, params);
         }
 
-        if(request.hasTurnRestrictions()){
-            params.setTurnRestrictions(request.getTurnRestrictions());
-        }
-
         if (request.hasAlternativeRoutes()) {
             if (request.getCoordinates().size() > 2) {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
@@ -171,7 +167,7 @@ public class RouteRequestHandler extends GenericHandler {
             if (alternativeRoutes.hasTargetCount()) {
                 params.setAlternativeRoutesCount(alternativeRoutes.getTargetCount());
                 String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(request.getProfile().toString(), "maximum_alternative_routes");
-                int countLimit = Strings.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+                int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
                 if (countLimit > 0 && alternativeRoutes.getTargetCount() > countLimit) {
                     throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutes.getTargetCount()), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
                 }
@@ -181,6 +177,13 @@ public class RouteRequestHandler extends GenericHandler {
             if (alternativeRoutes.hasShareFactor())
                 params.setAlternativeRoutesShareFactor(alternativeRoutes.getShareFactor());
         }
+
+        if (request.hasDeparture() && request.hasArrival())
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+        else if (request.hasDeparture())
+            params.setDeparture(request.getDeparture());
+        else if (request.hasArrival())
+            params.setArrival(request.getArrival());
 
         if (request.hasMaximumSpeed()) {
             params.setMaximumSpeed(request.getMaximumSpeed());
@@ -343,6 +346,7 @@ public class RouteRequestHandler extends GenericHandler {
         return null;
     }
 
+    @Override
     protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
@@ -372,8 +376,8 @@ public class RouteRequestHandler extends GenericHandler {
 
         String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
         String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-        double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-        double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
         for (Polygon avoidArea : avoidAreas) {
             try {
                 if (areaLimit > 0) {

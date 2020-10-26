@@ -27,6 +27,8 @@ import org.heigit.ors.routing.instructions.InstructionType;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 class RouteResultBuilder
@@ -75,6 +77,8 @@ class RouteResultBuilder
             if (response.hasErrors())
                 throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri + 1])));
 
+            handleResponseWarnings(result, response);
+
             PathWrapper path = response.getBest();
 
             result.addPointlist(path.getPoints());
@@ -89,6 +93,14 @@ class RouteResultBuilder
         }
 
         result.calculateRouteSummary(request);
+
+        if (request.getSearchParameters().isTimeDependent()) {
+            String timezoneDeparture = responses.get(0).getHints().get("timezone.departure", "");
+            String timezoneArrival = responses.get(responses.size()-1).getHints().get("timezone.arrival", "");
+
+            setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
+        }
+
         if (!request.getIncludeInstructions()) {
             result.resetSegments();
         }
@@ -110,6 +122,8 @@ class RouteResultBuilder
         for (PathWrapper path : response.getAll()) {
             RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
 
+            handleResponseWarnings(result, response);
+
             result.addPointlist(path.getPoints());
             if (request.getIncludeGeometry()) {
                 result.addPointsToGeometry(path.getPoints(), false, request.getIncludeElevation());
@@ -125,10 +139,37 @@ class RouteResultBuilder
 
             result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
+
+            if (request.getSearchParameters().isTimeDependent()) {
+                String timezoneDeparture = response.getHints().get("timezone.departure", "");
+                String timezoneArrival = response.getHints().get("timezone.arrival", "");
+
+                setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
+            }
+
             pathIndex++;
         }
 
         return resultSet;
+    }
+
+    private void setDepartureArrivalTimes(String timezoneDeparture, String timezoneArrival, RoutingRequest request, RouteResult result) {
+        ZonedDateTime departure, arrival;
+
+        long duration = (long) result.getSummary().getDuration();
+
+        if (request.getSearchParameters().hasDeparture()) {
+            ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of(timezoneDeparture));
+            departure = zonedDateTime;
+            arrival = zonedDateTime.plusSeconds(duration);
+        } else {
+            ZonedDateTime zonedDateTime = request.getSearchParameters().getArrival().atZone(ZoneId.of(timezoneArrival));
+            arrival = zonedDateTime;
+            departure = zonedDateTime.minusSeconds(duration);
+        }
+
+        result.setDeparture(departure);
+        result.setArrival(arrival);
     }
 
     private PointList getNextResponseFirstStepPoints(List<GHResponse> routes, int ri) {
@@ -385,4 +426,11 @@ class RouteResultBuilder
 		double degree = Math.toDegrees(orientation);
 		return directions[(int)Math.floor(((degree+ 22.5) % 360) / 45)];
 	}
+
+    private void handleResponseWarnings(RouteResult result, GHResponse response) {
+        String skippedExtras = response.getHints().get("skipped_extra_info", "");
+        if (!skippedExtras.isEmpty()) {
+            result.addWarning(new RouteWarning(RouteWarning.SKIPPED_EXTRAS, skippedExtras));
+        }
+    }
 }

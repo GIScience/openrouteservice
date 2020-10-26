@@ -18,6 +18,8 @@ package org.heigit.ors.api;
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
 import org.springframework.context.annotation.Bean;
@@ -50,7 +52,8 @@ public class ApiConfig implements WebMvcConfigurer {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
         mapper.registerModule(new JtsModule());
-
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return mapper;
     }
 }

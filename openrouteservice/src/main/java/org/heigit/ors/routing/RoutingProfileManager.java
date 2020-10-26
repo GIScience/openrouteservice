@@ -34,6 +34,7 @@ import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
 import java.io.IOException;
@@ -280,6 +281,9 @@ public class RoutingProfileManager {
                 if (obj instanceof ExtraInfoProcessor) {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor)obj;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                        }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
                     }
@@ -292,7 +296,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
+        return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -414,6 +418,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
                         extraInfoProcessorIndex++;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                        }
                     }
                 }
             } else {
@@ -421,6 +428,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor)o;
+                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
                         }
@@ -578,7 +588,7 @@ public class RoutingProfileManager {
             if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
             }
-            if(!(rp.getGraphhopper().getEncodingManager().hasEncoder("heavyvehicle") || rp.getGraphhopper().getEncodingManager().hasEncoder("car-ors")) ){
+            if(RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING){
                 throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }

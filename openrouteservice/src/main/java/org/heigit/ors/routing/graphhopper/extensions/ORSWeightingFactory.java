@@ -13,10 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
@@ -58,6 +55,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 
 		Weighting result = null;
 
+        if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
+            return createIsochroneWeighting(hintsMap, encoder);
+
 		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
 			result = new ShortestWeighting(encoder); 
@@ -68,6 +68,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new PriorityWeighting(encoder, hintsMap);
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
+		}
+		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
+			EncodingManager encodingManager = graphStorage.getEncodingManager();
+			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, "conditional_speed"))
+					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
+					: new TimeDependentFastestWeighting(encoder, hintsMap);
 		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
@@ -90,6 +96,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
+		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
+		/*
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
@@ -107,7 +115,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new TurnWeighting(result, turnCostExt);
 			}
 		}
-
+		*/
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
@@ -153,6 +161,31 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		return result;
 	}
+
+    public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
+        String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+        if (Helper.isEmpty(strWeighting))
+            strWeighting = hintsMap.getWeighting();
+
+        Weighting result = null;
+
+        //Isochrones only support fastest or shortest as no path is found.
+        //CalcWeight must be directly comparable to the isochrone limit
+
+        if ("shortest".equalsIgnoreCase(strWeighting))
+        {
+            result = new ShortestWeighting(encoder);
+        }
+        else if ("fastest".equalsIgnoreCase(strWeighting)
+                || "priority".equalsIgnoreCase(strWeighting)
+                || "recommended_pref".equalsIgnoreCase(strWeighting)
+                || "recommended".equalsIgnoreCase(strWeighting))
+        {
+            result = new FastestWeighting(encoder, hintsMap);
+        }
+
+        return result;
+    }
 
 	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
 		return encoder instanceof FootFlagEncoder;

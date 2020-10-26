@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,9 @@ public class RouteResult
 	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
 	private String graphDate = "";
+
+	private ZonedDateTime departure;
+	private ZonedDateTime arrival;
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
@@ -191,4 +195,24 @@ public class RouteResult
 	public void setGraphDate(String graphDate) {
 		this.graphDate = graphDate;
 	}
+
+	public boolean hasDepartureAndArrival() {
+		return (departure!=null && arrival!=null);
+	}
+
+	public ZonedDateTime getDeparture() {
+		return departure;
+	}
+
+	public void setDeparture(ZonedDateTime departure) {
+	    this.departure = departure;
+    }
+
+	public ZonedDateTime getArrival() {
+		return arrival;
+	}
+
+	public void setArrival(ZonedDateTime arrival) {
+	    this.arrival = arrival;
+    }
 }

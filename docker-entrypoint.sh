@@ -9,7 +9,7 @@ if [ -z "${CATALINA_OPTS}" ]; then
 fi
 
 if [ -z "${JAVA_OPTS}" ]; then
-	export JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
+	export JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
 fi
 
 echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" > /usr/local/tomcat/bin/setenv.sh
@@ -23,7 +23,9 @@ fi
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
 	cp -f /ors-conf/app.config $tomcat_appconfig
 else
-	cp -f $source_appconfig /ors-conf/app.config
+	if [ ! -f /ors-conf/app.config ]; then
+		cp -f $source_appconfig /ors-conf/app.config
+	fi
 	echo "### Package openrouteservice and deploy to Tomcat ###"
 	mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
 	cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war

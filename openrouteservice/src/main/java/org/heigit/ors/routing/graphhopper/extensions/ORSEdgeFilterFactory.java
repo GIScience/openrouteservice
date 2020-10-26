@@ -41,7 +41,10 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
         try {
             ORSPMap params = (ORSPMap)opts;
-        
+            if (params == null) {
+                params = new ORSPMap();
+            }
+
             /* Avoid areas */
             if (params.hasObj("avoid_areas")) {
                 edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) params.getObj("avoid_areas")));

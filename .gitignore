@@ -19,6 +19,10 @@ openrouteservice/WebContent/WEB-INF/app.config*
 #openrouteservice/src/main/resources/app.config*
 #!openrouteservice/src/main/resources/app.config.sample
 
+# Ignore folders generated from docker
+docker/elevation_cache
+docker/conf
+
 app.config.local
 cgiar_provider/
 graphs/

@@ -25,7 +25,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +57,8 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
-    public static final String PARAM_TURN_RESTRICTIONS = "turn_restrictions";
+    public static final String PARAM_DEPARTURE = "departure";
+    public static final String PARAM_ARRIVAL = "arrival";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -249,13 +250,23 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
 
-    @ApiModelProperty(name = PARAM_TURN_RESTRICTIONS, value= "Parameter to enable or disable turn restrictions in the core.")
-    @JsonProperty(PARAM_TURN_RESTRICTIONS)
-    private boolean turnRestrictions;
+    @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
+            example = "2020-01-31T12:45:00",  hidden = true)
+    @JsonProperty(PARAM_DEPARTURE)
+    private LocalDateTime departure;
     @JsonIgnore
-    private boolean hasTurnRestrictions = false;
+    private boolean hasDeparture = false;
 
-    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+    @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
+            example = "2020-01-31T13:15:00",  hidden = true)
+    @JsonProperty(PARAM_ARRIVAL)
+    private LocalDateTime arrival;
+    @JsonIgnore
+    private boolean hasArrival = false;
+
+@ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
             example = "90")
     @JsonProperty(PARAM_MAXIMUM_SPEED)
@@ -477,8 +488,6 @@ public class RouteRequest {
     }
 
     public boolean getUseContractionHierarchies() {
-
-
         return useContractionHierarchies;
     }
 
@@ -521,6 +530,24 @@ public class RouteRequest {
     public void setAlternativeRoutes(RouteRequestAlternativeRoutes alternativeRoutes) {
         this.alternativeRoutes = alternativeRoutes;
         hasAlternativeRoutes = true;
+    }
+
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+        hasDeparture = true;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+        hasArrival = true;
     }
 
     public void setMaximumSpeed(Double maximumSpeed) {
@@ -604,11 +631,9 @@ public class RouteRequest {
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
 
-    public void setTurnRestrictions(boolean turnRestrictions){ this.turnRestrictions = turnRestrictions;}
+    public boolean hasDeparture() { return hasDeparture; }
 
-    public boolean getTurnRestrictions(){ return turnRestrictions; }
-
-    public boolean  hasTurnRestrictions(){ return turnRestrictions; }
+    public boolean hasArrival() { return hasArrival; }
 
     public boolean hasMaximumSpeed() {
         return hasMaximumSpeed;
