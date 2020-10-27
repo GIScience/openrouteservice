@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     private final boolean debugSkippedWays = false;
@@ -47,6 +49,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_DESIGNATED = "designated";
     public static final String KEY_OFFICIAL = "official";
     public static final String KEY_CROSSING = "crossing";
+
+    private OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
+    private OSMPedestrianProcessor osmPedestrianProcessor = new OSMPedestrianProcessor();
 
     protected Set<String> acceptedPublicTransport = new HashSet<>(5);
     
@@ -648,8 +653,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     			positiveFeatures += 2;
     		}
         }
-        
-        
+
+
+        if (!osmAttachedSidewalkProcessor.hasSidewalkInfo(way) && !osmPedestrianProcessor.isPedestrianisedWay(way))
+            negativeFeatures+=2;
+
         int sum = positiveFeatures - negativeFeatures;
         
         if (sum <= -6) weightToPrioMap.put(2d, AVOID_AT_ALL_COSTS.getValue());
