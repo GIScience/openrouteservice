@@ -574,25 +574,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
     @Override
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
-        TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
-        if (priorityFromRelation == 0)
-            weightToPrioMap.put(1d, UNCHANGED.getValue());
-        else
-            weightToPrioMap.put(1d, priorityFromRelation);
-
-        collect(way, weightToPrioMap);
-        
-        // pick priority with biggest order value
-        return weightToPrioMap.lastEntry().getValue();
-    }
-
-    /**
-     * @param weightToPrioMap associate a weight with every priority. This sorted map allows
-     * subclasses to 'insert' more important priorities as well as overwrite determined priorities.
-     */
-    public void collect(ReaderWay way, Map<Double, Integer> weightToPrioMap) {
     	int positiveFeatures = 0;
     	int negativeFeatures = 0;
+    	int priority;
     	
     	// http://wiki.openstreetmap.org/wiki/DE:Key:traffic_calming
         String highwayValue = way.getTag(KEY_HIGHWAY);
@@ -659,14 +643,16 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             negativeFeatures+=2;
 
         int sum = positiveFeatures - negativeFeatures;
-        
-        if (sum <= -6) weightToPrioMap.put(2d, AVOID_AT_ALL_COSTS.getValue());
-        else if (sum <= -3) weightToPrioMap.put(2d, REACH_DEST.getValue());
-        else if (sum <= -1) weightToPrioMap.put(2d, AVOID_IF_POSSIBLE.getValue());
-        else if (sum == 0) weightToPrioMap.put(2d, UNCHANGED.getValue());
-        else if (sum <= 2) weightToPrioMap.put(2d, PREFER.getValue());
-        else if (sum <= 5) weightToPrioMap.put(2d, VERY_NICE.getValue());
-        else weightToPrioMap.put(2d, BEST.getValue());
+
+        if (sum <= -6) priority = AVOID_AT_ALL_COSTS.getValue();
+        else if (sum <= -3) priority = REACH_DEST.getValue();
+        else if (sum <= -1) priority = AVOID_IF_POSSIBLE.getValue();
+        else if (sum ==0) priority = UNCHANGED.getValue();
+        else if (sum <= 2) priority = PREFER.getValue();
+        else if (sum <= 5) priority = VERY_NICE.getValue();
+        else priority = BEST.getValue();
+
+        return priority;
     }
 
     @Override
