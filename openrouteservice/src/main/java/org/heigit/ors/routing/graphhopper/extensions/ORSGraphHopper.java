@@ -30,7 +30,9 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
@@ -716,12 +718,13 @@ public class ORSGraphHopper extends GraphHopper {
 		return coreFactoryDecorator.isEnabled();
 	}
 
-	public void initCoreAlgoFactoryDecorator() {
+	public void initCoreAlgoFactoryDecorator(TurnCostExtension turnCostExtension) {
 		if (!coreFactoryDecorator.hasCHProfiles()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
+					weighting = new TurnWeighting(weighting, turnCostExtension);
 					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
@@ -761,12 +764,13 @@ public class ORSGraphHopper extends GraphHopper {
 		return coreLMFactoryDecorator.isEnabled();
 	}
 
-	public void initCoreLMAlgoFactoryDecorator() {
+	public void initCoreLMAlgoFactoryDecorator(TurnCostExtension turnCostExtension) {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
+					weighting = new TurnWeighting(weighting, turnCostExtension);
 					coreLMFactoryDecorator.addWeighting(weighting);
 				}
 			}

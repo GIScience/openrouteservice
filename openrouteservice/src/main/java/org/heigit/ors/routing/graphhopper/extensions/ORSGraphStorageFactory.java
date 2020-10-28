@@ -38,7 +38,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
-		GraphExtension geTurnCosts = null;
+		TurnCostExtension geTurnCosts = null;
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
 
 		if (encodingManager.needsTurnCostsSupport()) {
@@ -83,9 +83,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 		if(gh instanceof ORSGraphHopper) {
 			if (((ORSGraphHopper) gh).isCoreEnabled())
-				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
+				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator(geTurnCosts);
 			if (((ORSGraphHopper) gh).isCoreLMEnabled())
-				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
+				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator(geTurnCosts);
 		}
 
 		if (gh.getCHFactoryDecorator().isEnabled())
