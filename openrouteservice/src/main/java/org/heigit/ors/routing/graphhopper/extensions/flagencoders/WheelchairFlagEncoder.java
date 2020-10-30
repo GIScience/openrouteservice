@@ -360,7 +360,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 return EncodingManager.Access.WAY;
             }
             // no highway, no ferry, no railway? --> do not accept way
-            // if (debugSkippedWays) LOGGER.warn("way skipped (no highway, no ferry, no railway): " + way.getId() + " Tags: " + way.getTags().toString());
+            if (debugSkippedWays) LOGGER.warn("way skipped (no highway, no ferry, no railway): " + way.getId() + " Tags: " + way.getTags().toString());
             return EncodingManager.Access.CAN_SKIP;
         }
         // highway != null

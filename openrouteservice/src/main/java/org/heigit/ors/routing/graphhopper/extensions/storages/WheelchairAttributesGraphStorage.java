@@ -159,12 +159,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 
 		orsEdges.setBytes(edgePointer + efWheelchairAttributes, buffer, BYTE_COUNT);
-		/* Dieser Teil wird momentan nur zu Debuging-Zwecken verwendet
-		WheelchairAttributes test_attrs = new WheelchairAttributes();
- 		test_attrs.reset();
-		orsEdges.getBytes(edgePointer + efWheelchairAttributes, buffer, BYTE_COUNT);
-		decodeAttributes(attrs, buffer);
-		*/
+
 	}
 
 	private void encodeAttributes(WheelchairAttributes attrs, byte[] buffer) {
