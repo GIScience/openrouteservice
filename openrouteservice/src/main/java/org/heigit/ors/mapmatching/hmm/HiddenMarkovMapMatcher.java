@@ -25,14 +25,15 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
 import org.heigit.ors.mapmatching.LocationIndexMatch;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.MatchResult;
 
 /*
  * This class presents an implementation of a map matching algorithm based on a paper "Hidden Markov Map Matching Through Noise and Sparseness" written by Paul Newson and John Krumm  
@@ -192,6 +193,11 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			result[0] = seg2;
 		}
 		return result;
+	}
+
+	@Override
+	public MatchResult match(Coordinate[] coordinateList) {
+		return null;
 	}
 
 	private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
@@ -373,5 +379,13 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			return res;
 		}
 		return null;
+	}
+
+	public void clear() {
+		this.distances = new double[2];
+		this.longitudes = new double[2];
+		this.latitudes = new double[2];
+		this.matchPoints = new ArrayList<>(2);
+		this.roadSegments = new ArrayList<>();
 	}
 }
