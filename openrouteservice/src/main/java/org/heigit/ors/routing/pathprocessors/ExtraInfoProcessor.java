@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.pathprocessors;
 
@@ -29,6 +29,7 @@ import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.parameters.ProfileParameters;
@@ -62,29 +63,29 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 	private RouteExtraInfo wayTypeInfo;
 	private RouteExtraInfoBuilder wayTypeInfoBuilder;
-	
+
 	private RouteExtraInfo steepnessInfo;
 	private SteepnessExtraInfoBuilder steepnessInfoBuilder;
-	
+
 	private RouteExtraInfo waySuitabilityInfo;
 	private RouteExtraInfoBuilder waySuitabilityInfoBuilder;
-	
+
 	private RouteExtraInfo wayCategoryInfo;
 	private RouteExtraInfoBuilder wayCategoryInfoBuilder;
 
 	private RouteExtraInfo greenInfo;
 	private RouteExtraInfoBuilder greenInfoBuilder;
-	
+
 	private RouteExtraInfo noiseInfo;
 	private RouteExtraInfoBuilder noiseInfoBuilder;
-	
+
 	private RouteExtraInfo avgSpeedInfo;
 	private RouteExtraInfoBuilder avgSpeedInfoBuilder;
-	
+
 	private RouteExtraInfo tollwaysInfo;
 	private RouteExtraInfoBuilder tollwaysInfoBuilder;
 	private TollwayExtractor tollwayExtractor;
-	
+
 	private RouteExtraInfo trailDifficultyInfo;
 	private RouteExtraInfoBuilder trailDifficultyInfoBuilder;
 
@@ -108,13 +109,15 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private String skippedExtraInfo = "";
 
 	private CountryBordersReader countryBordersReader;
+	private HereTrafficReader hereTrafficReader;
 
-	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
+	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader, HereTrafficReader htReader) {
 		this(opts, graphHopperStorage, enc);
 		this.countryBordersReader = cbReader;
+		this.hereTrafficReader = htReader;
 	}
 
-	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
+	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
 		encoder = enc;
 		encoderWithPriority = encoder.supports(PriorityWeighting.class);
 		List<String> skippedExtras = new ArrayList<>();
@@ -404,16 +407,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 			if (surfaceInfoBuilder != null)
 				surfaceInfoBuilder.addSegment(wsd.getSurfaceType(), wsd.getSurfaceType(), geom, dist);
-			
+
 			if (wayTypeInfo != null)
 				wayTypeInfoBuilder.addSegment(wsd.getWayType(), wsd.getWayType(), geom, dist);
 		}
-		
+
 		if (wayCategoryInfoBuilder != null) {
 			int value = extWayCategory.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			wayCategoryInfoBuilder.addSegment(value, value, geom, dist);
 		}
-		
+
 		if (trailDifficultyInfoBuilder != null) {
 			int value = 0;
 			if (RoutingProfileType.isCycling(profileType)) {
@@ -428,15 +431,15 @@ public class ExtraInfoProcessor implements PathProcessor {
 			}
 			else if (RoutingProfileType.isWalking(profileType))
 				value = extTrailDifficulty.getHikingScale(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
-			
+
 			trailDifficultyInfoBuilder.addSegment(value, value, geom, dist);
 		}
-		
+
 		if (avgSpeedInfoBuilder != null) {
 		    double speed = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags());
 		    avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed* avgSpeedInfo.getFactor()), geom, dist);
 		}
-		
+
 		if (tollwaysInfoBuilder != null) {
 			int value = tollwayExtractor.getValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
 		    tollwaysInfoBuilder.addSegment(value, value, geom, dist);
@@ -466,13 +469,13 @@ public class ExtraInfoProcessor implements PathProcessor {
 			int clientVal = minClientVal + value * (maxClientVal - minClientVal + 1) / 64;
 			greenInfoBuilder.addSegment(value, clientVal, geom, dist);
 		}
-		
+
 		if (noiseInfoBuilder != null) {
 			int noiseLevel = extNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			// convert the noise level (from 0 to 3) to the values (from 7 to 10) for the client
 			if (noiseLevel > 3)
 				noiseLevel = 3;
-			
+
 			int clientNoiseLevel = noiseLevel + 7;
 			noiseInfoBuilder.addSegment(noiseLevel, clientNoiseLevel, geom, dist);
 		}
@@ -492,10 +495,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 	@Override
 	public PointList processPoints(PointList points) {
         PointList result = points;
-		
+
 		if (points.is3D())
 			result = ElevationSmoother.smooth(points);
-		
+
 		if (steepnessInfoBuilder != null) {
 			// compute steepness information only after elevation data is smoothed.
 			steepnessInfoBuilder.addPoints(result);
