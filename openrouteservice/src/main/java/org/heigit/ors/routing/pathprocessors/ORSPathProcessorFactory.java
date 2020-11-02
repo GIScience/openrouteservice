@@ -8,18 +8,23 @@ import com.graphhopper.util.PMap;
 
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
 
 public class ORSPathProcessorFactory implements PathProcessorFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSPathProcessorFactory.class.getName());
     private CountryBordersReader countryBordersReader;
+    private HereTrafficReader hereTrafficReader;
 
     @Override
     public PathProcessor createPathProcessor(PMap opts, FlagEncoder enc, GraphHopperStorage gs) {
         try {
-            if (countryBordersReader != null) {
-                return new ExtraInfoProcessor(opts, gs, enc, countryBordersReader);
+            ExtraInfoProcessor extraInfoProcessor;
+            if (countryBordersReader != null || hereTrafficReader != null) {
+                extraInfoProcessor = new ExtraInfoProcessor(opts, gs, enc, countryBordersReader, hereTrafficReader);
+            } else {
+                extraInfoProcessor = new ExtraInfoProcessor(opts, gs, enc);
             }
-            return new ExtraInfoProcessor(opts, gs, enc);
+            return extraInfoProcessor;
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -29,4 +34,10 @@ public class ORSPathProcessorFactory implements PathProcessorFactory {
     public void setCountryBordersReader(CountryBordersReader cbr) {
         this.countryBordersReader = cbr;
     }
+
+    public void setHereTrafficReader(HereTrafficReader hereTrafficReader) {
+        this.hereTrafficReader = hereTrafficReader;
+    }
+
+
 }

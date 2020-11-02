@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -28,6 +28,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 
@@ -47,6 +48,7 @@ public class ORSOSMReader extends OSMReader {
 
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
+	private boolean processWholeGeom = false;
 	private boolean detachSidewalksFromRoad = false;
 
 	private boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
@@ -70,6 +72,11 @@ public class ORSOSMReader extends OSMReader {
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
 				this.processGeom = true;
+			}
+
+			if (b instanceof HereTrafficGraphStorageBuilder) {
+				this.processGeom = true;
+				this.processWholeGeom = true;
 			}
 
 			if ( b instanceof WheelchairGraphStorageBuilder) {
@@ -178,6 +185,7 @@ public class ORSOSMReader extends OSMReader {
 
 		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
+		ArrayList<Coordinate> allCoordinates = new ArrayList<>();
 
 		if(processNodeTags) {
 			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
@@ -225,11 +233,15 @@ public class ORSOSMReader extends OSMReader {
 				for (int i=0; i<osmNodeIds.size(); i++) {
 					int id = getNodeMap().get(osmNodeIds.get(i));
 					try {
-						double lat = getLatitudeOfNode(id, true);
-						double lon = getLongitudeOfNode(id, true);
+						double lat = getLatitudeOfNode(id, false);
+						double lon = getLongitudeOfNode(id, false);
+						boolean condition = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
+						if (processWholeGeom && condition) {
+							allCoordinates.add(new Coordinate(getTmpLongitude(id), getTmpLatitude(id)));
+						}
 						// Add the point to the line
 						// Check that we have a tower node
-						if (!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon))) {
+						if (condition) {
 							coords.add(new Coordinate(lon, lat));
 						}
 					} catch (Exception e) {
@@ -242,7 +254,7 @@ public class ORSOSMReader extends OSMReader {
 
 		if(tags.size() > 0 || coords.size() > 1) {
 			// Use an overloaded method that allows the passing of parameters from this reader
-			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
+			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags, allCoordinates.toArray(new Coordinate[allCoordinates.size()]));
 		} else {
 			procCntx.processWay(way);
 		}
@@ -255,8 +267,8 @@ public class ORSOSMReader extends OSMReader {
 	 * Find the latitude of the node with the given ID. It checks to see what type of node it is and then finds the
 	 * latitude from the correct storage location.
 	 *
-	 * @param id		Internal ID of the OSM node
-	 * @return
+	 * @param id		Internal ID of the OSM node.
+	 * @return			Return the latitude as double.
 	 */
 	private double getLatitudeOfNode(int id, boolean onlyTower) {
 		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
@@ -285,7 +297,7 @@ public class ORSOSMReader extends OSMReader {
 	 * longitude from the correct storage location.
 	 *
 	 * @param id		Internal ID of the OSM node
-	 * @return
+	 * @return			Return the longitude as double
 	 */
 	private double getLongitudeOfNode(int id, boolean onlyTower) {
 		if (id == EMPTY_NODE)
