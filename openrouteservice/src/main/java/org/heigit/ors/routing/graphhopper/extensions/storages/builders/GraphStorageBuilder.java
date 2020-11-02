@@ -19,12 +19,13 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.plugins.Plugin;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public interface GraphStorageBuilder extends Plugin {
-	GraphExtension init(GraphHopper graphhopper) throws Exception;
+	GraphExtension init(GraphHopper graphhopper);
 
 	void processWay(ReaderWay way);
 
@@ -39,4 +40,6 @@ public interface GraphStorageBuilder extends Plugin {
 	String getName();
 	
 	void finish();
+
+	void postProcess(ORSGraphHopper graphHopper);
 }
