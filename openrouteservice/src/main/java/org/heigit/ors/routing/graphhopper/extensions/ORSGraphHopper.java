@@ -320,6 +320,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 					if (chAlgoFactory instanceof PrepareCore)
 						weighting = ((PrepareCore) chAlgoFactory).getWeighting();
+					else if (chAlgoFactory instanceof PrepareContractionHierarchies)
+						weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
 					else
 						throw new IllegalStateException(
 								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
