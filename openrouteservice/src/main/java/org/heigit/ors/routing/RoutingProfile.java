@@ -17,8 +17,10 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -30,19 +32,23 @@ import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.isochrones.*;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneMapBuilderFactory;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.mapmatching.MapMatcher;
-import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import org.heigit.ors.matrix.*;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixSearchContext;
+import org.heigit.ors.matrix.MatrixSearchContextBuilder;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -50,6 +56,7 @@ import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
@@ -122,7 +129,7 @@ public class RoutingProfile {
     private Integer[] mRoutePrefs;
     private Integer mUseCounter;
     private boolean mUpdateRun;
-    private MapMatcher mMapMatcher;
+    private static HereTrafficGraphStorageBuilder hereTrafficGraphStorageBuilder;
 
     private RouteProfileConfiguration config;
     private String astarApproximation;
@@ -143,6 +150,18 @@ public class RoutingProfile {
             if (optsExecute.hasPath("methods.astar.epsilon"))
                 astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
         }
+        mGraphHopper.getGraphHopperStorage().getCHProfiles();
+        mGraphHopper.matchTraffic();
+//        // TODO RAD
+//        GraphHopperStorage graphHopperStorage = mGraphHopper.getGraphHopperStorage();
+//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
+//            if (ge instanceof TrafficGraphStorage) {
+//                int edgeValue = ((TrafficGraphStorage) ge).getEdgeValue(27215, TrafficGraphStorage.Property.FROM_TRAFFIC);
+//                // 808170452
+//                System.out.println("");
+//            }
+//        }
+//        // TODO RAD
     }
 
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
@@ -189,11 +208,17 @@ public class RoutingProfile {
         gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
-
+        // After load make match making and to the same as green stuff etc.
         // store CountryBordersReader for later use
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
             if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
                 pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
+            }
+            if (builder.getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)) {
+                hereTrafficGraphStorageBuilder = (HereTrafficGraphStorageBuilder) builder;
+                gh.setTrafficData(hereTrafficGraphStorageBuilder);
+                pathProcessorFactory.setHereTrafficReader(hereTrafficGraphStorageBuilder.getHtReader());
+
             }
         }
 
@@ -744,40 +769,6 @@ public class RoutingProfile {
         searchCntx.setProperties(props);
 
         return searchCntx;
-    }
-
-    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
-            throws Exception {
-        RouteSegmentInfo[] rsi = null;
-
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            throw ex;
-        }
-
-        return rsi;
-    }
-
-    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations,
-                                                          double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
-        if (mMapMatcher == null) {
-            mMapMatcher = new HiddenMarkovMapMatcher();
-            mMapMatcher.setGraphHopper(mGraphHopper);
-        }
-
-        mMapMatcher.setSearchRadius(searchRadius);
-        mMapMatcher.setEdgeFilter(edgeFilter);
-
-        return mMapMatcher.match(locations, bothDirections);
     }
 
     public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
