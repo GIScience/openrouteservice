@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface GraphStorageBuilder extends Plugin {
-	GraphExtension init(GraphHopper graphhopper);
+	GraphExtension init(GraphHopper graphhopper) throws Exception;
 
 	void processWay(ReaderWay way);
 
