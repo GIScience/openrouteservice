@@ -47,10 +47,12 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.isochrones.IsochroneWeightingFactory;
+import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
+import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
@@ -59,13 +61,25 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +110,12 @@ public class ORSGraphHopper extends GraphHopper {
 
 	private double maximumSpeedLowerBound;
 
+	private HereTrafficGraphStorageBuilder trafficData;
+
+	private MapMatcher mMapMatcher;
+
+	private DistanceCalc distCalc;
+
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		forDesktop();
@@ -120,6 +140,7 @@ public class ORSGraphHopper extends GraphHopper {
 		fastIsochroneFactory.init(args);
 		minNetworkSize = args.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = args.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+		distCalc = new DistanceCalcEarth();
 		return ret;
 	}
 
@@ -428,7 +449,7 @@ public class ORSGraphHopper extends GraphHopper {
 			req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
 		req.setVehicle(vehicle);
-		req.setAlgorithm("dijkstrabi");
+		req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
 		req.setWeighting("fastest");
 		// TODO add limit of maximum visited nodes
 
@@ -592,16 +613,36 @@ public class ORSGraphHopper extends GraphHopper {
     }
 
 
-    public HashMap<Integer, Long> getTmcGraphEdges() {
-        return tmcEdges;
+    public Map<Integer, String> getTrafficGraphEdges() {
+        return trafficData.getTrafficEdges();
     }
 
-    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
-        return osmId2EdgeIds;
+    public void matchTraffic() {
+        // Do the graph extension post processing
+        // Reserved for processes that need a fully initiated graph e.g. for match making
+        if (getGraphHopperStorage() != null && processContext.getStorageBuilders() != null) {
+            for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
+                graphStorageBuilder.postProcess(this);
+            }
+        }
+//        // TODO RAD
+//        GraphHopperStorage graphHopperStorage = this.getGraphHopperStorage();
+//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
+//            if (ge instanceof TrafficGraphStorage) {
+//                int edgeValue = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16077, 12942, 12941);
+//                // 865268782
+//                int edgeValue2 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16898, 9924, 9923);
+//                // 809152926
+//                int edgeValue3 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(10281, 12941, 7296);
+//                // 1078771638
+//                System.out.println("");
+//            }
+//        }
+//        // TODO RAD
     }
 
 	/**
-	 * Does the preparation and creates the location index
+	 * Does the preparation and creates the location index as well as the traffic graph storage
 	 */
 	@Override
 	public void postProcessing() {
@@ -768,6 +809,10 @@ public class ORSGraphHopper extends GraphHopper {
 		return false;
 	}
 
+	public HereTrafficGraphStorageBuilder getTrafficData() {
+		return trafficData;
+	}
+
 	public final boolean isCoreAvailable(String weighting) {
 		CoreAlgoFactoryDecorator coreFactoryDecorator = getCoreFactoryDecorator();
 		if (coreFactoryDecorator.isEnabled() && coreFactoryDecorator.hasCHProfiles()) {
@@ -824,5 +869,126 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public Eccentricity getEccentricity(){
 		return eccentricity;
+	}
+
+	public void setTrafficData(HereTrafficGraphStorageBuilder trafficData) {
+		this.trafficData = trafficData;
+	}
+
+	public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
+														 TrafficLink trafficLink,
+														 int searchRadiusStart,
+														 int searchRadiusEnd,
+														 int searchRadiusStepping,
+														 EdgeFilter edgeFilter,
+														 boolean bothDirections) {
+		if (mMapMatcher == null || mMapMatcher.getClass() != HiddenMarkovMapMatcher.class) {
+			mMapMatcher = new HiddenMarkovMapMatcher();
+			if (this.getGraphHopperStorage() != null) {
+				mMapMatcher.setGraphHopper(this);
+			}
+		} else {
+			mMapMatcher.clear();
+		}
+		RouteSegmentInfo[] routeSegmentInfos = new RouteSegmentInfo[]{};
+		if (((TrafficEdgeFilter) edgeFilter).hasOriginalEdgeIds()) {
+			routeSegmentInfos = matchInternalSegments(geometry, trafficLink, searchRadiusEnd, edgeFilter, bothDirections);
+		} else {
+			outerLoop:
+			for (int i = searchRadiusStart; i <= searchRadiusEnd; i += searchRadiusStepping) {
+				routeSegmentInfos = matchInternalSegments(geometry, trafficLink, i, edgeFilter, bothDirections);
+				for (RouteSegmentInfo routeSegmentInfo : routeSegmentInfos) {
+					if (routeSegmentInfo != null) {
+						break outerLoop;
+					}
+				}
+			}
+		}
+		return routeSegmentInfos;
+	}
+
+	private RouteSegmentInfo[] matchInternalSegments(Geometry geometry, TrafficLink trafficLink,
+													 double searchRadius,
+													 EdgeFilter edgeFilter,
+													 boolean bothDirections) {
+
+		if (edgeFilter == null || !edgeFilter.getClass().equals(TrafficEdgeFilter.class)) {
+			return new RouteSegmentInfo[]{};
+		}
+		org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
+		int originalFunctionalClass = ((TrafficEdgeFilter) edgeFilter).getHereFunctionalClass();
+		mMapMatcher.setSearchRadius(searchRadius);
+		mMapMatcher.setEdgeFilter(edgeFilter);
+		RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
+		match = validateRouteSegment(trafficLink, match);
+		if (match.length <= 0) {
+			// Try matching in the next lower functional class.
+			((TrafficEdgeFilter) edgeFilter).lowerFunctionalClass();
+			mMapMatcher.setEdgeFilter(edgeFilter);
+			match = mMapMatcher.match(locations, bothDirections);
+			match = validateRouteSegment(trafficLink, match);
+		}
+		if (match.length <= 0) {
+			// Test a higher functional class based from the original class
+			((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
+			((TrafficEdgeFilter) edgeFilter).higherFunctionalClass();
+			match = mMapMatcher.match(locations, bothDirections);
+			match = validateRouteSegment(trafficLink, match);
+		}
+		if (match.length <= 0) {
+			// But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+			((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(TrafficRelevantWayType.UNCLASSIFIED);
+			mMapMatcher.setEdgeFilter(edgeFilter);
+			match = mMapMatcher.match(locations, bothDirections);
+			match = validateRouteSegment(trafficLink, match);
+		}
+		if (trafficLink.getFunctionalClass() == TrafficRelevantWayType.CLASS4LINK || originalFunctionalClass == TrafficRelevantWayType.CLASS4) {
+			// If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+			((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(TrafficRelevantWayType.CLASS5);
+			mMapMatcher.setEdgeFilter(edgeFilter);
+			match = mMapMatcher.match(locations, bothDirections);
+			match = validateRouteSegment(trafficLink, match);
+		}
+		return match;
+	}
+
+
+	private RouteSegmentInfo[] validateRouteSegment(TrafficLink trafficLink, RouteSegmentInfo[] routeSegmentInfo) {
+		if (routeSegmentInfo == null || routeSegmentInfo.length == 0)
+			// Cases that shouldn't happen while matching Here data correctly. Return empty array to potentially restart the matching.
+			return new RouteSegmentInfo[]{};
+		int nullCounter = 0;
+		for (int i = 0; i < routeSegmentInfo.length; i++) {
+			if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdges() == null) {
+				nullCounter += 1;
+				break;
+			}
+			RouteSegmentInfo routeSegment = routeSegmentInfo[i];
+			if (routeSegment.getDistance() > (trafficLink.getLength(distCalc) * 1.8)) {
+				// Worst case scenario!
+				routeSegmentInfo[i] = null;
+				nullCounter += 1;
+			}
+		}
+
+		if (nullCounter == routeSegmentInfo.length)
+			return new RouteSegmentInfo[]{};
+		else
+			return routeSegmentInfo;
+	}
+
+	public org.locationtech.jts.geom.Coordinate[] convertToNewLocationtechCoordinates(com.vividsolutions.jts.geom.Coordinate[] oldCoodrinates) {
+		org.locationtech.jts.geom.Coordinate[] newCoordinates = new org.locationtech.jts.geom.Coordinate[oldCoodrinates.length];
+
+
+		for (int i = 0; i < oldCoodrinates.length; i++) {
+			newCoordinates[i] = convertOldToNewLocationtechCoordinate(oldCoodrinates[i]);
+		}
+		org.locationtech.jts.geom.CoordinateSequenceFactory coordinateSequenceFactory = new PackedCoordinateSequenceFactory();
+		return newCoordinates;
+	}
+
+	private org.locationtech.jts.geom.Coordinate convertOldToNewLocationtechCoordinate(com.vividsolutions.jts.geom.Coordinate oldCoordinate) {
+		return new org.locationtech.jts.geom.Coordinate(oldCoordinate.x, oldCoordinate.y);
 	}
 }

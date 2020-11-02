@@ -96,7 +96,7 @@ public class GraphEdgeMapFinder {
 			return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge(), snappedPosition);
 		}
 	}
-	
+
 	private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder, GraphHopperStorage graph) {
 		Weighting weighting = parameters.getRangeType() == TravelRangeType.TIME ?
 				parameters.isTimeDependent() ? new TimeDependentFastestWeighting(encoder, new PMap()) : new FastestWeighting(encoder)
