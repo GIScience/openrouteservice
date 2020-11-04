@@ -682,6 +682,7 @@ public class RoutingProfile {
         alg.init(req, gh, graph, flagEncoder, weighting);
 
         res = alg.compute(0);
+        System.out.println("Returned to RoutingProfile");
 
         return res;
     }
