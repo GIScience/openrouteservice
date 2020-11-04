@@ -632,7 +632,7 @@ public class RoutingProfileManager {
 
         if (rp == null)
             throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-
+        System.out.println("Returned to RPManager");
         return rp.computeCentrality(req);
     }
 

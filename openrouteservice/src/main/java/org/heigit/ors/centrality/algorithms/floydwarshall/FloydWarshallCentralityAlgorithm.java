@@ -5,19 +5,24 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 
 import javax.validation.constraints.Max;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 //TODO: ist das ggf. einfach zu klompiziert? kann man da auch direkt 'ne Klasse draus machen, oder braucht es diese
 //      Klassenhierarchie für irgendwas?
 public class FloydWarshallCentralityAlgorithm implements CentralityAlgorithm {
+    protected CentralityRequest request;
     protected GraphHopper graphHopper;
     protected Graph graph;
     protected FlagEncoder encoder;
@@ -25,6 +30,7 @@ public class FloydWarshallCentralityAlgorithm implements CentralityAlgorithm {
 
     public void init(CentralityRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
     {
+        this.request = req;
         this.graphHopper = gh;
         this.graph = graph;
         this.encoder = encoder;
@@ -33,9 +39,17 @@ public class FloydWarshallCentralityAlgorithm implements CentralityAlgorithm {
 
     public CentralityResult compute(int metrics) throws Exception {
         System.out.println("Entering compute");
-        int nodeNumber = graph.getNodes();
+        //int nodeNumber = graph.getNodes();
+        LocationIndex index = graphHopper.getLocationIndex();
+        final ArrayList<Integer> nodesInBBox = new ArrayList();
+        index.query(this.request.getBoundingBox(), new LocationIndex.Visitor() {
+            @Override
+            public void onNode(int nodeId) {
+                nodesInBBox.add(nodeId);
+            }
+        });
         System.out.println("Number of Nodes: ");
-        System.out.println(nodeNumber);
+        System.out.println(nodesInBBox.size());
 //        float[][] distances = new float[nodeNumber][nodeNumber];
 //
 //        for (int u = 0; u < nodeNumber; u++ ) {
@@ -68,11 +82,14 @@ public class FloydWarshallCentralityAlgorithm implements CentralityAlgorithm {
 
         NodeAccess nodeAccess = graph.getNodeAccess();
         HashMap<Coordinate, Float> centralityScores = new HashMap<Coordinate, Float>();
-        for (int v = 0; v < nodeNumber; v++ ) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
+        for (int v : nodesInBBox) {
+           Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
             // centralityScores.put(coord, (float) pathCount[v]);
             centralityScores.put(coord, 0.0f);
         }
+
+        System.out.println("Generated centralityScores.");
+        System.out.println(centralityScores.size());
 
         return new CentralityResult(centralityScores);
     }

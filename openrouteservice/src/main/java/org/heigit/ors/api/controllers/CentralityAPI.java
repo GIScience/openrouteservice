@@ -100,6 +100,8 @@ public class CentralityAPI {
 
         //TODO: do I need a handler? or can I make this work easier?
         CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
+        System.out.println(result);
+        System.out.println("Returned to API.");
 
         return new JSONCentralityResponse(result, request);
     }
@@ -107,7 +109,7 @@ public class CentralityAPI {
     //@PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
     //@ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as GeoJSON", value = "Directions Service GeoJSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
     //@ApiResponses(value = {
-    //        @ApiResponse(code = 200,
+    //        @ApiResponse(code = 2002,
     //                message = "Standard response for successfully processed requests. Returns GeoJSON.",
     //                response = GeoJSONCentralityResponse.class)
     //})
