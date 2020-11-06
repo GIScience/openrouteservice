@@ -383,7 +383,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param baseNode    The baseNode of the edge to define the direction.
      * @param adjNode    The adjNode of the edge to define the direction.
      * @param unixMilliSeconds Time in unix milliseconds.
-     * @return Returns the speed value in kph.
+     * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
     public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds) {
         Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+1"));
@@ -393,7 +393,9 @@ public class TrafficGraphStorage implements GraphExtension {
         int minute = calendarDate.get(Calendar.MINUTE);
         int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
         int trafficSpeed = getTrafficSpeed(patternId, hour, minute);
-        return trafficSpeed;
+        if (trafficSpeed > 0)
+            return trafficSpeed;
+        return -1;
     }
 
     private void ensureEdgesPropertyIndex(int edgeId) {
