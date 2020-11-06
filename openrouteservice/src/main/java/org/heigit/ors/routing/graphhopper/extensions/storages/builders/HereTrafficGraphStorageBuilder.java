@@ -604,7 +604,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     originalBaseNodeId = originalEdgeIter.getAdjNode();
                     originalAdjNodeId = originalEdgeIter.getBaseNode();
                 } else {
-                    return;
+                    continue;
                 }
                 final int finalOriginalEdgeId = originalEdgeId;
                 final int finalOriginalBaseNodeId = originalBaseNodeId;
