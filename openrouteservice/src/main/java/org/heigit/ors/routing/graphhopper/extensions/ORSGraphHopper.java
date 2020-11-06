@@ -612,11 +612,6 @@ public class ORSGraphHopper extends GraphHopper {
         return new GeometryFactory().createLineString(coords);
     }
 
-
-    public Map<Integer, String> getTrafficGraphEdges() {
-        return trafficData.getTrafficEdges();
-    }
-
     public void matchTraffic() {
         // Do the graph extension post processing
         // Reserved for processes that need a fully initiated graph e.g. for match making
