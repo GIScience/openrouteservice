@@ -213,28 +213,44 @@ public class TrafficEnums {
     }
 
     public enum WeekDay {
-        MONDAY("M", 0),
-        TUESDAY("T", 2),
-        WEDNESDAY("W", 4),
-        THURSDAY("R", 6),
-        FRIDAY("F", 8),
-        SATURDAY("S", 10),
-        SUNDAY("U", 12);
+        MONDAY("M", 0, 2),
+        TUESDAY("T", 2, 3),
+        WEDNESDAY("W", 4, 4),
+        THURSDAY("R", 6, 5),
+        FRIDAY("F", 8, 6),
+        SATURDAY("S", 10, 7),
+        SUNDAY("U", 12, 1);
 
         private final String value;
+        private final int byteLocation;
         private final int canonical;
 
-        WeekDay(String weekday, int canonical) {
+        WeekDay(String weekday, int byteLocation, int canonical) {
             this.value = weekday;
+            this.byteLocation = byteLocation;
             this.canonical = canonical;
+        }
+
+        /**
+         * Get the correct Weekday by using 1 (Monday) -7 (Sunday)
+         *
+         * @param weekDay 1 (Monday) -7 (Sunday)
+         * @return Correct Weekday enum
+         */
+        public static WeekDay valueOfCanonical(int weekDay) {
+            for (WeekDay enumItem : WeekDay.values()) {
+                if (enumItem.canonical == weekDay)
+                    return enumItem;
+            }
+            return null;
         }
 
         public String getValue() {
             return value;
         }
 
-        public int getCanonical(){
-            return canonical;
+        public int getByteLocation() {
+            return byteLocation;
         }
     }
 }
