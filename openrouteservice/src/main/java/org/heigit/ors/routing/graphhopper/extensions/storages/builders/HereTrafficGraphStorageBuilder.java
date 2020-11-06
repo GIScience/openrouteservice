@@ -37,7 +37,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
 import java.io.File;
@@ -61,7 +60,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
