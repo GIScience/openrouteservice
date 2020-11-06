@@ -20,6 +20,9 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 /**
  * Graph storage class for the Border Restriction routing
  */
@@ -174,13 +177,13 @@ public class TrafficGraphStorage implements GraphExtension {
         // TODO RAD
         if (baseNode < adjNode) {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
-            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getCanonical(), (short) patternId);
+            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
             test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
             test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         } else {
             int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityValue, 1);
-            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getCanonical(), (short) patternId);
+            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
             test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
             test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         }
@@ -194,7 +197,7 @@ public class TrafficGraphStorage implements GraphExtension {
         int test125 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.FRIDAY);
         int test126 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SATURDAY);
         int test127 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SUNDAY);
-
+        int edgeValue = getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
 
         int test121_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
         int test122_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.TUESDAY);
@@ -301,9 +304,9 @@ public class TrafficGraphStorage implements GraphExtension {
     public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, TrafficEnums.WeekDay weekday) {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         if (baseNode < adjNode)
-            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getCanonical()));
+            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation()));
         else
-            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getCanonical()));
+            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation()));
     }
 
     /**
@@ -350,7 +353,7 @@ public class TrafficGraphStorage implements GraphExtension {
      *
      * @param patternId Internal ID of the graph edge.
      * @param hour      Hour to get the patterns for.
-     * @param minute   Minute to get the patterns for.
+     * @param minute    Minute to get the patterns for.
      **/
     public int getTrafficSpeed(int patternId, int hour, int minute) {
         byte[] values = new byte[1];
@@ -364,15 +367,33 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
      * <p>
-     * The method takes an edgeId, the base Node to define its direction, and time constrains (weekday, hour, minute),
-     * to find the appropriate
+     * The method takes an edgeId, the base and adjacent Node, to define its direction and unix time,
+     * to find the appropriate traffic information.
+     * Only the weekday, hour, minute are taken into consideration since the traffic information are generalized to that resolution at the moment.
+     * <p>
+     * ## Time decoding ##
+     * The unix time is decoded using GMT+1 for german local time.
+     * For the time being we will use the german UTC until more traffic data comes in.
+     * <p>
+     * <p>
+     * ## TODO's ##
+     * - enhance internal time encoding and harmonize it in the whole ORS backend when more traffic data comes in.
      *
-     * @param edgeId   Internal ID of the edge to get values for.
-     * @param baseNode The baseNode of the VirtualEdgeIteratorState to define the direction.
-     * @param unixTimeInMillies  Time in unix millies.
+     * @param edgeId      Internal ID of the edge to get values for.
+     * @param baseNode    The baseNode of the edge to define the direction.
+     * @param adjNode    The adjNode of the edge to define the direction.
+     * @param unixMilliSeconds Time in unix milliseconds.
+     * @return Returns the speed value in kph.
      */
-    public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixTimeInMillies) {
-        return 0;
+    public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds) {
+        Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+1"));
+        calendarDate.setTimeInMillis(unixMilliSeconds);
+        int calendarWeekDay = calendarDate.get(Calendar.DAY_OF_WEEK);
+        int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
+        int minute = calendarDate.get(Calendar.MINUTE);
+        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
+        int trafficSpeed = getTrafficSpeed(patternId, hour, minute);
+        return trafficSpeed;
     }
 
     private void ensureEdgesPropertyIndex(int edgeId) {
@@ -435,7 +456,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * initializes the extended storage by giving the base graph
      *
      * @param graph Provide the graph object.
-     * @param dir The directory where the graph will be initialized.
+     * @param dir   The directory where the graph will be initialized.
      */
     @Override
     public void init(Graph graph, Directory dir) {
