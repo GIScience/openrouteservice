@@ -1,7 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
-import java.lang.management.MonitorInfo;
-
 public class TrafficEnums {
     public enum PatternResolution {
         MINUTES_15(15);
@@ -18,15 +16,15 @@ public class TrafficEnums {
         BOAT('B'),
         RAIL('R');
 
-        private final char ferry_type;
+        private final char ferryType;
 
         FerryType(char value) {
-            this.ferry_type = value;
+            this.ferryType = value;
         }
 
         public static FerryType forValue(char v) {
             for (FerryType enumItem : FerryType.values()) {
-                if (enumItem.ferry_type == v)
+                if (enumItem.ferryType == v)
                     return enumItem;
             }
             return null;
@@ -34,7 +32,7 @@ public class TrafficEnums {
 
 
         public char getFerryType() {
-            return ferry_type;
+            return ferryType;
         }
     }
 
@@ -42,15 +40,15 @@ public class TrafficEnums {
         YES('Y'),
         NO('N');
 
-        private final char no_yes_enum;
+        private final char noYesEnum;
 
         NoYesEnum(char value) {
-            this.no_yes_enum = value;
+            this.noYesEnum = value;
         }
 
         public static NoYesEnum forValue(char v) {
             for (NoYesEnum enumItem : NoYesEnum.values()) {
-                if (enumItem.no_yes_enum == v)
+                if (enumItem.noYesEnum == v)
                     return enumItem;
             }
             return null;
@@ -58,7 +56,7 @@ public class TrafficEnums {
 
 
         public char getNoYesEnum() {
-            return no_yes_enum;
+            return noYesEnum;
         }
     }
 
@@ -72,15 +70,15 @@ public class TrafficEnums {
         CLASS4(4),
         CLASS5(5);
 
-        private final int functional_class;
+        private final int functionalClass;
 
         FunctionalClass(int value) {
-            this.functional_class = value;
+            this.functionalClass = value;
         }
 
         public static FunctionalClass forValue(int v) {
             for (FunctionalClass enumItem : FunctionalClass.values()) {
-                if (enumItem.functional_class == v)
+                if (enumItem.functionalClass == v)
                     return enumItem;
             }
             return null;
@@ -88,7 +86,7 @@ public class TrafficEnums {
 
 
         public int getFunctionalClass() {
-            return functional_class;
+            return functionalClass;
         }
     }
 
