@@ -99,7 +99,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private HashMap<Integer, HashMap<TrafficGraphStorage.Direction, HashSet<Integer>>> edgeId2TrafficEdgeId; // one edge id corresponds to max two traffic edges. one per direction.
     private HashMap<Integer, HashSet<Long>> traffidEdgeId2OsmId; // one edge id can correspond to multiple edges
     private HashMap<Integer, HashSet<Integer>> traffidEdgeId2OriginalEdgeId; // one edge id can correspond to multiple edges
-    private HashMap<Integer, String> trafficEdges;
     private HashMap<Integer, String> matchedOSMEdges;
 
     private LinkedList<String> allOSMEdgeGeometries = new LinkedList<>();
@@ -112,7 +111,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private OsmIdGraphStorage graphExtensionOsmId;
     private String matchedEdgetotrafficPath;
     private int missedHereCounter = 0;
-    private int missedMatchesCounter = 0;
 
     public HereTrafficGraphStorageBuilder() {
         routeUsage = new HashSet<>(4);
@@ -618,12 +616,4 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             }
         }
     }
-
-    public Map<Integer, String> getTrafficEdges() {
-        if (trafficEdges != null)
-            return trafficEdges;
-        else
-            return new HashMap<>();
-    }
-
 }
