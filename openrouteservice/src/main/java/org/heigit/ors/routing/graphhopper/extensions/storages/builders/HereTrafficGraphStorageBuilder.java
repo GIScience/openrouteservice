@@ -467,40 +467,49 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void postProcess(ORSGraphHopper graphHopper) {
-        // TODO RAD
-        GraphHopperStorage graphHopperStorage = graphHopper.getGraphHopperStorage();
-
-        if (storage.isMatched()) {
-            return;
-        }
-        if (graphHopper.getGraphHopperStorage() != null) {
-            graphExtensionOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
-        }
-        LOGGER.info("Starting MapMatching traffic data");
-        processTrafficPatterns();
-        Collection<Integer> removableLinks = processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
-        htReader.getHereTrafficData().removeLinkIdCollection(removableLinks); // Remove here links without Traffic information to reduce ram usage.
-        saveTrafficData(matchedEdgetotrafficPath);
-        // TODO RAD
-        graphHopperStorage = graphHopper.getGraphHopperStorage();
-
-        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
-            if (ge instanceof TrafficGraphStorage) {
-                int edgeValue = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
-                // 7883
-                int edgeValue2 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.TUESDAY);
-                // 9937
-                int edgeValue3 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.WEDNESDAY);
-                // 6712
-                System.out.println("");
+        if (!storage.isMatched()) {
+            if (graphHopper.getGraphHopperStorage() != null) {
+                graphExtensionOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
             }
+            LOGGER.info("Starting MapMatching traffic data");
+            processTrafficPatterns();
+            Collection<Integer> removableLinks = processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
+            htReader.getHereTrafficData().removeLinkIdCollection(removableLinks); // Remove here links without Traffic information to reduce ram usage.
+
+            LOGGER.info("Storing matches.");
+            saveTrafficData(matchedEdgetotrafficPath);
+            storage.setMatched();
+            storage.flush();
+            LOGGER.info("Flush and lock storage.");
+        } else {
+            LOGGER.info("Traffic data already matched.");
         }
-        storage.setMatched();
-        storage.flush();
-        LOGGER.info("Storing matches for fast matching.");
-        LOGGER.info("HERE segments without traffic data: " + missedHereCounter);
-        LOGGER.info("Unmatched segments: " + missedMatchesCounter);
-        LOGGER.info("Flush and lock storage.");
+        // TODO RAD
+//        GraphHopperStorage graphHopperStorage = graphHopper.getGraphHopperStorage();
+//
+//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
+//            if (ge instanceof TrafficGraphStorage) {
+//                long seconds1 = Long.parseLong("632354626000");
+//                int patterValue1 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
+//                int speedValue1 = ((TrafficGraphStorage) ge).getSpeedValue(14277, 5022, 222, seconds1);
+//                assert patterValue1 == 1309;
+//                assert speedValue1 == 31;
+//
+//                long seconds2 = Long.parseLong("632527426000");
+//                int patterValue2 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(14278, 222, 5180, TrafficEnums.WeekDay.TUESDAY);
+//                int speedValue2 = ((TrafficGraphStorage) ge).getSpeedValue(14278, 222, 5180, seconds2);
+//                assert patterValue2 == 5538;
+//                assert speedValue2 == 27;
+//
+//                long seconds3 = Long.parseLong("632613826000");
+//                int patterValue3 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(40, 8282, 250, TrafficEnums.WeekDay.WEDNESDAY);
+//                int speedValue3 = ((TrafficGraphStorage) ge).getSpeedValue(40, 8282, 250, seconds3);
+//                assert patterValue3 == 29;
+//                assert speedValue3 == 30;
+//
+//                System.out.println("");
+//            }
+//        }
         // TODO RAD
     }
 
