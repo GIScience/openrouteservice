@@ -18,12 +18,17 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.CalendarBasedTest;
+import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
+import com.graphhopper.reader.osm.conditional.ConditionalParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.profiles.*;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeIteratorState;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -32,11 +37,22 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Andrzej Oles
  */
-public class ConditionalAccessTest {
+public class ConditionalAccessTest extends CalendarBasedTest {
     private static final String CONDITIONAL = "no @ (Mar 15-Jun 15)";
-    private final CarFlagEncoder encoder = new CarFlagEncoder();
+    private final CarFlagEncoder encoder = new TestFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(encoder);
     private final GraphHopperStorage graph = new GraphBuilder(encodingManager).create();
+
+    class TestFlagEncoder extends CarFlagEncoder {
+        @Override
+        protected void init() {
+            super.init();
+            ConditionalOSMTagInspector conditionalTagInspector = new ConditionalOSMTagInspector(restrictions, restrictedValues, intendedValues);
+            conditionalTagInspector.addValueParser(new DateRangeParser(getCalendar(2014, Calendar.APRIL, 10)));
+            conditionalTagInspector.addValueParser(ConditionalParser.createDateTimeParser());
+            setConditionalTagInspector(conditionalTagInspector);
+        }
+    }
 
     private ReaderWay createWay() {
         ReaderWay way = new ReaderWay(0);
@@ -51,6 +67,22 @@ public class ConditionalAccessTest {
         EdgeIteratorState edge = graph.edge(0, 1).setFlags(flags);
         encodingManager.applyWayTags(way, edge);
         return edge;
+    }
+
+    @Test
+    public void getDefaultAccessClosed() {
+        ReaderWay way = createWay();
+        way.setTag("access:conditional", CONDITIONAL);
+        BooleanEncodedValue accessEnc = encoder.getAccessEnc();
+        assertFalse(createEdge(way).get(accessEnc));
+    }
+
+    @Test
+    public void getDefaultAccessOpen() {
+        ReaderWay way = createWay();
+        way.setTag("access:conditional", "no @ (Apr 15-Jun 15)");
+        BooleanEncodedValue accessEnc = encoder.getAccessEnc();
+        assertTrue(createEdge(way).get(accessEnc));
     }
 
     @Test

@@ -42,10 +42,7 @@ public class ConditionalParser {
     private final Set<String> restrictedValues;
     private final List<ConditionalValueParser> valueParsers = new ArrayList<>(5);
     private final boolean enabledLogs;
-
-    private String simpleValue;
-    private String unevaluatedRestrictions = "";
-    private Conditions unevaluatedConditions;
+    private final String simpleValue;
 
     public ConditionalParser(Set<String> restrictedValues) {
         this(restrictedValues, false);
@@ -55,12 +52,7 @@ public class ConditionalParser {
         // use map => key & type (date vs. double)
         this.restrictedValues = restrictedValues;
         this.enabledLogs = enabledLogs;
-
-        if (hasRestrictedValues()) {
-            if (restrictedValues.contains("yes"))
-                this.simpleValue = "yes";
-            else this.simpleValue = "no";
-        }
+        this.simpleValue = hasRestrictedValues() && restrictedValues.contains("yes") ? "yes" : "no";
     }
 
     public static ConditionalValueParser createNumberParser(final String assertKey, final Number obj) {
@@ -155,38 +147,112 @@ public class ConditionalParser {
     }
 
     // attempt to parse the value with any of the registered parsers
-    private boolean checkAtomicCondition(Condition condition) throws ParseException {
-        for (ConditionalValueParser valueParser : valueParsers) {
-            ConditionalValueParser.ConditionState c = valueParser.checkCondition(condition);
-            if (c.isValid()) {
-                if (c.isEvaluated())
-                    return c.isCheckPassed();
-                else { // condition could not be evaluated but might evaluate to true during query
-                    unevaluatedConditions.addCondition(c.getCondition());
-                    return true;
+    private ParsedCondition checkAtomicCondition(Condition condition, ParsedCondition parsedCondition) throws ParseException {
+        parsedCondition.reset();
+        try {
+            for (ConditionalValueParser valueParser : valueParsers) {
+                ConditionalValueParser.ConditionState conditionState = valueParser.checkCondition(condition);
+                if (conditionState.isValid()) {
+                    parsedCondition.setValid(true);
+                    if (conditionState.isEvaluated()) {
+                        parsedCondition.setEvaluated(true);
+                        parsedCondition.setCheckPassed(conditionState.isCheckPassed());
+                        break;
+                    } else { // condition could not be evaluated but might evaluate to true during query
+                        parsedCondition.setLazyEvaluated(true);
+                        parsedCondition.getLazyEvaluatedConditions().add(conditionState.getCondition());
+                    }
                 }
             }
         }
-        return false;
+        catch (ParseException e) {
+            throw e;
+        }
+        finally {
+            return parsedCondition;
+        }
+    }
+
+    class ParsedCondition {
+        private boolean valid;
+        private boolean evaluated;
+        private boolean checkPassed;
+        private boolean lazyEvaluated;
+        private ArrayList<Condition> lazyEvaluatedConditions = new ArrayList<Condition>();
+
+        void reset() {
+            valid = evaluated = checkPassed = lazyEvaluated = false;
+        }
+
+        void setValid(boolean valid) {
+            this.valid = valid;
+        }
+
+        void setEvaluated(boolean evaluated) {
+            this.evaluated = evaluated;
+        }
+
+        void setCheckPassed(boolean checkPassed) {
+            this.checkPassed = checkPassed;
+        }
+
+        void setLazyEvaluated(boolean lazyEvaluated) {
+            this.lazyEvaluated = lazyEvaluated;
+        }
+
+        boolean isValid() {
+            return valid;
+        }
+
+        boolean isEvaluated() {
+            return evaluated;
+        }
+
+        boolean isCheckPassed() {
+            return checkPassed;
+        }
+
+        boolean isLazyEvaluated() {
+            return lazyEvaluated;
+        }
+
+        boolean isInvalidOrFalse() {
+            return !valid || (!lazyEvaluated && evaluated && !checkPassed);
+        }
+
+        ArrayList<Condition> getLazyEvaluatedConditions() {
+            return lazyEvaluatedConditions;
+        }
     }
 
     // all of the combined conditions need to be met
-    private boolean checkCombinedCondition(List<Condition> conditions) throws ParseException {
+    private ParsedCondition checkCombinedCondition(Restriction restriction) throws ParseException {
+        ParsedCondition parsedCondition = new ParsedCondition();
         // combined conditions, must be all matched
-        for (Condition condition: conditions) {
-            if (!checkAtomicCondition(condition))
-                return false;
+        boolean checkPassed = true;
+        boolean lazyEvaluated = false;
+        for (Condition condition: restriction.getConditions()) {
+            parsedCondition = checkAtomicCondition(condition, parsedCondition);
+            checkPassed = checkPassed && parsedCondition.isCheckPassed();
+            if (parsedCondition.isInvalidOrFalse()) {
+                lazyEvaluated = false;
+                break;
+            }
+            if (parsedCondition.isLazyEvaluated())
+                lazyEvaluated = true;
         }
-        return true;
+        parsedCondition.setLazyEvaluated(lazyEvaluated);
+        parsedCondition.setCheckPassed(checkPassed);
+        return parsedCondition;
     }
 
 
-    public boolean checkCondition(String tagValue) throws ParseException {
+    public Result checkCondition(String tagValue) throws ParseException {
+        Result result = new Result();
         if (tagValue == null || tagValue.isEmpty() || !tagValue.contains("@"))
-            return false;
+            return result;
 
         ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
-        unevaluatedRestrictions = "";
 
         try {
             ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));
@@ -200,52 +266,40 @@ public class ConditionalParser {
                 String restrictionValue = restriction.getValue();
 
                 if (hasRestrictedValues()) {
-                    // check whether the encountered value is on the list
-                    if (!restrictedValues.contains(restrictionValue))
+                    if (restrictedValues.contains(restrictionValue))
+                        restrictionValue = simpleValue;
+                    else
                         continue;
                 }
                 else {
-                    simpleValue = restrictionValue;
+                    result.setRestrictions(restrictionValue);
                 }
 
-                List<Condition> conditions = restriction.getConditions();
+                ParsedCondition parsedConditions = checkCombinedCondition(restriction);
+                boolean checkPassed = parsedConditions.isCheckPassed();
+                result.setCheckPassed(result.isCheckPassed() || checkPassed);
 
-                unevaluatedConditions = new Conditions(new ArrayList<Condition>(), restriction.inParen());
-
-                if (checkCombinedCondition(conditions)) {
-                    // check for unevaluated conditions
-                    if (unevaluatedConditions.getConditions().isEmpty()) {
-                        return true; // terminate once the first matching condition which can be fully evaluated is encountered
-                    }
-                    else {
-                        parsedRestrictions.add(new Restriction(simpleValue, unevaluatedConditions));
-                    }
+                // check for unevaluated conditions
+                if (!parsedConditions.isLazyEvaluated()) {
+                    if (checkPassed)
+                        return result; // terminate once the first matching condition which can be fully evaluated is encountered
+                }
+                else {
+                    parsedRestrictions.add(0, new Restriction(restrictionValue, new Conditions(parsedConditions.getLazyEvaluatedConditions(), restriction.inParen())));
                 }
             }
         } catch (ch.poole.conditionalrestrictionparser.ParseException e) {
             if (enabledLogs)
                 logger.warn("Parser exception for " + tagValue + " " + e.toString());
-            return false;
+            return result;
         }
-        // at this point either no matching restriction was found or the encountered restrictions need to be lazy evaluated
-        if (parsedRestrictions.isEmpty()) {
-            return false;
-        }
-        else {
-            unevaluatedRestrictions = Util.restrictionsToString(parsedRestrictions);
-            return true;
-        }
-    }
 
-    public String getRestrictions() {
-        if (hasUnevaluatedRestrictions())
-            return unevaluatedRestrictions;
-        else
-            return simpleValue;
-    }
+        if (!parsedRestrictions.isEmpty()) {
+            result.setRestrictions(Util.restrictionsToString(parsedRestrictions));
+            result.setLazyEvaluated(true);
+        }
 
-    public boolean hasUnevaluatedRestrictions() {
-        return !unevaluatedRestrictions.isEmpty();
+        return result;
     }
 
     protected static double parseNumber(String str) {
@@ -259,5 +313,35 @@ public class ConditionalParser {
 
     private boolean hasRestrictedValues() {
         return !( restrictedValues==null || restrictedValues.isEmpty() );
+    }
+
+    class Result {
+        private boolean checkPassed;
+        private boolean lazyEvaluated;
+        private String restrictions;
+
+        boolean isCheckPassed() {
+            return checkPassed;
+        }
+
+        void setCheckPassed(boolean checkPassed) {
+            this.checkPassed = checkPassed;
+        }
+
+        boolean isLazyEvaluated() {
+            return lazyEvaluated;
+        }
+
+        void setLazyEvaluated(boolean lazyEvaluated) {
+            this.lazyEvaluated = lazyEvaluated;
+        }
+
+        String getRestrictions() {
+            return restrictions;
+        }
+
+        void setRestrictions(String restrictions) {
+            this.restrictions = restrictions;
+        }
     }
 }

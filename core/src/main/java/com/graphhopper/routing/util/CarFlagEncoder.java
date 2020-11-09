@@ -267,7 +267,7 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
 
             // TODO: save conditional speeds only if their value is different from the default speed
             if (getConditionalSpeedInspector().hasConditionalSpeed(way))
-                if (getConditionalSpeedInspector().isConditionLazyEvaluated())
+                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions())
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
                 else
                     // conditional maxspeed overrides unconditional one
@@ -279,15 +279,16 @@ public class CarFlagEncoder extends AbstractFlagEncoder {
             if (speedTwoDirections)
                 setSpeed(true, edgeFlags, speed);
 
+            boolean access = !accept.isRestricted();
             boolean isRoundabout = roundaboutEnc.getBool(false, edgeFlags);
             if (isOneway(way) || isRoundabout) {
                 if (isForwardOneway(way))
-                    accessEnc.setBool(false, edgeFlags, true);
+                    accessEnc.setBool(false, edgeFlags, access);
                 if (isBackwardOneway(way))
-                    accessEnc.setBool(true, edgeFlags, true);
+                    accessEnc.setBool(true, edgeFlags, access);
             } else {
-                accessEnc.setBool(false, edgeFlags, true);
-                accessEnc.setBool(true, edgeFlags, true);
+                accessEnc.setBool(false, edgeFlags, access);
+                accessEnc.setBool(true, edgeFlags, access);
             }
 
             if (accept.isConditional())

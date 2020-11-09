@@ -39,6 +39,7 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
     private boolean enabledLogs = true;
 
     private String val;
+    private boolean isLazyEvaluated;
 
     @Override
     public String getTagValue() {
@@ -71,10 +72,11 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
             if (val == null || val.isEmpty())
                 continue;
             try {
-                if (parser.checkCondition(val)) {
-                    val = parser.getRestrictions();
+                ConditionalParser.Result result = parser.checkCondition(val);
+                isLazyEvaluated = result.isLazyEvaluated();
+                val = result.getRestrictions();
+                if (result.isCheckPassed() || isLazyEvaluated)
                     return true;
-                }
             } catch (Exception e) {
                 if (enabledLogs) {
                     logger.warn("for way " + way.getId() + " could not parse the conditional value '" + val + "' of tag '" + tagToCheck + "'. Exception:" + e.getMessage());
@@ -85,8 +87,8 @@ public class ConditionalOSMSpeedInspector implements ConditionalSpeedInspector {
     }
 
     @Override
-    public boolean isConditionLazyEvaluated() {
-        return parser.hasUnevaluatedRestrictions();
+    public boolean hasLazyEvaluatedConditions() {
+        return isLazyEvaluated;
     }
 
 }

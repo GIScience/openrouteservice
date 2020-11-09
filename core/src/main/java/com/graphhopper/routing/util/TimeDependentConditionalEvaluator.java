@@ -2,6 +2,8 @@ package com.graphhopper.routing.util;
 
 import ch.poole.conditionalrestrictionparser.Condition;
 import ch.poole.openinghoursparser.*;
+import com.graphhopper.reader.osm.conditional.ConditionalValueParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 
 import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
@@ -15,10 +17,18 @@ public class TimeDependentConditionalEvaluator {
     public static boolean match(List<Condition> conditions, ZonedDateTime zonedDateTime) {
         for (Condition condition : conditions) {
             try {
-                OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(condition.toString().getBytes()));
-                List<Rule> rules = parser.rules(false);
+                boolean matched;
+                if (zonedDateTime==null) {
+                    DateRangeParser dateRangeParser = new DateRangeParser();
+                    matched = dateRangeParser.checkCondition(condition)==ConditionalValueParser.ConditionState.TRUE;
+                }
+                else {
+                    OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(condition.toString().getBytes()));
+                    List<Rule> rules = parser.rules(false);
+                    matched = matchRules(rules, zonedDateTime);
+                }
                 // failed to match any of the rules
-                if (!matchRules(rules, zonedDateTime))
+                if (!matched)
                     return false;
             } catch (Exception e) {
                 return false;

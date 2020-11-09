@@ -17,7 +17,7 @@
  */
 package com.graphhopper.routing.weighting;
 
-import com.graphhopper.routing.util.ConditionalAccessEdgeFilter;
+import com.graphhopper.routing.util.TimeDependentAccessEdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -31,11 +31,11 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Andrzej Oles
  */
 public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
-    private ConditionalAccessEdgeFilter edgeFilter;
+    private TimeDependentAccessEdgeFilter edgeFilter;
 
     public TimeDependentAccessWeighting(Weighting weighting, GraphHopperStorage graph, FlagEncoder encoder) {
         super(weighting);
-        this.edgeFilter = new ConditionalAccessEdgeFilter(graph, encoder);
+        this.edgeFilter = new TimeDependentAccessEdgeFilter(graph, encoder);
     }
 
     @Override

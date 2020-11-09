@@ -20,7 +20,6 @@ package com.graphhopper.reader.osm.conditional;
 import com.graphhopper.reader.ReaderWay;
 import org.junit.Test;
 
-import java.text.ParseException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -28,7 +27,7 @@ import static org.junit.Assert.*;
 /**
  * @author Andrzej Oles
  */
-public class ConditionalOSMSpeedInspectorTest extends CalendarBasedTest {
+public class ConditionalOSMSpeedInspectorTest {
 
     private static List<String> getSampleConditionalTags() {
         List<String> conditionalTags = new ArrayList<>();
@@ -49,16 +48,29 @@ public class ConditionalOSMSpeedInspectorTest extends CalendarBasedTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed:hgv", "80");
         assertFalse(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
     }
 
     @Test
     public void testConditionalTime() {
         ConditionalOSMSpeedInspector acceptor = getConditionalSpeedInspector();
         ReaderWay way = new ReaderWay(1);
-        way.setTag("maxspeed:conditional", "60 @ (23:00-05:00)");
+        String tagValue = "60 @ (23:00-05:00)";
+        way.setTag("maxspeed:conditional", tagValue);
         assertTrue(acceptor.hasConditionalSpeed(way));
-        assertTrue(acceptor.isConditionLazyEvaluated());
+        assertTrue(acceptor.hasLazyEvaluatedConditions());
+        assertEquals(tagValue, acceptor.getTagValue());
+    }
+
+    @Test
+    public void testMultipleTimes() {
+        ConditionalOSMSpeedInspector acceptor = getConditionalSpeedInspector();
+        ReaderWay way = new ReaderWay(1);
+        String tagValue = "50 @ (05:00-23:00); 60 @ (23:00-05:00)";
+        way.setTag("maxspeed:conditional", tagValue);
+        assertTrue(acceptor.hasConditionalSpeed(way));
+        assertTrue(acceptor.hasLazyEvaluatedConditions());
+        assertEquals(tagValue, acceptor.getTagValue());
     }
 
     @Test
@@ -67,7 +79,7 @@ public class ConditionalOSMSpeedInspectorTest extends CalendarBasedTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed:conditional", "60 @ snow");
         assertFalse(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
     }
 
     @Test
@@ -76,37 +88,50 @@ public class ConditionalOSMSpeedInspectorTest extends CalendarBasedTest {
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed:conditional", "90 @ (weight>7.5)");
         assertFalse(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
-        acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 10));
-        assertTrue(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
+        acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 3.5));
+        assertFalse(acceptor.hasConditionalSpeed(way));
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
     }
 
     @Test
-    public void testMultipleConditions() {
+    public void testConditionalWeightApplies() {
+        ConditionalOSMSpeedInspector acceptor = getConditionalSpeedInspector();
+        ReaderWay way = new ReaderWay(1);
+        way.setTag("maxspeed:conditional", "90 @ (weight>7.5)");
+        assertFalse(acceptor.hasConditionalSpeed(way));
+        acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 10));
+        assertTrue(acceptor.hasConditionalSpeed(way));
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
+        assertEquals("90", acceptor.getTagValue());
+    }
+
+    @Test
+    public void testMultipleWeights() {
         ConditionalOSMSpeedInspector acceptor = getConditionalSpeedInspector();
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed:hgv:conditional", "90 @ (weight<=3.5); 70 @ (weight>3.5)");
         assertFalse(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
+        acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 3));
+        assertTrue(acceptor.hasConditionalSpeed(way));
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
+        assertEquals("90", acceptor.getTagValue());
         acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 10));
         assertTrue(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
-        //test for value
-        assertEquals(acceptor.getTagValue(), "70");
-
+        assertFalse(acceptor.hasLazyEvaluatedConditions());
+        assertEquals("70", acceptor.getTagValue());
     }
 
     @Test
-    public void testCombinedCondition() throws ParseException {
+    public void testCombinedTimeWeight() {
         ConditionalOSMSpeedInspector acceptor = getConditionalSpeedInspector();
         ReaderWay way = new ReaderWay(1);
         way.setTag("maxspeed:hgv:conditional", "60 @ (22:00-05:00 AND weight>7.5)");
         assertFalse(acceptor.hasConditionalSpeed(way));
-        assertFalse(acceptor.isConditionLazyEvaluated());
         acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 10));
         assertTrue(acceptor.hasConditionalSpeed(way));
-        assertTrue(acceptor.isConditionLazyEvaluated());
+        assertTrue(acceptor.hasLazyEvaluatedConditions());
         assertEquals(acceptor.getTagValue(), "60 @ (22:00-05:00)");
+        acceptor.addValueParser(ConditionalParser.createNumberParser("weight", 3));
+        assertFalse(acceptor.hasConditionalSpeed(way));
     }
 }
