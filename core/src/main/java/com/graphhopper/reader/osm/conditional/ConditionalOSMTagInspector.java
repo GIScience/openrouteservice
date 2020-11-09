@@ -80,12 +80,11 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
     }
 
     @Override
-    public boolean isConditionLazyEvaluated() {
+    public boolean hasLazyEvaluatedConditions() {
         return isLazyEvaluated;
     }
 
     protected boolean applies(ReaderWay way, ConditionalParser parser) {
-
         isLazyEvaluated = false;
         for (int index = 0; index < tagsToCheck.size(); index++) {
             String tagToCheck = tagsToCheck.get(index);
@@ -93,12 +92,12 @@ public class ConditionalOSMTagInspector implements ConditionalTagInspector {
             if (val == null || val.isEmpty())
                 continue;
             try {
-                if (parser.checkCondition(val)) {
-                    if (parser.hasUnevaluatedRestrictions())
-                        isLazyEvaluated = true;
-                    val = parser.getRestrictions();
-                    return true;
-                }
+                ConditionalParser.Result result = parser.checkCondition(val);
+                isLazyEvaluated = result.isLazyEvaluated();
+                val = result.getRestrictions();
+                // allow the check result to be false but still have unevaluated conditions
+                if (result.isCheckPassed() || isLazyEvaluated)
+                    return result.isCheckPassed();
             } catch (Exception e) {
                 if (enabledLogs) {
                     // log only if no date ala 21:00 as currently date and numbers do not support time precise restrictions

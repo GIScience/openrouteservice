@@ -251,14 +251,8 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
                 accept = EncodingManager.Access.WAY;
 
             if (!accept.canSkip()) {
-                if (way.hasTag(restrictions, restrictedValues)) {
-                    if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-                        if (getConditionalTagInspector().isConditionLazyEvaluated())
-                            return EncodingManager.Access.CONDITIONAL;
-                    }
-                    else
-                        return EncodingManager.Access.CAN_SKIP;
-                }
+                if (way.hasTag(restrictions, restrictedValues))
+                    accept = isRestrictedWayConditionallyPermitted(way, accept);
                 return accept;
             }
 

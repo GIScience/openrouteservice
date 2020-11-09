@@ -24,6 +24,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMTagInspector;
 import com.graphhopper.reader.osm.conditional.ConditionalParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
@@ -119,6 +120,8 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     protected void init() {
         // we should move 'OSM to object' logic into the DataReader like OSMReader, but this is a major task as we need to convert OSM format into kind of a standard/generic format
         ConditionalOSMTagInspector conditionalTagInspector = new ConditionalOSMTagInspector(restrictions, restrictedValues, intendedValues);
+        conditionalTagInspector.addValueParser(new DateRangeParser());
+        //DateTime parser needs to go last = have highest priority in order to allow for storing unevaluated conditionals
         conditionalTagInspector.addValueParser(ConditionalParser.createDateTimeParser());
         this.conditionalTagInspector = conditionalTagInspector;
     }
@@ -650,22 +653,24 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     }
 
     public EncodingManager.Access isRestrictedWayConditionallyPermitted(ReaderWay way) {
-        if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-            if (getConditionalTagInspector().isConditionLazyEvaluated())
-                return EncodingManager.Access.CONDITIONAL;
-            else
-                return EncodingManager.Access.WAY;
-        else
-            return EncodingManager.Access.CAN_SKIP;
+        return isRestrictedWayConditionallyPermitted(way, EncodingManager.Access.WAY);
+    }
+
+    public EncodingManager.Access isRestrictedWayConditionallyPermitted(ReaderWay way, EncodingManager.Access accept) {
+        return getConditionalAccess(way, accept, true);
     }
 
     public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way) {
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            if (getConditionalTagInspector().isConditionLazyEvaluated())
-                return EncodingManager.Access.CONDITIONAL;
-            else
-                return EncodingManager.Access.CAN_SKIP;
+        return getConditionalAccess(way, EncodingManager.Access.WAY, false);
+    }
+
+    private EncodingManager.Access getConditionalAccess(ReaderWay way, EncodingManager.Access accept, boolean permissive) {
+        ConditionalTagInspector conditionalTagInspector = getConditionalTagInspector();
+        boolean access = permissive ? conditionalTagInspector.isRestrictedWayConditionallyPermitted(way) :
+                !conditionalTagInspector.isPermittedWayConditionallyRestricted(way);
+        if (conditionalTagInspector.hasLazyEvaluatedConditions())
+            return access ? EncodingManager.Access.PERMITTED : EncodingManager.Access.RESTRICTED;
         else
-            return EncodingManager.Access.WAY;
+            return access ? accept : EncodingManager.Access.CAN_SKIP;
     }
 }
