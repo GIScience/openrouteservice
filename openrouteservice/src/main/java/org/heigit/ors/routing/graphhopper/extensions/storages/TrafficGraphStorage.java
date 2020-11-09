@@ -154,6 +154,7 @@ public class TrafficGraphStorage implements GraphExtension {
         priority = priority > 255 ? 255 : priority;
         patternId = patternId > 65535 ? 0 : patternId;
 
+        ensureEdgesTrafficLinkLookupIndex(edgeId);
         int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
 
         if (patternId <= 0)
@@ -165,8 +166,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
 
         edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-
-        ensureEdgesTrafficLinkLookupIndex(edgeId);
 
         priorityValue[0] = (byte) priority;
 
