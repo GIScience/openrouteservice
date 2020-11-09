@@ -184,12 +184,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             if (parameters.containsKey(PARAM_KEY_MATCHED_DATA)) {
                 oldMatchedEdgeToTrafficFile = parameters.get(PARAM_KEY_MATCHED_DATA);
                 matchedEdgetotrafficPath = Paths.get(oldMatchedEdgeToTrafficFile).toFile().getAbsolutePath();
-                loadTrafficData(matchedEdgetotrafficPath);
-            } else {
-                osmId2TrafficEdgeId = new HashMap<>();
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_MATCHED_DATA);
-                throw new MissingResourceException("Provide a path where the sharable traffic matches can be stored!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_MATCHED_DATA);
-
+//                loadTrafficData(matchedEdgetotrafficPath);
             }
 
             // Read the file containing all of the country border polygons
@@ -473,7 +468,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             htReader.getHereTrafficData().removeLinkIdCollection(removableLinks); // Remove here links without Traffic information to reduce ram usage.
 
             LOGGER.info("Storing matches.");
-            saveTrafficData(matchedEdgetotrafficPath);
+//            saveTrafficData(matchedEdgetotrafficPath);
             storage.setMatched();
             storage.flush();
             LOGGER.info("Flush and lock storage.");
