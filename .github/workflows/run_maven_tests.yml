@@ -22,3 +22,5 @@ jobs:
         java-version: 11
     - name: Build with Maven
       run: mvn -B package --file openrouteservice/pom.xml
+    - name: Run with Maven
+      run: mvn tomcat7:run -U --file openrouteservice/pom.xml
