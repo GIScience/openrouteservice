@@ -155,7 +155,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      */
     public CoreLMAlgoFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
         if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
+            throw new IllegalArgumentException("It is not allowed to pass an empty weightingList");
 
         weightingsAsStrings.clear();
         for (String strWeighting : weightingList) {
@@ -304,7 +304,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, weighting);
 
             for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
-                Double maximumWeight = maximumWeights.get(weighting.getName());
+                Double maximumWeight = maximumWeights.get(weighting.getName().replace("turn|",""));
                 if (maximumWeight == null)
                     throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
                             + "Couldn't find " + weighting.getName() + " in " + maximumWeights);
