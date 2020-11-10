@@ -21,6 +21,6 @@ jobs:
       with:
         java-version: 11
     - name: Build with Maven
-      run: mvn -B package --file openrouteservice/pom.xml
+      run: mvn -B test --file openrouteservice/pom.xml
     - name: Run with Maven
-      run: mvn tomcat7:run --file openrouteservice/pom.xml
+      run: mvn -B -DORS_APP_CONFIG=app.config.test tomcat7:run --file openrouteservice/pom.xml
