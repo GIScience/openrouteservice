@@ -4,4 +4,4 @@ do
   sleep 1m
   echo "Waiting for ORS init... $i"
 done
-mvn test --file ../openrouteservice-api-tests/pom.xml
+mvn -B test --file ../openrouteservice-api-tests/pom.xml

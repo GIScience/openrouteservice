@@ -186,6 +186,17 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
                     <execution>
+                        <id>Wait script</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <async>true</async>
+                            <executable>../openrouteservice-api-tests/wait_for_api_tests.sh</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>API tests</id>
                         <phase>integration-test</phase>
                         <goals>
@@ -245,6 +256,12 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <!-- Java 11 upgrade -->
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
         <dependency>
             <!-- Java 11 upgrade -->
             <groupId>javax.xml.bind</groupId>
