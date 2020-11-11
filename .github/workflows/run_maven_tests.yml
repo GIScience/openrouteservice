@@ -20,9 +20,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Unit tests
-      run: mvn -B test --file openrouteservice/pom.xml
     - name: Copy app.config for API test 
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
-    - name: Run with tomcat7-maven
-      run: mvn -B -DORS_APP_CONFIG=app.config.test tomcat7:run --file openrouteservice/pom.xml
+    - name: Unit tests
+      run: mvn -B verify --file openrouteservice/pom.xml
+#    - name: Unit tests
+#      run: mvn -B test --file openrouteservice/pom.xml
+#    - name: Run with tomcat7-maven
+#      run: mvn -B -DORS_APP_CONFIG=app.config.test tomcat7:run --file openrouteservice/pom.xml
