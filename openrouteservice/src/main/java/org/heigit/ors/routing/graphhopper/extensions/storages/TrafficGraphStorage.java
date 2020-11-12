@@ -38,8 +38,8 @@ public class TrafficGraphStorage implements GraphExtension {
     private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
     private static final int LOCATION_FORWARD_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
     private static final int LOCATION_FORWARD_TRAFFIC = 1;         // byte location of the from traffic link id
-    private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = 15;         // byte location of the to traffic link id
-    private static final int LOCATION_BACKWARD_TRAFFIC = 16;         // byte location of the to traffic link id
+    private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = 16;         // byte location of the to traffic link id
+    private static final int LOCATION_BACKWARD_TRAFFIC = 17;         // byte location of the to traffic link id
 
     // road types
     public static final byte IGNORE = 0; // For unimportant edges that are below relevant street types (residential etc.)
@@ -58,14 +58,13 @@ public class TrafficGraphStorage implements GraphExtension {
     public static final byte UNCLASSIFIED = 13;
 
     public static final int PROPERTY_BYTE_COUNT = 1;
-    public static final int LINK_LOOKUP_BYTE_COUNT = 29; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority = 2 * 7 * 2 + 2 = 30
+    public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority = 2 * 7 * 2 + 2 = 30
     public static final int WEEKLY_TRAFFIC_PATTERNS_BYTE_COUNT = 13; // The max pattern id fits in a short = 2 bytes * 7 days
     public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 95; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
 
-    private DataAccess orsEdgesProperties;
-    private DataAccess orsEdgesTrafficLinkLookup;
-    private DataAccess orsLinkTrafficSpeedPatternLookup;
-    private DataAccess orsSpeedPatternLookup;
+    private DataAccess orsEdgesProperties; // RAMDataAccess
+    private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
+    private DataAccess orsSpeedPatternLookup; // RAMDataAccess
 
     private int edgePropertyEntryBytes;
     private int edgeLinkLookupEntryBytes;
@@ -171,43 +170,43 @@ public class TrafficGraphStorage implements GraphExtension {
 
         // TODO RAD
         // add entry
-        int test1 = 0;
-        int test2 = 0;
+//        int test1 = 0;
+//        int test2 = 0;
         // TODO RAD
         if (baseNode < adjNode) {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
-            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
+//            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
+//            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         } else {
-            int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
+//            int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
-            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
+//            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
+//            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         }
         // TODO RAD
 //        assert test1 == patternId;
 //        assert test2 == (int) priority;
-        int test121 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
-        int test122 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.TUESDAY);
-        int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.WEDNESDAY);
-        int test124 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.THURSDAY);
-        int test125 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.FRIDAY);
-        int test126 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SATURDAY);
-        int test127 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SUNDAY);
-        int edgeValue = getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
-
-        int test121_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
-        int test122_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.TUESDAY);
-        int test123_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.WEDNESDAY);
-        int test124_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.THURSDAY);
-        int test125_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.FRIDAY);
-        int test126_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SATURDAY);
-        int test127_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SUNDAY);
-        if (test121 == 3808 || test122 == 9712 || test123 == 13544) {
-            System.out.println("");
-        }
+//        int test121 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
+//        int test122 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.TUESDAY);
+//        int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.WEDNESDAY);
+//        int test124 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.THURSDAY);
+//        int test125 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.FRIDAY);
+//        int test126 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SATURDAY);
+//        int test127 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SUNDAY);
+//        int edgeValue = getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
+//
+//        int test121_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
+//        int test122_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.TUESDAY);
+//        int test123_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.WEDNESDAY);
+//        int test124_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.THURSDAY);
+//        int test125_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.FRIDAY);
+//        int test126_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SATURDAY);
+//        int test127_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SUNDAY);
+//        if (test121 == 3808 || test122 == 9712 || test123 == 13544) {
+//            System.out.println("");
+//        }
         // TODO RAD
     }
 
@@ -323,6 +322,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param adjNode  Value of the adjacent Node of the edge.
      **/
     public int getEdgeIdTrafficPatternPriority(int edgeId, int baseNode, int adjNode) {
+        try {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         byte[] priority = new byte[1];
         if (baseNode < adjNode)
@@ -330,19 +330,10 @@ public class TrafficGraphStorage implements GraphExtension {
         else
             orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priority, 1);
         return Byte.toUnsignedInt(priority[0]);
-    }
-
-    /**
-     * Receive the matched linkID <-> patternId matches for the desired weekday.</-><br/><br/>
-     * <p>
-     * This method returns the patternId for a specific weekday matched on the link ID if present.
-     *
-     * @param linkId  Internal ID of the graph edge.
-     * @param weekday Value of the base Node of the edge.
-     **/
-    public short getOrsLinkTrafficPattern(int linkId, Weekday weekday) {
-        long linkPointer = (long) linkId * linkPatternEntryBytes;
-        return orsLinkTrafficSpeedPatternLookup.getShort(linkPointer + (weekday.ordinal() * 2));
+        } catch (Exception ex) {
+            System.out.println("");
+        }
+        return 0;
     }
 
     /**
@@ -401,13 +392,10 @@ public class TrafficGraphStorage implements GraphExtension {
         orsEdgesProperties.ensureCapacity(((long) edgeId + 1) * edgePropertyEntryBytes);
     }
 
-    private void ensureEdgesTrafficLinkLookupIndex(int edgeId) {
+    public void ensureEdgesTrafficLinkLookupIndex(int edgeId) {
         orsEdgesTrafficLinkLookup.ensureCapacity(((long) edgeId + 1) * edgeLinkLookupEntryBytes);
     }
 
-    private void ensureTrafficLinkTrafficSpeedPatternLookupIndex(int linkId) {
-        orsLinkTrafficSpeedPatternLookup.ensureCapacity(((long) linkId + 1) * linkPatternEntryBytes);
-    }
 
     private void ensureSpeedPatternLookupIndex(int patternId) {
         orsSpeedPatternLookup.ensureCapacity(((long) patternId + 1) * patternEntryBytes);
@@ -466,7 +454,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
         this.orsEdgesProperties = dir.find("ext_traffic_edge_properties");
         this.orsEdgesTrafficLinkLookup = dir.find("ext_traffic_edges_traffic_lookup");
-        this.orsLinkTrafficSpeedPatternLookup = dir.find("ext_traffic_edges_speed_pattern_lookup");
         this.orsSpeedPatternLookup = dir.find("ext_traffic_pattern_lookup");
     }
 
@@ -480,7 +467,6 @@ public class TrafficGraphStorage implements GraphExtension {
         Directory d = new RAMDirectory();
         this.orsEdgesProperties = d.find("");
         this.orsEdgesTrafficLinkLookup = d.find("");
-        this.orsLinkTrafficSpeedPatternLookup = d.find("");
         this.orsSpeedPatternLookup = d.find("");
     }
 
@@ -493,7 +479,6 @@ public class TrafficGraphStorage implements GraphExtension {
     public void setSegmentSize(int bytes) {
         orsEdgesProperties.setSegmentSize(bytes);
         orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsLinkTrafficSpeedPatternLookup.setSegmentSize(bytes);
         orsSpeedPatternLookup.setSegmentSize(bytes);
     }
 
@@ -512,7 +497,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
         orsEdgesProperties.copyTo(clonedTC.orsEdgesProperties);
         orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);
-        orsLinkTrafficSpeedPatternLookup.copyTo(clonedTC.orsLinkTrafficSpeedPatternLookup);
         orsSpeedPatternLookup.copyTo(clonedTC.orsSpeedPatternLookup);
         clonedTC.edgesCount = edgesCount;
 
@@ -528,13 +512,10 @@ public class TrafficGraphStorage implements GraphExtension {
             throw new IllegalStateException("Unable to load storage 'ext_traffic'. corrupt file or directory?");
         if (!orsEdgesTrafficLinkLookup.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_traffic_edges_traffic_lookup'. corrupt file or directory?");
-        if (!orsLinkTrafficSpeedPatternLookup.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'ext_traffic_edges_speed_pattern_lookup'. corrupt file or directory?");
         if (!orsSpeedPatternLookup.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_traffic_pattern_lookup'. corrupt file or directory?");
         edgePropertyEntryBytes = orsEdgesProperties.getHeader(0);
         edgeLinkLookupEntryBytes = orsEdgesTrafficLinkLookup.getHeader(0);
-        linkPatternEntryBytes = orsLinkTrafficSpeedPatternLookup.getHeader(0);
         patternEntryBytes = orsSpeedPatternLookup.getHeader(0);
         edgesCount = orsEdgesProperties.getHeader(4);
         return true;
@@ -549,7 +530,6 @@ public class TrafficGraphStorage implements GraphExtension {
     public GraphExtension create(long initBytes) {
         orsEdgesProperties.create(initBytes * edgePropertyEntryBytes);
         orsEdgesTrafficLinkLookup.create(initBytes * edgeLinkLookupEntryBytes);
-        orsLinkTrafficSpeedPatternLookup.create(initBytes * linkPatternEntryBytes);
         orsSpeedPatternLookup.create(initBytes * patternEntryBytes);
         return this;
     }
@@ -563,15 +543,12 @@ public class TrafficGraphStorage implements GraphExtension {
     public void flush() {
         orsEdgesProperties.setHeader(0, edgePropertyEntryBytes);
         orsEdgesTrafficLinkLookup.setHeader(0, edgeLinkLookupEntryBytes);
-        orsLinkTrafficSpeedPatternLookup.setHeader(0, linkPatternEntryBytes);
         orsSpeedPatternLookup.setHeader(0, patternEntryBytes);
         orsEdgesProperties.setHeader(4, edgesCount);
         orsEdgesTrafficLinkLookup.setHeader(4, edgesCount);
-        orsLinkTrafficSpeedPatternLookup.setHeader(4, linkCount);
         orsSpeedPatternLookup.setHeader(4, patternCount);
         orsEdgesProperties.flush();
         orsEdgesTrafficLinkLookup.flush();
-        orsLinkTrafficSpeedPatternLookup.flush();
         orsSpeedPatternLookup.flush();
     }
 
@@ -583,7 +560,6 @@ public class TrafficGraphStorage implements GraphExtension {
     public void close() {
         orsEdgesProperties.close();
         orsEdgesTrafficLinkLookup.close();
-        orsLinkTrafficSpeedPatternLookup.close();
         orsSpeedPatternLookup.close();
     }
 
@@ -597,7 +573,7 @@ public class TrafficGraphStorage implements GraphExtension {
      */
     @Override
     public long getCapacity() {
-        return orsEdgesProperties.getCapacity() + orsEdgesTrafficLinkLookup.getCapacity() + orsLinkTrafficSpeedPatternLookup.getCapacity() + orsSpeedPatternLookup.getCapacity();
+        return orsEdgesProperties.getCapacity() + orsEdgesTrafficLinkLookup.getCapacity() + orsSpeedPatternLookup.getCapacity();
     }
 
 
