@@ -22,11 +22,32 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: REsolve dependencies
-      run: mvn -B -f openrouteservice/pom.xml dependency:resolve dependency:resolve-plugins
     - name: Copy app.config for API test 
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
 #    - name: All tests with jacoco/sonar
 #      run: mvn -B -f openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
     - name: All tests
-      run: mvn -B -f openrouteservice/pom.xml install
+      run: mvn -B -f openrouteservice/pom.xml verify
+    - name: Rocket.Chat Notification
+      uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
+      with:
+        # job status (success, failure or cancelled)
+        type: success
+        # job name of workflow (format: markdown)
+        job_name: ORS CI
+        # rocket.chat mention
+#        mention: # optional
+        # the condition for mention
+#        mention_if: # optional
+        # rocket.chat username
+        username: openrouteservice@github
+        # rocket.chat icon emoji
+#        icon_emoji: # optional
+        # rocket.chat channel
+        channel: ors-travis-jenkins
+        # rocket.chat incoming webhook url
+        url: https://chat.gistools.geog.uni-heidelberg.de/hooks/fqX555ZPxYFdHeqhS/2kxt4rNATiJ9cB8pLmkSc2R3mrxnmJrEQZFd7JKqiPEGFnW9
+        # whether include commit data or not (true or false)
+#        commit: # optional, default is false
+        # need to get commit data
+#        token: # optional
