@@ -160,7 +160,8 @@ public class TrafficLink {
             return this.linkGeometry;
         } else {
             // Teardrop nodes with same Coords. This shouldn't happen with roads from Here!
-            return null;
+            // TODO deside if return null or return the original coordinate order should be returned
+            return this.linkGeometry;
         }
     }
 
