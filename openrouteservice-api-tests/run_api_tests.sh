@@ -1,7 +1,6 @@
 #!/bin/sh
-for i in 1 2 3 4 5
+while [ ! -f  $1/ors.run ]
 do
-  sleep 1m
-  echo "Waiting for ORS init... $i"
+  sleep 1
 done
-mvn -B test --file ../openrouteservice-api-tests/pom.xml
+mvn -B test --file $1/openrouteservice-api-tests/pom.xml
