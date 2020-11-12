@@ -16,13 +16,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: REsolve dependencies
+      run: mvn -B -f openrouteservice/pom.xml dependency:resolve dependency:resolve-plugins
     - name: Copy app.config for API test 
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
-    - name: All tests with jacoco/sonar
-      run: mvn -B -f openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
-#    - name: All tests
-#      run: mvn -B -f openrouteservice/pom.xml install
+#    - name: All tests with jacoco/sonar
+#      run: mvn -B -f openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+    - name: All tests
+      run: mvn -B -f openrouteservice/pom.xml install
