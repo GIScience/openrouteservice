@@ -258,8 +258,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             FileWriter hereWriter = null;
             try {
                 osmWriter = new FileWriter(dateFormat.format(date) + "_OSM_edges_output.txt");
-                osmMatchedWriter = new FileWriter(dateFormat.format(date) + "_OSM_matched_" + similarityFactor + "_edges_output.txt");
-                hereMatchWriter = new FileWriter(dateFormat.format(date) + "_Here_matched_" + similarityFactor + "_edges_output.txt");
+                osmMatchedWriter = new FileWriter(dateFormat.format(date) + "_OSM_matched_" + "_edges_output.txt");
+                hereMatchWriter = new FileWriter(dateFormat.format(date) + "_Here_matched_" + "_edges_output.txt");
                 hereWriter = new FileWriter(dateFormat.format(date) + "_Here_edges_output.txt");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -398,8 +398,16 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         matchedHereLinks.putIfAbsent(linkID, "");
     }
 
+    public void addOSMGeometryForLogging(String osmGeometry) {
+        matchedOSMLinks.add(osmGeometry);
+    }
+
     private RouteSegmentInfo[] matchLinkToSegments(ORSGraphHopper graphHopper, TrafficLink trafficLink, Geometry geometry, boolean bothDirections) {
         RouteSegmentInfo[] matchedSegments = new RouteSegmentInfo[0];
+        if (geometry == null) {
+            LOGGER.info("Teadrop node.");
+            return matchedSegments;
+        }
         try {
             if (trafficEdgeFilter == null) {
                 trafficEdgeFilter = new TrafficEdgeFilter(graphHopper.getGraphHopperStorage(), graphHopper.getEncodingManager().getEncoder("car-ors"));
@@ -603,9 +611,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 final int finalOriginalBaseNodeId = originalBaseNodeId;
                 final int finalOriginalAdjNodeId = originalAdjNodeId;
                 trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(finalOriginalEdgeId, finalOriginalBaseNodeId, finalOriginalAdjNodeId, patternId, weekDay, priority));
-
+                addHereSegmentForLogging(trafficLink.getLinkId());
+                addOSMGeometryForLogging(lineString.toString());
             } else {
                 trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, priority));
+                addHereSegmentForLogging(trafficLink.getLinkId());
+                addOSMGeometryForLogging(lineString.toString());
             }
         }
     }
