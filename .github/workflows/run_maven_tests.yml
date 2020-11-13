@@ -20,6 +20,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
     - name: Copy app.config for API test 
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
 #    - name: All tests with jacoco/sonar
