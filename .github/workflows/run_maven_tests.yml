@@ -10,10 +10,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  run_tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
       with:
@@ -28,6 +26,10 @@ jobs:
 #      run: mvn -B -f openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
     - name: All tests
       run: mvn -B -f openrouteservice/pom.xml verify
+
+  notification:
+    runs-on: ubuntu-latest
+    steps:
     - name: Rocket.Chat Notification
       uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
       with:
