@@ -39,9 +39,6 @@ jobs:
       with:
         type: ${{ job.status }}
         job_name: '*ORS CI Test*'
-        mention: 'here'
-        mention_if: 'failure'
-        channel: '#ors-ci'
         url: ${{ secrets.ROCKETCHAT_WEBHOOK }}
         commit: true
         token: ${{ secrets.PROJECT_AUTOMATION }}
