@@ -18,7 +18,7 @@ public class TrafficEdgeFilter implements EdgeFilter {
     private TrafficGraphStorage trafficGraphStorage;
     private HashSet<Integer> originalEdgeIds;
 
-    public TrafficEdgeFilter(GraphStorage graphStorage, FlagEncoder flagEncoder) {
+    public TrafficEdgeFilter(GraphStorage graphStorage) {
         this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class);
         originalEdgeIds = new HashSet<>();
     }
@@ -33,8 +33,10 @@ public class TrafficEdgeFilter implements EdgeFilter {
         // TODO RAD
         if (!this.originalEdgeIds.isEmpty()) {
             return this.originalEdgeIds.contains(edgeId) && (osmTrafficClassConverted == hereFunctionalClass || osmTrafficClassConverted == TrafficRelevantWayType.UNCLASSIFIED);
+        } else if (osmTrafficClassConverted == 0) {
+            return false;
         } else {
-                return osmTrafficClassConverted == hereFunctionalClass;
+            return osmTrafficClassConverted == hereFunctionalClass;
         }
     }
 
@@ -55,8 +57,8 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void lowerFunctionalClass() {
-        if (hereFunctionalClass > TrafficRelevantWayType.UNWANTED && hereFunctionalClass < TrafficRelevantWayType.CLASS5) {
-            // We don't want to increase the functional class higher than CLASS5 else it would collide with CLASS1LINK.
+        if (hereFunctionalClass < TrafficRelevantWayType.CLASS5) {
+            // We don't want to decrease the functional class lower than 5.
             this.hereFunctionalClass += 1;
         } else if (hereFunctionalClass >= TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass < TrafficRelevantWayType.CLASS4LINK) {
             this.hereFunctionalClass += 1;
@@ -64,8 +66,8 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void higherFunctionalClass() {
-        if (hereFunctionalClass > TrafficRelevantWayType.CLASS1 && hereFunctionalClass < TrafficRelevantWayType.CLASS1LINK) {
-            // We don't want to decrease the functional class lower than CLASS1 and not lower than CLASS1LINK to not colline with non-links.
+        if (hereFunctionalClass > TrafficRelevantWayType.CLASS1 && hereFunctionalClass <= TrafficRelevantWayType.CLASS5) {
+            // We don't want to increase the functional class higher than CLASS1 and not lower than CLASS4 to not collide with non-links.
             this.hereFunctionalClass -= 1;
         } else if (hereFunctionalClass > TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass <= TrafficRelevantWayType.CLASS4LINK) {
             this.hereFunctionalClass -= 1;
