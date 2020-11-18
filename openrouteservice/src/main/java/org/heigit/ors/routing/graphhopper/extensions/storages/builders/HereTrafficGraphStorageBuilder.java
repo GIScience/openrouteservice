@@ -22,8 +22,17 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import me.tongfei.progressbar.ProgressBar;
 import org.apache.log4j.Logger;
+import org.geotools.data.DataUtilities;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geojson.feature.FeatureJSON;
+import org.geotools.geojson.geom.GeometryJSON;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
@@ -38,11 +47,12 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -62,7 +72,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.Objects;
 
 public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
@@ -110,7 +119,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private String matchedEdgetotrafficPath;
     private int missedHereCounter = 0;
 
-    public HereTrafficGraphStorageBuilder() {
+    SimpleFeatureType TYPE =
+            DataUtilities.createType(
+                    "my", "geom:MultiLineString");
+
+    public HereTrafficGraphStorageBuilder() throws SchemaException {
         routeUsage = new HashSet<>(4);
         routeUsage.add("bus");
         routeUsage.add("trolleybus");
@@ -248,70 +261,91 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    public void writeLogFiles() {
+    public void writeLogFiles() throws ParseException, java.text.ParseException, IOException {
         if (outputLog) {
-            LOGGER.info("============Saving All processed edges as wkt===========");
-            LOGGER.info("========================================================");
-            FileWriter osmWriter = null;
-            FileWriter osmMatchedWriter = null;
-            FileWriter hereMatchWriter = null;
-            FileWriter hereWriter = null;
-            try {
-                osmWriter = new FileWriter(dateFormat.format(date) + "_OSM_edges_output.txt");
-                osmMatchedWriter = new FileWriter(dateFormat.format(date) + "_OSM_matched_" + "_edges_output.txt");
-                hereMatchWriter = new FileWriter(dateFormat.format(date) + "_Here_matched_" + "_edges_output.txt");
-                hereWriter = new FileWriter(dateFormat.format(date) + "_Here_edges_output.txt");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            for (String str : allOSMEdgeGeometries) {
+            File osmFile = null;
+            File osmMatchedFile = null;
+            File hereMatchedFile = null;
+            File hereFile = null;
+            int decimals = 14;
+            GeometryJSON gjson = new GeometryJSON(decimals);
+            FeatureJSON featureJSON = new FeatureJSON(gjson);
+            osmFile = new File(dateFormat.format(date) + "_OSM_edges_output.geojson");
+            osmMatchedFile = new File(dateFormat.format(date) + "_OSM_matched_edges_output.geojson");
+            hereMatchedFile = new File(dateFormat.format(date) + "_Here_matched_edges_output.geojson");
+            hereFile = new File(dateFormat.format(date) + "_Here_edges_output.geojson");
+
+            DefaultFeatureCollection allOSMCollection = new DefaultFeatureCollection();
+            DefaultFeatureCollection matchedOSMCollection = new DefaultFeatureCollection();
+            DefaultFeatureCollection allHereCollection = new DefaultFeatureCollection();
+            DefaultFeatureCollection matchedHereCollection = new DefaultFeatureCollection();
+
+            GeometryFactory gf = new GeometryFactory();
+            WKTReader reader = new WKTReader(gf);
+
+            for (String value : allOSMEdgeGeometries) {
                 try {
-                    Objects.requireNonNull(osmWriter).write(str + System.lineSeparator());
-                } catch (IOException e) {
+                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(value);
+                    featureBuilder.add(linestring);
+                    SimpleFeature feature = featureBuilder.buildFeature(null);
+                    allOSMCollection.add(feature);
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
-            FileWriter finalOsmMatchedWriter = osmMatchedWriter;
+
+
             matchedOSMLinks.forEach((value) -> {
                 try {
-                    Objects.requireNonNull(finalOsmMatchedWriter).write(value + System.lineSeparator());
-                } catch (IOException e) {
+                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(value);
+                    featureBuilder.add(linestring);
+                    SimpleFeature feature = featureBuilder.buildFeature(null);
+                    matchedOSMCollection.add(feature);
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
             });
 
-
-            LOGGER.info("==========Saving all matched Here links as wkt==========");
-            LOGGER.info("========================================================");
-            FileWriter finalHereMatchWriter = hereMatchWriter;
             matchedHereLinks.forEach((linkID, emptyString) -> {
                 try {
-                    Objects.requireNonNull(finalHereMatchWriter).write(htReader.getHereTrafficData().getLink(linkID).getLinkGeometry().toString() + System.lineSeparator());
-                } catch (IOException e) {
+                    String hereLinkGeometry = htReader.getHereTrafficData().getLink(linkID).getLinkGeometry().toString();
+                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
+                    featureBuilder.add(linestring);
+                    SimpleFeature feature = featureBuilder.buildFeature(null);
+                    matchedHereCollection.add(feature);
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
             });
 
-            LOGGER.info("==========Saving all Here links with traffic information==========");
-            LOGGER.info("==================================================================");
             for (TrafficLink trafficLink : htReader.getHereTrafficData().getLinks()) {
-                if (trafficLink.isPotentialTrafficSegment()) {
-                    try {
-                        Objects.requireNonNull(hereWriter).write(trafficLink.getLinkGeometry().toString() + System.lineSeparator());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    String hereLinkGeometry = trafficLink.getLinkGeometry().toString();
+                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
+                    featureBuilder.add(linestring);
+                    SimpleFeature feature = featureBuilder.buildFeature(null);
+                    allHereCollection.add(feature);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
+            if (!allOSMCollection.isEmpty())
+                osmFile.createNewFile();
+                featureJSON.writeFeatureCollection(allOSMCollection,osmFile);
+            if (!matchedOSMCollection.isEmpty())
+                osmMatchedFile.createNewFile();
+                featureJSON.writeFeatureCollection(matchedOSMCollection,osmMatchedFile);
+            if (!allHereCollection.isEmpty())
+                hereMatchedFile.createNewFile();
+                featureJSON.writeFeatureCollection(allHereCollection,hereFile);
+            if (!matchedHereCollection.isEmpty())
+                hereFile.createNewFile();
+                featureJSON.writeFeatureCollection(matchedHereCollection,hereMatchedFile);
 
-            try {
-                Objects.requireNonNull(hereMatchWriter).close();
-                Objects.requireNonNull(osmMatchedWriter).close();
-                Objects.requireNonNull(hereWriter).close();
-                Objects.requireNonNull(osmWriter).close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -410,14 +444,14 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
         try {
             if (trafficEdgeFilter == null) {
-                trafficEdgeFilter = new TrafficEdgeFilter(graphHopper.getGraphHopperStorage(), graphHopper.getEncodingManager().getEncoder("car-ors"));
+                trafficEdgeFilter = new TrafficEdgeFilter(graphHopper.getGraphHopperStorage());
             }
             if (!traffidEdgeId2OriginalEdgeId.isEmpty() && traffidEdgeId2OriginalEdgeId.get(trafficLink.getLinkId()) == null) {
                 return matchedSegments;
             }
             trafficEdgeFilter.setHereFunctionalClass(trafficLink.getFunctionalClass());
             trafficEdgeFilter.setOriginalEdgeIds(traffidEdgeId2OriginalEdgeId.get(trafficLink.getLinkId()));
-            matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, trafficLink, 15, 30, 5, trafficEdgeFilter, bothDirections);
+            matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, trafficLink, 20, 200, 10, trafficEdgeFilter, bothDirections);
         } catch (Exception e) {
             LOGGER.info("Error while matching: " + e);
         }
@@ -588,6 +622,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         Map<TrafficEnums.WeekDay, Integer> trafficPatternIds = trafficLink.getTrafficPatternIds(direction);
         for (EdgeIteratorState edge : routeSegment.getEdges()) {
             LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+//            addOSMGeometryForLogging(lineString.toString());
             double priority = distCalc.calcDist(lineString.getStartPoint().getX(), lineString.getStartPoint().getY(), lineString.getEndPoint().getX(), lineString.getEndPoint().getY());
             if (edge instanceof VirtualEdgeIteratorState) {
                 VirtualEdgeIteratorState virtualEdge = (VirtualEdgeIteratorState) edge;
