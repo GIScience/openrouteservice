@@ -937,7 +937,7 @@ public class ORSGraphHopper extends GraphHopper {
 			match = mMapMatcher.match(locations, bothDirections);
 			match = validateRouteSegment(trafficLink, match);
 		}
-		if (trafficLink.getFunctionalClass() == TrafficRelevantWayType.CLASS4LINK || originalFunctionalClass == TrafficRelevantWayType.CLASS4) {
+		if (originalFunctionalClass == TrafficRelevantWayType.CLASS4LINK || originalFunctionalClass == TrafficRelevantWayType.CLASS4) {
 			// If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
 			((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(TrafficRelevantWayType.CLASS5);
 			mMapMatcher.setEdgeFilter(edgeFilter);
