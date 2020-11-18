@@ -296,14 +296,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             }
 
             if (!acceptPotentially.canSkip()) {
-                if (way.hasTag(restrictions, restrictedValues)) {
-                    if (getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-                        if (getConditionalTagInspector().isConditionLazyEvaluated())
-                            return EncodingManager.Access.CONDITIONAL;
-                    }
-                    else
-                        return EncodingManager.Access.CAN_SKIP;
-                }
+                if (way.hasTag(restrictions, restrictedValues))
+                    acceptPotentially = isRestrictedWayConditionallyPermitted(way, acceptPotentially);
                 return acceptPotentially;
             }
 
