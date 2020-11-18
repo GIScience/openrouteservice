@@ -31,9 +31,7 @@ public class TrafficEdgeFilter implements EdgeFilter {
         short osmTrafficClassConverted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType(osmWayTypeValue);
         // TODO RAD
         // TODO RAD
-        if (!this.originalEdgeIds.isEmpty()) {
-            return this.originalEdgeIds.contains(edgeId) && (osmTrafficClassConverted == hereFunctionalClass || osmTrafficClassConverted == TrafficRelevantWayType.UNCLASSIFIED);
-        } else if (osmTrafficClassConverted == 0) {
+        if (osmTrafficClassConverted == 0) {
             return false;
         } else {
             return osmTrafficClassConverted == hereFunctionalClass;
