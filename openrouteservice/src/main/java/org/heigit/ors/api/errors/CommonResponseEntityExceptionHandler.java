@@ -15,7 +15,7 @@
 
 package org.heigit.ors.api.errors;
 
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -88,8 +88,8 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         }
 
         Throwable cause = exception.getCause();
-        if (cause instanceof InvalidDefinitionException) {
-            InvalidDefinitionException e = (InvalidDefinitionException) cause;
+        if (cause instanceof ValueInstantiationException) {
+            ValueInstantiationException e = (ValueInstantiationException) cause;
             if (e.getCause() instanceof StatusCodeException) {
                 StatusCodeException origExc = (StatusCodeException) e.getCause();
                 return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
