@@ -17,7 +17,6 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -36,7 +35,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
-import org.heigit.ors.centrality.algorithms.floydwarshall.FloydWarshallCentralityAlgorithm;
+import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
@@ -674,11 +673,11 @@ public class RoutingProfile {
 
         HintsMap hintsMap = new HintsMap();
         int weightingMethod = WeightingMethod.SHORTEST;
-        setWeighting(hintsMap, weightingMethod, req.getProfileType());
+        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
 
-        CentralityAlgorithm alg = new FloydWarshallCentralityAlgorithm();
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(req, gh, graph, flagEncoder, weighting);
 
         res = alg.compute(0);

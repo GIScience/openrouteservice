@@ -24,6 +24,7 @@ public class CentralityRequestHandler extends GenericHandler {
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, CentralityErrorCodes.UNKNOWN);
         }
     }
