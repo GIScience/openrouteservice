@@ -38,6 +38,8 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
             int edgeId = EdgeKeys.getOriginalEdge(edge);
             double trafficSpeed = trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time);
             if (trafficSpeed != -1) {
+                //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
+                //Will be subject to change once internal speeds are more realistic.
                 if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed)
                         || trafficSpeed < speed) {
                     changedSpeed.put(speed, changedSpeed.getOrDefault(speed, 0.0) + trafficSpeed*edge.getDistance());
