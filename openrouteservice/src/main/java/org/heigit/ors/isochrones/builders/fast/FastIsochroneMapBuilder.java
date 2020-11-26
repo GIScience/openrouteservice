@@ -51,7 +51,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncode
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.GeomUtility;
-import org.opensphere.geometry.algorithm.ConcaveHull;
+import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
 
@@ -332,7 +332,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         LinearRing ring = null;
         Geometry concaveHull;
         try {
-            ConcaveHull ch = new ConcaveHull(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
+            ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             concaveHull = ch.getConcaveHull();
             if (concaveHull instanceof Polygon) {
                 ring = (LinearRing) ((Polygon) concaveHull).getExteriorRing();
@@ -364,7 +364,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             return;
         Polygon poly = null;
         try {
-            ConcaveHull ch = new ConcaveHull(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
+            ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
             if (geom instanceof GeometryCollection) {
