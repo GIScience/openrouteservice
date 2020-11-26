@@ -64,7 +64,7 @@ import com.vividsolutions.jts.util.UniqueCoordinateArrayFilter;
  * @author Eric Grosso
  *
  */
-public class ConcaveHull {
+public class ConcaveHullOpenSphere {
 
     private GeometryFactory geomFactory;
     private GeometryCollection geometries;
@@ -83,7 +83,7 @@ public class ConcaveHull {
      * @param geometry
      * @param threshold
      */
-    public ConcaveHull(Geometry geometry, double threshold) {
+    public ConcaveHullOpenSphere(Geometry geometry, double threshold) {
         this.geometries = transformIntoPointGeometryCollection(geometry);
         this.threshold = threshold;
         this.geomFactory = geometry.getFactory();
@@ -97,7 +97,7 @@ public class ConcaveHull {
      * @param threshold
      */
     // Modification by Maxim Rylov: Added convertGeometryCollection parameter 
-    public ConcaveHull(GeometryCollection geometries, double threshold, boolean convertGeometryCollection) {
+    public ConcaveHullOpenSphere(GeometryCollection geometries, double threshold, boolean convertGeometryCollection) {
         this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries): geometries; 
         this.threshold = threshold;
         this.geomFactory = geometries.getFactory();

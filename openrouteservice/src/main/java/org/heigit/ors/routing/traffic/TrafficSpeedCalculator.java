@@ -10,10 +10,17 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TrafficSpeedCalculator implements SpeedCalculator {
     protected final DecimalEncodedValue avSpeedEnc;
     // time-dependent stuff
     private final TrafficGraphStorage trafficGraphStorage;
+    public Map<Double, Double> changedSpeedCount = new HashMap();
+    public Map<Double, Double> changedSpeed = new HashMap();
+    private int i = 0;
+
 
     public TrafficSpeedCalculator(GraphHopperStorage graph, FlagEncoder encoder) {
         avSpeedEnc = encoder.getAverageSpeedEnc();
@@ -30,8 +37,14 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
         if (time != -1) {
             int edgeId = EdgeKeys.getOriginalEdge(edge);
             double trafficSpeed = trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time);
-            if (trafficSpeed < speed)
-                speed = trafficSpeed;
+            if (trafficSpeed != -1) {
+                if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed)
+                        || trafficSpeed < speed) {
+                    changedSpeed.put(speed, changedSpeed.getOrDefault(speed, 0.0) + trafficSpeed*edge.getDistance());
+                    changedSpeedCount.put(speed, changedSpeedCount.getOrDefault(speed, 0.0) + edge.getDistance());
+                    speed = trafficSpeed;
+                }
+            }
         }
         return speed;
     }
