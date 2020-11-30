@@ -78,6 +78,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private int minEdgeLengthLimit = 400;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private boolean BUFFERED_OUTPUT = true;
+    private double activeCellApproximationFactor = 0.99;
 
     /*
         Calculates the distance between two coordinates in meters
@@ -177,19 +178,26 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
             fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
 
+            Set<Geometry> isochroneGeometries = new HashSet<>();
+
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Find edges: " + sw.stop().getSeconds());
                 sw = new StopWatch();
                 sw.start();
             }
 
-            Set<Geometry> isochroneGeometries = new HashSet<>();
+            fastIsochroneAlgorithm.approximateActiveCells(activeCellApproximationFactor);
 
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Approximate active cells: " + sw.stop().getSeconds());
+                sw = new StopWatch();
+                sw.start();
+            }
             //Add all fully reachable cell geometries
             handleFullyReachableCells(isochroneGeometries, fastIsochroneAlgorithm.getFullyReachableCells());
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Handle fully reachable cells: " + sw.stop().getSeconds());
+                LOGGER.debug("Handle " + fastIsochroneAlgorithm.getFullyReachableCells().size() + " fully reachable cells: " + sw.stop().getSeconds());
             }
 
             GHPoint3D snappedPosition = res.getSnappedPoint();
@@ -238,12 +246,14 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 swActiveCellSeparate.start();
                 //Find disconnected sub-cells of active cells to avoid geometric problems
                 Set<GHIntObjectHashMap<SPTEntry>> disconnectedActiveCells = separateDisconnected(activeCell.getValue());
+//                System.out.println("Active cell relative size " + activeCell.getValue().size() / (double) cellStorage.getNodesOfCell(activeCell.getKey()).size());
+
                 swActiveCellSeparate.stop();
                 swActiveCellBuild.start();
                 for (GHIntObjectHashMap<SPTEntry> splitMap : disconnectedActiveCells) {
                     if (splitMap.size() < getMinCellNodesNumber())
                         continue;
-                    GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<Coordinate>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
+                    GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
                     createPolyFromPoints(isochroneGeometries, points, maxRadius, smoothingFactor);
                 }
                 swActiveCellBuild.stop();
@@ -251,12 +261,13 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Separate disconnected: " + swActiveCellSeparate.stop().getSeconds());
-                LOGGER.debug("Build active cells: " + swActiveCellBuild.stop().getSeconds());
+                LOGGER.debug("Build " + fastIsochroneAlgorithm.getActiveCellMaps().size() + " active cells: " + swActiveCellBuild.stop().getSeconds());
                 swActiveCell = new StopWatch();
                 swActiveCell.start();
             }
 
             //Make a union of all now existing polygons to reduce coordinate list
+
             Geometry preprocessedGeometry = UnaryUnionOp.union(isochroneGeometries);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Union of geometries: " + swActiveCell.stop().getSeconds());

@@ -37,6 +37,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class Eccentricity extends AbstractEccentricity {
     //This value determines how many nodes of a cell need to be reached in order for the cell to count as fully reachable.
     //Some nodes might be part of a cell but unreachable (disconnected, behind infinite weight, ...)
+    //TODO WIP
     private static final double acceptedFullyReachablePercentage = 0.995;
     //This factor determines how far the Dijkstra should search for a path to find the eccentricity if it cannot be found inside the cell.
     //A factor of 10 means that the Dijkstra will search an area of 10 * maxCellNodesNumber.
