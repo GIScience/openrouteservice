@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class CentralityAlgorithmTest extends TestCase {
     private CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
@@ -79,9 +80,6 @@ public class CentralityAlgorithmTest extends TestCase {
         graphHopper.postProcessing();
 
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
-        //System.out.printf("Edge (3,4) == (4,3)? %f == %f\n", graph.getEdgeIteratorState(3,4).getDistance(), graph.getEdgeIteratorState(4,3).getDistance());
-        //System.out.printf("Test %d\n", graph.getEdgeIteratorState(3,4).getBaseNode());
-
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
 
@@ -97,17 +95,18 @@ public class CentralityAlgorithmTest extends TestCase {
     @Test
     public void testMediumGraph() {
         ArrayList<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
-        CentralityResult res = new CentralityResult();
-        ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(26/3, 0, 41/3, 41/3, 47/3, 6, 0, 31/3, 31/3));
-        CentralityResult expectedResult = new CentralityResult();
-        expectedResult.set
+        ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(26d/3d, 0d, 41d/3d, 41d/3d, 47d/3d, 6d, 0d, 31d/3d, 31d/3d));
 
-        assert
+        HashMap<Integer, Double> betweenness = null;
         try {
-            res = alg.compute(nodes);
+            betweenness = alg.compute(nodes);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.getMessage();
             e.printStackTrace();
+        }
+
+        for (Integer v: nodes) {
+            assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
         }
     }
 

@@ -19,4 +19,8 @@ public class CentralityResult {
     public void setCentralityScores(HashMap<Coordinate, Double> centralityScores) {
         this.centralityScores = centralityScores;
     }
+
+    public void addCentralityScore(Coordinate coord, Double score) {
+        this.centralityScores.put(coord, score);
+    }
 }

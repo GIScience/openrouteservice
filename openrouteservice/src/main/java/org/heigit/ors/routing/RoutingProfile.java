@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
@@ -677,6 +678,7 @@ public class RoutingProfile {
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
+        // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
         index.query(req.getBoundingBox(), new LocationIndex.Visitor() {
@@ -690,8 +692,15 @@ public class RoutingProfile {
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting);
 
-        res = alg.compute(nodesInBBox);
-        System.out.println("Returned to RoutingProfile");
+        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
+
+        // transform node ids to coordinates
+        NodeAccess nodeAccess = graph.getNodeAccess();
+        for (int v : nodesInBBox) {
+            System.out.printf("Node %d has value %f\n", v, betweenness.get(v));
+            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
+            res.addCentralityScore(coord, betweenness.get(v));
+        }
 
         return res;
     }
