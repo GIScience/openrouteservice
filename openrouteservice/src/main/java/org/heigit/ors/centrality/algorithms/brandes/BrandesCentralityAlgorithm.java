@@ -40,7 +40,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     }
     // this implementation follows the code given in
     // "A Faster Algorithm for Betweenness Centrality" by Ulrik Brandes, 2001
-    public CentralityResult compute(ArrayList<Integer> nodesInBBox) throws Exception {
+    public HashMap<Integer, Double> compute(ArrayList<Integer> nodesInBBox) throws Exception {
         HashMap<Integer, Double> betweenness = new HashMap<>();
 
         System.out.println("Entering compute");
@@ -186,20 +186,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
         }
 
         System.out.println("Calculated paths.");
-
-        NodeAccess nodeAccess = graph.getNodeAccess();
-        HashMap<Coordinate, Double> centralityScores = new HashMap<>();
-        for (int v : nodesInBBox) {
-            System.out.printf("Node %d has value %f\n", v, betweenness.get(v));
-            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-            // centralityScores.put(coord, (float) pathCount[v]);
-            centralityScores.put(coord, betweenness.get(v));
-        }
-
-        System.out.println("Generated centralityScores.");
-        System.out.println(centralityScores.size());
-
-        return new CentralityResult(centralityScores);
+        return betweenness;
     }
 
 }
