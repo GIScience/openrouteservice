@@ -22,6 +22,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -672,15 +673,24 @@ public class RoutingProfile {
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
 
         HintsMap hintsMap = new HintsMap();
-        int weightingMethod = WeightingMethod.SHORTEST;
+        int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
+        LocationIndex index = gh.getLocationIndex();
+        ArrayList<Integer> nodesInBBox = new ArrayList<>();
+        index.query(req.getBoundingBox(), new LocationIndex.Visitor() {
+            @Override
+            public void onNode(int nodeId) {
+                nodesInBBox.add(nodeId);
+            }
+        });
+
 
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(req, gh, graph, flagEncoder, weighting);
+        alg.init(graph, weighting);
 
-        res = alg.compute(0);
+        res = alg.compute(nodesInBBox);
         System.out.println("Returned to RoutingProfile");
 
         return res;

@@ -7,9 +7,11 @@ import com.graphhopper.storage.Graph;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 
-public interface CentralityAlgorithm {
-    public void init(CentralityRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);
+import java.util.ArrayList;
 
-    public CentralityResult compute(int metrics) throws Exception;
+public interface CentralityAlgorithm {
+    public void init(Graph graph, Weighting weighting);
+
+    public CentralityResult compute(ArrayList<Integer> nodes) throws Exception;
 
 }

@@ -18,20 +18,20 @@ public class JSONCentralityResponse extends CentralityResponse {
     public Double[][] locations;
 
     @JsonProperty("centralityScores")
-    public Float[] scores;
+    public Double[] scores;
 
     public JSONCentralityResponse(CentralityResult centralityResult, CentralityRequest request) throws StatusCodeException {
         super(centralityResult, request);
-        HashMap<Coordinate, Float> centralityScores = centralityResult.getCentralityScores();
+        HashMap<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
         int length = centralityScores.size();
 
         Double[][] locations = new Double[length][2];
-        Float[] scores = new Float[length];
+        Double[] scores = new Double[length];
         int current = 0;
 
-        for (HashMap.Entry<Coordinate, Float> centralityScore : centralityScores.entrySet()) {
+        for (HashMap.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
             Coordinate location = centralityScore.getKey();
-            Float score = centralityScore.getValue();
+            Double score = centralityScore.getValue();
 
             locations[current][0] = FormatUtility.roundToDecimals(location.x, 6);  //COORDINATE_DECIMAL_PLACES in JSONLocation
             locations[current][1] = FormatUtility.roundToDecimals(location.y, 6);
