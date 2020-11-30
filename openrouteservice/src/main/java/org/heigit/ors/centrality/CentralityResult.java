@@ -4,19 +4,19 @@ import com.vividsolutions.jts.geom.Coordinate;
 import java.util.HashMap;
 
 public class CentralityResult {
-    private HashMap<Coordinate, Float> centralityScores;
+    private HashMap<Coordinate, Double> centralityScores;
 
-    public CentralityResult() {};
+    public CentralityResult() {}
 
-    public CentralityResult(HashMap<Coordinate, Float> centralityScores) {
+    public CentralityResult(HashMap<Coordinate, Double> centralityScores) {
         this.setCentralityScores(centralityScores);
     }
 
-    public HashMap<Coordinate, Float> getCentralityScores() {
+    public HashMap<Coordinate, Double> getCentralityScores() {
         return centralityScores;
     }
 
-    public void setCentralityScores(HashMap<Coordinate, Float> centralityScores) {
+    public void setCentralityScores(HashMap<Coordinate, Double> centralityScores) {
         this.centralityScores = centralityScores;
     }
 }
