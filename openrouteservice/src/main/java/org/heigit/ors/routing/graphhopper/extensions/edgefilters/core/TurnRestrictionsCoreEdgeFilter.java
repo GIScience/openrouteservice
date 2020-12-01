@@ -49,7 +49,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
         int edgeA = edge.getEdge();
-        int node = edge.getAdjNode();
+        int node = edge.getBaseNode();
         EdgeIterator iterationTo = allEdgesExplorer.setBaseNode(node);
 
         while ( iterationTo.next()) {
@@ -68,8 +68,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-//        if (acceptedEdges.contains(edge.getEdge()))
-//            return false;
+
         if ( hasTurnRestrictions(edge) ) {
             acceptedEdges.add(edge.getEdge());
             return false;
