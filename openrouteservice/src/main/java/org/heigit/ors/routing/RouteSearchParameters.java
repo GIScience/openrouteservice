@@ -586,7 +586,8 @@ public class RouteSearchParameters {
             || hasBearings()
             || hasContinueStraight()
             || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-            || getAlternativeRoutesCount() > 0;
+            || getAlternativeRoutesCount() > 0
+            || isTimeDependent();
     }
 
     // time-dependent stuff
