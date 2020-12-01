@@ -286,10 +286,6 @@ public class PrepareCoreTest {
         HashMap<Integer, Pair> shortcuts = new HashMap<>();
         shortcuts.put(13, new Pair<>(7,4));
         shortcuts.put(14, new Pair<>(7,3));
-        shortcuts.put(15, new Pair<>(3,8));
-        shortcuts.put(16, new Pair<>(3,0));
-        shortcuts.put(17, new Pair<>(1,0));
-        shortcuts.put(18, new Pair<>(3,1));
         assertShortcuts(g, shortcuts);
 
         Integer core[] = {0, 1, 2, 3};
