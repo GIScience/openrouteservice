@@ -43,7 +43,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     public HashMap<Integer, Double> compute(ArrayList<Integer> nodesInBBox) throws Exception {
         HashMap<Integer, Double> betweenness = new HashMap<>();
 
-        System.out.println("Entering compute");
+        // System.out.println("Entering compute");
 
         // c_b[v] = 0 forall v in V
         for (int v: nodesInBBox) {
@@ -53,7 +53,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
 
 
 
-        System.out.println("Initiated data structures, starting algorithm.");
+        // System.out.println("Initiated data structures, starting algorithm.");
 
         for (int s : nodesInBBox) {
             Stack<Integer> S = new Stack<>();
@@ -75,7 +75,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
 
             PriorityQueue<QueueElement> Q = new PriorityQueue<>();
 
-            System.out.println("Initiate data structures for SSSP");
+            // System.out.println("Initiate data structures for SSSP");
 
             Q.add(new QueueElement(0d, s, s));
 
@@ -88,7 +88,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 Double dist = first.dist;
                 Integer pred = first.pred;
                 Integer v = first.v;
-                System.out.println("Pop-ed first element from queue");
+                // System.out.println("Pop-ed first element from queue");
 
                 if (D.containsKey(v)) {
                     continue;
@@ -98,42 +98,42 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 S.push(v);
                 D.put(v, dist);
 
-                System.out.println("Counted shortest paths, mark as visited");
+                // System.out.println("Counted shortest paths, mark as visited");
 
                 // iterate all edges connected to v
                 EdgeExplorer explorer = graph.createEdgeExplorer();
                 EdgeIterator iter = explorer.setBaseNode(v);
 
-                System.out.println("Created edge explorer");
+                // System.out.println("Created edge explorer");
 
                 while (iter.next()) {
-                                        System.out.println("Iterating through edges");
+                                        // System.out.println("Iterating through edges");
                     int w = iter.getAdjNode(); // this is the node where this edge state is "pointing to"
                     if (!nodesInBBox.contains(w)) {
-                        System.out.println("Node not in bbox, skipping edge");
+                        // System.out.println("Node not in bbox, skipping edge");
                         continue;
                     }
 
                     if (D.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
-                        System.out.println("Node already checked, skipping");
+                        // System.out.println("Node already checked, skipping");
                         continue;
                     }
 
                     Double vw_dist = 0.0d;
                     try {
                         vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
-                        System.out.printf("Looking at edge (%d,%d) w/ weight %f", v, w, vw_dist);
+                        // System.out.printf("Looking at edge (%d,%d) w/ weight %f", v, w, vw_dist);
                     } catch (Exception e) {
-                        System.out.println(e);
+                        // System.out.println(e);
                     }
-                    System.out.println("Calculated edge weight");
+                    // System.out.println("Calculated edge weight");
 
                     if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.00001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
                         List<Integer> predecessors = P.get(w);
                         predecessors.add(v);
                         P.put(w, predecessors);
-                        System.out.println("Calculations for same path done");
+                        // System.out.println("Calculations for same path done");
                     } else if (!seen.containsKey(w) || vw_dist < seen.get(w)) {
                         seen.put(w, vw_dist);
                         Q.add(new QueueElement(vw_dist, v, w));
@@ -141,7 +141,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         ArrayList<Integer> predecessors = new ArrayList<>();
                         predecessors.add(v);
                         P.put(w, predecessors);
-                        System.out.println("Calculations for new shorter path done");
+                        // System.out.println("Calculations for new shorter path done");
                     }
 //                    if (!D.containsKey(w) && (!seen.containsKey(w) || vw_dist < seen.get(w))) { // I think we run into problems here, b/c of rounding errors
 //                        seen.put(w, vw_dist);
@@ -161,8 +161,8 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 }
             }
 
-            System.out.println("SSSP completed for node");
-            System.out.println(s);
+            // System.out.println("SSSP completed for node");
+            // System.out.println(s);
 
             // accumulate betweenness
             HashMap<Integer, Double> delta = new HashMap<>();
@@ -182,7 +182,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 }
             }
 
-            System.out.println("Accumulated betweenness for above node");
+            // System.out.println("Accumulated betweenness for above node");
         }
 
         System.out.println("Calculated paths.");

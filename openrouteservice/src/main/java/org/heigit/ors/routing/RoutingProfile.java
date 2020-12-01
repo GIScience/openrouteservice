@@ -666,7 +666,7 @@ public class RoutingProfile {
     }
 
     public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
-        CentralityResult res = null;
+        CentralityResult res = new CentralityResult();
 
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
@@ -694,10 +694,12 @@ public class RoutingProfile {
 
         HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
 
+        System.out.printf("Working on %d nodes, result has %d nodes", nodesInBBox.size(), betweenness.size());
+
+
         // transform node ids to coordinates
         NodeAccess nodeAccess = graph.getNodeAccess();
         for (int v : nodesInBBox) {
-            System.out.printf("Node %d has value %f\n", v, betweenness.get(v));
             Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
             res.addCentralityScore(coord, betweenness.get(v));
         }

@@ -69,8 +69,42 @@ public class CentralityAlgorithmTest extends TestCase {
         return g;
     }
 
-    @Before
-    public void setUp() {
+    public GraphHopperStorage createTwoComponentGraph() {
+        //    3   4--5
+        //   /\   |  |
+        //  2--0  6--7
+        //  | / \
+        //  |/   \
+        //  1-----8
+        GraphHopperStorage g = createGHStorage();
+        g.edge(0, 1, 1, true);
+        g.edge(0, 2, 1, true);
+        g.edge(0, 3, 5, true);
+        g.edge(0, 8, 1, true);
+        g.edge(1, 2, 1, true);
+        g.edge(1, 8, 2, true);
+        g.edge(2, 3, 2, true);
+        g.edge(4, 5, 1, true);
+        g.edge(4, 6, 1, true);
+        g.edge(5, 7, 1, true);
+        g.edge(6, 7, 2, true);
+
+        //Set test lat lo
+        g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
+        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
+        g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
+        g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
+        g.getBaseGraph().getNodeAccess().setNode(4, 4, 4);
+        g.getBaseGraph().getNodeAccess().setNode(5, 4, 5);
+        g.getBaseGraph().getNodeAccess().setNode(6, 3, 4);
+        g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
+        g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
+
+        return g;
+    }
+
+    @Test
+    public void testMediumGraph() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -90,12 +124,10 @@ public class CentralityAlgorithmTest extends TestCase {
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting);
-    }
 
-    @Test
-    public void testMediumGraph() {
+
         ArrayList<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
-        ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(26d/3d, 0d, 41d/3d, 41d/3d, 47d/3d, 6d, 0d, 31d/3d, 31d/3d));
+        ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(26d / 3d, 0d, 41d / 3d, 41d / 3d, 47d / 3d, 6d, 0d, 31d / 3d, 31d / 3d));
 
         HashMap<Integer, Double> betweenness = null;
         try {
@@ -105,10 +137,47 @@ public class CentralityAlgorithmTest extends TestCase {
             e.printStackTrace();
         }
 
-        for (Integer v: nodes) {
+        for (Integer v : nodes) {
             assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
         }
     }
 
+    @Test
+    public void testTwoComponentGraph() {
+        graphHopper = new ORSGraphHopper();
+        graphHopper.setCHEnabled(false);
+        graphHopper.setCoreEnabled(false);
+        graphHopper.setCoreLMEnabled(false);
+        graphHopper.setEncodingManager(encodingManager);
+        graphHopper.setGraphHopperStorage(createTwoComponentGraph());
+        graphHopper.postProcessing();
 
+        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
+        String encoderName = "car";
+        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
+
+        HintsMap hintsMap = new HintsMap();
+        //the following two lines represent the setWeighting()-Method of RoutingProfile
+        hintsMap.put("weighting", "fastest");
+        hintsMap.put("weighting_method", "fastest");
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        alg = new BrandesCentralityAlgorithm();
+        alg.init(graph, weighting);
+
+
+        ArrayList<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
+        ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(5d, 0d, 6d, 0d, 2d, 2d, 0d, 0d, 0d));
+
+        HashMap<Integer, Double> betweenness = null;
+        try {
+            betweenness = alg.compute(nodes);
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+
+        for (Integer v : nodes) {
+            assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
+        }
+    }
 }
