@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @author Hendrik Leuschner, Andrzej Oles, Djime Gueye
  */
 public class PrepareCoreTest {
-    private final CarFlagEncoder carEncoder = new CarFlagEncoder();
+    private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;

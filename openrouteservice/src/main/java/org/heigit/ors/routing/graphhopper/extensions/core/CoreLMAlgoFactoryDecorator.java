@@ -304,7 +304,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, weighting);
 
             for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
-                Double maximumWeight = maximumWeights.get(weighting.getName().replace("turn|",""));
+                Double maximumWeight = maximumWeights.get(weighting.getName());
                 if (maximumWeight == null)
                     throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. "
                             + "Couldn't find " + weighting.getName() + " in " + maximumWeights);

@@ -20,6 +20,7 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -37,8 +38,10 @@ import java.util.Map;
 
 public class CoreNodeContractor {
     private final GraphHopperStorage ghStorage;
+    private final TurnCostExtension turnCostExt = new TurnCostExtension();
     private final CHGraph prepareGraph;
     private final PreparationWeighting prepareWeighting;
+    private final TurnWeighting turnWeighting;
     // todo: so far node contraction can only be done for node-based graph traversal
     private final CHProfile chProfile;
     private final DataAccess originalEdges;
@@ -63,8 +66,10 @@ public class CoreNodeContractor {
         }
         // todo: it would be nice to check if ghStorage is frozen here
         this.ghStorage = ghStorage;
+        turnCostExt.init(ghStorage, ghStorage.getDirectory());
         this.prepareGraph = prepareGraph;
         this.prepareWeighting = new PreparationWeighting(chProfile.getWeighting());
+        this.turnWeighting = new TurnWeighting(prepareWeighting, turnCostExt);
         this.chProfile = chProfile;
         originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(chProfile.getWeighting()));
         originalEdges.create(1000);
@@ -80,7 +85,7 @@ public class CoreNodeContractor {
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, chProfile.getTraversalMode());
+        prepareAlgo = new DijkstraOneToMany(prepareGraph, turnWeighting, chProfile.getTraversalMode());
     }
 
     public void close() {

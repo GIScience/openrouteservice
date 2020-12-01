@@ -59,11 +59,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -646,10 +642,12 @@ public class ORSGraphHopper extends GraphHopper {
 			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
 				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 			}
 			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
 				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
 				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
 			}
 		}
 
@@ -718,13 +716,12 @@ public class ORSGraphHopper extends GraphHopper {
 		return coreFactoryDecorator.isEnabled();
 	}
 
-	public void initCoreAlgoFactoryDecorator(TurnCostExtension turnCostExtension) {
+	public void initCoreAlgoFactoryDecorator() {
 		if (!coreFactoryDecorator.hasCHProfiles()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					weighting = new TurnWeighting(weighting, turnCostExtension);
 					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
@@ -764,13 +761,12 @@ public class ORSGraphHopper extends GraphHopper {
 		return coreLMFactoryDecorator.isEnabled();
 	}
 
-	public void initCoreLMAlgoFactoryDecorator(TurnCostExtension turnCostExtension) {
+	public void initCoreLMAlgoFactoryDecorator() {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					weighting = new TurnWeighting(weighting, turnCostExtension);
 					coreLMFactoryDecorator.addWeighting(weighting);
 				}
 			}
