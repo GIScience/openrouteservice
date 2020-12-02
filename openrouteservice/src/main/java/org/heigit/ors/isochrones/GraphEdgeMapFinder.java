@@ -70,7 +70,8 @@ public class GraphEdgeMapFinder {
 
 		if (parameters.isTimeDependent()) {
 			//Time-dependent means traffic dependent for isochrones (for now)
-			TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(graph, encoder);
+			TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator();
+			trafficSpeedCalculator.init(graph, encoder);
 			((TimeDependentFastestWeighting) weighting).setSpeedCalculator(trafficSpeedCalculator);
 			weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
 			TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
@@ -82,18 +83,18 @@ public class GraphEdgeMapFinder {
 			tdDijkstraCostCondition.calcPath(fromId, Integer.MIN_VALUE, zdt.toInstant().toEpochMilli());
 
 			IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
-			int sumEntries = 0;
-			double sumPercentages = 0;
-			for (Map.Entry<Double, Double> entry : trafficSpeedCalculator.changedSpeedCount.entrySet()) {
-				sumEntries += entry.getValue();
-				sumPercentages += (trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() )/ entry.getKey() * entry.getValue();
-//				System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " with number of entries " + entry.getValue());
-			}
-			trafficSpeedCalculator.changedSpeedCount.entrySet().stream()
-					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-					.forEach(entry->System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " over total distance of " + (int)entry.getValue().doubleValue()/1000 +"km"));
-			System.out.println("Average traffic speed as percentage of normal speed " + sumPercentages/sumEntries);
-			System.out.println("Total distance replaced: " + (int)sumEntries/1000 + "km");
+//			int sumEntries = 0;
+//			double sumPercentages = 0;
+//			for (Map.Entry<Double, Double> entry : trafficSpeedCalculator.changedSpeedCount.entrySet()) {
+//				sumEntries += entry.getValue();
+//				sumPercentages += (trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() )/ entry.getKey() * entry.getValue();
+////				System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " with number of entries " + entry.getValue());
+//			}
+//			trafficSpeedCalculator.changedSpeedCount.entrySet().stream()
+//					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+//					.forEach(entry->System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " over total distance of " + (int)entry.getValue().doubleValue()/1000 +"km"));
+//			System.out.println("Average traffic speed as percentage of normal speed " + sumPercentages/sumEntries);
+//			System.out.println("Total distance replaced: " + (int)sumEntries/1000 + "km");
 			return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
 		} else {
 			weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
