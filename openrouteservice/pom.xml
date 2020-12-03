@@ -332,7 +332,7 @@
             <version>v0.13.8</version>
         </dependency>
 
-        <!--
+        <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>

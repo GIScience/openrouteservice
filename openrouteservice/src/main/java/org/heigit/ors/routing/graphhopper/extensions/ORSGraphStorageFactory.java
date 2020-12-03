@@ -38,7 +38,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
-		TurnCostExtension geTurnCosts = null;
+		GraphExtension geTurnCosts = null;
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
 
 		if (encodingManager.needsTurnCostsSupport()) {

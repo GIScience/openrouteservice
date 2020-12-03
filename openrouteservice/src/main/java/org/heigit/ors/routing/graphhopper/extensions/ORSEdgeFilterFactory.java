@@ -17,7 +17,6 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Polygon;
@@ -69,7 +68,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             if (params.hasObj("avoid_borders")) {
                 edgeFilters.add(new AvoidBordersEdgeFilter((RouteSearchParameters) params.getObj("avoid_borders"), gs));
             }
-
+            
         } catch (Exception ex) {
             LOGGER.error(ex);
         }
