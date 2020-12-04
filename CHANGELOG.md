@@ -36,6 +36,10 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
+### Changed
+- Added performance improvement for fast isochrones in active cell calculation
+### Fixed
+- Stabilize geometry for small isochrones with small intervals
 
 ## [6.3.1] - 2020-10-20
 ### Fixed
