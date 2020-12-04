@@ -188,14 +188,6 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
                 getFullyReachableCells().add(activeCell.getKey());
             }
         }
-//        for (Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell : getActiveCellMaps().entrySet()) {
-//            if (activeCell.getValue().size() / (double) cellStorage.getNodesOfCell(activeCell.getKey()).size() < approximation) {
-//                newActiveCellMaps.put(activeCell.getKey(), activeCell.getValue());
-//            }
-//            else fastIsochroneAlgorithm.getFullyReachableCells().add(activeCell.getKey());
-//
-//        }
-//        fastIsochroneAlgorithm.setActiveCellMaps(newActiveCellMaps);
     }
 
     private boolean isWithinLimit(SPTEntry sptEntry, int eccentricity) {
