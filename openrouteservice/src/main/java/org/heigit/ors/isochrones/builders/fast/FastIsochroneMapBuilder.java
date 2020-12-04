@@ -69,6 +69,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private GeometryFactory geomFactory;
     private PointItemVisitor visitor = null;
     private TreeSet<Coordinate> treeSet = new TreeSet<>();
+    private List<Coordinate> prevIsoPoints = null;
     private RouteSearchContext searchcontext;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
@@ -388,6 +389,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         } catch (Exception e) {
             return;
         }
+        copyConvexHullPoints(poly);
         isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
@@ -610,6 +612,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             j++;
             addPoint(points, qtree, longitude, latitude, true);
         }
+
+        if (prevIsoPoints != null)
+            points.addAll(prevIsoPoints);
 //        if (LOGGER.isDebugEnabled())
 //            LOGGER.debug("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
 
@@ -745,5 +750,17 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             disconnectedCells.add(connectedCell);
         }
         return disconnectedCells;
+    }
+
+    private void copyConvexHullPoints(Polygon poly) {
+        LineString ring = poly.getExteriorRing();
+        if (prevIsoPoints == null)
+            prevIsoPoints = new ArrayList<>(ring.getNumPoints());
+        else
+            prevIsoPoints.clear();
+        for (int i = 0; i< ring.getNumPoints(); ++i) {
+            Point p = ring.getPointN(i);
+            prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
+        }
     }
 }
