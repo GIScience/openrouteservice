@@ -178,7 +178,6 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
      * @param approximation factor of approximation. 1 means all nodes must be found, 0 means no nodes have to be found.
      */
     public void approximateActiveCells(double approximation) {
-        //TODO TEST
         Map<Integer, IntObjectMap<SPTEntry>> newActiveCellMaps = new HashMap<>();
         Iterator<Map.Entry<Integer, IntObjectMap<SPTEntry>>> activeCellIterator = getActiveCellMaps().entrySet().iterator();
         while (activeCellIterator.hasNext()) {
