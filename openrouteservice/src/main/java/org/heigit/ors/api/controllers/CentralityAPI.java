@@ -74,7 +74,6 @@ public class CentralityAPI {
     }
 
     // Functional request methods
-    //TODO: implement standard result for post request
     @PostMapping(value = "/{profile}")
     @ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON", value = "Centrality Service (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(
@@ -86,7 +85,7 @@ public class CentralityAPI {
                                         @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
         return getJsonCentrality(profile, request);
     }
-    //TODO: implement returning json explicitly??
+
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON", value = "Centrality Service JSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
@@ -100,8 +99,6 @@ public class CentralityAPI {
 
         //TODO: do I need a handler? or can I make this work easier?
         CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
-        System.out.println(result);
-        System.out.println("Returned to API.");
 
         return new JSONCentralityResponse(result, request);
     }

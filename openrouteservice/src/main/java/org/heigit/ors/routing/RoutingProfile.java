@@ -680,28 +680,32 @@ public class RoutingProfile {
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
+        NodeAccess nodeAccess = graph.getNodeAccess();
+        BBox bbox = req.getBoundingBox();
+
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(req.getBoundingBox(), new LocationIndex.Visitor() {
+        index.query(bbox, new LocationIndex.Visitor() {
             @Override
             public void onNode(int nodeId) {
-                nodesInBBox.add(nodeId);
+                if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+                    nodesInBBox.add(nodeId);
+                }
             }
         });
-
 
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting);
 
         HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
 
-        System.out.printf("Working on %d nodes, result has %d nodes", nodesInBBox.size(), betweenness.size());
+        //System.out.printf("Working on %d nodes, result has %d nodes\n, nodesInBBox.size(), betweenness.size());
 
 
         // transform node ids to coordinates
-        NodeAccess nodeAccess = graph.getNodeAccess();
         for (int v : nodesInBBox) {
             Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
             res.addCentralityScore(coord, betweenness.get(v));
+            res.addNode(v, coord);
         }
 
         return res;

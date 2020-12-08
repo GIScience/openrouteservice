@@ -11,4 +11,5 @@ public interface CentralityAlgorithm {
 
     HashMap<Integer, Double> compute(ArrayList<Integer> nodes) throws Exception;
 
+    void writeNetworkxGraph(ArrayList<Integer> nodes) throws Exception;
 }
