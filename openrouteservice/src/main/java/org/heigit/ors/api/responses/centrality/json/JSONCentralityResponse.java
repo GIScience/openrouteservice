@@ -20,27 +20,39 @@ public class JSONCentralityResponse extends CentralityResponse {
     @JsonProperty("centralityScores")
     public Double[] scores;
 
+    @JsonProperty("aggregated") // test if everything is returned in correct order
+    public Double[][] aggregated;
+
     public JSONCentralityResponse(CentralityResult centralityResult, CentralityRequest request) throws StatusCodeException {
         super(centralityResult, request);
         HashMap<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
+        HashMap<Coordinate, Integer> nodes = centralityResult.getNodes();
         int length = centralityScores.size();
 
         Double[][] locations = new Double[length][2];
         Double[] scores = new Double[length];
+        Double[][] aggregated = new Double[length][4];
         int current = 0;
 
         for (HashMap.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
             Coordinate location = centralityScore.getKey();
             Double score = centralityScore.getValue();
+            Integer node = nodes.get(location);
 
             locations[current][0] = FormatUtility.roundToDecimals(location.x, 6);  //COORDINATE_DECIMAL_PLACES in JSONLocation
             locations[current][1] = FormatUtility.roundToDecimals(location.y, 6);
             scores[current] = score;
+
+            aggregated[current][0] = FormatUtility.roundToDecimals(location.x, 6);
+            aggregated[current][1] = FormatUtility.roundToDecimals(location.y, 6);
+            aggregated[current][2] = score;
+            aggregated[current][3] = (double) node;
 
             current += 1;
         }
 
         this.locations = locations;
         this.scores = scores;
+        this.aggregated = aggregated;
     }
 }

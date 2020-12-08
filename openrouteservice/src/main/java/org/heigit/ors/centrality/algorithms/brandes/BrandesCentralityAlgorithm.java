@@ -9,6 +9,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 
+import java.io.FileWriter;
+import java.io.PrintStream;
 import java.util.*;
 
 //TODO: ist das ggf. einfach zu klompiziert? kann man da auch direkt 'ne Klasse draus machen, oder braucht es diese
@@ -128,7 +130,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                     }
                     // System.out.println("Calculated edge weight");
 
-                    if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.00001d)) {
+                    if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
                         List<Integer> predecessors = P.get(w);
                         predecessors.add(v);
@@ -185,8 +187,33 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
             // System.out.println("Accumulated betweenness for above node");
         }
 
-        System.out.println("Calculated paths.");
+        //System.out.println("Calculated paths.");
         return betweenness;
     }
 
+    public void writeNetworkxGraph(ArrayList<Integer> nodesInBBox) throws Exception {
+        FileWriter writer = new FileWriter("/home/koebi/heigit/neuenheim_graph.py");
+        for (Integer v : nodesInBBox) {
+            EdgeExplorer explorer = graph.createEdgeExplorer();
+            EdgeIterator iter = explorer.setBaseNode(v);
+
+            // System.out.println("Created edge explorer");
+
+            while (iter.next()) {
+                // System.out.println("Iterating through edges");
+                int w = iter.getAdjNode(); // this is the node where this edge state is "pointing to"
+                if (!nodesInBBox.contains(w)) {
+                    // System.out.println("Node not in bbox, skipping edge");
+                    continue;
+                }
+
+                Double vw_weight = weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                String networkx_edge = String.format("g.add_edge(%d, %d, weight=%f)\n", v, w, vw_weight);
+                writer.write(networkx_edge);
+            }
+        }
+
+        writer.close();
+
+    }
 }

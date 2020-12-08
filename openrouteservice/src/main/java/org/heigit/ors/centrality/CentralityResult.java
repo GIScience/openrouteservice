@@ -5,9 +5,11 @@ import java.util.HashMap;
 
 public class CentralityResult {
     private HashMap<Coordinate, Double> centralityScores;
+    private HashMap<Coordinate, Integer> nodes;
 
     public CentralityResult() {
         this.centralityScores = new HashMap<>();
+        this.nodes = new HashMap<>();
     }
 
     public CentralityResult(HashMap<Coordinate, Double> centralityScores) {
@@ -22,9 +24,17 @@ public class CentralityResult {
         this.centralityScores = centralityScores;
     }
 
+    public HashMap<Coordinate, Integer> getNodes() {return nodes; }
+
+    public void setNodes(HashMap<Coordinate, Integer> nodes) {
+        this.nodes = nodes;
+    }
+
     public void addCentralityScore(Coordinate coord, Double score) {
-        System.out.println("Received coord and score");
         this.centralityScores.put(coord, score);
-        System.out.println("Put into Hashmap");
+    }
+
+    public void addNode(Integer node, Coordinate coord) {
+        this.nodes.put(coord, node);
     }
 }
