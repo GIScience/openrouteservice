@@ -446,7 +446,7 @@ public class EncodingManager implements EncodedValueLookup {
         for (AbstractFlagEncoder encoder : edgeEncoders) {
             acceptWay.put(encoder.toString(), encoder.getAccess(way));
         }
-        return acceptWay.hasAccepted() || acceptWay.hasConditional();
+        return acceptWay.hasAccepted();
     }
 
     public static class AcceptWay {
@@ -470,7 +470,7 @@ public class EncodingManager implements EncodedValueLookup {
             accessMap.put(key, access);
             if (access != Access.CAN_SKIP)
                 hasAccepted = true;
-            if (access == Access.CONDITIONAL)
+            if (access.isConditional())
                 hasConditional = true;
             return this;
         }
@@ -503,7 +503,7 @@ public class EncodingManager implements EncodedValueLookup {
     }
 
     public enum Access {
-        WAY, FERRY, OTHER, CAN_SKIP, CONDITIONAL;
+        WAY, FERRY, OTHER, CAN_SKIP, PERMITTED, RESTRICTED;
 
         public boolean isFerry() {
             return this.ordinal() == FERRY.ordinal();
@@ -521,8 +521,16 @@ public class EncodingManager implements EncodedValueLookup {
             return this.ordinal() == CAN_SKIP.ordinal();
         }
 
+        public boolean isPermitted() {
+            return this.ordinal() == PERMITTED.ordinal();
+        }
+
+        public boolean isRestricted() {
+            return this.ordinal() == RESTRICTED.ordinal();
+        }
+
         public boolean isConditional() {
-            return this.ordinal() == CONDITIONAL.ordinal();
+            return isRestricted() || isPermitted();
         }
 
     }

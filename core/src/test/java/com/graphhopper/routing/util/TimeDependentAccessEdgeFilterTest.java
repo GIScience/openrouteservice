@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 /**
  * @author Andrzej Oles
  */
-public class ConditionalAccessEdgeFilterTest {
+public class TimeDependentAccessEdgeFilterTest {
     private static final TimeZoneMap timeZoneMap = TimeZoneMap.forRegion(52, 13, 53, 14);
 
     private final CarFlagEncoder encoder = new CarFlagEncoder();
@@ -46,11 +46,11 @@ public class ConditionalAccessEdgeFilterTest {
     private final NodeAccess nodeAccess = graph.getNodeAccess();
     private final TimeDependentEdgeFilter filter;
 
-    public ConditionalAccessEdgeFilterTest() {
+    public TimeDependentAccessEdgeFilterTest() {
         nodeAccess.setNode(0, 52, 13);
         nodeAccess.setNode(1, 53, 14);
         graph.setTimeZoneMap(timeZoneMap);
-        filter = new ConditionalAccessEdgeFilter(graph, encoder);
+        filter = new TimeDependentAccessEdgeFilter(graph, encoder);
     }
 
     private EdgeIteratorState createConditionalEdge(boolean closed, String conditional) {

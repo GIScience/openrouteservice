@@ -20,6 +20,8 @@ package com.graphhopper.reader;
 /**
  * @author Andrzej Oles
  */
-public interface ConditionalSpeedInspector extends ConditionalInspector{
-    boolean hasConditionalSpeed(ReaderWay way);
+public interface ConditionalInspector {
+    boolean hasLazyEvaluatedConditions();
+
+    String getTagValue();
 }
