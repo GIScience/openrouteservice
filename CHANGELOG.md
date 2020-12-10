@@ -36,9 +36,9 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
+- Japanese language support ([#811](https://github.com/GIScience/openrouteservice/pull/811), thanks to [higa4](https://github.com/higa4) for the translation)
 ### Changed
 - Added performance improvement for fast isochrones in active cell calculation
-- Japanese language support ([#811](https://github.com/GIScience/openrouteservice/pull/811), thanks to [higa4](https://github.com/higa4) for the translation)
 ### Fixed
 - Stabilize geometry for small isochrones with small intervals
 - Updated dependencies
