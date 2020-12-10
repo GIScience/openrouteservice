@@ -4,8 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.constraints.AssertTrue;
-
 public class RouteRequestRoundTripOptionsTest {
     RouteRequestRoundTripOptions options;
 

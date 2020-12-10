@@ -38,12 +38,14 @@ RELEASING:
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
 ### Changed
 - Added performance improvement for fast isochrones in active cell calculation
+- Japanese language support ([#811](https://github.com/GIScience/openrouteservice/pull/811), thanks to [higa4](https://github.com/higa4) for the translation)
 ### Fixed
 - Stabilize geometry for small isochrones with small intervals
+- Updated dependencies
 
 ## [6.3.1] - 2020-10-20
 ### Fixed
-- Updated documentation for running in Docker  ([#798](https://github.com/GIScience/openrouteservice/issues/798))
+- Updated documentation for running in Docker ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
 - Enabled turning off elevation data handling for profiles 
 - Fixed a bug in fast isochrones preprocessing
