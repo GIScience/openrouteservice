@@ -575,7 +575,8 @@ public class RouteSearchParameters {
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
                 || hasBearings()
-                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+                || isTimeDependent();
     }
 
     // time-dependent stuff

@@ -20,10 +20,12 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.TimeDependentFastestWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.util.HelperORS;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -39,6 +41,8 @@ import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Map;
 
 public class GraphEdgeMapFinder {
 	private GraphEdgeMapFinder() {
@@ -66,7 +70,10 @@ public class GraphEdgeMapFinder {
 
 		if (parameters.isTimeDependent()) {
 			//Time-dependent means traffic dependent for isochrones (for now)
-			((TimeDependentFastestWeighting) weighting).setSpeedCalculator(new TrafficSpeedCalculator(graph, encoder));
+			TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator();
+			trafficSpeedCalculator.init(graph, encoder);
+			((TimeDependentFastestWeighting) weighting).setSpeedCalculator(trafficSpeedCalculator);
+			weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
 			TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
 					TraversalMode.NODE_BASED);
 			tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
@@ -76,8 +83,21 @@ public class GraphEdgeMapFinder {
 			tdDijkstraCostCondition.calcPath(fromId, Integer.MIN_VALUE, zdt.toInstant().toEpochMilli());
 
 			IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
+//			int sumEntries = 0;
+//			double sumPercentages = 0;
+//			for (Map.Entry<Double, Double> entry : trafficSpeedCalculator.changedSpeedCount.entrySet()) {
+//				sumEntries += entry.getValue();
+//				sumPercentages += (trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() )/ entry.getKey() * entry.getValue();
+////				System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " with number of entries " + entry.getValue());
+//			}
+//			trafficSpeedCalculator.changedSpeedCount.entrySet().stream()
+//					.sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+//					.forEach(entry->System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " over total distance of " + (int)entry.getValue().doubleValue()/1000 +"km"));
+//			System.out.println("Average traffic speed as percentage of normal speed " + sumPercentages/sumEntries);
+//			System.out.println("Total distance replaced: " + (int)sumEntries/1000 + "km");
 			return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
 		} else {
+			weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
 			// IMPORTANT: It only works with TraversalMode.NODE_BASED.
 			DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
 					TraversalMode.NODE_BASED);

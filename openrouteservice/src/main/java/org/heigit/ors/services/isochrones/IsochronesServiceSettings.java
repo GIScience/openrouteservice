@@ -29,6 +29,7 @@ import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 
 public class IsochronesServiceSettings {
 	private static boolean enabled = true;
+	private static boolean holesEnabled = false;
 	private static int maximumLocations = 1;
 	private static int maximumRangeDistance = 100000; //  in meters
 	private static Map<Integer, Integer> profileMaxRangeDistances;
@@ -61,6 +62,9 @@ public class IsochronesServiceSettings {
 		String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
 		if (value != null)
 			enabled = Boolean.parseBoolean(value);
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "holes_enabled");
+		if (value != null)
+			holesEnabled = Boolean.parseBoolean(value);
 		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
 		if (value != null)
 			maximumLocations = Integer.parseInt(value);
@@ -177,6 +181,10 @@ public class IsochronesServiceSettings {
 
 	public static boolean getEnabled() {
 		return enabled;
+	}
+
+	public static boolean getHolesEnabled() {
+		return holesEnabled;
 	}
 
 	public static void setFastIsochronesActive(String profile) {

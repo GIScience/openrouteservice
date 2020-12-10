@@ -17,7 +17,7 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
-import org.opensphere.geometry.algorithm.ConcaveHull;
+import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -206,7 +206,7 @@ public class Contour {
             geometries[g++] = geomFactory.createPoint(point);
         GeometryCollection treePoints = new GeometryCollection(geometries, geomFactory);
 
-        ConcaveHull ch = new ConcaveHull(treePoints, CONCAVE_HULL_THRESHOLD, false);
+        ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(treePoints, CONCAVE_HULL_THRESHOLD, false);
         return ch.getConcaveHull();
     }
 
