@@ -20,6 +20,9 @@ public class JSONCentralityResponse extends CentralityResponse {
     @JsonProperty("centralityScores")
     public Double[] scores;
 
+    @JsonProperty("nodeIds")
+    public Integer[] nodeIds;
+
     @JsonProperty("aggregated") // test if everything is returned in correct order
     public Double[][] aggregated;
 
@@ -29,9 +32,10 @@ public class JSONCentralityResponse extends CentralityResponse {
         HashMap<Coordinate, Integer> nodes = centralityResult.getNodes();
         int length = centralityScores.size();
 
-        Double[][] locations = new Double[length][2];
-        Double[] scores = new Double[length];
-        Double[][] aggregated = new Double[length][4];
+        this.locations = new Double[length][2];
+        this.scores = new Double[length];
+        this.aggregated = new Double[length][4];
+        this.nodeIds = new Integer[length];
         int current = 0;
 
         for (HashMap.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
@@ -39,20 +43,17 @@ public class JSONCentralityResponse extends CentralityResponse {
             Double score = centralityScore.getValue();
             Integer node = nodes.get(location);
 
-            locations[current][0] = FormatUtility.roundToDecimals(location.x, 6);  //COORDINATE_DECIMAL_PLACES in JSONLocation
-            locations[current][1] = FormatUtility.roundToDecimals(location.y, 6);
-            scores[current] = score;
+            this.locations[current][0] = FormatUtility.roundToDecimals(location.x, 6);  //COORDINATE_DECIMAL_PLACES in JSONLocation
+            this.locations[current][1] = FormatUtility.roundToDecimals(location.y, 6);
+            this.scores[current] = score;
+            this.nodeIds[current] = node;
 
-            aggregated[current][0] = FormatUtility.roundToDecimals(location.x, 6);
-            aggregated[current][1] = FormatUtility.roundToDecimals(location.y, 6);
-            aggregated[current][2] = score;
-            aggregated[current][3] = (double) node;
+            this.aggregated[current][0] = FormatUtility.roundToDecimals(location.x, 6);
+            this.aggregated[current][1] = FormatUtility.roundToDecimals(location.y, 6);
+            this.aggregated[current][2] = score;
+            this.aggregated[current][3] = (double) node;
 
             current += 1;
         }
-
-        this.locations = locations;
-        this.scores = scores;
-        this.aggregated = aggregated;
     }
 }
