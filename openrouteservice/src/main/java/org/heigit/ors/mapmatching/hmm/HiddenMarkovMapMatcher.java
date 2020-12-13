@@ -354,6 +354,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			double distance = distCalcEarth.calcDist(qr.getQueryPoint().getLat(), qr.getQueryPoint().getLon(), spLat,
 					spLon);
 
+			// TODO Add start end end radius to search in rings.
 			if (distance <= searchRadius) {
 				
 				int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
