@@ -65,7 +65,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     protected final HashSet<String> routeUsage;
     private int trafficWayType = TrafficRelevantWayType.UNWANTED;
 
-    private static String PARAM_KEY_OUTPUT_LOG = "output_log";
+    private static final String PARAM_KEY_OUTPUT_LOG = "output_log";
     private static boolean outputLog = false;
 
     public static final String BUILDER_NAME = "HereTraffic";
