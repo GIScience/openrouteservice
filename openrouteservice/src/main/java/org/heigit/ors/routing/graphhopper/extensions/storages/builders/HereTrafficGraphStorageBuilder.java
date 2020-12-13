@@ -79,8 +79,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final String MATCHING_RADIUS = "radius";
     private static int matchingRadius = 200;
 
-    TrafficEdgeFilter trafficEdgeFilter;
-
+    DistanceCalcEarth distCalc;
+    ORSGraphHopper orsGraphHopper;
 
     private TrafficGraphStorage storage;
     private HereTrafficReader htReader;
@@ -133,7 +133,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
-        distCalc = new DistanceCalcEarth();
 
         if (this.htReader == null) {
             // Read the border shapes from the file
@@ -222,29 +221,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) {
-        String lineString = edge.fetchWayGeometry(3).toLineString(false).toString();
-        allOSMEdgeGeometries.push(lineString);
-        // TODO RAD
-        if (lineString.length() > biggestOSMEdge)
-            biggestOSMEdge = lineString.length();
-        if (lineString.length() < smallestOSMEdge)
-            smallestOSMEdge = lineString.length();
-        if (averageOSMEdge <= 0)
-            averageOSMEdge += lineString.length();
-        else
-            averageOSMEdge = (lineString.length() + averageOSMEdge) / 2;
-        storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, (short) trafficWayType);
-        if (this.osmId2TrafficEdgeId.get(way.getId()) != null) {
-            HashSet<Integer> trafficLinkIds = this.osmId2TrafficEdgeId.get(way.getId());
-            for (Integer trafficLinkId :
-                    trafficLinkIds) {
-                HashSet<Integer> existingOrigindalEdgeIds = traffidEdgeId2OriginalEdgeId.putIfAbsent(trafficLinkId, new HashSet<>(Collections.singletonList(edge.getEdge())));
-                if (existingOrigindalEdgeIds != null) {
-                    existingOrigindalEdgeIds.add(edge.getEdge());
-                    traffidEdgeId2OriginalEdgeId.put(trafficLinkId, existingOrigindalEdgeIds);
-                }
-            }
+        if (outputLog) {
+            String lineString = edge.fetchWayGeometry(3).toLineString(false).toString();
+            allOSMEdgeGeometries.push(lineString);
         }
+        short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
+        storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
     }
 
     public void writeLogFiles() throws ParseException, java.text.ParseException, IOException {
@@ -307,9 +289,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 }
             });
 
-            for (TrafficLink trafficLink : htReader.getHereTrafficData().getLinks()) {
+            for (IntObjectCursor<TrafficLink> trafficLink : htReader.getHereTrafficData().getLinks()) {
                 try {
-                    String hereLinkGeometry = trafficLink.getLinkGeometry().toString();
+                    String hereLinkGeometry = trafficLink.value.getLinkGeometry().toString();
                     SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
                     com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
                     featureBuilder.add(linestring);
@@ -422,7 +404,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         matchedOSMLinks.add(osmGeometry);
     }
 
-    private RouteSegmentInfo[] matchLinkToSegments(ORSGraphHopper graphHopper, TrafficLink trafficLink, Geometry geometry, boolean bothDirections) {
+    private RouteSegmentInfo[] matchLinkToSegments(int trafficLinkFunctionalClass, double originalTrafficLinkLength, Geometry geometry, boolean bothDirections) {
         RouteSegmentInfo[] matchedSegments = new RouteSegmentInfo[0];
         if (geometry == null) {
             LOGGER.info("Teadrop node.");
@@ -548,67 +530,55 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         pb.stop();
     }
 
-    private void processLink(TrafficLink hereTrafficLink, ORSGraphHopper graphHopper) {
+    private void processLink(TrafficLink hereTrafficLink) {
+        if (hereTrafficLink == null)
+            return;
         RouteSegmentInfo[] matchedSegmentsFrom = new RouteSegmentInfo[]{};
         RouteSegmentInfo[] matchedSegmentsTo = new RouteSegmentInfo[]{};
-        if (edgeId2TrafficEdgeId.get(hereTrafficLink.getLinkId()) != null) {
-            HashMap<TrafficGraphStorage.Direction, HashSet<Integer>> propertyHashSetHashMap = edgeId2TrafficEdgeId.get(hereTrafficLink.getLinkId());
-            if (propertyHashSetHashMap.containsKey(TrafficGraphStorage.Direction.FROM_TRAFFIC))
-                for (Integer edgeId : propertyHashSetHashMap.get(TrafficGraphStorage.Direction.FROM_TRAFFIC)) {
-                    addEdge2TrafficMatch(edgeId, null, hereTrafficLink.getLinkId(), TrafficGraphStorage.Direction.FROM_TRAFFIC);
-                }
-            if (propertyHashSetHashMap.containsKey(TrafficGraphStorage.Direction.TO_TRAFFIC))
-                for (Integer edgeId : propertyHashSetHashMap.get(TrafficGraphStorage.Direction.TO_TRAFFIC)) {
-                    addEdge2TrafficMatch(edgeId, null, hereTrafficLink.getLinkId(), TrafficGraphStorage.Direction.TO_TRAFFIC);
-                }
-        }
+        double trafficLinkLength = hereTrafficLink.getLength(distCalc);
         // TODO RAD START
 //        else if (hereTrafficLink.getLinkId() == 53061704 || hereTrafficLink.getLinkId() == 808238429)
 ////         TODO RAD END
         if (hereTrafficLink.isBothDirections()) {
             // Both Directions
             // Split
-            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink, hereTrafficLink.getFromGeometry(), false);
-            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink, hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getToGeometry(), false);
         } else if (hereTrafficLink.isOnlyFromDirection()) {
             // One Direction
-            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink, hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getFromGeometry(), false);
         } else {
-            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink, hereTrafficLink.getToGeometry(), false);
+            // One Direction
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getToGeometry(), false);
         }
 
-        processSegments(hereTrafficLink, matchedSegmentsFrom, TrafficEnums.TravelDirection.FROM, graphHopper.getGraphHopperStorage());
-        processSegments(hereTrafficLink, matchedSegmentsTo, TrafficEnums.TravelDirection.TO, graphHopper.getGraphHopperStorage());
+        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
+        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
     }
 
-    private void processSegments(TrafficLink trafficLink, RouteSegmentInfo[] matchedSegments, TrafficEnums.TravelDirection direction, GraphHopperStorage graph) {
+    private void processSegments(int linkId, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
         if (matchedSegments == null)
             return;
         for (RouteSegmentInfo routeSegment : matchedSegments) {
             if (routeSegment == null) continue;
-            processSegment(trafficLink, routeSegment, direction, graph);
-
+            processSegment(trafficPatternIds, linkId, routeSegment);
         }
     }
 
-    private void processSegment(TrafficLink trafficLink, RouteSegmentInfo routeSegment, TrafficEnums.TravelDirection direction, GraphHopperStorage graph) {
-        Map<TrafficEnums.WeekDay, Integer> trafficPatternIds = trafficLink.getTrafficPatternIds(direction);
+    private void processSegment(Map<TrafficEnums.WeekDay, Integer> trafficPatternIds, int trafficLinkId, RouteSegmentInfo routeSegment) {
         for (EdgeIteratorState edge : routeSegment.getEdges()) {
-            LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
-//            addOSMGeometryForLogging(lineString.toString());
-            double priority = distCalc.calcDist(lineString.getStartPoint().getX(), lineString.getStartPoint().getY(), lineString.getEndPoint().getX(), lineString.getEndPoint().getY());
             if (edge instanceof VirtualEdgeIteratorState) {
                 VirtualEdgeIteratorState virtualEdge = (VirtualEdgeIteratorState) edge;
                 int originalEdgeId;
                 int originalBaseNodeId;
                 int originalAdjNodeId;
-                if (virtualEdge.getAdjNode() < graph.getNodes()) {
-                    EdgeIteratorState originalEdgeIter = graph.getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getAdjNode());
+                if (virtualEdge.getAdjNode() < orsGraphHopper.getGraphHopperStorage().getNodes()) {
+                    EdgeIteratorState originalEdgeIter = orsGraphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getAdjNode());
                     originalEdgeId = originalEdgeIter.getEdge();
                     originalBaseNodeId = originalEdgeIter.getBaseNode();
                     originalAdjNodeId = originalEdgeIter.getAdjNode();
-                } else if (virtualEdge.getBaseNode() < graph.getNodes()) {
-                    EdgeIteratorState originalEdgeIter = graph.getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getBaseNode());
+                } else if (virtualEdge.getBaseNode() < orsGraphHopper.getGraphHopperStorage().getNodes()) {
+                    EdgeIteratorState originalEdgeIter = orsGraphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getBaseNode());
                     originalEdgeId = originalEdgeIter.getEdge();
                     originalBaseNodeId = originalEdgeIter.getAdjNode();
                     originalAdjNodeId = originalEdgeIter.getBaseNode();
@@ -618,13 +588,14 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 final int finalOriginalEdgeId = originalEdgeId;
                 final int finalOriginalBaseNodeId = originalBaseNodeId;
                 final int finalOriginalAdjNodeId = originalAdjNodeId;
-                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(finalOriginalEdgeId, finalOriginalBaseNodeId, finalOriginalAdjNodeId, patternId, weekDay, priority));
-                addHereSegmentForLogging(trafficLink.getLinkId());
-                addOSMGeometryForLogging(lineString.toString());
+                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(finalOriginalEdgeId, finalOriginalBaseNodeId, finalOriginalAdjNodeId, patternId, weekDay, edge.getDistance()));
             } else {
-                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, priority));
-                addHereSegmentForLogging(trafficLink.getLinkId());
+                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, edge.getDistance()));
+            }
+            if (outputLog) {
+                LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
                 addOSMGeometryForLogging(lineString.toString());
+                addHereSegmentForLogging(trafficLinkId);
             }
         }
     }
