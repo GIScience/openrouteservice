@@ -214,7 +214,7 @@ public class HereTrafficReader {
                 if (defaultGeometry.getNumGeometries() == 1) {
                     String geometryString = defaultGeometry.getGeometryN(0).toText();
                     try {
-                        hereTrafficData.addLink(new TrafficLink(linkId, reader.read(geometryString), properties));
+                        hereTrafficData.setLink(new TrafficLink(linkId, reader.read(geometryString), properties));
                     } catch (ParseException e) {
                         LOGGER.info("Couldn't parse here geometry for Link_ID: " + linkId);
                     }
