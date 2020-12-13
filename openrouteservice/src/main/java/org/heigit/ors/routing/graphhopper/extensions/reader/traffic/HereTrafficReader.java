@@ -194,6 +194,7 @@ public class HereTrafficReader {
 
     /**
      * Construct the Here Links from the raw featureCollection
+     *
      * @param featureCollection Raw featureCollection.
      */
     private void createHereGeometries(SimpleFeatureCollection featureCollection) throws InvalidObjectException {
