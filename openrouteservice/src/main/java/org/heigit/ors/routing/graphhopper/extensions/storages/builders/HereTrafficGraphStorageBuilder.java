@@ -76,11 +76,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final String PARAM_KEY_STREETS = "streets";
     private static final String PARAM_KEY_PATTERNS_15MINUTES = "pattern_15min";
     private static final String PARAM_KEY_REFERENCE_PATTERN = "ref_pattern";
-    private static final String PARAM_KEY_SIMILARITY_FACTOR = "similarity_factor";
-    private static final String PARAM_KEY_MATCHED_DATA = "sharableTrafficMatches";
-    private static final String FIXED_KEY_SHARED_MATCHES = "non_sharableTrafficMatches";
-    private static double similarityFactor = .60;
-    private DistanceCalc distCalc;
+    private static final String MATCHING_RADIUS = "radius";
+    private static int matchingRadius = 200;
 
     TrafficEdgeFilter trafficEdgeFilter;
 
@@ -181,10 +178,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_SIMILARITY_FACTOR);
             }
 
-            if (parameters.containsKey(PARAM_KEY_MATCHED_DATA)) {
-                oldMatchedEdgeToTrafficFile = parameters.get(PARAM_KEY_MATCHED_DATA);
-                matchedEdgetotrafficPath = Paths.get(oldMatchedEdgeToTrafficFile).toFile().getAbsolutePath();
-//                loadTrafficData(matchedEdgetotrafficPath);
+            if (parameters.containsKey(MATCHING_RADIUS))
+                matchingRadius = Integer.parseInt(parameters.get(MATCHING_RADIUS));
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
+                // We cannot continue without the information
+                LOGGER.info("The Here matching radius is not set. The default is applied!");
             }
 
             // Read the file containing all of the country border polygons
@@ -430,15 +429,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return matchedSegments;
         }
         try {
-            if (trafficEdgeFilter == null) {
-                trafficEdgeFilter = new TrafficEdgeFilter(graphHopper.getGraphHopperStorage());
-            }
-            if (!traffidEdgeId2OriginalEdgeId.isEmpty() && traffidEdgeId2OriginalEdgeId.get(trafficLink.getLinkId()) == null) {
-                return matchedSegments;
-            }
-            trafficEdgeFilter.setHereFunctionalClass(trafficLink.getFunctionalClass());
-            trafficEdgeFilter.setOriginalEdgeIds(traffidEdgeId2OriginalEdgeId.get(trafficLink.getLinkId()));
-            matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, trafficLink, 20, 200, 10, trafficEdgeFilter, bothDirections);
+            matchedSegments = orsGraphHopper.getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
         } catch (Exception e) {
             LOGGER.info("Error while matching: " + e);
         }
