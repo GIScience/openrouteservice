@@ -971,19 +971,4 @@ public class ORSGraphHopper extends GraphHopper {
 		else
 			return routeSegmentInfo;
 	}
-
-	public org.locationtech.jts.geom.Coordinate[] convertToNewLocationtechCoordinates(com.vividsolutions.jts.geom.Coordinate[] oldCoodrinates) {
-		org.locationtech.jts.geom.Coordinate[] newCoordinates = new org.locationtech.jts.geom.Coordinate[oldCoodrinates.length];
-
-
-		for (int i = 0; i < oldCoodrinates.length; i++) {
-			newCoordinates[i] = convertOldToNewLocationtechCoordinate(oldCoodrinates[i]);
-		}
-		org.locationtech.jts.geom.CoordinateSequenceFactory coordinateSequenceFactory = new PackedCoordinateSequenceFactory();
-		return newCoordinates;
-	}
-
-	private org.locationtech.jts.geom.Coordinate convertOldToNewLocationtechCoordinate(com.vividsolutions.jts.geom.Coordinate oldCoordinate) {
-		return new org.locationtech.jts.geom.Coordinate(oldCoordinate.x, oldCoordinate.y);
-	}
 }
