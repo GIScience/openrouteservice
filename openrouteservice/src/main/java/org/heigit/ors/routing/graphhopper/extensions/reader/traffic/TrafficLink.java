@@ -104,8 +104,7 @@ public class TrafficLink {
         if (trafficPatternIdsTo.isEmpty() && trafficPatternIdsFrom.isEmpty()) return false;
         if (trafficLinkMetadata.isFerry()) return false;
         if (trafficLinkMetadata.isRoundAbout()) return false;
-        if (trafficLinkMetadata.functionalClass() == TrafficEnums.FunctionalClass.CLASS5) return false;
-        return true;
+        return trafficLinkMetadata.functionalClass() != TrafficEnums.FunctionalClass.CLASS5;
     }
 
     public TrafficEnums.FunctionalClass getWayType() {
