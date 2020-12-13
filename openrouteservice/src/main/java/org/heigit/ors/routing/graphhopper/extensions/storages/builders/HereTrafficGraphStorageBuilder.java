@@ -194,6 +194,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     public void writeLogFiles() throws IOException, SchemaException {
         if (outputLog) {
+            SimpleFeatureType TYPE = DataUtilities.createType("my", "geom:MultiLineString");
             File osmFile = null;
             File osmMatchedFile = null;
             File hereMatchedFile = null;
@@ -201,10 +202,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             int decimals = 14;
             GeometryJSON gjson = new GeometryJSON(decimals);
             FeatureJSON featureJSON = new FeatureJSON(gjson);
-            osmFile = new File(dateFormat.format(date) + "_OSM_edges_output.geojson");
-            osmMatchedFile = new File(dateFormat.format(date) + "_OSM_matched_edges_output.geojson");
-            hereMatchedFile = new File(dateFormat.format(date) + "_Here_matched_edges_output.geojson");
-            hereFile = new File(dateFormat.format(date) + "_Here_edges_output.geojson");
+            osmFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_OSM_edges_output.geojson");
+            osmMatchedFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_OSM_matched_edges_output.geojson");
+            hereMatchedFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_Here_matched_edges_output.geojson");
+            hereFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_Here_edges_output.geojson");
 
             DefaultFeatureCollection allOSMCollection = new DefaultFeatureCollection();
             DefaultFeatureCollection matchedOSMCollection = new DefaultFeatureCollection();
@@ -264,16 +265,19 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     e.printStackTrace();
                 }
             }
-            if (!allOSMCollection.isEmpty())
+            if (allOSMCollection.size() > 0) {
                 osmFile.createNewFile();
-                featureJSON.writeFeatureCollection(allOSMCollection,osmFile);
-            if (!matchedOSMCollection.isEmpty())
+                featureJSON.writeFeatureCollection(allOSMCollection, osmFile);
+            }
+            if (matchedOSMCollection.size() > 0) {
                 osmMatchedFile.createNewFile();
-                featureJSON.writeFeatureCollection(matchedOSMCollection,osmMatchedFile);
-            if (!allHereCollection.isEmpty())
+                featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
+            }
+            if (allHereCollection.size() > 0) {
                 hereMatchedFile.createNewFile();
-                featureJSON.writeFeatureCollection(allHereCollection,hereFile);
-            if (!matchedHereCollection.isEmpty())
+                featureJSON.writeFeatureCollection(allHereCollection, hereFile);
+            }
+            if (matchedHereCollection.size() > 0) {
                 hereFile.createNewFile();
                 featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
             }
