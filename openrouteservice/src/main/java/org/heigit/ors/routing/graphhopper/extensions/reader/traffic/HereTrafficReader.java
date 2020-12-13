@@ -44,7 +44,7 @@ public class HereTrafficReader {
     private final String patternsReferenceFile;
     private final String patternsFile;
 
-    private TrafficData hereTrafficData;
+    private final TrafficData hereTrafficData = new TrafficData();
 
     private static HereTrafficReader currentInstance;
 
@@ -55,7 +55,6 @@ public class HereTrafficReader {
         this.streetGeometriesFile = "";
         this.patternsFile = "";
         this.patternsReferenceFile = "";
-        this.hereTrafficData = new TrafficData();
 
         currentInstance = this;
     }
@@ -71,7 +70,6 @@ public class HereTrafficReader {
         this.streetGeometriesFile = streetGeometriesFile;
         this.patternsFile = patterns15MinutesFile;
         this.patternsReferenceFile = refPatternIdsFile;
-        this.hereTrafficData = new TrafficData();
 
         try {
             SimpleFeatureCollection rawGeometries = readHereGeometries();
