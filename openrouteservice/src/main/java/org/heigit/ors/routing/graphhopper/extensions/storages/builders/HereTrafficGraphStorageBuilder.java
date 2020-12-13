@@ -14,6 +14,9 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.VirtualEdgeIteratorState;
@@ -547,32 +550,27 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processTrafficPatterns() {
-        Map<Integer, TrafficPattern> patterns = htReader.getHereTrafficData().getPatterns();
-        patterns.forEach((patternId, pattern) -> {
-            storage.setTrafficPatterns(pattern.getPatternId(), pattern.getValues());
-        });
-//        TODO RAD
-//        int trafficSpeed = storage.getTrafficSpeed(8194, 0, 13);
-//        System.out.println("");
-        // 36
-//        TODO RAD
-    }
-
-    private Collection<Integer> processLinks(Collection<TrafficLink> links, ORSGraphHopper graphHopper) {
-        Collection<Integer> removableLinks = new ArrayList<>();
-        ProgressBar pb = new ProgressBar("Matching Here Links", links.size()); // name, initial max
+        IntObjectHashMap<TrafficPattern> patterns = htReader.getHereTrafficData().getPatterns();
+        ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size());
         pb.start();
-        for (TrafficLink hereTrafficLink : links) {
-            pb.step();
-            if (!hereTrafficLink.isPotentialTrafficSegment()) {
-                removableLinks.add(hereTrafficLink.getLinkId());
-                missedHereCounter += 1;
-                continue;
-            }
-            processLink(hereTrafficLink, graphHopper);
+        for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
+            storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
         }
         pb.stop();
-        return removableLinks;
+    }
+
+    private void processLinks(IntObjectHashMap<TrafficLink> links, ORSGraphHopper graphHopper) {
+        ProgressBar pb = new ProgressBar("Matching Here Links", links.size()); // name, initial max
+        orsGraphHopper = graphHopper;
+        pb.start();
+        for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
+            processLink(trafficLink.value);
+            if (!outputLog) {
+                links.put(trafficLink.index, null);
+            }
+            pb.step();
+        }
+        pb.stop();
     }
 
     private void processLink(TrafficLink hereTrafficLink, ORSGraphHopper graphHopper) {
