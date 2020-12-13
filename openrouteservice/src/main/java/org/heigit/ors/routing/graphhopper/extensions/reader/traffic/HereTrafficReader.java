@@ -187,6 +187,7 @@ public class HereTrafficReader {
             throw e;
         } catch (Exception e) {
             LOGGER.error("Unknown error while reading here shape file with error: " + e);
+            throw e;
         }
         return collection;
     }
