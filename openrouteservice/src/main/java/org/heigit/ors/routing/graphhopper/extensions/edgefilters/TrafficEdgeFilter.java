@@ -2,7 +2,6 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -10,17 +9,13 @@ import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
-import java.util.HashSet;
-
 
 public class TrafficEdgeFilter implements EdgeFilter {
     private int hereFunctionalClass;
     private TrafficGraphStorage trafficGraphStorage;
-    private HashSet<Integer> originalEdgeIds;
 
     public TrafficEdgeFilter(GraphStorage graphStorage) {
         this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class);
-        originalEdgeIds = new HashSet<>();
     }
 
 
@@ -28,26 +23,11 @@ public class TrafficEdgeFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState edgeIteratorState) {
         int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeIteratorState);
         short osmWayTypeValue = (short) this.trafficGraphStorage.getOrsRoadProperties(edgeId, TrafficGraphStorage.Property.ROAD_TYPE);
-        short osmTrafficClassConverted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType(osmWayTypeValue);
-        // TODO RAD
-        // TODO RAD
-        if (osmTrafficClassConverted == 0) {
-            return false;
-        } else {
-            return osmTrafficClassConverted == hereFunctionalClass;
-        }
+        return osmWayTypeValue == hereFunctionalClass;
     }
 
     public void setHereFunctionalClass(int hereFunctionalClass) {
         this.hereFunctionalClass = hereFunctionalClass;
-    }
-
-    public void setOriginalEdgeIds(HashSet<Integer> matchIds) {
-        if (matchIds != null) {
-            this.originalEdgeIds = matchIds;
-        } else {
-            this.originalEdgeIds = new HashSet<>();
-        }
     }
 
     public int getHereFunctionalClass() {
@@ -55,8 +35,8 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void lowerFunctionalClass() {
-        if (hereFunctionalClass < TrafficRelevantWayType.CLASS5) {
-            // We don't want to decrease the functional class lower than 5.
+        if (hereFunctionalClass < TrafficRelevantWayType.CLASS4) {
+            // We don't want to decrease the functional class lower than 4.
             this.hereFunctionalClass += 1;
         } else if (hereFunctionalClass >= TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass < TrafficRelevantWayType.CLASS4LINK) {
             this.hereFunctionalClass += 1;
@@ -64,15 +44,14 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void higherFunctionalClass() {
-        if (hereFunctionalClass > TrafficRelevantWayType.CLASS1 && hereFunctionalClass <= TrafficRelevantWayType.CLASS5) {
+        if (hereFunctionalClass > TrafficRelevantWayType.CLASS1 && hereFunctionalClass <= TrafficRelevantWayType.CLASS4) {
             // We don't want to increase the functional class higher than CLASS1 and not lower than CLASS4 to not collide with non-links.
             this.hereFunctionalClass -= 1;
+        } else if (hereFunctionalClass == TrafficRelevantWayType.CLASS5) {
+            // Go directly to class 4. Skip unclassified when upgrading.
+            this.hereFunctionalClass -= 2;
         } else if (hereFunctionalClass > TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass <= TrafficRelevantWayType.CLASS4LINK) {
             this.hereFunctionalClass -= 1;
         }
-    }
-
-    public boolean hasOriginalEdgeIds() {
-        return !this.originalEdgeIds.isEmpty();
     }
 }
