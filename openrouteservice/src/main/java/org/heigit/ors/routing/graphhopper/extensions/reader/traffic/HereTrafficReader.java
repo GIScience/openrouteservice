@@ -75,18 +75,18 @@ public class HereTrafficReader {
 
         try {
             SimpleFeatureCollection rawGeometries = readHereGeometries();
-            LOGGER.info("Here link geometries read");
-
             createHereGeometries(rawGeometries);
-            LOGGER.info("Here link geometries processed");
+            LOGGER.info("Here link geometries pre-processed");
 
             HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> referencePatterns = readRefPatterns();
-            LOGGER.info("Here reference patterns read");
+            LOGGER.info("Here reference patterns pre-processed");
 
             Map<Integer, TrafficPattern> patterns = readPatterns();
-            LOGGER.info("Here patterns read");
+            LOGGER.info("Here patterns pre-processed");
+
 
             generatePatterns(referencePatterns, patterns);
+            LOGGER.info("Here input data processed successfully");
 
         } catch (IOException ioe) {
             // Problem with reading the data
