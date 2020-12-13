@@ -24,8 +24,8 @@ public class TrafficLink {
 
     private LineString linkGeometry;
     private TrafficLinkMetadata trafficLinkMetadata;
-    private Map<TrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
-    private Map<TrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
+    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
+    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
 
     /**
      * Construct a TrafficLink object used for processing the link traffic data.
