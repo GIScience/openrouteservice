@@ -14,7 +14,9 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
+import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
@@ -52,11 +54,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -84,9 +85,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private TrafficGraphStorage storage;
     private HereTrafficReader htReader;
 
-    private LinkedList<String> allOSMEdgeGeometries = new LinkedList<>();
-    private HashMap<Integer, String> matchedHereLinks = new HashMap<>();
-    private LinkedList<String> matchedOSMLinks = new LinkedList<>();
+    private ArrayList<String> allOSMEdgeGeometries = new ArrayList<>();
+    private IntHashSet matchedHereLinks = new IntHashSet();
+    private ArrayList<String> matchedOSMLinks = new ArrayList<>();
 
     public HereTrafficGraphStorageBuilder() throws SchemaException {
     }
@@ -186,7 +187,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public void processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) {
         if (outputLog) {
             String lineString = edge.fetchWayGeometry(3).toLineString(false).toString();
-            allOSMEdgeGeometries.push(lineString);
+            allOSMEdgeGeometries.add(lineString);
         }
         short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
         storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
@@ -239,10 +240,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     e.printStackTrace();
                 }
             });
-
-            matchedHereLinks.forEach((linkID, emptyString) -> {
+            for (IntCursor linkID : matchedHereLinks) {
                 try {
-                    String hereLinkGeometry = htReader.getHereTrafficData().getLink(linkID).getLinkGeometry().toString();
+                    String hereLinkGeometry = htReader.getHereTrafficData().getLink(linkID.value).getLinkGeometry().toString();
                     SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
                     com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
                     featureBuilder.add(linestring);
@@ -251,7 +251,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-            });
+            }
 
             for (IntObjectCursor<TrafficLink> trafficLink : htReader.getHereTrafficData().getLinks()) {
                 try {
@@ -299,7 +299,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     public void addHereSegmentForLogging(Integer linkID) {
-        matchedHereLinks.putIfAbsent(linkID, "");
+        matchedHereLinks.add(linkID);
     }
 
     public void addOSMGeometryForLogging(String osmGeometry) {
