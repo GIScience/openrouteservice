@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
+import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.MultiLineString;
 import org.apache.log4j.Logger;
 import org.geotools.data.FileDataStore;
@@ -48,6 +49,8 @@ public class HereTrafficReader {
 
     private static HereTrafficReader currentInstance;
 
+    DistanceCalcEarth distCalc;
+
     /**
      * Empty constructor which does not read any data - the user must explicitly pass information
      */
@@ -55,7 +58,7 @@ public class HereTrafficReader {
         this.streetGeometriesFile = "";
         this.patternsFile = "";
         this.patternsReferenceFile = "";
-
+        this.distCalc = new DistanceCalcEarth();
         currentInstance = this;
     }
 
@@ -70,6 +73,7 @@ public class HereTrafficReader {
         this.streetGeometriesFile = streetGeometriesFile;
         this.patternsFile = patterns15MinutesFile;
         this.patternsReferenceFile = refPatternIdsFile;
+        this.distCalc = new DistanceCalcEarth();
 
         try {
             SimpleFeatureCollection rawGeometries = readHereGeometries();
@@ -212,7 +216,7 @@ public class HereTrafficReader {
                 if (defaultGeometry.getNumGeometries() == 1) {
                     String geometryString = defaultGeometry.getGeometryN(0).toText();
                     try {
-                        hereTrafficData.setLink(new TrafficLink(linkId, reader.read(geometryString), properties));
+                        hereTrafficData.setLink(new TrafficLink(linkId, reader.read(geometryString), properties, distCalc));
                     } catch (ParseException e) {
                         LOGGER.info("Couldn't parse here geometry for Link_ID: " + linkId);
                     }
