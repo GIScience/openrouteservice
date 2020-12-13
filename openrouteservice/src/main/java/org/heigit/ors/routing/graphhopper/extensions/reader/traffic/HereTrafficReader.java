@@ -226,7 +226,7 @@ public class HereTrafficReader {
         } finally {
             iterator.close();
         }
-        LOGGER.info(linkCounter + " Here links read in");
+        LOGGER.info(linkCounter + " Here links found");
     }
 
     public TrafficData getHereTrafficData() {
