@@ -9,6 +9,10 @@ public class TrafficEnums {
         PatternResolution(int resolution) {
             this.value = resolution;
         }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     public enum FerryType {
@@ -29,11 +33,6 @@ public class TrafficEnums {
             }
             return null;
         }
-
-
-        public char getFerryType() {
-            return ferryType;
-        }
     }
 
     public enum NoYesEnum {
@@ -52,11 +51,6 @@ public class TrafficEnums {
                     return enumItem;
             }
             return null;
-        }
-
-
-        public char getNoYesEnum() {
-            return noYesEnum;
         }
     }
 
@@ -144,72 +138,10 @@ public class TrafficEnums {
             return null;
         }
 
-        public static TravelDirection forValue(char v) {
-            for (TravelDirection enumItem : TravelDirection.values()) {
-                if (enumItem.abbreviation == v)
-                    return enumItem;
-            }
-            return null;
-        }
-
-
         public String getDirection() {
             return direction;
         }
 
-        public char getAbbreviation() {
-            return abbreviation;
-        }
-    }
-
-    /**
-     * The Radio Data System direction
-     * + is in the positive direction and external to the Problem Location
-     * - is in the negative direction and external to the Problem Location
-     * P is in the positive direction and internal to the Problem Location
-     * N is in the negative direction and internal to the Problem Location
-     */
-    public enum RDSDirection {
-        PE('+'),
-        NE('-'),
-        PI('P'),
-        NI('N');
-
-        private final char value;
-
-        RDSDirection(char rdsDirection) {
-            this.value = rdsDirection;
-        }
-
-        public static RDSDirection forValue(char v) {
-            for (RDSDirection enumItem : RDSDirection.values()) {
-                if (enumItem.value == v)
-                    return enumItem;
-            }
-            return null;
-        }
-
-        public char getValue() {
-            return this.value;
-        }
-    }
-
-    public enum Country {
-        GERMANY('D');
-
-        private final char value;
-
-        Country(char country) {
-            this.value = country;
-        }
-
-        public static Country forValue(char v) {
-            for (Country enumItem : Country.values()) {
-                if (enumItem.value == v)
-                    return enumItem;
-            }
-            return null;
-        }
     }
 
     public enum WeekDay {
