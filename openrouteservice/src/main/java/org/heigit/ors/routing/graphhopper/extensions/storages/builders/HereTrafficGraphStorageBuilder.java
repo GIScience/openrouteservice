@@ -62,7 +62,6 @@ import java.util.MissingResourceException;
 
 public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
-    protected final HashSet<String> routeUsage;
     private int trafficWayType = TrafficRelevantWayType.UNWANTED;
 
     private static final String PARAM_KEY_OUTPUT_LOG = "output_log";
@@ -85,40 +84,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private TrafficGraphStorage storage;
     private HereTrafficReader htReader;
 
-    //    TODO variables for loading and saving old matches for faster access
-    private HashMap<Long, HashSet<Integer>> osmId2TrafficEdgeId; // one osm id can correspond to multiple edges
-    private HashMap<Integer, HashMap<TrafficGraphStorage.Direction, HashSet<Integer>>> edgeId2TrafficEdgeId; // one edge id corresponds to max two traffic edges. one per direction.
-    private HashMap<Integer, HashSet<Long>> traffidEdgeId2OsmId; // one edge id can correspond to multiple edges
-    private HashMap<Integer, HashSet<Integer>> traffidEdgeId2OriginalEdgeId; // one edge id can correspond to multiple edges
-    private HashMap<Integer, String> matchedOSMEdges;
-
     private LinkedList<String> allOSMEdgeGeometries = new LinkedList<>();
     private HashMap<Integer, String> matchedHereLinks = new HashMap<>();
     private LinkedList<String> matchedOSMLinks = new LinkedList<>();
 
-    private Integer biggestOSMEdge = 0;
-    private Integer averageOSMEdge = 0;
-    private Integer smallestOSMEdge = Integer.MAX_VALUE;
-    private OsmIdGraphStorage graphExtensionOsmId;
-    private String matchedEdgetotrafficPath;
-    private int missedHereCounter = 0;
-
-    SimpleFeatureType TYPE =
-            DataUtilities.createType(
-                    "my", "geom:MultiLineString");
-
     public HereTrafficGraphStorageBuilder() throws SchemaException {
-        routeUsage = new HashSet<>(4);
-        routeUsage.add("bus");
-        routeUsage.add("trolleybus");
-        routeUsage.add("ferry");
-        routeUsage.add("tram");
-        osmId2TrafficEdgeId = new HashMap<>();
-        edgeId2TrafficEdgeId = new HashMap<>();
-        traffidEdgeId2OsmId = new HashMap<>();
-        matchedOSMEdges = new HashMap<>();
-        traffidEdgeId2OriginalEdgeId = new HashMap<>();
-        distCalc = new DistanceCalcEarth();
     }
 
     /**
@@ -162,19 +132,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 // We cannot continue without the information
                 throw new MissingResourceException("The Here traffic pattern reference file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_REFERENCE_PATTERN);
             }
-            if (parameters.containsKey(PARAM_KEY_SIMILARITY_FACTOR))
-                similarityFactor = Double.parseDouble(parameters.get(PARAM_KEY_SIMILARITY_FACTOR));
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_SIMILARITY_FACTOR);
-                // We cannot continue without the information
-                throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_SIMILARITY_FACTOR);
-            }
             if (parameters.containsKey(PARAM_KEY_OUTPUT_LOG))
                 outputLog = Boolean.parseBoolean(parameters.get(PARAM_KEY_OUTPUT_LOG));
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
                 // We cannot continue without the information
-                throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_SIMILARITY_FACTOR);
+                throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_OUTPUT_LOG);
             }
 
             if (parameters.containsKey(MATCHING_RADIUS))
@@ -229,7 +192,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
     }
 
-    public void writeLogFiles() throws ParseException, java.text.ParseException, IOException {
+    public void writeLogFiles() throws IOException, SchemaException {
         if (outputLog) {
             File osmFile = null;
             File osmMatchedFile = null;
@@ -312,73 +275,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 featureJSON.writeFeatureCollection(allHereCollection,hereFile);
             if (!matchedHereCollection.isEmpty())
                 hereFile.createNewFile();
-                featureJSON.writeFeatureCollection(matchedHereCollection,hereMatchedFile);
-
-        }
-    }
-
-
-    public void saveTrafficData(String filePath) {
-        Path path = Paths.get(filePath);
-        try {
-            if (osmId2TrafficEdgeId.size() > 0) {
-                try (FileOutputStream fos = new FileOutputStream(path.toString());
-                     ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                    oos.writeObject(osmId2TrafficEdgeId);
-                    LOGGER.info("Successfully stored the traffic matches for fast matching.");
-                } catch (IOException ioe) {
-                    LOGGER.error(Arrays.toString(ioe.getStackTrace()));
-                }
+                featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
             }
-            if (edgeId2TrafficEdgeId.size() > 0) {
-                Path edgeId2TrafficEdgeIdPath = path.getParent().resolve(FIXED_KEY_SHARED_MATCHES);
-                try (FileOutputStream fos = new FileOutputStream(edgeId2TrafficEdgeIdPath.toString());
-                     ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                    oos.writeObject(edgeId2TrafficEdgeId);
-                    LOGGER.info("Successfully stored the traffic matches for fast matching.");
-                } catch (IOException ioe) {
-                    LOGGER.error(Arrays.toString(ioe.getStackTrace()));
-                }
-            }
-        } catch (Exception ex) {
-            LOGGER.info("Couldn't save traffic data.");
-
-        }
-    }
-
-    public void loadTrafficData(String filePath) {
-        Path path = Paths.get(filePath).getParent();
-        File osmId2TrafficEdgeIdMatches = Paths.get(filePath).toFile();
-        File edgeId2TrafficEdgeIdMatches = path.resolve(FIXED_KEY_SHARED_MATCHES).toFile();
-        if (osmId2TrafficEdgeIdMatches.exists()) {
-            try (FileInputStream fis = new FileInputStream(osmId2TrafficEdgeIdMatches);
-                 ObjectInputStream ois = new ObjectInputStream(fis)) {
-                osmId2TrafficEdgeId = (HashMap<Long, HashSet<Integer>>) ois.readObject();
-                LOGGER.info("Successfully read old matching data");
-            } catch (IOException ioe) {
-                LOGGER.error(Arrays.toString(ioe.getStackTrace()));
-            } catch (ClassNotFoundException c) {
-                LOGGER.error("Class not found");
-                LOGGER.error(Arrays.toString(c.getStackTrace()));
-            }
-        } else {
-            osmId2TrafficEdgeId = new HashMap<>();
-            LOGGER.error("Couldn't load given traffic data. Starting from scratch.");
-        }
-        if (edgeId2TrafficEdgeIdMatches.exists()) {
-            try (FileInputStream fis = new FileInputStream(edgeId2TrafficEdgeIdMatches);
-                 ObjectInputStream ois = new ObjectInputStream(fis)) {
-                edgeId2TrafficEdgeId = (HashMap<Integer, HashMap<TrafficGraphStorage.Direction, HashSet<Integer>>>) ois.readObject();
-                LOGGER.info("Successfully read matching data for profile sharing.");
-            } catch (IOException ioe) {
-                LOGGER.error(Arrays.toString(ioe.getStackTrace()));
-            } catch (ClassNotFoundException c) {
-                LOGGER.error("Class not found");
-                LOGGER.error(Arrays.toString(c.getStackTrace()));
-            }
-        } else {
-            osmId2TrafficEdgeId = new HashMap<>();
-            LOGGER.error("Couldn't load given traffic data. Starting from scratch.");
         }
     }
 
@@ -418,59 +316,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return matchedSegments;
     }
 
-    public void addEdge2TrafficMatch(Integer edgeId, Integer originalEdgeId, Integer linkId, TrafficGraphStorage.Direction travelDirection) {
-        if (edgeId2TrafficEdgeId == null) {
-            edgeId2TrafficEdgeId = new HashMap<>();
-        }
-        if (traffidEdgeId2OsmId == null) {
-            traffidEdgeId2OsmId = new HashMap<>();
-        }
-        if (osmId2TrafficEdgeId == null) {
-            osmId2TrafficEdgeId = new HashMap<>();
-        }
-        if (matchedOSMEdges == null) {
-            matchedOSMEdges = new HashMap<>();
-        }
-        // Add traffic id match to lookup table
-        edgeId2TrafficEdgeId.putIfAbsent(linkId, new HashMap());
-        HashMap<TrafficGraphStorage.Direction, HashSet<Integer>> existingDirections = edgeId2TrafficEdgeId.get(linkId);
-        existingDirections.putIfAbsent(travelDirection, new HashSet<>());
-        HashSet<Integer> existingEdgeIds = existingDirections.get(travelDirection);
-        existingEdgeIds.add(edgeId);
-        edgeId2TrafficEdgeId.put(linkId, existingDirections);
-
-
-        Long osmID = null;
-        if (graphExtensionOsmId != null && originalEdgeId != null)
-            osmID = graphExtensionOsmId.getEdgeValue(originalEdgeId);
-        if (osmID == null) return;
-
-        HashSet<Integer> existingEdgesIds = osmId2TrafficEdgeId.putIfAbsent(osmID, new HashSet<>(Collections.singletonList(linkId)));
-        if (existingEdgesIds != null) {
-            existingEdgesIds.add(linkId);
-            osmId2TrafficEdgeId.put(osmID, existingEdgesIds);
-        }
-
-        HashSet<Long> existingOsmIds = traffidEdgeId2OsmId.putIfAbsent(linkId, new HashSet<>(Collections.singletonList(osmID)));
-        if (existingOsmIds != null) {
-            existingOsmIds.add(osmID);
-            traffidEdgeId2OsmId.put(linkId, existingOsmIds);
-        }
-    }
-
     @Override
     public void postProcess(ORSGraphHopper graphHopper) {
         if (!storage.isMatched()) {
-            if (graphHopper.getGraphHopperStorage() != null) {
-                graphExtensionOsmId = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), OsmIdGraphStorage.class);
-            }
             LOGGER.info("Starting MapMatching traffic data");
             processTrafficPatterns();
-            Collection<Integer> removableLinks = processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
-            htReader.getHereTrafficData().removeLinkIdCollection(removableLinks); // Remove here links without Traffic information to reduce ram usage.
-
-            LOGGER.info("Storing matches.");
-//            saveTrafficData(matchedEdgetotrafficPath);
+            processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
             storage.setMatched();
             storage.flush();
             LOGGER.info("Flush and lock storage.");
