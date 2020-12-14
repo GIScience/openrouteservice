@@ -23,7 +23,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
@@ -73,13 +72,14 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final Date date = Calendar.getInstance().getTime();
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
 
+    private static final String ENABLED = "enabled";
     private static final String PARAM_KEY_STREETS = "streets";
     private static final String PARAM_KEY_PATTERNS_15MINUTES = "pattern_15min";
     private static final String PARAM_KEY_REFERENCE_PATTERN = "ref_pattern";
     private static final String MATCHING_RADIUS = "radius";
+    private static boolean enabled = false;
     private static int matchingRadius = 200;
 
-    DistanceCalcEarth distCalc;
     ORSGraphHopper orsGraphHopper;
 
     private TrafficGraphStorage storage;
@@ -111,50 +111,57 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             String streetsFile;
             String patterns15MinutesFile;
             String refPatternIdsFile;
-            String oldMatchedEdgeToTrafficFile;
-            if (parameters.containsKey(PARAM_KEY_STREETS))
-                streetsFile = parameters.get(PARAM_KEY_STREETS);
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
-                // We cannot continue without the information
-                throw new MissingResourceException("The Here traffic shp file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_STREETS);
-            }
-            if (parameters.containsKey(PARAM_KEY_PATTERNS_15MINUTES))
-                patterns15MinutesFile = parameters.get(PARAM_KEY_PATTERNS_15MINUTES);
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
-                // We cannot continue without the information
-                throw new MissingResourceException("The Here 15 minutes traffic patterns file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_PATTERNS_15MINUTES);
-            }
-            if (parameters.containsKey(PARAM_KEY_REFERENCE_PATTERN))
-                refPatternIdsFile = parameters.get(PARAM_KEY_REFERENCE_PATTERN);
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
-                // We cannot continue without the information
-                throw new MissingResourceException("The Here traffic pattern reference file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_REFERENCE_PATTERN);
-            }
-            if (parameters.containsKey(PARAM_KEY_OUTPUT_LOG))
-                outputLog = Boolean.parseBoolean(parameters.get(PARAM_KEY_OUTPUT_LOG));
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
-                // We cannot continue without the information
-                throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_OUTPUT_LOG);
-            }
 
-            if (parameters.containsKey(MATCHING_RADIUS))
-                matchingRadius = Integer.parseInt(parameters.get(MATCHING_RADIUS));
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
-                // We cannot continue without the information
-                LOGGER.info("The Here matching radius is not set. The default is applied!");
-            }
+            if (parameters.containsKey(ENABLED))
+                enabled = Boolean.parseBoolean(parameters.get(ENABLED));
 
-            // Read the file containing all of the country border polygons
-            this.htReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
+            if (enabled) {
+
+
+                if (parameters.containsKey(PARAM_KEY_STREETS))
+                    streetsFile = parameters.get(PARAM_KEY_STREETS);
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
+                    // We cannot continue without the information
+                    throw new MissingResourceException("The Here traffic shp file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_STREETS);
+                }
+                if (parameters.containsKey(PARAM_KEY_PATTERNS_15MINUTES))
+                    patterns15MinutesFile = parameters.get(PARAM_KEY_PATTERNS_15MINUTES);
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
+                    // We cannot continue without the information
+                    throw new MissingResourceException("The Here 15 minutes traffic patterns file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_PATTERNS_15MINUTES);
+                }
+                if (parameters.containsKey(PARAM_KEY_REFERENCE_PATTERN))
+                    refPatternIdsFile = parameters.get(PARAM_KEY_REFERENCE_PATTERN);
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
+                    // We cannot continue without the information
+                    throw new MissingResourceException("The Here traffic pattern reference file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_REFERENCE_PATTERN);
+                }
+                if (parameters.containsKey(PARAM_KEY_OUTPUT_LOG))
+                    outputLog = Boolean.parseBoolean(parameters.get(PARAM_KEY_OUTPUT_LOG));
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
+                    // We cannot continue without the information
+                    throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_OUTPUT_LOG);
+                }
+
+                if (parameters.containsKey(MATCHING_RADIUS))
+                    matchingRadius = Integer.parseInt(parameters.get(MATCHING_RADIUS));
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
+                    // We cannot continue without the information
+                    LOGGER.info("The Here matching radius is not set. The default is applied!");
+                }
+
+                // Read the file containing all of the country border polygons
+                this.htReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
+                storage = new TrafficGraphStorage();
+            } else {
+                LOGGER.info("Traffic not enabled.");
+            }
         }
-
-        storage = new TrafficGraphStorage();
-        distCalc = new DistanceCalcEarth();
 
         return storage;
     }
@@ -189,8 +196,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             String lineString = edge.fetchWayGeometry(3).toLineString(false).toString();
             allOSMEdgeGeometries.add(lineString);
         }
-        short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
-        storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
+        if (enabled) {
+            short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
+            storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
+        }
     }
 
     public void writeLogFiles() throws IOException, SchemaException {
@@ -322,13 +331,15 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void postProcess(ORSGraphHopper graphHopper) {
-        if (!storage.isMatched()) {
+        if (enabled && !storage.isMatched()) {
             LOGGER.info("Starting MapMatching traffic data");
             processTrafficPatterns();
             processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
             storage.setMatched();
             storage.flush();
             LOGGER.info("Flush and lock storage.");
+        } else if (!enabled) {
+            LOGGER.debug("Traffic not enabled. Skipping match making.");
         } else {
             LOGGER.info("Traffic data already matched.");
         }
@@ -386,14 +397,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processLink(TrafficLink hereTrafficLink) {
-        if (hereTrafficLink == null)
+        if (hereTrafficLink == null || !hereTrafficLink.isPotentialTrafficSegment())
             return;
         RouteSegmentInfo[] matchedSegmentsFrom = new RouteSegmentInfo[]{};
         RouteSegmentInfo[] matchedSegmentsTo = new RouteSegmentInfo[]{};
-        double trafficLinkLength = hereTrafficLink.getLength(distCalc);
-        // TODO RAD START
-//        else if (hereTrafficLink.getLinkId() == 53061704 || hereTrafficLink.getLinkId() == 808238429)
-////         TODO RAD END
+        double trafficLinkLength = hereTrafficLink.getLinkLength();
+
         if (hereTrafficLink.isBothDirections()) {
             // Both Directions
             // Split
