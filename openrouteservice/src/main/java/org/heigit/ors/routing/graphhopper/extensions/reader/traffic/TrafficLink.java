@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
-import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import org.apache.log4j.Logger;
 import org.locationtech.jts.geom.Coordinate;
@@ -16,13 +15,10 @@ import java.util.Map;
 
 public class TrafficLink {
     private static final Logger LOGGER = Logger.getLogger(TrafficLink.class);
-    private double coordinateFirstY;
-    private double coordinateFirstX;
-    private double coordinateLastY;
-    private double coordinateLastX;
 
     private int linkId;
     private double linkLength;
+    private boolean isTeardrop;
 
     private LineString linkGeometry;
     private TrafficLinkMetadata trafficLinkMetadata;
@@ -32,10 +28,10 @@ public class TrafficLink {
     /**
      * Construct a TrafficLink object used for processing the link traffic data.
      *
-     * @param linkId       Link ID of the link
-     * @param linkGeometry Geometry representing the link
-     * @param properties   Properties of the link
-     * @param distanceCalcEarth   Initialized {@link DistanceCalcEarth} object that can easily be reused to calculate the lengths.
+     * @param linkId            Link ID of the link
+     * @param linkGeometry      Geometry representing the link
+     * @param properties        Properties of the link
+     * @param distanceCalcEarth Initialized {@link DistanceCalcEarth} object that can easily be reused to calculate the lengths.
      * @throws InvalidObjectException Provides detailed information when a geometry was invalid.
      */
     public TrafficLink(int linkId, Geometry linkGeometry, Collection<Property> properties, DistanceCalcEarth distanceCalcEarth) throws InvalidObjectException {
@@ -82,14 +78,23 @@ public class TrafficLink {
         return this.linkId;
     }
 
+    /**
+     * The default orientation for the link geometry is from. See isfromGeometry.
+     * When a teardrop is detected, the geometry will be entirely ignored through isPotentialTrafficSegment.
+     *
+     * @param linkGeometry Geometry to assign to the link line string
+     * @throws InvalidObjectException
+     */
     private void setLinkGeometry(Geometry linkGeometry) throws InvalidObjectException {
         GeometryFactory gf = new GeometryFactory();
         if (linkGeometry.getGeometryType().equals("LineString")) {
-            this.linkGeometry = gf.createLineString(linkGeometry.getCoordinates());
-            this.coordinateFirstX = this.linkGeometry.getCoordinateN(0).x;
-            this.coordinateFirstY = this.linkGeometry.getCoordinateN(0).y;
-            this.coordinateLastX = this.linkGeometry.getCoordinateN(this.linkGeometry.getCoordinates().length - 1).x;
-            this.coordinateLastY = this.linkGeometry.getCoordinateN(this.linkGeometry.getCoordinates().length - 1).y;
+            LineString geometry = gf.createLineString(linkGeometry.getCoordinates());
+            if (checkTearDop(geometry))
+                isTeardrop = true;
+            if (isFromOrientation(geometry))
+                this.linkGeometry = geometry;
+            else
+                this.linkGeometry = (LineString) geometry.reverse(); // Reverse to isFromGeometry
         } else {
             LOGGER.error("Invalid geometry - " + linkGeometry.getGeometryType());
             throw new InvalidObjectException("Invalid geometry for linkId " + linkId);
@@ -117,6 +122,7 @@ public class TrafficLink {
     }
 
     public boolean isPotentialTrafficSegment() {
+        if (isTeardrop) return false;
         if (trafficPatternIdsTo.isEmpty() && trafficPatternIdsFrom.isEmpty()) return false;
         if (trafficLinkMetadata.isFerry()) return false;
         if (trafficLinkMetadata.isRoundAbout()) return false;
@@ -131,44 +137,62 @@ public class TrafficLink {
         return this.trafficLinkMetadata.getFunctionalClassWithRamp();
     }
 
-    public Geometry getToGeometry() {
-        if (this.coordinateFirstY < this.coordinateLastY) {
-            // First is Reference if its latitude is lower. Most common case!
-            return this.linkGeometry.reverse();
-        } else if (this.coordinateFirstY > this.coordinateLastY) {
-            // Last is Reference if its latitude is lower
-            return this.linkGeometry;
-        } else if (this.coordinateFirstX < this.coordinateLastX) {
-            // First is Reference if latitudes are equal but its longitude is lower
-            return this.linkGeometry.reverse();
-        } else if (this.coordinateFirstX > this.coordinateLastX) {
-            // Last is Reference if latitudes are equal but its longitude is lower
-            return this.linkGeometry;
+    private boolean checkTearDop(LineString lineString) {
+        double coordinateFirstX = lineString.getCoordinateN(0).x;
+        double coordinateFirstY = lineString.getCoordinateN(0).y;
+        double coordinateLastX = lineString.getCoordinateN(lineString.getCoordinates().length - 1).x;
+        double coordinateLastY = lineString.getCoordinateN(lineString.getCoordinates().length - 1).y;
+
+        if (coordinateFirstY < coordinateLastY) {
+            // First coordinate is the reference if its latitude is lower. Most common case!
+            return false;
+        } else if (coordinateFirstY > coordinateLastY) {
+            // Last  coordinate is Reference if its latitude is lower.
+            return false;
+        } else if (coordinateFirstX < coordinateLastX) {
+            // First coordinate is the reference if latitudes are equal but its longitude is lower.
+            // This represents horizontal lines >------>
+            return false;
+        } else if (coordinateFirstX > coordinateLastX) {
+            // First coordinate is the reference if latitudes are equal but its longitude is lower.
+            return false;
         } else {
             // Teardrop nodes with same Coords. This shouldn't happen with roads from Here!
-            // TODO deside if return null or return the original coordinate order should be returned
-            return this.linkGeometry;
+            return true;
         }
     }
 
-    public Geometry getFromGeometry() {
-        if (this.coordinateFirstY < this.coordinateLastY) {
+    private boolean isFromOrientation(LineString lineString) {
+        double coordinateFirstX = lineString.getCoordinateN(0).x;
+        double coordinateFirstY = lineString.getCoordinateN(0).y;
+        double coordinateLastX = lineString.getCoordinateN(lineString.getCoordinates().length - 1).x;
+        double coordinateLastY = lineString.getCoordinateN(lineString.getCoordinates().length - 1).y;
+
+        if (coordinateFirstY < coordinateLastY) {
             // First coordinate is the reference if its latitude is lower. Most common case!
-            return this.linkGeometry;
-        } else if (this.coordinateFirstY > this.coordinateLastY) {
+            return true;
+        } else if (coordinateFirstY > coordinateLastY) {
             // Last  coordinate is Reference if its latitude is lower.
-            return this.linkGeometry.reverse();
-        } else if (this.coordinateFirstX < this.coordinateLastX) {
+            return false;
+        } else if (coordinateFirstX < coordinateLastX) {
             // First coordinate is the reference if latitudes are equal but its longitude is lower.
             // This represents horizontal lines >------>
-            return this.linkGeometry;
-        } else if (this.coordinateFirstX > this.coordinateLastX) {
+            return true;
+        } else if (coordinateFirstX > coordinateLastX) {
             // First coordinate is the reference if latitudes are equal but its longitude is lower.
-            return this.linkGeometry.reverse();
+            return false;
         } else {
             // Teardrop nodes with same Coords. This shouldn't happen with roads from Here!
-            return null;
+            return true;
         }
+    }
+
+    public Geometry getToGeometry() {
+        return linkGeometry.reverse();
+    }
+
+    public Geometry getFromGeometry() {
+        return linkGeometry;
     }
 
     public boolean isOnlyFromDirection() {
