@@ -343,33 +343,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         } else {
             LOGGER.info("Traffic data already matched.");
         }
-        // TODO RAD
-//        GraphHopperStorage graphHopperStorage = graphHopper.getGraphHopperStorage();
-//
-//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
-//            if (ge instanceof TrafficGraphStorage) {
-//                long seconds1 = Long.parseLong("632354626000");
-//                int patterValue1 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
-//                int speedValue1 = ((TrafficGraphStorage) ge).getSpeedValue(14277, 5022, 222, seconds1);
-//                assert patterValue1 == 1309;
-//                assert speedValue1 == 31;
-//
-//                long seconds2 = Long.parseLong("632527426000");
-//                int patterValue2 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(14278, 222, 5180, TrafficEnums.WeekDay.TUESDAY);
-//                int speedValue2 = ((TrafficGraphStorage) ge).getSpeedValue(14278, 222, 5180, seconds2);
-//                assert patterValue2 == 5538;
-//                assert speedValue2 == 27;
-//
-//                long seconds3 = Long.parseLong("632613826000");
-//                int patterValue3 = ((TrafficGraphStorage) ge).getEdgeIdTrafficPatternLookup(40, 8282, 250, TrafficEnums.WeekDay.WEDNESDAY);
-//                int speedValue3 = ((TrafficGraphStorage) ge).getSpeedValue(40, 8282, 250, seconds3);
-//                assert patterValue3 == 29;
-//                assert speedValue3 == 30;
-//
-//                System.out.println("");
-//            }
-//        }
-        // TODO RAD
     }
 
     private void processTrafficPatterns() {

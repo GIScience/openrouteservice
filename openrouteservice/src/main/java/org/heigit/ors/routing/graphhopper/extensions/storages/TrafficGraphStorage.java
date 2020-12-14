@@ -30,10 +30,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
 
-    public enum Direction {FROM_TRAFFIC, TO_TRAFFIC}
-
-    public enum Weekday {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
-
     /* pointer for road type */
     private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
     private static final int LOCATION_FORWARD_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
@@ -59,7 +55,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
     public static final int PROPERTY_BYTE_COUNT = 1;
     public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority = 2 * 7 * 2 + 2 = 30
-    public static final int WEEKLY_TRAFFIC_PATTERNS_BYTE_COUNT = 13; // The max pattern id fits in a short = 2 bytes * 7 days
     public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 95; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
 
     private DataAccess orsEdgesProperties; // RAMDataAccess
@@ -68,10 +63,8 @@ public class TrafficGraphStorage implements GraphExtension {
 
     private int edgePropertyEntryBytes;
     private int edgeLinkLookupEntryBytes;
-    private int linkPatternEntryBytes;
     private int patternEntryBytes;
     private int edgesCount; // number of edges with custom values
-    private int linkCount; // number of traffic links
     private int patternCount; // number of traffic patterns
     private byte[] propertyValue;
     private byte[] speedValue;
@@ -81,7 +74,6 @@ public class TrafficGraphStorage implements GraphExtension {
         int edgeEntryIndex = 0;
         edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
         edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;
-        linkPatternEntryBytes = edgeEntryIndex + WEEKLY_TRAFFIC_PATTERNS_BYTE_COUNT;
         patternEntryBytes = edgeEntryIndex + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT;
         propertyValue = new byte[1];
         speedValue = new byte[1];
@@ -249,25 +241,7 @@ public class TrafficGraphStorage implements GraphExtension {
         ensureSpeedPatternLookupIndex(patternId);
         speedValue = speedValue > 255 ? 255 : speedValue;
         this.speedValue[0] = (byte) speedValue;
-        byte[] testByteValues = new byte[1];
         orsSpeedPatternLookup.setBytes(patternPointer + ((hour * 4) + minutePointer), this.speedValue, 1);
-        // TODO RAD
-//        int test = Byte.toUnsignedInt(byteValues[0]);
-//        orsSpeedPatternLookup.getBytes(patternPointer + ((hour * 4) + minutePointer), testByteValues, 1);
-//        orsSpeedPatternLookup.getBytes(patternPointer + 0 + 0, testByteValues, 1);
-//        orsSpeedPatternLookup.getBytes(patternPointer + 0 + 1, testByteValues, 1);
-//        orsSpeedPatternLookup.getBytes(patternPointer + 0 + 2, testByteValues, 1);
-//        orsSpeedPatternLookup.getBytes(patternPointer + 0 + 3, testByteValues, 1);
-//        int firstShort = getTrafficSpeed(patternId, hour, 0);
-//        int secondShort = getTrafficSpeed(patternId, hour, 15);
-//        int thirdShort = getTrafficSpeed(patternId, hour, 30);
-//        int furthShort = getTrafficSpeed(patternId, hour, 45);
-//        int aShort = getTrafficSpeed(patternPointer, hour, 0);
-//        int bShort = getTrafficSpeed(patternPointer, hour, 15);
-//        int cShort = getTrafficSpeed(patternPointer, hour, 30);
-//        int dShort = getTrafficSpeed(patternPointer, hour, 45);
-//        System.out.println(",,,");
-        // TODO RAD
     }
 
     /**
