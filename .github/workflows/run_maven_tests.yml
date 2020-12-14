@@ -33,13 +33,12 @@ jobs:
     - name: All tests
       run: mvn -B -f openrouteservice/pom.xml verify
 
-# TODO: temporarily commented out due to failures; needs to be fixed
-#    - name: Rocket.Chat Notification
-#      uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
-#      if: always()
-#      with:
-#        type: ${{ job.status }}
-#        job_name: '*ORS CI Test*'
-#        url: ${{ secrets.ROCKETCHAT_WEBHOOK }}
-#        commit: true
-#        token: ${{ secrets.PROJECT_AUTOMATION }}
+    - name: Rocket.Chat Notification
+      uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
+      if: always()
+      with:
+        type: ${{ job.status }}
+        job_name: '*ORS CI Test*'
+        url: ${{ secrets.ROCKETCHAT_WEBHOOK }}
+        commit: true
+        token: ${{ secrets.PROJECT_AUTOMATION }}

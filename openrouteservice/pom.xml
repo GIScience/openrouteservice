@@ -110,10 +110,10 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <echo>Creating version file</echo>
                                 <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties" />
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
