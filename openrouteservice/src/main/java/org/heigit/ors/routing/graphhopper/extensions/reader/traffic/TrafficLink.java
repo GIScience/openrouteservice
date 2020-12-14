@@ -45,13 +45,13 @@ public class TrafficLink {
         this.trafficPatternIdsTo = new EnumMap<>(TrafficEnums.WeekDay.class);
 
         this.setLinkGeometry(linkGeometry);
-        this.setLinkLength(linkGeometry, distanceCalcEarth);
+        this.setLinkLength(distanceCalcEarth);
 
         trafficLinkMetadata = new TrafficLinkMetadata(properties);
 
     }
 
-    private void setLinkLength(Geometry linkGeometry, DistanceCalcEarth dc) {
+    private void setLinkLength(DistanceCalcEarth dc) {
         double temporaryLength = 0;
 
         if (this.getLinkGeometry() != null) {
