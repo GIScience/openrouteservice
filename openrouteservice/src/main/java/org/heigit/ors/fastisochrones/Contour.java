@@ -44,7 +44,7 @@ public class Contour {
     private static final int SUPER_CELL_HIERARCHY_LEVEL = 3;
     //This means that one supersupercell can contain at most 2^(3 + 2) = 32 base cells.
     private static final int SUPER_SUPER_CELL_HIERARCHY_LEVEL = 2; // level above super cell level
-    private static final double CONCAVE_HULL_THRESHOLD = 0.010;
+    private static final double CONCAVE_HULL_THRESHOLD = 0.006;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
@@ -184,7 +184,6 @@ public class Contour {
     }
 
     private Geometry concHullOfNodes(List<Coordinate> coordinates) {
-        int j = 0;
         double defaultVisitorThreshold = 0.0035;
         double defaultSearchWidth = 0.0008;
         double defaulPointWidth = 0.005;

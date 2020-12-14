@@ -21,16 +21,14 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
+import com.vividsolutions.jts.geom.Geometry;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of Fast Isochrones
@@ -165,12 +163,28 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
                     && eccentricityStorage.getFullyReachable(baseNode)) {
                 addFullyReachableCell(baseCell);
                 addInactiveBorderNode(baseNode);
-                getActiveCells().remove(baseCell);
+                removeActiveCell(baseCell);
             } else {
                 if (!getFullyReachableCells().contains(baseCell)) {
                     addActiveCell(baseCell);
                     addActiveBorderNode(baseNode);
                 }
+            }
+        }
+    }
+
+    /**
+     * Consider all active cells that have a percentage of *approximation* of their nodes visited to be fully reachable.
+     * @param approximation factor of approximation. 1 means all nodes must be found, 0 means no nodes have to be found.
+     */
+    public void approximateActiveCells(double approximation) {
+        Map<Integer, IntObjectMap<SPTEntry>> newActiveCellMaps = new HashMap<>();
+        Iterator<Map.Entry<Integer, IntObjectMap<SPTEntry>>> activeCellIterator = getActiveCellMaps().entrySet().iterator();
+        while (activeCellIterator.hasNext()) {
+            Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell = activeCellIterator.next();
+            if (activeCell.getValue().size() / (double) cellStorage.getNodesOfCell(activeCell.getKey()).size() > approximation) {
+                activeCellIterator.remove();
+                getFullyReachableCells().add(activeCell.getKey());
             }
         }
     }
@@ -181,6 +195,10 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     protected void addActiveCell(int cellId) {
         activeCells.add(cellId);
+    }
+
+    protected void removeActiveCell(int cellId) {
+        activeCells.remove(cellId);
     }
 
     private void addFullyReachableCell(int cellId) {
