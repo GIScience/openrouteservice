@@ -332,9 +332,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     @Override
     public void postProcess(ORSGraphHopper graphHopper) {
         if (enabled && !storage.isMatched()) {
+            this.orsGraphHopper = graphHopper;
             LOGGER.info("Starting MapMatching traffic data");
             processTrafficPatterns();
-            processLinks(htReader.getHereTrafficData().getLinks(), graphHopper);
+            processLinks(htReader.getHereTrafficData().getLinks());
             storage.setMatched();
             storage.flush();
             LOGGER.info("Flush and lock storage.");
@@ -351,13 +352,13 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         pb.start();
         for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
             storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
+            pb.step();
         }
         pb.stop();
     }
 
-    private void processLinks(IntObjectHashMap<TrafficLink> links, ORSGraphHopper graphHopper) {
-        ProgressBar pb = new ProgressBar("Matching Here Links", links.size()); // name, initial max
-        orsGraphHopper = graphHopper;
+    private void processLinks(IntObjectHashMap<TrafficLink> links) {
+        ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size()); // name, initial max
         pb.start();
         int counter = 0;
         for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
@@ -366,10 +367,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             if (!outputLog) {
                 links.put(trafficLink.index, null);
             }
-            if (counter % 1000 == 0)
-                pb.stepBy(1000);
+            if (counter % 2000 == 0)
+                pb.stepBy(2000);
         }
-        pb.stepBy(1000);
         pb.stop();
     }
 
