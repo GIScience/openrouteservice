@@ -71,14 +71,16 @@ public class CoreRangeDijkstraTest {
         rangeSweepToAndInCore.initFrom(5);
         rangeSweepToAndInCore.runAlgo();
         IntObjectMap<SPTEntry> bestWeightMap = rangeSweepToAndInCore.getFromMap();
-        assertNull(bestWeightMap.get(0));
+        assertNotNull(bestWeightMap.get(0));
         assertNotNull(bestWeightMap.get(1));
-        assertNull(bestWeightMap.get(2));
+        assertNotNull(bestWeightMap.get(2));
         assertNotNull(bestWeightMap.get(5));
         assertNull(bestWeightMap.get(3));
         assertNull(bestWeightMap.get(4));
 
+        assertEquals(3.0, bestWeightMap.get(0).weight, 1e-10);
         assertEquals(2.0, bestWeightMap.get(1).weight, 1e-10);
+        assertEquals(4.0, bestWeightMap.get(2).weight, 1e-10);
         assertEquals(0.0, bestWeightMap.get(5).weight, 1e-10);
     }
 
