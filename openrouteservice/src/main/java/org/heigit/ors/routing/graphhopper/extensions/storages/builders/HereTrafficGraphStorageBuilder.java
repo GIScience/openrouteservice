@@ -359,13 +359,17 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         ProgressBar pb = new ProgressBar("Matching Here Links", links.size()); // name, initial max
         orsGraphHopper = graphHopper;
         pb.start();
+        int counter = 0;
         for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
             processLink(trafficLink.value);
+            counter += 1;
             if (!outputLog) {
                 links.put(trafficLink.index, null);
             }
-            pb.step();
+            if (counter % 1000 == 0)
+                pb.stepBy(1000);
         }
+        pb.stepBy(1000);
         pb.stop();
     }
 
@@ -374,19 +378,18 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return;
         RouteSegmentInfo[] matchedSegmentsFrom = new RouteSegmentInfo[]{};
         RouteSegmentInfo[] matchedSegmentsTo = new RouteSegmentInfo[]{};
-        double trafficLinkLength = hereTrafficLink.getLinkLength();
 
         if (hereTrafficLink.isBothDirections()) {
             // Both Directions
             // Split
-            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getFromGeometry(), false);
-            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         } else if (hereTrafficLink.isOnlyFromDirection()) {
             // One Direction
-            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
         } else {
             // One Direction
-            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), trafficLinkLength, hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
 
         processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
