@@ -5,8 +5,6 @@ public class TrafficPattern {
     private TrafficEnums.PatternResolution resolution;
     private short[] values;
 
-    public enum SpeedType {MPH, KPH}
-
     public TrafficPattern(int patternId, TrafficEnums.PatternResolution resolution, short[] values) {
         this.patternId = patternId;
         this.resolution = resolution;
@@ -16,10 +14,6 @@ public class TrafficPattern {
 
     public int getPatternId() {
         return patternId;
-    }
-
-    public TrafficEnums.PatternResolution getResolution() {
-        return resolution;
     }
 
     public short[] getValues() {

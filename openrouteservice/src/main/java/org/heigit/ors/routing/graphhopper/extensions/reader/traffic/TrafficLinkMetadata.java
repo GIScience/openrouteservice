@@ -62,10 +62,6 @@ public class TrafficLinkMetadata {
         return roundabout != TrafficEnums.NoYesEnum.NO;
     }
 
-    public boolean isOneDirection() {
-        return this.travelDirection != TrafficEnums.LinkTravelDirection.BOTH;
-    }
-
     public TrafficEnums.LinkTravelDirection getTravelDirection() {
         return this.travelDirection;
     }
