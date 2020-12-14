@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.3.2] - 2020-12-14
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
 - Japanese language support ([#811](https://github.com/GIScience/openrouteservice/pull/811), thanks to [higa4](https://github.com/higa4) for the translation)
@@ -364,7 +366,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...HEAD
+[6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
 [6.2.1]: https://github.com/GIScience/openrouteservice/compare/v6.2.0...v6.2.1
