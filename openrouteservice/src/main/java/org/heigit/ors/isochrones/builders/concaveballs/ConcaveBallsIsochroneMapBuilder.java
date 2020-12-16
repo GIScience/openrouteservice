@@ -604,16 +604,21 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
      * @param maxlim limit above which the edge will NOT be split anymore (in meters)
      */
     private void splitEdge(GHPoint3D point0, GHPoint3D point1, PointList pointList, double minlim, double maxlim) {
+        //No need to consider elevation
         double lat0 = point0.getLat();
         double lon0 = point0.getLon();
         double lat1 = point1.getLat();
         double lon1 = point1.getLon();
         double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
+        boolean is3D = pointList.is3D();
 
         if (dist > minlim && dist < maxlim) {
             int n = (int) Math.ceil(dist / minlim);
             for (int i = 1; i < n; i++) {
-                pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
+                if(is3D)
+                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
+                else
+                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n);
             }
         }
     }
