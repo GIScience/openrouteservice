@@ -18,6 +18,7 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.util.DateTimeHelper;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
 import java.util.Calendar;
@@ -349,8 +350,8 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
-    public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds) {
-        Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+1"));
+    public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
+        Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+" + timeZoneOffset));
         calendarDate.setTimeInMillis(unixMilliSeconds);
         int calendarWeekDay = calendarDate.get(Calendar.DAY_OF_WEEK);
         int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
