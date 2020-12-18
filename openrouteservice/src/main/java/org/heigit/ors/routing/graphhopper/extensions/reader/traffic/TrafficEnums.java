@@ -145,13 +145,13 @@ public class TrafficEnums {
     }
 
     public enum WeekDay {
+        SUNDAY("U", 12, 1),
         MONDAY("M", 0, 2),
         TUESDAY("T", 2, 3),
         WEDNESDAY("W", 4, 4),
         THURSDAY("R", 6, 5),
         FRIDAY("F", 8, 6),
-        SATURDAY("S", 10, 7),
-        SUNDAY("U", 12, 1);
+        SATURDAY("S", 10, 7);
 
         private final String value;
         private final int byteLocation;
