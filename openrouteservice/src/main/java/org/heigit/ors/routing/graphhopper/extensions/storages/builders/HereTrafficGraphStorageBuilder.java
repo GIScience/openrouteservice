@@ -17,7 +17,6 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
@@ -39,10 +38,11 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficData;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficPattern;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
@@ -79,11 +79,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final String MATCHING_RADIUS = "radius";
     private static boolean enabled = false;
     private static int matchingRadius = 200;
-
-    ORSGraphHopper orsGraphHopper;
+    String streetsFile = "";
+    String patterns15MinutesFile = "";
+    String refPatternIdsFile = "";
 
     private TrafficGraphStorage storage;
-    private HereTrafficReader htReader;
 
     //    private ArrayList<String> allOSMEdgeGeometries = new ArrayList<>();
     private IntHashSet matchedHereLinks = new IntHashSet();
@@ -105,62 +105,40 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        if (this.htReader == null) {
-            // Read the border shapes from the file
-            // First check if parameters are present
-            String streetsFile;
-            String patterns15MinutesFile;
-            String refPatternIdsFile;
+        if (parameters.containsKey(ENABLED))
+            enabled = Boolean.parseBoolean(parameters.get(ENABLED));
 
-            if (parameters.containsKey(ENABLED))
-                enabled = Boolean.parseBoolean(parameters.get(ENABLED));
-
-            if (enabled) {
-
-
-                if (parameters.containsKey(PARAM_KEY_STREETS))
-                    streetsFile = parameters.get(PARAM_KEY_STREETS);
-                else {
-                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
-                    // We cannot continue without the information
-                    throw new MissingResourceException("The Here traffic shp file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_STREETS);
-                }
-                if (parameters.containsKey(PARAM_KEY_PATTERNS_15MINUTES))
-                    patterns15MinutesFile = parameters.get(PARAM_KEY_PATTERNS_15MINUTES);
-                else {
-                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
-                    // We cannot continue without the information
-                    throw new MissingResourceException("The Here 15 minutes traffic patterns file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_PATTERNS_15MINUTES);
-                }
-                if (parameters.containsKey(PARAM_KEY_REFERENCE_PATTERN))
-                    refPatternIdsFile = parameters.get(PARAM_KEY_REFERENCE_PATTERN);
-                else {
-                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
-                    // We cannot continue without the information
-                    throw new MissingResourceException("The Here traffic pattern reference file is needed to use the traffic extended storage!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_REFERENCE_PATTERN);
-                }
-                if (parameters.containsKey(PARAM_KEY_OUTPUT_LOG))
-                    outputLog = Boolean.parseBoolean(parameters.get(PARAM_KEY_OUTPUT_LOG));
-                else {
-                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
-                    // We cannot continue without the information
-                    throw new MissingResourceException("The Here similarity factor for the geometry matching algorithm is not set!", HereTrafficGraphStorageBuilder.class.getName(), PARAM_KEY_OUTPUT_LOG);
-                }
-
-                if (parameters.containsKey(MATCHING_RADIUS))
-                    matchingRadius = Integer.parseInt(parameters.get(MATCHING_RADIUS));
-                else {
-                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
-                    // We cannot continue without the information
-                    LOGGER.info("The Here matching radius is not set. The default is applied!");
-                }
-
-                // Read the file containing all of the country border polygons
-                this.htReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
-                storage = new TrafficGraphStorage();
-            } else {
-                LOGGER.info("Traffic not enabled.");
+        if (enabled) {
+            if (parameters.containsKey(PARAM_KEY_STREETS))
+                streetsFile = parameters.get(PARAM_KEY_STREETS);
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
             }
+            if (parameters.containsKey(PARAM_KEY_PATTERNS_15MINUTES))
+                patterns15MinutesFile = parameters.get(PARAM_KEY_PATTERNS_15MINUTES);
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
+            }
+            if (parameters.containsKey(PARAM_KEY_REFERENCE_PATTERN))
+                refPatternIdsFile = parameters.get(PARAM_KEY_REFERENCE_PATTERN);
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
+            }
+            if (parameters.containsKey(PARAM_KEY_OUTPUT_LOG))
+                outputLog = Boolean.parseBoolean(parameters.get(PARAM_KEY_OUTPUT_LOG));
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
+            }
+
+            if (parameters.containsKey(MATCHING_RADIUS))
+                matchingRadius = Integer.parseInt(parameters.get(MATCHING_RADIUS));
+            else {
+                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
+                LOGGER.info("The Here matching radius is not set. The default is applied!");
+            }
+            storage = new TrafficGraphStorage();
+        } else {
+            LOGGER.info("Traffic not enabled.");
         }
 
         return storage;
@@ -202,9 +180,16 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    public void writeLogFiles() throws IOException, SchemaException {
+    private void writeLogFiles(TrafficData hereTrafficData) {
         if (outputLog) {
-            SimpleFeatureType TYPE = DataUtilities.createType("my", "geom:MultiLineString");
+            LOGGER.info("Write log files.");
+            SimpleFeatureType TYPE = null;
+            try {
+                TYPE = DataUtilities.createType("my", "geom:MultiLineString");
+            } catch (SchemaException e) {
+                LOGGER.error("Error creating MultiLineString Type. This should not happen!");
+                e.printStackTrace();
+            }
             File osmFile = null;
             File osmMatchedFile = null;
             File hereMatchedFile = null;
@@ -238,9 +223,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 //            }
 
 
+            SimpleFeatureType finalTYPE = TYPE;
             matchedOSMLinks.forEach((value) -> {
                 try {
-                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
+                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(finalTYPE);
                     com.vividsolutions.jts.geom.Geometry linestring = reader.read(value);
                     featureBuilder.add(linestring);
                     SimpleFeature feature = featureBuilder.buildFeature(null);
@@ -251,7 +237,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             });
             for (IntCursor linkID : matchedHereLinks) {
                 try {
-                    String hereLinkGeometry = htReader.getHereTrafficData().getLink(linkID.value).getLinkGeometry().toString();
+                    String hereLinkGeometry = hereTrafficData.getLink(linkID.value).getLinkGeometry().toString();
                     SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
                     com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
                     featureBuilder.add(linestring);
@@ -262,7 +248,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 }
             }
 
-//            for (IntObjectCursor<TrafficLink> trafficLink : htReader.getHereTrafficData().getLinks()) {
+//            for (IntObjectCursor<TrafficLink> trafficLink : hereTrafficData.getLinks()) {
 //                try {
 //                    String hereLinkGeometry = trafficLink.value.getLinkGeometry().toString();
 //                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
@@ -279,16 +265,26 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 //                featureJSON.writeFeatureCollection(allOSMCollection, osmFile);
 //            }
             if (matchedOSMCollection.size() > 0) {
-                osmMatchedFile.createNewFile();
-                featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
+                try {
+                    osmMatchedFile.createNewFile();
+                    featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
+                } catch (IOException e) {
+                    LOGGER.error("Error writing matched OSM data to log file.");
+                    e.printStackTrace();
+                }
             }
 //            if (allHereCollection.size() > 0) {
 //                hereMatchedFile.createNewFile();
 //                featureJSON.writeFeatureCollection(allHereCollection, hereFile);
 //            }
             if (matchedHereCollection.size() > 0) {
-                hereFile.createNewFile();
-                featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
+                try {
+                    hereMatchedFile.createNewFile();
+                    featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
+                } catch (IOException e) {
+                    LOGGER.error("Error writing matched Here data to log file.");
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -303,10 +299,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return BUILDER_NAME;
     }
 
-    public HereTrafficReader getHtReader() {
-        return htReader;
-    }
-
     public void addHereSegmentForLogging(Integer linkID) {
         matchedHereLinks.add(linkID);
     }
@@ -315,14 +307,15 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         matchedOSMLinks.add(osmGeometry);
     }
 
-    private RouteSegmentInfo[] matchLinkToSegments(int trafficLinkFunctionalClass, double originalTrafficLinkLength, Geometry geometry, boolean bothDirections) {
+    private RouteSegmentInfo[] matchLinkToSegments(ORSGraphHopper graphHopper, int trafficLinkFunctionalClass,
+                                                   double originalTrafficLinkLength, Geometry geometry, boolean bothDirections) {
         RouteSegmentInfo[] matchedSegments = new RouteSegmentInfo[0];
         if (geometry == null) {
             LOGGER.info("Teadrop node.");
             return matchedSegments;
         }
         try {
-            matchedSegments = orsGraphHopper.getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
+            matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
         } catch (Exception e) {
             LOGGER.info("Error while matching: " + e);
         }
@@ -331,23 +324,35 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void postProcess(ORSGraphHopper graphHopper) {
+        HereTrafficReader hereTrafficReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
         if (enabled && !storage.isMatched()) {
-            this.orsGraphHopper = graphHopper;
-            LOGGER.info("Starting MapMatching traffic data");
-            processTrafficPatterns();
-            processLinks(htReader.getHereTrafficData().getLinks());
-            storage.setMatched();
-            storage.flush();
-            LOGGER.info("Flush and lock storage.");
+            try {
+                hereTrafficReader.readData();
+            } catch (IOException e) {
+                LOGGER.error("Severe error reading " + HereTrafficReader.class.toString());
+                e.printStackTrace();
+                return;
+            }
+            if (hereTrafficReader.isInitialized()) {
+                LOGGER.info("Starting MapMatching traffic data");
+                processTrafficPatterns(hereTrafficReader.getHereTrafficData().getPatterns());
+                processLinks(graphHopper, hereTrafficReader.getHereTrafficData().getLinks());
+                storage.setMatched();
+                storage.flush();
+                LOGGER.info("Flush and lock storage.");
+                writeLogFiles(hereTrafficReader.getHereTrafficData());
+                LOGGER.info("Traffic data successfully processed");
+            } else {
+                throw new MissingResourceException("Here traffic is not build, enabled but the Here data sets couldn't be initialized. Make sure the config contains the path variables and they're correct.", this.getClass().toString(), "streets || pattern_15min || ref_pattern");
+            }
         } else if (!enabled) {
-            LOGGER.debug("Traffic not enabled. Skipping match making.");
+            LOGGER.debug("Traffic not enabled or already matched. Skipping match making.");
         } else {
-            LOGGER.info("Traffic data already matched.");
+            LOGGER.info("Traffic data already matched. Skipping match making.");
         }
     }
 
-    private void processTrafficPatterns() {
-        IntObjectHashMap<TrafficPattern> patterns = htReader.getHereTrafficData().getPatterns();
+    private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
         ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size());
         pb.start();
         for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
@@ -357,12 +362,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         pb.stop();
     }
 
-    private void processLinks(IntObjectHashMap<TrafficLink> links) {
+    private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
         ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size()); // name, initial max
         pb.start();
         int counter = 0;
         for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
-            processLink(trafficLink.value);
+            processLink(graphHopper, trafficLink.value);
             counter += 1;
             if (!outputLog) {
                 links.put(trafficLink.index, null);
@@ -373,7 +378,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         pb.stop();
     }
 
-    private void processLink(TrafficLink hereTrafficLink) {
+    private void processLink(ORSGraphHopper graphHopper, TrafficLink hereTrafficLink) {
         if (hereTrafficLink == null || !hereTrafficLink.isPotentialTrafficSegment())
             return;
         RouteSegmentInfo[] matchedSegmentsFrom = new RouteSegmentInfo[]{};
@@ -382,43 +387,45 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (hereTrafficLink.isBothDirections()) {
             // Both Directions
             // Split
-            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
-            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         } else if (hereTrafficLink.isOnlyFromDirection()) {
             // One Direction
-            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
         } else {
             // One Direction
-            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
 
-        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
-        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
+        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
+        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
     }
 
-    private void processSegments(int linkId, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
+    private void processSegments(ORSGraphHopper graphHopper, int linkId, Map<
+            TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
         if (matchedSegments == null)
             return;
         for (RouteSegmentInfo routeSegment : matchedSegments) {
             if (routeSegment == null) continue;
-            processSegment(trafficPatternIds, linkId, routeSegment);
+            processSegment(graphHopper, trafficPatternIds, linkId, routeSegment);
         }
     }
 
-    private void processSegment(Map<TrafficEnums.WeekDay, Integer> trafficPatternIds, int trafficLinkId, RouteSegmentInfo routeSegment) {
+    private void processSegment(ORSGraphHopper graphHopper, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds,
+                                int trafficLinkId, RouteSegmentInfo routeSegment) {
         for (EdgeIteratorState edge : routeSegment.getEdges()) {
             if (edge instanceof VirtualEdgeIteratorState) {
                 VirtualEdgeIteratorState virtualEdge = (VirtualEdgeIteratorState) edge;
                 int originalEdgeId;
                 int originalBaseNodeId;
                 int originalAdjNodeId;
-                if (virtualEdge.getAdjNode() < orsGraphHopper.getGraphHopperStorage().getNodes()) {
-                    EdgeIteratorState originalEdgeIter = orsGraphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getAdjNode());
+                if (virtualEdge.getAdjNode() < graphHopper.getGraphHopperStorage().getNodes()) {
+                    EdgeIteratorState originalEdgeIter = graphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getAdjNode());
                     originalEdgeId = originalEdgeIter.getEdge();
                     originalBaseNodeId = originalEdgeIter.getBaseNode();
                     originalAdjNodeId = originalEdgeIter.getAdjNode();
-                } else if (virtualEdge.getBaseNode() < orsGraphHopper.getGraphHopperStorage().getNodes()) {
-                    EdgeIteratorState originalEdgeIter = orsGraphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getBaseNode());
+                } else if (virtualEdge.getBaseNode() < graphHopper.getGraphHopperStorage().getNodes()) {
+                    EdgeIteratorState originalEdgeIter = graphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getBaseNode());
                     originalEdgeId = originalEdgeIter.getEdge();
                     originalBaseNodeId = originalEdgeIter.getAdjNode();
                     originalAdjNodeId = originalEdgeIter.getBaseNode();

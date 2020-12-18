@@ -127,7 +127,6 @@ public class RoutingProfile {
     private Integer[] mRoutePrefs;
     private Integer mUseCounter;
     private boolean mUpdateRun;
-    private static HereTrafficGraphStorageBuilder hereTrafficGraphStorageBuilder;
 
     private RouteProfileConfiguration config;
     private String astarApproximation;
@@ -211,12 +210,6 @@ public class RoutingProfile {
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
             if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
                 pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-            }
-            if (builder.getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)) {
-                hereTrafficGraphStorageBuilder = (HereTrafficGraphStorageBuilder) builder;
-                gh.setTrafficData(hereTrafficGraphStorageBuilder);
-                pathProcessorFactory.setHereTrafficReader(hereTrafficGraphStorageBuilder.getHtReader());
-
             }
         }
 
