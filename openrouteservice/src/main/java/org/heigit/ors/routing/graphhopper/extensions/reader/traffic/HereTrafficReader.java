@@ -41,9 +41,10 @@ import java.util.Map;
 public class HereTrafficReader {
     private static final Logger LOGGER = Logger.getLogger(HereTrafficReader.class);
 
-    private final String streetGeometriesFile;
-    private final String patternsReferenceFile;
-    private final String patternsFile;
+    private boolean isInitialized;
+    private String streetGeometriesFile;
+    private String patternsReferenceFile;
+    private String patternsFile;
 
     private final TrafficData hereTrafficData = new TrafficData();
 
@@ -60,21 +61,24 @@ public class HereTrafficReader {
         this.patternsReferenceFile = "";
         this.distCalc = new DistanceCalcEarth();
         currentInstance = this;
+        isInitialized = false;
     }
 
-    //    /**
-//     * Create a CountryBordersReader object and read in data for borders, ids and open borders.
-//     *
-//     * @param filepath Path to the borders (polygon) data
-//     * @param idsPath  Path to a csv file containing numeric identifiers for countries (and english name)
-//     * @param openPath Path to a csv file containing pairs of country names which have open borders
-//     */
-    public HereTrafficReader(String streetGeometriesFile, String patterns15MinutesFile, String refPatternIdsFile) throws IOException {
+    /**
+     * Constructor - the user must explicitly pass information
+     */
+    public HereTrafficReader(String streetGeometriesFile, String patterns15MinutesFile, String refPatternIdsFile) {
         this.streetGeometriesFile = streetGeometriesFile;
         this.patternsFile = patterns15MinutesFile;
         this.patternsReferenceFile = refPatternIdsFile;
         this.distCalc = new DistanceCalcEarth();
+        currentInstance = this;
+        isInitialized = false;
+    }
 
+    public void readData() throws IOException {
+        if (streetGeometriesFile.equals("") || patternsFile.equals("") || patternsReferenceFile.equals(""))
+            return;
         try {
             SimpleFeatureCollection rawGeometries = readHereGeometries();
             createHereGeometries(rawGeometries);
@@ -90,12 +94,17 @@ public class HereTrafficReader {
             generatePatterns(referencePatterns, patterns);
             LOGGER.info("Here input data processed successfully");
 
+            isInitialized = true;
         } catch (IOException ioe) {
             // Problem with reading the data
             LOGGER.error("Could not access file(s) required for Here traffic data");
             throw ioe;
         }
         currentInstance = this;
+    }
+
+    public boolean isInitialized() {
+        return this.isInitialized;
     }
 
     private void generatePatterns(HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> referencePatterns, Map<Integer, TrafficPattern> patterns) {
@@ -221,7 +230,7 @@ public class HereTrafficReader {
                         LOGGER.info("Couldn't parse here geometry for Link_ID: " + linkId);
                     }
                 } else {
-                    LOGGER.info("Geometry malformed. Skip parsing here geometry for Link_ID: " + linkId);
+                    LOGGER.debug("Geometry malformed. Skip parsing here geometry for Link_ID: " + linkId);
                 }
                 // process feature
                 linkCounter += 1;

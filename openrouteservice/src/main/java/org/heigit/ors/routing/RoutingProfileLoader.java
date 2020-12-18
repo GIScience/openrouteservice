@@ -19,28 +19,24 @@ import java.util.concurrent.Callable;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
-	private String osmFile;
-	private RouteProfileConfiguration rpc;
-	private RoutingProfileLoadContext loadCntx;
+    private String osmFile;
+    private RouteProfileConfiguration rpc;
+    private RoutingProfileLoadContext loadCntx;
 
-	public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
-		this.osmFile = osmFile;
-		this.rpc = rpc;
-		this.loadCntx = loadCntx;
-	}
+    public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
+        this.osmFile = osmFile;
+        this.rpc = rpc;
+        this.loadCntx = loadCntx;
+    }
 
-	@Override
-	public RoutingProfile call() throws Exception {
-		Thread.currentThread().setName("ORS-pl-" + rpc.getName());
-		try {
-			RoutingProfile routingProfile = new RoutingProfile(osmFile, rpc, loadCntx);
-			if (routingProfile.getGraphhopper().getTrafficData() != null) {
-				routingProfile.getGraphhopper().getTrafficData().writeLogFiles();
-			}
-			return routingProfile;
-		} catch (Exception ex) {
-			System.out.println("Error: " + ex.toString());
-		}
-		return null;
-	}
+    @Override
+    public RoutingProfile call() throws Exception {
+        Thread.currentThread().setName("ORS-pl-" + rpc.getName());
+        try {
+            return new RoutingProfile(osmFile, rpc, loadCntx);
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex.toString());
+        }
+        return null;
+    }
 }
