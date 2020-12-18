@@ -190,8 +190,6 @@ public class HereTrafficReader {
             File file = new File(streetGeometriesFile);
             FileDataStore store = FileDataStoreFinder.getDataStore(file);
             SimpleFeatureSource featureSource = store.getFeatureSource();
-            String typeName = store.getTypeNames()[0];
-            LOGGER.info("Reading content " + typeName);
             collection = featureSource.getFeatures();
         } catch (IOException e) {
             LOGGER.error("Error reading here shape file with error: " + e);
