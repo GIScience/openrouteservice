@@ -56,7 +56,7 @@ public class TrafficGraphStorage implements GraphExtension {
 
     public static final int PROPERTY_BYTE_COUNT = 1;
     public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority = 2 * 7 * 2 + 2 = 30
-    public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 95; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
+    public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 96; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
 
     private DataAccess orsEdgesProperties; // RAMDataAccess
     private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
