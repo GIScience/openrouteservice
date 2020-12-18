@@ -100,7 +100,8 @@ public class TrafficSpeedCalculatorTest {
 
     private class MockTrafficStorage extends TrafficGraphStorage {
 
-        public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds) {
+        @Override
+        public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
             if (edgeId == 1)
                 return 10;
             if (edgeId == 2)
