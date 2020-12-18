@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TrafficSpeedCalculator implements SpeedCalculator {
-    public Map<Double, Double> changedSpeedCount = new HashMap();
-    public Map<Double, Double> changedSpeed = new HashMap();
+//    public Map<Double, Double> changedSpeedCount = new HashMap();
+//    public Map<Double, Double> changedSpeed = new HashMap();
     protected DecimalEncodedValue avSpeedEnc;
     // time-dependent stuff
     private TrafficGraphStorage trafficGraphStorage;
@@ -39,8 +39,9 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
                 //Will be subject to change once internal speeds are more realistic.
                 if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed)
                         || trafficSpeed < speed) {
-                    changedSpeed.put(speed, changedSpeed.getOrDefault(speed, 0.0) + trafficSpeed * edge.getDistance());
-                    changedSpeedCount.put(speed, changedSpeedCount.getOrDefault(speed, 0.0) + edge.getDistance());
+//                if(trafficSpeed < speed){
+//                    changedSpeed.put(speed, changedSpeed.getOrDefault(speed, 0.0) + trafficSpeed * edge.getDistance());
+//                    changedSpeedCount.put(speed, changedSpeedCount.getOrDefault(speed, 0.0) + edge.getDistance());
                     speed = trafficSpeed;
                 }
             }
