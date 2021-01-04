@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- output run file to signal completion of graph building/loading at init time
 
 ## [6.3.4] - 2021-01-19
 ### Changed
