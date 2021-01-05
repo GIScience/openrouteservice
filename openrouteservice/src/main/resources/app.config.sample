@@ -78,7 +78,7 @@
           "default_params": {
             "encoder_flags_size": 8,
             "graphs_root_path": "graphs",
-            "elevation_provider": "multi",
+            "elevation_provider": "gmted",
             "elevation_cache_path": "cgiar_provider",
             "elevation_cache_clear": false,
             "instructions": true,
@@ -121,7 +121,7 @@
               "encoder_flags_size": 8,
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=false",
               "maximum_distance": 100000,
-              "elevation": true,
+              "elevation": false,
               "maximum_snapping_radius": 350,
               "preparation": {
                 "min_network_size": 200,
@@ -179,7 +179,7 @@
               "encoder_flags_size": 8,
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=false",
               "maximum_distance": 100000,
-              "elevation": true,
+              "elevation": false,
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
@@ -234,7 +234,7 @@
             "profiles": "cycling-regular",
             "parameters": {
               "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -247,7 +247,7 @@
             "profiles": "cycling-mountain",
             "parameters": {
               "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -260,7 +260,7 @@
             "profiles": "cycling-road",
             "parameters": {
               "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -273,7 +273,7 @@
             "profiles": "cycling-electric",
             "parameters": {
               "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -286,7 +286,7 @@
             "profiles": "foot-walking",
             "parameters": {
               "encoder_options": "block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -299,7 +299,7 @@
             "profiles": "foot-hiking",
             "parameters": {
               "encoder_options": "block_fords=false",
-              "elevation": true,
+              "elevation": false,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -313,7 +313,7 @@
             "profiles": "wheelchair",
             "parameters": {
               "encoder_options": "block_fords=true",
-              "elevation": true,
+              "elevation": false,
               "maximum_snapping_radius": 50,
               "ext_storages": {
                 "WayCategory": {},
