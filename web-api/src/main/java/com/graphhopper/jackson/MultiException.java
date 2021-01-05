@@ -16,33 +16,25 @@
  *  limitations under the License.
  */
 
-package com.graphhopper.http.api;
+package com.graphhopper.jackson;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.graphhopper.util.exceptions.GHException;
-
+import java.util.Collections;
 import java.util.List;
 
-public class JsonErrorEntity {
+public class MultiException extends RuntimeException {
 
-    private final List<String> errors;
+    private final List<Throwable> errors;
 
-    public JsonErrorEntity(List<String> t) {
-        this.errors = t;
+    public MultiException(List<Throwable> errors) {
+        this.errors = errors;
     }
 
-    @JsonValue
-    ObjectNode jsonErrorResponse() {
-        ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put("message", errors.get(0));
-        ArrayNode errorHintList = json.putArray("hints");
-        for (String t : errors) {
-            ObjectNode error = errorHintList.addObject();
-            error.put("message", t);
-        }
-        return json;
+    public MultiException(Throwable e) {
+        this(Collections.singletonList(e));
     }
+
+    public List<Throwable> getErrors() {
+        return errors;
+    }
+
 }
