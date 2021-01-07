@@ -13,22 +13,20 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-public class WayType {
-	public static final int UNKNOWN = 0;
-	public static final int STATE_ROAD = 1;
-	public static final int ROAD = 2;
-	public static final int STREET = 3;
-	public static final int PATH = 4;
-	public static final int TRACK = 5;
-	public static final int CYCLEWAY = 6;
-	public static final int FOOTWAY = 7;
-	public static final int STEPS = 8;
-	public static final int FERRY = 9;
-	public static final int CONSTRUCTION = 10;
+public enum WayType implements PropertyType {
+	UNKNOWN,
+	STATE_ROAD,
+	ROAD,
+	STREET,
+	PATH,
+	TRACK,
+	CYCLEWAY,
+	FOOTWAY,
+	STEPS,
+	FERRY,
+	CONSTRUCTION;
 
-	private WayType() {}
-
-	public static int getFromString(String highway) {
+	public static WayType getFromString(String highway) {
 		if ("primary".equalsIgnoreCase(highway)
 				|| "primary_link".equalsIgnoreCase(highway)
 				|| "motorway".equalsIgnoreCase(highway)
@@ -63,5 +61,10 @@ public class WayType {
 			return WayType.CONSTRUCTION;
 		}
 		return WayType.UNKNOWN;
+	}
+
+	@Override
+	public int getOrdinal() {
+		return this.ordinal();
 	}
 }
