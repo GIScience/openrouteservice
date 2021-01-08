@@ -1,4 +1,4 @@
-package org.heigit.ors.fastisochrones;
+package org.heigit.ors.util;
 
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphBuilder;
