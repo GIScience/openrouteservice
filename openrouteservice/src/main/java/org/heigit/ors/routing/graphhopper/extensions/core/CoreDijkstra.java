@@ -16,12 +16,17 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 /**
@@ -45,8 +50,15 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     private PriorityQueue<SPTEntry> fromPriorityQueueCore;
     private PriorityQueue<SPTEntry> toPriorityQueueCore;
 
+    protected IntObjectMap<List<SPTEntry>> bestWeightMapFromCore;
+    protected IntObjectMap<List<SPTEntry>> bestWeightMapToCore;
+    protected IntObjectMap<List<SPTEntry>> bestWeightMapOtherCore;
+
+    TurnWeighting turnWeighting;
+
     public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+        super(graph, new PreparationWeighting(weighting), tMode);
+        this.turnWeighting = (TurnWeighting) weighting;
     }
 
     @Override
@@ -59,6 +71,9 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         fromPriorityQueueCore = new PriorityQueue<>(size);
         toPriorityQueueCore = new PriorityQueue<>(size);
+
+        bestWeightMapFromCore = new GHIntObjectHashMap<>(size);
+        bestWeightMapToCore = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -109,10 +124,38 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         if (!inCore && chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
             fromPriorityQueueCore.add(currFrom);
+            List<SPTEntry> entryList = new ArrayList<>();
+            entryList.add(currFrom);
+            bestWeightMapFromCore.put(currFrom.adjNode, entryList);
         }
         else {
             bestWeightMapOther = bestWeightMapTo;
             fillEdges(currFrom, fromPriorityQueueCH, bestWeightMapFrom, outEdgeExplorer, false);
+            if (inCore)
+                visitedCountFrom2++;
+            else
+                visitedCountFrom1++;
+        }
+
+        return true;
+    }
+
+    public boolean fillEdgesFromCore() {
+        if (fromPriorityQueueCH.isEmpty())
+            return false;
+
+        currFrom = fromPriorityQueueCH.poll();
+
+        if (!inCore && chGraph.getLevel(currFrom.adjNode) == coreNodeLevel) {
+            // core entry point, do not relax its edges
+            fromPriorityQueueCore.add(currFrom);
+            List<SPTEntry> entryList = new ArrayList<>();
+            entryList.add(currFrom);
+            bestWeightMapFromCore.put(currFrom.adjNode, entryList);
+        }
+        else {
+            bestWeightMapOtherCore = bestWeightMapToCore;
+            fillEdgesCore(currFrom, fromPriorityQueueCH, bestWeightMapFromCore, outEdgeExplorer, false);
             if (inCore)
                 visitedCountFrom2++;
             else
@@ -132,6 +175,9 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         if (!inCore && chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
             // core entry point, do not relax its edges
             toPriorityQueueCore.add(currTo);
+            List<SPTEntry> entryList = new ArrayList<>();
+            entryList.add(currTo);
+            bestWeightMapToCore.put(currTo.adjNode, entryList);
         }
         else {
             bestWeightMapOther = bestWeightMapFrom;
@@ -144,6 +190,32 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         return true;
     }
+
+    public boolean fillEdgesToCore() {
+        if (toPriorityQueueCH.isEmpty())
+            return false;
+
+        currTo = toPriorityQueueCH.poll();
+
+        if (!inCore && chGraph.getLevel(currTo.adjNode) == coreNodeLevel) {
+            // core entry point, do not relax its edges
+            toPriorityQueueCore.add(currTo);
+            List<SPTEntry> entryList = new ArrayList<>();
+            entryList.add(currTo);
+            bestWeightMapToCore.put(currTo.adjNode, entryList);
+        }
+        else {
+            bestWeightMapOtherCore = bestWeightMapFromCore;
+            fillEdgesCore(currTo, toPriorityQueueCH, bestWeightMapToCore, inEdgeExplorer, true);
+            if (inCore)
+                visitedCountTo2++;
+            else
+                visitedCountTo1++;
+        }
+
+        return true;
+    }
+
 
     @Override
     public boolean finishedPhase1() {
@@ -171,20 +243,19 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         toPriorityQueueCH = toPriorityQueueCore;
 
         finishedFrom = fromPriorityQueueCH.isEmpty();
-        finishedTo = fromPriorityQueueCH.isEmpty();
+        finishedTo = toPriorityQueueCH.isEmpty();
 
-        if (!finishedFrom)
-            currFrom = fromPriorityQueueCH.peek();
-
-        if (!finishedTo)
+        if (!finishedFrom && !finishedTo) {
             currTo = toPriorityQueueCH.peek();
+            currFrom = fromPriorityQueueCH.peek();
+        }
 
         while (!finishedPhase2() && !isMaxVisitedNodesExceeded()) {
             if (!finishedFrom)
-                finishedFrom = !fillEdgesFrom();
+                finishedFrom = !fillEdgesFromCore();
 
             if (!finishedTo)
-                finishedTo = !fillEdgesTo();
+                finishedTo = !fillEdgesToCore();
         }
     }
 
@@ -230,6 +301,62 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         }
     }
 
+    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<List<SPTEntry>> bestWeightMap,
+                   EdgeExplorer explorer, boolean reverse) {
+        EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
+        while (iter.next()) {
+            if (!accept(iter, currEdge.edge))
+                continue;
+
+            int traversalId = traversalMode.createTraversalId(iter, reverse);
+            // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
+            double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
+            if (Double.isInfinite(tmpWeight))
+                continue;
+            List<SPTEntry> entries = bestWeightMap.get(traversalId);
+            SPTEntry ee = null;
+            doUpdateBestPath = true;
+            boolean found = false;
+            if (entries == null) {
+                entries = new ArrayList<>();
+                bestWeightMap.put(traversalId, entries);
+            }
+            else {
+                ListIterator<SPTEntry> it = entries.listIterator();
+                while (it.hasNext()) {
+                    ee = it.next();
+                    if (ee.edge == iter.getEdge()) {
+                        found = true;
+                        if (ee.weight > tmpWeight) {
+                            prioQueue.remove(ee);
+                            ee.edge = iter.getEdge();
+                            ee.weight = tmpWeight;
+                            ee.parent = currEdge;
+                            prioQueue.add(ee);
+                        } else {
+                            doUpdateBestPath = false;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
+                // Modification by Maxim Rylov: Assign the original edge id.
+                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                ee.parent = currEdge;
+                entries.add(ee);
+                prioQueue.add(ee);
+            }
+
+            if (ee==null)
+                throw new IllegalStateException("Cannot happen");
+
+            if (doUpdateBestPath)
+                updateBestPathCore(iter, ee, traversalId);
+        }
+    }
+
     protected void updateBestPath(EdgeIteratorState edgeState, SPTEntry entryCurrent, int traversalId) {
         SPTEntry entryOther = bestWeightMapOther.get(traversalId);
         if (entryOther == null)
@@ -239,13 +366,6 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         // update μ
         double newWeight = entryCurrent.weight + entryOther.weight;
-        if (traversalMode.isEdgeBased()) {
-            if (entryOther.edge != entryCurrent.edge)
-                throw new IllegalStateException("cannot happen for edge based execution of " + getName());
-
-            entryCurrent = entryCurrent.parent;
-            newWeight -= weighting.calcWeight(edgeState, reverse, EdgeIterator.NO_EDGE);
-        }
 
         if (newWeight < bestPath.getWeight()) {
             bestPath.setSwitchToFrom(reverse);
@@ -254,6 +374,34 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             bestPath.setSPTEntryTo(entryOther);
         }
     }
+
+    protected void updateBestPathCore(EdgeIteratorState iter, SPTEntry entryCurrent, int traversalId) {
+        List<SPTEntry> entries = bestWeightMapOtherCore.get(traversalId);
+        if (entries == null)
+            return;
+
+        boolean reverse = bestWeightMapFromCore == bestWeightMapOtherCore;
+
+        ListIterator<SPTEntry> it = entries.listIterator();
+        while (it.hasNext()) {
+            SPTEntry entryOther = it.next();
+
+            double newWeight = entryCurrent.weight + entryOther.weight;
+
+            if (newWeight < bestPath.getWeight()) {
+                double tmpWeight = reverse ?
+                        turnWeighting.calcTurnWeight(entryOther.originalEdge, entryCurrent.adjNode, entryCurrent.originalEdge):
+                        turnWeighting.calcTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge);
+                if (Double.isInfinite(tmpWeight))
+                    continue;
+                bestPath.setSwitchToFrom(reverse);
+                bestPath.setSPTEntry(entryCurrent);
+                bestPath.setWeight(newWeight);
+                bestPath.setSPTEntryTo(entryOther);
+            }
+        }
+    }
+
 
 
     @Override
