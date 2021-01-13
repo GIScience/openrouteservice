@@ -10,6 +10,8 @@ import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 
+import java.util.List;
+
 public class CentralityRequestHandler extends GenericHandler {
     public CentralityRequestHandler() {
         super();
@@ -46,6 +48,10 @@ public class CentralityRequestHandler extends GenericHandler {
 
         BBox bbox = new BBox( Doubles.concat(Doubles.toArray(request.getBoundingBox().get(0)), Doubles.toArray(request.getBoundingBox().get(1))));
         coreRequest.setBoundingBox(bbox);
+
+        if (request.hasExcludeNodes()) {
+            coreRequest.setExcludeNodes(request.getExcludeNodes());
+        }
 
         return coreRequest;
     }

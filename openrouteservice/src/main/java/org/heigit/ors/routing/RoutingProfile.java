@@ -682,13 +682,16 @@ public class RoutingProfile {
         LocationIndex index = gh.getLocationIndex();
         NodeAccess nodeAccess = graph.getNodeAccess();
         BBox bbox = req.getBoundingBox();
+        List<Integer> excludeNodes = req.getExcludeNodes();
 
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
         index.query(bbox, new LocationIndex.Visitor() {
             @Override
             public void onNode(int nodeId) {
-                if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
-                    nodesInBBox.add(nodeId);
+                if (!excludeNodes.contains(nodeId)) {
+                    if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+                        nodesInBBox.add(nodeId);
+                    }
                 }
             }
         });
