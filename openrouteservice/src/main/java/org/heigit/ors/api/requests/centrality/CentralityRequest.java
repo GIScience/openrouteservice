@@ -13,11 +13,12 @@ import org.heigit.ors.api.requests.common.APIEnums;
 
 import java.util.List;
 
-@ApiModel(value = "Directions Service", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
+@ApiModel(value = "Centrality Service", description = "The JSON body request sent to the centrality service which defines options and parameters regarding the centrality measure to calculate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CentralityRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_BBOX = "bbox";
+    public static final String PARAM_EXCLUDENODES = "excludeNodes";
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
 
@@ -36,6 +37,12 @@ public class CentralityRequest {
             required = true)
     @JsonProperty(PARAM_BBOX)
     private List<List<Double>> bbox; //apparently, this has to be a non-primitive type…
+
+    @ApiModelProperty(name = PARAM_EXCLUDENODES, value = "List of node Ids to exclude when calculating centrality",
+            example = "[1661, 1662, 1663]")
+    @JsonProperty(PARAM_EXCLUDENODES)
+    private List<Integer> excludeNodes;
+    private boolean hasExcludeNodes = false;
 
     @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
     @JsonProperty(PARAM_FORMAT)
@@ -66,6 +73,15 @@ public class CentralityRequest {
     public void setBoundingBox(List<List<Double>> bbox ) {
         this.bbox = bbox;
     }
+
+    public List<Integer> getExcludeNodes() {return excludeNodes; }
+
+    public void setExcludeNodes(List<Integer> excludeNodes ) {
+        this.excludeNodes = excludeNodes;
+        this.hasExcludeNodes = true;
+    }
+
+    public boolean hasExcludeNodes() {return hasExcludeNodes; }
 
     public APIEnums.Profile getProfile() {
         return profile;
