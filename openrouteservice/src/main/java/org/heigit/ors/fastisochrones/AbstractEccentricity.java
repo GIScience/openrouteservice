@@ -1,12 +1,13 @@
 package org.heigit.ors.fastisochrones;
 
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class AbstractEccentricity {
         this.ghStorage = ghStorage;
     }
 
-    public abstract void calcEccentricities(Weighting weighting, FlagEncoder flagEncoder);
+    public abstract void calcEccentricities(Weighting weighting, EdgeFilter additionalEdgeFilter, FlagEncoder flagEncoder);
 
     public EccentricityStorage getEccentricityStorage(Weighting weighting) {
         if (eccentricityStorages.isEmpty())

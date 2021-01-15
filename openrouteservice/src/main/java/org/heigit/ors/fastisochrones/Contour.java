@@ -6,6 +6,7 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -17,6 +18,10 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
@@ -38,13 +43,14 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  */
 public class Contour {
     //Length that a polygon edge has to have in m to be split into smaller subedges so that there are no artifacts from later concave hull calculations with it
-    private static final int MIN_EDGE_LENGTH = 400;
+    private static final int MIN_EDGE_LENGTH = 125;
     private static final int MAX_EDGE_LENGTH = Integer.MAX_VALUE;
     //This means that one supercell can contain at most 2^3 = 8 base cells.
-    private static final int SUPER_CELL_HIERARCHY_LEVEL = 3;
+    private static final int SUPER_CELL_HIERARCHY_LEVEL = 2;
     //This means that one supersupercell can contain at most 2^(3 + 2) = 32 base cells.
     private static final int SUPER_SUPER_CELL_HIERARCHY_LEVEL = 2; // level above super cell level
     private static final double CONCAVE_HULL_THRESHOLD = 0.006;
+    private static final double BUFFER_SIZE = 0.0003;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
@@ -97,7 +103,8 @@ public class Contour {
      */
     private void handleBaseCells() {
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
-            LineString ring = createContour(createCoordinates(cellId.value));
+            List<Coordinate> coordinates = createCoordinates(cellId.value);
+            LineString ring = createContour(coordinates, cellStorage.getNodesOfCell(cellId.value).size() < 1000);
             if (ring == null || ring.getNumPoints() < 2) {
                 cellStorage.setCellContourOrder(cellId.value, new ArrayList<>(), new ArrayList<>());
                 continue;
@@ -128,7 +135,7 @@ public class Contour {
             //Calculate the concave hull for all super cells and super super cells
             for (IntObjectCursor<IntHashSet> superCell : superCellsToBaseCells) {
                 List<Coordinate> superCellCoordinates = createSuperCellCoordinates(superCell.value);
-                LineString ring = createContour(superCellCoordinates);
+                LineString ring = createContour(superCellCoordinates, false);
                 if (ring == null || ring.getNumPoints() < 2) {
                     cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(), new ArrayList<>());
                     continue;
@@ -183,12 +190,12 @@ public class Contour {
         return superCellCoordinates;
     }
 
-    private Geometry concHullOfNodes(List<Coordinate> coordinates) {
-        double defaultVisitorThreshold = 0.0035;
+    private Geometry concHullOfNodes(List<Coordinate> coordinates, boolean useHighDetail) {
+        double defaultVisitorThreshold = useHighDetail ? 0.00005 : 0.0025;
         double defaultSearchWidth = 0.0008;
         double defaulPointWidth = 0.005;
 
-        List<Coordinate> points = new ArrayList<>((int)(1 / 20.0 * coordinates.size()));
+        List<Coordinate> points = new ArrayList<>((int) (1 / 20.0 * coordinates.size()));
         PointItemVisitor visitor = new PointItemVisitor(0, 0, defaultVisitorThreshold);
         Quadtree qtree = new Quadtree();
         Envelope searchEnv = new Envelope();
@@ -361,8 +368,9 @@ public class Contour {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
         List<Coordinate> coordinates = new ArrayList<>(initialSize);
+        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0));
 
-        EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(EdgeFilter.ALL_EDGES);
+        EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(edgeFilter);
         EdgeIterator iter;
 
         IntHashSet visitedEdges = new IntHashSet();
@@ -371,25 +379,33 @@ public class Contour {
             towerCoordinates.add(ghStorage.getNodeAccess().getLat(node.value), ghStorage.getNodeAccess().getLon(node.value));
         }
         addLatLon(towerCoordinates, coordinates);
-
         for (IntCursor node : cellNodes) {
             iter = explorer.setBaseNode(node.value);
             while (iter.next()) {
-                if (visitedEdges.contains(iter.getEdge()))
+                if (visitedEdges.contains(iter.getEdge())
+                        || !cellNodes.contains(iter.getAdjNode())
+                        || !edgeFilter.accept(iter))
                     continue;
                 visitedEdges.add(iter.getEdge());
-                addLatLon(iter.fetchWayGeometry(0), coordinates);
+                splitAndAddLatLon(iter.fetchWayGeometry(3), coordinates, MIN_EDGE_LENGTH, MAX_EDGE_LENGTH);
             }
         }
+        //Remove duplicates
+        coordinates = coordinates.stream()
+                .distinct()
+                .collect(Collectors.toList());
         //Need to sort the coordinates, because they will be added to a search tree
         //The order of insertion changes the search tree coordinates and we want consistency between runs
-        Collections.sort(coordinates);
+        try {
+            Collections.sort(coordinates);
+        } catch (Exception e) {
+        }
         return coordinates;
     }
 
-    private LineString createContour(List<Coordinate> coordinates) {
+    private LineString createContour(List<Coordinate> coordinates, boolean useHighDetail) {
         try {
-            Geometry geom = concHullOfNodes(coordinates);
+            Geometry geom = concHullOfNodes(coordinates, useHighDetail);
             Polygon poly = (Polygon) geom;
             poly.normalize();
             return poly.getExteriorRing();
@@ -456,9 +472,44 @@ public class Contour {
         }
     }
 
+    private void splitAndAddLatLon(PointList newCoordinates, List<Coordinate> existingCoordinates, double minlim, double maxlim) {
+        for (int i = 0; i < newCoordinates.size() - 1; i++) {
+            double lat0 = newCoordinates.getLat(i);
+            double lon0 = newCoordinates.getLon(i);
+            double lat1 = newCoordinates.getLat(i + 1);
+            double lon1 = newCoordinates.getLon(i + 1);
+            double dist = distance(lat0, lat1, lon0, lon1);
+            double dx = (lon0 - lon1);
+            double dy = (lat0 - lat1);
+            double normLength = Math.sqrt((dx * dx) + (dy * dy));
+
+            int n = (int) Math.ceil(dist / minlim);
+            double scale = BUFFER_SIZE / normLength;
+
+            double dx2 = -dy * scale;
+            double dy2 = dx * scale;
+            if (i != 0) {
+                existingCoordinates.add(new Coordinate(lon0 + dx2, lat0 + dy2));
+                existingCoordinates.add(new Coordinate(lon0 - dx2, lat0 - dy2));
+            }
+
+            if (dist > minlim && dist < maxlim) {
+                for (int j = 1; j < n; j++) {
+                    existingCoordinates.add(new Coordinate(lon0 + j * (lon1 - lon0) / n + dx2, lat0 + j * (lat1 - lat0) / n + dy2));
+                    existingCoordinates.add(new Coordinate(lon0 + j * (lon1 - lon0) / n - dx2, lat0 + j * (lat1 - lat0) / n - dy2));
+                }
+            }
+        }
+    }
+
     private void addLatLon(PointList newCoordinates, List<Coordinate> existingCoordinates) {
-        for (int i = 0; i < newCoordinates.size(); i++) {
-            existingCoordinates.add(new Coordinate(newCoordinates.getLon(i), newCoordinates.getLat(i)));
+        if (newCoordinates.isEmpty())
+            return;
+        for (int i = 0; i < newCoordinates.size() - 1; i++) {
+            double lat0 = newCoordinates.getLat(i);
+            double lon0 = newCoordinates.getLon(i);
+            existingCoordinates.add(new Coordinate(lon0 + BUFFER_SIZE, lat0 + BUFFER_SIZE));
+            existingCoordinates.add(new Coordinate(lon0 - BUFFER_SIZE, lat0 - BUFFER_SIZE));
         }
     }
 }

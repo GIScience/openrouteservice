@@ -18,6 +18,7 @@ import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.opensphere.geometry.triangulation.model.Edge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class Eccentricity extends AbstractEccentricity {
         this.cellStorage = cellStorage;
     }
 
-    public void calcEccentricities(Weighting weighting, FlagEncoder flagEncoder) {
+    public void calcEccentricities(Weighting weighting, EdgeFilter additionalEdgeFilter,  FlagEncoder flagEncoder) {
         if (eccentricityStorages == null) {
             eccentricityStorages = new ArrayList<>();
         }
@@ -83,6 +84,7 @@ public class Eccentricity extends AbstractEccentricity {
                 FixedCellEdgeFilter fixedCellEdgeFilter = new FixedCellEdgeFilter(isochroneNodeStorage, isochroneNodeStorage.getCellId(node), graph.getNodes());
                 edgeFilterSequence.add(defaultEdgeFilter);
                 edgeFilterSequence.add(fixedCellEdgeFilter);
+                edgeFilterSequence.add(additionalEdgeFilter);
                 RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting);
                 rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
@@ -103,6 +105,7 @@ public class Eccentricity extends AbstractEccentricity {
                 }
 
                 //TODO Maybe implement a logic smarter than having some high percentage for acceptedFullyReachable
+                int cellId = isochroneNodeStorage.getCellId(node);
                 boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage;
                 eccentricityStorage.setFullyReachable(node, isFullyReachable);
 
@@ -125,7 +128,7 @@ public class Eccentricity extends AbstractEccentricity {
         eccentricityStorage.flush();
     }
 
-    public void calcBorderNodeDistances(Weighting weighting, FlagEncoder flagEncoder) {
+    public void calcBorderNodeDistances(Weighting weighting, EdgeFilter additionalEdgeFilter, FlagEncoder flagEncoder) {
         if (borderNodeDistanceStorages == null) {
             borderNodeDistanceStorages = new ArrayList<>();
         }
@@ -140,7 +143,7 @@ public class Eccentricity extends AbstractEccentricity {
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
             final int currentCellId = cellId.value;
             cellCount++;
-            completionService.submit(() -> calculateBorderNodeDistances(borderNodeDistanceStorage, currentCellId, weighting, flagEncoder), String.valueOf(currentCellId));
+            completionService.submit(() -> calculateBorderNodeDistances(borderNodeDistanceStorage, additionalEdgeFilter, currentCellId, weighting, flagEncoder), String.valueOf(currentCellId));
         }
 
         threadPool.shutdown();
@@ -157,14 +160,17 @@ public class Eccentricity extends AbstractEccentricity {
         borderNodeDistanceStorage.flush();
     }
 
-    private void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, int cellId, Weighting weighting, FlagEncoder flagEncoder) {
+    private void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, EdgeFilter additionalEdgeFilter, int cellId, Weighting weighting, FlagEncoder flagEncoder) {
         int[] cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage).toArray();
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
+        edgeFilterSequence.add(defaultEdgeFilter);
+        edgeFilterSequence.add(additionalEdgeFilter);
         Graph graph = ghStorage.getBaseGraph();
 
         for (int borderNode : cellBorderNodes) {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
-            algorithm.setEdgeFilter(defaultEdgeFilter);
+            algorithm.setEdgeFilter(edgeFilterSequence);
             algorithm.prepare(new int[]{borderNode}, cellBorderNodes);
             algorithm.setMaxVisitedNodes(getMaxCellNodesNumber() * 20);
             SPTEntry[] targets = algorithm.calcPaths(borderNode, cellBorderNodes);

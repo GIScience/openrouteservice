@@ -3,7 +3,9 @@ package org.heigit.ors.fastisochrones.partitioning;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
@@ -16,7 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxCellNodesNumber;
+import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMinCellNodesNumber;
 
 /**
  * Recursive implementation of InertialFlow algorithm for partitioning a graph.
@@ -35,9 +38,11 @@ public class InertialFlow implements Runnable {
     //The projections are evaluated before the max flow algorithm. Only the best CONSIDERED_PROJECTIONS are actually run through the algorithm, as MaxFlow is relatively costly
     private static final int CONSIDERED_PROJECTIONS = 3;
     private static Projector projector = new Projector();
+    private static FlagEncoder flagEncoder;
     protected Map<Projection, IntArrayList> projections;
     private int cellId;
     private Graph ghGraph;
+    private GraphHopperStorage ghStorage;
     private EdgeFilter edgeFilter;
     private PartitioningData pData;
     private int[] nodeToCellArr;
@@ -49,9 +54,11 @@ public class InertialFlow implements Runnable {
         setNodeToCellArr(nodeToCellArray);
         setCellId(1);
         setGraph(ghStorage.getBaseGraph());
+        setGraphHopperStorage(ghStorage);
         setEdgeFilter(edgeFilters);
         setExecutorService(executorService);
         setInverseSemaphore(inverseSemaphore);
+        setFlagEncoder(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0));
 
         PartitioningData partitioningData = new PartitioningData();
         PartitioningDataBuilder partitioningDataBuilder = new PartitioningDataBuilder(ghStorage.getBaseGraph(), partitioningData);
@@ -159,7 +166,7 @@ public class InertialFlow implements Runnable {
      */
     private void recursion(boolean[] invokeNext, int nodesPartition0, int nodesPartition1, BiPartitionProjection biPartitionProjection) {
         int totalNodes = nodesPartition0 + nodesPartition1;
-        for(int i : new int[]{0,1}) {
+        for (int i : new int[]{0, 1}) {
             if (invokeNext[i]) {
                 if (totalNodes > getMaxCellNodesNumber() * 4) {
                     executorService.execute(createInertialFlow(i, biPartitionProjection));
@@ -184,6 +191,7 @@ public class InertialFlow implements Runnable {
         inertialFlow.setCellId(cellId << 1 | partitionNumber);
         inertialFlow.setNodeToCellArr(nodeToCellArr);
         inertialFlow.setGraph(ghGraph);
+        inertialFlow.setGraphHopperStorage(ghStorage);
         inertialFlow.setPartitioningData(pData);
         inertialFlow.setProjections(biPartitionProjection.getProjection(partitionNumber));
         inertialFlow.setEdgeFilter(edgeFilter);
@@ -242,6 +250,11 @@ public class InertialFlow implements Runnable {
         disconnectedCells.add(connectedCell);
         Iterator<IntCursor> iter;
         EdgeIterator edgeIterator;
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+        edgeFilterSequence.add(DefaultEdgeFilter.allEdges(flagEncoder));
+        if(edgeFilter != null)
+            edgeFilterSequence.add(edgeFilter);
+
         while (!nodeSet.isEmpty()) {
             if (connectedCell.size() >= getMinCellNodesNumber() && disconnectedCells.size() < MAX_SUBCELL_NUMBER) {
                 connectedCell = new IntHashSet();
@@ -258,7 +271,7 @@ public class InertialFlow implements Runnable {
 
                 while (edgeIterator.next()) {
                     int nextNode = edgeIterator.getAdjNode();
-                    if (!accept(edgeIterator)
+                    if (!edgeFilterSequence.accept(edgeIterator)
                             || connectedCell.contains(nextNode)
                             || !nodeSet.contains(nextNode))
                         continue;
@@ -277,11 +290,7 @@ public class InertialFlow implements Runnable {
      * @return the max flow min cut
      */
     public MaxFlowMinCut createEdmondsKarp() {
-        return new EdmondsKarpAStar(ghGraph, pData, this.edgeFilter);
-    }
-
-    private boolean accept(EdgeIterator edgeIterator) {
-        return edgeFilter == null ? true : edgeFilter.accept(edgeIterator);
+        return new EdmondsKarpAStar(ghGraph, pData, edgeFilter);
     }
 
     public void setCellId(int cellId) {
@@ -290,6 +299,10 @@ public class InertialFlow implements Runnable {
 
     public void setGraph(Graph ghGraph) {
         this.ghGraph = ghGraph;
+    }
+
+    public void setGraphHopperStorage(GraphHopperStorage graphHopperStorage) {
+        this.ghStorage = graphHopperStorage;
     }
 
     public void setEdgeFilter(EdgeFilter edgeFilter) {
@@ -310,6 +323,10 @@ public class InertialFlow implements Runnable {
 
     public void setInverseSemaphore(InverseSemaphore inverseSemaphore) {
         this.inverseSemaphore = inverseSemaphore;
+    }
+
+    public void setFlagEncoder(FlagEncoder flagEncoder) {
+        this.flagEncoder = flagEncoder;
     }
 
     public void setProjections(Map<Projection, IntArrayList> projections) {

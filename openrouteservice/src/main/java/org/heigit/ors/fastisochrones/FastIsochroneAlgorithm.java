@@ -184,6 +184,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell = activeCellIterator.next();
             if (activeCell.getValue().size() / (double) cellStorage.getNodesOfCell(activeCell.getKey()).size() > approximation) {
                 activeCellIterator.remove();
+                activeCells.remove(activeCell.getKey());
                 getFullyReachableCells().add(activeCell.getKey());
             }
         }

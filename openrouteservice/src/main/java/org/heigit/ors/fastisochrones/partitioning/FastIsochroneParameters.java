@@ -17,7 +17,7 @@ public final class FastIsochroneParameters {
     //PARTITIONING
     //Based on Implementierung eines Algorithmus zur schnellen Berechnung metrik-affiner Isochronen in einem Straßennetzwerk by Stefan Panig, 2019
     private static int maxCellNodesNumber = 5000;
-    private static int minCellNodesNumber = 4;
+    private static int minCellNodesNumber = 1;
     //Factor based on Aaron Schild & Christian Sommer. On Balanced Seperators in Road Networks, Springer
     //International Publishing Switzerland, 2015 and
     //Implementierung eines Algorithmus zur schnellen Berechnung metrik-affiner Isochronen in einem Straßennetzwerk by Stefan Panig, 2019
