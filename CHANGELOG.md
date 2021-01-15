@@ -34,7 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
-
+### Changed
+- Overhaul of Contour creation for fast isochrones. Fixing unexpected behaviour for border edges.
 ## [6.3.2] - 2020-12-14
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
