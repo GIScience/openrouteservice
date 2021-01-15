@@ -25,6 +25,8 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.json.simple.JSONObject;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +62,7 @@ public class RouteRequest {
     public static final String PARAM_DEPARTURE = "departure";
     public static final String PARAM_ARRIVAL = "arrival";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
+    public static final String PARAM_USER_SPEED_LIMITS = "user_speed_limits";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -273,6 +276,15 @@ public class RouteRequest {
     private double maximumSpeed;
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
+
+    @ApiModelProperty(name = PARAM_USER_SPEED_LIMITS, value = "Speed limits for various road and surface types provided by the user.",
+    example = "{ \"unit\": \"mph\"," +
+            "\"roadSpeeds\": { \"motorway\": 100, \"trunk\": 50 }," +
+            "\"surfaceSpeeds\": { \"paved\": 100, \"cobblestone\": 50, \"gravel\": 75 }}")
+    @JsonProperty(PARAM_USER_SPEED_LIMITS)
+    private JSONObject userSpeedLimits;
+    @JsonIgnore
+    private boolean hasUserSpeedLimits = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -559,6 +571,16 @@ public class RouteRequest {
         return maximumSpeed;
     }
 
+    public JSONObject getUserSpeedLimits() {
+        return userSpeedLimits;
+    }
+
+    public void setUserSpeedLimits(JSONObject userSpeedLimits) {
+        this.userSpeedLimits = userSpeedLimits;
+        hasUserSpeedLimits = true;
+    }
+
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -637,5 +659,9 @@ public class RouteRequest {
 
     public boolean hasMaximumSpeed() {
         return hasMaximumSpeed;
+    }
+
+    public boolean hasUserSpeedLimits() {
+        return hasUserSpeedLimits;
     }
 }

@@ -28,6 +28,7 @@ import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.graphhopper.extensions.RoadPropertySpeedParser;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
@@ -187,6 +188,11 @@ public class RouteRequestHandler extends GenericHandler {
 
         if (request.hasMaximumSpeed()) {
             params.setMaximumSpeed(request.getMaximumSpeed());
+        }
+
+        if (request.hasUserSpeedLimits()) {
+            RoadPropertySpeedParser parser = new RoadPropertySpeedParser();
+            params.setRoadPropertySpeedMap(parser.parse(request.getUserSpeedLimits()));
         }
 
         params.setConsiderTurnRestrictions(false);
