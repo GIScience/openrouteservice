@@ -35,6 +35,10 @@ RELEASING:
 
 ## [Unreleased]
 
+## [6.3.3] - 2021-01-15
+### Fixed
+- Updated CGIAR URL in GH (see GH fork [#35](https://github.com/GIScience/graphhopper/pull/35))
+
 ## [6.3.2] - 2020-12-14
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
@@ -366,7 +370,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...HEAD
+[6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
