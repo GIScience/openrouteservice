@@ -325,8 +325,8 @@ public class InertialFlow implements Runnable {
         this.inverseSemaphore = inverseSemaphore;
     }
 
-    public void setFlagEncoder(FlagEncoder flagEncoder) {
-        this.flagEncoder = flagEncoder;
+    public static void setFlagEncoder(FlagEncoder newFlagEncoder) {
+        flagEncoder = newFlagEncoder;
     }
 
     public void setProjections(Map<Projection, IntArrayList> projections) {

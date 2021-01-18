@@ -12,13 +12,13 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.storage.index.LocationIndex;
-import org.heigit.ors.fastisochrones.partitioning.storage.*;
+import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.opensphere.geometry.triangulation.model.Edge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class Eccentricity extends AbstractEccentricity {
         this.cellStorage = cellStorage;
     }
 
-    public void calcEccentricities(Weighting weighting, EdgeFilter additionalEdgeFilter,  FlagEncoder flagEncoder) {
+    public void calcEccentricities(Weighting weighting, EdgeFilter additionalEdgeFilter, FlagEncoder flagEncoder) {
         if (eccentricityStorages == null) {
             eccentricityStorages = new ArrayList<>();
         }
@@ -105,7 +105,6 @@ public class Eccentricity extends AbstractEccentricity {
                 }
 
                 //TODO Maybe implement a logic smarter than having some high percentage for acceptedFullyReachable
-                int cellId = isochroneNodeStorage.getCellId(node);
                 boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage;
                 eccentricityStorage.setFullyReachable(node, isFullyReachable);
 
