@@ -670,7 +670,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
         //printing for debug
 //        StringBuilder cellsPrintStatement = new StringBuilder();
-
+//
 //        if (LOGGER.isDebugEnabled()) {
 //            cellsPrintStatement.append(System.lineSeparator());
 //            cellsPrintStatement.append("{" +

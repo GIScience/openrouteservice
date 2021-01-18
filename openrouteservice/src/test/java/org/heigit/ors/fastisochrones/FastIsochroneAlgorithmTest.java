@@ -10,6 +10,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -45,8 +46,8 @@ public class FastIsochroneAlgorithmTest {
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
                 graphHopperStorage.getBaseGraph(),
                 shortestWeighting,
@@ -79,8 +80,8 @@ public class FastIsochroneAlgorithmTest {
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
                 graphHopperStorage.getBaseGraph(),
                 shortestWeighting,
@@ -117,8 +118,8 @@ public class FastIsochroneAlgorithmTest {
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
                 graphHopperStorage.getBaseGraph(),
                 shortestWeighting,
@@ -157,8 +158,8 @@ public class FastIsochroneAlgorithmTest {
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
                 graphHopperStorage.getBaseGraph(),
                 shortestWeighting,

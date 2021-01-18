@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Changed
+- Overhaul of Contour creation for fast isochrones. Fixing unexpected behaviour for border edges.
 
 ## [6.3.3] - 2021-01-15
 ### Fixed
