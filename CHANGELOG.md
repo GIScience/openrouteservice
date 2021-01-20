@@ -37,6 +37,10 @@ RELEASING:
 ### Added
 - output run file to signal completion of graph building/loading at init time
 
+## [6.3.4] - 2021-01-19
+### Changed
+- Overhaul of Contour creation for fast isochrones. Fixing unexpected behaviour for border edges.
+
 ## [6.3.3] - 2021-01-15
 ### Fixed
 - Updated CGIAR URL in GH (see GH fork [#35](https://github.com/GIScience/graphhopper/pull/35))
@@ -372,7 +376,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...HEAD
+[6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
 [6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1

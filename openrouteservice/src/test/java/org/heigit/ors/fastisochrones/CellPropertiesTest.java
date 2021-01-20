@@ -9,6 +9,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -56,7 +57,7 @@ public class CellPropertiesTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         assertEquals(3, ecc.getEccentricityStorage(shortestWeighting).getEccentricity(0));
         assertEquals(4, ecc.getEccentricityStorage(shortestWeighting).getEccentricity(2));
         assertEquals(2, ecc.getEccentricityStorage(shortestWeighting).getEccentricity(3));
@@ -71,7 +72,7 @@ public class CellPropertiesTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(),  carEncoder);
         BorderNodeDistanceSet borderNodeDistanceSet = ecc.getBorderNodeDistanceStorage(shortestWeighting).getBorderNodeDistanceSet(0);
         assertEquals(1, borderNodeDistanceSet.getAdjBorderNodeIds().length);
         assertEquals(2, borderNodeDistanceSet.getAdjBorderNodeIds()[0]);
@@ -101,7 +102,7 @@ public class CellPropertiesTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcEccentricities(shortestWeighting, carEncoder);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         ecc.getEccentricityStorage(shortestWeighting).getEccentricity(5);
     }
 
