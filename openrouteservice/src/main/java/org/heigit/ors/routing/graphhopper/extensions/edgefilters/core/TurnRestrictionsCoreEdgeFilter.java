@@ -48,23 +48,35 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
-        int edgeA = edge.getEdge();
-        int node = edge.getBaseNode();
-        EdgeIterator iterationTo = allEdgesExplorer.setBaseNode(node);
+        int queriedEdge = edge.getEdge();
+        int baseNode = edge.getBaseNode();
+        int adjNode = edge.getAdjNode();
 
-        while ( iterationTo.next()) {
-            int edgeB = iterationTo.getEdge();
-            long turnFlags = turnCostExtension.getTurnCostFlags(edgeA, node, edgeB);
+        EdgeIterator edgeIterator = allEdgesExplorer.setBaseNode(baseNode);
+        while ( edgeIterator.next()) {
+            int otherEdge = edgeIterator.getEdge();
+            long turnFlags = turnCostExtension.getTurnCostFlags(queriedEdge, baseNode, otherEdge);
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
-            turnFlags = turnCostExtension.getTurnCostFlags(edgeB, node, edgeA);
+            turnFlags = turnCostExtension.getTurnCostFlags(otherEdge, baseNode, queriedEdge);
+            if (flagEncoder.isTurnRestricted(turnFlags))
+                return true;
+        }
+
+        edgeIterator = allEdgesExplorer.setBaseNode(adjNode);
+
+        while ( edgeIterator.next()) {
+            int otherEdge = edgeIterator.getEdge();
+            long turnFlags = turnCostExtension.getTurnCostFlags(queriedEdge, adjNode, otherEdge);
+            if (flagEncoder.isTurnRestricted(turnFlags))
+                return true;
+            turnFlags = turnCostExtension.getTurnCostFlags(otherEdge, adjNode, queriedEdge);
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
         }
 
         return false;
     }
-
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
