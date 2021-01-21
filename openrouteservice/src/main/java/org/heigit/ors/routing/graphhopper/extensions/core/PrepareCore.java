@@ -487,7 +487,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
         calcPrioAllExplorer = prepareGraph.createEdgeExplorer(accessWithLevelFilter);
-        restrictionExplorer = prepareGraph.createEdgeExplorer(allFilter);
+        restrictionExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
 
 
         // Use an alternative to PriorityQueue as it has some advantages:

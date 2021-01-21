@@ -21,56 +21,46 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
-import java.util.HashSet;
 
 /**
  * This class includes in the core all edges with turn restrictions.
  *
  * @author Athanasios Kogios
+ * @author Andrzej Oles
  */
 
 public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
-    private TurnCostExtension turnCostExtension;
-    public final FlagEncoder flagEncoder;
-    private final  EdgeExplorer allEdgesExplorer;
-    private Graph graph;
-    public static HashSet<Integer> acceptedEdges = new HashSet<>();
+    private final TurnCostExtension turnCostExtension;
+    private final FlagEncoder flagEncoder;
+    private final EdgeExplorer inEdgeExplorer;
+    private final EdgeExplorer outEdgeExplorer;
+    private final Graph graph;
 
     public TurnRestrictionsCoreEdgeFilter(FlagEncoder encoder, GraphHopperStorage graphHopperStorage) {
+        if (!encoder.isRegistered())
+            throw new IllegalStateException("Make sure you add the FlagEncoder " + encoder + " to an EncodingManager before using it elsewhere");
+
         this.flagEncoder = encoder;
-
         this.graph = graphHopperStorage.getBaseGraph();
-
-        if (!flagEncoder.isRegistered())
-            throw new IllegalStateException("Make sure you add the FlagEncoder " + flagEncoder + " to an EncodingManager before using it elsewhere");
         turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
-        allEdgesExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(flagEncoder));
+        inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
+        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
+        return ( isInvolvedInTurnRelation(edge, inEdgeExplorer) || isInvolvedInTurnRelation(edge, outEdgeExplorer));
+    }
+
+    boolean isInvolvedInTurnRelation(EdgeIteratorState edge, EdgeExplorer edgeExplorer) {
         int queriedEdge = edge.getEdge();
-        int baseNode = edge.getBaseNode();
-        int adjNode = edge.getAdjNode();
+        int viaNode = (edgeExplorer == inEdgeExplorer) ? edge.getBaseNode() : edge.getAdjNode();
+        EdgeIterator edgeIterator = edgeExplorer.setBaseNode(viaNode);
 
-        EdgeIterator edgeIterator = allEdgesExplorer.setBaseNode(baseNode);
-        while ( edgeIterator.next()) {
+        while (edgeIterator.next()) {
             int otherEdge = edgeIterator.getEdge();
-            long turnFlags = turnCostExtension.getTurnCostFlags(queriedEdge, baseNode, otherEdge);
-            if (flagEncoder.isTurnRestricted(turnFlags))
-                return true;
-            turnFlags = turnCostExtension.getTurnCostFlags(otherEdge, baseNode, queriedEdge);
-            if (flagEncoder.isTurnRestricted(turnFlags))
-                return true;
-        }
-
-        edgeIterator = allEdgesExplorer.setBaseNode(adjNode);
-
-        while ( edgeIterator.next()) {
-            int otherEdge = edgeIterator.getEdge();
-            long turnFlags = turnCostExtension.getTurnCostFlags(queriedEdge, adjNode, otherEdge);
-            if (flagEncoder.isTurnRestricted(turnFlags))
-                return true;
-            turnFlags = turnCostExtension.getTurnCostFlags(otherEdge, adjNode, queriedEdge);
+            long turnFlags = (edgeExplorer == inEdgeExplorer) ?
+                    turnCostExtension.getTurnCostFlags(otherEdge, viaNode, queriedEdge) :
+                    turnCostExtension.getTurnCostFlags(queriedEdge, viaNode, otherEdge);
             if (flagEncoder.isTurnRestricted(turnFlags))
                 return true;
         }
@@ -80,13 +70,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-
-        if ( hasTurnRestrictions(edge) ) {
-            acceptedEdges.add(edge.getEdge());
-            return false;
-        } else{
-            return true;
-        }
+        return !hasTurnRestrictions(edge);
     }
 }
 
