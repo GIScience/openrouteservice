@@ -12,7 +12,7 @@ jobs:
   Handle_event:
     runs-on: ubuntu-latest
     steps:
-      - name:
+      - name: run project board action
         uses: takb/project-board@master
         env:
           PROJECT_AUTOMATION: ${{ secrets.PROJECT_AUTOMATION }}
