@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - output run file to signal completion of graph building/loading at init time
+### Fixed
+- Define behavior for first container start with existing app.config
 
 ## [6.3.4] - 2021-01-19
 ### Changed
@@ -59,7 +61,7 @@ RELEASING:
 ### Fixed
 - Updated documentation for running in Docker ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
-- Enabled turning off elevation data handling for profiles 
+- Enabled turning off elevation data handling for profiles
 - Fixed a bug in fast isochrones preprocessing
 
 ## [6.3.0] - 2020-09-14
