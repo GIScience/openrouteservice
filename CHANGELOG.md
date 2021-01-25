@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- output run file to signal completion of graph building/loading at init time
 ### Fixed
 - Define behavior for first container start with existing app.config
 

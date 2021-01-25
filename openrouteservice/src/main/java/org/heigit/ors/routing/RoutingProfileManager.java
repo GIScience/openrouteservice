@@ -625,12 +625,12 @@ public class RoutingProfileManager {
     }
 
     public void createRunFile() {
-        File file=new File("ors.run");
+        File file = new File("ors.run");
         try (FileWriter fw = new FileWriter(file)) {
             fw.write("ORS init complete: "+ Instant.now().toString() + "\n");
             fw.flush();
-        } catch(IOException ex) {
-            ex.printStackTrace();
+        } catch(Exception ex) {
+            LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
         }
     }
 }
