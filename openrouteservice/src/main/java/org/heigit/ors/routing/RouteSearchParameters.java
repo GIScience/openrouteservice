@@ -27,7 +27,7 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.RoadPropertySpeedMap;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
@@ -578,7 +578,8 @@ public class RouteSearchParameters {
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
                 || hasBearings()
-                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+                || hasRoadPropertySpeedMap();
     }
 
     // time-dependent stuff
@@ -614,5 +615,9 @@ public class RouteSearchParameters {
 
     public void setRoadPropertySpeedMap(RoadPropertySpeedMap map) {
         this.roadPropertySpeedMap = map;
+    }
+
+    public boolean hasRoadPropertySpeedMap() {
+        return this.roadPropertySpeedMap != null;
     }
 }

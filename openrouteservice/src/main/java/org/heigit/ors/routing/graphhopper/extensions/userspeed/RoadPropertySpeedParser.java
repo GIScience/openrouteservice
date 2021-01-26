@@ -1,4 +1,4 @@
-package org.heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions.userspeed;
 
 import org.json.JSONObject;
 

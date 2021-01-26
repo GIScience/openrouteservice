@@ -17,7 +17,6 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -86,6 +85,7 @@ public class RoutingProfile {
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_TD_FASTEST = "td_fastest";
+    private static final String VAL_USER_FASTEST = "user_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING = "weighting";
@@ -727,6 +727,12 @@ public class RoutingProfile {
                 props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
         }
 
+        /* User defined road property dependent speeds */
+        if (searchParams.hasRoadPropertySpeedMap()) {
+            props.put("user_speeds", true);
+            props.putObj("user_speeds", searchParams.getRoadPropertySpeedMap());
+        }
+
         if (profileParams != null && profileParams.hasWeightings()) {
             props.put(KEY_CUSTOM_WEIGHTINGS, true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
@@ -934,6 +940,9 @@ public class RoutingProfile {
             if(searchParams.hasMaximumSpeed()){
                 req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
             }
+
+            if (searchParams.hasRoadPropertySpeedMap())
+                req.getHints().put(KEY_WEIGHTING_METHOD, VAL_USER_FASTEST);
 
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);

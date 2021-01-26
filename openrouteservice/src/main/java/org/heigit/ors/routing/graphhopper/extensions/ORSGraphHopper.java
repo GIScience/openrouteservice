@@ -65,9 +65,12 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpe
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.SpeedCalculatorWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
 import org.slf4j.Logger;
@@ -344,17 +347,26 @@ public class ORSGraphHopper extends GraphHopper {
 						ghRsp.addDebugInfo("tmode:" + tMode.toString());
 					}
 				}
+				//TODO make this nicer
+				try {
+					if (hints.has("user_speeds") && weighting instanceof SpeedCalculatorWeighting) {
+						if (((SpeedCalculatorWeighting) weighting).getSpeedCalculator() instanceof RoadPropertySpeedCalculator) {
+							((RoadPropertySpeedCalculator) ((SpeedCalculatorWeighting) weighting).getSpeedCalculator()).setRoadPropertySpeedMap((RoadPropertySpeedMap) ((ORSPMap) request.getAdditionalHints()).getObj("user_speeds"));
+						}
+					}
+				}
+				catch (IllegalStateException e){
+					LOGGER.error("Unable to create RoadPropertySpeedMap " + e.getMessage());
+				}
 
 				int maxVisitedNodesForRequest = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, getMaxVisitedNodes());
 				if (maxVisitedNodesForRequest > getMaxVisitedNodes())
 					throw new IllegalArgumentException(
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
-
 				if(hints.has("maximum_speed")) {
 					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
 				}
-
 
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);

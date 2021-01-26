@@ -17,7 +17,6 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.routing.graphhopper.extensions.RoadPropertySpeedMap;
 import org.heigit.ors.services.ServiceRequest;
 
 import java.util.ArrayList;

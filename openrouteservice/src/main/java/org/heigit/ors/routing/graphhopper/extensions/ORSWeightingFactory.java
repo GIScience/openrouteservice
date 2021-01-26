@@ -22,6 +22,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
 import java.io.File;
@@ -75,6 +76,11 @@ public class ORSWeightingFactory implements WeightingFactory {
 					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
 					: new TimeDependentFastestWeighting(encoder, hintsMap);
 		}
+
+		else if ("user_fastest".equalsIgnoreCase(strWeighting)) {
+			result = new SpeedCalculatorWeighting(encoder, hintsMap, new RoadPropertySpeedCalculator(graphStorage, encoder));
+		}
+
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
