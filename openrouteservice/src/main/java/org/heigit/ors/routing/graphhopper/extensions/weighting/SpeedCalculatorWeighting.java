@@ -29,24 +29,24 @@ public class SpeedCalculatorWeighting extends FastestWeighting {
 
     /**
      * Calculate edge weight with speed adapted by speedcalculator.
-     * @param edge
+     * @param edgeState
      * @param reverse
      * @param prevOrNextEdgeId
-     * @return time needed for edge traversal
+     * @return weight needed for edge traversal
      */
     @Override
-    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         if(speedCalculator == null)
             throw new IllegalStateException("No SpeedCalculator set");
-        double speed = reverse ? edge.getReverse(this.avSpeedEnc) : edge.get(this.avSpeedEnc);
+        double speed = reverse ? edgeState.getReverse(this.avSpeedEnc) : edgeState.get(this.avSpeedEnc);
         if (speed == 0.0D) {
             return 1.0D / 0.0;
         } else {
-            double adaptedSpeed = this.speedCalculator.getSpeed(edge, reverse, -1);
+            double adaptedSpeed = this.speedCalculator.getSpeed(edgeState, reverse, -1);
             if(adaptedSpeed != -1)
                 speed = adaptedSpeed;
-            double time = edge.getDistance() / speed * 3.6D;
-            boolean unfavoredEdge = edge.get(EdgeIteratorState.UNFAVORED_EDGE);
+            double time = edgeState.getDistance() / speed * 3.6D;
+            boolean unfavoredEdge = edgeState.get(EdgeIteratorState.UNFAVORED_EDGE);
             if (unfavoredEdge) {
                 time += this.headingPenalty;
             }
@@ -54,18 +54,44 @@ public class SpeedCalculatorWeighting extends FastestWeighting {
             return time;
         }
     }
-
+    /**
+     * Calculate edge milliseconds with speed adapted by speedcalculator.
+     * This needs to override the AbstractWeighting method as the speed is changed.
+     * @param edgeState
+     * @param reverse
+     * @param prevOrNextEdgeId
+     * @return millis needed for edge traversal
+     */
     @Override
-    //TODO Adapt this to support the speeds from speedcalculator
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         // TODO move this to AbstractWeighting? see #485
         long time = 0;
         boolean unfavoredEdge = edgeState.get(EdgeIteratorState.UNFAVORED_EDGE);
         if (unfavoredEdge)
             time += headingPenaltyMillis;
+        if (edgeState.getBaseNode() == edgeState.getAdjNode()) {
+            reverse = false;
+        }
 
-        return time + super.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+        if ((!reverse || edgeState.getReverse(this.accessEnc)) && (reverse || edgeState.get(this.accessEnc))) {
+            double speed = reverse ? edgeState.getReverse(this.avSpeedEnc) : edgeState.get(this.avSpeedEnc);
+            if (!Double.isInfinite(speed) && !Double.isNaN(speed) && speed >= 0.0D) {
+                if (speed == 0.0D) {
+                    throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
+                } else {
+                    double adaptedSpeed = this.speedCalculator.getSpeed(edgeState, reverse, -1);
+                    if(adaptedSpeed != -1)
+                        speed = adaptedSpeed;
+                    return time + (long)(edgeState.getDistance() * 3600.0D / speed);
+                }
+            } else {
+                throw new IllegalStateException("Invalid speed stored in edge! " + speed);
+            }
+        } else {
+            throw new IllegalStateException("Calculating time should not require to read speed from edge in wrong direction. (" + edgeState.getBaseNode() + " - " + edgeState.getAdjNode() + ") " + edgeState.fetchWayGeometry(3) + ", dist: " + edgeState.getDistance() + " Reverse:" + reverse + ", fwd:" + edgeState.get(this.accessEnc) + ", bwd:" + edgeState.getReverse(this.accessEnc) + ", fwd-speed: " + edgeState.get(this.avSpeedEnc) + ", bwd-speed: " + edgeState.getReverse(this.avSpeedEnc));
+        }
     }
+
 
     @Override
     public String getName() {

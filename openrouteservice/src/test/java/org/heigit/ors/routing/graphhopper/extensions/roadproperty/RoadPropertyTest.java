@@ -1,34 +1,32 @@
 package org.heigit.ors.routing.graphhopper.extensions.roadproperty;
 
 import com.graphhopper.routing.Dijkstra;
-import com.graphhopper.routing.DijkstraBidirectionRef;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.TimeDependentFastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.common.Pair;
-import org.heigit.ors.routing.graphhopper.extensions.RoadPropertySpeedCalculator;
-import org.heigit.ors.routing.graphhopper.extensions.RoadPropertySpeedMap;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.SpeedCalculatorWeighting;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RoadPropertyTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final TimeDependentFastestWeighting weighting = new TimeDependentFastestWeighting(carEncoder, new PMap());
+    private final SpeedCalculatorWeighting weighting = new SpeedCalculatorWeighting(carEncoder, new PMap());
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private Directory dir;
 
@@ -42,24 +40,28 @@ public class RoadPropertyTest {
     }
 
     @Test
-    public void testSimple() {
+    public void testWeightAndTime() {
         GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
-        Path path = calcPath(5, 1, graph);
-        System.out.println(path.toDetailsString());
 
         WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
+        storage.init(graph, new RAMDirectory());
+        storage.create(10);
         WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
         waySurfaceDesc.setSurfaceType(1);
         storage.setEdgeValue(6, waySurfaceDesc);
         RoadPropertySpeedMap roadPropertySpeedMap = new RoadPropertySpeedMap();
         roadPropertySpeedMap.addRoadPropertySpeed("paved", 30);
-        RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator();
-        roadPropertySpeedCalculator.init(graph, carEncoder, roadPropertySpeedMap);
+        RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator(graph, carEncoder);
+        roadPropertySpeedCalculator.setRoadPropertySpeedMap(roadPropertySpeedMap);
+        roadPropertySpeedCalculator.setWaySurfaceTypeGraphStorage(storage);
         weighting.setSpeedCalculator(roadPropertySpeedCalculator);
 
-        path = calcPath(5, 1, graph);
-        System.out.println(path.toDetailsString());
-
+        Path path = calcPath(5, 1, graph);
+        roadPropertySpeedMap.addRoadPropertySpeed("paved", 20);
+        Path path0 = calcPath(5, 1, graph);
+        assertTrue(path.getWeight() < path0.getWeight());
+        assertTrue(path.getTime() < path0.getTime());
+        assertEquals(path.getDistance(), path0.getDistance(), 0);
     }
 
     private Path calcPath(int source, int target, Graph graph) {
