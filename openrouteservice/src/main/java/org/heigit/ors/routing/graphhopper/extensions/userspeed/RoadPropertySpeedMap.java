@@ -16,6 +16,9 @@ public class RoadPropertySpeedMap {
      * @param speed The maximum speed for this property
      */
     public void addRoadPropertySpeed(String property, double speed) {
+        if(speed < 0) {
+            throw new IllegalArgumentException("Speed must be >= 0 but is " + speed);
+        }
         SurfaceType surfaceType = SurfaceType.getFromString(property);
         if (surfaceType != SurfaceType.UNKNOWN) {
             propToSpeed.put(surfaceType, speed);
