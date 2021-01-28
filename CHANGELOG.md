@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.3.5] - 2021-01-28
 ### Added
 - output run file to signal completion of graph building/loading at init time
 ### Fixed
@@ -378,7 +380,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...HEAD
+[6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
 [6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
