@@ -5,14 +5,13 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TimeDependentFastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.weighting.SpeedCalculatorWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.FastestSpeedCalculatorWeighting;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class RoadPropertyTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final SpeedCalculatorWeighting weighting = new SpeedCalculatorWeighting(carEncoder, new PMap());
+    private final FastestSpeedCalculatorWeighting weighting = new FastestSpeedCalculatorWeighting(carEncoder, new PMap());
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private Directory dir;
 

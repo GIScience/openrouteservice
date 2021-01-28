@@ -86,6 +86,7 @@ public class RoutingProfile {
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_USER_FASTEST = "user_fastest";
+    private static final String VAL_USER_SHORTEST = "user_shortest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING = "weighting";
@@ -893,7 +894,7 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+                setWeighting(searchParams, req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             }
             else
@@ -940,9 +941,6 @@ public class RoutingProfile {
             if(searchParams.hasMaximumSpeed()){
                 req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
             }
-
-            if (searchParams.hasRoadPropertySpeedMap())
-                req.getHints().put(KEY_WEIGHTING_METHOD, VAL_USER_FASTEST);
 
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);
@@ -1004,19 +1002,24 @@ public class RoutingProfile {
      * @param profileType Necessary for HGV
      * @return Weighting as int
      */
-    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
+    private void setWeighting(RouteSearchParameters searchParameters, HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
         //Defaults
         String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
 
-        if(requestWeighting == WeightingMethod.SHORTEST)
+        if(requestWeighting == WeightingMethod.SHORTEST) {
             weighting = weightingMethod = VAL_SHORTEST;
+            if (searchParameters != null && searchParameters.hasRoadPropertySpeedMap())
+                weightingMethod = VAL_USER_SHORTEST;
+        }
 
         //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
                 weighting = VAL_FASTEST;
                 weightingMethod = hasTimeDependentSpeed ? VAL_TD_FASTEST : VAL_FASTEST;
+                if(searchParameters != null && searchParameters.hasRoadPropertySpeedMap())
+                    weightingMethod = VAL_USER_FASTEST;
             }
             else if (RoutingProfileType.isHeavyVehicle(profileType)) {
                 weighting = VAL_RECOMMENDED;
@@ -1031,6 +1034,9 @@ public class RoutingProfile {
 
         map.put(KEY_WEIGHTING, weighting);
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
+    }
+    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
+        setWeighting(null, map, requestWeighting, profileType, hasTimeDependentSpeed);
     }
     /**
      * Set the speedup techniques used for calculating the route.

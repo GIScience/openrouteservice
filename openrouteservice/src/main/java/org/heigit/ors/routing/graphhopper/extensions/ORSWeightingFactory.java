@@ -25,9 +25,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +75,11 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 
 		else if ("user_fastest".equalsIgnoreCase(strWeighting)) {
-			result = new SpeedCalculatorWeighting(encoder, hintsMap, new RoadPropertySpeedCalculator(graphStorage, encoder));
+			result = new FastestSpeedCalculatorWeighting(encoder, hintsMap, new RoadPropertySpeedCalculator(graphStorage, encoder));
+		}
+
+		else if ("user_shortest".equalsIgnoreCase(strWeighting)) {
+			result = new ShortestSpeedCalculatorWeighting(encoder, new RoadPropertySpeedCalculator(graphStorage, encoder));
 		}
 
 		else  if ("priority".equalsIgnoreCase(strWeighting))
