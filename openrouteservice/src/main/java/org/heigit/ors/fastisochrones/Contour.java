@@ -18,10 +18,6 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
 import java.util.*;
@@ -345,10 +341,8 @@ public class Contour {
         //Cells should be only part of one supercell
         if (visitedCells.contains(currentCell))
             return;
-        if (isPrimary) {
-            if (cellIds.contains(currentCell) && !isValidBaseCell(cellIds, currentCell))
-                return;
-        }
+        if (isPrimary && cellIds.contains(currentCell) && !isValidBaseCell(cellIds, currentCell))
+            return;
 
         if (!cellIds.contains(currentCell)) {
             createSuperCell(cellIds, visitedCells, superCell, maxId, currentCell << 1, isPrimary);
@@ -399,6 +393,8 @@ public class Contour {
         try {
             Collections.sort(coordinates);
         } catch (Exception e) {
+            //This happens in less than 1% of the runs and I have not figured out why.
+            //It has no real impact as sorting is only for consistency of outlines, not quality
         }
         return coordinates;
     }

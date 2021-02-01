@@ -25,7 +25,7 @@ public abstract class AbstractEccentricity {
     protected List<EccentricityStorage> eccentricityStorages = new ArrayList<>();
     protected List<BorderNodeDistanceStorage> borderNodeDistanceStorages = new ArrayList<>();
 
-    public AbstractEccentricity(GraphHopperStorage ghStorage) {
+    protected AbstractEccentricity(GraphHopperStorage ghStorage) {
         this.ghStorage = ghStorage;
     }
 

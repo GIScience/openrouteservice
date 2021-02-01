@@ -37,6 +37,20 @@ RELEASING:
 ### Fixed
 - Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
 
+## [6.3.5] - 2021-01-28
+### Added
+- output run file to signal completion of graph building/loading at init time
+### Fixed
+- Define behavior for first container start with existing app.config
+
+## [6.3.4] - 2021-01-19
+### Changed
+- Overhaul of Contour creation for fast isochrones. Fixing unexpected behaviour for border edges.
+
+## [6.3.3] - 2021-01-15
+### Fixed
+- Updated CGIAR URL in GH (see GH fork [#35](https://github.com/GIScience/graphhopper/pull/35))
+
 ## [6.3.2] - 2020-12-14
 ### Added
 - Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
@@ -51,7 +65,7 @@ RELEASING:
 ### Fixed
 - Updated documentation for running in Docker ([#798](https://github.com/GIScience/openrouteservice/issues/798))
 - Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
-- Enabled turning off elevation data handling for profiles 
+- Enabled turning off elevation data handling for profiles
 - Fixed a bug in fast isochrones preprocessing
 
 ## [6.3.0] - 2020-09-14
@@ -368,7 +382,10 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...HEAD
+[6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
+[6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
+[6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
