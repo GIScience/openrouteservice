@@ -41,5 +41,6 @@ jobs:
       with:
         type: ${{ job.status }}
         job_name: '*ORS CI Test*'
-        commit: true
+# this does not work. https://github.com/GIScience/openrouteservice/runs/1648312213?check_suite_focus=true
+#        commit: false
         token: ${{ secrets.PROJECT_AUTOMATION }}
