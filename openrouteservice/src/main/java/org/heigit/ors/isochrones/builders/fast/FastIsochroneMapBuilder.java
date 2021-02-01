@@ -77,7 +77,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private int minEdgeLengthLimit = 400;
+    private int minEdgeLengthLimit = 125;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private boolean BUFFERED_OUTPUT = true;
     private double activeCellApproximationFactor = 0.99;
