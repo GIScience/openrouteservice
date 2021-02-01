@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
 
 ## [6.3.2] - 2020-12-14
 ### Added
