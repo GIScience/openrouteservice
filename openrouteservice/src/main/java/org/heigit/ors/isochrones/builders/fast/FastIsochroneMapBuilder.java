@@ -77,7 +77,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private int minEdgeLengthLimit = 400;
+    private int minEdgeLengthLimit = 125;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private boolean BUFFERED_OUTPUT = true;
     private double activeCellApproximationFactor = 0.99;
@@ -320,10 +320,22 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 continue;
             }
 
-            for (Coordinate coordinate : ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing().getCoordinates()) {
-                contourCoordinates.add(coordinate.y);
-                contourCoordinates.add(coordinate.x);
+            LinearRing ring = (LinearRing) ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
+            for (int i = 0; i < ring.getNumPoints(); i++) {
+                contourCoordinates.add(ring.getCoordinateN(i).y);
+                contourCoordinates.add(ring.getCoordinateN(i).x);
+                if (i < ring.getNumPoints() - 1) {
+                    splitEdgeToDoubles(ring.getPointN(i).getY(),
+                            ring.getPointN(i + 1).getY(),
+                            ring.getPointN(i).getX(),
+                            ring.getPointN(i + 1).getX(),
+                            contourCoordinates,
+                            minEdgeLengthLimit,
+                            maxEdgeLengthLimit);
+                }
             }
+            contourCoordinates.add(ring.getCoordinateN(0).y);
+            contourCoordinates.add(ring.getCoordinateN(0).x);
         }
         return contourCoordinates;
     }
@@ -389,7 +401,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));
                     if (i < ring.getNumPoints() - 1) {
-                        splitEdge(ring.getPointN(i).getY(),
+                        splitEdgeToCoordinates(ring.getPointN(i).getY(),
                                 ring.getPointN(i + 1).getY(),
                                 ring.getPointN(i).getX(),
                                 ring.getPointN(i + 1).getX(),
@@ -748,13 +760,25 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return statement.toString();
     }
 
-    private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {
+    private void splitEdgeToCoordinates(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {
         double dist = distance(lat0, lat1, lon0, lon1);
 
         if (dist > minlim && dist < maxlim) {
             int n = (int) Math.ceil(dist / minlim);
             for (int i = 1; i < n; i++) {
                 coordinates.add(new Coordinate((lon0 + i * (lon1 - lon0) / n), (lat0 + i * (lat1 - lat0) / n)));
+            }
+        }
+    }
+
+    private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates, double minlim, double maxlim) {
+        double dist = distance(lat0, lat1, lon0, lon1);
+
+        if (dist > minlim && dist < maxlim) {
+            int n = (int) Math.ceil(dist / minlim);
+            for (int i = 1; i < n; i++) {
+                coordinates.add(lat0 + i * (lat1 - lat0) / n);
+                coordinates.add(lon0 + i * (lon1 - lon0) / n);
             }
         }
     }
