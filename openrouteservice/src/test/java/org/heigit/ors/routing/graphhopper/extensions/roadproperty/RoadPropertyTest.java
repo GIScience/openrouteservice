@@ -6,18 +6,18 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.FastestSpeedCalculatorWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.ShortestSpeedCalculatorWeighting;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,21 +25,9 @@ import static org.junit.Assert.assertTrue;
 public class RoadPropertyTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final FastestSpeedCalculatorWeighting weighting = new FastestSpeedCalculatorWeighting(carEncoder, new PMap());
-    private final TraversalMode tMode = TraversalMode.NODE_BASED;
-    private Directory dir;
-
-    @Before
-    public void setUp() {
-        dir = new GHDirectory("", DAType.RAM_INT);
-    }
-
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
-    }
 
     @Test
-    public void testWeightAndTime() {
+    public void testWeightAndTimeFastest() {
         GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
 
         WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
@@ -53,18 +41,45 @@ public class RoadPropertyTest {
         RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator(graph, carEncoder);
         roadPropertySpeedCalculator.setRoadPropertySpeedMap(roadPropertySpeedMap);
         roadPropertySpeedCalculator.setWaySurfaceTypeGraphStorage(storage);
+        FastestSpeedCalculatorWeighting weighting = new FastestSpeedCalculatorWeighting(carEncoder, new PMap());
         weighting.setSpeedCalculator(roadPropertySpeedCalculator);
 
-        Path path = calcPath(5, 1, graph);
+        Path path = calcPath(5, 1, graph, weighting);
         roadPropertySpeedMap.addRoadPropertySpeed("paved", 20);
-        Path path0 = calcPath(5, 1, graph);
+        Path path0 = calcPath(5, 1, graph, weighting);
         assertTrue(path.getWeight() < path0.getWeight());
         assertTrue(path.getTime() < path0.getTime());
         assertEquals(path.getDistance(), path0.getDistance(), 0);
     }
 
     @Test
-    public void testTooLargeValue(){
+    public void testWeightAndTimeShortest() {
+        GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
+
+        WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
+        storage.init(graph, new RAMDirectory());
+        storage.create(10);
+        WaySurfaceDescription waySurfaceDesc = new WaySurfaceDescription();
+        waySurfaceDesc.setSurfaceType(1);
+        storage.setEdgeValue(6, waySurfaceDesc);
+        RoadPropertySpeedMap roadPropertySpeedMap = new RoadPropertySpeedMap();
+        roadPropertySpeedMap.addRoadPropertySpeed("paved", 30);
+        RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator(graph, carEncoder);
+        roadPropertySpeedCalculator.setRoadPropertySpeedMap(roadPropertySpeedMap);
+        roadPropertySpeedCalculator.setWaySurfaceTypeGraphStorage(storage);
+        ShortestSpeedCalculatorWeighting weighting = new ShortestSpeedCalculatorWeighting(carEncoder);
+        weighting.setSpeedCalculator(roadPropertySpeedCalculator);
+
+        Path path = calcPath(5, 1, graph, weighting);
+        roadPropertySpeedMap.addRoadPropertySpeed("paved", 20);
+        Path path0 = calcPath(5, 1, graph, weighting);
+        assertEquals(path.getWeight(), path0.getWeight(), 0);
+        assertTrue(path.getTime() < path0.getTime());
+        assertEquals(path.getDistance(), path0.getDistance(), 0);
+    }
+
+    @Test
+    public void testTooLargeValue() {
         GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
 
         WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
@@ -77,18 +92,19 @@ public class RoadPropertyTest {
         RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator(graph, carEncoder);
         roadPropertySpeedCalculator.setRoadPropertySpeedMap(roadPropertySpeedMap);
         roadPropertySpeedCalculator.setWaySurfaceTypeGraphStorage(storage);
+        FastestSpeedCalculatorWeighting weighting = new FastestSpeedCalculatorWeighting(carEncoder, new PMap());
         weighting.setSpeedCalculator(roadPropertySpeedCalculator);
 
-        Path path = calcPath(5, 1, graph);
+        Path path = calcPath(5, 1, graph, weighting);
         roadPropertySpeedMap.addRoadPropertySpeed("paved", 3000);
-        Path path0 = calcPath(5, 1, graph);
+        Path path0 = calcPath(5, 1, graph, weighting);
         assertEquals(path.getWeight(), path0.getWeight(), 0);
         assertEquals(path.getTime(), path0.getTime(), 0);
         assertEquals(path.getDistance(), path0.getDistance(), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTooSmallValue(){
+    public void testTooSmallValue() {
         GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
 
         WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
@@ -102,7 +118,7 @@ public class RoadPropertyTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testUnknownValue(){
+    public void testUnknownValue() {
         GraphHopperStorage graph = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
 
         WaySurfaceTypeGraphStorage storage = new WaySurfaceTypeGraphStorage();
@@ -113,10 +129,6 @@ public class RoadPropertyTest {
         storage.setEdgeValue(6, waySurfaceDesc);
         RoadPropertySpeedMap roadPropertySpeedMap = new RoadPropertySpeedMap();
         roadPropertySpeedMap.addRoadPropertySpeed("pavedD", 50);
-    }
-
-    private Path calcPath(int source, int target, Graph graph) {
-        return calcPath(source, target, graph, weighting);
     }
 
     private Path calcPath(int source, int target, Graph graph, Weighting w) {
