@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.3.6] - 2021-02-02
 ### Fixed
 - Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
 
@@ -382,7 +384,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...HEAD
+[6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
 [6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
 [6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
