@@ -137,12 +137,6 @@ public class CentralityAlgorithmTest extends TestCase {
             e.printStackTrace();
         }
 
-        try {
-            alg.writeNetworkxGraph(nodes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         for (Integer v : nodes) {
             assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
         }

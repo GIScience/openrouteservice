@@ -145,27 +145,4 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
 
         return betweenness;
     }
-
-    // helper function to export the used graph into a Networkx-Graph
-    public void writeNetworkxGraph(ArrayList<Integer> nodesInBBox) throws Exception {
-        FileWriter writer = new FileWriter("/home/koebi/heigit/neuenheim_graph.py");
-
-        for (Integer v : nodesInBBox) {
-            EdgeExplorer explorer = graph.createEdgeExplorer();
-            EdgeIterator iter = explorer.setBaseNode(v);
-
-            while (iter.next()) {
-                int w = iter.getAdjNode();
-                if (!nodesInBBox.contains(w)) {
-                    continue;
-                }
-
-                Double vw_weight = weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
-                String networkx_edge = String.format("g.add_edge(%d, %d, weight=%f)\n", v, w, vw_weight);
-                writer.write(networkx_edge);
-            }
-        }
-
-        writer.close();
-    }
 }
