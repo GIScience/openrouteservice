@@ -10,6 +10,4 @@ public interface CentralityAlgorithm {
     void init(Graph graph, Weighting weighting);
 
     HashMap<Integer, Double> compute(ArrayList<Integer> nodes) throws Exception;
-
-    void writeNetworkxGraph(ArrayList<Integer> nodes) throws Exception;
 }
