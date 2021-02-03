@@ -97,31 +97,11 @@ public class CentralityAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 
-        //TODO: do I need a handler? or can I make this work easier?
         CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
 
         return new JSONCentralityResponse(result, request);
     }
-    //TODO: implement returning geojson???
-    //@PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    //@ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as GeoJSON", value = "Directions Service GeoJSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
-    //@ApiResponses(value = {
-    //        @ApiResponse(code = 2002,
-    //                message = "Standard response for successfully processed requests. Returns GeoJSON.",
-    //                response = GeoJSONCentralityResponse.class)
-    //})
-//    public GeoJSONCentralityResponse getGeoJsonCentrality(
-//            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-//            @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
-//        request.setProfile(profile);
-//        request.setResponseType(APIEnums.CentralityResponseType.GEOJSON);
-//
-//        CentralityResult[] result = new CentralityRequestHandler().generateCentralityFromRequest(request);
-//
-//        return new GeoJSONCentralityResponse(result, request);
-//    }
 
-    //TODO: do exception handlers need to be touched?
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
         return errorHandler.handleStatusCodeException(new MissingParameterException(CentralityErrorCodes.MISSING_PARAMETER, e.getParameterName()));
