@@ -13,8 +13,6 @@ import java.io.FileWriter;
 import java.io.PrintStream;
 import java.util.*;
 
-//TODO: ist das ggf. einfach zu klompiziert? kann man da auch direkt 'ne Klasse draus machen, oder braucht es diese
-//      Klassenhierarchie für irgendwas?
 public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     protected Graph graph;
     protected Weighting weighting;
@@ -45,17 +43,11 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     public HashMap<Integer, Double> compute(ArrayList<Integer> nodesInBBox) throws Exception {
         HashMap<Integer, Double> betweenness = new HashMap<>();
 
-        // System.out.println("Entering compute");
-
         // c_b[v] = 0 forall v in V
         for (int v: nodesInBBox) {
             betweenness.put(v,0.0d);
         }
 
-
-
-
-        // System.out.println("Initiated data structures, starting algorithm.");
 
         for (int s : nodesInBBox) {
             Stack<Integer> S = new Stack<>();
@@ -77,11 +69,9 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
 
             PriorityQueue<QueueElement> Q = new PriorityQueue<>();
 
-            // System.out.println("Initiate data structures for SSSP");
-
             Q.add(new QueueElement(0d, s, s));
 
-            //let's check that everything has the length it should.
+            // check that everything has the length it should.
             assert S.empty(); //S should be empty
             assert seen.size() == 1;
 
@@ -90,7 +80,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 Double dist = first.dist;
                 Integer pred = first.pred;
                 Integer v = first.v;
-                // System.out.println("Pop-ed first element from queue");
 
                 if (D.containsKey(v)) {
                     continue;
@@ -100,42 +89,29 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 S.push(v);
                 D.put(v, dist);
 
-                // System.out.println("Counted shortest paths, mark as visited");
-
                 // iterate all edges connected to v
                 EdgeExplorer explorer = graph.createEdgeExplorer();
                 EdgeIterator iter = explorer.setBaseNode(v);
 
-                // System.out.println("Created edge explorer");
-
                 while (iter.next()) {
-                                        // System.out.println("Iterating through edges");
-                    int w = iter.getAdjNode(); // this is the node where this edge state is "pointing to"
+                    int w = iter.getAdjNode(); // this is the node this edge state is "pointing to"
                     if (!nodesInBBox.contains(w)) {
-                        // System.out.println("Node not in bbox, skipping edge");
+                        // Node not in bbox, skipping edge
                         continue;
                     }
 
                     if (D.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
-                        // System.out.println("Node already checked, skipping");
+                        // Node already checked, skipping edge
                         continue;
                     }
 
-                    Double vw_dist = 0.0d;
-                    try {
-                        vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
-                        // System.out.printf("Looking at edge (%d,%d) w/ weight %f", v, w, vw_dist);
-                    } catch (Exception e) {
-                        // System.out.println(e);
-                    }
-                    // System.out.println("Calculated edge weight");
+                    Double vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 
                     if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
                         List<Integer> predecessors = P.get(w);
                         predecessors.add(v);
                         P.put(w, predecessors);
-                        // System.out.println("Calculations for same path done");
                     } else if (!seen.containsKey(w) || vw_dist < seen.get(w)) {
                         seen.put(w, vw_dist);
                         Q.add(new QueueElement(vw_dist, v, w));
@@ -143,7 +119,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         ArrayList<Integer> predecessors = new ArrayList<>();
                         predecessors.add(v);
                         P.put(w, predecessors);
-                        // System.out.println("Calculations for new shorter path done");
                     }
 //                    if (!D.containsKey(w) && (!seen.containsKey(w) || vw_dist < seen.get(w))) { // I think we run into problems here, b/c of rounding errors
 //                        seen.put(w, vw_dist);
@@ -163,8 +138,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 }
             }
 
-            // System.out.println("SSSP completed for node");
-            // System.out.println(s);
 
             // accumulate betweenness
             HashMap<Integer, Double> delta = new HashMap<>();
@@ -183,27 +156,22 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                     betweenness.put(w, betweenness.get(w) + delta.get(w));
                 }
             }
-
-            // System.out.println("Accumulated betweenness for above node");
         }
 
-        //System.out.println("Calculated paths.");
         return betweenness;
     }
 
+    // helper function to export the used graph into a Networkx-Graph
     public void writeNetworkxGraph(ArrayList<Integer> nodesInBBox) throws Exception {
         FileWriter writer = new FileWriter("/home/koebi/heigit/neuenheim_graph.py");
+
         for (Integer v : nodesInBBox) {
             EdgeExplorer explorer = graph.createEdgeExplorer();
             EdgeIterator iter = explorer.setBaseNode(v);
 
-            // System.out.println("Created edge explorer");
-
             while (iter.next()) {
-                // System.out.println("Iterating through edges");
-                int w = iter.getAdjNode(); // this is the node where this edge state is "pointing to"
+                int w = iter.getAdjNode();
                 if (!nodesInBBox.contains(w)) {
-                    // System.out.println("Node not in bbox, skipping edge");
                     continue;
                 }
 
@@ -214,6 +182,5 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
         }
 
         writer.close();
-
     }
 }
