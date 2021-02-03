@@ -120,21 +120,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         predecessors.add(v);
                         P.put(w, predecessors);
                     }
-//                    if (!D.containsKey(w) && (!seen.containsKey(w) || vw_dist < seen.get(w))) { // I think we run into problems here, b/c of rounding errors
-//                        seen.put(w, vw_dist);
-//                        Q.add(new QueueElement(vw_dist, v, w));
-//                        sigma.put(w, 0);
-//                        ArrayList<Integer> predecessors = new ArrayList<>();
-//                        predecessors.add(v);
-//                        P.put(w, predecessors);
-//                        System.out.println("Calculations for new shorter path done");
-//                    } else if (vw_dist.equals(seen.get(w))) {
-//                        sigma.put(w, sigma.get(w) + sigma.get(v));
-//                        List<Integer> predecessors = P.get(w);
-//                        predecessors.add(v);
-//                        P.put(w, predecessors);
-//                        System.out.println("Calculations for same path done");
-//                    }
                 }
             }
 
