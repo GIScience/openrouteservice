@@ -701,9 +701,6 @@ public class RoutingProfile {
 
         HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
 
-        //System.out.printf("Working on %d nodes, result has %d nodes\n, nodesInBBox.size(), betweenness.size());
-
-
         // transform node ids to coordinates
         for (int v : nodesInBBox) {
             Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));

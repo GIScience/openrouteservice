@@ -2,15 +2,10 @@ package org.heigit.ors.centrality.algorithms.brandes;
 
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.vividsolutions.jts.geom.Coordinate;
-import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 
-import java.io.FileWriter;
-import java.io.PrintStream;
 import java.util.*;
 
 public class BrandesCentralityAlgorithm implements CentralityAlgorithm {

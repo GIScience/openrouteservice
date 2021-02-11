@@ -4,11 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.primitives.Doubles;
-import com.graphhopper.util.shapes.BBox;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ors.api.converters.BBoxSerializer;
 import org.heigit.ors.api.requests.common.APIEnums;
 
 import java.util.List;

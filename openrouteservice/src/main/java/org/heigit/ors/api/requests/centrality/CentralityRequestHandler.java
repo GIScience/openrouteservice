@@ -10,8 +10,6 @@ import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 
-import java.util.List;
-
 public class CentralityRequestHandler extends GenericHandler {
     public CentralityRequestHandler() {
         super();

@@ -9,14 +9,10 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import junit.framework.TestCase;
-import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
