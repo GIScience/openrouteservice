@@ -15,6 +15,11 @@ public class CentralityResponse {
 
     public CentralityResponse() {};
 
+    // In RouteResponse, this method was used to get metadata from RouteRequest.
+    public CentralityResponse(CentralityResult result) {
+        this.centralityResults = result;
+    }
+
     public BoundingBox getBbox() {
         return bbox;
     }

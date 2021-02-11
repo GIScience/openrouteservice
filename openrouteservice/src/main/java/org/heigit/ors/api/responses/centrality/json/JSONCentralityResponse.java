@@ -27,7 +27,7 @@ public class JSONCentralityResponse extends CentralityResponse {
     public Double[][] aggregated;
 
     public JSONCentralityResponse(CentralityResult centralityResult, CentralityRequest request) throws StatusCodeException {
-        super(centralityResult, request);
+        super(centralityResult);
         HashMap<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
         HashMap<Coordinate, Integer> nodes = centralityResult.getNodes();
         int length = centralityScores.size();
