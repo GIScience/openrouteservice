@@ -168,4 +168,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected SPTEntry createSPTEntry(int node, double weight) {
         return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
     }
+
+    protected boolean isCoreNode(int nodeId) {
+        return chGraph.getLevel(nodeId) == coreNodeLevel;
+    }
 }
