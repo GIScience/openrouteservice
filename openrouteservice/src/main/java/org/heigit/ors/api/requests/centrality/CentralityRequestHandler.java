@@ -10,6 +10,8 @@ import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 
+import java.util.List;
+
 public class CentralityRequestHandler extends GenericHandler {
     public CentralityRequestHandler() {
         super();
@@ -24,7 +26,6 @@ public class CentralityRequestHandler extends GenericHandler {
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, CentralityErrorCodes.UNKNOWN);
         }
     }
@@ -44,14 +45,35 @@ public class CentralityRequestHandler extends GenericHandler {
             throw new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, CentralityRequest.PARAM_PROFILE);
         }
 
-        BBox bbox = new BBox( Doubles.concat(Doubles.toArray(request.getBoundingBox().get(0)), Doubles.toArray(request.getBoundingBox().get(1))));
-        coreRequest.setBoundingBox(bbox);
+        coreRequest.setBoundingBox(convertBBox(request.getBoundingBox()));
 
         if (request.hasExcludeNodes()) {
             coreRequest.setExcludeNodes(request.getExcludeNodes());
         }
 
         return coreRequest;
+    }
+
+    BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {
+        if (coordinates.size() != 2) {
+            throw new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, CentralityRequest.PARAM_BBOX);
+        }
+
+        double[] coords = {};
+
+        for (List<Double> coord : coordinates) {
+            coords = Doubles.concat(coords, convertSingleCoordinate(coord));
+        }
+
+        return new BBox(coords);
+    }
+
+    private double[] convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
+        if (coordinate.size() != 2) {
+            throw new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, CentralityRequest.PARAM_BBOX);
+        }
+
+        return new double[]{coordinate.get(0), coordinate.get(1)};
     }
 
 }
