@@ -55,7 +55,7 @@ public class ParamsTest extends ServiceTest {
         tooLargeCoordBox.put(tooLargeCoordinate);
         addParameter("tooLargeCoordBox", tooLargeCoordBox);
 
-        //set up invalid bounding box contaning a coordinate with too few ordinates
+        //set up invalid bounding box containing a coordinate with too few ordinates
         JSONArray tooSmallCoordBox = new JSONArray();
         tooSmallCoordBox.put(lowerLeft);
         tooSmallCoordBox.put(tooSmallCoordinate);
@@ -64,7 +64,6 @@ public class ParamsTest extends ServiceTest {
         // set up invalid/non-present Node
         JSONArray nonPresentNodes = new JSONArray();
         nonPresentNodes.put(123456789);
-
         addParameter("invalidNodes", nonPresentNodes);
 
         // set different profiles
