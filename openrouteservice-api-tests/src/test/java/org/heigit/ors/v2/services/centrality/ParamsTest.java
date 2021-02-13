@@ -30,7 +30,11 @@ public class ParamsTest extends ServiceTest {
         addParameter("heidelberg", heidelbergBBox);
 
 
-        // set up invalid bounding box(es)?
+        // set up invalid bounding box containing too few coordinates
+        JSONArray tooFewCoordsBox = new JSONArray();
+        tooFewCoordsBox.put(lowerLeft);
+        addParameter("invalidBox", tooFewCoordsBox);
+
 
         // set up nodes to exclude
         JSONArray theodorHeussBridgeNodes = new JSONArray();
@@ -41,6 +45,12 @@ public class ParamsTest extends ServiceTest {
         theodorHeussBridgeNodes.put(6463);
 
         addParameter("theodorHeussBridge", theodorHeussBridgeNodes);
+
+        // set up invalid/non-present Node
+        JSONArray nonPresentNodes = new JSONArray();
+        nonPresentNodes.put(123456789);
+
+        addParameter("invalidNodes", nonPresentNodes);
 
         // set different profiles
         addParameter("profile", "cycling-regular");
@@ -70,7 +80,7 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // test that excludenodes get excluded
+    // test that excludeNodes get excluded
     @Test
     public void testExcludeNodes() {
         JSONObject body = new JSONObject();
@@ -87,17 +97,71 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("locations.containsValue(6462)", is(true))
+                .body("nodeIds.containsAll([6462, 11546, 4967, 7493, 6463])", is(true))
                 .statusCode(200);
 
+        body.put("excludeNodes", getParameter("theodorHeussBridge"));
         //check that they are not present anymore if excluded
-
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("nodeIds.contains(6462)", is(false))
+                .body("nodeIds.contains(11546)", is(false))
+                .body("nodeIds.contains(4967)", is(false))
+                .body("nodeIds.contains(7493)", is(false))
+                .body("nodeIds.contains(6463)", is(false))
+                .statusCode(200);
     }
 
-    // test invalid excludenodes (return value unclear)
+    // test that invalid excludeNodes don't lead to everything failing
+    // TODO: what should the system do here? If it should notify the user, how could that work?
+    @Test
+    public void testInvalidExcludeNodes() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("heidelberg"));
+        body.put("excludeNodes", getParameter("invalidNodes"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().all()
+                .body("nodeIds.contains(123456789)", is(false))
+                .statusCode(200);
+    }
 
     // test wrong bounding box:
     // + too few coords
+    @Test
+    public void testInvalidBBox() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("invalidBox"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
     // + too many coords
     // + coords out of range?
 
