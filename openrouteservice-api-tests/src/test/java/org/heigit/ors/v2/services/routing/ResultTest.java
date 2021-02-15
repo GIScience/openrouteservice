@@ -3051,6 +3051,40 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testUserRoadSpeed() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
+        body.put("elevation", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "foot-hiking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2002.4f))
+                .body("routes[0].summary.ascent", is(7.5f))
+                .body("routes[0].summary.descent", is(6.2f))
+                .statusCode(200);
+
+    }
+
+    @Test
+    public void testUserSurfaceSpeed() {
+
+    }
+
+    @Test
+    public void testUserSpeedUnit() {
+
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
