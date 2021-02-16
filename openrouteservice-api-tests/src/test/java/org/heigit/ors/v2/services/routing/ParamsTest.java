@@ -1930,6 +1930,7 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
+	// when given an unknown unit, an error should appear
 	@Test
 	public void expect2003onUnknownUnit(){
 		JSONObject userSpeedLimits = new JSONObject();
