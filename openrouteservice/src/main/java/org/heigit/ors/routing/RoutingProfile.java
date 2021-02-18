@@ -1028,6 +1028,8 @@ public class RoutingProfile {
             if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
                 weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED;
+                if (searchParameters != null && searchParameters.hasRoadPropertySpeedMap())
+                    weightingMethod = VAL_USER_FASTEST;
             }
 
         }
