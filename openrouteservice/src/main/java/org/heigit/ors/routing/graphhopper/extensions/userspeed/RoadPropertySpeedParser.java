@@ -4,6 +4,9 @@ import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class RoadPropertySpeedParser {
     public RoadPropertySpeedMap parse(String input) throws StatusCodeException {
         return parse(new JSONObject(input));
@@ -15,6 +18,14 @@ public class RoadPropertySpeedParser {
 
     public RoadPropertySpeedMap parse(JSONObject json) throws StatusCodeException {
         RoadPropertySpeedMap rsm = new RoadPropertySpeedMap();
+
+        // test that only valid keys are present:
+        List<String> validKeys = Arrays.asList("unit", "roadSpeeds", "surfaceSpeeds");
+        for (String key : json.keySet()) {
+            if (!validKeys.contains(key)) {
+                throw new UnknownParameterException(RoutingErrorCodes.UNKNOWN_PARAMETER, key);
+            }
+        }
 
         // parse units
         String unit = "kmh";

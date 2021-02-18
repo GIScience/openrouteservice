@@ -1851,6 +1851,31 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 	}
 
+	@Test
+	public void expect2012OnUnknownKey() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject roadSpeedLimits  = new JSONObject();
+		roadSpeedLimits.put("primary", 80);
+		userSpeedLimits.put("unknownKey", roadSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2012))
+				.statusCode(400);
+	}
+
 
 	// when given a non-supported road type, an error should appear
 	@Test
