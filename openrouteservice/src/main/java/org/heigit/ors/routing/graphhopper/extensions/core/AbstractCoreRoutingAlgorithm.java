@@ -161,8 +161,15 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         this.additionalCoreEdgeFilter = additionalEdgeFilter;
         return this;
     }
-    protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-        return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+
+    //FIXME: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
+    @Override
+    protected boolean accept(EdgeIteratorState iter, int prevOrNextEdgeId) {
+        if (iter.getEdge() == prevOrNextEdgeId) {
+            return false;
+        } else {
+            return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+        }
     }
 
     protected SPTEntry createSPTEntry(int node, double weight) {
