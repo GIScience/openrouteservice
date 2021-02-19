@@ -3111,14 +3111,14 @@ public class ResultTest extends ServiceTest {
     public void testUserSurfaceSpeed() {
         JSONObject body = new JSONObject();
         JSONArray coords = new JSONArray();
-        JSONArray neuenheim = new JSONArray();
-        neuenheim.put(8.685036);
-        neuenheim.put(49.4201314);
-        JSONArray dossenheim = new JSONArray();
-        dossenheim.put(8.668814);
-        dossenheim.put(49.442794);
-        coords.put(neuenheim);
-        coords.put(dossenheim);
+        JSONArray south = new JSONArray();
+        south.put(8.707808);
+        south.put(49.398337);
+        JSONArray north = new JSONArray();
+        north.put(8.710012);
+        north.put(49.405015);
+        coords.put(south);
+        coords.put(north);
         body.put("coordinates", coords);
 
         // since we're testing on the same profile, "shortest" would not be dependent on speed settings
@@ -3129,39 +3129,39 @@ public class ResultTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", "cycling-mountain")
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(4507.5f))
-                .body("routes[0].summary.duration", is(469.1f))
+                .body("routes[0].summary.distance", is(1532.1f))
+                .body("routes[0].summary.duration", is(349.7f))
                 .statusCode(200);
 
         JSONObject userSpeedLimits  = new JSONObject();
-        JSONObject roadSpeedLimits  = new JSONObject();
-        roadSpeedLimits.put("primary", 30);
-        roadSpeedLimits.put("secondary", 30);
-        userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+        JSONObject surfaceSpeedLimits  = new JSONObject();
+        surfaceSpeedLimits.put("gravel", 2);
+        surfaceSpeedLimits.put("ground", 2);
+        surfaceSpeedLimits.put("compacted", 2);
+        userSpeedLimits.put("surfaceSpeeds", surfaceSpeedLimits);
         body.put("user_speed_limits", userSpeedLimits);
 
         // request route limiting speed on primary and secondary roads to 30
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", "cycling-mountain")
                 .body(body.toString())
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(3811.0f))
-                .body("routes[0].summary.duration", is(554.3f))
+                .body("routes[0].summary.distance", is(2485.8f))
+                .body("routes[0].summary.duration", is(497.1f))
                 .statusCode(200);
-
     }
 
     @Test
