@@ -16,9 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -55,24 +53,21 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     SPTEntry currFrom;
     SPTEntry currTo;
 
-    TurnWeighting turnWeighting;
-
     public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, new PreparationWeighting(weighting), tMode);
-        this.turnWeighting = (TurnWeighting) weighting;
+        super(graph, weighting, tMode);
     }
 
     @Override
     protected void initCollections(int size) {
-        bestWeightMapFromCH = new GHIntObjectHashMap<>(size);
-        bestWeightMapToCH = new GHIntObjectHashMap<>(size);
-        bestWeightMapFromCore = new GHIntObjectHashMap<>(size);
-        bestWeightMapToCore = new GHIntObjectHashMap<>(size);
-
         fromPriorityQueueCH = new PriorityQueue<>(size);
         toPriorityQueueCH = new PriorityQueue<>(size);
         fromPriorityQueueCore = new PriorityQueue<>(size);
         toPriorityQueueCore = new PriorityQueue<>(size);
+
+        bestWeightMapFromCH = new GHIntObjectHashMap<>(size);
+        bestWeightMapToCH = new GHIntObjectHashMap<>(size);
+        bestWeightMapFromCore = new GHIntObjectHashMap<>(size);
+        bestWeightMapToCore = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -108,11 +103,12 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // core entry point, do not relax its edges
             fromPriorityQueueCore.add(currFrom);
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
-            initBestWeightMapEntryList(bestWeightMapFromCore, currFrom.adjNode).add(currFrom);
+            if (isTurnRestrictedNode(currFrom.adjNode))
+                initBestWeightMapEntryList(bestWeightMapFromCore, currFrom.adjNode).add(currFrom);
         }
         else {
             bestWeightMapOtherCH = bestWeightMapToCH;
-            fillEdgesCH(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, outEdgeExplorer, false);
+            fillEdgesCore(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, null, outEdgeExplorer, false);
             visitedCountFrom1++;
         }
 
@@ -130,11 +126,12 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // core entry point, do not relax its edges
             toPriorityQueueCore.add(currTo);
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
-            initBestWeightMapEntryList(bestWeightMapToCore, currTo.adjNode).add(currTo);
+            if (isTurnRestrictedNode(currTo.adjNode))
+                initBestWeightMapEntryList(bestWeightMapToCore, currTo.adjNode).add(currTo);
         }
         else {
             bestWeightMapOtherCH = bestWeightMapFromCH;
-            fillEdgesCH(currTo, toPriorityQueueCH, bestWeightMapToCH, inEdgeExplorer, true);
+            fillEdgesCore(currTo, toPriorityQueueCH, bestWeightMapToCH, null, inEdgeExplorer, true);
             visitedCountTo1++;
         }
 
@@ -157,8 +154,9 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         currFrom = fromPriorityQueueCore.poll();
 
+        bestWeightMapOtherCH = bestWeightMapToCH;
         bestWeightMapOtherCore = bestWeightMapToCore;
-        fillEdgesCore(currFrom, fromPriorityQueueCore, bestWeightMapFromCore, outEdgeExplorer, false);
+        fillEdgesCore(currFrom, fromPriorityQueueCore, bestWeightMapFromCH, bestWeightMapFromCore, outEdgeExplorer, false);
         visitedCountFrom2++;
 
         return true;
@@ -170,8 +168,9 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         currTo = toPriorityQueueCore.poll();
 
+        bestWeightMapOtherCH = bestWeightMapFromCH;
         bestWeightMapOtherCore = bestWeightMapFromCore;
-        fillEdgesCore(currTo, toPriorityQueueCore, bestWeightMapToCore, inEdgeExplorer, true);
+        fillEdgesCore(currTo, toPriorityQueueCore, bestWeightMapToCH, bestWeightMapToCore, inEdgeExplorer, true);
         visitedCountTo2++;
 
         return true;
@@ -219,40 +218,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         return currFrom.weight + currTo.weight >= bestPath.getWeight();
     }
 
-    void fillEdgesCH(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,
-                     EdgeExplorer explorer, boolean reverse) {
-        EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
-        while (iter.next()) {
-            if (!accept(iter, currEdge.edge))
-                continue;
-
-            int traversalId = traversalMode.createTraversalId(iter, reverse);
-            // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-            double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
-            if (Double.isInfinite(tmpWeight))
-                continue;
-            SPTEntry ee = bestWeightMap.get(traversalId);
-            if (ee == null) {
-                ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                ee.parent = currEdge;
-                bestWeightMap.put(traversalId, ee);
-                prioQueue.add(ee);
-            } else if (ee.weight > tmpWeight) {
-                prioQueue.remove(ee);
-                ee.edge = iter.getEdge();
-                ee.weight = tmpWeight;
-                ee.parent = currEdge;
-                prioQueue.add(ee);
-            } else
-                continue;
-
-            updateBestPathCH(ee, traversalId, reverse);
-        }
-    }
-
-    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<List<SPTEntry>> bestWeightMap,
+    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,IntObjectMap<List<SPTEntry>> bestWeightMapCore,
                    EdgeExplorer explorer, boolean reverse) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
@@ -265,40 +231,61 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             if (Double.isInfinite(tmpWeight))
                 continue;
 
-            List<SPTEntry> entries = bestWeightMap.get(traversalId);
-            SPTEntry ee = null;
+            if (bestWeightMapCore!=null && isTurnRestrictedNode(iter.getAdjNode())) {
+                List<SPTEntry> entries = bestWeightMapCore.get(traversalId);
+                SPTEntry ee = null;
 
-            if (entries == null) {
-                entries = initBestWeightMapEntryList(bestWeightMap, traversalId);
-            }
-            else {
-                ListIterator<SPTEntry> it = entries.listIterator();
-                while (it.hasNext()) {
-                    SPTEntry entry = it.next();
-                    if (entry.edge == iter.getEdge()) {
-                        ee = entry;
-                        break;
+                if (entries == null) {
+                    entries = initBestWeightMapEntryList(bestWeightMapCore, traversalId);
+                } else {
+                    ListIterator<SPTEntry> it = entries.listIterator();
+                    while (it.hasNext()) {
+                        SPTEntry entry = it.next();
+                        if (entry.edge == iter.getEdge()) {
+                            ee = entry;
+                            break;
+                        }
                     }
                 }
+
+                if (ee == null) {
+                    ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
+                    // Modification by Maxim Rylov: Assign the original edge id.
+                    ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                    ee.parent = currEdge;
+                    entries.add(ee);
+                    prioQueue.add(ee);
+                } else if (ee.weight > tmpWeight) {
+                    prioQueue.remove(ee);
+                    ee.edge = iter.getEdge();
+                    ee.weight = tmpWeight;
+                    ee.parent = currEdge;
+                    prioQueue.add(ee);
+                } else
+                    continue;
+
+                updateBestPathCore(ee, traversalId, reverse);
             }
+            else {
+                SPTEntry ee = bestWeightMap.get(traversalId);
+                if (ee == null) {
+                    ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
+                    // Modification by Maxim Rylov: Assign the original edge id.
+                    ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                    ee.parent = currEdge;
+                    bestWeightMap.put(traversalId, ee);
+                    prioQueue.add(ee);
+                } else if (ee.weight > tmpWeight) {
+                    prioQueue.remove(ee);
+                    ee.edge = iter.getEdge();
+                    ee.weight = tmpWeight;
+                    ee.parent = currEdge;
+                    prioQueue.add(ee);
+                } else
+                    continue;
 
-            if (ee == null) {
-                ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
-                // Modification by Maxim Rylov: Assign the original edge id.
-                ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                ee.parent = currEdge;
-                entries.add(ee);
-                prioQueue.add(ee);
-            } else if (ee.weight > tmpWeight) {
-                prioQueue.remove(ee);
-                ee.edge = iter.getEdge();
-                ee.weight = tmpWeight;
-                ee.parent = currEdge;
-                prioQueue.add(ee);
-            } else
-                continue;
-
-            updateBestPathCore(ee, traversalId, reverse);
+                updateBestPathCH(ee, traversalId, reverse);
+            }
         }
     }
 

@@ -15,7 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.Path4CH;
+import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
@@ -45,14 +47,28 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
+    protected final TurnWeighting turnWeighting;
+    protected final boolean hasTurnWeighting;
+    protected boolean approximate = false;
+
     public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+        super(graph, new PreparationWeighting(weighting), tMode);
+
+        if (weighting instanceof TurnWeighting) {
+            turnWeighting = (TurnWeighting) weighting;
+            hasTurnWeighting = true;
+        }
+        else {
+            turnWeighting = null;
+            hasTurnWeighting = false;
+        }
 
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
         chGraph = (CHGraph) ((QueryGraph) graph).getMainGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
+        turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
 
     protected abstract void initCollections(int size);
@@ -60,7 +76,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean doUpdateBestPath = true;
 
     CHGraph chGraph;
-    int coreNodeLevel;
+    protected final int coreNodeLevel;
+    protected final int turnRestrictedNodeLevel;
 
     public abstract void initFrom(int from, double weight);
 
@@ -162,7 +179,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return this;
     }
 
-    //FIXME: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
+    //TODO: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
     @Override
     protected boolean accept(EdgeIteratorState iter, int prevOrNextEdgeId) {
         if (iter.getEdge() == prevOrNextEdgeId) {
@@ -176,7 +193,17 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
     }
 
-    protected boolean isCoreNode(int nodeId) {
-        return chGraph.getLevel(nodeId) == coreNodeLevel;
+    boolean isCoreNode(int node) {
+        return chGraph.getLevel(node) >= coreNodeLevel;
     }
+
+    boolean isTurnRestrictedNode(int node) {
+        if (!hasTurnWeighting)
+            return false;
+        if (approximate)
+            return chGraph.getLevel(node) == turnRestrictedNodeLevel;
+        else
+            return isCoreNode(node);
+    }
+
 }

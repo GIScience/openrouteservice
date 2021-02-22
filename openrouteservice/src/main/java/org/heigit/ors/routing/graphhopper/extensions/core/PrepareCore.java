@@ -21,6 +21,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 import java.util.*;
 
@@ -47,6 +48,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final Random rand = new Random(123);
     private final StopWatch allSW = new StopWatch();
     private final Weighting weighting;
+    private final FlagEncoder flagEncoder;
     private final Directory dir;
     private CHEdgeExplorer restrictionExplorer;
 
@@ -59,6 +61,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private int[] oldPriorities;
     private boolean [] restrictedNodes;
     private int restrictedNodesCount = 0;
+    private int turnRestrictedNodesCount = 0;
 
     private double meanDegree;
     private int periodicUpdatesPercentage = 10;
@@ -72,6 +75,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private double neighborTime;
 
     private CoreNodeContractor nodeContractor;
+    private final TurnCostExtension turnCostExtension;
 
     private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
 
@@ -81,9 +85,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.chProfile = chGraph.getCHProfile();
         this.traversalMode = chProfile.getTraversalMode();
         this.weighting = chProfile.getWeighting();
+        this.flagEncoder = weighting.getFlagEncoder();
         this.restrictionFilter = restrictionFilter;
         prepareWeighting = new PreparationWeighting(weighting);
         this.dir = dir;
+        turnCostExtension = GraphStorageUtils.getGraphExtension(ghStorage, TurnCostExtension.class);
     }
 
     /**
@@ -239,7 +245,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 sortedNodes.clear();
                 int len = prepareGraph.getNodes();
                 for (int node = 0; node < len; node++) {
-                    if (prepareGraph.getLevel(node) != maxLevel)
+                    if (prepareGraph.getLevel(node) < maxLevel)
                         continue;
                     int priority = oldPriorities[node];
                     if (priority != RESTRICTION_PRIORITY) {
@@ -285,9 +291,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 while (!sortedNodes.isEmpty()) {
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
-                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
+                        if (prepareGraph.getLevel(iter.getAdjNode()) >= maxLevel) continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
+                    setTurnRestrictedLevel(polledNode);
                     polledNode = sortedNodes.pollKey();
                 }
                 break;
@@ -300,9 +307,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 while (!sortedNodes.isEmpty()) {
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
-                        if (prepareGraph.getLevel(iter.getAdjNode()) == maxLevel) continue;
+                        if (prepareGraph.getLevel(iter.getAdjNode()) >= maxLevel) continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
+                    setTurnRestrictedLevel(polledNode);
                     polledNode = sortedNodes.pollKey();
                 }
                 break;
@@ -336,7 +344,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 }
 
                 int nn = iter.getAdjNode();
-                if (prepareGraph.getLevel(nn) != maxLevel)
+                if (prepareGraph.getLevel(nn) < maxLevel)
                     continue;
 
                 if (neighborUpdate && rand.nextInt(100) < neighborUpdatePercentage) {
@@ -375,7 +383,21 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 + ", " + Helper.getMemInfo());
     }
 
-
+    private void setTurnRestrictedLevel(int polledNode) {
+        CHEdgeIterator edge1 = vehicleAllExplorer.setBaseNode(polledNode);//FIXME: iterate only over original edges no need to consider shortcuts?
+        if (turnCostExtension != null) {
+            while (edge1.next()) {
+                CHEdgeIterator edge2 = vehicleAllTmpExplorer.setBaseNode(polledNode);
+                while (edge2.next()) {
+                    long turnFlags = turnCostExtension.getTurnCostFlags(edge1.getEdge(), polledNode, edge2.getEdge());
+                    if (flagEncoder.isTurnRestricted(turnFlags)) {
+                        prepareGraph.setLevel(polledNode, maxLevel + 1);
+                        turnRestrictedNodesCount++;
+                    }
+                }
+            }
+        }
+    }
 
     public double getLazyTime() {
         return lazyTime;
