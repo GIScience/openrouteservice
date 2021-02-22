@@ -68,8 +68,6 @@ public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
                 double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
-                if(tmpWeight > isochroneLimit)
-                    continue;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;

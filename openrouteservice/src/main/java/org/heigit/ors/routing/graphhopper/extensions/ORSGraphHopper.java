@@ -755,7 +755,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 				for (CHProfile chProfile : chProfiles) {
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-						calculateCellProperties(chProfile.getWeighting(), encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+						calculateCellProperties(chProfile.getWeighting(), partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 					}
 				}
 			}
@@ -917,12 +917,12 @@ public class ORSGraphHopper extends GraphHopper {
 		contour.calculateContour();
 	}
 
-	private void calculateCellProperties(Weighting weighting, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
+	private void calculateCellProperties(Weighting weighting, EdgeFilter edgeFilter, FlagEncoder flagEncoder, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage){
 		if (eccentricity == null)
 			eccentricity = new Eccentricity(getGraphHopperStorage(), getLocationIndex(), isochroneNodeStorage, cellStorage);
 		if(!eccentricity.loadExisting(weighting)) {
-			eccentricity.calcEccentricities(weighting, flagEncoder);
-			eccentricity.calcBorderNodeDistances(weighting, flagEncoder);
+			eccentricity.calcEccentricities(weighting, edgeFilter, flagEncoder);
+			eccentricity.calcBorderNodeDistances(weighting, edgeFilter, flagEncoder);
 		}
 	}
 

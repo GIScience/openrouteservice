@@ -64,20 +64,23 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
+    private final static DistanceCalc dcFast = new DistancePlaneProjection();
     private final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
     private Envelope searchEnv = new Envelope();
     private GeometryFactory geomFactory;
     private PointItemVisitor visitor = null;
     private TreeSet<Coordinate> treeSet = new TreeSet<>();
+    private Polygon previousIsochronePolygon = null;
     private RouteSearchContext searchcontext;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private int minEdgeLengthLimit = 400;
+    private int minEdgeLengthLimit = 125;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private boolean BUFFERED_OUTPUT = true;
+    private double activeCellApproximationFactor = 0.99;
 
     /*
         Calculates the distance between two coordinates in meters
@@ -115,23 +118,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             sw = new StopWatch();
             sw.start();
         }
+        double maxSpeed = determineMaxSpeed();
 
-        // 1. Find all graph edges for a given cost.
-        double maxSpeed = searchcontext.getEncoder().getMaxSpeed();
-
-        if (searchcontext.getEncoder() instanceof FootFlagEncoder || searchcontext.getEncoder() instanceof HikeFlagEncoder) {
-            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
-            maxSpeed = 4;
-        }
-
-        if (searchcontext.getEncoder() instanceof WheelchairFlagEncoder) {
-            maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
-        }
-
-        double meanSpeed = maxSpeed;
-        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) searchcontext.getEncoder()).getMeanSpeed();
-        }
+        double meanSpeed = determineMeanSpeed(maxSpeed);
 
         double metersPerSecond = maxSpeed / 3.6;
         // only needed for reachfactor property
@@ -141,10 +130,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
         Coordinate loc = parameters.getLocation();
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchcontext.getProperties(), searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
-        edgeFilterSequence.add(edgeFilter);
-        edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, searchcontext.getGraphHopper().getGraphHopperStorage()));
+        EdgeFilterSequence edgeFilterSequence = getEdgeFilterSequence(edgeFilterFactory);
         QueryResult res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
         //Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
         int nonvirtualClosestNode = res.getClosestNode();
@@ -175,7 +161,10 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             double isolimit = parameters.getRanges()[i] - weighting.getMinWeight(res.getQueryDistance());
             if (isolimit <= 0)
                 throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
+
             fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
+
+            Set<Geometry> isochroneGeometries = new HashSet<>();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Find edges: " + sw.stop().getSeconds());
@@ -183,13 +172,18 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 sw.start();
             }
 
-            Set<Geometry> isochroneGeometries = new HashSet<>();
+            fastIsochroneAlgorithm.approximateActiveCells(activeCellApproximationFactor);
 
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Approximate active cells: " + sw.stop().getSeconds());
+                sw = new StopWatch();
+                sw.start();
+            }
             //Add all fully reachable cell geometries
             handleFullyReachableCells(isochroneGeometries, fastIsochroneAlgorithm.getFullyReachableCells());
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Handle fully reachable cells: " + sw.stop().getSeconds());
+                LOGGER.debug("Handle " + fastIsochroneAlgorithm.getFullyReachableCells().size() + " fully reachable cells: " + sw.stop().getSeconds());
             }
 
             GHPoint3D snappedPosition = res.getSnappedPoint();
@@ -229,70 +223,137 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                     break;
             }
 
-            //Build concave hulls of all active cells individually
-            StopWatch swActiveCell = new StopWatch();
-            StopWatch swActiveCellSeparate = new StopWatch();
-            StopWatch swActiveCellBuild = new StopWatch();
+            buildActiveCellsConcaveHulls(fastIsochroneAlgorithm, isochroneGeometries, snappedLoc, snappedPosition, prevCost, isochronesDifference, isoValue, maxRadius, smoothingFactor);
 
-            for (Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell : fastIsochroneAlgorithm.getActiveCellMaps().entrySet()) {
-                swActiveCellSeparate.start();
-                //Find disconnected sub-cells of active cells to avoid geometric problems
-                Set<GHIntObjectHashMap<SPTEntry>> disconnectedActiveCells = separateDisconnected(activeCell.getValue());
-                swActiveCellSeparate.stop();
-                swActiveCellBuild.start();
-                for (GHIntObjectHashMap<SPTEntry> splitMap : disconnectedActiveCells) {
-                    if (splitMap.size() < getMinCellNodesNumber())
-                        continue;
-                    GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<Coordinate>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
-                    createPolyFromPoints(isochroneGeometries, points, maxRadius, smoothingFactor);
-                }
-                swActiveCellBuild.stop();
-            }
+            //Add previous isochrone interval polygon
+            addPreviousIsochronePolygon(isochroneGeometries);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Separate disconnected: " + swActiveCellSeparate.stop().getSeconds());
-                LOGGER.debug("Build active cells: " + swActiveCellBuild.stop().getSeconds());
-                swActiveCell = new StopWatch();
-                swActiveCell.start();
-            }
-
-            //Make a union of all now existing polygons to reduce coordinate list
-            Geometry preprocessedGeometry = UnaryUnionOp.union(isochroneGeometries);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Union of geometries: " + swActiveCell.stop().getSeconds());
-                swActiveCell = new StopWatch();
-                swActiveCell.start();
-            }
-
-            //Build the final isochrone from the outlines of the remaining unified polygons
-            List<Double> contourCoordinates = new ArrayList<>();
-            for (int j = 0; j < preprocessedGeometry.getNumGeometries(); j++) {
-                if (!(preprocessedGeometry.getGeometryN(j) instanceof Polygon)) {
-                    for (Coordinate coordinate : preprocessedGeometry.getGeometryN(j).getCoordinates()) {
-                        contourCoordinates.add(coordinate.y);
-                        contourCoordinates.add(coordinate.x);
-                    }
-                    continue;
-                }
-
-                for (Coordinate coordinate : ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing().getCoordinates()) {
-                    contourCoordinates.add(coordinate.y);
-                    contourCoordinates.add(coordinate.x);
+            if (!isochroneGeometries.isEmpty()) {
+                //Make a union of all now existing polygons to reduce coordinate list
+                Geometry preprocessedGeometry = combineGeometries(isochroneGeometries);
+                StopWatch finalConcaveHullStopWatch = new StopWatch();
+                if (LOGGER.isDebugEnabled())
+                    finalConcaveHullStopWatch.start();
+                List<Double> contourCoordinates = createCoordinateListFromGeometry(preprocessedGeometry);
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), contourCoordinates, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 1);
+                addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + finalConcaveHullStopWatch.stop().getSeconds());
                 }
             }
-            GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), contourCoordinates, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 1);
-            addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
             prevCost = isoValue;
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + swActiveCell.stop().getSeconds());
-            }
         }
 
         if (LOGGER.isDebugEnabled())
             LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
 
         return isochroneMap;
+    }
+
+    private EdgeFilterSequence getEdgeFilterSequence(ORSEdgeFilterFactory edgeFilterFactory) throws Exception {
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+        EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchcontext.getProperties(), searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
+        edgeFilterSequence.add(edgeFilter);
+        edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, searchcontext.getGraphHopper().getGraphHopperStorage()));
+        return edgeFilterSequence;
+    }
+
+    private double determineMeanSpeed(double maxSpeed) {
+        double meanSpeed = maxSpeed;
+        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder) {
+            meanSpeed = ((ORSAbstractFlagEncoder) searchcontext.getEncoder()).getMeanSpeed();
+        }
+        return meanSpeed;
+    }
+
+    private double determineMaxSpeed() {
+        // 1. Find all graph edges for a given cost.
+        double maxSpeed = searchcontext.getEncoder().getMaxSpeed();
+
+        if (searchcontext.getEncoder() instanceof FootFlagEncoder || searchcontext.getEncoder() instanceof HikeFlagEncoder) {
+            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
+            maxSpeed = 4;
+        }
+
+        if (searchcontext.getEncoder() instanceof WheelchairFlagEncoder) {
+            maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
+        }
+        return maxSpeed;
+    }
+
+    private void buildActiveCellsConcaveHulls(FastIsochroneAlgorithm fastIsochroneAlgorithm, Set<Geometry> isochroneGeometries, Coordinate snappedLoc, GHPoint3D snappedPosition, double prevCost, double isochronesDifference, double isoValue, double maxRadius, float smoothingFactor) {
+        //Build concave hulls of all active cells individually
+        StopWatch swActiveCellSeparate = new StopWatch();
+        StopWatch swActiveCellBuild = new StopWatch();
+
+        for (Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell : fastIsochroneAlgorithm.getActiveCellMaps().entrySet()) {
+            swActiveCellSeparate.start();
+            //Find disconnected sub-cells of active cells to avoid geometric problems
+            List<GHIntObjectHashMap<SPTEntry>> disconnectedActiveCells = separateDisconnected(activeCell.getValue());
+
+            swActiveCellSeparate.stop();
+            swActiveCellBuild.start();
+            boolean largestSubCellProcessed = false;
+            for (GHIntObjectHashMap<SPTEntry> splitMap : disconnectedActiveCells) {
+                if (largestSubCellProcessed && splitMap.size() < getMinCellNodesNumber())
+                    continue;
+                largestSubCellProcessed = true;
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<>(), snappedLoc.x, snappedLoc.y, isoValue, prevCost, isochronesDifference, 0.85);
+                createPolyFromPoints(isochroneGeometries, points, maxRadius, smoothingFactor);
+            }
+            swActiveCellBuild.stop();
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Separate disconnected: " + swActiveCellSeparate.stop().getSeconds());
+            LOGGER.debug("Build " + fastIsochroneAlgorithm.getActiveCellMaps().size() + " active cells: " + swActiveCellBuild.stop().getSeconds());
+        }
+    }
+
+    private List<Double> createCoordinateListFromGeometry(Geometry preprocessedGeometry) {
+        List<Double> contourCoordinates = new ArrayList<>();
+        for (int j = 0; j < preprocessedGeometry.getNumGeometries(); j++) {
+            if (!(preprocessedGeometry.getGeometryN(j) instanceof Polygon)) {
+                for (Coordinate coordinate : preprocessedGeometry.getGeometryN(j).getCoordinates()) {
+                    contourCoordinates.add(coordinate.y);
+                    contourCoordinates.add(coordinate.x);
+                }
+                continue;
+            }
+
+            LinearRing ring = (LinearRing) ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
+            for (int i = 0; i < ring.getNumPoints(); i++) {
+                contourCoordinates.add(ring.getCoordinateN(i).y);
+                contourCoordinates.add(ring.getCoordinateN(i).x);
+                if (i < ring.getNumPoints() - 1) {
+                    splitEdgeToDoubles(ring.getPointN(i).getY(),
+                            ring.getPointN(i + 1).getY(),
+                            ring.getPointN(i).getX(),
+                            ring.getPointN(i + 1).getX(),
+                            contourCoordinates,
+                            minEdgeLengthLimit,
+                            maxEdgeLengthLimit);
+                }
+            }
+            contourCoordinates.add(ring.getCoordinateN(0).y);
+            contourCoordinates.add(ring.getCoordinateN(0).x);
+        }
+        return contourCoordinates;
+    }
+
+    private Geometry combineGeometries(Set<Geometry> isochroneGeometries) {
+        StopWatch unaryUnionStopWatch = new StopWatch();
+        if (LOGGER.isDebugEnabled())
+            unaryUnionStopWatch.start();
+        Geometry preprocessedGeometry = UnaryUnionOp.union(isochroneGeometries);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Union of geometries: " + unaryUnionStopWatch.stop().getSeconds());
+        }
+        return preprocessedGeometry;
+    }
+
+    private void addPreviousIsochronePolygon(Set<Geometry> isochroneGeometries) {
+        if (previousIsochronePolygon != null)
+            isochroneGeometries.add(previousIsochronePolygon);
     }
 
     /**
@@ -326,10 +387,10 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return maxLength;
     }
 
-    private void createPolyFromPoints(Set<Geometry> activeCellHulls, GeometryCollection points, double maxRadius, float smoothingFactor) {
+    private void createPolyFromPoints(Set<Geometry> isochroneGeometries, GeometryCollection points, double maxRadius, float smoothingFactor) {
         if (points.isEmpty())
             return;
-        LinearRing ring = null;
+        LinearRing ring;
         Geometry concaveHull;
         try {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
@@ -340,7 +401,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));
                     if (i < ring.getNumPoints() - 1) {
-                        splitEdge(ring.getPointN(i).getY(),
+                        splitEdgeToCoordinates(ring.getPointN(i).getY(),
                                 ring.getPointN(i + 1).getY(),
                                 ring.getPointN(i).getX(),
                                 ring.getPointN(i + 1).getX(),
@@ -351,9 +412,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 }
                 coordinates.add(ring.getCoordinateN(0));
                 concaveHull = geomFactory.createPolygon(coordinates.toArray(new Coordinate[0]));
-                activeCellHulls.add(concaveHull);
-            } else
-                activeCellHulls.add(concaveHull);
+            }
+            if (concaveHull instanceof Polygon && concaveHull.isValid() && !concaveHull.isEmpty())
+                isochroneGeometries.add(concaveHull);
         } catch (Exception e) {
             if (isLogEnabled()) LOGGER.debug(e.getMessage());
         }
@@ -362,7 +423,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double maxRadius, double meanRadius, float smoothingFactor) {
         if (points.isEmpty())
             return;
-        Polygon poly = null;
+        Polygon poly;
         try {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
@@ -377,6 +438,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         } catch (Exception e) {
             return;
         }
+        previousIsochronePolygon = poly;
         isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
@@ -450,158 +512,71 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
         SPTEntry goalEdge;
 
-        DistanceCalc dcFast = new DistancePlaneProjection();
         double bufferSize = 0.0018;
         visitor = new PointItemVisitor(lon, lat, visitorThreshold);
         double detailedZone = isolineCost * detailedGeomFactor;
 
         double defaultSearchWidth = 0.0008;
-        double defaultPointWidth = 0.005;
+        double defaulPointWidth = 0.005;
         double defaultVisitorThreshold = 0.0035;
 
         // make results a bit more precise for regions with low data density
         if (map.size() < 10000) {
             defaultSearchWidth = 0.0008;
-            defaultPointWidth = 0.005;
+            defaulPointWidth = 0.005;
             defaultVisitorThreshold = 0.0025;
         }
 
         boolean useHighDetail = map.size() < 1000 || isochronesDifference < 1000;
 
-        int nodeId;
-        int edgeId;
+        if (useHighDetail) {
+            bufferSize = 0.00018;
+            defaultVisitorThreshold = 0.000005;
+        }
 
         searchWidth = defaultSearchWidth;
         visitorThreshold = defaultVisitorThreshold;
-        pointWidth = defaultPointWidth;
+        pointWidth = defaulPointWidth;
 
         visitor.setThreshold(visitorThreshold);
 
         for (IntObjectCursor<SPTEntry> entry : map) {
             goalEdge = entry.value;
-            edgeId = goalEdge.originalEdge;
-            nodeId = goalEdge.adjNode;
+            int edgeId = goalEdge.originalEdge;
+            int nodeId = goalEdge.adjNode;
 
             if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId)
                 continue;
 
-            EdgeIteratorState iter = graphHopperStorage.getBaseGraph().getEdgeIteratorState(edgeId, nodeId);
-
-            double maxCost = (goalEdge.weight);
-            double minCost = (goalEdge.parent.weight);
+            float maxCost = (float) goalEdge.weight;
+            float minCost = (float) goalEdge.parent.weight;
 
             // ignore all edges that have been considered in the previous step. We do not want to do this for small
             // isochrones as the edge may have more than one range on it in that case
             if (minCost < prevCost && isochronesDifference > 1000)
                 continue;
 
+            EdgeIteratorState iter = graphHopperStorage.getBaseGraph().getEdgeIteratorState(edgeId, nodeId);
+
             // edges that are fully inside of the isochrone
             if (isolineCost >= maxCost) {
                 // This checks for dead end edges, but we need to include those in small areas to provide realistic
                 // results
-                if (goalEdge.edge == -2 && !useHighDetail) {
-                    addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
-                } else {
+                if (goalEdge.edge != -2 || useHighDetail) {
                     double edgeDist = iter.getDistance();
-                    if (((maxCost >= detailedZone) || edgeDist > 300)) {
-                        boolean detailedShape = (edgeDist > 300);
-                        // always use mode=3, since other ones do not provide correct results
-                        PointList pl = iter.fetchWayGeometry(3);
-                        int size = pl.getSize();
-                        if (size > 0) {
-                            double lat0 = pl.getLat(0);
-                            double lon0 = pl.getLon(0);
-                            double lat1;
-                            double lon1;
-
-                            if (detailedShape && BUFFERED_OUTPUT) {
-                                for (int i = 1; i < size; ++i) {
-                                    lat1 = pl.getLat(i);
-                                    lon1 = pl.getLon(i);
-
-                                    addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, true, bufferSize);
-
-                                    lon0 = lon1;
-                                    lat0 = lat1;
-                                }
-                            } else {
-                                for (int i = 1; i < size; ++i) {
-                                    lat1 = pl.getLat(i);
-                                    lon1 = pl.getLon(i);
-
-                                    addPoint(points, qtree, lon0, lat0, true);
-                                    if (i == size - 1)
-                                        addPoint(points, qtree, lon1, lat1, true);
-
-                                    lon0 = lon1;
-                                    lat0 = lat1;
-                                }
-                            }
-                        }
+                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 300)) {
+                        addBufferedWayGeometry(points, qtree, goalEdge, bufferSize, iter, edgeDist);
                     } else {
                         addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
                     }
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-
-                    PointList pl = iter.fetchWayGeometry(3);
-
-                    int size = pl.getSize();
-                    if (size > 0) {
-                        double edgeCost = maxCost - minCost;
-                        double edgeDist = iter.getDistance();
-                        double costPerMeter = edgeCost / edgeDist;
-                        double distPolyline = 0.0;
-
-                        double lat0 = pl.getLat(0);
-                        double lon0 = pl.getLon(0);
-                        double lat1;
-                        double lon1;
-
-                        for (int i = 1; i < size; ++i) {
-                            lat1 = pl.getLat(i);
-                            lon1 = pl.getLon(i);
-
-                            distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
-
-                            if (BUFFERED_OUTPUT) {
-                                double distCost = minCost + distPolyline * costPerMeter;
-                                if (distCost >= isolineCost) {
-                                    double segLength = (1 - (distCost - isolineCost) / edgeCost);
-                                    double lon2 = lon0 + segLength * (lon1 - lon0);
-                                    double lat2 = lat0 + segLength * (lat1 - lat0);
-
-                                    addBufferPoints(points, qtree, lon0, lat0, lon2, lat2, true, false, bufferSize);
-
-                                    break;
-                                } else {
-                                    addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, false, true, bufferSize);
-                                }
-                            } else {
-                                addPoint(points, qtree, lon0, lat0, true);
-                            }
-
-                            lat0 = lat1;
-                            lon0 = lon1;
-                        }
-                    }
+                    addEdgeCaseGeometry(iter, qtree, points, bufferSize, maxCost, minCost, isolineCost);
                 }
             }
         }
-        int mapPointCount = points.size();
-
-        int j = 0;
-        while (j < contourCoordinates.size()) {
-            double latitude = contourCoordinates.get(j);
-            j++;
-            double longitude = contourCoordinates.get(j);
-            j++;
-            addPoint(points, qtree, longitude, latitude, true);
-        }
-//        if (LOGGER.isDebugEnabled())
-//            LOGGER.debug("# of points in map: " + map.size() + ", #p from map " + mapPointCount + ", #p from contours " + (points.size() - mapPointCount));
-
+        addContourCoordinates(contourCoordinates, points, qtree);
         Geometry[] geometries = new Geometry[points.size()];
 
         for (int i = 0; i < points.size(); ++i) {
@@ -612,10 +587,102 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return new GeometryCollection(geometries, geomFactory);
     }
 
+    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points, Quadtree qtree) {
+        int j = 0;
+        while (j < contourCoordinates.size()) {
+            double latitude = contourCoordinates.get(j);
+            j++;
+            double longitude = contourCoordinates.get(j);
+            j++;
+            addPoint(points, qtree, longitude, latitude, true);
+        }
+    }
+
+    private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
+        PointList pl = iter.fetchWayGeometry(3);
+
+        int size = pl.getSize();
+        if (size > 0) {
+            double edgeCost = maxCost - minCost;
+            double edgeDist = iter.getDistance();
+            double costPerMeter = edgeCost / edgeDist;
+            double distPolyline = 0.0;
+
+            double lat0 = pl.getLat(0);
+            double lon0 = pl.getLon(0);
+            double lat1;
+            double lon1;
+
+            for (int i = 1; i < size; ++i) {
+                lat1 = pl.getLat(i);
+                lon1 = pl.getLon(i);
+
+                distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
+
+                if (BUFFERED_OUTPUT) {
+                    double distCost = minCost + distPolyline * costPerMeter;
+                    if (distCost >= isolineCost) {
+                        double segLength = (1 - (distCost - isolineCost) / edgeCost);
+                        double lon2 = lon0 + segLength * (lon1 - lon0);
+                        double lat2 = lat0 + segLength * (lat1 - lat0);
+
+                        addBufferPoints(points, qtree, lon0, lat0, lon2, lat2, true, false, bufferSize);
+
+                        break;
+                    } else {
+                        addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, false, true, bufferSize);
+                    }
+                } else {
+                    addPoint(points, qtree, lon0, lat0, true);
+                }
+
+                lat0 = lat1;
+                lon0 = lon1;
+            }
+        }
+    }
+
+    private void addBufferedWayGeometry(List<Coordinate> points, Quadtree qtree, SPTEntry goalEdge, double bufferSize, EdgeIteratorState iter, double edgeDist) {
+        boolean detailedShape = (edgeDist > 300);
+        // always use mode=3, since other ones do not provide correct results
+        PointList pl = iter.fetchWayGeometry(3);
+        int size = pl.getSize();
+        if (size > 0) {
+            double lat0 = pl.getLat(0);
+            double lon0 = pl.getLon(0);
+            double lat1;
+            double lon1;
+
+            if (detailedShape && BUFFERED_OUTPUT) {
+                for (int i = 1; i < size; ++i) {
+                    lat1 = pl.getLat(i);
+                    lon1 = pl.getLon(i);
+
+                    addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, true, bufferSize);
+
+                    lon0 = lon1;
+                    lat0 = lat1;
+                }
+            } else {
+                for (int i = 1; i < size; ++i) {
+                    lat1 = pl.getLat(i);
+                    lon1 = pl.getLon(i);
+
+                    addPoint(points, qtree, lon0, lat0, true);
+                    if (i == size - 1)
+                        addPoint(points, qtree, lon1, lat1, true);
+
+                    lon0 = lon1;
+                    lat0 = lat1;
+                }
+            }
+        }
+    }
+
     private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
         //printing for debug
-        StringBuilder cellsPrintStatement = new StringBuilder();
-
+//        StringBuilder cellsPrintStatement = new StringBuilder();
+//
 //        if (LOGGER.isDebugEnabled()) {
 //            cellsPrintStatement.append(System.lineSeparator());
 //            cellsPrintStatement.append("{" +
@@ -670,7 +737,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             cArray[cArray.length - 1 - n] = new Coordinate(coordinates.get(2 * n + 1).floatValue(), coordinates.get(2 * n).floatValue());
         }
         Polygon polygon = geomFactory.createPolygon(cArray);
-        if (polygon.isValid()) {
+        if (polygon.isValid() && !polygon.isEmpty()) {
             isochronePolygons.add(polygon);
         } else
             LOGGER.debug("Poly of cell " + cellId + " is invalid at size " + cArray.length);
@@ -693,7 +760,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return statement.toString();
     }
 
-    private void splitEdge(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {
+    private void splitEdgeToCoordinates(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {
         double dist = distance(lat0, lat1, lon0, lon1);
 
         if (dist > minlim && dist < maxlim) {
@@ -704,8 +771,20 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private Set<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
-        Set<GHIntObjectHashMap<SPTEntry>> disconnectedCells = new HashSet<>();
+    private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates, double minlim, double maxlim) {
+        double dist = distance(lat0, lat1, lon0, lon1);
+
+        if (dist > minlim && dist < maxlim) {
+            int n = (int) Math.ceil(dist / minlim);
+            for (int i = 1; i < n; i++) {
+                coordinates.add(lat0 + i * (lat1 - lat0) / n);
+                coordinates.add(lon0 + i * (lon1 - lon0) / n);
+            }
+        }
+    }
+
+    private List<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
+        List<GHIntObjectHashMap<SPTEntry>> disconnectedCells = new ArrayList<>();
         EdgeExplorer edgeExplorer = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph().createEdgeExplorer();
         Queue<Integer> queue = new ArrayDeque<>();
         IntHashSet visitedNodes = new IntHashSet(map.size());
@@ -733,6 +812,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             }
             disconnectedCells.add(connectedCell);
         }
+        Collections.sort(disconnectedCells, (a1, a2) -> a2.size() - a1.size());
         return disconnectedCells;
     }
 }
