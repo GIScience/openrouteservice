@@ -7,8 +7,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @EndPointAnnotation(name = "centrality")
 @VersionAnnotation(version = "v2")
@@ -34,17 +36,6 @@ public class ParamsTest extends ServiceTest {
         JSONArray tooFewCoordsBox = new JSONArray();
         tooFewCoordsBox.put(lowerLeft);
         addParameter("invalidBox", tooFewCoordsBox);
-
-
-        // set up nodes to exclude
-        JSONArray theodorHeussBridgeNodes = new JSONArray();
-        theodorHeussBridgeNodes.put(6462);
-        theodorHeussBridgeNodes.put(11546);
-        theodorHeussBridgeNodes.put(4967);
-        theodorHeussBridgeNodes.put(7493);
-        theodorHeussBridgeNodes.put(6463);
-
-        addParameter("theodorHeussBridge", theodorHeussBridgeNodes);
 
         // set up invalid/non-present Node
         JSONArray nonPresentNodes = new JSONArray();
@@ -87,20 +78,25 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("heidelberg"));
 
         // check that nodes to exclude are present in the response
-        given()
+        List<Integer> nodeIds =  given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .when()
-                .log().ifValidationFails()
                 .post(getEndPointPath()+"/{profile}/json")
-                .then()
-                .log().ifValidationFails()
-                .body("nodeIds.containsAll([6462, 11546, 4967, 7493, 6463])", is(true))
-                .statusCode(200);
+                .jsonPath().getList("nodeIds");
 
-        body.put("excludeNodes", getParameter("theodorHeussBridge"));
+        int node0 = nodeIds.get(0);
+        int node1 = nodeIds.get(1);
+        int node2 = nodeIds.get(2);
+        int node3 = nodeIds.get(3);
+        JSONArray excludeNodes = new JSONArray();
+        excludeNodes.put(node0);
+        excludeNodes.put(node1);
+        excludeNodes.put(node2);
+        excludeNodes.put(node3);
+
+        body.put("excludeNodes", excludeNodes);
         //check that they are not present anymore if excluded
         given()
                 .header("Accept", "application/json")
@@ -112,11 +108,10 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("nodeIds.contains(6462)", is(false))
-                .body("nodeIds.contains(11546)", is(false))
-                .body("nodeIds.contains(4967)", is(false))
-                .body("nodeIds.contains(7493)", is(false))
-                .body("nodeIds.contains(6463)", is(false))
+                .body("nodeIds", not(contains(node0)))
+                .body("nodeIds", not(contains(node1)))
+                .body("nodeIds", not(contains(node2)))
+                .body("nodeIds", not(contains(node3)))
                 .statusCode(200);
     }
 
