@@ -21,6 +21,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -622,6 +625,14 @@ public class RoutingProfileManager {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 
         return rp.computeMatrix(req);
+    }
+
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeCentrality(req);
     }
 
     public void createRunFile() {

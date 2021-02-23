@@ -17,12 +17,13 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.profiles.EncodedValue;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -33,6 +34,10 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
+import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
@@ -658,6 +663,52 @@ public class RoutingProfile {
         }
 
         return mtxResult;
+    }
+
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        CentralityResult res = new CentralityResult();
+
+        GraphHopper gh = getGraphhopper();
+        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
+
+        HintsMap hintsMap = new HintsMap();
+        int weightingMethod = WeightingMethod.FASTEST;
+        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+
+        // filter graph for nodes in Bounding Box
+        LocationIndex index = gh.getLocationIndex();
+        NodeAccess nodeAccess = graph.getNodeAccess();
+        BBox bbox = req.getBoundingBox();
+        List<Integer> excludeNodes = req.getExcludeNodes();
+
+        ArrayList<Integer> nodesInBBox = new ArrayList<>();
+        index.query(bbox, new LocationIndex.Visitor() {
+            @Override
+            public void onNode(int nodeId) {
+                if (!excludeNodes.contains(nodeId)) {
+                    if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+                        nodesInBBox.add(nodeId);
+                    }
+                }
+            }
+        });
+
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
+        alg.init(graph, weighting);
+
+        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
+
+        // transform node ids to coordinates
+        for (int v : nodesInBBox) {
+            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
+            res.addCentralityScore(coord, betweenness.get(v));
+            res.addNode(v, coord);
+        }
+
+        return res;
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
