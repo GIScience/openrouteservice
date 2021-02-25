@@ -50,6 +50,9 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
         <maven.compiler.target>1.8</maven.compiler.target>
         <geotools.version>19.1</geotools.version>
+        <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
+        <sonar.organization>giscience</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <scm>
         <url>git@github.com:GIScience/openrouteservice.git</url>
