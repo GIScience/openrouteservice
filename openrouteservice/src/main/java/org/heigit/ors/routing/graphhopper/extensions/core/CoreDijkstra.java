@@ -103,7 +103,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // core entry point, do not relax its edges
             fromPriorityQueueCore.add(currFrom);
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
-            if (isTurnRestrictedNode(currFrom.adjNode))
+            if (considerTurnRestrictions(currFrom.adjNode))
                 initBestWeightMapEntryList(bestWeightMapFromCore, currFrom.adjNode).add(currFrom);
         }
         else {
@@ -126,7 +126,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // core entry point, do not relax its edges
             toPriorityQueueCore.add(currTo);
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
-            if (isTurnRestrictedNode(currTo.adjNode))
+            if (considerTurnRestrictions(currTo.adjNode))
                 initBestWeightMapEntryList(bestWeightMapToCore, currTo.adjNode).add(currTo);
         }
         else {
@@ -231,7 +231,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             if (Double.isInfinite(tmpWeight))
                 continue;
 
-            if (bestWeightMapCore!=null && isTurnRestrictedNode(iter.getAdjNode())) {
+            if (inCore && considerTurnRestrictions(iter.getAdjNode())) {
                 List<SPTEntry> entries = bestWeightMapCore.get(traversalId);
                 SPTEntry ee = null;
 

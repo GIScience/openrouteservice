@@ -636,18 +636,17 @@ public class ORSGraphHopper extends GraphHopper {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
-		/* Maximum Speed Filter */
+		/* Maximum Speed Filter & Turn Restrictions */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
-			}
-			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-				coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+			String[] encoders = {FlagEncoderNames.CAR_ORS, FlagEncoderNames.HEAVYVEHICLE};
+			for (String encoderName: encoders) {
+				if (encodingManager.hasEncoder(encoderName)) {
+					FlagEncoder flagEncoder = getEncodingManager().getEncoder(encoderName);
+					coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+					if (flagEncoder.supports(TurnWeighting.class))
+						coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+					break;
+				}
 			}
 		}
 

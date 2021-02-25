@@ -198,12 +198,15 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     boolean isTurnRestrictedNode(int node) {
+        return chGraph.getLevel(node) == turnRestrictedNodeLevel;
+    }
+
+    boolean considerTurnRestrictions(int node) {
         if (!hasTurnWeighting)
             return false;
         if (approximate)
-            return chGraph.getLevel(node) == turnRestrictedNodeLevel;
-        else
-            return isCoreNode(node);
+            return isTurnRestrictedNode(node);
+        return true;
     }
 
 }
