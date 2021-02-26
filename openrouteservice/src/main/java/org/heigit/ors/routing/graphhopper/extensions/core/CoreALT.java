@@ -16,7 +16,6 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
@@ -65,8 +64,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     double approximatorOffset;
 
 
-    public CoreALT(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+    public CoreALT(Graph graph, Weighting weighting) {
+        super(graph, weighting);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
         defaultApprox.setDistanceCalc(Helper.DIST_PLANE);
         setApproximation(defaultApprox);
@@ -269,7 +268,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (!accept(iter, currEdge.edge))
                 continue;
 
-            int traversalId = traversalMode.createTraversalId(iter, reverse);
+            int traversalId = iter.getAdjNode();
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
             double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
             if (Double.isInfinite(tmpWeight))
@@ -331,7 +330,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             if (!accept(iter, currEdge.edge))
                 continue;
 
-            int traversalId = traversalMode.createTraversalId(iter, reverse);
+            int traversalId = iter.getAdjNode();
 
             // TODO performance: check if the node is already existent in the opposite direction
             // then we could avoid the approximation as we already know the exact complete path!

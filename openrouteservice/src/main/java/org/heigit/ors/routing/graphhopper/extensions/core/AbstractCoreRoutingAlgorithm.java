@@ -49,8 +49,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected final boolean hasTurnWeighting;
     protected boolean approximate = false;
 
-    public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, new PreparationWeighting(weighting), tMode);
+    public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
+        super(graph, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
 
         if (weighting instanceof TurnWeighting) {
             turnWeighting = (TurnWeighting) weighting;

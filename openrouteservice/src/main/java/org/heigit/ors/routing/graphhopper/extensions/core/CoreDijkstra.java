@@ -16,7 +16,6 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
@@ -53,8 +52,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     SPTEntry currFrom;
     SPTEntry currTo;
 
-    public CoreDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
-        super(graph, weighting, tMode);
+    public CoreDijkstra(Graph graph, Weighting weighting) {
+        super(graph, weighting);
     }
 
     @Override
@@ -224,7 +223,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             if (!accept(iter, currEdge.edge))
                 continue;
 
-            int traversalId = traversalMode.createTraversalId(iter, reverse);
+            int traversalId = iter.getAdjNode();
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
             double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
             if (Double.isInfinite(tmpWeight))

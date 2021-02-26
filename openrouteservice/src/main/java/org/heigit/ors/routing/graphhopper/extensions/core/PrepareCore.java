@@ -536,11 +536,11 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         String algoStr = ASTAR_BI;
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, opts.getWeighting(), traversalMode);
+            CoreALT tmpAlgo = new CoreALT(graph, opts.getWeighting());
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
-            algo = new CoreDijkstra(graph, opts.getWeighting(), traversalMode);
+            algo = new CoreDijkstra(graph, opts.getWeighting());
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
                     + " not supported for Contraction Hierarchies. Try with ch.disable=true");
