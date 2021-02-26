@@ -40,8 +40,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountTo1;
     int visitedCountFrom2;
     int visitedCountTo2;
-    int visitedEdgesALTCount;
-    protected final TraversalMode coreTraversalMode = TraversalMode.EDGE_BASED;
 
     private CoreDijkstraFilter additionalCoreEdgeFilter;
 
@@ -135,10 +133,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return bestPath;
     }
 
-    protected void setDoUpdateBestPath(boolean b) {
-        doUpdateBestPath = b;
-    }
-
     protected void runAlgo() {
         // PHASE 1: run modified CH outside of core to find entry points
         inCore = false;
@@ -191,6 +185,13 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     protected SPTEntry createSPTEntry(int node, double weight) {
         return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
+    }
+
+    void updateBestPath(SPTEntry entryCurrent, SPTEntry entryOther, double newWeight, boolean reverse) {
+        bestPath.setSwitchToFrom(reverse);
+        bestPath.setSPTEntry(entryCurrent);
+        bestPath.setWeight(newWeight);
+        bestPath.setSPTEntryTo(entryOther);
     }
 
     boolean isCoreNode(int node) {

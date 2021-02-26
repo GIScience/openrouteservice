@@ -218,8 +218,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         return currFrom.weight + currTo.weight >= bestPath.getWeight();
     }
 
-    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,IntObjectMap<List<SPTEntry>> bestWeightMapCore,
-                   EdgeExplorer explorer, boolean reverse) {
+    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,IntObjectMap<List<SPTEntry>> bestWeightMapCore, EdgeExplorer explorer, boolean reverse) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
@@ -321,13 +320,6 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 updateBestPath(entryCurrent, entryOther, newWeight, reverse);
             }
         }
-    }
-
-    void updateBestPath(SPTEntry entryCurrent, SPTEntry entryOther, double newWeight, boolean reverse) {
-        bestPath.setSwitchToFrom(reverse);
-        bestPath.setSPTEntry(entryCurrent);
-        bestPath.setWeight(newWeight);
-        bestPath.setSPTEntryTo(entryOther);
     }
 
     @Override
