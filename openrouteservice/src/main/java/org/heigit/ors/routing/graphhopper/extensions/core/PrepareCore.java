@@ -533,10 +533,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         AbstractCoreRoutingAlgorithm algo;
 
         // TODO: Proper way of switching between Dijkstra and AStar in core
-        String algoStr = DIJKSTRA_BI;//ASTAR_BI;
+        String algoStr = ASTAR_BI;
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, new PreparationWeighting(opts.getWeighting()), traversalMode);
+            CoreALT tmpAlgo = new CoreALT(graph, opts.getWeighting(), traversalMode);
             tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {

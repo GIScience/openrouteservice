@@ -108,7 +108,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         }
         else {
             bestWeightMapOtherCH = bestWeightMapToCH;
-            fillEdgesCore(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, null, outEdgeExplorer, false);
+            fillEdges(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, null, outEdgeExplorer, false);
             visitedCountFrom1++;
         }
 
@@ -131,7 +131,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         }
         else {
             bestWeightMapOtherCH = bestWeightMapFromCH;
-            fillEdgesCore(currTo, toPriorityQueueCH, bestWeightMapToCH, null, inEdgeExplorer, true);
+            fillEdges(currTo, toPriorityQueueCH, bestWeightMapToCH, null, inEdgeExplorer, true);
             visitedCountTo1++;
         }
 
@@ -156,7 +156,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         bestWeightMapOtherCH = bestWeightMapToCH;
         bestWeightMapOtherCore = bestWeightMapToCore;
-        fillEdgesCore(currFrom, fromPriorityQueueCore, bestWeightMapFromCH, bestWeightMapFromCore, outEdgeExplorer, false);
+        fillEdges(currFrom, fromPriorityQueueCore, bestWeightMapFromCH, bestWeightMapFromCore, outEdgeExplorer, false);
         visitedCountFrom2++;
 
         return true;
@@ -170,7 +170,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         bestWeightMapOtherCH = bestWeightMapFromCH;
         bestWeightMapOtherCore = bestWeightMapFromCore;
-        fillEdgesCore(currTo, toPriorityQueueCore, bestWeightMapToCH, bestWeightMapToCore, inEdgeExplorer, true);
+        fillEdges(currTo, toPriorityQueueCore, bestWeightMapToCH, bestWeightMapToCore, inEdgeExplorer, true);
         visitedCountTo2++;
 
         return true;
@@ -218,7 +218,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         return currFrom.weight + currTo.weight >= bestPath.getWeight();
     }
 
-    void fillEdgesCore(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap,IntObjectMap<List<SPTEntry>> bestWeightMapCore, EdgeExplorer explorer, boolean reverse) {
+    void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap, IntObjectMap<List<SPTEntry>> bestWeightMapCore, EdgeExplorer explorer, boolean reverse) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
