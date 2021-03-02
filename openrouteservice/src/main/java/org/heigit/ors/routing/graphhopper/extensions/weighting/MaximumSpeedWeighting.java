@@ -97,7 +97,7 @@ public class MaximumSpeedWeighting extends AbstractAdjustedWeighting {
 
     @Override
     public String getName() {
-        return "maximum_speed|" + superWeighting.getName();
+        return "maximum_speed";
     }
 
 }
