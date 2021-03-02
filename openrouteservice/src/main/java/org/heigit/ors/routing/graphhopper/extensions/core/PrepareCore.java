@@ -226,8 +226,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // according to paper "Polynomial-time Construction of Contraction Hierarchies for Multi-criteria Objectives" by Funke and Storandt
         // we don't need to wait for all nodes to be contracted
 
-        //Avoid contrtacting core nodes  +  the additional percentage
-        long nodesToAvoidContract = Math.round((100 - nodesContractedPercentage) / 100 * (sortedNodes.getSize() - restrictedNodesCount))  + restrictedNodesCount;
+        //Avoid contracting core nodes  +  the additional percentage
+        long nodesToAvoidContract = restrictedNodesCount + Math.round((sortedNodes.getSize() - restrictedNodesCount) * ((100 - nodesContractedPercentage) / 100));
         StopWatch lazySW = new StopWatch();
 
         // Recompute priority of uncontracted neighbors.
@@ -283,22 +283,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
             counter++;
             int polledNode = sortedNodes.pollKey();
-
-            //We have worked through all nodes that are not associated with restrictions. Now we can stop the contraction.
-            if (oldPriorities[polledNode] == RESTRICTION_PRIORITY) {
-                //Set the number of core nodes in the storage for use in other places
-                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
-                while (!sortedNodes.isEmpty()) {
-                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
-                    while (iter.next()) {
-                        if (prepareGraph.getLevel(iter.getAdjNode()) >= maxLevel) continue;
-                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
-                    }
-                    setTurnRestrictedLevel(polledNode);
-                    polledNode = sortedNodes.pollKey();
-                }
-                break;
-            }
 
             if (sortedNodes.getSize() < nodesToAvoidContract) {
                 // skipped nodes are already set to maxLevel
