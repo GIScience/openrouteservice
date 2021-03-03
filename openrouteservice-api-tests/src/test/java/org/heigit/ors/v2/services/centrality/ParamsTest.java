@@ -22,20 +22,20 @@ public class ParamsTest extends ServiceTest {
         JSONArray upperRight = new JSONArray();
         JSONArray tooLargeCoordinate = new JSONArray();
         JSONArray tooSmallCoordinate = new JSONArray();
-        lowerLeft.put(8.655705);
-        lowerLeft.put(49.395446);
-        upperRight.put(8.718184);
-        upperRight.put(49.434366);
-        tooLargeCoordinate.put(49.395446);
+        lowerLeft.put(8.677139);
+        lowerLeft.put(49.412872);
+        upperRight.put(8.690443);
+        upperRight.put(49.421080);
+        tooLargeCoordinate.put(8.677139);
         tooLargeCoordinate.put(49.395446);
         tooLargeCoordinate.put(49.395446);
         tooSmallCoordinate.put(8.65538);
 
-        // set up valid bounding box encompassing main Heidelberg
-        JSONArray heidelbergBBox = new JSONArray();
-        heidelbergBBox.put(lowerLeft);
-        heidelbergBBox.put(upperRight);
-        addParameter("heidelbergBox", heidelbergBBox);
+        // set up valid bounding box encompassing Neuenheim
+        JSONArray neuenheimBBox = new JSONArray();
+        neuenheimBBox.put(lowerLeft);
+        neuenheimBBox.put(upperRight);
+        addParameter("neuenheimBox", neuenheimBBox);
 
         // set up invalid bounding box containing too few coordinates
         JSONArray tooSmallBox = new JSONArray();
@@ -77,7 +77,7 @@ public class ParamsTest extends ServiceTest {
     @Test
     public void testBasicFunctionality() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelbergBox"));
+        body.put("bbox", getParameter("neuenheimBox"));
 
         given()
                 .header("Accept", "application/json")
@@ -98,7 +98,7 @@ public class ParamsTest extends ServiceTest {
     @Test
     public void testExcludeNodes() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelbergBox"));
+        body.put("bbox", getParameter("neuenheimBox"));
 
         // check that nodes to exclude are present in the response
         List<Integer> nodeIds =  given()
@@ -143,7 +143,7 @@ public class ParamsTest extends ServiceTest {
     @Test
     public void testInvalidExcludeNodes() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelbergBox"));
+        body.put("bbox", getParameter("neuenheimBox"));
         body.put("excludeNodes", getParameter("invalidNodes"));
 
         given()
