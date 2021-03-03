@@ -77,7 +77,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final String PARAM_KEY_PATTERNS_15MINUTES = "pattern_15min";
     private static final String PARAM_KEY_REFERENCE_PATTERN = "ref_pattern";
     private static final String MATCHING_RADIUS = "radius";
-    private static boolean enabled = false;
+    private static boolean enabled = true;
     private static int matchingRadius = 200;
     String streetsFile = "";
     String patterns15MinutesFile = "";
