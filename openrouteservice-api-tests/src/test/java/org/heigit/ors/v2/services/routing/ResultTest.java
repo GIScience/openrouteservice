@@ -1258,7 +1258,6 @@ public class ResultTest extends ServiceTest {
 
         //Test profile-specific maximum speed lower bound
         body.put("maximum_speed", 75);
-        body.put("optimized", false); //FIXME: remove once turn restrictions are supported by CALT
 
         given()
                 .header("Accept", "application/json")
