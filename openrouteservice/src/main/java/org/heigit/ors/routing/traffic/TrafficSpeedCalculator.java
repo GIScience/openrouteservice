@@ -40,7 +40,9 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
         double speed = reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
         if (time != -1) {
             int edgeId = EdgeKeys.getOriginalEdge(edge);
-            double trafficSpeed = trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
+            double trafficSpeed = reverse ?
+                    trafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
+                    :trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
             if (trafficSpeed != -1) {
                 //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
                 if (isVehicle) {
