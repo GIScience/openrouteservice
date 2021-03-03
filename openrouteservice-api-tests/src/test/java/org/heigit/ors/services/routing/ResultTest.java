@@ -956,12 +956,13 @@ public class ResultTest extends ServiceTest {
                 .param("instructions", "true")
                 .param("preference", getParameter("preference"))
                 .param("profile", "driving-car")
+                .param("options", "{\"avoid_features\":\"fords\"}")
                 .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1209.6f))
+                .body("routes[0].summary.distance", is(2968.5f))
                 .statusCode(200);
     }
 
@@ -972,6 +973,7 @@ public class ResultTest extends ServiceTest {
                 .param("instructions", "true")
                 .param("preference", getParameter("preference"))
                 .param("profile", "driving-car")
+                .param("options","{\"avoid_features\":\"fords\"}")
                 .when().log().ifValidationFails()
                 .get(getEndPointName())
                 .then()
