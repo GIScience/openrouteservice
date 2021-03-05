@@ -1269,7 +1269,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(2148.5f))
+                .body("routes[0].summary.duration", is(1996.2f))
                 .statusCode(200);
     }
 
