@@ -47,6 +47,8 @@ public class CentralityRequestHandler extends GenericHandler {
 
         coreRequest.setBoundingBox(convertBBox(request.getBoundingBox()));
 
+        coreRequest.setMode(request.getMode().toString());
+
         if (request.hasExcludeNodes()) {
             coreRequest.setExcludeNodes(request.getExcludeNodes());
         }

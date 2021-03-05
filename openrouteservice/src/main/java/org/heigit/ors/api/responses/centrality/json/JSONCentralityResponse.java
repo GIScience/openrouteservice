@@ -9,7 +9,7 @@ import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.FormatUtility;
 
-import java.util.HashMap;
+import java.util.Map;
 
 @ApiModel(description = "The Centrality Response contains one matrix for each specified `metrics` value.")
 public class JSONCentralityResponse extends CentralityResponse {
@@ -28,8 +28,8 @@ public class JSONCentralityResponse extends CentralityResponse {
 
     public JSONCentralityResponse(CentralityResult centralityResult, CentralityRequest request) throws StatusCodeException {
         super(centralityResult);
-        HashMap<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
-        HashMap<Coordinate, Integer> nodes = centralityResult.getNodes();
+        Map<Coordinate, Double> centralityScores = centralityResult.getNodeCentralityScores();
+        Map<Coordinate, Integer> nodes = centralityResult.getNodes();
         int length = centralityScores.size();
 
         this.locations = new Double[length][2];
@@ -38,7 +38,7 @@ public class JSONCentralityResponse extends CentralityResponse {
         this.nodeIds = new Integer[length];
         int current = 0;
 
-        for (HashMap.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
+        for (Map.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
             Coordinate location = centralityScore.getKey();
             Double score = centralityScore.getValue();
             Integer node = nodes.get(location);

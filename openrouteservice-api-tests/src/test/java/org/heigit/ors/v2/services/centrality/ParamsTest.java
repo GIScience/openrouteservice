@@ -227,4 +227,49 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
+
+    @Test
+    public void testEdgeBasedCentrality() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "edges");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("any { it.key == 'locations' }", is(false))
+                .body("any {it.key == 'edges' }", is(true))
+                .body("any { it.key == 'centralityScores' }", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testWrongMode() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "wrongMode");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.message", containsString("mode"))
+                .statusCode(400);
+
+    }
 }
+
