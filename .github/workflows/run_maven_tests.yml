@@ -35,17 +35,13 @@ jobs:
     - name: Copy app.config for API test
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
     - name: Test, build, run API tests
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      if: env.SONAR_TOKEN == null
       run: mvn -B -f openrouteservice/pom.xml verify
-    - name: Test, build, run API tests, run SonarLint checks
+    - name: run SonarLint checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       if: env.SONAR_TOKEN != null
-      run: mvn -B -f openrouteservice/pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      run: mvn -B -f openrouteservice/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
     - name: Rocket.Chat Notification
       uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
       env:
