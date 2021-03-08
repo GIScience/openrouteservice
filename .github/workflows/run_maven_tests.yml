@@ -38,6 +38,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      if: env.SONAR_TOKEN != null
       run: mvn -B -f openrouteservice/pom.xml verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
     - name: Rocket.Chat Notification
       uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
