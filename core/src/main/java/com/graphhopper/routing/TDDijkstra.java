@@ -34,7 +34,6 @@ import com.graphhopper.util.Parameters;
  * @author Andrzej Oles
  */
 public class TDDijkstra extends Dijkstra {
-    private boolean reverse = false;
 
     public TDDijkstra(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
@@ -45,8 +44,8 @@ public class TDDijkstra extends Dijkstra {
     @Override
     public Path calcPath(int from, int to, long at) {
         checkAlreadyRun();
-        int source = reverse ? to : from;
-        int target = reverse ? from : to;
+        int source = reverseDirection ? to : from;
+        int target = reverseDirection ? from : to;
         this.to = target;
         currEdge = new SPTEntry(source, 0);
         currEdge.time = at;
@@ -59,7 +58,7 @@ public class TDDijkstra extends Dijkstra {
 
     @Override
     protected void runAlgo() {
-        EdgeExplorer explorer = reverse ? inEdgeExplorer : outEdgeExplorer;
+        EdgeExplorer explorer = reverseDirection ? inEdgeExplorer : outEdgeExplorer;
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -71,11 +70,11 @@ public class TDDijkstra extends Dijkstra {
                 if (!accept(iter, currEdge.edge))
                     continue;
 
-                double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.edge, currEdge.time) + currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.edge, currEdge.time) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight)) {
                     continue;
                 }
-                int traversalId = traversalMode.createTraversalId(iter, reverse);
+                int traversalId = traversalMode.createTraversalId(iter, reverseDirection);
 
                 SPTEntry nEdge = fromMap.get(traversalId);
                 if (nEdge == null) {
@@ -89,7 +88,7 @@ public class TDDijkstra extends Dijkstra {
                     continue;
 
                 nEdge.parent = currEdge;
-                nEdge.time = (reverse ? -1 : 1) * weighting.calcMillis(iter, reverse, currEdge.edge, currEdge.time) + currEdge.time;
+                nEdge.time = (reverseDirection ? -1 : 1) * weighting.calcMillis(iter, reverseDirection, currEdge.edge, currEdge.time) + currEdge.time;
                 fromHeap.add(nEdge);
 
                 updateBestPath(iter, nEdge, traversalId);
@@ -109,7 +108,7 @@ public class TDDijkstra extends Dijkstra {
         if (currEdge == null || !finished())
             return createEmptyPath();
 
-        return new PathTD(graph, weighting).setReverse(reverse).
+        return new PathTD(graph, weighting).setReverse(reverseDirection).
                 setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 
@@ -119,6 +118,6 @@ public class TDDijkstra extends Dijkstra {
     }
 
     public void reverse() {
-        reverse = !reverse;
+        reverseDirection = !reverseDirection;
     }
 }

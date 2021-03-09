@@ -65,6 +65,7 @@ public class Path {
     protected boolean reverseOrder = true;
     protected long time;
     protected GHLongArrayList times;
+    private boolean reverse = false;
     /**
      * Shortest path tree entry
      */
@@ -87,6 +88,11 @@ public class Path {
         this.encoder = weighting.getFlagEncoder();
         this.edgeIds = new GHIntArrayList();
         this.times = new GHLongArrayList();
+    }
+
+    public Path(Graph graph, Weighting weighting, boolean reverse) {
+        this(graph, weighting);
+        this.reverse = reverse;
     }
 
     /**
@@ -221,7 +227,7 @@ public class Path {
             // the reverse search needs the next edge
             nextEdgeValid = EdgeIterator.Edge.isValid(currEdge.parent.edge);
             nextEdge = nextEdgeValid ? currEdge.parent.edge : EdgeIterator.NO_EDGE;
-            processEdge(currEdge.edge, currEdge.adjNode, nextEdge);
+            processEdge(currEdge.edge, currEdge.adjNode, nextEdge, reverse);
             currEdge = currEdge.parent;
         }
 
@@ -254,11 +260,15 @@ public class Path {
      *
      * @param prevEdgeId the edge that comes before edgeId: --prevEdgeId-x-edgeId-->adjNode
      */
-    protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
+    protected void processEdge(int edgeId, int adjNode, int prevEdgeId, boolean reverse) {
         EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
         distance += iter.getDistance();
-        addTime(weighting.calcMillis(iter, false, prevEdgeId));
+        addTime(weighting.calcMillis(iter, reverse, prevEdgeId));
         addEdge(edgeId);
+    }
+
+    protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
+        processEdge(edgeId, adjNode, prevEdgeId, false);
     }
 
     /**

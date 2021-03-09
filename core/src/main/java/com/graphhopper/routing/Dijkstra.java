@@ -78,7 +78,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = outEdgeExplorer;
+        EdgeExplorer explorer = reverseDirection ? inEdgeExplorer : outEdgeExplorer;
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -92,7 +92,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
 
                 // ORS-GH MOD START
                 // REMOVED: causes test failure, investigate
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.edge) + currEdge.weight;
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
 //                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 // ORS-GH MOD END
@@ -146,7 +146,7 @@ public class Dijkstra extends AbstractRoutingAlgorithm {
         if (currEdge == null || !finished())
             return createEmptyPath();
 
-        return new Path(graph, weighting).
+        return new Path(graph, weighting, reverseDirection).
                 setWeight(currEdge.weight).setSPTEntry(currEdge).extract();
     }
 
