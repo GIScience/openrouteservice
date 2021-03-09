@@ -7,63 +7,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CentralityResult {
-    private Map<Coordinate, Double> nodeCentralityScores;
-    private Map<Pair<Coordinate, Coordinate>, Double> edgeCentralityScores;
-    private Map<Coordinate, Integer> nodes;
-    private Map<Pair<Coordinate, Coordinate>, Pair<Integer, Integer>> edges;
+    private Map<Integer, Coordinate> locations;
+    private Map<Integer, Double> nodeCentralityScores;
+    private Map<Pair<Integer, Integer>, Double> edgeCentralityScores;
 
 
     public CentralityResult() {
-        this.nodeCentralityScores = new HashMap<>();
-        this.nodes = new HashMap<>();
+        this.locations = new HashMap<>();
+        this.nodeCentralityScores = null;
+        this.edgeCentralityScores = null;
     }
 
-    public CentralityResult(Map<Coordinate, Double> nodeCentralityScores) {
-        this.setNodeCentralityScores(nodeCentralityScores);
-    }
-
-    public Map<Coordinate, Double> getNodeCentralityScores() {
+    public Map<Integer, Double> getNodeCentralityScores() {
         return nodeCentralityScores;
     }
 
-    public void setNodeCentralityScores(Map<Coordinate, Double> nodeCentralityScores) {
+    public void setNodeCentralityScores(Map<Integer, Double> nodeCentralityScores) {
         this.nodeCentralityScores = nodeCentralityScores;
+    }
 
-    } public Map<Pair<Coordinate, Coordinate>, Double> getEdgeCentralityScores() {
+    public boolean hasNodeCentralityScores() {
+        return this.nodeCentralityScores != null;
+    }
+
+    public Map<Pair<Integer, Integer>, Double> getEdgeCentralityScores() {
         return edgeCentralityScores;
     }
 
-    public void setEdgeCentralityScores(Map<Pair<Coordinate, Coordinate>, Double> edgeCentralityScores) {
+    public void setEdgeCentralityScores(Map<Pair<Integer, Integer>, Double> edgeCentralityScores) {
         this.edgeCentralityScores = edgeCentralityScores;
     }
 
-    public Map<Pair<Coordinate, Coordinate>, Pair<Integer, Integer>> getEdges() {
-        return edges;
+    public boolean hasEdgeCentralityScores() {
+        return this.edgeCentralityScores != null;
     }
 
-    public void setEdges(Map<Pair<Coordinate, Coordinate>, Pair<Integer, Integer>> edges) {
-        this.edges = edges;
+    public Map<Integer, Coordinate> getLocations() {return locations; }
+
+    public void setLocations(Map<Integer, Coordinate> locations) {
+        this.locations = locations;
     }
 
-    public Map<Coordinate, Integer> getNodes() {return nodes; }
-
-    public void setNodes(Map<Coordinate, Integer> nodes) {
-        this.nodes = nodes;
+    public void addLocation(Integer node, Coordinate coord) {
+        this.locations.put(node, coord);
     }
 
-    public void addNodeCentralityScore(Coordinate coord, Double score) {
-        this.nodeCentralityScores.put(coord, score);
-    }
-
-    public void addEdgeCentralityScore(Pair<Coordinate, Coordinate> coord, Double score) {
-        this.edgeCentralityScores.put(coord, score);
-    }
-
-    public void addNode(Integer node, Coordinate coord) {
-        this.nodes.put(coord, node);
-    }
-
-    public void addEdge(Pair<Integer, Integer> node, Pair<Coordinate, Coordinate> coord) {
-        this.edges.put(coord, node);
-    }
 }

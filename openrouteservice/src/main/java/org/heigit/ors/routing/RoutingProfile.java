@@ -692,29 +692,19 @@ public class RoutingProfile {
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting);
 
-        if (req.getMode().equals("nodes")) {
-            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
-
-            // transform node ids to coordinates
-            for (int v : nodesInBBox) {
-                Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-                res.addNodeCentralityScore(coord, nodeBetweenness.get(v));
-                res.addNode(v, coord);
-            }
-        } else {
-            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
-
-            // transform edge vertices ids to coordinates
-            for (Pair<Integer, Integer> edge : edgeBetweenness.keySet()) {
-                Coordinate from = new Coordinate(nodeAccess.getLon(edge.first), nodeAccess.getLat(edge.first));
-                Coordinate to = new Coordinate(nodeAccess.getLon(edge.second), nodeAccess.getLat(edge.second));
-                Pair<Coordinate, Coordinate> edgeCoordinates = new Pair<>(from, to);
-
-                res.addEdgeCentralityScore(edgeCoordinates, edgeBetweenness.get(edge));
-                res.addEdge(edge, edgeCoordinates);
-            }
+        // transform node ids to coordinates,
+        for (int v : nodesInBBox) {
+            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
+            res.addLocation(v, coord);
         }
 
+        if (req.getMode().equals("nodes")) {
+            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
+            res.setNodeCentralityScores(nodeBetweenness);
+        } else {
+            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
+            res.setEdgeCentralityScores(edgeBetweenness);
+        }
 
         return res;
     }

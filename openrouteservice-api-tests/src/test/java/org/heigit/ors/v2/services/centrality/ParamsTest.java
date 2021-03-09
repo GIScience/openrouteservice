@@ -244,9 +244,9 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("any { it.key == 'locations' }", is(false))
-                .body("any {it.key == 'edges' }", is(true))
-                .body("any { it.key == 'centralityScores' }", is(true))
+                .body("any { it.key == 'locations' }", is(true))
+                .body("any {it.key == 'edgeScores' }", is(true))
+                .body("any { it.key == 'nodeScores' }", is(false))
                 .statusCode(200);
     }
 
