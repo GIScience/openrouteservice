@@ -298,13 +298,6 @@
             <name>Central repository for HeiGIT service dependency related artefacts</name>
             <url>https://repo.heigit.org/artifactory/main</url>
         </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>OSGeo Release Repository</name>
-            <url>https://repo.osgeo.org/repository/release/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
     </repositories>
     <dependencies>
         <dependency>
