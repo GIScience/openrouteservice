@@ -268,13 +268,6 @@
             <name>Central Repository for OSHDB dependency related artefacts</name>
             <url>http://repo.heigit.org/artifactory/main</url>
         </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>OSGeo Release Repository</name>
-            <url>https://repo.osgeo.org/repository/release/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
-        </repository>
     </repositories>
     <dependencies>
         <dependency>
@@ -381,19 +374,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.10</version>
+            <version>v0.13.11</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.10</version>
+            <version>v0.13.11</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.10</version>
+            <version>v0.13.11</version>
         </dependency>
 
         <!-- remove the comment to enable debugging
