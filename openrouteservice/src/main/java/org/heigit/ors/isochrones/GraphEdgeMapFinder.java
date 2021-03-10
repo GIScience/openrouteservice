@@ -69,8 +69,7 @@ public class GraphEdgeMapFinder {
 
         if (fromId == -1)
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
-        //TODO make dependent on parameters
-        Weighting weighting = createWeighting(parameters, encoder, graph);
+        Weighting weighting = createWeighting(parameters, encoder);
 
         if (parameters.isTimeDependent()) {
             //Time-dependent means traffic dependent for isochrones (for now)
@@ -86,7 +85,9 @@ public class GraphEdgeMapFinder {
             //If changed, this needs to be adapted in the traffic storage, too
             ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
             trafficSpeedCalculator.setZonedDateTime(zdt);
-            tdDijkstraCostCondition.calcPath(fromId, Integer.MIN_VALUE, zdt.toInstant().toEpochMilli());
+            int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;
+            fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
+            tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
 
             IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
 //            int sumEntries = 0;
@@ -114,7 +115,7 @@ public class GraphEdgeMapFinder {
         }
     }
 
-    private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder, GraphHopperStorage graph) {
+    private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder) {
         Weighting weighting = parameters.getRangeType() == TravelRangeType.TIME ?
                 parameters.isTimeDependent() ? new TimeDependentFastestWeighting(encoder, new PMap()) : new FastestWeighting(encoder)
                 : new DistanceWeighting(encoder);
