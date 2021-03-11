@@ -97,7 +97,7 @@ public class CentralityAPI {
 
         CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
 
-        return new JSONCentralityResponse(result, request);
+        return new JSONCentralityResponse(result);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

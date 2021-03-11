@@ -61,6 +61,12 @@ public class ParamsTest extends ServiceTest {
         tooSmallCoordBox.put(tooSmallCoordinate);
         addParameter("tooSmallCoordBox", tooSmallCoordBox);
 
+        // set up empty bounding box by using the same values as edges
+        JSONArray emptyBox = new JSONArray();
+        emptyBox.put(lowerLeft);
+        emptyBox.put(lowerLeft);
+        addParameter("emptyBox", emptyBox);
+
         // set up invalid/non-present Node
         JSONArray nonPresentNodes = new JSONArray();
         nonPresentNodes.put(123456789);
@@ -89,8 +95,8 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("any { it.key == 'locations' }", is(true))
-                .body("any { it.key == 'centralityScores' }", is(true))
+                .body("$", hasKey("locations"))
+                .body("$", hasKey("nodeScores"))
                 .statusCode(200);
     }
 
@@ -107,17 +113,17 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .post(getEndPointPath()+"/{profile}/json")
-                .jsonPath().getList("nodeIds");
+                .jsonPath().getList("locations.nodeId");
 
         int node0 = nodeIds.get(0);
         int node1 = nodeIds.get(1);
         int node2 = nodeIds.get(2);
         int node3 = nodeIds.get(3);
+        System.out.printf("%d, %d, %d, %d\n", node0, node1, node2, node3);
         JSONArray excludeNodes = new JSONArray();
         excludeNodes.put(node0);
         excludeNodes.put(node1);
         excludeNodes.put(node2);
-        excludeNodes.put(node3);
 
         body.put("excludeNodes", excludeNodes);
         //check that they are not present anymore if excluded
@@ -130,11 +136,11 @@ public class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
-                .log().ifValidationFails()
-                .body("nodeIds", not(contains(node0)))
-                .body("nodeIds", not(contains(node1)))
-                .body("nodeIds", not(contains(node2)))
-                .body("nodeIds", not(contains(node3)))
+                .log().all()
+                .body("locations.nodeId", not(hasItem(node0)))
+                .body("locations.nodeId", not(hasItem(node1)))
+                .body("locations.nodeId", not(hasItem(node2)))
+                .body("locations.nodeId", hasItem(node3))
                 .statusCode(200);
     }
 
@@ -156,7 +162,7 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("nodeIds.contains(123456789)", is(false))
+                .body("nodeIds", not(contains(123456789)))
                 .statusCode(200);
     }
 
@@ -228,8 +234,32 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
+    // test that empty bounding boxes get handled appropriately
+    //TODO: currently, both locations and nodeScores will just return empty.
+    // This is the expected and valid answer, but not too helpful.
+    // Should some kind of error be reported to the user?
     @Test
-    public void testEdgeBasedCentrality() {
+    public void testEmptyBbox() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("emptyBox"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().all()
+                .body("$", hasKey("locations"))
+                .body("$", hasKey("nodeScores"))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testEdgeMode() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "edges");
@@ -244,9 +274,31 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("any { it.key == 'locations' }", is(true))
-                .body("any {it.key == 'edgeScores' }", is(true))
-                .body("any { it.key == 'nodeScores' }", is(false))
+                .body("$", hasKey("locations")) // $ yields the JSON root
+                .body("$", hasKey("edgeScores"))
+                .body("$", not(hasKey("nodeScores")))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testNodeMode() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "nodes");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("$", hasKey("locations"))
+                .body("$", hasKey("nodeScores"))
+                .body("$", not(hasKey("edgeScores")))
                 .statusCode(200);
     }
 
@@ -269,7 +321,6 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
                 .body("error.message", containsString("mode"))
                 .statusCode(400);
-
     }
 }
 
