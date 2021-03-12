@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.util.FormatUtility;
 
 import java.util.Map;
 
 public class JSONCentralityLocation {
+    protected static final int COORDINATE_DECIMAL_PLACES = 6;
+
     @ApiModelProperty(value = "Id of the corresponding node in the graph", example = "1")
     @JsonProperty(value = "nodeId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
@@ -22,6 +25,14 @@ public class JSONCentralityLocation {
     JSONCentralityLocation(Map.Entry<Integer, Coordinate> location) {
         this.nodeId = location.getKey();
         this.coord = location.getValue();
+    }
+
+    public Double[] getCoord() {
+        Double[] coord2D = new Double[2];
+        coord2D[0] = FormatUtility.roundToDecimals(coord.x, COORDINATE_DECIMAL_PLACES);
+        coord2D[1] = FormatUtility.roundToDecimals(coord.y, COORDINATE_DECIMAL_PLACES);
+        // coord2D[3] = location.z; --> example for third dimension
+        return coord2D;
     }
 }
 
