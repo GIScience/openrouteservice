@@ -48,6 +48,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GraphEdgeMapFinder {
 	private  GraphEdgeMapFinder() {}
 
@@ -61,6 +64,10 @@ public class GraphEdgeMapFinder {
 
         Coordinate loc = parameters.getLocation();
         QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
+        List<QueryResult> queryResults = new ArrayList<>(1);
+        queryResults.add(res);
+        QueryGraph queryGraph = new QueryGraph(graph);
+        queryGraph.lookup(queryResults);
 
         GHPoint3D snappedPosition = res.getSnappedPoint();
 
@@ -87,7 +94,6 @@ public class GraphEdgeMapFinder {
             int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;
             fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
             tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
-
             IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
 //            int sumEntries = 0;
 //            double sumPercentages = 0;
@@ -104,7 +110,7 @@ public class GraphEdgeMapFinder {
             return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
         } else {
             // IMPORTANT: It only works with TraversalMode.NODE_BASED.
-            DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
+            DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
                     TraversalMode.NODE_BASED);
             dijkstraAlg.setEdgeFilter(edgeFilter);
             dijkstraAlg.calcPath(fromId, Integer.MIN_VALUE);
@@ -118,7 +124,6 @@ public class GraphEdgeMapFinder {
         Weighting weighting = parameters.getRangeType() == TravelRangeType.TIME ?
                 parameters.isTimeDependent() ? new TimeDependentFastestWeighting(encoder, new PMap()) : new FastestWeighting(encoder)
                 : new DistanceWeighting(encoder);
-
         return weighting;
     }
 }
