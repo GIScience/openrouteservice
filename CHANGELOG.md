@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+### Changed
+- Use Querygraph and virtual nodes for isochrone calculation in the same manner as in routing
 ## [6.3.6] - 2021-02-02
 ### Fixed
 - Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
