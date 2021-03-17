@@ -67,7 +67,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     protected abstract void initCollections(int size);
     protected PathBidirRef bestPath;
-    protected boolean doUpdateBestPath = true;
 
     CHGraph chGraph;
     protected final int coreNodeLevel;
