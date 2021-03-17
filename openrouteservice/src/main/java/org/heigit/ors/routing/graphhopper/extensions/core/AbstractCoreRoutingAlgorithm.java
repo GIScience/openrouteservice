@@ -45,8 +45,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
-    protected final TurnWeighting turnWeighting;
-    protected final boolean hasTurnWeighting;
+    protected TurnWeighting turnWeighting;
+    protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
     public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
@@ -55,10 +55,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         if (weighting instanceof TurnWeighting) {
             turnWeighting = (TurnWeighting) weighting;
             hasTurnWeighting = true;
-        }
-        else {
-            turnWeighting = null;
-            hasTurnWeighting = false;
         }
 
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
