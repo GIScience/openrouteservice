@@ -1362,6 +1362,26 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testContinueStraightNoBearings() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("continue_straight", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(15173.0f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testSteps() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
