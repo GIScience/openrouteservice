@@ -37,6 +37,7 @@ RELEASING:
 ### Added
 - API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
 ### Fixed
+- Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
 - Fix continue_straight option with no bearing on CH-enabled profiles
 
 ## [6.3.6] - 2021-02-02

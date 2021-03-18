@@ -556,6 +556,7 @@ public class RoutingProfileManager {
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
+                List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
                 Coordinate c1;
                 double totalDist = 0.0;
@@ -566,17 +567,12 @@ public class RoutingProfileManager {
                         totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                     }
                 } else {
-                    if (nCoords == 2) {
-                        c1 = coords[1];
-                        totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                    } else {
-                        double dist = 0;
-                        for (int i = 1; i < nCoords; i++) {
-                            c1 = coords[i];
-                            dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                            totalDist += dist;
-                            c0 = c1;
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        if (!skipSegments.contains(i)) { // ignore skipped segments
+                            totalDist += distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                         }
+                        c0 = c1;
                     }
                 }
 
