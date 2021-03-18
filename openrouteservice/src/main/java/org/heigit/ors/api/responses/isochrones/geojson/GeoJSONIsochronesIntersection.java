@@ -54,19 +54,21 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
 
         props.put("contours", contours);
 
-        List<IsochronesRequestEnums.Attributes> attr = new ArrayList(Arrays.asList(request.getAttributes()));
+        if (request.hasAttributes()) {
+            List<IsochronesRequestEnums.Attributes> attr = new ArrayList(Arrays.asList(request.getAttributes()));
 
-        if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
-            try {
-                double areaValue = 0;
-                if (request.hasAreaUnits())
-                    areaValue = intersection.getArea(request.getAreaUnit().toString());
-                else
-                    areaValue = intersection.getArea("");
+            if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
+                try {
+                    double areaValue = 0;
+                    if (request.hasAreaUnits())
+                        areaValue = intersection.getArea(request.getAreaUnit().toString());
+                    else
+                        areaValue = intersection.getArea("");
 
-                props.put("area", FormatUtility.roundToDecimals(areaValue, 4));
-            } catch (InternalServerException e) {
-                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "There was a problem calculating the area of the isochrone");
+                    props.put("area", FormatUtility.roundToDecimals(areaValue, 4));
+                } catch (InternalServerException e) {
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "There was a problem calculating the area of the isochrone");
+                }
             }
         }
 
