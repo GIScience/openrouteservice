@@ -40,10 +40,10 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
         properties = fillProperties(intersection, request);
     }
 
-    private Map fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
-        Map<String, Object> props = new HashMap();
+    private Map<String, Object> fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
+        Map<String, Object> props = new HashMap<>();
 
-        List<Integer[]> contours = new ArrayList();
+        List<Integer[]> contours = new ArrayList<>();
         for (Pair<Integer, Integer> ref : intersection.getContourRefs()) {
             Integer[] pair = new Integer[2];
             pair[0] = ref.first;
@@ -55,7 +55,7 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
         props.put("contours", contours);
 
         if (request.hasAttributes()) {
-            List<IsochronesRequestEnums.Attributes> attr = new ArrayList(Arrays.asList(request.getAttributes()));
+            List<IsochronesRequestEnums.Attributes> attr = new ArrayList<>(Arrays.asList(request.getAttributes()));
 
             if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
                 try {
@@ -75,7 +75,7 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
         return props;
     }
 
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
