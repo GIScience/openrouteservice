@@ -54,6 +54,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     private CHEdgeExplorer vehicleAllExplorer;
     private CHEdgeExplorer vehicleAllTmpExplorer;
+    private EdgeExplorer inEdgeExplorer;
+    private EdgeExplorer outEdgeExplorer;
     private CHEdgeExplorer calcPrioAllExplorer;
     private int maxLevel;
     // the most important nodes comes last
@@ -368,10 +370,10 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     }
 
     private void setTurnRestrictedLevel(int polledNode) {
-        CHEdgeIterator edge1 = vehicleAllExplorer.setBaseNode(polledNode);//FIXME: iterate only over original edges no need to consider shortcuts?
+        EdgeIterator edge1 = inEdgeExplorer.setBaseNode(polledNode);
         if (turnCostExtension != null) {
             while (edge1.next()) {
-                CHEdgeIterator edge2 = vehicleAllTmpExplorer.setBaseNode(polledNode);
+                EdgeIterator edge2 = outEdgeExplorer.setBaseNode(polledNode);
                 while (edge2.next()) {
                     long turnFlags = turnCostExtension.getTurnCostFlags(edge1.getEdge(), polledNode, edge2.getEdge());
                     if (flagEncoder.isTurnRestricted(turnFlags)) {
@@ -494,7 +496,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
         calcPrioAllExplorer = prepareGraph.createEdgeExplorer(accessWithLevelFilter);
         restrictionExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-
+        inEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
+        outEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
 
         // Use an alternative to PriorityQueue as it has some advantages:
         //   1. Gets automatically smaller if less entries are stored => less total RAM used.
