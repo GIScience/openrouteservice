@@ -949,41 +949,6 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-   @Test
-    public void testUTurnRestrictionsCALT() {
-        given()
-                .param("coordinates", "8.698302,49.412282|8.698801,49.41223")
-                .param("instructions", "true")
-                .param("preference", getParameter("preference"))
-                .param("profile", "driving-car")
-                .param("options", "{\"avoid_features\":\"fords\"}")
-                .when().log().ifValidationFails()
-                .get(getEndPointName())
-                .then()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2968.5f))
-                .statusCode(200);
-    }
-
-    @Test
-    public void testTurnRestrictionsCALT() {
-        given()
-                .param("coordinates", "8.686092,49.402666|8.685524,49.402645")
-                .param("instructions", "true")
-                .param("preference", getParameter("preference"))
-                .param("profile", "driving-car")
-                .param("options","{\"avoid_features\":\"fords\"}")
-                .when().log().ifValidationFails()
-                .get(getEndPointName())
-                .then()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(469.3f))
-                .statusCode(200);
-    }
-
-
     @Test
 	public void testNoBearings() {
 		given()

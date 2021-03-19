@@ -1274,6 +1274,56 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testTurnRestrictions() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
+        body.put("preference", getParameter("preference"));
+
+        JSONObject options = new JSONObject();
+        JSONArray avoidFeatures = new JSONArray();
+        body.put("options", options.put("avoid_features", avoidFeatures.put("ferries")));// enforce use of CALT over CH
+
+        // Test that the "right turn only" restriction at the junction is taken into account
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(693.8f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testUTurnRestrictions() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.698302,49.412282|8.698801,49.41223"));
+        body.put("preference", getParameter("preference"));
+
+        JSONObject options = new JSONObject();
+        JSONArray avoidFeatures = new JSONArray();
+        body.put("options", options.put("avoid_features", avoidFeatures.put("ferries")));// enforce use of CALT over CH
+
+        // Test that the "right turn only" restriction at the junction is taken into account
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2968.5f))//FIXME: should be equal to the reference A* route distance of 2816.7f
+                .statusCode(200);
+    }
+
+    @Test
     public void testNoBearings() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
