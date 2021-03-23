@@ -2412,6 +2412,53 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.warnings[0].containsKey('code')", is(true))
                 .body("features[0].properties.warnings[0].code", is(3))
                 .statusCode(200);
+
+        skipSegments = new ArrayList<>(2);
+        skipSegments.add(2);
+        skipSegments.add(3);
+        body.put("skip_segments", skipSegments);
+        JSONArray coordsTooLong = new JSONArray();
+        JSONArray coordLong1 = new JSONArray();
+        coordLong1.put(8.678613);
+        coordLong1.put(49.411721);
+        coordsTooLong.put(coordLong1);
+        JSONArray coordLong2 = new JSONArray();
+        coordLong2.put(8.714733);
+        coordLong2.put(49.393267);
+        coordsTooLong.put(coordLong2);
+        JSONArray coordLong3 = new JSONArray();
+        coordLong3.put(0);
+        coordLong3.put(0);
+        coordsTooLong.put(coordLong3);
+        JSONArray coordLong4 = new JSONArray();
+        coordLong4.put(8.714733);
+        coordLong4.put(49.393267);
+        coordsTooLong.put(coordLong4);
+        JSONArray coordLong5 = new JSONArray();
+        coordLong5.put(8.687782);
+        coordLong5.put(49.424597);
+        coordsTooLong.put(coordLong5);
+        body.put("coordinates", coordsTooLong);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].containsKey('way_points')", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].code", is(3))
+                .body("routes[0].segments.size", is(4))
+                .body("routes[0].way_points.size", is(5))
+                .body("routes[0].bbox[0]", is(0.0f))
+                .body("routes[0].bbox[1]", is(0.0f))
+                .statusCode(200);
     }
 
     @Test

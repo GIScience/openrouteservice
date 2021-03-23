@@ -36,6 +36,10 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+### Fixed
+- Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
+- fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+
 ## [6.3.6] - 2021-02-02
 ### Fixed
 - Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
