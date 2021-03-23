@@ -17,6 +17,7 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -132,11 +133,18 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilterSequence edgeFilterSequence = getEdgeFilterSequence(edgeFilterFactory);
         QueryResult res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
+        List<QueryResult> queryResults = new ArrayList<>(1);
+        queryResults.add(res);
         //Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
         int nonvirtualClosestNode = res.getClosestNode();
         if (nonvirtualClosestNode == -1)
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
+
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
+        QueryGraph queryGraph = new QueryGraph(graph);
+        queryGraph.lookup(queryResults);
+
+        int from = res.getClosestNode();
 
         //This calculates the nodes that are within the limit
         //Currently only support for Node based
@@ -149,7 +157,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
         for (int i = 0; i < nRanges; i++) {
             FastIsochroneAlgorithm fastIsochroneAlgorithm = new FastIsochroneAlgorithm(
-                    graph,
+                    queryGraph,
                     weighting,
                     TraversalMode.NODE_BASED,
                     cellStorage,
@@ -162,7 +170,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             if (isolimit <= 0)
                 throw new IllegalStateException("Distance of query to snapped position is greater than isochrone limit!");
 
-            fastIsochroneAlgorithm.calcIsochroneNodes(nonvirtualClosestNode, isolimit);
+            fastIsochroneAlgorithm.calcIsochroneNodes(from, nonvirtualClosestNode, isolimit);
 
             Set<Geometry> isochroneGeometries = new HashSet<>();
 

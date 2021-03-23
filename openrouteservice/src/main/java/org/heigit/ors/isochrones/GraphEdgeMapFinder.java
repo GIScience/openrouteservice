@@ -15,6 +15,7 @@ package org.heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -33,6 +34,9 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GraphEdgeMapFinder {
 	private  GraphEdgeMapFinder() {}
 	
@@ -46,8 +50,12 @@ public class GraphEdgeMapFinder {
 		
 		Coordinate loc = parameters.getLocation();
 		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
+		List<QueryResult> queryResults = new ArrayList<>(1);
+		queryResults.add(res);
+		QueryGraph queryGraph = new QueryGraph(graph);
+		queryGraph.lookup(queryResults);
 
-       GHPoint3D snappedPosition = res.getSnappedPoint();
+       	GHPoint3D snappedPosition = res.getSnappedPoint();
 
 		int fromId = res.getClosestNode();
 
@@ -57,7 +65,7 @@ public class GraphEdgeMapFinder {
 		Weighting weighting =  parameters.getRangeType() == TravelRangeType.TIME ?  new FastestWeighting(encoder) : new DistanceWeighting(encoder);
 
 		// IMPORTANT: It only works with TraversalMode.NODE_BASED.
-		DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
+		DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
 				TraversalMode.NODE_BASED);
 		dijkstraAlg.setEdgeFilter(edgeFilter);
 		dijkstraAlg.calcPath(fromId, Integer.MIN_VALUE);

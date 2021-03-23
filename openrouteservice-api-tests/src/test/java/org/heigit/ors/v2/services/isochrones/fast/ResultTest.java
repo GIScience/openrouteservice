@@ -116,9 +116,9 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(68))
+                .body("features[0].geometry.coordinates[0].size()", is(93))
                 .body("features[0].properties.center.size()", is(2))
-                .body("bbox", hasItems(8.652523f, 49.402836f, 8.707007f, 49.44743f))
+                .body("bbox", hasItems(8.652489f, 49.40263f, 8.708881f, 49.44788f))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
@@ -187,10 +187,10 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("bbox[0]", is(8.652523f))
-                .body("bbox[1]", is(49.402836f))
-                .body("bbox[2]", is(8.707007f))
-                .body("bbox[3]", is(49.44743f))
+                .body("bbox[0]", is(8.652489f))
+                .body("bbox[1]", is(49.40263f))
+                .body("bbox[2]", is(8.708881f))
+                .body("bbox[3]", is(49.44788f))
                 .statusCode(200);
     }
 
@@ -212,8 +212,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(12200000f))))
-                .body("features[0].properties.reachfactor", is(0.0638f))
+                .body("features[0].properties.area", is(both(greaterThan(12300000f)).and(lessThan(12500000f))))
+                .body("features[0].properties.reachfactor", is(0.0653f))
                 .statusCode(200);
 
     }
@@ -237,8 +237,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(12200000f))))
-                .body("features[0].properties.reachfactor", is(0.0638f))
+                .body("features[0].properties.area", is(both(greaterThan(12300000f)).and(lessThan(12500000f))))
+                .body("features[0].properties.reachfactor", is(0.0653f))
                 .statusCode(200);
 
     }
@@ -262,8 +262,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12.0f)).and(lessThan(12.2f))))
-                .body("features[0].properties.reachfactor", is(0.0638f))
+                .body("features[0].properties.area", is(both(greaterThan(12.3f)).and(lessThan(12.5f))))
+                .body("features[0].properties.reachfactor", is(0.0653f))
                 .statusCode(200);
 
     }
@@ -289,7 +289,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12.0f)).and(lessThan(12.2f))))
+                .body("features[0].properties.area", is(both(greaterThan(12.3f)).and(lessThan(12.5f))))
                 .statusCode(200);
 
     }
@@ -313,8 +313,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(4.68f)).and(lessThan(4.69f))))
-                .body("features[0].properties.reachfactor", is(0.0638f))
+                .body("features[0].properties.area", is(both(greaterThan(4.79f)).and(lessThan(4.80f))))
+                .body("features[0].properties.reachfactor", is(0.0653f))
                 .statusCode(200);
 
     }
@@ -346,11 +346,11 @@ public class ResultTest extends ServiceTest {
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(73))
+                .body("features[2].geometry.coordinates[0].size()", is(77))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 //.body("features[2].properties.area", is(5824280.5f))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(12200000f))))
+                .body("features[0].properties.area", is(both(greaterThan(12300000f)).and(lessThan(12500000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
@@ -381,7 +381,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(76))
+                .body("features[0].geometry.coordinates[0].size", is(72))
                 .statusCode(200);
 
         body.put("smoothing", "100");
@@ -395,7 +395,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(78))
+                .body("features[0].geometry.coordinates[0].size", is(80))
                 .statusCode(200);
     }
 
