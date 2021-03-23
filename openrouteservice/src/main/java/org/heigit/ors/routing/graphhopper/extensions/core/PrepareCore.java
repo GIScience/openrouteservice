@@ -247,7 +247,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 sortedNodes.clear();
                 int len = prepareGraph.getNodes();
                 for (int node = 0; node < len; node++) {
-                    if (prepareGraph.getLevel(node) < maxLevel)
+                    if (isContracted(node))
                         continue;
                     int priority = oldPriorities[node];
                     if (priority != RESTRICTION_PRIORITY) {
@@ -293,7 +293,8 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 while (!sortedNodes.isEmpty()) {
                     CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
                     while (iter.next()) {
-                        if (prepareGraph.getLevel(iter.getAdjNode()) >= maxLevel) continue;
+                        if (isCoreNode(iter.getAdjNode()))
+                            continue;
                         prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
                     }
                     setTurnRestrictedLevel(polledNode);
@@ -330,7 +331,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 }
 
                 int nn = iter.getAdjNode();
-                if (prepareGraph.getLevel(nn) < maxLevel)
+                if (isContracted(nn))
                     continue;
 
                 if (neighborUpdate && rand.nextInt(100) < neighborUpdatePercentage) {
@@ -367,6 +368,14 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
                 + ", lazy:" + lastNodesLazyUpdatePercentage
                 + ", neighbor:" + neighborUpdatePercentage
                 + ", " + Helper.getMemInfo());
+    }
+
+    private boolean isContracted(int node) {
+        return prepareGraph.getLevel(node) < maxLevel;
+    }
+
+    private boolean isCoreNode(int node) {
+        return prepareGraph.getLevel(node) >= maxLevel;
     }
 
     private void setTurnRestrictedLevel(int polledNode) {
