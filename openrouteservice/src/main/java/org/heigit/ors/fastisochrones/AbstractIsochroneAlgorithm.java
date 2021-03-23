@@ -79,7 +79,12 @@ public abstract class AbstractIsochroneAlgorithm {
 
     protected abstract void initCollections(int size);
 
-    public abstract void init(int from, double isochroneLimit);
+    public void init(int from, double isochroneLimit) {
+        init(from, from, isochroneLimit);
+    }
+
+    public abstract void init(int from, int fromNonVirtual, double isochroneLimit);
+
 
     protected void checkAlreadyRun() {
         if (alreadyRun)
@@ -140,6 +145,18 @@ public abstract class AbstractIsochroneAlgorithm {
     public void calcIsochroneNodes(int from, double isochroneLimit) {
         checkAlreadyRun();
         init(from, isochroneLimit);
+        runAlgo();
+    }
+
+    /**
+     * Calculate nodes for a given set of (virtual) from node and non-virtual basenode. Necessary for precomputed information that cannot process virtual nodes.
+     * @param from virtual start node
+     * @param fromNonVirtual real node closest to virtual start node
+     * @param isochroneLimit limit
+     */
+    public void calcIsochroneNodes(int from, int fromNonVirtual, double isochroneLimit) {
+        checkAlreadyRun();
+        init(from, fromNonVirtual, isochroneLimit);
         runAlgo();
     }
 
