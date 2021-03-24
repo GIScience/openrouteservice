@@ -179,7 +179,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
             value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster." +
-            "CUSTOM_KEYS:{'apiDefault':'true'}",
+            "CUSTOM_KEYS:{'apiDefault':'false'}",
             example = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
     private boolean continueStraightAtWaypoints;
