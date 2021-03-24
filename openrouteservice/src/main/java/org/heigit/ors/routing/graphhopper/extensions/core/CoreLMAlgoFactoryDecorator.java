@@ -155,7 +155,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      */
     public CoreLMAlgoFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
         if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
+            throw new IllegalArgumentException("It is not allowed to pass an empty weightingList");
 
         weightingsAsStrings.clear();
         for (String strWeighting : weightingList) {
