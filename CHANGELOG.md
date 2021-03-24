@@ -39,6 +39,7 @@ RELEASING:
 ### Fixed
 - Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
 - fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
