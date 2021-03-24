@@ -42,7 +42,8 @@ RELEASING:
 - Remove Isochrones v1 api tests
 ### Fixed
 - Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
-- fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- Fixed continue_straight option with no bearing on CH-enabled profiles
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
