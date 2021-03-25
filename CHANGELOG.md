@@ -36,10 +36,15 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+- Support for turn restrictions with core-based routing algorithms
+### Changed
+- Use Querygraph and virtual nodes for isochrone calculation in the same manner as in routing
+- Remove Isochrones v1 api tests
 ### Fixed
 - Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
-- fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
-- fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
+- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
+- Fixed continue_straight option with no bearing on CH-enabled profiles
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
@@ -47,7 +52,7 @@ RELEASING:
 
 ## [6.3.5] - 2021-01-28
 ### Added
-- output run file to signal completion of graph building/loading at init time
+- Output run file to signal completion of graph building/loading at init time
 ### Fixed
 - Define behavior for first container start with existing app.config
 

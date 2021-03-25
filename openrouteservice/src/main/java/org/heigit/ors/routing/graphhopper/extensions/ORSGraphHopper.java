@@ -57,11 +57,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -638,16 +634,17 @@ public class ORSGraphHopper extends GraphHopper {
 			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
 		}
 
-		/* Maximum Speed Filter */
+		/* Maximum Speed Filter & Turn Restrictions */
 		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+			String[] encoders = {FlagEncoderNames.CAR_ORS, FlagEncoderNames.HEAVYVEHICLE};
+			for (String encoderName: encoders) {
+				if (encodingManager.hasEncoder(encoderName)) {
+					FlagEncoder flagEncoder = getEncodingManager().getEncoder(encoderName);
+					coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
+					if (flagEncoder.supports(TurnWeighting.class))
+						coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+					break;
+				}
 			}
 		}
 
