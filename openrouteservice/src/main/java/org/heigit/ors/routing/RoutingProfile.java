@@ -577,9 +577,9 @@ public class RoutingProfile {
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
-
-            LOGGER.error(ex);
-
+            if (DebugUtility.isDebug()) {
+                LOGGER.error(ex);
+            }
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
 
@@ -613,8 +613,9 @@ public class RoutingProfile {
                 }
 
             } catch (Exception ex) {
-                LOGGER.error(ex);
-
+                if (DebugUtility.isDebug()) {
+                    LOGGER.error(ex);
+                }
                 throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
             }
         }
@@ -655,10 +656,8 @@ public class RoutingProfile {
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
-            LOGGER.error(ex);
             throw ex;
         } catch (Exception ex) {
-            LOGGER.error(ex);
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }
 
@@ -1119,7 +1118,9 @@ public class RoutingProfile {
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
-            LOGGER.error(ex);
+            if (DebugUtility.isDebug()) {
+                LOGGER.error(ex);
+            }
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
 

@@ -132,7 +132,7 @@ public class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
-                .log().all()
+                .log().ifValidationFails()
                 .body("nodeIds.contains(123456789)", is(false))
                 .statusCode(200);
     }
