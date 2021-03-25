@@ -43,6 +43,7 @@ RELEASING:
 ### Fixed
 - Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
 - Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 - Fixed continue_straight option with no bearing on CH-enabled profiles
 
 ## [6.3.6] - 2021-02-02
@@ -51,7 +52,7 @@ RELEASING:
 
 ## [6.3.5] - 2021-01-28
 ### Added
-- output run file to signal completion of graph building/loading at init time
+- Output run file to signal completion of graph building/loading at init time
 ### Fixed
 - Define behavior for first container start with existing app.config
 
