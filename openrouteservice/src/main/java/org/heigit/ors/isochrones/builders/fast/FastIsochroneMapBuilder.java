@@ -51,6 +51,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHull;
 
@@ -113,7 +114,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
         StopWatch sw = null;
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             swTotal = new StopWatch();
             swTotal.start();
             sw = new StopWatch();
@@ -174,7 +175,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             Set<Geometry> isochroneGeometries = new HashSet<>();
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 LOGGER.debug("Find edges: " + sw.stop().getSeconds());
                 sw = new StopWatch();
                 sw.start();
@@ -182,7 +183,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             fastIsochroneAlgorithm.approximateActiveCells(activeCellApproximationFactor);
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 LOGGER.debug("Approximate active cells: " + sw.stop().getSeconds());
                 sw = new StopWatch();
                 sw.start();
@@ -190,7 +191,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             //Add all fully reachable cell geometries
             handleFullyReachableCells(isochroneGeometries, fastIsochroneAlgorithm.getFullyReachableCells());
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 LOGGER.debug("Handle " + fastIsochroneAlgorithm.getFullyReachableCells().size() + " fully reachable cells: " + sw.stop().getSeconds());
             }
 
@@ -240,19 +241,19 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 //Make a union of all now existing polygons to reduce coordinate list
                 Geometry preprocessedGeometry = combineGeometries(isochroneGeometries);
                 StopWatch finalConcaveHullStopWatch = new StopWatch();
-                if (LOGGER.isDebugEnabled())
+                if (DebugUtility.isDebug())
                     finalConcaveHullStopWatch.start();
                 List<Double> contourCoordinates = createCoordinateListFromGeometry(preprocessedGeometry);
                 GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), contourCoordinates, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 1);
                 addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
-                if (LOGGER.isDebugEnabled()) {
+                if (DebugUtility.isDebug()) {
                     LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + finalConcaveHullStopWatch.stop().getSeconds());
                 }
             }
             prevCost = isoValue;
         }
 
-        if (LOGGER.isDebugEnabled())
+        if (DebugUtility.isDebug())
             LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
 
         return isochroneMap;
@@ -311,7 +312,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             }
             swActiveCellBuild.stop();
         }
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             LOGGER.debug("Separate disconnected: " + swActiveCellSeparate.stop().getSeconds());
             LOGGER.debug("Build " + fastIsochroneAlgorithm.getActiveCellMaps().size() + " active cells: " + swActiveCellBuild.stop().getSeconds());
         }
@@ -350,10 +351,10 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private Geometry combineGeometries(Set<Geometry> isochroneGeometries) {
         StopWatch unaryUnionStopWatch = new StopWatch();
-        if (LOGGER.isDebugEnabled())
+        if (DebugUtility.isDebug())
             unaryUnionStopWatch.start();
         Geometry preprocessedGeometry = UnaryUnionOp.union(isochroneGeometries);
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             LOGGER.debug("Union of geometries: " + unaryUnionStopWatch.stop().getSeconds());
         }
         return preprocessedGeometry;
@@ -691,7 +692,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         //printing for debug
 //        StringBuilder cellsPrintStatement = new StringBuilder();
 //
-//        if (LOGGER.isDebugEnabled()) {
+//        if (DebugUtility.isDebug()) {
 //            cellsPrintStatement.append(System.lineSeparator());
 //            cellsPrintStatement.append("{" +
 //                    "  \"type\": \"FeatureCollection\"," +
@@ -702,10 +703,10 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
         for (int cellId : reachableCellsAndSuperCells) {
             addCellPolygon(cellId, isochroneGeometries);
-//            if (LOGGER.isDebugEnabled())
+//            if (DebugUtility.isDebug())
 //                cellsPrintStatement.append(printCell(cellStorage.getCellContourOrder(cellId), cellId));
         }
-//        if (LOGGER.isDebugEnabled()) {
+//        if (DebugUtility.isDebug()) {
 //            cellsPrintStatement.deleteCharAt(cellsPrintStatement.length() - 2);
 //            cellsPrintStatement.append("]}");
 //            cellsPrintStatement.append(System.lineSeparator());

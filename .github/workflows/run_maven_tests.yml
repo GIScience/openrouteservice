@@ -35,7 +35,7 @@ jobs:
     - name: Copy app.config for API test
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
     - name: Test, build, run API tests
-      run: mvn -B -f openrouteservice/pom.xml verify
+      run: mvn -B -f openrouteservice/pom.xml verify jacoco:report
     - name: run SonarLint checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
