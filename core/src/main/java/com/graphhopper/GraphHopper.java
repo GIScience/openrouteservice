@@ -918,7 +918,7 @@ public class GraphHopper implements GraphHopperAPI {
         }
 
         else if ("td_fastest".equalsIgnoreCase(weightingStr)) {
-            weighting = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, "conditional_speed"))
+            weighting = encodingManager.hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED))
                     ? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(ghStorage, encoder))
                     : new TimeDependentFastestWeighting(encoder, hintsMap);
         }
@@ -951,7 +951,7 @@ public class GraphHopper implements GraphHopperAPI {
      */
     public Weighting createTimeDependentAccessWeighting(Weighting weighting, String algo) {
         FlagEncoder flagEncoder = weighting.getFlagEncoder();
-        if (encodingManager.hasEncodedValue(encodingManager.getKey(flagEncoder, "conditional_access")) && isAlgorithmTimeDependent(algo))
+        if (encodingManager.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)) && isAlgorithmTimeDependent(algo))
             return new TimeDependentAccessWeighting(weighting, ghStorage, flagEncoder);
         else
             return weighting;

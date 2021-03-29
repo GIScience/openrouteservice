@@ -121,10 +121,10 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
 
-        this.conditionalAccess = new ConditionalEdges(encodingManager, "conditional_access");
+        this.conditionalAccess = new ConditionalEdges(encodingManager, ConditionalEdges.ACCESS);
         this.conditionalAccess.init(this, dir);
 
-        this.conditionalSpeed = new ConditionalEdges(encodingManager, "conditional_speed");
+        this.conditionalSpeed = new ConditionalEdges(encodingManager, ConditionalEdges.SPEED);
         this.conditionalSpeed.init(this, dir);
     }
 

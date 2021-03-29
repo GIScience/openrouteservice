@@ -17,6 +17,9 @@ public class ConditionalEdges implements GraphExtension {
 
     private String encoderName;
 
+    public static final String ACCESS = "conditional_access";
+    public static final String SPEED = "conditional_speed";
+
     public ConditionalEdges(EncodingManager encodingManager, String encoderName) {
         this.encodingManager = encodingManager;
         this.encoderName = encoderName;

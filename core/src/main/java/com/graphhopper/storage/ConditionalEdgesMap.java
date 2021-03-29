@@ -126,7 +126,7 @@ public class ConditionalEdgesMap implements GraphExtension {
     @Override
     public boolean loadExisting() {
         if (!edges.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'conditional_access'. corrupt file or directory? " );
+            throw new IllegalStateException("Unable to load storage '" + name + "'. Corrupt file or directory?" );
 
         edgeEntryBytes = edges.getHeader(0);
         edgesCount = edges.getHeader(4);
