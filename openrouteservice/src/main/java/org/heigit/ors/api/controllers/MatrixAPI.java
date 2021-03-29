@@ -74,8 +74,8 @@ public class MatrixAPI {
     // Functional request methods
 
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(value = "Matrix Service", notes = "Returns duration or distance matrix for mutliple source and destination points.\n" +
-            "By default a symmetric duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.", httpMethod = "POST", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Matrix Service", notes = "Returns duration or distance matrix for multiple source and destination points.\n" +
+            "By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
