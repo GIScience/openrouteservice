@@ -585,7 +585,8 @@ public class RouteSearchParameters {
         return hasAvoidAreas()
             || hasBearings()
             || hasContinueStraight()
-            || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+            || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+            || getAlternativeRoutesCount() > 0;
     }
 
     // time-dependent stuff

@@ -92,7 +92,6 @@ public class RoutingProfile {
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
-    private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
@@ -110,7 +109,6 @@ public class RoutingProfile {
     private static final String KEY_METHODS_LM = "methods.lm";
     private static final String KEY_LANDMARKS = "landmarks";
     private static final String KEY_METHODS_CORE = "methods.core";
-    private static final String KEY_METHODS_FASTISOCHRONE = "methods.fastisochrone";
     private static final String KEY_DISABLING_ALLOWED = "disabling_allowed";
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
@@ -687,10 +685,8 @@ public class RoutingProfile {
         index.query(bbox, new LocationIndex.Visitor() {
             @Override
             public void onNode(int nodeId) {
-                if (!excludeNodes.contains(nodeId)) {
-                    if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
-                        nodesInBBox.add(nodeId);
-                    }
+                if (!excludeNodes.contains(nodeId) && bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+                    nodesInBBox.add(nodeId);
                 }
             }
         });
@@ -948,10 +944,7 @@ public class RoutingProfile {
                 setSpeedups(req, true, true, true);
 
             if (flexibleMode == KEY_FLEX_PREPROCESSED) {
-                if(optimized)
-                    setSpeedups(req, false, true, true);
-                else
-                    setSpeedups(req, false, false, true);
+                setSpeedups(req, false, optimized, true);
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
@@ -973,8 +966,6 @@ public class RoutingProfile {
                 req.getHints().put("astarbi.approximation", astarApproximation);
 
             if (searchParams.getAlternativeRoutesCount() > 0) {
-                //TAKB: CH and CORE have to be disabled for alternative routes
-                setSpeedups(req, false, false, true);
                 req.setAlgorithm("alternative_route");
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
