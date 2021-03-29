@@ -5,6 +5,7 @@ import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
 import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.DateTimeHelper;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -37,7 +38,7 @@ public class TimeDependentAccessEdgeFilter implements TimeDependentEdgeFilter {
 
     TimeDependentAccessEdgeFilter(GraphHopperStorage graph, String encoderName, boolean fwd, boolean bwd) {
         EncodingManager encodingManager = graph.getEncodingManager();
-        conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, "conditional_access"));
+        conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoderName, ConditionalEdges.ACCESS));
         conditionalEdges = graph.getConditionalAccess(encoderName);
         this.fwd = fwd;
         this.bwd = bwd;

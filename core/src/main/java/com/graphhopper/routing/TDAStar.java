@@ -17,7 +17,7 @@
  */
 package com.graphhopper.routing;
 
-import com.graphhopper.routing.util.ConditionalAccessEdgeFilter;
+import com.graphhopper.routing.util.AccessEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -36,10 +36,10 @@ public class TDAStar extends AStar {
 
     public TDAStar(Graph graph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
-        if (flagEncoder.hasEncodedValue(flagEncoder.toString()+"-conditional_access")) {
-            inEdgeExplorer = graph.createEdgeExplorer(ConditionalAccessEdgeFilter.inEdges(flagEncoder));
-            outEdgeExplorer = graph.createEdgeExplorer(ConditionalAccessEdgeFilter.outEdges(flagEncoder));
-        }
+
+        inEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.inEdges(flagEncoder));
+        outEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.outEdges(flagEncoder));
+
         if (!weighting.isTimeDependent())
             throw new RuntimeException("A time-dependent routing algorithm requires a time-dependent weighting.");
     }

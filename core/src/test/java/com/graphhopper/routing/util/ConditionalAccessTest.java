@@ -96,7 +96,7 @@ public class ConditionalAccessTest extends CalendarBasedTest {
     @Test
     public void setConditionalBit() {
         ReaderWay way = createWay();
-        BooleanEncodedValue conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoder, "conditional_access"));
+        BooleanEncodedValue conditionalEnc = encodingManager.getBooleanEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.ACCESS));
         assertFalse(createEdge(way).get(conditionalEnc));
         way.setTag("access:conditional", CONDITIONAL);
         assertTrue(createEdge(way).get(conditionalEnc));

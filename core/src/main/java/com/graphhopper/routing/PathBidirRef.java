@@ -114,10 +114,7 @@ public class PathBidirRef extends Path {
      * search: nextEdgeId--x<--edgeId--adjNode
      */
     protected void processEdgeBwd(int edgeId, int adjNode, int nextEdgeId) {
-        EdgeIteratorState edge = graph.getEdgeIteratorState(edgeId, adjNode);
-        distance += edge.getDistance();
-        time += weighting.calcMillis(edge, true, nextEdgeId);
-        addEdge(edgeId);
+        processEdge(edgeId, adjNode, nextEdgeId, true);
     }
 
     private void processTurn(int inEdge, int viaNode, int outEdge) {

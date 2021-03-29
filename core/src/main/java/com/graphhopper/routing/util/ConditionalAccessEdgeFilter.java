@@ -18,6 +18,7 @@
 package com.graphhopper.routing.util;
 
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.EdgeIteratorState;
 
 /**
@@ -44,7 +45,7 @@ public class ConditionalAccessEdgeFilter implements EdgeFilter {
     }
 
     private ConditionalAccessEdgeFilter(FlagEncoder flagEncoder, boolean fwd, boolean bwd, int filterId) {
-        this(flagEncoder.getAccessEnc(), flagEncoder.getBooleanEncodedValue(flagEncoder.toString()+"-conditional_access"), fwd, bwd, filterId);
+        this(flagEncoder.getAccessEnc(), flagEncoder.getBooleanEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)), fwd, bwd, filterId);
     }
 
     public static ConditionalAccessEdgeFilter outEdges(BooleanEncodedValue accessEnc, BooleanEncodedValue conditionalEnc) {

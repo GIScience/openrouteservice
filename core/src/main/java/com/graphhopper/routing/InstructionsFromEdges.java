@@ -88,7 +88,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
 
     private final int MAX_U_TURN_DISTANCE = 35;
     protected GHLongArrayList times;
-    private boolean hasTimes;
     // ORS-GH MOD START
     private PathProcessor mPathProcessor = PathProcessor.DEFAULT;
 //    public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
@@ -114,7 +113,6 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
         outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
         crossingExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.allEdges(encoder));
         this.times = times;
-        hasTimes = times == null;
     }
 
     public InstructionsFromEdges(int tmpNode, Graph graph, Weighting weighting, FlagEncoder encoder,
@@ -298,7 +296,7 @@ public class InstructionsFromEdges implements Path.EdgeVisitor {
             prevName = name;
         }
 
-        long time = hasTimes ? times.get(index) : weighting.calcMillis(edge, false, EdgeIterator.NO_EDGE);
+        long time = times.get(index);
         updatePointsAndInstruction(edge, wayGeo, time);
 
         if (wayGeo.getSize() <= 2) {
