@@ -36,8 +36,8 @@ RELEASING:
 ## [Unreleased]
 
 ### Fixed
- - Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873)
-
+- Changed isochrone polygon calculation to use more buffering
+- Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873)
 ## [6.4.0] - 2021-03-26
 ### Added
 - API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
