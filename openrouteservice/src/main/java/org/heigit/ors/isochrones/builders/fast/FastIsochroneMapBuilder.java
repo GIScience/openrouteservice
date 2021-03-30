@@ -576,11 +576,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 // results
                 if (goalEdge.edge != -2 || useHighDetail) {
                     double edgeDist = iter.getDistance();
-//                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > minEdgeLengthLimit)) {
-                        addBufferedWayGeometry(points, qtree, goalEdge, bufferSize, iter, edgeDist);
-//                    } else {
-//                        addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
-//                    }
+                    addBufferedWayGeometry(points, qtree, goalEdge, bufferSize, iter, edgeDist);
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
@@ -612,7 +608,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
         PointList pl = iter.fetchWayGeometry(3);
-//        pl = expandAndBufferPointList(pl, bufferSize, minEdgeLengthLimit, maxEdgeLengthLimit);
         int size = pl.getSize();
         if (size > 0) {
             double edgeCost = maxCost - minCost;
