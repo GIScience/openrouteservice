@@ -20,13 +20,12 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 {
     private static final int MEAN_SPEED = 20;
 
-    public ElectroBikeFlagEncoder(PMap properties )
+    public ElectroBikeFlagEncoder(PMap properties)
     {
         this((int) properties.getLong("speed_bits", 4) + (properties.getBool("consider_elevation", false) ? 1 : 0),
                 properties.getLong("speed_factor", 2),
                 properties.getBool("turn_costs", false) ? 1 : 0, properties.getBool("consider_elevation", false));
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
+        setProperties(properties);
     }
     
     public ElectroBikeFlagEncoder( int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation)
