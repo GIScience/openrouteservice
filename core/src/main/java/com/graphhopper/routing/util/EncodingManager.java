@@ -25,10 +25,7 @@ import com.graphhopper.routing.util.parsers.OSMRoundaboutParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.routing.weighting.TurnWeighting;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.IntsRef;
-import com.graphhopper.storage.RAMDirectory;
-import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -683,6 +680,22 @@ public class EncodingManager implements EncodedValueLookup {
     public boolean needsTurnCostsSupport() {
         for (FlagEncoder encoder : edgeEncoders) {
             if (encoder.supports(TurnWeighting.class))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasConditionalAccess() {
+        for (FlagEncoder encoder : edgeEncoders) {
+            if (hasEncodedValue(getKey(encoder, ConditionalEdges.ACCESS)))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasConditionalSpeed() {
+        for (FlagEncoder encoder : edgeEncoders) {
+            if (hasEncodedValue(getKey(encoder, ConditionalEdges.SPEED)))
                 return true;
         }
         return false;

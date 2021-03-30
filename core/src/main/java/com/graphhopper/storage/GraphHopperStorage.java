@@ -51,8 +51,8 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
     private final StorableProperties properties;
     private final BaseGraph baseGraph;
 
-    private final ConditionalEdges conditionalAccess;
-    private final ConditionalEdges conditionalSpeed;
+    private ConditionalEdges conditionalAccess;
+    private ConditionalEdges conditionalSpeed;
 
     public ConditionalEdgesMap getConditionalAccess(FlagEncoder encoder) {
         return getConditionalAccess(encoder.toString());
@@ -117,18 +117,35 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                 }
             }
         };
+// ORS-GH MOD START
+        ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
+
+        if (extendedStorage instanceof ExtendedStorageSequence) {
+            for (GraphExtension extension : ((ExtendedStorageSequence) extendedStorage).getExtensions())
+                graphExtensions.add(extension);
+        }
+        else {
+            graphExtensions.add(extendedStorage);
+        }
+
+        if (encodingManager.hasConditionalAccess()) {
+            this.conditionalAccess = new ConditionalEdges(encodingManager, ConditionalEdges.ACCESS);
+            graphExtensions.add(conditionalAccess);
+        }
+
+        if (encodingManager.hasConditionalSpeed()) {
+            this.conditionalSpeed = new ConditionalEdges(encodingManager, ConditionalEdges.SPEED);
+            graphExtensions.add(conditionalSpeed);
+        }
+
+        extendedStorage = new ExtendedStorageSequence(graphExtensions);
+// ORS-GH MOD END
 
         baseGraph = new BaseGraph(dir, encodingManager, withElevation, listener, extendedStorage);
         this.chGraphs = new ArrayList<>(chProfiles.size());
         for (CHProfile chProfile : chProfiles) {
             chGraphs.add(new CHGraphImpl(chProfile, dir, baseGraph));
         }
-
-        this.conditionalAccess = new ConditionalEdges(encodingManager, ConditionalEdges.ACCESS);
-        this.conditionalAccess.init(this, dir);
-
-        this.conditionalSpeed = new ConditionalEdges(encodingManager, ConditionalEdges.SPEED);
-        this.conditionalSpeed.init(this, dir);
     }
 
     public CHGraph getCHGraph() {
@@ -229,9 +246,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.setSegmentSize(bytes);
         }
-
-        conditionalAccess.setSegmentSize(bytes);
-        conditionalSpeed.setSegmentSize(bytes);
     }
 
     /**
@@ -263,8 +277,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         properties.put("graph.ch.profiles", getCHProfiles().toString());
 
-        conditionalAccess.create(initSize);
-        conditionalSpeed.create(initSize);
         return this;
     }
 
@@ -350,9 +362,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
                     throw new IllegalStateException("Cannot load " + cg);
             }
 
-            conditionalAccess.loadExisting();
-            conditionalSpeed.loadExisting();
-
             return true;
         }
         return false;
@@ -404,8 +413,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
 
         baseGraph.flush();
         properties.flush();
-        conditionalAccess.flush();
-        conditionalSpeed.flush();
     }
 
     @Override
@@ -416,9 +423,6 @@ public final class GraphHopperStorage implements GraphStorage, Graph {
         for (CHGraphImpl cg : getAllCHGraphs()) {
             cg.close();
         }
-
-        conditionalAccess.close();
-        conditionalSpeed.close();
     }
 
     @Override
