@@ -322,7 +322,10 @@ class RouteResultBuilder
 	}
 
 	private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr) {
-		if (instrType == InstructionType.FINISH || (instrType == InstructionType.DEPART && instr.getDistance() == 0.0 && instr.getPoints().size() == 1))
+		if (instrType == InstructionType.FINISH
+                // "empty" departure instruction means start and end coordinates are the same, index should not increase
+                || (instrType == InstructionType.DEPART && instr.getDistance() == 0.0 && instr.getPoints().size() == 1)
+            )
 			return startIndex;
 		else
 			return startIndex + instr.getPoints().size();
