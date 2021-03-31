@@ -2721,6 +2721,27 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testIdenticalCoordinatesIndexing() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(314))
+                .body("features[0].properties.segments[1].steps[0].way_points[0]", is(160))
+                .body("features[0].properties.segments[1].steps[0].way_points[1]", is(160))
+                .statusCode(200);
+    }
+
+    @Test
     public void testRouteMergeInstructionsWithoutGeometry() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
