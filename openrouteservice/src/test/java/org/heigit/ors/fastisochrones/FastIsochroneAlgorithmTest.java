@@ -95,10 +95,12 @@ public class FastIsochroneAlgorithmTest {
         fastIsochroneAlgorithm.calcIsochroneNodes(1, 5.5);
         Set<Integer> nodeIds = new HashSet<>();
         Set<Integer> expectedNodeIds = new HashSet<>();
+        expectedNodeIds.add(3);
         expectedNodeIds.add(4);
         expectedNodeIds.add(5);
         expectedNodeIds.add(6);
         expectedNodeIds.add(7);
+        expectedNodeIds.add(8);
 
         for (IntObjectCursor<SPTEntry> entry : fastIsochroneAlgorithm.getActiveCellMaps().get(3)) {
             nodeIds.add(entry.value.adjNode);
