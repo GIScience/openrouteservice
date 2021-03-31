@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- Fixed incorrect indexing of waypoints for consecutive identical coordinates ([#762](https://github.com/GIScience/openrouteservice/issues/762)
 
 ### Fixed
  - Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873)
