@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Turkish language support (thanks to [kucar17](https://github.com/kucar17) for the translation)
 
 ## [6.4.1] - 2021-03-31
 ### Fixed
