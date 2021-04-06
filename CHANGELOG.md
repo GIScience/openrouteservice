@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676)
 
 ## [6.4.1] - 2021-03-31
 ### Fixed
