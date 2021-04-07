@@ -44,8 +44,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
             properties.getBool("turn_costs", false) ? 1 : 0,
             properties.getBool("consider_elevation", false)
         );
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
+        setProperties(properties);
     }
 
     public MountainBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
