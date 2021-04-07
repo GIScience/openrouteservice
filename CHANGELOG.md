@@ -34,11 +34,13 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Allow to disable OSM conditional access and speed encoders via parameter in config file
 
 ## [6.4.1] - 2021-03-31
 ### Fixed
-- Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873)
-- Fixed incorrect indexing of waypoints for consecutive identical coordinates ([#762](https://github.com/GIScience/openrouteservice/issues/762)
+- Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873))
+- Fixed incorrect indexing of waypoints for consecutive identical coordinates ([#762](https://github.com/GIScience/openrouteservice/issues/762))
 - Changed isochrone polygon calculation to use more buffering
 
 ## [6.4.0] - 2021-03-26
@@ -50,7 +52,7 @@ RELEASING:
 - Remove Isochrones v1 api tests
 ### Fixed
 - Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
-- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695)
+- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695))
 - Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 - Fixed continue_straight option with no bearing on CH-enabled profiles
 

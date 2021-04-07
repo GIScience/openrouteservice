@@ -23,8 +23,10 @@ import com.graphhopper.routing.profiles.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,8 +68,18 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     protected Map<String, Integer> badSurfaceSpeedMap;
     protected Map<String, Integer> defaultSpeedMap;
 
-    private BooleanEncodedValue conditionalEncoder;
+    private BooleanEncodedValue conditionalAccessEncoder;
     private BooleanEncodedValue conditionalSpeedEncoder;
+
+    protected void setProperties(PMap properties) {
+        this.properties = properties;
+
+        this.setBlockFords(properties.getBool("block_fords", true));
+        this.setBlockByDefault(properties.getBool("block_barriers", true));
+        speedTwoDirections = properties.getBool("speed_two_directions", true);
+        useAcceleration = properties.getBool("use_acceleration", false);
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
+    }
 
     VehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
@@ -175,8 +187,10 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
         // FIXME: shouldn't this be directional?
-        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
-        registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_speed"), false));
+        if (properties.getBool(ConditionalEdges.ACCESS, false))
+            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), false));
+        if (properties.getBool(ConditionalEdges.SPEED, false))
+            registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
 
     }
 
@@ -203,7 +217,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
             // TODO: save conditional speeds only if their value is different from the default speed
             if (getConditionalSpeedInspector()!=null && getConditionalSpeedInspector().hasConditionalSpeed(way))
-                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions())
+                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder!=null)
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
                 else
                     // conditional maxspeed overrides unconditional one
@@ -261,8 +275,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 accessEnc.setBool(true, edgeFlags, true);
             }
 
-            if (access.isConditional())
-                conditionalEncoder.setBool(false, edgeFlags, true);
+            if (access.isConditional() && conditionalAccessEncoder!=null)
+                conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = getFerrySpeed(way);
             accessEnc.setBool(false, edgeFlags, true);
