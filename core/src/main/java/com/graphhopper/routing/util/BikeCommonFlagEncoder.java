@@ -21,6 +21,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.InstructionAnnotation;
@@ -221,7 +222,7 @@ abstract public class BikeCommonFlagEncoder extends AbstractFlagEncoder {
         registerNewEncodedValue.add(unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false));
         registerNewEncodedValue.add(wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false));
         registerNewEncodedValue.add(priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false));
-        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
+        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(getKey(prefix, ConditionalEdges.ACCESS), false));
     }
 
     @Override

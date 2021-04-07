@@ -260,15 +260,15 @@ public class Path {
      *
      * @param prevEdgeId the edge that comes before edgeId: --prevEdgeId-x-edgeId-->adjNode
      */
-    protected void processEdge(int edgeId, int adjNode, int prevEdgeId, boolean reverse) {
-        EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
-        distance += iter.getDistance();
-        addTime(weighting.calcMillis(iter, reverse, prevEdgeId));
-        addEdge(edgeId);
-    }
-
     protected void processEdge(int edgeId, int adjNode, int prevEdgeId) {
         processEdge(edgeId, adjNode, prevEdgeId, false);
+    }
+
+    protected void processEdge(int edgeId, int adjNode, int prevOrNextEdgeId, boolean reverse) {
+        EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, adjNode);
+        distance += iter.getDistance();
+        addTime(weighting.calcMillis(iter, reverse, prevOrNextEdgeId));
+        addEdge(edgeId);
     }
 
     /**

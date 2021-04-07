@@ -5,6 +5,7 @@ import ch.poole.conditionalrestrictionparser.Restriction;
 import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.DateTimeHelper;
 import com.graphhopper.storage.ConditionalEdgesMap;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -32,7 +33,7 @@ public class ConditionalSpeedCalculator implements SpeedCalculator{
 
         // time-dependent stuff
         EncodingManager encodingManager = graph.getEncodingManager();
-        String encoderName = encodingManager.getKey(encoder, "conditional_speed");
+        String encoderName = EncodingManager.getKey(encoder, ConditionalEdges.SPEED);
 
         if (!encodingManager.hasEncodedValue(encoderName)) {
             throw new IllegalStateException("No conditional speed associated with the flag encoder");
