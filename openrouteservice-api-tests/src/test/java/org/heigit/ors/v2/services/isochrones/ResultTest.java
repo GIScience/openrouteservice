@@ -233,7 +233,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1405804.8f))
+                .body("features[0].properties.area", is(1552274.2f))
                 .statusCode(200);
     }
 
