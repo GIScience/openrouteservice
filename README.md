@@ -51,7 +51,7 @@ If you need to install without Docker, on an Ubuntu 16.04 system (also generally
   2. Make sure that you have java 1.8 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
-  5. Copy the `openrouteservice/WebContent/WEB-INF/app.config.sample` file to the same location but renaming it to `app.config`.
+  5. Copy the `openrouteservice/src/main/resources/app.config.sample` file to the same location but renaming it to `app.config`.
   6. Update the `app.config` file to reflect the various settings, profiles you want to have running, and the locations of various files, in particular the source location of the OSM file that will be used and additional files required for extended storages. You should make sure that these folders/files are accessible by the service, for example by using the `sudo chmod -R 777 [path to folder]` command.
   7. From within the `openrouteservice` folder (containing the pom file and the src folder, amongst others) run the command `mvn package`. This will build the openrouteservice ready for tomcat deployment.
 
@@ -72,7 +72,7 @@ CATALINA_OPTS="(here we set settings for JMX monitoring)"
 sudo cp ~/openrouteservice/openroutesrvice/target/openroutservice-4.7.0.war /var/lib/tomcat8/webapps/ors.war
 ```
 
-  5. Tomcat should now automatically detect the new WAR file and deploy the service. Depending on profiles and size of the OSM data, this can take some time until openrouteservice has built graphs and is ready for generating routes. You can check if it is ready by accessing `http://localhost:8080/ors/health` (the port and URL may be different if you have installed Tomcat differently than above). If you get a `status: ready` message, you are good to go in creating routes.
+  5. Tomcat should now automatically detect the new WAR file and deploy the service. Depending on profiles and size of the OSM data, this can take some time until openrouteservice has built graphs and is ready for generating routes. You can check if it is ready by accessing `http://localhost:8082/ors/health` (the port and URL may be different if you have installed Tomcat differently than above). If you get a `status: ready` message, you are good to go in creating routes.
 
 There are numerous settings within the `app.config` which are highly dependent on your individual circumstances, but many of these are documented. As a guide however you can look at the `app.config.sample` file in the `docker/conf` folder. If you run into issues relating to out of memory or similar, then you will need to adjust java/tomcat settings accordingly.
 
@@ -80,9 +80,9 @@ There are numerous settings within the `app.config` which are highly dependent o
 
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
 
-- `http://localhost:8080/name_of_war_archive/routes`
-- `http://localhost:8080/name_of_war_archive/isochrones`
-- `http://localhost:8080/name_of_war_archive/matrix`
+- `http://localhost:8082/v2/routes`
+- `http://localhost:8082/v2/isochrones`
+- `http://localhost:8082/v2/matrix`
 
 ## API Documentation
 
