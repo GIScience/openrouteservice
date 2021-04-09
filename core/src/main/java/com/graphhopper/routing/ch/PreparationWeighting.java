@@ -17,8 +17,7 @@
  */
 package com.graphhopper.routing.ch;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
@@ -30,68 +29,57 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  * @see PrepareContractionHierarchies
  */
-public class PreparationWeighting implements Weighting {
-    private final Weighting userWeighting;
+// ORS-GH MOD START - this class has been heavily refactored an modified to accommodate for time-dependent routing
+public class PreparationWeighting extends AbstractAdjustedWeighting {
 
-    public PreparationWeighting(Weighting userWeighting) {
-        this.userWeighting = userWeighting;
+    public PreparationWeighting(Weighting superWeighting) {
+        super(superWeighting);
     }
 
     @Override
     public final double getMinWeight(double distance) {
-        return userWeighting.getMinWeight(distance);
+        return superWeighting.getMinWeight(distance);
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        CHEdgeIteratorState tmp = (CHEdgeIteratorState) edgeState;
-        if (tmp.isShortcut())
-            // if a shortcut is in both directions the weight is identical => no need for 'reverse'
-            return tmp.getWeight();
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+        if (isShortcut(edge))
+            return ((CHEdgeIteratorState) edge).getWeight();
 
-        return userWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+        return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId);
     }
 
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcWeight(edge, reverse, prevOrNextEdgeId);
+        if (isShortcut(edge))
+            return ((CHEdgeIteratorState) edge).getWeight();
+
+        return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId, edgeEnterTime);
     }
 
     @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        if (edgeState instanceof CHEdgeIteratorState && ((CHEdgeIteratorState) edgeState).isShortcut()) {
-            throw new IllegalStateException("calcMillis should only be called on original edges");
-        }
-        return userWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+        if (isShortcut(edge))
+            return ((CHEdgeIteratorState) edge).getTime();
+
+        return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId);
     }
 
     @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        if (isShortcut(edge))
+            return ((CHEdgeIteratorState) edge).getTime();
+
+        return super.calcMillis(edge, reverse, prevOrNextEdgeId, edgeEnterTime);
     }
 
-    @Override
-    public FlagEncoder getFlagEncoder() {
-        return userWeighting.getFlagEncoder();
-    }
-
-    @Override
-    public boolean matches(HintsMap map) {
-        return getName().equals(map.getWeighting()) && userWeighting.getFlagEncoder().toString().equals(map.getVehicle());
+    boolean isShortcut(EdgeIteratorState edge) {
+        return (edge instanceof CHEdgeIteratorState && ((CHEdgeIteratorState) edge).isShortcut());
     }
 
     @Override
     public String getName() {
-        return "prepare|" + userWeighting.getName();
-    }
-
-    @Override
-    public String toString() {
-        return getName();
-    }
-
-    @Override
-    public boolean isTimeDependent() {
-        return false;
+        return "prepare";
     }
 }
+// ORS-GH MOD END
