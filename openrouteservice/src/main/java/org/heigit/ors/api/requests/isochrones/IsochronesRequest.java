@@ -44,7 +44,7 @@ public class IsochronesRequest {
     public static final String PARAM_ATTRIBUTES = "attributes";
     public static final String PARAM_INTERVAL = "interval";
     public static final String PARAM_SMOOTHING = "smoothing";
-    public static final String PARAM_DEPARTURE = "departure";
+    public static final String PARAM_TIME = "time";
 
 
     @ApiModelProperty(name = PARAM_ID,
@@ -159,13 +159,13 @@ public class IsochronesRequest {
     @JsonIgnore
     private boolean hasSmoothing = false;
 
-    @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
+    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
             example = "2020-01-31T12:45:00")
-    @JsonProperty(PARAM_DEPARTURE)
-    private LocalDateTime departure;
+    @JsonProperty(PARAM_TIME)
+    private LocalDateTime time;
     @JsonIgnore
-    private boolean hasDeparture = false;
+    private boolean hasTime = false;
 
     @JsonCreator
     public IsochronesRequest() {
@@ -344,15 +344,15 @@ public class IsochronesRequest {
         return hasInterval;
     }
 
-    public LocalDateTime getDeparture() {
-        return departure;
+    public LocalDateTime getTime() {
+        return time;
     }
 
-    public void setDeparture(LocalDateTime departure) {
-        this.departure = departure;
-        hasDeparture = true;
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+        hasTime = true;
     }
 
-    public boolean hasDeparture() { return hasDeparture; }
+    public boolean hasTime() { return hasTime; }
 
 }
