@@ -1,0 +1,96 @@
+{
+	instructions {
+		"numerals": {
+			"1": "1.",
+			"2": "2.",
+			"3": "3.",
+			"4": "4.",
+			"5": "5.",
+			"6": "6.",
+			"7": "7.",
+			"8": "8.",
+			"9": "9.",
+			"10": "10."
+		},
+		"directions": {
+			"north": "pohjoinen",
+			"northeast": "koillinen",
+			"east": "itä",
+			"southeast": "kaakko",
+			"south": "etelä",
+			"southwest": "lounas",
+			"west": "länsi",
+			"northwest": "luode"
+		},
+		"turn_maneuvers": {
+			"left": "vasemmalle",
+			"right": "oikealle",
+			"sharp_left": "jyrkkä vasen",
+			"sharp_right": "jyrkkä oikea",
+			"slight_left": "loiva vasen",
+			"slight_right": "loiva oikea",
+			"straight": "suoraan",
+			"uturn": "u-käännös"
+		},
+		"actions": {
+			"arrive": {
+           		 	"default": {
+		                "default": "Arrive at your destination",
+						"name": "Arrive at {way_name}"
+                	},
+					"left": {
+						"default": "Arrive at your destination, on the left",
+						"name": "Arrive at {way_name}, on the left"
+					},
+					"right": {
+						"default": "Arrive at your destination, on the right",
+						"name": "Arrive at {way_name}, on the right"
+					},
+					"straight": {
+						"default": "Arrive at your destination, straight ahead",
+						"name": "Arrive at {way_name}, straight ahead"
+					}
+			},          
+			"depart": {
+				"default": {
+					"default": "Suntaa {direction}",
+					"name": "Suntaa {direction} tielle {way_name}"
+				}
+			},
+			"roundabout": {
+				"default": {
+					"exit": {
+						"default": "Aja liikenneympyrään ja poistu {exit_number} liittymästä",
+						"name": "Aja liikenneympyrään ja poistu {exit_number} liittymästä {wayname}"
+					},
+					"default": {
+						"default": "Aja liikenneympyrään",
+						"name": "Aja liikenneympyrään ja poistu tielle {way_name}"
+					}
+				}
+			},
+			"turn": {
+				"default": {
+					"default": "Käänny {turn_maneuver}",
+					"name": "Käänny {turn_maneuver} tielle {way_name}",
+				},
+			},
+			"continue": {
+				"default": {
+					"default": "Jatka {turn_maneuver}",
+					"name": "Jatka {turn_maneuver} {way_name}"
+				},
+				"uturn": {
+					"default": "Tee u-käännös",
+					"name": "Tee u-käännös {way_name}"
+				}
+			}
+			"keep": {
+				"default": {
+					"default": "Keep {turn_maneuver}",
+					"name": "Keep {turn_maneuver} onto {way_name}"
+				},
+			}
+		}
+	}
+}
