@@ -180,6 +180,7 @@
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=false",
               "maximum_distance": 100000,
               "elevation": true,
+              "maximum_speed_lower_bound": 75,
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
