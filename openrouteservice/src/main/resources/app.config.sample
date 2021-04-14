@@ -177,7 +177,7 @@
             "profiles": "driving-hgv",
             "parameters": {
               "encoder_flags_size": 8,
-              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=false",
+              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
               "maximum_distance": 100000,
               "elevation": true,
               "maximum_speed_lower_bound": 75,
