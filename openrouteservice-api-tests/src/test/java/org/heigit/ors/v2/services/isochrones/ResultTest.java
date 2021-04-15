@@ -197,6 +197,47 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testLocationType() {
+
+        JSONArray locations = new JSONArray();
+        JSONArray loc1 = new JSONArray();
+        loc1.put(8.681495);
+        loc1.put(49.41461);
+        locations.put(loc1);
+        JSONArray ranges = new JSONArray();
+        ranges.put(200);
+
+        JSONObject body = new JSONObject();
+        body.put("locations", locations);
+        body.put("range", ranges);
+        body.put("attributes", getParameter("attributesReachfactorArea"));
+        body.put("range_type", "time");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .body("features[0].properties.area", is(1688618.6f))
+                .statusCode(200);
+
+        body.put("location_type", "destination");
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .body("features[0].properties.area", is(1552274.2f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testReachfactorAndArea() {
 
         JSONObject body = new JSONObject();
