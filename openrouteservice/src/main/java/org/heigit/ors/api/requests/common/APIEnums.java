@@ -349,6 +349,8 @@ public class APIEnums {
         PL_PL("pl-pl"),
         PT("pt"),
         PT_PT("pt-pt"),
+        TR("tr"),
+        TR_TR("tr-tr"),
         RU("ru"),
         RU_RU("ru-ru"),
         ZH("zh"),
