@@ -41,7 +41,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private static final Logger LOGGER = Logger.getLogger(PrepareCore.class);
     private final CHProfile chProfile;
     private final PreparationWeighting prepareWeighting;
-    private final TraversalMode traversalMode;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
     private final CHGraphImpl prepareGraph;
@@ -85,7 +84,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.ghStorage = ghStorage;
         this.prepareGraph = (CHGraphImpl) chGraph;
         this.chProfile = chGraph.getCHProfile();
-        this.traversalMode = chProfile.getTraversalMode();
         this.weighting = chProfile.getWeighting();
         this.flagEncoder = weighting.getFlagEncoder();
         this.restrictionFilter = restrictionFilter;
