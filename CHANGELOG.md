@@ -37,6 +37,8 @@ RELEASING:
 ### Added
 - Allow to disable OSM conditional access and speed encoders via parameter in config file
 - Turkish language support (thanks to [kucar17](https://github.com/kucar17) for the translation)
+### Changed
+- app.config.sample HGV profile has now same settings regarding speed calculation as public API ([#806](https://github.com/GIScience/openrouteservice/issues/806))
 ### Fixed
 - Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676)
 - Updated link to client translations in readme
