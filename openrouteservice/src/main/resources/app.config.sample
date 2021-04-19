@@ -119,7 +119,7 @@
             "profiles": "driving-car",
             "parameters": {
               "encoder_flags_size": 8,
-              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=false",
+              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
               "maximum_distance": 100000,
               "elevation": true,
               "maximum_snapping_radius": 350,
@@ -180,7 +180,6 @@
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
               "maximum_distance": 100000,
               "elevation": true,
-              "maximum_speed_lower_bound": 75,
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
@@ -190,12 +189,6 @@
                     "enabled": true,
                     "threads": 1,
                     "weightings": "recommended"
-                  },
-                  "lm": {
-                    "enabled": true,
-                    "threads": 1,
-                    "weightings": "recommended,shortest",
-                    "landmarks": 16
                   },
                   "core": {
                     "enabled": true,
@@ -210,10 +203,6 @@
                 "methods": {
                   "ch": {
                     "disabling_allowed": true
-                  },
-                  "lm": {
-                    "disabling_allowed": true,
-                    "active_landmarks": 6
                   },
                   "core": {
                     "disabling_allowed": true,
