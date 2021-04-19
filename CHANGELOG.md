@@ -43,6 +43,9 @@ RELEASING:
 - Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676)
 - Updated link to client translations in readme
 
+### Fixed
+- Updated installation instructions and usage to reflect v2 api ([#744](https://github.com/GIScience/openrouteservice/issues/744))
+
 ## [6.4.1] - 2021-03-31
 ### Fixed
 - Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873))
