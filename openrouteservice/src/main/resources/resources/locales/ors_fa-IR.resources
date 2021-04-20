@@ -1,36 +1,36 @@
 {
 	instructions {
 		"numerals": {
-			"1": "1st",
-			"2": "2nd",
-			"3": "3rd",
-			"4": "4th",
-			"5": "5th",
-			"6": "6th",
-			"7": "7th",
-			"8": "8th",
-			"9": "9th",
-			"10": "10th"
+			"1": "اول",
+			"2": "دوم",
+			"3": "سوم",
+			"4": "چهارم",
+			"5": "پنجم",
+			"6": "ششم",
+			"7": "هفتم",
+			"8": "هشتم",
+			"9": "نهم",
+			"10": "دهم"
 		},
 		"directions": {
-			"north": "north",
-			"northeast": "northeast",
-			"east": "east",
-			"southeast": "southeast",
-			"south": "south",
-			"southwest": "southwest",
-			"west": "west",
-			"northwest": "northwest"
+			"north": "شمال",
+			"northeast": "شمال شرقی",
+			"east": "شرق",
+			"southeast": "جنوب شرقی",
+			"south": "جنوب",
+			"southwest": "جنوب غربی",
+			"west": "غرب",
+			"northwest": "شمال غربی"
 		},
 		"turn_maneuvers": {
-			"left": "left",
-			"right": "right",
-			"sharp_left": "sharp left",
-			"sharp_right": "sharp right",
-			"slight_left": "slight left",
-			"slight_right": "slight right",
-			"straight": "straight",
-			"uturn": "U-turn"
+			"left": "چپ",
+			"right": "راست",
+			"sharp_left": "تیز به سمت چپ",
+			"sharp_right": "تیز به سمت راست",
+			"slight_left": "نرم به سمت چپ",
+			"slight_right": "نرم به سمت راست",
+			"straight": "مستقیم",
+			"uturn": "دور برگردان"
 		},
 		"actions": {
 			"arrive": {
@@ -53,36 +53,36 @@
 			},          
 			"depart": {
 				"default": {
-					"default": "Head {direction}",
-					"name": "Head {direction} on {way_name}"
+					"default": "مستقیم {direction}",
+					"name": "مستقیم {direction} به {way_name}"
 				}
 			},
 			"roundabout": {
 				"default": {
 					"exit": {
-						"default": "Enter the roundabout and take the {exit_number} exit",
-						"name": "Enter the roundabout and take the {exit_number} exit onto {way_name}"
+						"default": "وارد میدان شده و از خروجی {exit_number} خارج شوید",
+						"name": "وارد میدان شده و از خروجی {exit_number} خارج شده و به {way_name} بروید"
 					},
 					"default": {
-						"default": "Enter the roundabout",
-						"name": "Enter the roundabout and exit onto {way_name}"
+						"default": "وارد میدان شوید",
+						"name": "وارد میدان شده و به {way_name} خارج شوید"
 					}
 				}
 			},
 			"turn": {
 				"default": {
-					"default": "Turn {turn_maneuver}",
-					"name": "Turn {turn_maneuver} onto {way_name}",
+					"default": "بپیچ به {turn_maneuver}",
+					"name": "به سمت {turn_maneuver} به {way_name} بپیچید",
 				},
 			},
 			"continue": {
 				"default": {
-					"default": "Continue {turn_maneuver}",
-					"name": "Continue {turn_maneuver} onto {way_name}"
+					"default": "به سمت {turn_maneuver} ادامه دهید",
+					"name": "به سمت {turn_maneuver} به {way_name} ادامه دهید"
 				},
 				"uturn": {
-					"default": "Make a U-turn",
-					"name": "Make a U-turn onto {way_name}"
+					"default": "دور بزنید",
+					"name": "به {way_name} دور بزنید"
 				}
 			}
 			"keep": {
