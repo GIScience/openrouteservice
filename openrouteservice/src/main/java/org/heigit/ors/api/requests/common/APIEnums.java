@@ -327,6 +327,8 @@ public class APIEnums {
         EN_US("en-us"),
         ES("es"),
         ES_ES("es-es"),
+		FA("fa"),
+		FA_IR("fa-ir"),
         FR("fr"),
         FR_FR("fr-fr"),
         GR("gr"),

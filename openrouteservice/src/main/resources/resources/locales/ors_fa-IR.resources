@@ -1,0 +1,96 @@
+{
+	instructions {
+		"numerals": {
+			"1": "1st",
+			"2": "2nd",
+			"3": "3rd",
+			"4": "4th",
+			"5": "5th",
+			"6": "6th",
+			"7": "7th",
+			"8": "8th",
+			"9": "9th",
+			"10": "10th"
+		},
+		"directions": {
+			"north": "north",
+			"northeast": "northeast",
+			"east": "east",
+			"southeast": "southeast",
+			"south": "south",
+			"southwest": "southwest",
+			"west": "west",
+			"northwest": "northwest"
+		},
+		"turn_maneuvers": {
+			"left": "left",
+			"right": "right",
+			"sharp_left": "sharp left",
+			"sharp_right": "sharp right",
+			"slight_left": "slight left",
+			"slight_right": "slight right",
+			"straight": "straight",
+			"uturn": "U-turn"
+		},
+		"actions": {
+			"arrive": {
+           		 	"default": {
+		                "default": "Arrive at your destination",
+						"name": "Arrive at {way_name}"
+                	},
+					"left": {
+						"default": "Arrive at your destination, on the left",
+						"name": "Arrive at {way_name}, on the left"
+					},
+					"right": {
+						"default": "Arrive at your destination, on the right",
+						"name": "Arrive at {way_name}, on the right"
+					},
+					"straight": {
+						"default": "Arrive at your destination, straight ahead",
+						"name": "Arrive at {way_name}, straight ahead"
+					}
+			},          
+			"depart": {
+				"default": {
+					"default": "Head {direction}",
+					"name": "Head {direction} on {way_name}"
+				}
+			},
+			"roundabout": {
+				"default": {
+					"exit": {
+						"default": "Enter the roundabout and take the {exit_number} exit",
+						"name": "Enter the roundabout and take the {exit_number} exit onto {way_name}"
+					},
+					"default": {
+						"default": "Enter the roundabout",
+						"name": "Enter the roundabout and exit onto {way_name}"
+					}
+				}
+			},
+			"turn": {
+				"default": {
+					"default": "Turn {turn_maneuver}",
+					"name": "Turn {turn_maneuver} onto {way_name}",
+				},
+			},
+			"continue": {
+				"default": {
+					"default": "Continue {turn_maneuver}",
+					"name": "Continue {turn_maneuver} onto {way_name}"
+				},
+				"uturn": {
+					"default": "Make a U-turn",
+					"name": "Make a U-turn onto {way_name}"
+				}
+			}
+			"keep": {
+				"default": {
+					"default": "Keep {turn_maneuver}",
+					"name": "Keep {turn_maneuver} onto {way_name}"
+				},
+			}
+		}
+	}
+}
