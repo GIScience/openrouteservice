@@ -40,12 +40,11 @@ RELEASING:
 ### Changed
 - app.config.sample HGV profile has now same settings regarding speed calculation as public API ([#806](https://github.com/GIScience/openrouteservice/issues/806))
 ### Fixed
-- Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676)
-- Updated link to client translations in readme
+- Concurrency bug in core edge filters which caused crashes during CALT graph preparation ([#905](https://github.com/GIScience/openrouteservice/issues/905))
 - Fixed isochrones range documentation ([#882](https://github.com/GIScience/openrouteservice/issues/676))
-
-### Fixed
 - Updated installation instructions and usage to reflect v2 api ([#744](https://github.com/GIScience/openrouteservice/issues/744))
+- Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676))
+- Updated link to client translations in readme
 
 ## [6.4.1] - 2021-03-31
 ### Fixed
