@@ -28,6 +28,7 @@ import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.DistanceUnitUtil;
@@ -137,6 +138,9 @@ public class RouteRequestHandler extends GenericHandler {
         try {
             profileType = convertRouteProfileType(request.getProfile());
             params.setProfileType(profileType);
+            if (profileType == RoutingProfileType.DRIVING_HGV) {
+                params.setVehicleType(HeavyVehicleAttributes.HGV);
+            }
         } catch (Exception e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
