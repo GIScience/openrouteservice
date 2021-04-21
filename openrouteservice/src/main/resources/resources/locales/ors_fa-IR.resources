@@ -35,20 +35,20 @@
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "وارد مقصد شوید",
+						"name": "وارد {way_name} شوید"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "با پیچیدن به چپ، وارد مقصد شوید",
+						"name": "با پیچیدن به چپ، وارد {way_name} شوید"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "با پیچیدن به راست، وارد مقصد شوید",
+						"name": "با پیچیدن به راست، وارد {way_name} شوید"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "با مستقیم به جلو، وارد مقصد شوید",
+						"name": "با مستقیم به جلو، وارد {way_name} شوید"
 					}
 			},          
 			"depart": {
@@ -87,8 +87,8 @@
 			}
 			"keep": {
 				"default": {
-					"default": "Keep {turn_maneuver}",
-					"name": "Keep {turn_maneuver} onto {way_name}"
+					"default": "از {turn_maneuver} برانید",
+					"name": "از {turn_maneuver} برانید به {way_name}"
 				},
 			}
 		}
