@@ -117,7 +117,6 @@ public class RoutingProfile {
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
     private static final int KEY_FLEX_FULLY = 2;
-    private static final int KEY_FLEX_TIMEDEPENDENT = 3;
     private static int profileIdentifier = 0;
     private static final Object lockObj = new Object();
 
@@ -921,7 +920,7 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm(searchParams.isTimeDependent() ? Parameters.Algorithms.TD_DIJKSTRA : Parameters.Algorithms.DIJKSTRA_BI);
+            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
@@ -934,12 +933,14 @@ public class RoutingProfile {
 
             if (supportWeightingMethod(profileType)) {
                 setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+                if (requiresTimeDependentWeighting(searchParams, searchCntx))
+                    flexibleMode = KEY_FLEX_PREPROCESSED;
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             }
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            if(flexibleMode == KEY_FLEX_STATIC)
+            if (flexibleMode == KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
                 setSpeedups(req, true, true, true);
 
@@ -951,9 +952,7 @@ public class RoutingProfile {
             if(flexibleMode == KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true);
 
-            if (flexibleMode == KEY_FLEX_TIMEDEPENDENT) {
-                setSpeedups(req, false, false, true);
-                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
+            if (searchParams.isTimeDependent()) {
                 if (searchParams.hasDeparture())
                     req.getHints().put("departure", searchParams.getDeparture());
                 else if (searchParams.hasArrival())
@@ -1009,12 +1008,7 @@ public class RoutingProfile {
      * @return flexibility as int
      */
     private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
-        if (searchParams.isTimeDependent())
-            return KEY_FLEX_TIMEDEPENDENT;
-
-        if(searchParams.requiresDynamicPreprocessedWeights())
-            flexibleMode = KEY_FLEX_PREPROCESSED;
-        if(profileType == RoutingProfileType.WHEELCHAIR)
+        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
             flexibleMode = KEY_FLEX_PREPROCESSED;
 
         if(searchParams.requiresFullyDynamicWeights())
@@ -1080,7 +1074,7 @@ public class RoutingProfile {
         req.getHints().put(KEY_CORE_DISABLE, !useCore);
         req.getHints().put(KEY_LM_DISABLE, !useALT);
 
-        if(useCore || useALT)
+        if(!useCH)
             req.setAlgorithm(KEY_ASTARBI);
     }
 
@@ -1088,6 +1082,16 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = searchCntx.getEncoder();
         String key = EncodingManager.getKey(flagEncoder, "conditional_speed");
         return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
+    }
+
+    boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        if (!searchParams.isTimeDependent())
+            return false;
+
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_access"))
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_speed"));
     }
 
     /**

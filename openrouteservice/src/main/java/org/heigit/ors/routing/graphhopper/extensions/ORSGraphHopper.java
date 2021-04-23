@@ -27,6 +27,7 @@ import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
@@ -40,6 +41,7 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -291,22 +293,13 @@ public class ORSGraphHopper extends GraphHopper {
 						throw new IllegalArgumentException(
 								"Heading is not (fully) supported for CHGraph. See issue #483");
 
-					// if LM is enabled we have the LMFactory with the CH algo!
-					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-					if (tmpAlgoFactory instanceof CoreLMAlgoFactoryDecorator.CoreLMRAFactory)
-						chAlgoFactory = ((CoreLMAlgoFactoryDecorator.CoreLMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
-
-					if (chAlgoFactory instanceof PrepareCore)
-						weighting = ((PrepareCore) chAlgoFactory).getWeighting();
-					else
-						throw new IllegalStateException(
-								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-
 					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
 
 					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
 					queryGraph.lookup(qResults);
+
+					weighting = createWeighting(hints, encoder, queryGraph);
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -348,34 +341,34 @@ public class ORSGraphHopper extends GraphHopper {
 					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
 				}
 
+				if (isRequestTimeDependent(hints)) {
+					weighting = createTimeDependentAccessWeighting(weighting);
 
-				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
-				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
-				if (weighting instanceof TurnWeighting)
-	                ((TurnWeighting)weighting).setInORS(true);
+					if (weighting.isTimeDependent())
+						algoStr = TD_ASTAR;
 
-				weighting = createTimeDependentAccessWeighting(weighting, algoStr);
-
-				if (weighting.isTimeDependent()) {
 					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
-					String key;
 					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
 					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
 					ghRsp.getHints().put("timezone.departure", dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
 					ghRsp.getHints().put("timezone.arrival", dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
-					if (hints.has("departure")) {
-						key = "departure";
+
+					String key;
+					if (hints.has(RouteRequest.PARAM_DEPARTURE)) {
+						key = RouteRequest.PARAM_DEPARTURE;
 						point = departurePoint;
 					} else {
-						key = "arrival";
+						key = RouteRequest.PARAM_ARRIVAL;
 						point = arrivalPoint;
 					}
 					String time = hints.get(key, "");
 					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
-				} else {
-					hints.remove("departure");
-					hints.remove("arrival");
 				}
+
+				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
+				if (weighting instanceof TurnWeighting)
+					((TurnWeighting)weighting).setInORS(true);
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
@@ -411,6 +404,18 @@ public class ORSGraphHopper extends GraphHopper {
 		} finally {
 			readLock.unlock();
 		}
+	}
+
+	private boolean isRequestTimeDependent(HintsMap hints) {
+		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
+	}
+
+	public Weighting createTimeDependentAccessWeighting(Weighting weighting) {
+		FlagEncoder flagEncoder = weighting.getFlagEncoder();
+		if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_access")))
+			return new TimeDependentAccessWeighting(weighting, getGraphHopperStorage(), flagEncoder);
+		else
+			return weighting;
 	}
 
 	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
