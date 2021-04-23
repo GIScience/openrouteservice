@@ -93,13 +93,14 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     @Override
-    protected SPTEntry createSPTEntry(int node, double weight) {
+    protected SPTEntry createSPTEntry(int node, double weight, long time) {
         throw new IllegalStateException("use AStarEdge constructor directly");
     }
 
     @Override
-    public void initFrom(int from, double weight) {
+    public void initFrom(int from, double weight, long at) {
         currFrom = new AStarEntry(EdgeIterator.NO_EDGE, from, weight, weight);
+        currFrom.time = at;
         fromPriorityQueueCH.add(currFrom);
         bestWeightMapFromCH.put(from, currFrom);
         if (currTo != null) {
@@ -109,8 +110,9 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     @Override
-    public void initTo(int to, double weight) {
+    public void initTo(int to, double weight, long at) {
         currTo = new AStarEntry(EdgeIterator.NO_EDGE, to, weight, weight);
+        currTo.time = at;
         toPriorityQueueCH.add(currTo);
         bestWeightMapToCH.put(to, currTo);
         if (currFrom != null) {
@@ -279,18 +281,18 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 aStarEntry = new AStarEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight, tmpWeight);
                 // Modification by Maxim Rylov: Assign the original edge id.
                 aStarEntry.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                aStarEntry.parent = currEdge;
                 bestWeightMap.put(traversalId, aStarEntry);
-                prioQueue.add(aStarEntry);
             } else if (aStarEntry.weight > tmpWeight) {
                 prioQueue.remove(aStarEntry);
                 aStarEntry.edge = iter.getEdge();
                 aStarEntry.weight = tmpWeight;
                 aStarEntry.weightOfVisitedPath = tmpWeight;
-                aStarEntry.parent = currEdge;
-                prioQueue.add(aStarEntry);
             } else
                 continue;
+
+            aStarEntry.parent = currEdge;
+            aStarEntry.time = calcTime(iter, currEdge, reverse);
+            prioQueue.add(aStarEntry);
 
             updateBestPathCH(aStarEntry, traversalId, reverse);
         }
@@ -335,8 +337,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             // TODO performance: check if the node is already existent in the opposite direction
             // then we could avoid the approximation as we already know the exact complete path!
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-            double alreadyVisitedWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge)
-                    + currEdge.getWeightOfVisitedPath();
+            double alreadyVisitedWeight = calcWeight(iter, currEdge, reverse) + currEdge.getWeightOfVisitedPath();
             if (Double.isInfinite(alreadyVisitedWeight))
                 continue;
 
@@ -373,6 +374,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                     }
 
                     aStarEntry.parent = currEdge;
+                    aStarEntry.time = calcTime(iter, currEdge, reverse);
                     prioQueue.add(aStarEntry);
 
                     updateBestPathCore(aStarEntry, traversalId, reverse);
@@ -396,6 +398,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                     }
 
                     aStarEntry.parent = currEdge;
+                    aStarEntry.time = calcTime(iter, currEdge, reverse);
                     prioQueue.add(aStarEntry);
 
                     updateBestPathCH(aStarEntry, traversalId, reverse);
@@ -436,6 +439,14 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 updateBestPath(entryCurrent, entryOther, newWeight, reverse);
             }
         }
+    }
+
+    double calcWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
+        return weighting.calcWeight(iter, reverse, currEdge.originalEdge);
+    }
+
+    long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return 0;
     }
 
     public static class AStarEntry extends SPTEntry {
