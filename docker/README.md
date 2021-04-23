@@ -93,4 +93,4 @@ The `app.config` which is used is also copied to the container's `/share` direct
 
 By default the service status is queriable via the `http://localhost:8080/ors/v2/health` endpoint. When the service is ready, you will be able to request `http://localhost:8080/ors/v2/status` for further information on the running services.
 
-If you use the default dataset you will be able to request `http://localhost:8080/ors/v2/directions?profile=foot-walking&start=8.676581,49.418204&end=8.692803,49.409465` for test purposes.
+If you use the default dataset you will be able to request `http://localhost:8080/ors/v2/directions/foot-walking?start=8.676581,49.418204&end=8.692803,49.409465` for test purposes.
