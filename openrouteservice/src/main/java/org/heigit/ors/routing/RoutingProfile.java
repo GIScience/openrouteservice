@@ -19,10 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
@@ -34,6 +31,7 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
@@ -954,9 +952,9 @@ public class RoutingProfile {
 
             if (searchParams.isTimeDependent()) {
                 if (searchParams.hasDeparture())
-                    req.getHints().put("departure", searchParams.getDeparture());
+                    req.getHints().put(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
                 else if (searchParams.hasArrival())
-                    req.getHints().put("arrival", searchParams.getArrival());
+                    req.getHints().put(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
             }
 
             if (astarEpsilon != null)
@@ -1080,7 +1078,7 @@ public class RoutingProfile {
 
     boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
         FlagEncoder flagEncoder = searchCntx.getEncoder();
-        String key = EncodingManager.getKey(flagEncoder, "conditional_speed");
+        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
         return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
     }
 
@@ -1090,8 +1088,8 @@ public class RoutingProfile {
 
         FlagEncoder flagEncoder = searchCntx.getEncoder();
 
-        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_access"))
-                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_speed"));
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED));
     }
 
     /**

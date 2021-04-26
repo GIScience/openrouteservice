@@ -31,6 +31,7 @@ import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -75,7 +76,7 @@ import java.util.concurrent.locks.Lock;
 
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.*;
-
+import static org.heigit.ors.routing.RouteResult.*;
 
 
 public class ORSGraphHopper extends GraphHopper {
@@ -337,7 +338,7 @@ public class ORSGraphHopper extends GraphHopper {
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
 
-				if(hints.has("maximum_speed")) {
+				if(hints.has(RouteRequest.PARAM_MAXIMUM_SPEED)) {
 					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
 				}
 
@@ -350,8 +351,8 @@ public class ORSGraphHopper extends GraphHopper {
 					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
 					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
 					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
-					ghRsp.getHints().put("timezone.departure", dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
-					ghRsp.getHints().put("timezone.arrival", dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
+					ghRsp.getHints().put(KEY_TIMEZONE_DEPARTURE, dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
+					ghRsp.getHints().put(KEY_TIMEZONE_ARRIVAL, dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
 
 					String key;
 					if (hints.has(RouteRequest.PARAM_DEPARTURE)) {
@@ -412,7 +413,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public Weighting createTimeDependentAccessWeighting(Weighting weighting) {
 		FlagEncoder flagEncoder = weighting.getFlagEncoder();
-		if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, "conditional_access")))
+		if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
 			return new TimeDependentAccessWeighting(weighting, getGraphHopperStorage(), flagEncoder);
 		else
 			return weighting;

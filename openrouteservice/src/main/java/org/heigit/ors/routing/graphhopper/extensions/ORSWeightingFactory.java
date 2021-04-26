@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.Helper;
@@ -71,7 +72,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
 			EncodingManager encodingManager = graphStorage.getEncodingManager();
-			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, "conditional_speed"))
+			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, ConditionalEdges.SPEED))
 					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
 					: new TimeDependentFastestWeighting(encoder, hintsMap);
 		}
