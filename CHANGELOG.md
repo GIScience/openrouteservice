@@ -34,7 +34,10 @@ RELEASING:
  -->
 
 ## [Unreleased]
-- Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
+### Added
+- Time-dependent core-based routing algorithms
+### Changed
+- Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899))
 
 ## [6.4.2] - 2021-04-21
 ### Added
