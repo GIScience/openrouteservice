@@ -1767,4 +1767,25 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 	}
 
+	@Test
+	public void expectDepartureAndArrivalToBeMutuallyExclusive() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("departure", "2021-01-31T12:00");
+		body.put("arrival", "2021-01-31T12:00");
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
 }
