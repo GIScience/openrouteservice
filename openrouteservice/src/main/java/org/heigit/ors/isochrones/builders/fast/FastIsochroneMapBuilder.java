@@ -80,8 +80,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double visitorThreshold = 0.0013;
     private int minEdgeLengthLimit = 100;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
-    private static final boolean bufferedOutput = true;
-    private static final double activeCellApproximationFactor = 0.99;
+    private static final boolean BUFFERED_OUTPUT = true;
+    private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
 
     /*
         Calculates the distance between two coordinates in meters
@@ -179,7 +179,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 sw.start();
             }
 
-            fastIsochroneAlgorithm.approximateActiveCells(activeCellApproximationFactor);
+            fastIsochroneAlgorithm.approximateActiveCells(ACTIVE_CELL_APPROXIMATION_FACTOR);
 
             if (DebugUtility.isDebug()) {
                 LOGGER.debug("Approximate active cells: " + sw.stop().getSeconds());
@@ -611,7 +611,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
                 distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
 
-                if (bufferedOutput) {
+                if (BUFFERED_OUTPUT) {
                     double distCost = minCost + distPolyline * costPerMeter;
                     if (distCost >= isolineCost) {
                         double segLength = (1 - (distCost - isolineCost) / edgeCost);
