@@ -291,4 +291,16 @@ class VirtualEdgeIterator implements EdgeIterator, CHEdgeIteratorState {
     public int getMergeStatus(int flags) {
         throw new UnsupportedOperationException("Not supported.");
     }
+
+    // ORS-GH MOD START: TD CALT
+    public CHEdgeIteratorState setTime(long time) {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public long getTime() {
+        // will be called only from PreparationWeighting and if isShortcut is true
+        return ((CHEdgeIteratorState) edges.get(current)).getTime();
+    }
+    // ORS-GH MOD END
 }
