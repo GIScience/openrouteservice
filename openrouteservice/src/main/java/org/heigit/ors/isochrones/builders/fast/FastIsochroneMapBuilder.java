@@ -80,8 +80,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double visitorThreshold = 0.0013;
     private int minEdgeLengthLimit = 100;
     private int maxEdgeLengthLimit = Integer.MAX_VALUE;
-    private final boolean BUFFERED_OUTPUT = true;
-    private final double activeCellApproximationFactor = 0.99;
+    private static final boolean bufferedOutput = true;
+    private static final double activeCellApproximationFactor = 0.99;
 
     /*
         Calculates the distance between two coordinates in meters
@@ -209,9 +209,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             List<Coordinate> isoPoints = new ArrayList<>((int) (1.2 * edgeMap.getMap().size()));
 
             double isoValue = parameters.getRanges()[i];
-            double isochronesDifference = parameters.getRanges()[i];
-//            if (i > 0)
-//                isochronesDifference = parameters.getRanges()[i] - parameters.getRanges()[i - 1];
 
             float smoothingFactor = parameters.getSmoothingFactor();
             TravelRangeType isochroneType = parameters.getRangeType();
@@ -233,14 +230,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             buildActiveCellsConcaveHulls(fastIsochroneAlgorithm, isochroneGeometries, snappedLoc, snappedPosition, isoValue, maxRadius, smoothingFactor);
 
 
-
             if (!isochroneGeometries.isEmpty()) {
                 //Make a union of all now existing polygons to reduce coordinate list
                 //Uncomment to see all geometries in response
-//                for(Geometry poly : isochroneGeometries)
-//                  isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
+                //for(Geometry poly : isochroneGeometries)
+                //  isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
                 Geometry preprocessedGeometry = combineGeometries(isochroneGeometries);
-
 
                 StopWatch finalConcaveHullStopWatch = new StopWatch();
                 if (DebugUtility.isDebug())
@@ -252,7 +247,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                     LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + finalConcaveHullStopWatch.stop().getSeconds());
                 }
             }
-//            prevCost = isoValue;
         }
 
         if (DebugUtility.isDebug())
@@ -617,7 +611,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
                 distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
 
-                if (BUFFERED_OUTPUT) {
+                if (bufferedOutput) {
                     double distCost = minCost + distPolyline * costPerMeter;
                     if (distCost >= isolineCost) {
                         double segLength = (1 - (distCost - isolineCost) / edgeCost);
