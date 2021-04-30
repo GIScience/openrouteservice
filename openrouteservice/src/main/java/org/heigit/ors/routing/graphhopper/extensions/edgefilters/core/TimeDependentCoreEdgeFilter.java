@@ -26,22 +26,24 @@ import java.util.List;
 
 
 public class TimeDependentCoreEdgeFilter implements EdgeFilter {
-	private List<BooleanEncodedValue> conditionalEncoders;
+	private BooleanEncodedValue[] conditionalEncoders;
 	private static String[] names = {ConditionalEdges.ACCESS, ConditionalEdges.SPEED};
 
 	public TimeDependentCoreEdgeFilter(GraphStorage graphStorage) {
 		EncodingManager encodingManager = graphStorage.getEncodingManager();
 
-		conditionalEncoders = new ArrayList<>();
+		List<BooleanEncodedValue> conditionalEncodersList = new ArrayList<>();
 
 		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
 			for (String name : names) {
 				String encoderName = encodingManager.getKey(encoder, name);
 				if (encodingManager.hasEncodedValue(encoderName)) {
-					conditionalEncoders.add(encodingManager.getBooleanEncodedValue(encoderName));
+					conditionalEncodersList.add(encodingManager.getBooleanEncodedValue(encoderName));
 				}
 			}
 		}
+
+		conditionalEncoders = conditionalEncodersList.toArray(new BooleanEncodedValue[conditionalEncodersList.size()]);
 	}
 
 	public static boolean hasConditionals(EncodingManager encodingManager) {
