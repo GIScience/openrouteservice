@@ -2,7 +2,7 @@ package org.heigit.ors.api.requests.matrix;
 
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;

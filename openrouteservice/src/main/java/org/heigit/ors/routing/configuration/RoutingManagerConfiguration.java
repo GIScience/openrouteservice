@@ -16,8 +16,8 @@ package org.heigit.ors.routing.configuration;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Envelope;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 

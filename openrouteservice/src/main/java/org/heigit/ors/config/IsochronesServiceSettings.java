@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.services.isochrones;
+package org.heigit.ors.config;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigObject;

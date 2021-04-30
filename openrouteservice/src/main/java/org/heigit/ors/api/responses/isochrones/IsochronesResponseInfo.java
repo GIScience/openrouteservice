@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import org.json.JSONObject;
 

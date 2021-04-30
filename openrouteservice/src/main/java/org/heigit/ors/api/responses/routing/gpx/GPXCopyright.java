@@ -16,7 +16,7 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

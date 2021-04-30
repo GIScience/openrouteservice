@@ -18,7 +18,7 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.ServiceRequest;
 
 import java.util.ArrayList;
 import java.util.HashSet;
