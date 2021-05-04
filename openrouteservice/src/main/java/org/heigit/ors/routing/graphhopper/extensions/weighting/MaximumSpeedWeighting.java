@@ -33,7 +33,7 @@ public class MaximumSpeedWeighting extends AbstractAdjustedWeighting {
     private final double headingPenalty;
     private final double userMaxSpeed;
     private final DecimalEncodedValue avSpeedEnc;
-    private boolean calculateWeight;
+    private final boolean calculateWeight;
 
     public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting superWeighting, double maximumSpeedLowerBound) {
         super(superWeighting);

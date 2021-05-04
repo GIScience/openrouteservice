@@ -20,13 +20,18 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.*;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.EncodedValueOld;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.*;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.InstructionAnnotation;
+import com.graphhopper.util.PMap;
+import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 
 import java.util.*;
 
@@ -94,7 +99,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
     // conditions...
-    private boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
+    private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
     // MARQ24 MOD END
 
@@ -881,7 +886,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
 
         private final int value;
 
-        private WayType(int value) {
+        WayType(int value) {
             this.value = value;
         }
 
@@ -893,11 +898,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     protected enum UpdateType {
         UPGRADE_ONLY,
         DOWNGRADE_ONLY,
-        BOTH;
+        BOTH
     }
 
     protected static class SpeedValue {
-        private Integer speed;
+        private final Integer speed;
         private  UpdateType type = UpdateType.BOTH;
 
         private SpeedValue(Integer speed){
@@ -928,7 +933,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("CommonBikeFlagEnc" + this.toString()).hashCode();
+        return ("CommonBikeFlagEnc" + this).hashCode();
     }
 
     @Override

@@ -124,7 +124,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
 
         JSONArray attributes = new JSONArray();
@@ -645,7 +645,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testGeoJsonExport() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -683,7 +683,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testIdInSummary() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("id", "request123");
 
         given()
@@ -721,7 +721,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void expectSegmentsToMatchCoordinates() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
 
@@ -743,7 +743,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSummary() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -770,7 +770,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSegmentDistances() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -798,7 +798,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testEncodedPolyline() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -822,7 +822,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testWaypoints() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -844,7 +844,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testBbox() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -866,7 +866,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testManeuver() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -895,7 +895,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtras() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -921,7 +921,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtrasDetails() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -950,7 +950,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtrasConsistency() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("surface|suitability|steepness"));
@@ -1413,7 +1413,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testContinueStraightNoBearings() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("continue_straight", true);
 
         given()

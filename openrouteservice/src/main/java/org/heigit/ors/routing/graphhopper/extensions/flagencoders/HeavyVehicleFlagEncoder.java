@@ -156,7 +156,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
         if (speed == null)
-            throw new IllegalStateException(toString() + ", no speed found for:" + highwayValue);
+            throw new IllegalStateException(this + ", no speed found for:" + highwayValue);
 
         if (highwayValue.equals(VAL_TRACK)) {
             String tt = way.getTag("tracktype");
@@ -363,6 +363,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("HeavyVehicleFlagEncoder" + toString()).hashCode();
+        return ("HeavyVehicleFlagEncoder" + this).hashCode();
     }
 }

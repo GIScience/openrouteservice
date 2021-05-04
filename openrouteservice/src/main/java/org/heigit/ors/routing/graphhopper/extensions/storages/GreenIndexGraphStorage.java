@@ -27,7 +27,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
     private int edgeEntryBytes;
     private int edgesCount; // number of edges with custom values
 
-    private byte[] byteValues;
+    private final byte[] byteValues;
 
     public GreenIndexGraphStorage() {
         int edgeEntryIndex = 0;

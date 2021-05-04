@@ -8,8 +8,8 @@ import java.util.List;
 
 public class BordersExtractor {
     public enum Avoid { CONTROLLED, NONE, ALL }
-    private BordersGraphStorage storage;
-    private int[] avoidCountries;
+    private final BordersGraphStorage storage;
+    private final int[] avoidCountries;
 
     public BordersExtractor(BordersGraphStorage storage, int[] avoidCountries) {
         this.storage = storage;

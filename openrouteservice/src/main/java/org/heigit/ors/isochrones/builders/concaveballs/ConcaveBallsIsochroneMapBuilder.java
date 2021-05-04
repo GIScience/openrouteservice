@@ -49,7 +49,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 	private double searchWidth = 0.0007; 
 	private double pointWidth = 0.0005;
 	private double visitorThreshold = 0.0013;
-	private Envelope searchEnv = new Envelope();
+	private final Envelope searchEnv = new Envelope();
 	private GeometryFactory geometryFactory;
 	private PointItemVisitor visitor = null;
 	private List<Coordinate> prevIsoPoints = null;

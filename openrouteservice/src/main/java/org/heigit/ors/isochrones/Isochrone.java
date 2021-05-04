@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Isochrone {
-    private Geometry geometry;
-    private double value;
+    private final Geometry geometry;
+    private final double value;
     private double area = 0.0;
     private boolean hasArea = false;
     private boolean hasReachfactor = false;
     private double reachfactor;
-    private double meanRadius;
+    private final double meanRadius;
     private Envelope envelope;
     private List<AttributeValue> attributes;
 

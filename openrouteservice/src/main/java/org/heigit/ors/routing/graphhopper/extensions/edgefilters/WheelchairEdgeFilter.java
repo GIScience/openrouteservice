@@ -23,10 +23,10 @@ import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class WheelchairEdgeFilter implements EdgeFilter  {
-	private byte[] buffer;
-	private WheelchairAttributesGraphStorage storage;
-	private WheelchairAttributes attributes;
-	private WheelchairParameters params;
+	private final byte[] buffer;
+	private final WheelchairAttributesGraphStorage storage;
+	private final WheelchairAttributes attributes;
+	private final WheelchairParameters params;
 	
 	public WheelchairEdgeFilter(WheelchairParameters params, GraphStorage graphStorage) throws Exception {
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);

@@ -27,7 +27,7 @@ public class AppConfig {
 
     private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
     private static AppConfig _global;
-    private static String osm_md5_hash = null;
+    private static final String osm_md5_hash = null;
     private Config _config;
 
     public AppConfig(String path) {

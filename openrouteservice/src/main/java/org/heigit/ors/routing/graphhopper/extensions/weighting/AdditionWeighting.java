@@ -19,8 +19,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class AdditionWeighting extends AbstractWeighting {
-	private Weighting superWeighting;
-	private Weighting[] weightings;
+	private final Weighting superWeighting;
+	private final Weighting[] weightings;
 
     public AdditionWeighting(Weighting[] weightings, Weighting superWeighting, FlagEncoder encoder) {
         super(encoder);
@@ -54,7 +54,7 @@ public class AdditionWeighting extends AbstractWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("AddWeighting" + toString()).hashCode();
+		return ("AddWeighting" + this).hashCode();
 	}
 
 	@Override

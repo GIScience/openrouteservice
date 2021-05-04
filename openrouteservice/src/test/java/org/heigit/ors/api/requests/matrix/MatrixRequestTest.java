@@ -15,11 +15,11 @@ import java.util.List;
 public class MatrixRequestTest {
     private MatrixRequest matrixLocationsRequest;
     private MatrixRequest matrixLocationsListRequest;
-    private List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
-    private Double[][] bareCoordinates = new Double[3][];
-    private Double[] bareCoordinate1 = new Double[2];
-    private Double[] bareCoordinate2 = new Double[2];
-    private Double[] bareCoordinate3 = new Double[2];
+    private final List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
+    private final Double[][] bareCoordinates = new Double[3][];
+    private final Double[] bareCoordinate1 = new Double[2];
+    private final Double[] bareCoordinate2 = new Double[2];
+    private final Double[] bareCoordinate3 = new Double[2];
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
 

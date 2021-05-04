@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class DoubleComparator implements Comparator<QuadEdge> {
 	
-	private Map<QuadEdge,Double> map;
+	private final Map<QuadEdge,Double> map;
 	
 	/**
 	 * Constructor.

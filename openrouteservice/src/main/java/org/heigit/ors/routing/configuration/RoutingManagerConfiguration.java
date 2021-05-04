@@ -68,7 +68,7 @@ public class RoutingManagerConfiguration  {
 		profile.setIsochronePreparationOpts(ConfigFactory.parseString(profileParams.toString()));
 	}
 
-	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception {
+	public static RoutingManagerConfiguration loadFromFile(String path) throws Exception {
 		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
 		if (!Helper.isEmpty(path)) {

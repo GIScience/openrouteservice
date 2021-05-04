@@ -101,7 +101,7 @@ class GeometrySmoother {
      * vertex distance and a constant number of points
      * per smoothed segment.
      */
-    private SmootherControl defaultControl = new SmootherControl() {
+    private final SmootherControl defaultControl = new SmootherControl() {
         public double getMinLength() {
             return 0.0;
         }
@@ -127,7 +127,7 @@ class GeometrySmoother {
     /**
      * Cache of previously calculated interpolation parameters
      */
-    private Map<Integer, WeakReference<InterpPoint[]>> lookup = 
+    private final Map<Integer, WeakReference<InterpPoint[]>> lookup =
             new HashMap<>();
 
     /**

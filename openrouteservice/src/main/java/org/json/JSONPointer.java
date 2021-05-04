@@ -226,7 +226,7 @@ public class JSONPointer {
      */
     @Override
     public String toString() {
-        StringBuilder rval = new StringBuilder("");
+        StringBuilder rval = new StringBuilder();
         for (String token: refTokens) {
             rval.append('/').append(escape(token));
         }

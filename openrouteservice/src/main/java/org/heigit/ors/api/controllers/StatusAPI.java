@@ -107,7 +107,7 @@ public class StatusAPI {
                     if (jProfileLimits.length() > 0)
                         jProfileProps.put("limits", jProfileLimits);
 
-                    jProfiles.put("profile " + Integer.toString(i), jProfileProps);
+                    jProfiles.put("profile " + i, jProfileProps);
 
                     i++;
                 }

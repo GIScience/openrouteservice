@@ -25,10 +25,10 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphSt
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
-	private byte[] buffer;
-	private WayCategoryGraphStorage storage;
+	private final byte[] buffer;
+	private final WayCategoryGraphStorage storage;
 	private TollwayExtractor tollwayExtractor;
-	private int avoidFeatureType;
+	private final int avoidFeatureType;
 	private int profileCategory;
 
 	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;

@@ -42,7 +42,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	 * @param traversalMode
 	 *            how the graph is traversed e.g. if via nodes or edges.
 	 */
-	public AbstractManyToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+	protected AbstractManyToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
 		this.weighting = weighting;
 		flagEncoder = weighting.getFlagEncoder();
 		this.traversalMode = traversalMode;

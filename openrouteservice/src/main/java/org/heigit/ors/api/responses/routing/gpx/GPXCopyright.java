@@ -24,11 +24,11 @@ import java.util.Calendar;
 
 public class GPXCopyright {
     @XmlAttribute(name = "author")
-    private String author;
+    private final String author;
     @XmlElement(name = "year")
-    private int year;
+    private final int year;
     @XmlElement(name = "license")
-    private String license;
+    private final String license;
 
     public GPXCopyright() {
         this.author = RoutingServiceSettings.getAttribution();

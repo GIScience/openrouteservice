@@ -42,15 +42,15 @@ import java.util.List;
  * */
 public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
-	private DistanceCalc distCalcEarth = new DistanceCalcEarth(); // DistancePlaneProjection
+	private final DistanceCalc distCalcEarth = new DistanceCalcEarth(); // DistancePlaneProjection
 	private LocationIndexMatch locationIndex;
 	private FlagEncoder encoder;
-	private List<MatchPoint> matchPoints = new ArrayList<>(2);
-	private List<Integer> roadSegments = new ArrayList<>();
+	private final List<MatchPoint> matchPoints = new ArrayList<>(2);
+	private final List<Integer> roadSegments = new ArrayList<>();
 	
-	private static double sigmaZ = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
-	private static double beta =  0.00959442; // beta(z, x)
-	private static double denom = Math.sqrt(2 * Math.PI) * sigmaZ; // see Equation 1
+	private static final double sigmaZ = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
+	private static final double beta =  0.00959442; // beta(z, x)
+	private static final double denom = Math.sqrt(2 * Math.PI) * sigmaZ; // see Equation 1
 	
 	private double[] distances = new double[2];
 	private double[] longitudes = new double[2];
@@ -79,7 +79,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 		@Override
 		public int hashCode() {
-			return ("MatchPoint" + toString()).hashCode();
+			return ("MatchPoint" + this).hashCode();
 		}
 	}
 

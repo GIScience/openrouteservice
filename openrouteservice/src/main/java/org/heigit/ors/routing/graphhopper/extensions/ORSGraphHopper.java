@@ -130,7 +130,7 @@ public class ORSGraphHopper extends GraphHopper {
 		GraphHopperStorage ghs = getGraphHopperStorage();
 		if (ghs != null) {
 			if (LOGGER.isInfoEnabled())
-				LOGGER.info(String.format("graph %s, details:%s", ghs.toString(), ghs.toDetailsString()));
+				LOGGER.info(String.format("graph %s, details:%s", ghs, ghs.toDetailsString()));
 			int prevNodeCount = ghs.getNodes();
 			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
@@ -531,7 +531,7 @@ public class ORSGraphHopper extends GraphHopper {
 //				}
 			}
 		if(!isRouteable)
-			throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.<String, Object>emptyMap());
+			throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.emptyMap());
 
 	}
 
@@ -779,9 +779,7 @@ public class ORSGraphHopper extends GraphHopper {
 		return false;
 	}
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-		if(eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType)))
-		    return true;
-		return false;
+		return eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
 	}
 
 

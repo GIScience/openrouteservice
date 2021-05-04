@@ -354,7 +354,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         if (speed == null)
-            throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
+            throw new IllegalStateException(this + ", no speed found for: " + highwayValue + ", tags: " + way);
 
         if (highwayValue.equals("track")) {
             String tt = way.getTag("tracktype");
@@ -652,6 +652,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("VehicleFlagEncoder" + toString()).hashCode();
+        return ("VehicleFlagEncoder" + this).hashCode();
     }
 }

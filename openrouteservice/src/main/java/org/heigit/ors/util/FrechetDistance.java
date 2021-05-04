@@ -174,7 +174,7 @@ public class FrechetDistance {
                                                                 d[i][j] = 1;
                                                         }
                                                 } else {
-                                                        Coordinate[] intersections = ((LineString) tempGeom)
+                                                        Coordinate[] intersections = tempGeom
                                                                         .getCoordinates();
                                                         c[i][j] = getProportion(intersections[0], tempLsP);
                                                         d[i][j] = getProportion(intersections[1], tempLsP);
@@ -205,15 +205,12 @@ public class FrechetDistance {
                 }
 
                 // TODO: the complicated loop to compute L^R_(i+1),j and B^R_i,(j+1)
-                boolean retVal = true;
+                boolean retVal = a[pLength - 1][qLength - 1] != -1
+                        || b[pLength - 1][qLength - 1] != -1
+                        || c[pLength - 1][qLength - 1] != -1
+                        || d[pLength - 1][qLength - 1] != -1;
 
                 // cannot enter the upper right cell
-                if (a[pLength - 1][qLength - 1] == -1
-                                && b[pLength - 1][qLength - 1] == -1
-                                && c[pLength - 1][qLength - 1] == -1
-                                && d[pLength - 1][qLength - 1] == -1) {
-                        retVal = false;
-                }
                 return retVal;
         }
 

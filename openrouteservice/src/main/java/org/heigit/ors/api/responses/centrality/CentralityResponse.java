@@ -13,7 +13,7 @@ public class CentralityResponse {
     @JsonIgnore
     protected CentralityResult centralityResults;
 
-    public CentralityResponse() {};
+    public CentralityResponse() {}
 
     // In RouteResponse, this method was used to get metadata from RouteRequest.
     public CentralityResponse(CentralityResult result) {

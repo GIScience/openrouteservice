@@ -19,11 +19,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public interface MapMatcher {
 	
-	public void setSearchRadius(double radius);
+	void setSearchRadius(double radius);
 	
-	public void setEdgeFilter(EdgeFilter edgeFilter);
+	void setEdgeFilter(EdgeFilter edgeFilter);
 	
-	public void setGraphHopper(GraphHopper gh);
+	void setGraphHopper(GraphHopper gh);
 	
-	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
+	RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
 }

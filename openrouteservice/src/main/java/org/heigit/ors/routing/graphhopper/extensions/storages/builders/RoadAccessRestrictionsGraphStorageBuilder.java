@@ -40,11 +40,11 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     private RoadAccessRestrictionsGraphStorage storage;
     private boolean hasRestrictions = false;
     private int restrictions;
-    private List<String> accessRestrictedTags = new ArrayList<>(5);
-    private List<String> motorCarTags = new ArrayList<>(5);
-    private List<String> motorCycleTags = new ArrayList<>(5);
-    private Set<String> restrictedValues = new HashSet<>(5);
-    private Set<String> permissiveValues = new HashSet<>(5);
+    private final List<String> accessRestrictedTags = new ArrayList<>(5);
+    private final List<String> motorCarTags = new ArrayList<>(5);
+    private final List<String> motorCycleTags = new ArrayList<>(5);
+    private final Set<String> restrictedValues = new HashSet<>(5);
+    private final Set<String> permissiveValues = new HashSet<>(5);
 
     private int profileType;
 

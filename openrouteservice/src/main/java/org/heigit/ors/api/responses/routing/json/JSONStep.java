@@ -29,17 +29,17 @@ import org.heigit.ors.util.StringUtility;
 public class JSONStep {
     @ApiModelProperty(value = "The distance for the step in metres.", example = "245")
     @JsonProperty("distance")
-    private Double distance;
+    private final Double distance;
     @ApiModelProperty(value = "The duration for the step in seconds.", example = "96.2")
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
-    private Double duration;
+    private final Double duration;
     @ApiModelProperty(value = "The [instruction](https://github.com/GIScience/openrouteservice-docs#instruction-types) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
-    private Integer type;
+    private final Integer type;
     @ApiModelProperty(value = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
     @JsonProperty("instruction")
-    private String instruction;
+    private final String instruction;
     @ApiModelProperty(value = "The name of the next street.", example = "Berliner Straße")
     @JsonProperty("name")
     private String name;

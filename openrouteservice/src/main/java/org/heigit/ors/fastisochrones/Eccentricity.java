@@ -43,7 +43,7 @@ public class Eccentricity extends AbstractEccentricity {
     //A factor of 10 means that the Dijkstra will search an area of 10 * maxCellNodesNumber.
     //This is needed to get a better estimate on the eccentricity, but not run a Dijkstra on the whole graph to find it.
     private static final int eccentricityDijkstraLimitFactor = 10;
-    private LocationIndex locationIndex;
+    private final LocationIndex locationIndex;
 
     public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         super(graphHopperStorage);

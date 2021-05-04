@@ -27,9 +27,9 @@ import java.util.*;
 
 public class MatrixSearchContextBuilder {
 	private Map<Coordinate, LocationEntry> locationCache;
-	private boolean resolveNames;
-	private LocationIndex locIndex;
-	private EdgeFilter edgeFilter;
+	private final boolean resolveNames;
+	private final LocationIndex locIndex;
+	private final EdgeFilter edgeFilter;
 
 	class LocationEntry {
 		private int nodeId;

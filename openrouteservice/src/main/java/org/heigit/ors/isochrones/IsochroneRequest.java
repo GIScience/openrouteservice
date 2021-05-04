@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 public class IsochroneRequest extends ServiceRequest {
-    private List<TravellerInfo> travellers;
+    private final List<TravellerInfo> travellers;
     private String calcMethod;
     private String units = null;
     private String areaUnits = null;

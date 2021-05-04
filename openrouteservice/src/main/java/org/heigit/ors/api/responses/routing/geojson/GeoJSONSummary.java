@@ -35,10 +35,10 @@ import java.util.Map;
 @JsonIgnoreProperties({"distance", "duration"})
 public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("segments")
-    private List<JSONSegment> segments;
-    private List<Integer> wayPoints;
-    private Map<String, JSONExtra> extras;
-    private List<RouteWarning> warnings;
+    private final List<JSONSegment> segments;
+    private final List<Integer> wayPoints;
+    private final Map<String, JSONExtra> extras;
+    private final List<RouteWarning> warnings;
     @ApiModelProperty(value = "Departure date and time" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")

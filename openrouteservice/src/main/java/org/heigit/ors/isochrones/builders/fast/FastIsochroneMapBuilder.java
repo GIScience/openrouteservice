@@ -67,7 +67,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private final static DistanceCalc dcFast = new DistancePlaneProjection();
     private final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
-    private Envelope searchEnv = new Envelope();
+    private final Envelope searchEnv = new Envelope();
     private GeometryFactory geomFactory;
     private PointItemVisitor visitor = null;
     private TreeSet<Coordinate> treeSet = new TreeSet<>();
@@ -78,8 +78,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private int minEdgeLengthLimit = 100;
-    private int maxEdgeLengthLimit = Integer.MAX_VALUE;
+    private final int minEdgeLengthLimit = 100;
+    private final int maxEdgeLengthLimit = Integer.MAX_VALUE;
     private static final boolean BUFFERED_OUTPUT = true;
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
 

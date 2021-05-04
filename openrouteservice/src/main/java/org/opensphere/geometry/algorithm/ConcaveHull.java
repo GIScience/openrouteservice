@@ -66,16 +66,16 @@ import com.vividsolutions.jts.util.UniqueCoordinateArrayFilter;
  */
 public class ConcaveHull {
 
-    private GeometryFactory geomFactory;
-    private GeometryCollection geometries;
-    private double threshold;
-    private Map<LineSegment, Integer> segments = new HashMap<>();
-    private Map<Integer, Edge> edges = new HashMap<>();
-    private Map<Integer, Triangle> triangles = new HashMap<>();
-    private NavigableMap<Integer, Edge> lengths = new TreeMap<>();
-    private Map<Integer, Edge> shortLengths = new HashMap<>();
-    private Map<Coordinate, Integer> coordinates = new HashMap<>();
-    private Map<Integer, Vertex> vertices = new HashMap<>();
+    private final GeometryFactory geomFactory;
+    private final GeometryCollection geometries;
+    private final double threshold;
+    private final Map<LineSegment, Integer> segments = new HashMap<>();
+    private final Map<Integer, Edge> edges = new HashMap<>();
+    private final Map<Integer, Triangle> triangles = new HashMap<>();
+    private final NavigableMap<Integer, Edge> lengths = new TreeMap<>();
+    private final Map<Integer, Edge> shortLengths = new HashMap<>();
+    private final Map<Coordinate, Integer> coordinates = new HashMap<>();
+    private final Map<Integer, Vertex> vertices = new HashMap<>();
 
     /**
      * Create a new concave hull construction for the input {@link Geometry}.

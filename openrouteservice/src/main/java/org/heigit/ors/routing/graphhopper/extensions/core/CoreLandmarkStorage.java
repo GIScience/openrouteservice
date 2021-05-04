@@ -73,7 +73,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private final FlagEncoder encoder;
     private final Weighting weighting;
     private Weighting lmSelectionWeighting;
-    private Weighting lmWeighting;
+    private final Weighting lmWeighting;
     private final TraversalMode traversalMode;
     private boolean initialized;
     private int minimumNodes = 10000;
@@ -81,10 +81,10 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     private List<LandmarkSuggestion> landmarkSuggestions = Collections.emptyList();
     private SpatialRuleLookup ruleLookup;
     private boolean logDetails = false;
-    private LMEdgeFilterSequence landmarksFilter;
+    private final LMEdgeFilterSequence landmarksFilter;
     private int count = 0;
 
-    private Map<Integer, Integer> coreNodeIdMap;
+    private final Map<Integer, Integer> coreNodeIdMap;
     /**
      * 'to' and 'from' fit into 32 bit => 16 bit for each of them => 65536
      */
@@ -913,7 +913,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
     protected static class RequireBothDirectionsEdgeFilter implements EdgeFilter {
 
-        private FlagEncoder flagEncoder;
+        private final FlagEncoder flagEncoder;
 
         public RequireBothDirectionsEdgeFilter(FlagEncoder flagEncoder) {
             this.flagEncoder = flagEncoder;

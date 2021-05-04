@@ -41,11 +41,11 @@ public class CountryBordersReader {
     private final String idsPath;
     private final String openPath;
 
-    private HashMap<String, CountryInfo> ids = new HashMap<>();
-    private HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
-    private HashMap<String, Integer> isoCodes = new HashMap<>();
+    private final HashMap<String, CountryInfo> ids = new HashMap<>();
+    private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
+    private final HashMap<String, Integer> isoCodes = new HashMap<>();
 
-    private HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
+    private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
     private static CountryBordersReader currentInstance = null;
 

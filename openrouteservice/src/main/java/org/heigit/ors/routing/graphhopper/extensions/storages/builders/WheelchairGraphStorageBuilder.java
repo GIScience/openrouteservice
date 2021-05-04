@@ -38,9 +38,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	}
 
 	private WheelchairAttributesGraphStorage storage;
-	private WheelchairAttributes wheelchairAttributes;
-	private WheelchairAttributes wheelchairAttributesLeftSide;
-	private WheelchairAttributes wheelchairAttributesRightSide;
+	private final WheelchairAttributes wheelchairAttributes;
+	private final WheelchairAttributes wheelchairAttributesLeftSide;
+	private final WheelchairAttributes wheelchairAttributesRightSide;
 
 	private HashMap<Integer, HashMap<String,String>> nodeTagsOnWay;
 	private HashMap<String, Object> cleanedTags;

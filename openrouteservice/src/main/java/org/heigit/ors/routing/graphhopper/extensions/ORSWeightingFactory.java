@@ -34,12 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-	private Map<Object, TurnCostExtension> turnCostExtensionMap;
-
-	public ORSWeightingFactory()
-	{
-		turnCostExtensionMap = new HashMap<>();
-	}
+	public ORSWeightingFactory(){}
 
 	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
@@ -72,7 +67,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
 			EncodingManager encodingManager = graphStorage.getEncodingManager();
-			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, ConditionalEdges.SPEED))
+			result = encodingManager.hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED))
 					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
 					: new TimeDependentFastestWeighting(encoder, hintsMap);
 		}
@@ -188,10 +183,6 @@ public class ORSWeightingFactory implements WeightingFactory {
         return result;
     }
 
-	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
-		return encoder instanceof FootFlagEncoder;
-	}
-
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)
 	{
 		PMap res = new PMap();
@@ -204,7 +195,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 			String name = kv.getKey();
 		    int p = name.indexOf(prefix);
 		    if (p >= 0)
-		    	res.put(name.substring(p + n + 1, name.length()), kv.getValue());
+		    	res.put(name.substring(p + n + 1), kv.getValue());
 		}
 		
 		return res;

@@ -35,9 +35,9 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
  */
 public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private final DataAccess isochroneNodes;
-    private int cellBytes;
-    private int nodeCount;
-    private IntSet cellIdsSet = new IntHashSet();
+    private final int cellBytes;
+    private final int nodeCount;
+    private final IntSet cellIdsSet = new IntHashSet();
 
     public IsochroneNodeStorage(int nodeCount, Directory dir) {
         isochroneNodes = dir.find("isochronenodes");

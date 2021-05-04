@@ -46,7 +46,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private BordersGraphStorage storage;
     private CountryBordersReader cbReader;
 
-    private GeometryFactory gf;
+    private final GeometryFactory gf;
 
     public static final String BUILDER_NAME = "Borders";
 

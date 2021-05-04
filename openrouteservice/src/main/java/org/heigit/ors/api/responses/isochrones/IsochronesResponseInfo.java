@@ -42,22 +42,22 @@ public class IsochronesResponseInfo {
     private String osmFileMD5Hash;
     @ApiModelProperty(value = "The service that was requested", example = "isochrones")
     @JsonProperty("service")
-    private String service;
+    private final String service;
     @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)", example = "1549549847974")
     @JsonProperty("timestamp")
-    private long timeStamp;
+    private final long timeStamp;
 
     @ApiModelProperty(value = "The information that was used for generating the route")
     @JsonProperty("query")
-    private IsochronesRequest request;
+    private final IsochronesRequest request;
 
     @ApiModelProperty(value = "Information about the routing service")
     @JsonProperty("engine")
-    private EngineInfo engineInfo;
+    private final EngineInfo engineInfo;
 
     @ApiModelProperty(value = "System message", example ="A message string configured in the service")
     @JsonProperty("system_message")
-    private String systemMessage;
+    private final String systemMessage;
 
     public IsochronesResponseInfo(IsochronesRequest request) {
         service = "isochrones";
@@ -87,10 +87,10 @@ public class IsochronesResponseInfo {
     private class EngineInfo {
         @ApiModelProperty(value = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")
-        private String version;
+        private final String version;
         @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
-        private String buildDate;
+        private final String buildDate;
         @ApiModelProperty(value = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("graph_date")
         private String graphDate;

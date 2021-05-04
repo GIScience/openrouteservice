@@ -32,12 +32,12 @@ import java.util.logging.Logger;
 public class GraphProcessContext {
 	private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
 
-	private Envelope bbox;
+	private final Envelope bbox;
 	private List<GraphBuilder> graphBuilders;
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
-	private double maximumSpeedLowerBound;
+	private final double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
 		bbox = config.getExtent();

@@ -32,7 +32,7 @@ public class IsochronesServiceSettings {
     private static Map<Integer, Integer> profileMaxRangeTimes;
     private static int maximumIntervals = 1;
     private static boolean allowComputeArea = true;
-    private static Map<String, StatisticsProviderConfiguration> statsProviders;
+    private static final Map<String, StatisticsProviderConfiguration> statsProviders;
     private static String attribution = "";
 
     static {

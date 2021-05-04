@@ -76,8 +76,6 @@ import java.util.*;
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
  * <p>
- * {@link org.heigit.ors.services.isochrones.requestprocessors.json.JsonIsochronesRequestProcessor}
- * <p>
  * {@link RoutingProfileManager} etc.
  *
  * @author Openrouteserviceteam
@@ -119,12 +117,12 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
 
     private ORSGraphHopper mGraphHopper;
-    private Integer[] mRoutePrefs;
+    private final Integer[] mRoutePrefs;
     private Integer mUseCounter;
     private boolean mUpdateRun;
     private MapMatcher mMapMatcher;
 
-    private RouteProfileConfiguration config;
+    private final RouteProfileConfiguration config;
     private String astarApproximation;
     private Double astarEpsilon;
 
@@ -148,7 +146,7 @@ public class RoutingProfile {
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
         CmdArgs args = createGHSettings(osmFile, config);
 
-        int profileId = 0;
+        int profileId;
         synchronized (lockObj) {
             profileIdentifier++;
             profileId = profileIdentifier;
@@ -412,10 +410,6 @@ public class RoutingProfile {
         return mGraphHopper.getGraphHopperStorage().getProperties();
     }
 
-    public String getGraphLocation() {
-        return mGraphHopper == null ? null : mGraphHopper.getGraphHopperStorage().getDirectory().toString();
-    }
-
     public RouteProfileConfiguration getConfiguration() {
         return config;
     }
@@ -425,11 +419,10 @@ public class RoutingProfile {
     }
 
     public boolean hasCarPreferences() {
-        for (int i = 0; i < mRoutePrefs.length; i++) {
-            if (RoutingProfileType.isDriving(mRoutePrefs[i]))
+        for (Integer mRoutePref : mRoutePrefs) {
+            if (RoutingProfileType.isDriving(mRoutePref))
                 return true;
         }
-
         return false;
     }
 
@@ -553,7 +546,7 @@ public class RoutingProfile {
         }
 
 
-        IsochroneMap result = null;
+        IsochroneMap result;
         waitForUpdateCompletion();
 
         beginUseGH();
@@ -614,7 +607,7 @@ public class RoutingProfile {
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        MatrixResult mtxResult = null;
+        MatrixResult mtxResult;
 
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
@@ -622,14 +615,11 @@ public class RoutingProfile {
 
         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
 
-        if (alg == null)
-            throw new Exception("Unable to create an algorithm to for computing distance/duration matrix.");
-
         try {
             HintsMap hintsMap = new HintsMap();
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-            Graph graph = null;
+            Graph graph;
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
                 hintsMap.setVehicle(encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
@@ -786,7 +776,7 @@ public class RoutingProfile {
 
     public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
             throws Exception {
-        RouteSegmentInfo[] rsi = null;
+        RouteSegmentInfo[] rsi;
 
         waitForUpdateCompletion();
 
@@ -890,7 +880,7 @@ public class RoutingProfile {
     public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
             throws Exception {
 
-        GHResponse resp = null;
+        GHResponse resp;
 
         waitForUpdateCompletion();
 
@@ -1021,7 +1011,6 @@ public class RoutingProfile {
      * @param map Hints map for setting up the request
      * @param requestWeighting Originally requested weighting
      * @param profileType Necessary for HGV
-     * @return Weighting as int
      */
     private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
         //Defaults
@@ -1096,7 +1085,7 @@ public class RoutingProfile {
      * @throws Exception
      */
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
-        IsochroneMap result = null;
+        IsochroneMap result;
         waitForUpdateCompletion();
         beginUseGH();
         try {

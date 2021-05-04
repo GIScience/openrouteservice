@@ -18,8 +18,8 @@ import java.util.Map;
 
 public class DebugUtility {
 
-	private static boolean isDebug;
-	private static Map listMap = new HashMap<String, long[]>();
+	private static final boolean isDebug;
+	private static final Map listMap = new HashMap<String, long[]>();
 	static {
 		isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
 				.contains("-agentlib:jdwp");

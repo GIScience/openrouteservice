@@ -30,7 +30,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 	private int maxHillIndex = 15;
 
-	private byte[] byteValues;
+	private final byte[] byteValues;
 
 	public HillIndexGraphStorage(Map<String, String> parameters) {
 		efHillIndex = 0;

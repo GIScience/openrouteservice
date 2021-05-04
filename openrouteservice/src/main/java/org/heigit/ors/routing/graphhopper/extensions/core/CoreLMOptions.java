@@ -50,7 +50,7 @@ public class CoreLMOptions {
         //Create one edgefiltersequence for each lmset
         for(String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
-            List<String> tmpFilters = Arrays.asList(set.split(","));
+            String[] tmpFilters = set.split(",");
             LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
             int feature;
             int country;
