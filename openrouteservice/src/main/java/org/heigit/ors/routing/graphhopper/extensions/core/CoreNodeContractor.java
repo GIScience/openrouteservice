@@ -39,7 +39,6 @@ public class CoreNodeContractor {
     private final GraphHopperStorage ghStorage;
     private final CHGraph prepareGraph;
     private final PreparationWeighting prepareWeighting;
-    // todo: so far node contraction can only be done for node-based graph traversal
     private final CHProfile chProfile;
     private final DataAccess originalEdges;
     private final Map<Shortcut, Shortcut> shortcuts = new HashMap<>();

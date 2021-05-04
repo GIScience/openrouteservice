@@ -41,8 +41,6 @@ import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Map;
 
 public class GraphEdgeMapFinder {
     private GraphEdgeMapFinder() {

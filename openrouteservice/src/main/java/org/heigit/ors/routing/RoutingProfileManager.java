@@ -21,6 +21,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -553,6 +556,7 @@ public class RoutingProfileManager {
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
+                List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
                 Coordinate c1;
                 double totalDist = 0.0;
@@ -563,17 +567,12 @@ public class RoutingProfileManager {
                         totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                     }
                 } else {
-                    if (nCoords == 2) {
-                        c1 = coords[1];
-                        totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                    } else {
-                        double dist = 0;
-                        for (int i = 1; i < nCoords; i++) {
-                            c1 = coords[i];
-                            dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                            totalDist += dist;
-                            c0 = c1;
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        if (!skipSegments.contains(i)) { // ignore skipped segments
+                            totalDist += distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                         }
+                        c0 = c1;
                     }
                 }
 
@@ -622,6 +621,14 @@ public class RoutingProfileManager {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 
         return rp.computeMatrix(req);
+    }
+
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeCentrality(req);
     }
 
     public void createRunFile() {

@@ -42,8 +42,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
             ,properties.getBool("consider_elevation", false)
             // MARQ24 MOD END
         );
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
+        setProperties(properties);
     }
 
     public RegularBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {

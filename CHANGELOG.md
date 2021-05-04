@@ -34,6 +34,39 @@ RELEASING:
  -->
 
 ## [Unreleased]
+- Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
+
+## [6.4.2] - 2021-04-21
+### Added
+- Allow to disable OSM conditional access and speed encoders via parameter in config file
+- Turkish language support (thanks to [kucar17](https://github.com/kucar17) for the translation)
+### Changed
+- app.config.sample HGV profile has now same settings regarding speed calculation as public API ([#806](https://github.com/GIScience/openrouteservice/issues/806))
+### Fixed
+- Concurrency bug in core edge filters which caused crashes during CALT graph preparation ([#905](https://github.com/GIScience/openrouteservice/issues/905))
+- Fixed isochrones range documentation ([#882](https://github.com/GIScience/openrouteservice/issues/676))
+- Updated installation instructions and usage to reflect v2 api ([#744](https://github.com/GIScience/openrouteservice/issues/744))
+- Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676))
+- Updated link to client translations in readme
+
+## [6.4.1] - 2021-03-31
+### Fixed
+- Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873))
+- Fixed incorrect indexing of waypoints for consecutive identical coordinates ([#762](https://github.com/GIScience/openrouteservice/issues/762))
+- Changed isochrone polygon calculation to use more buffering
+
+## [6.4.0] - 2021-03-26
+### Added
+- API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+- Support for turn restrictions with core-based routing algorithms
+### Changed
+- Use Querygraph and virtual nodes for isochrone calculation in the same manner as in routing
+- Remove Isochrones v1 api tests
+### Fixed
+- Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
+- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695))
+- Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
+- Fixed continue_straight option with no bearing on CH-enabled profiles
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
@@ -41,7 +74,7 @@ RELEASING:
 
 ## [6.3.5] - 2021-01-28
 ### Added
-- output run file to signal completion of graph building/loading at init time
+- Output run file to signal completion of graph building/loading at init time
 ### Fixed
 - Define behavior for first container start with existing app.config
 
@@ -384,7 +417,10 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...HEAD
+[6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
+[6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0
 [6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
 [6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4

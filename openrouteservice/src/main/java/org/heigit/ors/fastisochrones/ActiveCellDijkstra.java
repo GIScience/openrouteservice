@@ -38,7 +38,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
 
     public ActiveCellDijkstra(Graph graph, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int cellId) {
         super(graph, weighting);
-        setEdgeFilter(new FixedCellEdgeFilter(isochroneNodeStorage, cellId, graph.getNodes()));
+        setEdgeFilter(new FixedCellEdgeFilter(isochroneNodeStorage, cellId, graph.getNodes(), false));
     }
 
     protected void addInitialBordernode(int nodeId, double weight) {

@@ -40,7 +40,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     protected final HashSet<String> backwardKeys = new HashSet<>(5);
     protected final List<String> hgvAccess = new ArrayList<>(5);
 
-    protected int maxTrackGradeLevel = 3;
+    protected int maxTrackGradeLevel = 1;
 
     private static final int MEAN_SPEED = 70;
 
@@ -60,16 +60,9 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         		properties.getDouble("speed_factor", 5),
         		properties.getBool("turn_costs", false) ? 3 : 0);
         
-        setBlockFords(false);
+        setProperties(properties);
 
-        setBlockFords(properties.getBool("block_fords", true));
-        setBlockByDefault(properties.getBool("block_barriers", true));
-
-        speedTwoDirections = properties.getBool("speed_two_directions", true);
-
-        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
-
-        useAcceleration = properties.getBool("use_acceleration", false);
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
     }
 
     public HeavyVehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {

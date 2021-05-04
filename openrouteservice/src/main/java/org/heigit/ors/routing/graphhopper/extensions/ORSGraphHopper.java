@@ -75,19 +75,12 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -670,53 +663,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GraphHopperStorage gs = getGraphHopperStorage();
 
-		EncodingManager encodingManager = getEncodingManager();
-
-		int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
-
-		/* Initialize edge filter sequence */
-
-		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-		/* Heavy vehicle filter */
-
-		if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
-		}
-
-		/* Avoid features */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
-			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
-		}
-
-		/* Avoid borders of some form */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
-			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
-		}
-
-		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
-			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
-		}
-
-		/* Maximum Speed Filter */
-		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-		}
-
-		/* End filter sequence initialization */
-
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(gs, coreEdgeFilter);
+			coreFactoryDecorator.createPreparations(gs, processContext);
 		if (!isCorePrepared())
 			prepareCore();
 

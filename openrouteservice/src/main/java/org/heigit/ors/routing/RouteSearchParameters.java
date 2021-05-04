@@ -64,6 +64,7 @@ public class RouteSearchParameters {
     private int vehicleType = HeavyVehicleAttributes.UNKNOWN;
     private ProfileParameters profileParams;
     private WayPointBearing[] bearings = null;
+    private boolean continueStraight = false;
     private double[] maxRadiuses;
     private boolean flexibleMode = false;
     private boolean optimized = true;
@@ -513,6 +514,14 @@ public class RouteSearchParameters {
         return bearings != null && bearings.length > 0;
     }
 
+    public void setContinueStraight(boolean continueStraightAtWaypoints) {
+        continueStraight = continueStraightAtWaypoints;
+    }
+
+    public boolean hasContinueStraight() {
+        return continueStraight;
+    }
+
     public void setRoundTripLength(float length) {
         roundTripLength = length;
     }
@@ -575,8 +584,10 @@ public class RouteSearchParameters {
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
                 || hasBearings()
+                || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-                || isTimeDependent();
+                || isTimeDependent()
+                || getAlternativeRoutesCount() > 0;
     }
 
     // time-dependent stuff
@@ -605,4 +616,5 @@ public class RouteSearchParameters {
     public boolean isTimeDependent() {
         return (hasDeparture() || hasArrival());
     }
+
 }

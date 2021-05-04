@@ -37,6 +37,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncode
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 import org.os_concavehull.ConcaveHull;
@@ -68,7 +69,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
         StopWatch sw = null;
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             swTotal = new StopWatch();
             swTotal.start();
             sw = new StopWatch();
@@ -91,6 +92,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
 
         double meanSpeed = maxSpeed;
+
         if (searchContext.getEncoder() instanceof ORSAbstractFlagEncoder) {
             meanSpeed = ((ORSAbstractFlagEncoder) searchContext.getEncoder()).getMeanSpeed();
         }
@@ -105,7 +107,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
         isochroneMap.setGraphDate(graphdate);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw.stop();
 
             LOGGER.debug("Find edges: " + sw.getSeconds());
@@ -118,14 +120,14 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
         List<Coordinate> isoPoints = new ArrayList<>((int) (1.2 * edgeMap.getMap().size()));
 
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw = new StopWatch();
             sw.start();
         }
 
         markDeadEndEdges(edgeMap);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw.stop();
             LOGGER.debug("Mark dead ends: " + sw.getSeconds());
         }
@@ -146,7 +148,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             float smoothingFactor = parameters.getSmoothingFactor();
             TravelRangeType isochroneType = parameters.getRangeType();
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 sw = new StopWatch();
                 sw.start();
             }
@@ -164,7 +166,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             Coordinate[] points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 0.85);
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 sw.stop();
                 LOGGER.debug(i + " Find points: " + sw.getSeconds() + " " + points.length);
 
@@ -174,13 +176,13 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
 
-            if (LOGGER.isDebugEnabled())
+            if (DebugUtility.isDebug())
                 LOGGER.debug("Build concave hull total: " + sw.stop().getSeconds());
 
             prevCost = isoValue;
         }
 
-        if (LOGGER.isDebugEnabled())
+        if (DebugUtility.isDebug())
             LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
 
         return isochroneMap;
@@ -228,7 +230,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (points.length == 0)
             return;
         StopWatch sw = new StopWatch();
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw = new StopWatch();
             sw.start();
         }
@@ -242,7 +244,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         Polygon polyShell = (Polygon) shellGeometry;
         copyConvexHullPoints(polyShell);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw.stop();
             LOGGER.debug("Build shell concave hull " + sw.getSeconds());
 
@@ -258,7 +260,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                     return;
             }
 
-            if (LOGGER.isDebugEnabled()) {
+            if (DebugUtility.isDebug()) {
                 sw.stop();
                 LOGGER.debug("Build holes concave hull " + sw.getSeconds());
 
@@ -301,14 +303,13 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         } else
             isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
 
-        if (LOGGER.isDebugEnabled()) {
+        if (DebugUtility.isDebug()) {
             sw.stop();
             LOGGER.debug("Adding holes " + sw.getSeconds());
 
             sw = new StopWatch();
             sw.start();
         }
-
     }
 
     private void markDeadEndEdges(AccessibilityMap edgeMap) {
@@ -469,7 +470,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                         // always use mode=3, since other ones do not provide correct results
                         PointList pl = iter.fetchWayGeometry(3);
 
-                        if (LOGGER.isDebugEnabled()) {
+                        if (DebugUtility.isDebug()) {
                             sw.start();
                         }
                         PointList expandedPoints = new PointList(pl.getSize(), pl.is3D());
@@ -477,7 +478,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                         for (int i = 0; i < pl.getSize() - 1; i++)
                             splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
                         pl.add(expandedPoints);
-                        if (LOGGER.isDebugEnabled()) {
+                        if (DebugUtility.isDebug()) {
                             sw.stop();
                         }
                         int size = pl.getSize();
@@ -520,13 +521,13 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
                     PointList pl = iter.fetchWayGeometry(3);
                     PointList expandedPoints = new PointList(pl.getSize(), pl.is3D());
-                    if (LOGGER.isDebugEnabled()) {
+                    if (DebugUtility.isDebug()) {
                         sw.start();
                     }
                     for (int i = 0; i < pl.getSize() - 1; i++)
                         splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
                     pl.add(expandedPoints);
-                    if (LOGGER.isDebugEnabled()) {
+                    if (DebugUtility.isDebug()) {
                         sw.stop();
                     }
                     int size = pl.getSize();
@@ -571,7 +572,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 }
             }
         }
-        if (LOGGER.isDebugEnabled())
+        if (DebugUtility.isDebug())
             LOGGER.debug("Expanding edges " + sw.getSeconds());
 
         Coordinate[] coordinates = new Coordinate[points.size()];
