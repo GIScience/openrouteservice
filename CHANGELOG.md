@@ -34,7 +34,14 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Time-dependent core-based routing algorithms
+
+## [6.4.3] - 2021-04-28
+### Changed
 - Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
+### Fixed
+- Changed fast isochrone calculation behavior for multiple ranges
 
 ## [6.4.2] - 2021-04-21
 ### Added
@@ -417,7 +424,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...HEAD
+[6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
 [6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0

@@ -115,7 +115,7 @@
           profile-vehicles-car: {
             profiles: "driving-car",
             parameters: {
-              encoder_options: "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true",
+              encoder_options: "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
               maximum_distance: 100000,
               elevation: true,
               preparation:

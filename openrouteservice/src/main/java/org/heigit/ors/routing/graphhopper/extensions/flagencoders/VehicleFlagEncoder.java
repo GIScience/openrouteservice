@@ -186,9 +186,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
-        // FIXME: shouldn't this be directional?
         if (properties.getBool(ConditionalEdges.ACCESS, false))
-            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), false));
+            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
         if (properties.getBool(ConditionalEdges.SPEED, false))
             registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
 
@@ -267,12 +266,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
             if (isOneway(way) || isRoundabout) {
                 if (isForwardOneway(way))
-                    accessEnc.setBool(false, edgeFlags, true);
+                    setAccess(access, edgeFlags, true, false);
                 if (isBackwardOneway(way))
-                    accessEnc.setBool(true, edgeFlags, true);
+                    setAccess(access, edgeFlags, false, true);
             } else {
-                accessEnc.setBool(false, edgeFlags, true);
-                accessEnc.setBool(true, edgeFlags, true);
+                setAccess(access, edgeFlags, true, true);
             }
 
             if (access.isConditional() && conditionalAccessEncoder!=null)
@@ -296,6 +294,20 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return edgeFlags;
+    }
+
+    private void setAccess(EncodingManager.Access access, IntsRef edgeFlags, boolean fwd, boolean bwd) {
+        if (fwd)
+            accessEnc.setBool(false, edgeFlags, true);
+        if (bwd)
+            accessEnc.setBool(true, edgeFlags, true);
+
+        if (access.isConditional() && conditionalAccessEncoder!=null) {
+            if (fwd)
+                conditionalAccessEncoder.setBool(false, edgeFlags, true);
+            if (bwd)
+                conditionalAccessEncoder.setBool(true, edgeFlags, true);
+        }
     }
 
     /**
