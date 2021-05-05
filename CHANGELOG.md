@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Time-dependent core-based routing algorithms
 
 ## [6.4.3] - 2021-04-28
 ### Changed

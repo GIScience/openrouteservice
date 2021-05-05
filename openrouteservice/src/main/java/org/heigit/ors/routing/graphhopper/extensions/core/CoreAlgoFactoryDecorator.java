@@ -377,6 +377,11 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
             }
         }
 
+        /* Conditional edges */
+        if (TimeDependentCoreEdgeFilter.hasConditionals(encodingManager)) {
+            edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
+        }
+
         return edgeFilterSequence;
     }
 
