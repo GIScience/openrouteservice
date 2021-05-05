@@ -36,6 +36,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
@@ -114,6 +115,9 @@ import java.util.concurrent.locks.Lock;
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.ALT_ROUTE;
 import static com.graphhopper.util.Parameters.Algorithms.ROUND_TRIP;
+import static com.graphhopper.util.Parameters.Algorithms.TD_ASTAR;
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_DEPARTURE;
 
 
 public class ORSGraphHopper extends GraphHopper {
