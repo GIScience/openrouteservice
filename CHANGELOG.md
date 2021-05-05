@@ -36,6 +36,9 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Time-dependent core-based routing algorithms
+  
+### Fixed
+- prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
 
 ## [6.4.3] - 2021-04-28
 ### Changed
