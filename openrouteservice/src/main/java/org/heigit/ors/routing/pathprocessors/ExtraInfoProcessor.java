@@ -25,11 +25,12 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
-import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteExtraInfoFlag;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.parameters.ProfileParameters;
@@ -109,15 +110,13 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private String skippedExtraInfo = "";
 
 	private CountryBordersReader countryBordersReader;
-	private HereTrafficReader hereTrafficReader;
 
-	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader, HereTrafficReader htReader) {
+	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
 		this(opts, graphHopperStorage, enc);
 		this.countryBordersReader = cbReader;
-		this.hereTrafficReader = htReader;
 	}
 
-	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
+	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
 		encoder = enc;
 		encoderWithPriority = encoder.supports(PriorityWeighting.class);
 		List<String> skippedExtras = new ArrayList<>();

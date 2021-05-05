@@ -43,13 +43,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class GraphEdgeMapFinder {
-    private GraphEdgeMapFinder() {
-    }
+	private  GraphEdgeMapFinder() {}
 
-    public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
-        GraphHopper gh = searchCntx.getGraphHopper();
-        FlagEncoder encoder = searchCntx.getEncoder();
-        GraphHopperStorage graph = gh.getGraphHopperStorage();
+	public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
+		GraphHopper gh = searchCntx.getGraphHopper();
+	    FlagEncoder encoder = searchCntx.getEncoder();
+		GraphHopperStorage graph = gh.getGraphHopperStorage();
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
