@@ -413,7 +413,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     private void processSegment(ORSGraphHopper graphHopper, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds,
                                 int trafficLinkId, RouteSegmentInfo routeSegment) {
-        for (EdgeIteratorState edge : routeSegment.getEdges()) {
+        for (EdgeIteratorState edge : routeSegment.getEdgesStates()) {
             if (edge instanceof VirtualEdgeIteratorState) {
                 VirtualEdgeIteratorState virtualEdge = (VirtualEdgeIteratorState) edge;
                 int originalEdgeId;

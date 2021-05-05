@@ -144,7 +144,7 @@ public class ORSGraphHopper extends GraphHopper {
 		processContext.init(this);
 		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
 
-    }
+	}
 
 
 	public ORSGraphHopper() {
@@ -465,7 +465,7 @@ public class ORSGraphHopper extends GraphHopper {
 			req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
 		req.setVehicle(vehicle);
-		req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+		req.setAlgorithm("dijkstrabi");
 		req.setWeighting("fastest");
 		// TODO add limit of maximum visited nodes
 
@@ -882,10 +882,6 @@ public class ORSGraphHopper extends GraphHopper {
 		return eccentricity;
 	}
 
-	public void setTrafficData(HereTrafficGraphStorageBuilder trafficData) {
-		this.trafficData = trafficData;
-	}
-
     public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
                                                          double originalTrafficLinkLength,
                                                          int trafficLinkFunctionalClass,
@@ -967,7 +963,7 @@ public class ORSGraphHopper extends GraphHopper {
             return new RouteSegmentInfo[]{};
         int nullCounter = 0;
         for (int i = 0; i < routeSegmentInfo.length; i++) {
-            if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdges() == null) {
+            if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdgesStates() == null) {
                 nullCounter += 1;
                 break;
             }

@@ -58,22 +58,19 @@ public class RouteSegmentInfo {
 	}
 
 	/**
-	 * @return A list of the original Ids of all included Edges.
-	 */
-	public List<Integer> getOriginalEdgeIds() {
-		List<Integer> res = new ArrayList<>(edges.size());
-	    
-		for(EdgeIteratorState edge : edges)
-			res.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
-		
-		return res;
-	}
-
-	/**
 	 * @return Returns all Edges.
 	 */
-	public List<EdgeIteratorState> getEdges() {
+	public List<EdgeIteratorState> getEdgesStates() {
 		return edges;
+	}
+
+	public List<Integer> getEdges() {
+		List<Integer> res = new ArrayList<>(edges.size());
+
+		for(EdgeIteratorState edge : edges)
+			res.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
+
+		return res;
 	}
 
 	public Geometry getGeometry() {
