@@ -18,10 +18,10 @@ import java.util.Map;
 
 public class DebugUtility {
 
-	private static final boolean isDebug;
+	private static final boolean IS_DEBUG;
 	private static final Map listMap = new HashMap<String, long[]>();
 	static {
-		isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
+		IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
 				.contains("-agentlib:jdwp");
 	}
 
@@ -29,7 +29,7 @@ public class DebugUtility {
 
 	public static boolean isDebug()
 	{
-		return isDebug;	
+		return IS_DEBUG;
 	}
 
 	public static void setList(String name, final long[] array) {

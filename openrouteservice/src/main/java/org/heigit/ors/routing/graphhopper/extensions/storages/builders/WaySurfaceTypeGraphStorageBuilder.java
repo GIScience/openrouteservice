@@ -23,8 +23,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGrap
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String TAG_HIGHWAY = "highway";

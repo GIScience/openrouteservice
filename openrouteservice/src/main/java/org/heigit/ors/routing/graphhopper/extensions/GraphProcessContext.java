@@ -25,8 +25,8 @@ import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class GraphProcessContext {
@@ -121,7 +121,7 @@ public class GraphProcessContext {
 	 * @param coords	Coordinates of the linestring
 	 * @param nodeTags  Tags for nodes found on the way
 	 */
-	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags) {
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
 		try {
 			if (arrStorageBuilders != null) {
 				int nStorages = arrStorageBuilders.length;

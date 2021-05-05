@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.config;
 
-import org.heigit.ors.config.AppConfig;
-
 public class MatrixServiceSettings {
 	private static int maximumRoutes = 2500;
 	private static int maximumRoutesFlexible = 25;

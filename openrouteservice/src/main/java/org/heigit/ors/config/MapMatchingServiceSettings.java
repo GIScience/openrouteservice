@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.config;
 
-import org.heigit.ors.config.AppConfig;
-
 public class MapMatchingServiceSettings {
 	private static boolean enabled  = true;
 	private static int maximumLocations = 100;

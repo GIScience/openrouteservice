@@ -1,9 +1,7 @@
 package org.heigit.ors.routing.pathprocessors;
 
-import com.carrotsearch.hppc.IntHashSet;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BordersExtractor {

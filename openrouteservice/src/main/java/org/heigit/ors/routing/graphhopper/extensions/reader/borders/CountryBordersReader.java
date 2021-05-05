@@ -380,13 +380,13 @@ public class CountryBordersReader {
      */
     private void readIds() {
         // First read the csv file
-        ArrayList<ArrayList<String>> data = CSVUtility.readFile(idsPath);
+        List<List<String>> data = CSVUtility.readFile(idsPath);
 
         // Loop through and store in the hashmap
         int countries = 0;
         int isoCCA2 = 0;
         int isoCCA3 = 0;
-        for(ArrayList<String> col : data) {
+        for(List<String> col : data) {
             if(col.size() >= 3) {
                 ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
                 countries++;
@@ -430,10 +430,10 @@ public class CountryBordersReader {
      */
     private void readOpenBorders() {
         // First read the csv file
-        ArrayList<ArrayList<String>> data = CSVUtility.readFile(openPath);
+        List<List<String>> data = CSVUtility.readFile(openPath);
 
         // Loop through and store in the hashmap
-        for(ArrayList<String> col : data) {
+        for(List<String> col : data) {
             if(col.size() == 2) {
                 // See if there is already the start country
                 if(!openBorders.containsKey(col.get(0))) {

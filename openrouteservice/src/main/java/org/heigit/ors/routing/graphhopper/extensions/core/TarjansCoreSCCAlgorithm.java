@@ -18,13 +18,10 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.CHGraphImpl;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CHEdgeExplorer;
 import com.graphhopper.util.CHEdgeIterator;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,7 @@ import java.util.Stack;
  * @author Hendrik Leuschner
  */
 public class TarjansCoreSCCAlgorithm {
-    private final ArrayList<IntArrayList> components = new ArrayList<IntArrayList>();
+    private final ArrayList<IntArrayList> components = new ArrayList<>();
     // TODO use just the Graph interface here
     private final GraphHopperStorage graph;
     private final IntArrayDeque nodeStack;
@@ -118,7 +115,7 @@ public class TarjansCoreSCCAlgorithm {
      * @param firstNode start search of SCC at this node
      */
     private void strongConnect(int firstNode) {
-        final Stack<TarjanState> stateStack = new Stack<TarjanState>();
+        final Stack<TarjanState> stateStack = new Stack<>();
         stateStack.push(TarjanState.startState(firstNode));
 
         // nextState label is equivalent to the function entry point in the recursive Tarjan's algorithm.

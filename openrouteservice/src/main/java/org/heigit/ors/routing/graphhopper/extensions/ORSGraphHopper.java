@@ -81,6 +81,8 @@ import static org.heigit.ors.routing.RouteResult.*;
 
 public class ORSGraphHopper extends GraphHopper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
+	public static final String KEY_DEPARTURE = "departure";
+	public static final String KEY_ARRIVAL = "arrival";
 
 	private GraphProcessContext processContext;
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
@@ -271,7 +273,7 @@ public class ORSGraphHopper extends GraphHopper {
 				StopWatch sw = new StopWatch().start();
 				List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
 				double[] radiuses = request.getMaxSearchDistances();
-				checkAvoidBorders(processContext, request, qResults);
+				checkAvoidBorders(request, qResults);
 				if (points.size() == qResults.size()) {
 					for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
 						QueryResult qr = qResults.get(placeIndex);
@@ -480,11 +482,10 @@ public class ORSGraphHopper extends GraphHopper {
 	/**
 	 * Check whether the route processing has to start. If avoid all borders is set and the routing points are in different countries,
 	 * there is no need to even start routing.
-	 * @param processContext Used to get the bordersReader to check isOpen for avoid Controlled. Currently not used
 	 * @param request To get the avoid borders setting
 	 * @param queryResult To get the edges of the queries and check which country they're in
 	 */
-	private void checkAvoidBorders(GraphProcessContext processContext, GHRequest request, List<QueryResult> queryResult) {
+	private void checkAvoidBorders(GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
 		ORSPMap params = (ORSPMap)request.getAdditionalHints();
 		if (params == null) {
@@ -591,16 +592,7 @@ public class ORSGraphHopper extends GraphHopper {
         return new GeometryFactory().createLineString(coords);
     }
 
-
-    public HashMap<Integer, Long> getTmcGraphEdges() {
-        return tmcEdges;
-    }
-
-    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
-        return osmId2EdgeIds;
-    }
-
-	/**
+    /**
 	 * Does the preparation and creates the location index
 	 */
 	@Override
@@ -769,9 +761,9 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public final boolean isCoreAvailable(String weighting) {
-		CoreAlgoFactoryDecorator coreFactoryDecorator = getCoreFactoryDecorator();
-		if (coreFactoryDecorator.isEnabled() && coreFactoryDecorator.hasCHProfiles()) {
-			for (CHProfile chProfile : coreFactoryDecorator.getCHProfiles()) {
+		CoreAlgoFactoryDecorator cfDecorator = getCoreFactoryDecorator();
+		if (cfDecorator.isEnabled() && cfDecorator.hasCHProfiles()) {
+			for (CHProfile chProfile : cfDecorator.getCHProfiles()) {
 				if (weighting.equals(chProfile.getWeighting().getName()))
 					return true;
 			}

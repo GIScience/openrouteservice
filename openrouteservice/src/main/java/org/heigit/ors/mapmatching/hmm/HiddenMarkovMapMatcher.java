@@ -48,9 +48,9 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	private final List<MatchPoint> matchPoints = new ArrayList<>(2);
 	private final List<Integer> roadSegments = new ArrayList<>();
 	
-	private static final double sigmaZ = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
-	private static final double beta =  0.00959442; // beta(z, x)
-	private static final double denom = Math.sqrt(2 * Math.PI) * sigmaZ; // see Equation 1
+	private static final double SIGMA_Z = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
+	private static final double BETA =  0.00959442; // beta(z, x)
+	private static final double DENOM = Math.sqrt(2 * Math.PI) * SIGMA_Z; // see Equation 1
 	
 	private double[] distances = new double[2];
 	private double[] longitudes = new double[2];
@@ -214,17 +214,17 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 				if (dist > distThreshold)
 					emissionProbs[ri][t] = defaultProbability;
 				else {
-					v = dist / sigmaZ;
-					emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / denom;
+					v = dist / SIGMA_Z;
+					emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / DENOM;
 				}
 
 				if (startProbs[ri] == 0.0) {
-					dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / sigmaZ;
+					dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / SIGMA_Z;
 					if (dist > distThreshold || xi.measuredPointIndex != 0)
 						startProbs[ri] = defaultProbability;
 					else {
-						v = dist / sigmaZ;
-						startProbs[ri] = Math.exp(-0.5 * v * v) / denom;
+						v = dist / SIGMA_Z;
+						startProbs[ri] = Math.exp(-0.5 * v * v) / DENOM;
 					}
 				}
 			}
@@ -283,7 +283,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
                                 double dt2 = Math.abs(time - perfTime)/perfTime;
                                 								
-								value = exponentialDistribution(beta, 0.2*dt + 0.8*dt2); 
+								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
 							}
 						} catch(Exception ex) {
 							// do nothing

@@ -16,12 +16,11 @@ package org.heigit.ors.routing.configuration;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Envelope;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class CentralityAlgorithmTest extends TestCase {
     private CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
@@ -125,7 +126,7 @@ public class CentralityAlgorithmTest extends TestCase {
         ArrayList<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
         ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(26d / 3d, 0d, 41d / 3d, 41d / 3d, 47d / 3d, 6d, 0d, 31d / 3d, 31d / 3d));
 
-        HashMap<Integer, Double> betweenness = null;
+        Map<Integer, Double> betweenness = null;
         try {
             betweenness = alg.compute(nodes);
         } catch (Exception e) {
@@ -164,7 +165,7 @@ public class CentralityAlgorithmTest extends TestCase {
         ArrayList<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
         ArrayList<Double> expectedScores = new ArrayList<>(Arrays.asList(5d, 0d, 6d, 0d, 2d, 2d, 0d, 0d, 0d));
 
-        HashMap<Integer, Double> betweenness = null;
+        Map<Integer, Double> betweenness = null;
         try {
             betweenness = alg.compute(nodes);
         } catch (Exception e) {

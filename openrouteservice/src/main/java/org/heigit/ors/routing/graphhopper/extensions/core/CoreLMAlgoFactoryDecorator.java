@@ -254,8 +254,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             completionService.submit(() -> {
                 if (plm.loadExisting())
                     return;
-                LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling CoreLM prepare.doWork for "
-                        + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
+                LOGGER.info(String.format("%d/%d calling CoreLM prepare.doWork for %s ... (%s)", tmpCounter, getPreparations().size(), plm.getWeighting(), Helper.getMemInfo()));
                 prepared.set(true);
                 Thread.currentThread().setName(name);
                 plm.doWork();

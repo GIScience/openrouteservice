@@ -272,8 +272,10 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(wayTypeEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
-        if (properties.getBool(ConditionalEdges.ACCESS, false))
-            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
+        if (properties.getBool(ConditionalEdges.ACCESS, false)) {
+            conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
+            registerNewEncodedValue.add(conditionalAccessEncoder);
+        }
     }
 
     @Override

@@ -205,13 +205,11 @@ public class FrechetDistance {
                 }
 
                 // TODO: the complicated loop to compute L^R_(i+1),j and B^R_i,(j+1)
-                boolean retVal = a[pLength - 1][qLength - 1] != -1
+                // cannot enter the upper right cell
+                return  a[pLength - 1][qLength - 1] != -1
                         || b[pLength - 1][qLength - 1] != -1
                         || c[pLength - 1][qLength - 1] != -1
                         || d[pLength - 1][qLength - 1] != -1;
-
-                // cannot enter the upper right cell
-                return retVal;
         }
 
         private double getProportion(Coordinate coord, LineString ls) {

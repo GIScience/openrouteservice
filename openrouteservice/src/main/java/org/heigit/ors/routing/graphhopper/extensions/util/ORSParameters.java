@@ -84,6 +84,8 @@ public class ORSParameters {
      * Properties for partition preparation
      */
     public static final class FastIsochrone {
+        private FastIsochrone(){}
+
         public static final String PREPARE = "prepare.fastisochrone.";
         /**
          * This property name in HintsMap configures at runtime if CH routing should be ignored.

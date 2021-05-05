@@ -3,6 +3,9 @@ package org.heigit.ors.fastisochrones.storage;
 import java.nio.ByteBuffer;
 
 public class ByteConversion {
+
+    public static final String ERROR_MSG_BYTECOUNT = "Byte counts do not match, expected %d but is %d";
+
     private ByteConversion() {
     }
 
@@ -26,19 +29,19 @@ public class ByteConversion {
 
     public static double byteArrayToDouble(byte[] bytes) {
         if (bytes.length != Double.BYTES)
-            throw new IllegalArgumentException("Byte counts do not match, expected " + Double.BYTES + " but is " + bytes.length);
+            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Double.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getDouble();
     }
 
     public static long byteArrayToLong(byte[] bytes) {
         if (bytes.length != Long.BYTES)
-            throw new IllegalArgumentException("Byte counts do not match, expected " + Long.BYTES + " but is " + bytes.length);
+            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Long.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getLong();
     }
 
     public static int byteArrayToInteger(byte[] bytes) {
         if (bytes.length != Integer.BYTES)
-            throw new IllegalArgumentException("Byte counts do not match, expected " + Integer.BYTES + " but is " + bytes.length);
+            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Integer.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getInt();
     }
 }

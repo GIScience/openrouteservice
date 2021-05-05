@@ -21,6 +21,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
 
+import java.util.Objects;
+
 /**
  * This class creates the weighting for the routing according to the maximum speed set by user.
  *
@@ -29,18 +31,18 @@ import com.graphhopper.util.Parameters.Routing;
  */
 
 public class MaximumSpeedWeighting extends AbstractAdjustedWeighting {
-    protected final static double SPEED_UNIT_CONVERTER = 3.6; //From km/h to m/s.
     private final double headingPenalty;
     private final double userMaxSpeed;
     private final DecimalEncodedValue avSpeedEnc;
     private final boolean calculateWeight;
+    protected final static double SPEED_UNIT_CONVERTER = 3.6; //From km/h to m/s.
 
     public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting superWeighting, double maximumSpeedLowerBound) {
         super(superWeighting);
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
         this.headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         this.userMaxSpeed = hintsMap.getDouble("maximum_speed", maximumSpeedLowerBound);
-        this.calculateWeight = (superWeighting.getName() != "shortest");
+        this.calculateWeight = (!Objects.equals(superWeighting.getName(), "shortest"));
     }
 
     /** This function returns the time needed for a route only if the speed of the edge is bigger than the speed set by the user */
@@ -59,9 +61,7 @@ public class MaximumSpeedWeighting extends AbstractAdjustedWeighting {
     /** This function is going to add the difference of: (edge speed - maximum_speed) in the calcMillis. */
     private double calcMaximumSpeedMillis(double userMaxSpeed, double speed, EdgeIteratorState edge){
         //Conversion of the speeds to times including the factor for changing from km/h -> m/ms.
-        double time = Math.abs((edge.getDistance() * ( 1 / speed - 1 / userMaxSpeed ))) * SPEED_UNIT_CONVERTER * 1000;
-
-        return time;
+        return Math.abs((edge.getDistance() * ( 1 / speed - 1 / userMaxSpeed ))) * SPEED_UNIT_CONVERTER * 1000;
     }
 
     @Override

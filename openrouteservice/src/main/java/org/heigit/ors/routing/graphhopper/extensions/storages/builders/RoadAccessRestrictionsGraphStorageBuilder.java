@@ -133,14 +133,14 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      *                  apply restrictions on a way introduced by items like lift gates that are nodes on the way
      */
     @Override
-    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags) {
+    public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags) {
         if (hasRestrictions) {
             hasRestrictions = false;
             restrictions = 0;
         }
 
         if(nodeTags != null) {
-            for (HashMap<String, String> tagPairs : nodeTags.values()) {
+            for (Map<String, String> tagPairs : nodeTags.values()) {
                 for (Map.Entry<String, String> pair : tagPairs.entrySet()) {
                     way.setTag(pair.getKey(), pair.getValue());
                 }

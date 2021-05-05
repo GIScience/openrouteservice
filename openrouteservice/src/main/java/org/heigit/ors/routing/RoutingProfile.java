@@ -676,7 +676,7 @@ public class RoutingProfile {
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting);
 
-        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
+        Map<Integer, Double> betweenness = alg.compute(nodesInBBox);
 
         // transform node ids to coordinates
         for (int v : nodesInBBox) {

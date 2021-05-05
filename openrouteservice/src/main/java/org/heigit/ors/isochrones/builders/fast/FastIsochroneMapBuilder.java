@@ -65,8 +65,6 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
-    private final static DistanceCalc dcFast = new DistancePlaneProjection();
-    private final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
     private final Envelope searchEnv = new Envelope();
     private GeometryFactory geomFactory;
     private PointItemVisitor visitor = null;
@@ -78,10 +76,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private final int minEdgeLengthLimit = 100;
-    private final int maxEdgeLengthLimit = Integer.MAX_VALUE;
+    private static final int MIN_EDGE_LENGTH_LIMIT = 100;
+    private static final int MAX_EDGE_LENGTH_LIMIT = Integer.MAX_VALUE;
     private static final boolean BUFFERED_OUTPUT = true;
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
+    private static final DistanceCalc dcFast = new DistancePlaneProjection();
+    private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
     /*
         Calculates the distance between two coordinates in meters
@@ -215,15 +215,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             final double maxRadius;
             double meanRadius;
-            switch (isochroneType) {
-                case TIME:
-                    maxRadius = metersPerSecond * isoValue;
-                    meanRadius = meanMetersPerSecond * isoValue;
-                    break;
-                default:
-                    maxRadius = isoValue;
-                    meanRadius = isoValue;
-                    break;
+            if (isochroneType == TravelRangeType.TIME) {
+                maxRadius = metersPerSecond * isoValue;
+                meanRadius = meanMetersPerSecond * isoValue;
+            } else {
+                maxRadius = isoValue;
+                meanRadius = isoValue;
             }
             //Add previous isochrone interval polygon
             addPreviousIsochronePolygon(isochroneGeometries);
@@ -335,8 +332,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                             ring.getPointN(i).getX(),
                             ring.getPointN(i + 1).getX(),
                             contourCoordinates,
-                            minEdgeLengthLimit,
-                            maxEdgeLengthLimit);
+                            MIN_EDGE_LENGTH_LIMIT,
+                            MAX_EDGE_LENGTH_LIMIT);
                 }
             }
             contourCoordinates.add(ring.getCoordinateN(0).y);
@@ -411,8 +408,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                                 ring.getPointN(i).getX(),
                                 ring.getPointN(i + 1).getX(),
                                 coordinates,
-                                minEdgeLengthLimit,
-                                maxEdgeLengthLimit);
+                                MIN_EDGE_LENGTH_LIMIT,
+                                MAX_EDGE_LENGTH_LIMIT);
                     }
                 }
                 coordinates.add(ring.getCoordinateN(0));
@@ -638,7 +635,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         // always use mode=3, since other ones do not provide correct results
         PointList pl = iter.fetchWayGeometry(3);
         // Always buffer geometry
-        pl = expandAndBufferPointList(pl, bufferSize, minEdgeLengthLimit, maxEdgeLengthLimit);
+        pl = expandAndBufferPointList(pl, bufferSize, MIN_EDGE_LENGTH_LIMIT, MAX_EDGE_LENGTH_LIMIT);
         int size = pl.getSize();
         if (size > 0) {
             double lat0 = pl.getLat(0);

@@ -48,7 +48,7 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
 
-    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map extras, boolean includeElevation) {
+    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map<String, JSONExtra> extras, boolean includeElevation) {
         super(result, includeElevation);
         this.segments = segments;
         this.wayPoints = result.getWayPointsIndices();
@@ -81,8 +81,8 @@ public class GeoJSONSummary extends JSONSummary {
     }
 
     @JsonProperty("warnings")
-    public List<Map> getWarnings() {
-        List<Map> warningsMap = new ArrayList<>();
+    public List<Map<String, Object>> getWarnings() {
+        List<Map<String, Object>> warningsMap = new ArrayList<>();
         for (RouteWarning warning: warnings) {
             Map<String, Object> warningMap = new HashMap<>();
             warningMap.put("code", warning.getWarningCode());

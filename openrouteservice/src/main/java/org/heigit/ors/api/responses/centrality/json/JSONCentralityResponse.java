@@ -3,13 +3,11 @@ package org.heigit.ors.api.responses.centrality.json;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
-import org.heigit.ors.api.requests.centrality.CentralityRequest;
 import org.heigit.ors.api.responses.centrality.CentralityResponse;
 import org.heigit.ors.centrality.CentralityResult;
-import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.FormatUtility;
 
-import java.util.HashMap;
+import java.util.Map;
 
 @ApiModel(description = "The Centrality Response contains one matrix for each specified `metrics` value.")
 public class JSONCentralityResponse extends CentralityResponse {
@@ -26,10 +24,10 @@ public class JSONCentralityResponse extends CentralityResponse {
     @JsonProperty("aggregated") // test if everything is returned in correct order
     public Double[][] aggregated;
 
-    public JSONCentralityResponse(CentralityResult centralityResult, CentralityRequest request) throws StatusCodeException {
+    public JSONCentralityResponse(CentralityResult centralityResult) {
         super(centralityResult);
-        HashMap<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
-        HashMap<Coordinate, Integer> nodes = centralityResult.getNodes();
+        Map<Coordinate, Double> centralityScores = centralityResult.getCentralityScores();
+        Map<Coordinate, Integer> nodes = centralityResult.getNodes();
         int length = centralityScores.size();
 
         this.locations = new Double[length][2];
@@ -38,7 +36,7 @@ public class JSONCentralityResponse extends CentralityResponse {
         this.nodeIds = new Integer[length];
         int current = 0;
 
-        for (HashMap.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
+        for (Map.Entry<Coordinate, Double> centralityScore : centralityScores.entrySet()) {
             Coordinate location = centralityScore.getKey();
             Double score = centralityScore.getValue();
             Integer node = nodes.get(location);

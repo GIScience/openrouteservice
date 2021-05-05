@@ -20,7 +20,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

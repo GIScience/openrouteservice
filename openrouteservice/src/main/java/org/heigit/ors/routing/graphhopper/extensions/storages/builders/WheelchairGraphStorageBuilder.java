@@ -30,6 +30,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String KEY_SLOPED_KERB = "sloped_kerb";
 	public static final String KEY_KERB_HEIGHT = "kerb:height";
 	public static final String KEY_FOOTWAY = "footway";
+	public static final String SW_VAL_RIGHT = "right";
+	public static final String SW_VAL_LEFT = "left";
 
 	public enum Side {
 		LEFT,
@@ -42,8 +44,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	private final WheelchairAttributes wheelchairAttributesLeftSide;
 	private final WheelchairAttributes wheelchairAttributesRightSide;
 
-	private HashMap<Integer, HashMap<String,String>> nodeTagsOnWay;
-	private HashMap<String, Object> cleanedTags;
+	private Map<Integer, Map<String,String>> nodeTagsOnWay;
+	private Map<String, Object> cleanedTags;
 
 	private boolean hasLeftSidewalk = false;
 	private boolean hasRightSidewalk = false;
@@ -102,7 +104,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @param nodeTags	Tags that have been stored on nodes of the way that should be used during processing
 	 */
 	@Override
-	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags)
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags)
 	{
 		// Start by resetting storage variables after the previous way
 		wheelchairAttributes.reset();
@@ -253,10 +255,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case "left":
+				case SW_VAL_LEFT:
 					hasLeftSidewalk = true;
 					break;
-				case "right":
+				case SW_VAL_RIGHT:
 					hasRightSidewalk = true;
 					break;
 				case "both":
@@ -352,11 +354,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] assumedKerbTags = new String[] {
 				"curb",
 				"kerb",
-				"sloped_curb",
-				"sloped_kerb"
+				KEY_SLOPED_CURB,
+				KEY_SLOPED_KERB
 		};
 		String[] explicitKerbTags = new String[] {
-				"kerb:height",
+				KEY_KERB_HEIGHT,
 				"curb:height"
 		};
 
@@ -546,13 +548,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
 		    String side = way.getTag("ors-sidewalk-side");
-		    if(side.equals("left")) {
+		    if(side.equals(SW_VAL_LEFT)) {
 				// Only get the attributes for the left side
-				at = getAttributes("left");
+				at = getAttributes(SW_VAL_LEFT);
 				at.setSide(WheelchairAttributes.Side.LEFT);
             }
-            if(side.equals("right")) {
-		    	at = getAttributes("right");
+            if(side.equals(SW_VAL_RIGHT)) {
+		    	at = getAttributes(SW_VAL_RIGHT);
 		    	at.setSide(WheelchairAttributes.Side.RIGHT);
 			}
         } else {
@@ -598,8 +600,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Explicit heights are those provided by the :height tag - these should take precidence
 		List<Integer> explicitKerbHeights = new ArrayList<>();
 
-		for(Map.Entry<Integer, HashMap<String, String>> entry: nodeTagsOnWay.entrySet()) {
-			HashMap<String, String> tags = entry.getValue();
+		for(Map.Entry<Integer, Map<String, String>> entry: nodeTagsOnWay.entrySet()) {
+			Map<String, String> tags = entry.getValue();
 			for (Map.Entry<String,String> tag : tags.entrySet()) {
 				switch (tag.getKey()) {
 					case KEY_SLOPED_CURB:
@@ -669,10 +671,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now get the specific items
 		switch(side) {
-			case "left":
+			case SW_VAL_LEFT:
 				at = at.merge(wheelchairAttributesLeftSide);
 				break;
-			case "right":
+			case SW_VAL_RIGHT:
 				at = at.merge(wheelchairAttributesRightSide);
 				break;
 			default:
@@ -780,7 +782,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] pedestrianWayTypes = {
 				"living_street",
 				"pedestrian",
-				"footway",
+				KEY_FOOTWAY,
 				"path",
 				"crossing"
 		};

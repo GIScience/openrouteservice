@@ -176,7 +176,7 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	public void onProcessWay(ReaderWay way) {
 
-		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
+		Map<Integer, Map<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
 
 		if(processNodeTags) {

@@ -51,6 +51,7 @@ import java.util.concurrent.*;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
+    public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
 
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
@@ -289,7 +290,7 @@ public class RoutingProfileManager {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor)obj;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
-                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
                         }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
@@ -426,7 +427,7 @@ public class RoutingProfileManager {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
                         extraInfoProcessorIndex++;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
-                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)o).getSkippedExtraInfo());
                         }
                     }
                 }
@@ -436,7 +437,7 @@ public class RoutingProfileManager {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor)o;
                             if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
-                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)o).getSkippedExtraInfo());
                             }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);

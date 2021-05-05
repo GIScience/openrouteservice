@@ -282,9 +282,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 *
 	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
-		boolean include = RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag);
-
-		return include;
+		return RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag);
 	}
 
 	public List<RouteExtraInfo> getExtras() {

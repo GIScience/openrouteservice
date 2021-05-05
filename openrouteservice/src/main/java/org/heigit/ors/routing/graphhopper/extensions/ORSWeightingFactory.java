@@ -17,7 +17,6 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -25,17 +24,11 @@ import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-	public ORSWeightingFactory(){}
-
 	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
 		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;

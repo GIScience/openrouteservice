@@ -23,9 +23,8 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 
-import java.util.BitSet;
-
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToInteger;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.intToByteArray;
 
 /**
  * Storage that maps nodeIds to their respective cells and borderness.

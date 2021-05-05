@@ -19,9 +19,9 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     }
 
     private class QueueElement implements Comparable<QueueElement> {
-        public Double dist;
-        public Integer pred;
-        public Integer v;
+        public final Double dist;
+        public final Integer pred;
+        public final Integer v;
 
         public QueueElement(Double dist, Integer pred, Integer v) {
             this.dist = dist;
@@ -35,8 +35,8 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     }
     // this implementation follows the code given in
     // "A Faster Algorithm for Betweenness Centrality" by Ulrik Brandes, 2001
-    public HashMap<Integer, Double> compute(ArrayList<Integer> nodesInBBox) throws Exception {
-        HashMap<Integer, Double> betweenness = new HashMap<>();
+    public Map<Integer, Double> compute(List<Integer> nodesInBBox) throws Exception {
+        Map<Integer, Double> betweenness = new HashMap<>();
 
         // c_b[v] = 0 forall v in V
         for (int v: nodesInBBox) {
@@ -45,44 +45,44 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
 
 
         for (int s : nodesInBBox) {
-            Stack<Integer> S = new Stack<>();
-            HashMap<Integer, List<Integer>> P = new HashMap<>();
-            HashMap<Integer, Integer> sigma = new HashMap<>();
+            Stack<Integer> stack = new Stack<>();
+            Map<Integer, List<Integer>> p = new HashMap<>();
+            Map<Integer, Integer> sigma = new HashMap<>();
 
             // single source shortest path
             //S, P, sigma = SingleSourceDijkstra(graph, nodesInBBox, s);
 
             for (int v : nodesInBBox) {
-                P.put(v, new ArrayList<>());
+                p.put(v, new ArrayList<>());
                 sigma.put(v, 0);
             }
             sigma.put(s, 1);
 
-            HashMap<Integer, Double> D = new HashMap<>();
-            HashMap<Integer, Double> seen = new HashMap<>();
+            Map<Integer, Double> d = new HashMap<>();
+            Map<Integer, Double> seen = new HashMap<>();
             seen.put(s, 0.0d);
 
-            PriorityQueue<QueueElement> Q = new PriorityQueue<>();
+            PriorityQueue<QueueElement> q = new PriorityQueue<>();
 
-            Q.add(new QueueElement(0d, s, s));
+            q.add(new QueueElement(0d, s, s));
 
             // check that everything has the length it should.
-            assert S.empty(); //S should be empty
+            assert stack.empty(); //S should be empty
             assert seen.size() == 1;
 
-            while (Q.peek() != null) {
-                QueueElement first = Q.poll();
+            while (q.peek() != null) {
+                QueueElement first = q.poll();
                 Double dist = first.dist;
                 Integer pred = first.pred;
                 Integer v = first.v;
 
-                if (D.containsKey(v)) {
+                if (d.containsKey(v)) {
                     continue;
                 }
 
                 sigma.put(v, sigma.get(v) + sigma.get(pred));
-                S.push(v);
-                D.put(v, dist);
+                stack.push(v);
+                d.put(v, dist);
 
                 // iterate all edges connected to v
                 EdgeExplorer explorer = graph.createEdgeExplorer();
@@ -95,41 +95,41 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         continue;
                     }
 
-                    if (D.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
+                    if (d.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
                         // Node already checked, skipping edge
                         continue;
                     }
 
-                    Double vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                    Double vwDist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 
-                    if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.000001d)) {
+                    if (seen.containsKey(w) && (Math.abs(vwDist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
-                        List<Integer> predecessors = P.get(w);
+                        List<Integer> predecessors = p.get(w);
                         predecessors.add(v);
-                        P.put(w, predecessors);
-                    } else if (!seen.containsKey(w) || vw_dist < seen.get(w)) {
-                        seen.put(w, vw_dist);
-                        Q.add(new QueueElement(vw_dist, v, w));
+                        p.put(w, predecessors);
+                    } else if (!seen.containsKey(w) || vwDist < seen.get(w)) {
+                        seen.put(w, vwDist);
+                        q.add(new QueueElement(vwDist, v, w));
                         sigma.put(w, 0);
                         ArrayList<Integer> predecessors = new ArrayList<>();
                         predecessors.add(v);
-                        P.put(w, predecessors);
+                        p.put(w, predecessors);
                     }
                 }
             }
 
 
             // accumulate betweenness
-            HashMap<Integer, Double> delta = new HashMap<>();
+            Map<Integer, Double> delta = new HashMap<>();
 
-            for (Integer v : S) {
+            for (Integer v : stack) {
                 delta.put(v, 0.0d);
             }
 
-            while (!S.empty()) {
-                Integer w = S.pop();
+            while (!stack.empty()) {
+                Integer w = stack.pop();
                 Double coefficient = (1 + delta.get(w)) / sigma.get(w);
-                for (Integer v : P.get(w)) {
+                for (Integer v : p.get(w)) {
                     delta.put(v, delta.get(v) + sigma.get(v) * coefficient);
                 }
                 if (w != s) {

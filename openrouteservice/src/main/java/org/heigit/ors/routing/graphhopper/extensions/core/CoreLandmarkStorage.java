@@ -371,14 +371,11 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
                 explorer.runAlgo(true, coreEdgeFilter);
                 tmpLandmarkNodeIds[lmIdx + 1] = explorer.getLastNode();
                 if (logDetails && lmIdx % logOffset == 0)
-                    LOGGER.info("Finding landmarks [" + weighting + "] in network [" + explorer.getVisitedNodes()
-                            + "]. " + "Progress " + (int) (100.0 * lmIdx / tmpLandmarkNodeIds.length) + "%, "
-                            + Helper.getMemInfo());
+                    LOGGER.info(String.format("Finding landmarks [%s] in network [%d]. Progress %d%%, %s", weighting, explorer.getVisitedNodes(), (int) (100.0 * lmIdx / tmpLandmarkNodeIds.length), Helper.getMemInfo()));
             }
 
             if (logDetails)
-                LOGGER.info("Finished searching landmarks for subnetwork " + subnetworkId + " of size "
-                        + explorer.getVisitedNodes());
+                LOGGER.info(String.format("Finished searching landmarks for subnetwork %d of size %d", subnetworkId, explorer.getVisitedNodes()));
         }
 
         // 2) calculate weights for all landmarks -> 'from' and 'to' weight
@@ -654,7 +651,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             return false;
         if (subnetworkFrom != subnetworkTo) {
             throw new ConnectionNotFoundException("Connection between locations not found. Different subnetworks "
-                    + subnetworkFrom + " vs. " + subnetworkTo, new HashMap<String, Object>());
+                    + subnetworkFrom + " vs. " + subnetworkTo, new HashMap<>());
         }
 
         int[] tmpIDs = landmarkIDs.get(subnetworkFrom);
@@ -852,13 +849,12 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
             final AtomicBoolean failed = new AtomicBoolean(false);
             IntObjectMap<SPTEntry> map = fromMode ? bestWeightMapFrom : bestWeightMapTo;
-            map.forEach((IntObjectPredicate<SPTEntry>) (nodeId, value) -> {
+            map.forEach((IntObjectPredicate<? super SPTEntry>) (nodeId, value) -> {
                 int sn = subnetworks[coreNodeIdMap.get(nodeId)];
                 if (sn != subnetworkId) {
                     if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
                         // this is ugly but can happen in real world, see testWithOnewaySubnetworks
-                        LOGGER.error("subnetworkId for node " + nodeId + " (" + createPoint(graph, nodeId)
-                                + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
+                        LOGGER.error(String.format("subnetworkId for node %d (%s) already set (%d). Cannot change to %d", nodeId, createPoint(graph, nodeId), sn, subnetworkId));
 
                         failed.set(true);
                         return false;
@@ -876,7 +872,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             final AtomicInteger maxedout = new AtomicInteger(0);
             final Map.Entry<Double, Double> finalMaxWeight = new MapEntry<>(0d, 0d);
 
-            map.forEach((IntObjectProcedure<SPTEntry>) (nodeId, b) -> {
+            map.forEach((IntObjectProcedure<? super SPTEntry>) (nodeId, b) -> {
                 nodeId = coreNodeIdMap.get(nodeId);
                 if (!lms.setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
                     maxedout.incrementAndGet();
