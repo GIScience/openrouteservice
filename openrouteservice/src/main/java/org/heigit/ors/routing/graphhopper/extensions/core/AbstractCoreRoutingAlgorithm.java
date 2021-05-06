@@ -72,9 +72,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
 
-    public abstract void initFrom(int from, double weight);
+    public abstract void initFrom(int from, double weight, long time);
 
-    public abstract void initTo(int to, double weight);
+    public abstract void initTo(int to, double weight, long time);
 
     public abstract boolean fillEdgesFrom();
 
@@ -135,19 +135,27 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         runPhase1();
 
         // PHASE 2 Perform routing in core with the restrictions filter
+        initPhase2();
         additionalCoreEdgeFilter.setInCore(true);
         inCore = true;
         runPhase2();
     }
 
+    protected void initPhase2() {};
+
     @Override
-    public Path calcPath(int from, int to) {
+    public Path calcPath(int from, int to, long at) {
         checkAlreadyRun();
         createAndInitPath();
-        initFrom(from, 0);
-        initTo(to, 0);
+        initFrom(from, 0, at);
+        initTo(to, 0, at);
         runAlgo();
         return extractPath();
+    }
+
+    @Override
+    public Path calcPath(int from, int to) {
+        return calcPath(from, to, 0);
     }
 
     @Override
@@ -178,8 +186,10 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         }
     }
 
-    protected SPTEntry createSPTEntry(int node, double weight) {
-        return new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
+    protected SPTEntry createSPTEntry(int node, double weight, long time) {
+        SPTEntry entry = new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
+        entry.time = time;
+        return entry;
     }
 
     void updateBestPath(SPTEntry entryCurrent, SPTEntry entryOther, double newWeight, boolean reverse) {
