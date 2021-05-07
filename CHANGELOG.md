@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Time-dependent core-based routing algorithms
+- Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
 ### Fixed
 - Config file parameter to set the number of active landmarks for core routing ([#930](https://github.com/GIScience/openrouteservice/issues/930))
 - Make sure A* with beeline approximation is used as default fallback algorithm ([#926](https://github.com/GIScience/openrouteservice/issues/926))
