@@ -39,6 +39,7 @@ RELEASING:
   
 ### Fixed
 - prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
+- Config file parameter to set the number of active landmarks for core routing ([#930](https://github.com/GIScience/openrouteservice/issues/930))
 
 ## [6.4.3] - 2021-04-28
 ### Changed
