@@ -34,6 +34,9 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Removed
+- old v1 API code and related classes
+
 ### Added
 - Time-dependent core-based routing algorithms
 - Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
