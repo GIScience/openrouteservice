@@ -55,6 +55,7 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager mInstance;
+    private static boolean initCompleted = false;
 
     public static synchronized RoutingProfileManager getInstance() throws IOException {
         if (mInstance == null) {
@@ -180,6 +181,7 @@ public class RoutingProfileManager {
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
                     createRunFile();
+                    initCompleted = true;
 
                     if (rmc.getUpdateConfig().getEnabled()) {
                         profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
@@ -639,5 +641,17 @@ public class RoutingProfileManager {
         } catch(Exception ex) {
             LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
         }
+    }
+
+    public static boolean isInitCompleted() {
+        return initCompleted;
+    }
+
+    /**
+     * Process message received via ORSKafkaConsumer.
+     *
+     * @param value The message value passed from KafkaConsumer
+     */
+    public void updateProfile(String profile, String value) {
     }
 }
