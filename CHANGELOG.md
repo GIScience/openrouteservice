@@ -44,6 +44,7 @@ RELEASING:
 - Make sure A* with beeline approximation is used as default fallback algorithm ([#926](https://github.com/GIScience/openrouteservice/issues/926))
 - Prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
 - Correct package declaration of BoundingBoxFactoryTest ([#933](https://github.com/GIScience/openrouteservice/issues/933))
+- Some corrections to Hungarian language support (thanks to [debyos](https://github.com/debyos))
 
 ## [6.4.3] - 2021-04-28
 ### Changed
