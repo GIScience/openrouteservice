@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.5.0] - 2021-05-10
 ### Added
 - Time-dependent core-based routing algorithms
 - Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
@@ -430,7 +432,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...HEAD
+[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
