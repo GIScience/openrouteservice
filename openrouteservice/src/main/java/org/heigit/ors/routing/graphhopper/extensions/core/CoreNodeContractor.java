@@ -19,6 +19,7 @@ import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
@@ -57,9 +58,6 @@ public class CoreNodeContractor {
     private int maxLevel;
 
     public CoreNodeContractor(Directory dir, GraphHopperStorage ghStorage, CHGraph prepareGraph, CHProfile chProfile) {
-        if (chProfile.getTraversalMode().isEdgeBased()) {
-            throw new IllegalArgumentException("Contraction Hierarchies only support node based traversal so far, given: " + chProfile.getTraversalMode());
-        }
         // todo: it would be nice to check if ghStorage is frozen here
         this.ghStorage = ghStorage;
         this.prepareGraph = prepareGraph;
@@ -79,7 +77,8 @@ public class CoreNodeContractor {
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
         vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
         vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, chProfile.getTraversalMode());
+        // always use node-based traversal because all turn restrictions are in the core
+        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, TraversalMode.NODE_BASED);
     }
 
     public void close() {

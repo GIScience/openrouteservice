@@ -301,6 +301,7 @@ public class ORSGraphHopper extends GraphHopper {
 					queryGraph.lookup(qResults);
 
 					weighting = createWeighting(hints, encoder, queryGraph);
+					tMode = chProfile.getTraversalMode();
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -676,8 +677,18 @@ public class ORSGraphHopper extends GraphHopper {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
+
+					// extract weighting string and traversal mode
+					String configStr = "";
+					if (coreWeightingStr.contains("|")) {
+						configStr = coreWeightingStr;
+						coreWeightingStr = coreWeightingStr.split("\\|")[0];
+					}
+					PMap config = new PMap(configStr);
+
+					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
+					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
 		}
@@ -718,13 +729,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public void initCoreLMAlgoFactoryDecorator() {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreLMFactoryDecorator.addWeighting(weighting);
-				}
-			}
+			for (CHProfile profile : coreFactoryDecorator.getCHProfiles())
+				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
 		}
 	}
 
