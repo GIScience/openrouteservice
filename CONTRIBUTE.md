@@ -67,7 +67,7 @@ We'd like all pull requests to adhere to the following rules:
 ```
 git checkout my-new-feat
 git stash
-git rebase development
+git rebase master
 git stash pop
 ```
 
