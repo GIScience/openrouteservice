@@ -3390,7 +3390,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", coordinates);
         body.put("preference", getParameter("preference"));
 
-        // Test that "zone:maxspeed=DE:urban" overrides default "highway=residential" speed for both car and hgv
+        // Test that "zone:maxspeed = DE:urban" overrides default "highway = residential" speed for both car and hgv
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -3417,6 +3417,52 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(367.9f))
                 .body("routes[0].summary.duration", is(53.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectMaxpeedHgvForward() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.696237);
+        coord1.put(49.37186);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.693427);
+        coord2.put(49.367914);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Test that "maxspeed:hgv:forward = 30" when going downhill on Am Götzenberg is taken into account for hgv profile
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(497.5f))
+                .body("routes[0].summary.duration", is(61.9f))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(497.5f))
+                .body("routes[0].summary.duration", is(81.1f))
                 .statusCode(200);
     }
 

@@ -122,29 +122,27 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 
     @Override
     public double getMaxSpeed( ReaderWay way ) {
-        boolean bCheckMaxSpeed = false;
-        String maxspeedTag = way.getTag("maxspeed:hgv");
-        if (maxspeedTag == null) {
-            maxspeedTag = way.getTag("maxspeed");
-            bCheckMaxSpeed = true;
+        double maxSpeed = parseSpeed(way.getTag("maxspeed:hgv"));
+
+        double fwdSpeed = parseSpeed(way.getTag("maxspeed:hgv:forward"));
+        if (fwdSpeed >= 0.0D && (maxSpeed < 0.0D || fwdSpeed < maxSpeed)) {
+            maxSpeed = fwdSpeed;
         }
 
-        double maxSpeed = parseSpeed(maxspeedTag);
-
-        double fwdSpeed = parseSpeed(way.getTag("maxspeed:forward"));
-        if (fwdSpeed >= 0 && (maxSpeed < 0 || fwdSpeed < maxSpeed))
-            maxSpeed = fwdSpeed;
-
-        double backSpeed = parseSpeed(way.getTag("maxspeed:backward"));
-        if (backSpeed >= 0 && (maxSpeed < 0 || backSpeed < maxSpeed))
+        double backSpeed = parseSpeed(way.getTag("maxspeed:hgv:backward"));
+        if (backSpeed >= 0.0D && (maxSpeed < 0.0D || backSpeed < maxSpeed)) {
             maxSpeed = backSpeed;
+        }
 
-        if (bCheckMaxSpeed) {
-            String highway = way.getTag(KEY_HIGHWAY);
-            if (!Helper.isEmpty(highway)) {
-                double defaultSpeed = speedLimitHandler.getSpeed(highway);
-                if (defaultSpeed < maxSpeed)
-                    maxSpeed = defaultSpeed;
+        if (maxSpeed < 0.0D) {
+            maxSpeed = super.getMaxSpeed(way);
+            if (maxSpeed >= 0.0D) {
+                String highway = way.getTag(KEY_HIGHWAY);
+                if (!Helper.isEmpty(highway)) {
+                    double defaultSpeed = speedLimitHandler.getSpeed(highway);
+                    if (defaultSpeed < maxSpeed)
+                        maxSpeed = defaultSpeed;
+                }
             }
         }
 
