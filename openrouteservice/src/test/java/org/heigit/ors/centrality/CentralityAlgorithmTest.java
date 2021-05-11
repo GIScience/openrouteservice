@@ -164,7 +164,49 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testTwoComponentGraph() {
+    public void testMediumDirectedGraphEdgeCentrality() {
+        graphHopper = new ORSGraphHopper();
+        graphHopper.setCHEnabled(false);
+        graphHopper.setCoreEnabled(false);
+        graphHopper.setCoreLMEnabled(false);
+        graphHopper.setEncodingManager(encodingManager);
+        graphHopper.setGraphHopperStorage(createMediumDirectedGraph());
+        graphHopper.postProcessing();
+
+        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
+        String encoderName = "car";
+        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+
+        HintsMap hintsMap = new HintsMap();
+        //the following two lines represent the setWeighting()-Method of RoutingProfile
+        hintsMap.put("weighting", "fastest");
+        hintsMap.put("weighting_method", "fastest");
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        alg = new BrandesCentralityAlgorithm();
+        alg.init(graph, weighting, explorer);
+
+
+        List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
+        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0,1), new Pair(0,2), new Pair(0,3), new Pair(0,8), new Pair(1,0), new Pair(1,2), new Pair(1,8), new Pair(2,0), new Pair(2,1), new Pair(2,3), new Pair(3,0), new Pair(3,2), new Pair(3,4), new Pair(4,3), new Pair(4,5), new Pair(4,6), new Pair(5,4), new Pair(5,7), new Pair(6,4), new Pair(6,7), new Pair(7,5), new Pair(7,6), new Pair(7,8), new Pair(8,0), new Pair(8,1), new Pair(8,7));
+        List<Double> expectedScores = new ArrayList<>(Arrays.asList(7d/3d, 6.5d, 0d, 47d/6d, 7d/3d, 13d/3d, 4d/3d, 6.5d, 13d/3d, 65d/6d, 0d, 65d/6d, 65d/6d, 65d/6d, 22d/3d, 5.5d, 22d/3d, 20d/3d, 5.5d, 2.5d, 20d/3d, 2.5d, 55d/6d, 47d/6d, 4d/3d, 55d/6d));
+        assertEquals(edges.size(), expectedScores.size());
+
+        Map<Pair<Integer, Integer>, Double> betweenness = null;
+        try {
+            betweenness = alg.computeEdgeCentrality(nodes);
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+
+        for (Pair<Integer, Integer> p : edges) {
+            assertEquals(expectedScores.get(edges.indexOf(p)), betweenness.get(p), 0.0001d);
+        }
+    }
+
+    @Test
+    public void testTwoComponentDirectedGraphNodeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -200,6 +242,46 @@ public class CentralityAlgorithmTest extends TestCase {
 
         for (Integer v : nodes) {
             assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
+        }
+    }
+
+    @Test
+    public void testTwoComponentDirectedGraphEdgeCentrality() {
+        graphHopper = new ORSGraphHopper();
+        graphHopper.setCHEnabled(false);
+        graphHopper.setCoreEnabled(false);
+        graphHopper.setCoreLMEnabled(false);
+        graphHopper.setEncodingManager(encodingManager);
+        graphHopper.setGraphHopperStorage(createTwoComponentDirectedGraph());
+        graphHopper.postProcessing();
+
+        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
+        String encoderName = "car";
+        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+
+        HintsMap hintsMap = new HintsMap();
+        //the following two lines represent the setWeighting()-Method of RoutingProfile
+        hintsMap.put("weighting", "fastest");
+        hintsMap.put("weighting_method", "fastest");
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        alg = new BrandesCentralityAlgorithm();
+        alg.init(graph, weighting, explorer);
+
+        List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
+        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0,1), new Pair(0,2), new Pair(0,3), new Pair(0,8), new Pair(1,0), new Pair(1,2), new Pair(1,8), new Pair(2,0), new Pair(2,1), new Pair(2,3), new Pair(3,0), new Pair(3,2),  new Pair(4,5), new Pair(4,6), new Pair(5,4), new Pair(5,7), new Pair(6,4), new Pair(6,7), new Pair(7,5), new Pair(7,6), new Pair(8,0), new Pair(8,1));
+        List<Double> expectedScores = new ArrayList<>(Arrays.asList(1.5d, 4.0d, 0.0d, 3.5d, 1.5d, 2.0d, 0.5d, 4.0d, 2.0d, 4.0d, 0.0d, 4.0d, 3.0d, 2.0d, 3.0d, 2.0d, 2.0d, 1.0d, 2.0d, 1.0d, 3.5d, 0.5d));
+
+        Map<Pair<Integer, Integer>, Double> betweenness = null;
+        try {
+            betweenness = alg.computeEdgeCentrality(nodes);
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+
+        for (Pair<Integer, Integer> p : edges) {
+            assertEquals(expectedScores.get(edges.indexOf(p)), betweenness.get(p), 0.0001d);
         }
     }
 }
