@@ -152,38 +152,8 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 	}
 
     @Override
-    protected double getSpeed(ReaderWay way) {
-        String highwayValue = way.getTag(KEY_HIGHWAY);
-        Integer speed = speedLimitHandler.getSpeed(highwayValue);
-        if (speed == null)
-            throw new IllegalStateException(toString() + ", no speed found for:" + highwayValue);
-
-        int maxSpeed = speedLimitHandler.getMaxSpeed(way);
-        if (maxSpeed > 0)
-            speed = maxSpeed;
-
-        if (highwayValue.equals(VAL_TRACK)) {
-            String tt = way.getTag("tracktype");
-            if (!Helper.isEmpty(tt)) {
-                Integer tInt = speedLimitHandler.getTrackTypeSpeed(tt);
-                if (tInt != null && tInt != -1)
-                    speed = tInt;
-            }
-        }
-        
-        String hgvSpeed = way.getTag("maxspeed:hgv");
-        if (!Helper.isEmpty(hgvSpeed)) {
-        	try {
-        		if ("walk".equals(hgvSpeed))
-        			speed = 10;
-        		else
-        	        speed = Integer.parseInt(hgvSpeed);
-        	} catch(Exception ex) {
-        		// do nothing
-        	}
-        }
-        
-        return speed;
+    protected String getHighway(ReaderWay way) {
+        return way.getTag(KEY_HIGHWAY);
     }
 
     @Override

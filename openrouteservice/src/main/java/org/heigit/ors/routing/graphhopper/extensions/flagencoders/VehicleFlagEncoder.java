@@ -337,21 +337,14 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     protected double getSpeed(ReaderWay way) {
-        String highwayValue = way.getTag(KEY_HIGHWAY);
-        if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
-                && !highwayValue.equals("motorway") && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
-            highwayValue = KEY_MOTORROAD;
-        }
+        String highwayValue = getHighway(way);
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
-        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Runge
+
+        int maxSpeed = (int) Math.round(getMaxSpeed(way));
+        if (maxSpeed <= 0)
+            maxSpeed = speedLimitHandler.getMaxSpeed(way);
         if (maxSpeed > 0)
             speed = maxSpeed;
-        else
-        {
-            maxSpeed = speedLimitHandler.getMaxSpeed(way); // Runge
-            if (maxSpeed > 0)
-                speed = maxSpeed;
-        }
 
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
@@ -366,6 +359,15 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return speed;
+    }
+
+    protected String getHighway(ReaderWay way) {
+        String highwayValue = way.getTag(KEY_HIGHWAY);
+        if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
+                && !highwayValue.equals("motorway") && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
+            highwayValue = KEY_MOTORROAD;
+        }
+        return highwayValue;
     }
 
     /**
