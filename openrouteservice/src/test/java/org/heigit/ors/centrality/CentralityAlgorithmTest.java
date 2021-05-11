@@ -26,7 +26,7 @@ public class CentralityAlgorithmTest extends TestCase {
         return new GraphBuilder(encodingManager).create();
     }
 
-    public GraphHopperStorage createMediumGraph() {
+    public GraphHopperStorage createMediumDirectedGraph() {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7
@@ -34,21 +34,37 @@ public class CentralityAlgorithmTest extends TestCase {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
 
-        //Set test lat lo
+        // explicitly create directed edges instead of using edge(a, b, dist, bothDirections)
+        // this will also avoid problems with flagEncoder.getAverageSpeedEnc().isStoreTwoDirections() == false
+        g.edge(0, 1).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 2).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 3).setDistance(5d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(3, 0).setDistance(5d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 8).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(8, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 2).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 1).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 8).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(8, 1).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 3).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(3, 2).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(3, 4).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(4, 3).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(4, 5).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(5, 4).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(4, 6).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(6, 4).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(5, 7).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(7, 5).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(6, 7).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(7, 6).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(7, 8).setDistance(3d).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(8, 7).setDistance(3d).setFlags(encodingManager.flagsDefault(true, false));
+
+        //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
         g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
@@ -62,7 +78,7 @@ public class CentralityAlgorithmTest extends TestCase {
         return g;
     }
 
-    public GraphHopperStorage createTwoComponentGraph() {
+    public GraphHopperStorage createTwoComponentDirectedGraph() {
         //    3   4--5
         //   /\   |  |
         //  2--0  6--7
@@ -70,17 +86,28 @@ public class CentralityAlgorithmTest extends TestCase {
         //  |/   \
         //  1-----8
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
+        g.edge(0, 1).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 2).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 3).setDistance(5).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(3, 0).setDistance(5).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(0, 8).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(8, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 2).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 1).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(1, 8).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(8, 1).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(2, 3).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(3, 2).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(4, 5).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(5, 4).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(4, 6).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(6, 4).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(5, 7).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(7, 5).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(6, 7).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+        g.edge(7, 6).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
 
         //Set test lat lo
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
@@ -96,14 +123,14 @@ public class CentralityAlgorithmTest extends TestCase {
         return g;
     }
 
-    @Test
-    public void testMediumGraph() {
+       @Test
+    public void testMediumDirectedGraphNodeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
         graphHopper.setCoreLMEnabled(false);
         graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createMediumGraph());
+        graphHopper.setGraphHopperStorage(createMediumDirectedGraph());
         graphHopper.postProcessing();
 
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
@@ -143,7 +170,7 @@ public class CentralityAlgorithmTest extends TestCase {
         graphHopper.setCoreEnabled(false);
         graphHopper.setCoreLMEnabled(false);
         graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createTwoComponentGraph());
+        graphHopper.setGraphHopperStorage(createTwoComponentDirectedGraph());
         graphHopper.postProcessing();
 
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
