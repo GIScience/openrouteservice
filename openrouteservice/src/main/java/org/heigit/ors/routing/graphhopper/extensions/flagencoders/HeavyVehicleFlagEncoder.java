@@ -79,11 +79,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         hgvAccess.addAll(Arrays.asList("hgv", VAL_GOODS, "bus", VAL_AGRICULTURAL, VAL_FORESTRY, "delivery"));
 
     	// Override default speeds with lower values
-        trackTypeSpeedMap.put("grade1", 20); // paved
-        trackTypeSpeedMap.put("grade2", 15); // now unpaved - gravel mixed with ...
-        trackTypeSpeedMap.put("grade3", 10); // ... hard and soft materials
-        trackTypeSpeedMap.put("grade4", 5); // ... some hard or compressed materials
-        trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
+        trackTypeSpeedMap.put("grade1", 40); // paved
+        trackTypeSpeedMap.put("grade2", 30); // now unpaved - gravel mixed with ...
+        trackTypeSpeedMap.put("grade3", 20); // ... hard and soft materials
+        trackTypeSpeedMap.put("grade4", 15); // ... some hard or compressed materials
+        trackTypeSpeedMap.put("grade5", 10); // ... no hard materials. soil/sand/grass
         // autobahn
         defaultSpeedMap.put("motorway", 80);
         defaultSpeedMap.put("motorway_link", 50);
