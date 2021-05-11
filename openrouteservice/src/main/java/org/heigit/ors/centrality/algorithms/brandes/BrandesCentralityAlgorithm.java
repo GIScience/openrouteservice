@@ -144,6 +144,16 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     public Map<Pair<Integer, Integer>, Double> computeEdgeCentrality(List<Integer> nodesInBBox) throws Exception {
         Map<Pair<Integer, Integer>, Double> edgeBetweenness = new HashMap<>();
 
+        //initialize betweenness for all edges
+        for (int s : nodesInBBox) {
+            EdgeIterator iter = explorer.setBaseNode(s);
+            while (iter.next()) {
+                System.out.printf("Edge: %d -> %d\n", iter.getBaseNode(), iter.getAdjNode());
+                Pair<Integer, Integer> p = new Pair(iter.getBaseNode(), iter.getAdjNode());
+                edgeBetweenness.put(p, 0d);
+            }
+        }
+
         for (int s : nodesInBBox) {
             Stack<Integer> S = new Stack<>();
             Map<Integer, List<Integer>> P = new HashMap<>();
