@@ -1,16 +1,15 @@
 package org.heigit.ors.centrality;
 
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.EdgeExplorer;
 import junit.framework.TestCase;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
+import org.heigit.ors.common.Pair;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.junit.Test;
@@ -110,6 +109,7 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
         HintsMap hintsMap = new HintsMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
@@ -117,7 +117,7 @@ public class CentralityAlgorithmTest extends TestCase {
         hintsMap.put("weighting_method", "fastest");
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
         alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting);
+        alg.init(graph, weighting, explorer);
 
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
@@ -149,6 +149,7 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
         HintsMap hintsMap = new HintsMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
@@ -156,7 +157,7 @@ public class CentralityAlgorithmTest extends TestCase {
         hintsMap.put("weighting_method", "fastest");
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
         alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting);
+        alg.init(graph, weighting, explorer);
 
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));

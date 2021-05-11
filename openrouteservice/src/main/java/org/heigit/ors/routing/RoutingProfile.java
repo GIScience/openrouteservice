@@ -21,10 +21,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.Parameters;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
@@ -672,6 +669,7 @@ public class RoutingProfile {
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
@@ -690,7 +688,7 @@ public class RoutingProfile {
         });
 
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting);
+        alg.init(graph, weighting, explorer);
 
         // transform node ids to coordinates,
         for (int v : nodesInBBox) {

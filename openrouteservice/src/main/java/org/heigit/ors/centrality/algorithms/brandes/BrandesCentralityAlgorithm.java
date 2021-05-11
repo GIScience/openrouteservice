@@ -12,11 +12,13 @@ import java.util.*;
 public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     protected Graph graph;
     protected Weighting weighting;
+    protected EdgeExplorer explorer;
 
-    public void init(Graph graph, Weighting weighting)
+    public void init(Graph graph, Weighting weighting, EdgeExplorer explorer)
     {
         this.graph = graph;
         this.weighting = weighting;
+        this.explorer = explorer;
     }
 
     private class QueueElement implements Comparable<QueueElement> {
@@ -85,7 +87,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 D.put(v, dist);
 
                 // iterate all edges connected to v
-                EdgeExplorer explorer = graph.createEdgeExplorer();
                 EdgeIterator iter = explorer.setBaseNode(v);
 
                 while (iter.next()) {
@@ -184,7 +185,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 D.put(v, dist);
 
                 // iterate all edges connected to v
-                EdgeExplorer explorer = graph.createEdgeExplorer();
                 EdgeIterator iter = explorer.setBaseNode(v);
 
                 while (iter.next()) {
