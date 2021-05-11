@@ -158,6 +158,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for:" + highwayValue);
 
+        int maxSpeed = speedLimitHandler.getMaxSpeed(way);
+        if (maxSpeed > 0)
+            speed = maxSpeed;
+
         if (highwayValue.equals(VAL_TRACK)) {
             String tt = way.getTag("tracktype");
             if (!Helper.isEmpty(tt)) {
