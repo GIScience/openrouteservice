@@ -1,7 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 public class FlagEncoderNames {
-    public static final String CAR_ORS          = "car-ors";
+    private static final String ORS_SUFFIX      = "-ors";
+
+    public static final String CAR_ORS          = "car" + ORS_SUFFIX;
     public static final String HEAVYVEHICLE     = "heavyvehicle";
     public static final String EMERGENCY        = "emergency";
     public static final String EVEHICLE         = "evehicle";       // NOT IMPLEMENTED
@@ -9,13 +11,13 @@ public class FlagEncoderNames {
 
     public static final String WHEELCHAIR       = "wheelchair";
 
-    public static final String BIKE_ORS         = "bike-ors";
-    public static final String ROADBIKE_ORS     = "roadbike-ors";
-    public static final String MTB_ORS          = "mtb-ors";
+    public static final String BIKE_ORS         = "bike" + ORS_SUFFIX;
+    public static final String ROADBIKE_ORS     = "roadbike" + ORS_SUFFIX;
+    public static final String MTB_ORS          = "mtb" + ORS_SUFFIX;
     public static final String BIKE_ELECTRO     = "electrobike";
 
-    public static final String PEDESTRIAN_ORS   = "pedestrian-ors";
-    public static final String HIKING_ORS       = "hiking-ors";
+    public static final String PEDESTRIAN_ORS   = "pedestrian" + ORS_SUFFIX;
+    public static final String HIKING_ORS       = "hiking" + ORS_SUFFIX;
 
 
     public static final String GH_CAR           = "car";
@@ -29,4 +31,11 @@ public class FlagEncoderNames {
     public static final String GH_BIKE2         = "bike2";
 
     private FlagEncoderNames() {}
+
+    public static String getBaseName(String name) {
+        if (name.endsWith(ORS_SUFFIX))
+            name = name.substring(0, name.indexOf(ORS_SUFFIX));
+
+        return name;
+    }
 }

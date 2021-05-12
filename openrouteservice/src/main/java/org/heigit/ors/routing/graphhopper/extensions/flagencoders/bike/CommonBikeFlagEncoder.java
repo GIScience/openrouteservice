@@ -395,7 +395,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
-        if (maxSpeed >= 0 && maxSpeed < speed) {
+        if (maxSpeed > 0 && maxSpeed < speed) {
             return maxSpeed;
         }
         return speed;
