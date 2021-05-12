@@ -370,6 +370,12 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         return highwayValue;
     }
 
+    @Override
+    protected double applyMaxSpeed(ReaderWay way, double speed) {
+        double maxSpeed = this.getMaxSpeed(way);
+        return maxSpeed > 0.0D ? maxSpeed * 0.9D : speed;
+    }
+
     /**
      * @param way:   needed to retrieve tags
      * @param speed: speed guessed e.g. from the road type or other tags
