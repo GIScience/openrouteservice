@@ -136,7 +136,7 @@ public class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
-                .log().all()
+                .log().ifValidationFails()
                 .body("locations.nodeId", not(hasItem(node0)))
                 .body("locations.nodeId", not(hasItem(node1)))
                 .body("locations.nodeId", not(hasItem(node2)))
