@@ -38,6 +38,8 @@ RELEASING:
 - Time-dependent core-based routing algorithms
 - Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
 ### Fixed
+- Do not consider ill-defined "maxspeed = 0" OSM tags ([#940](https://github.com/GIScience/openrouteservice/issues/940))
+- Use JSON definitions of country-specific speed limits ([#939](https://github.com/GIScience/openrouteservice/issues/939))
 - Config file parameter to set the number of active landmarks for core routing ([#930](https://github.com/GIScience/openrouteservice/issues/930))
 - Make sure A* with beeline approximation is used as default fallback algorithm ([#926](https://github.com/GIScience/openrouteservice/issues/926))
 - Prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
