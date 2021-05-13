@@ -25,6 +25,7 @@ import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.BitUtil;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
@@ -64,6 +65,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     // This value determines the speed for roads with access=destination
     protected int destinationSpeed;
 
+    protected final double minPossibleSpeed;
+
     protected Map<String, Integer> trackTypeSpeedMap;
     protected Map<String, Integer> badSurfaceSpeedMap;
     protected Map<String, Integer> defaultSpeedMap;
@@ -83,6 +86,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     VehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
+
+        minPossibleSpeed = this.speedFactor;
 
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
@@ -230,7 +235,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 }
                 else if (this.useAcceleration) {
                     double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
-                    speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
+                    speed = adjustSpeedForAcceleration(estDist, speed);
                 }
             }
 
@@ -289,6 +294,21 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return edgeFlags;
+    }
+
+    // Override this method in order to set minimum speed rather than disabling access
+    @Override
+    protected void setSpeed(boolean reverse, IntsRef edgeFlags, double speed) {
+        if (speed >= 0.0D && !Double.isNaN(speed)) {
+            if (speed < minPossibleSpeed)
+                speed = minPossibleSpeed;
+            else if (speed > this.getMaxSpeed())
+                speed = this.getMaxSpeed();
+
+            this.speedEncoder.setDecimal(reverse, edgeFlags, speed);
+        } else {
+            throw new IllegalArgumentException("Speed cannot be negative or NaN: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(edgeFlags));
+        }
     }
 
     private void setAccess(EncodingManager.Access access, IntsRef edgeFlags, boolean fwd, boolean bwd) {
@@ -473,9 +493,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             if(interimDistance < 100) {
                 speed = speed * 0.5;
             }
-            //Don't go below 2.5 because it will be stored as 0 later
-            if(speed < 5)
-                speed = 5;
         }
 
         return speed;
