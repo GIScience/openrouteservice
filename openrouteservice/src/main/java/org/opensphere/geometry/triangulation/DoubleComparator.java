@@ -65,13 +65,16 @@ public class DoubleComparator implements Comparator<QuadEdge> {
 	 */
 	@Override
 	public int compare(QuadEdge qeA, QuadEdge qeB) {
-		if (map.get(qeA) < map.get(qeB)) {
+		final double distanceA = this.map.get(qeA);
+		final double distanceB = this.map.get(qeB);
+		if (distanceA < distanceB) {
 			return 1;
-		} else if (map.get(qeA) == map.get(qeB)) { // ATTENTION: fixing this causes NPE in isochrones algo!
+		} else if (distanceA == distanceB) {
 			return 0;
 		} else {
 			return -1;
 		}
 	}
+	
 	
 }
