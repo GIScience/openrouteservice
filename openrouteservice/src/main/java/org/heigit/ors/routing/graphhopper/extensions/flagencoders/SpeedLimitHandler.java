@@ -36,20 +36,20 @@ public class SpeedLimitHandler {
 		this.defaultSpeeds.putAll(defaultSpeeds);
 		this.surfaceSpeeds.putAll(surfaceSpeeds);
 		this.trackTypeSpeeds.putAll(trackTypeSpeeds);
+
+		encoderName = FlagEncoderNames.getBaseName(encoderName);
 		
 		Path path = Paths.get(FileUtility.getResourcesPath().toString(), "services", "routing", "speed_limits", encoderName + ".json");
-		
-		if (path.toFile().exists()) {
-			try {
-				JSONObject json = new JSONObject(FileUtility.readFile(path.toString()));
-				
-				readSpeedValues(json, "default", this.defaultSpeeds);
-				readSpeedValues(json, "max_speeds", countryMaxSpeeds);
-				readSpeedValues(json, "surface", this.surfaceSpeeds);
-				readSpeedValues(json, "tracktype", this.trackTypeSpeeds);
-			} catch (Exception e) {
-				LOGGER.error(e);
-			}
+
+		try {
+			JSONObject json = new JSONObject(FileUtility.readFile(path.toString()));
+
+			readSpeedValues(json, "default", this.defaultSpeeds);
+			readSpeedValues(json, "max_speeds", countryMaxSpeeds);
+			readSpeedValues(json, "surface", this.surfaceSpeeds);
+			readSpeedValues(json, "tracktype", this.trackTypeSpeeds);
+		} catch (Exception e) {
+			LOGGER.error(e);
 		}
 	}
 	

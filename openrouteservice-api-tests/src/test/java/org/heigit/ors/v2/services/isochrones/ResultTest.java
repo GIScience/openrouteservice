@@ -220,7 +220,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1688618.6f))
+                .body("features[0].properties.area", is(1699492.0f))
                 .statusCode(200);
 
         body.put("location_type", "destination");
@@ -232,7 +232,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1552274.2f))
+                .body("features[0].properties.area", is(1561223.9f))
                 .statusCode(200);
     }
 
