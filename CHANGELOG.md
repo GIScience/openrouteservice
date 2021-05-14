@@ -37,6 +37,8 @@ RELEASING:
 ### Added
 - Time-dependent core-based routing algorithms
 - Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
+### Changed
+- Speed values falling below encoder's resolution are consequently stored as lowest possible non-zero value rather than being rounded to zero together with setting access to the corresponding edges to false ([#944](https://github.com/GIScience/openrouteservice/issues/944))
 ### Fixed
 - Do not consider ill-defined "maxspeed = 0" OSM tags ([#940](https://github.com/GIScience/openrouteservice/issues/940))
 - Use JSON definitions of country-specific speed limits ([#939](https://github.com/GIScience/openrouteservice/issues/939))
