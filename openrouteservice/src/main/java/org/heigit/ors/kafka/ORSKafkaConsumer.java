@@ -26,9 +26,9 @@ import java.util.List;
 public class ORSKafkaConsumer {
     private List<ORSKafkaConsumerRunner> runners = new ArrayList<>();
 
-    public ORSKafkaConsumer(List<ORSKafkaConsumerConfiguration> settings) {
-        for (ORSKafkaConsumerConfiguration s : settings) {
-            ORSKafkaConsumerRunner runner = new ORSKafkaConsumerRunner(s);
+    public ORSKafkaConsumer(List<ORSKafkaConsumerConfiguration> configs) {
+        for (ORSKafkaConsumerConfiguration c : configs) {
+            ORSKafkaConsumerRunner runner = new ORSKafkaConsumerRunner(c);
             runners.add(runner);
         }
     }

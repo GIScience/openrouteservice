@@ -20,13 +20,15 @@
  */
 package org.heigit.ors.servlet.listeners;
 
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.kafka.ORSKafkaConsumer;
 import org.heigit.ors.kafka.ORSKafkaConsumerConfiguration;
+import org.heigit.ors.kafka.ORSKafkaTestCluster;
 import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.DebugUtility;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -38,20 +40,26 @@ import java.util.List;
 public class ORSKafkaConsumerInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSKafkaConsumerInitContextListener.class);
     private ORSKafkaConsumer consumer;
+    private ORSKafkaTestCluster testCluster;
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
+        while (!RoutingProfileManager.isInitCompleted()) { // wait until ORS init is completed
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        if (DebugUtility.isDebug()) {
+            LOGGER.info("Starting Kafka test cluster");
+            testCluster = new ORSKafkaTestCluster();
+        }
         List<ORSKafkaConsumerConfiguration> configs = loadConfig();
         if (!configs.isEmpty()) {
             LOGGER.info("Initializing Kafka consumer");
             consumer = new ORSKafkaConsumer(configs);
-            while (!RoutingProfileManager.isInitCompleted()) { // wait until ORS init is completed
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
             LOGGER.info("Starting Kafka consumer");
             consumer.startConsumer();
         }
@@ -63,14 +71,15 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
         if (!configFile.isEmpty()) {
             LOGGER.info("Loading Kafka consumer settings");
             for (ConfigObject c : configFile) {
-                String server = c.toConfig().getString("server");
-                String topic = c.toConfig().getString("topic");
-                String profile = c.toConfig().getString("profile");
-                if (StringUtility.isNullOrEmpty(server) || StringUtility.isNullOrEmpty(topic) || StringUtility.isNullOrEmpty(profile)) {
-                    LOGGER.warn(String.format("Invalid Kafka consumer settings: %s(%s) => %s", server, topic, profile));
-                    continue;
+                try {
+                    String cluster = c.toConfig().getString("cluster");
+                    String topic = c.toConfig().getString("topic");
+                    String profile = c.toConfig().getString("profile");
+                    long timeout = c.toConfig().hasPath("timeout") ? c.toConfig().getLong("timeout") : 0;
+                    configurations.add(new ORSKafkaConsumerConfiguration(cluster, topic, profile, timeout));
+                } catch (ConfigException e) {
+                    LOGGER.warn(String.format("Invalid Kafka consumer configuration: %s", e.getMessage()));
                 }
-                configurations.add(new ORSKafkaConsumerConfiguration(server, topic, profile));
             }
         }
         return configurations;
@@ -81,6 +90,10 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
         if (consumer != null) {
             LOGGER.info("Shutting down Kafka consumer");
             consumer.stopConsumer();
+        }
+        if (testCluster != null) {
+            LOGGER.info("Shutting down Kafka test cluster");
+            testCluster.stop();
         }
     }
 } 

@@ -5,6 +5,7 @@ import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -52,6 +53,7 @@ public class ParamsTest extends ServiceTest {
 
     // test general functionality
     @Test
+    @Ignore
     public void testBasicFunctionality() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("heidelberg"));
@@ -73,6 +75,7 @@ public class ParamsTest extends ServiceTest {
 
     // test that excludeNodes get excluded
     @Test
+    @Ignore
     public void testExcludeNodes() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("heidelberg"));
@@ -118,6 +121,7 @@ public class ParamsTest extends ServiceTest {
     // test that invalid excludeNodes don't lead to everything failing
     // TODO: what should the system do here? If it should notify the user, how could that work?
     @Test
+    @Ignore
     public void testInvalidExcludeNodes() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("heidelberg"));
@@ -140,6 +144,7 @@ public class ParamsTest extends ServiceTest {
     // test wrong bounding box:
     // + too few coords
     @Test
+    @Ignore
     public void testInvalidBBox() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("invalidBox"));

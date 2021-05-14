@@ -32,27 +32,30 @@ import java.util.Collections;
 import java.util.Properties;
 
 public class ORSKafkaConsumerRunner implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(ORSKafkaConsumerRunner.class);
-    private final String profile;
     private boolean active;
+    private final String profile;
     private final Consumer<Long, String> consumer;
-    private static final long POLL_TIMEOUT = 1000;
+    private final long pollTimeout;
+    private static final long POLL_TIMEOUT_DEFAULT = 1000;
+    private static final Logger LOGGER = Logger.getLogger(ORSKafkaConsumerRunner.class);
 
-    public ORSKafkaConsumerRunner(ORSKafkaConsumerConfiguration settings) {
+    public ORSKafkaConsumerRunner(ORSKafkaConsumerConfiguration config) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, settings.getServer());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getCluster());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "ORSKafkaConsumer");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(settings.getTopic()));
-        this.profile = settings.getProfile();
+        consumer.subscribe(Collections.singletonList(config.getTopic()));
+        this.profile = config.getProfile();
+        this.pollTimeout = config.hasTimeout() ? config.getTimeout() : POLL_TIMEOUT_DEFAULT;
         this.active = true;
+        LOGGER.info(String.format("Created Kafka consumer thread listening to %s (%s), passing to %s", config.getCluster(), config.getTopic(), config.getProfile()));
     }
 
     private void updateProfile(ConsumerRecord<Long, String> r) {
         try {
-            RoutingProfileManager.getInstance().updateProfile(profile, r.value());
+             RoutingProfileManager.getInstance().updateProfile(profile, r.value());
         } catch (IOException e) {
             LOGGER.error("ORS has not been initialized");
             this.active = false;
@@ -61,16 +64,9 @@ public class ORSKafkaConsumerRunner implements Runnable {
 
     public void run() {
         while (active) {
-            LOGGER.info("kafka consumer running, target: " + profile);
-            try {
-//                final ConsumerRecords<Long, String> consumerRecords = consumer.poll(Duration.ofMillis(POLL_TIMEOUT));
-//                consumerRecords.forEach(this::updateProfile);
-//                consumer.commitAsync();
-                Thread.sleep(POLL_TIMEOUT);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
+            final ConsumerRecords<Long, String> consumerRecords = consumer.poll(Duration.ofMillis(pollTimeout));
+            consumerRecords.forEach(this::updateProfile);
+            consumer.commitAsync();
         }
         consumer.close();
     }

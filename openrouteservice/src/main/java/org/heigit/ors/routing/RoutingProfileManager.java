@@ -650,8 +650,21 @@ public class RoutingProfileManager {
     /**
      * Process message received via ORSKafkaConsumer.
      *
-     * @param value The message value passed from KafkaConsumer
+     * @param profile target profile according to configuration
+     * @param value message value passed from KafkaConsumer
      */
     public void updateProfile(String profile, String value) {
+        switch(profile) {
+            case "driving-car":
+            case "driving-hgv":
+                // profile specific processing
+                break;
+            case "test":
+                LOGGER.info(String.format("kafka message received: %s (%s)", value, profile));
+                break;
+            default:
+                LOGGER.warn(String.format("kafka message received for unknown profile %s", profile));
+                break;
+        }
     }
 }
