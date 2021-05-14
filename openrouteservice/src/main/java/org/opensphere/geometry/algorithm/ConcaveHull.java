@@ -27,7 +27,6 @@ package org.opensphere.geometry.algorithm;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.opensphere.geometry.triangulation.DoubleComparator;
 import org.opensphere.geometry.triangulation.model.Edge;
 import org.opensphere.geometry.triangulation.model.Triangle;
 import org.opensphere.geometry.triangulation.model.Vertex;
@@ -170,6 +169,20 @@ public class ConcaveHull {
     }
 
     /**
+     * Wrapper around QuadEdge, pre computes linesegment and length.
+     */
+    private static class QuadEdgeLineSegment {
+        private final QuadEdge qe;
+        private final LineSegment ls;
+        private final double length;
+        public QuadEdgeLineSegment(QuadEdge qe) {
+            this.qe = qe;
+            this.ls = qe.toLineSegment();
+            this.length = ls.getLength();
+        }
+    }
+
+    /**
      * Create the concave hull.
      *
      * @return the concave hull
@@ -223,19 +236,17 @@ public class ConcaveHull {
             qes.delete(qe);
         }
 
-        HashMap<QuadEdge, Double> qeDistances = new HashMap<>(quadEdges.size()); //  Modification by Maxim Rylov: Make use of a constructor with capacity parameter
+        List<QuadEdgeLineSegment> qeDistances = new ArrayList<>(quadEdges.size());
         for (QuadEdge qe : quadEdges) {
-            qeDistances.put(qe, qe.toLineSegment().getLength());
+            qeDistances.add(new QuadEdgeLineSegment(qe));
         }
 
-        DoubleComparator dc = new DoubleComparator(qeDistances);
-        TreeMap<QuadEdge, Double> qeSorted = new TreeMap<>(dc);
-        qeSorted.putAll(qeDistances);
+        qeDistances.sort((a, b) -> Double.compare(a.length, b.length));
 
         // edges creation
         int i = 0;
-        for (QuadEdge qe : qeSorted.keySet()) {
-            LineSegment s = qe.toLineSegment();
+        for (QuadEdgeLineSegment qels : qeDistances) {
+            LineSegment s = qels.ls;
             s.normalize();
 
             Integer idS = this.coordinates.get(s.p0);
@@ -244,11 +255,11 @@ public class ConcaveHull {
             Vertex eV = this.vertices.get(idD);
 
             Edge edge;
-            if (qeBorder.contains(qe)) {
+            if (qeBorder.contains(qels.qe)) {
                 oV.setBorder(true);
                 eV.setBorder(true);
                 edge = new Edge(i, s, oV, eV, true);
-                if (s.getLength() < this.threshold) {
+                if (qels.length < this.threshold) {
                     this.shortLengths.put(i, edge);
                 } else {
                     this.lengths.put(i, edge);
