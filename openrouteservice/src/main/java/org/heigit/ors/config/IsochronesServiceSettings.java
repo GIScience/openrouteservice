@@ -257,10 +257,10 @@ public class IsochronesServiceSettings {
 		return config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
 	}
 
-	public static String getParameter(String paramName, boolean notNull) throws Exception  {
+	public static String getParameter(String paramName, boolean notNull) {
 		String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
 		if (notNull && Helper.isEmpty(value))
-			throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
+			throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
 
 		return value;
 	}

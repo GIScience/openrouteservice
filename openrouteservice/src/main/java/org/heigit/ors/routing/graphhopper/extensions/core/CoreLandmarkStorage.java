@@ -849,7 +849,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
             final AtomicBoolean failed = new AtomicBoolean(false);
             IntObjectMap<SPTEntry> map = fromMode ? bestWeightMapFrom : bestWeightMapTo;
-            map.forEach((IntObjectPredicate<? super SPTEntry>) (nodeId, value) -> {
+            map.<IntObjectPredicate<SPTEntry>>forEach((nodeId, value) -> {
                 int sn = subnetworks[coreNodeIdMap.get(nodeId)];
                 if (sn != subnetworkId) {
                     if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
@@ -872,7 +872,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             final AtomicInteger maxedout = new AtomicInteger(0);
             final Map.Entry<Double, Double> finalMaxWeight = new MapEntry<>(0d, 0d);
 
-            map.forEach((IntObjectProcedure<? super SPTEntry>) (nodeId, b) -> {
+            map.<IntObjectProcedure<SPTEntry>>forEach((nodeId, b) -> {
                 nodeId = coreNodeIdMap.get(nodeId);
                 if (!lms.setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
                     maxedout.incrementAndGet();

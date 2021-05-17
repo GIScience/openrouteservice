@@ -23,9 +23,10 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CHEdgeExplorer;
 import com.graphhopper.util.CHEdgeIterator;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Implementation of Tarjan's algorithm using an explicit stack. The traditional recursive approach
@@ -115,13 +116,13 @@ public class TarjansCoreSCCAlgorithm {
      * @param firstNode start search of SCC at this node
      */
     private void strongConnect(int firstNode) {
-        final Stack<TarjanState> stateStack = new Stack<>();
+        final Deque <TarjanState> stateStack = new ArrayDeque<>();
         stateStack.push(TarjanState.startState(firstNode));
 
         // nextState label is equivalent to the function entry point in the recursive Tarjan's algorithm.
         nextState:
 
-        while (!stateStack.empty()) {
+        while (!stateStack.isEmpty()) {
             TarjanState state = stateStack.pop();
             final int start = state.start;
             final CHEdgeIterator iter;
