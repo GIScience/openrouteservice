@@ -35,7 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 
-## [6.5.0] - 2021-05-10
+## [6.5.0] - 2021-05-17
 ### Added
 - Time-dependent core-based routing algorithms
 - Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
