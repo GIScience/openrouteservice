@@ -1,5 +1,7 @@
 package org.heigit.ors.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import org.apache.curator.test.TestingServer;
@@ -69,8 +71,11 @@ public class ORSKafkaTestCluster {
             while (active) {
                 try {
                     Thread.sleep(PRODUCER_INTERVAL);
-                    producer.send(new ProducerRecord<>("test-topic", index, "message body " + index));
+                    ORSKafkaConsumerMessageSpeedUpdate messageSpeedUpdate = new ORSKafkaConsumerMessageSpeedUpdate();
+                    producer.send(new ProducerRecord<>("test-topic", index, new ObjectMapper().writeValueAsString(messageSpeedUpdate)));
                     index++;
+                } catch (JsonProcessingException e) {
+                    // should not happen
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

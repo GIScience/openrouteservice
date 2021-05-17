@@ -25,11 +25,21 @@ import java.util.List;
 
 public class ORSKafkaConsumer {
     private List<ORSKafkaConsumerRunner> runners = new ArrayList<>();
+    private static int enabledRunners = 0;
+
+    public static int getKafkaConsumerEnabledRunners() {
+        return enabledRunners;
+    }
+
+    public static boolean isEnabled() {
+        return enabledRunners > 0;
+    }
 
     public ORSKafkaConsumer(List<ORSKafkaConsumerConfiguration> configs) {
         for (ORSKafkaConsumerConfiguration c : configs) {
             ORSKafkaConsumerRunner runner = new ORSKafkaConsumerRunner(c);
             runners.add(runner);
+            enabledRunners++;
         }
     }
 
@@ -44,5 +54,4 @@ public class ORSKafkaConsumer {
             runner.stop();
         }
     }
-
 }

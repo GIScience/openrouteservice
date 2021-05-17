@@ -16,6 +16,7 @@
 package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
+import org.heigit.ors.kafka.ORSKafkaConsumer;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -100,7 +101,7 @@ public class StatusAPI {
 
                     if (rpc.getMaximumDistanceAvoidAreas() > 0)
                         jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
-                    
+
                     if (rpc.getMaximumWayPoints() > 0)
                         jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
 
@@ -113,6 +114,14 @@ public class StatusAPI {
                 }
 
                 jInfo.put("profiles", jProfiles);
+            }
+
+            if (ORSKafkaConsumer.isEnabled()) {
+                org.json.JSONObject jKafka = new org.json.JSONObject(true);
+                jKafka.put("runners", ORSKafkaConsumer.getKafkaConsumerEnabledRunners());
+                jKafka.put("processed", profileManager.getKafkaMessagesProcessed());
+                jKafka.put("failed", profileManager.getKafkaMessagesFailed());
+                jInfo.put("kafkaConsumer", jKafka);
             }
         }
 
@@ -145,8 +154,7 @@ public class StatusAPI {
         }
     }
 
-    private String formatDateTime(Date date )
-    {
+    private String formatDateTime(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
     }
 
