@@ -43,7 +43,7 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        while (!RoutingProfileManager.isInitCompleted()) { // wait until ORS init is completed
+        while (!RoutingProfileManager.isInitComplete()) { // wait until ORS init is completed
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -65,10 +65,10 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
 
     private List<ORSKafkaConsumerConfiguration> loadConfig() {
         List<ORSKafkaConsumerConfiguration> configurations = new ArrayList<>();
-        List<? extends ConfigObject> configFile = AppConfig.getGlobal().getObjectList("kafka_consumer");
-        if (!configFile.isEmpty()) {
+        List<? extends ConfigObject> configObjects = AppConfig.getGlobal().getObjectList("kafka_consumer");
+        if (!configObjects.isEmpty()) {
             LOGGER.info("Loading Kafka consumer settings");
-            for (ConfigObject c : configFile) {
+            for (ConfigObject c : configObjects) {
                 try {
                     String cluster = c.toConfig().getString("cluster");
                     String topic = c.toConfig().getString("topic");

@@ -54,12 +54,7 @@ public class ORSKafkaConsumerRunner implements Runnable {
     }
 
     private void updateProfile(ConsumerRecord<Long, String> consumerRecord) {
-        try {
-             RoutingProfileManager.getInstance().updateProfile(profile, consumerRecord.value());
-        } catch (IOException e) {
-            LOGGER.error("ORS has failed to initialize, which should have been caught earlier");
-            this.active = false;
-        }
+         RoutingProfileManager.getInstance().updateProfile(profile, consumerRecord.value());
     }
 
     public void run() {

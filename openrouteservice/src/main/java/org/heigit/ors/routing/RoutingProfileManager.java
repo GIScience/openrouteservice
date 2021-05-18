@@ -45,7 +45,6 @@ import org.heigit.ors.util.TimeUtility;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,12 +58,12 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager mInstance;
-    private boolean initCompleted = false;
+    private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
     private long kafkaMessagesProcessed = 0;
     private long kafkaMessagesFailed = 0;
 
-    public static synchronized RoutingProfileManager getInstance() throws IOException {
+    public static synchronized RoutingProfileManager getInstance() {
         if (mInstance == null) {
             mInstance = new RoutingProfileManager();
             mInstance.initialize(null);
@@ -642,7 +641,7 @@ public class RoutingProfileManager {
     }
 
     public void initCompleted() {
-        initCompleted = true;
+        initComplete = true;
         File file = new File("ors.run");
         try (FileWriter fw = new FileWriter(file)) {
             fw.write("ORS init complete: " + Instant.now().toString() + "\n");
@@ -652,8 +651,8 @@ public class RoutingProfileManager {
         }
     }
 
-    public static boolean isInitCompleted() {
-        return mInstance != null && mInstance.initCompleted;
+    public static boolean isInitComplete() {
+        return RoutingProfileManager.getInstance().initComplete;
     }
 
     public long getKafkaMessagesProcessed() {
