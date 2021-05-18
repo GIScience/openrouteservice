@@ -28,7 +28,6 @@ import org.heigit.ors.kafka.ORSKafkaConsumer;
 import org.heigit.ors.kafka.ORSKafkaConsumerConfiguration;
 import org.heigit.ors.kafka.ORSKafkaTestCluster;
 import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.util.DebugUtility;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;

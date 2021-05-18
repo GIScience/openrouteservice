@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ public class ORSKafkaTestCluster {
     private TestingServer zookeeper;
     private ORSKafkaProducerRunner producer;
     private KafkaServerStartable kafkaServer;
+    private static final Logger LOGGER = Logger.getLogger(ORSKafkaTestCluster.class);
 
     public ORSKafkaTestCluster() {
         try {
@@ -35,7 +37,7 @@ public class ORSKafkaTestCluster {
             producer = new ORSKafkaProducerRunner("127.0.0.1:9092");
             new Thread(producer).start();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 
@@ -46,7 +48,7 @@ public class ORSKafkaTestCluster {
             kafkaServer.awaitShutdown();
             zookeeper.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 
