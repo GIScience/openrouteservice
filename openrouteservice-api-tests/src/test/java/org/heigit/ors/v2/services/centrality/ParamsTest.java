@@ -144,10 +144,8 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // test that invalid excludeNodes don't lead to everything failing
-    // TODO: what should the system do here? If it should notify the user, how could that work?
     @Test
-    public void testInvalidExcludeNodes() {
+    public void testNotFailingOnInvalidExcludeNodes() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("excludeNodes", getParameter("invalidNodes"));
