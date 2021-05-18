@@ -52,7 +52,7 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
                 return;
             }
         }
-        if (DebugUtility.isDebug()) {
+        if (AppConfig.getGlobal().getBoolean("kafka_test_cluster")) {
             LOGGER.info("Starting Kafka test cluster");
             testCluster = new ORSKafkaTestCluster();
         }

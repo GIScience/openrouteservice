@@ -53,7 +53,7 @@ public class ORSKafkaTestCluster {
     private static class ORSKafkaProducerRunner implements Runnable {
         private final KafkaProducer<Long, String> producer;
         private boolean active;
-        private static final long PRODUCER_INTERVAL = 1000;
+        private static final long PRODUCER_INTERVAL = 3000;
 
         public ORSKafkaProducerRunner(String connectionString) {
             Properties props = new Properties();
