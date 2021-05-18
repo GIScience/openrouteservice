@@ -118,7 +118,7 @@ public class StatusAPI {
 
             if (ORSKafkaConsumer.isEnabled()) {
                 org.json.JSONObject jKafka = new org.json.JSONObject(true);
-                jKafka.put("runners", ORSKafkaConsumer.getKafkaConsumerEnabledRunners());
+                jKafka.put("runners", ORSKafkaConsumer.getEnabledRunners());
                 jKafka.put("processed", profileManager.getKafkaMessagesProcessed());
                 jKafka.put("failed", profileManager.getKafkaMessagesFailed());
                 jInfo.put("kafkaConsumer", jKafka);

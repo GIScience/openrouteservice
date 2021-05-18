@@ -23,27 +23,31 @@ package org.heigit.ors.kafka;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ORSKafkaConsumerMessageSpeedUpdate {
-    private long edgeId;
+    private int edgeId;
     private boolean reverse;
     private int speed;
 
+    private int durationMin;
+
     public ORSKafkaConsumerMessageSpeedUpdate() {
-        this.edgeId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
+        this.edgeId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
         this.reverse = ThreadLocalRandom.current().nextBoolean();
         this.speed = ThreadLocalRandom.current().nextInt(10, 130);
+        this.durationMin = ThreadLocalRandom.current().nextInt(15, 120);
     }
 
-    public ORSKafkaConsumerMessageSpeedUpdate(long edgeId, boolean reverse, int speed) {
+    public ORSKafkaConsumerMessageSpeedUpdate(int edgeId, boolean reverse, int speed, int durationMin) {
         this.edgeId = edgeId;
         this.reverse = reverse;
         this.speed = speed;
+        this.durationMin = durationMin;
     }
 
-    public long getEdgeId() {
+    public int getEdgeId() {
         return edgeId;
     }
 
-    public void setEdgeId(long edgeId) {
+    public void setEdgeId(int edgeId) {
         this.edgeId = edgeId;
     }
 
@@ -61,5 +65,13 @@ public class ORSKafkaConsumerMessageSpeedUpdate {
 
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public int getDurationMin() {
+        return durationMin;
+    }
+
+    public void setDurationMin(int durationMin) {
+        this.durationMin = durationMin;
     }
 }

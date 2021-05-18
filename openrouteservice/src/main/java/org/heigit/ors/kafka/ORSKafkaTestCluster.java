@@ -41,9 +41,7 @@ public class ORSKafkaTestCluster {
 
     public void stop() {
         try {
-            if (producer != null) {
-                producer.stop();
-            }
+            producer.stop();
             kafkaServer.shutdown();
             kafkaServer.awaitShutdown();
             zookeeper.close();
@@ -52,10 +50,10 @@ public class ORSKafkaTestCluster {
         }
     }
 
-    private class ORSKafkaProducerRunner implements Runnable {
+    private static class ORSKafkaProducerRunner implements Runnable {
         private final KafkaProducer<Long, String> producer;
         private boolean active;
-        private static final long PRODUCER_INTERVAL = 10000;
+        private static final long PRODUCER_INTERVAL = 1000;
 
         public ORSKafkaProducerRunner(String connectionString) {
             Properties props = new Properties();
@@ -68,12 +66,13 @@ public class ORSKafkaTestCluster {
 
         public void run() {
             long index = 1;
+            ObjectMapper mapper = new ObjectMapper();
             while (active) {
                 try {
-                    Thread.sleep(PRODUCER_INTERVAL);
                     ORSKafkaConsumerMessageSpeedUpdate messageSpeedUpdate = new ORSKafkaConsumerMessageSpeedUpdate();
-                    producer.send(new ProducerRecord<>("test-topic", index, new ObjectMapper().writeValueAsString(messageSpeedUpdate)));
+                    producer.send(new ProducerRecord<>("test-topic", index, mapper.writeValueAsString(messageSpeedUpdate)));
                     index++;
+                    Thread.sleep(PRODUCER_INTERVAL);
                 } catch (JsonProcessingException e) {
                     // should not happen
                 } catch (InterruptedException e) {

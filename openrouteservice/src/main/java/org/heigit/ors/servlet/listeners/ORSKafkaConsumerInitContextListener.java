@@ -58,9 +58,8 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
         }
         List<ORSKafkaConsumerConfiguration> configs = loadConfig();
         if (!configs.isEmpty()) {
-            LOGGER.info("Initializing Kafka consumer");
-            consumer = new ORSKafkaConsumer(configs);
             LOGGER.info("Starting Kafka consumer");
+            consumer = new ORSKafkaConsumer(configs);
             consumer.startConsumer();
         }
     }

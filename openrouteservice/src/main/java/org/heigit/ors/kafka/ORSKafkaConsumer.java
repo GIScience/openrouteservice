@@ -27,7 +27,7 @@ public class ORSKafkaConsumer {
     private List<ORSKafkaConsumerRunner> runners = new ArrayList<>();
     private static int enabledRunners = 0;
 
-    public static int getKafkaConsumerEnabledRunners() {
+    public static int getEnabledRunners() {
         return enabledRunners;
     }
 

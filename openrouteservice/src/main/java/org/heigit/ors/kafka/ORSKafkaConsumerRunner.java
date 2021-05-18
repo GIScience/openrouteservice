@@ -50,14 +50,14 @@ public class ORSKafkaConsumerRunner implements Runnable {
         this.profile = config.getProfile();
         this.pollTimeout = config.hasTimeout() ? config.getTimeout() : POLL_TIMEOUT_DEFAULT;
         this.active = true;
-        LOGGER.info(String.format("Created Kafka consumer thread listening to %s (%s), passing to %s", config.getCluster(), config.getTopic(), config.getProfile()));
+        LOGGER.debug(String.format("Created Kafka consumer thread listening to %s (%s), passing to %s", config.getCluster(), config.getTopic(), config.getProfile()));
     }
 
-    private void updateProfile(ConsumerRecord<Long, String> r) {
+    private void updateProfile(ConsumerRecord<Long, String> consumerRecord) {
         try {
-             RoutingProfileManager.getInstance().updateProfile(profile, r.value());
+             RoutingProfileManager.getInstance().updateProfile(profile, consumerRecord.value());
         } catch (IOException e) {
-            LOGGER.error("ORS has not been initialized");
+            LOGGER.error("ORS has failed to initialize, which should have been caught earlier");
             this.active = false;
         }
     }

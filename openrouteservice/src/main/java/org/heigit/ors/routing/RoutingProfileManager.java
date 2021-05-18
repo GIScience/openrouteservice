@@ -54,11 +54,12 @@ import java.util.concurrent.*;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
+    public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
 
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager mInstance;
-    private static boolean initCompleted = false;
+    private boolean initCompleted = false;
     private final ObjectMapper mapper = new ObjectMapper();
     private long kafkaMessagesProcessed = 0;
     private long kafkaMessagesFailed = 0;
@@ -121,6 +122,7 @@ public class RoutingProfileManager {
             LOGGER.info("Graphs were prepared in " + TimeUtility.getElapsedTime(startTime, true) + ".");
         } catch (Exception ex) {
             LOGGER.error("Failed to prepare graphs.", ex);
+            Thread.currentThread().interrupt();
         }
 
         RuntimeUtility.clearMemory(LOGGER);
@@ -186,8 +188,7 @@ public class RoutingProfileManager {
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
-                    createRunFile();
-                    initCompleted = true;
+                    initCompleted();
 
                     if (rmc.getUpdateConfig().getEnabled()) {
                         profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
@@ -199,6 +200,7 @@ public class RoutingProfileManager {
             }
         } catch (Exception ex) {
             LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
+            Thread.currentThread().interrupt();
         }
 
         RuntimeUtility.clearMemory(LOGGER);
@@ -297,7 +299,7 @@ public class RoutingProfileManager {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor) obj;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
-                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
                         }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
@@ -434,7 +436,7 @@ public class RoutingProfileManager {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
                         extraInfoProcessorIndex++;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                         }
                     }
                 }
@@ -444,7 +446,7 @@ public class RoutingProfileManager {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor) o;
                             if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                             }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);
@@ -639,7 +641,8 @@ public class RoutingProfileManager {
         return rp.computeCentrality(req);
     }
 
-    public void createRunFile() {
+    public void initCompleted() {
+        initCompleted = true;
         File file = new File("ors.run");
         try (FileWriter fw = new FileWriter(file)) {
             fw.write("ORS init complete: " + Instant.now().toString() + "\n");
@@ -650,7 +653,7 @@ public class RoutingProfileManager {
     }
 
     public static boolean isInitCompleted() {
-        return initCompleted;
+        return mInstance != null && mInstance.initCompleted;
     }
 
     public long getKafkaMessagesProcessed() {
@@ -676,7 +679,7 @@ public class RoutingProfileManager {
             case "test":
                 try {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
-                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed()));
+                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
                 } catch (JsonProcessingException e) {
                     LOGGER.error(e);
