@@ -10,12 +10,14 @@ public class CentralityResult {
     private Map<Integer, Coordinate> locations;
     private Map<Integer, Double> nodeCentralityScores;
     private Map<Pair<Integer, Integer>, Double> edgeCentralityScores;
+    private CentralityWarning warning;
 
 
     public CentralityResult() {
         this.locations = new HashMap<>();
         this.nodeCentralityScores = null;
         this.edgeCentralityScores = null;
+        this.warning = null;
     }
 
     public Map<Integer, Double> getNodeCentralityScores() {
@@ -51,5 +53,13 @@ public class CentralityResult {
     public void addLocation(Integer node, Coordinate coord) {
         this.locations.put(node, coord);
     }
+
+    public CentralityWarning getWarning() { return warning;}
+
+    public void setWarning(CentralityWarning warning) { this.warning = warning; }
+
+    public boolean hasWarning() {return this.warning != null; }
+
+
 
 }

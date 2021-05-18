@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import org.heigit.ors.api.responses.centrality.CentralityResponse;
+import org.heigit.ors.api.responses.routing.json.JSONWarning;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.CentralityWarning;
 import org.heigit.ors.common.Pair;
 
 import java.util.ArrayList;
@@ -24,6 +26,9 @@ public class JSONCentralityResponse extends CentralityResponse {
 
     @JsonProperty("edgeScores")
     public List<JSONEdgeScore> edgeScores;
+
+    @JsonProperty("warning")
+    public JSONWarning warning;
 
     public JSONCentralityResponse(CentralityResult centralityResult) {
         super(centralityResult);
@@ -45,6 +50,11 @@ public class JSONCentralityResponse extends CentralityResponse {
             for (Map.Entry<Pair<Integer, Integer>, Double> edgeScore : centralityResult.getEdgeCentralityScores().entrySet()) {
                 this.edgeScores.add(new JSONEdgeScore(edgeScore));
             }
+        }
+
+        if (centralityResult.hasWarning()) {
+            CentralityWarning warning = centralityResult.getWarning();
+            this.warning = new JSONWarning(warning.getWarningCode(), warning.getWarningMessage());
         }
     }
 }

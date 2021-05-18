@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.CentralityWarning;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
@@ -681,6 +682,12 @@ public class RoutingProfile {
                 }
             }
         });
+
+        if (nodesInBBox.isEmpty()) {
+            // without nodes, no centrality can be calculated
+            res.setWarning(new CentralityWarning(CentralityWarning.EMPTY_BBOX));
+            return res;
+        }
 
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);

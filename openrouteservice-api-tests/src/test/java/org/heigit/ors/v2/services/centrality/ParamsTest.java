@@ -234,12 +234,8 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // test that empty bounding boxes get handled appropriately
-    //TODO: currently, both locations and nodeScores will just return empty.
-    // This is the expected and valid answer, but not too helpful.
-    // Should some kind of error be reported to the user?
     @Test
-    public void testEmptyBbox() {
+    public void testWarningAndEmptyLocationsOnEmptyBbox() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("emptyBox"));
 
@@ -252,9 +248,10 @@ public class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
-                .log().all()
+                .log().ifValidationFails()
                 .body("$", hasKey("locations"))
-                .body("$", hasKey("nodeScores"))
+                .body("locations", is(empty()))
+                .body("warning.code", is(1))
                 .statusCode(200);
     }
 
