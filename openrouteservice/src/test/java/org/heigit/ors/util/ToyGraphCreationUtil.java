@@ -1,4 +1,4 @@
-package org.heigit.ors.fastisochrones;
+package org.heigit.ors.util;
 
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphBuilder;
@@ -30,6 +30,39 @@ public class ToyGraphCreationUtil {
         g.edge(5, 7, 1, true);
         g.edge(6, 7, 2, true);
         g.edge(7, 8, 3, true);
+        //Set test lat lon
+        g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
+        g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
+        g.getBaseGraph().getNodeAccess().setNode(2, 3, 1);
+        g.getBaseGraph().getNodeAccess().setNode(3, 4, 2);
+        g.getBaseGraph().getNodeAccess().setNode(4, 4, 4);
+        g.getBaseGraph().getNodeAccess().setNode(5, 4, 5);
+        g.getBaseGraph().getNodeAccess().setNode(6, 3, 4);
+        g.getBaseGraph().getNodeAccess().setNode(7, 3, 5);
+        g.getBaseGraph().getNodeAccess().setNode(8, 1, 4);
+        return g;
+    }
+
+    public static GraphHopperStorage createMediumGraph(GraphHopperStorage g) {
+        //    3---4--5
+        //   /\   |  |
+        //  2--0  6--7
+        //  | / \   /
+        //  |/   \ /
+        //  1-----8
+        g.edge(0, 1, 1, true); //0
+        g.edge(0, 2, 1, true); //1
+        g.edge(0, 3, 5, true); //2
+        g.edge(0, 8, 1, true); //3
+        g.edge(1, 2, 1, true); //4
+        g.edge(1, 8, 2, true); //5
+        g.edge(2, 3, 2, true); //6
+        g.edge(3, 4, 2, true); //7
+        g.edge(4, 5, 1, true); //8
+        g.edge(4, 6, 1, true); //9
+        g.edge(5, 7, 1, true); //10
+        g.edge(6, 7, 2, true); //11
+        g.edge(7, 8, 3, true); //12
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);

@@ -4,7 +4,7 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.junit.Test;
 
