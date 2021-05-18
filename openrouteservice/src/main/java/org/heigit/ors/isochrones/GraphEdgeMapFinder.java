@@ -79,7 +79,7 @@ public class GraphEdgeMapFinder {
             ((TimeDependentFastestWeighting) weighting).setSpeedCalculator(trafficSpeedCalculator);
             if (HelperORS.getTurnCostExtensions(graph.getExtension()) != null)
                 weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
-            TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(graph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
+            TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
                     TraversalMode.NODE_BASED);
             tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
             //Time is defined to be in UTC + 1 because original implementation was for German traffic data
