@@ -11,20 +11,27 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.log4j.Logger;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Properties;
+import java.util.Set;
 
 public class ORSKafkaTestCluster {
     private TestingServer zookeeper;
     private ORSKafkaProducerRunner producer;
     private KafkaServerStartable kafkaServer;
+    private File kafkaTmpLogsDir;
     private static final Logger LOGGER = Logger.getLogger(ORSKafkaTestCluster.class);
 
     public ORSKafkaTestCluster() {
         try {
-            final File kafkaTmpLogsDir = Files.createTempDirectory("KafkaTempDir").toFile();
+            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+            kafkaTmpLogsDir = Files.createTempDirectory("ORSKafkaTemp", attr).toFile();
             zookeeper = new TestingServer(true);
             Properties props = new Properties();
             props.put("zookeeper.connect", zookeeper.getConnectString());
@@ -47,6 +54,7 @@ public class ORSKafkaTestCluster {
             kafkaServer.shutdown();
             kafkaServer.awaitShutdown();
             zookeeper.close();
+            FileSystemUtils.deleteRecursively(kafkaTmpLogsDir);
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -71,7 +79,7 @@ public class ORSKafkaTestCluster {
             ObjectMapper mapper = new ObjectMapper();
             while (active) {
                 try {
-                    ORSKafkaConsumerMessageSpeedUpdate messageSpeedUpdate = new ORSKafkaConsumerMessageSpeedUpdate();
+                    ORSKafkaConsumerMessageSpeedUpdate messageSpeedUpdate = ORSKafkaConsumerMessageSpeedUpdate.generateRandom();
                     producer.send(new ProducerRecord<>("test-topic", index, mapper.writeValueAsString(messageSpeedUpdate)));
                     index++;
                     Thread.sleep(PRODUCER_INTERVAL);
