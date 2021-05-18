@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Map;
 
-public class JSONNodeScore {
+public class JsonNodeScore {
     @ApiModelProperty(value = "Id of the corresponding node in the graph", example = "1")
     @JsonProperty(value = "nodeId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
@@ -19,7 +19,7 @@ public class JSONNodeScore {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     protected Double score;
 
-    JSONNodeScore(Map.Entry<Integer, Double> nodeScore) {
+    JsonNodeScore(Map.Entry<Integer, Double> nodeScore) {
         this.nodeId = nodeScore.getKey();
         this.score = nodeScore.getValue();
     }

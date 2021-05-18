@@ -7,7 +7,7 @@ import org.heigit.ors.common.Pair;
 
 import java.util.Map;
 
-public class JSONEdgeScore {
+public class JsonEdgeScore {
     @ApiModelProperty(value = "Id of the start point of the edge", example = "1")
     @JsonProperty(value = "fromId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
@@ -24,7 +24,7 @@ public class JSONEdgeScore {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     protected Double score;
 
-    JSONEdgeScore(Map.Entry<Pair<Integer, Integer>, Double> edgeScore) {
+    JsonEdgeScore(Map.Entry<Pair<Integer, Integer>, Double> edgeScore) {
         this.fromId = edgeScore.getKey().first;
         this.toId = edgeScore.getKey().second;
         this.score = edgeScore.getValue();

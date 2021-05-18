@@ -8,7 +8,7 @@ import org.heigit.ors.util.FormatUtility;
 
 import java.util.Map;
 
-public class JSONCentralityLocation {
+public class JsonCentralityLocation {
     protected static final int COORDINATE_DECIMAL_PLACES = 6;
 
     @ApiModelProperty(value = "Id of the corresponding node in the graph", example = "1")
@@ -22,7 +22,7 @@ public class JSONCentralityLocation {
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     protected Coordinate coord;
 
-    JSONCentralityLocation(Map.Entry<Integer, Coordinate> location) {
+    JsonCentralityLocation(Map.Entry<Integer, Coordinate> location) {
         this.nodeId = location.getKey();
         this.coord = location.getValue();
     }
