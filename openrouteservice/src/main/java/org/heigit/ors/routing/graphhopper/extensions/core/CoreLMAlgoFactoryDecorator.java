@@ -81,7 +81,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         setPreparationThreads(args.getInt(CoreLandmark.PREPARE + "threads", getPreparationThreads()));
 
         landmarkCount = args.getInt(CoreLandmark.COUNT, landmarkCount);
-        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT, Math.min(4, landmarkCount));
+        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT_DEFAULT, Math.min(4, landmarkCount));
         logDetails = args.getBool(CoreLandmark.PREPARE + "log_details", false);
         minNodes = args.getInt(CoreLandmark.PREPARE + "min_network_size", -1);
 

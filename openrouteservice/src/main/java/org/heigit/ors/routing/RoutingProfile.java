@@ -109,6 +109,7 @@ public class RoutingProfile {
     private static final String VAL_ENABLED = "enabled";
     private static final String KEY_THREADS = "threads";
     private static final String KEY_WEIGHTINGS = "weightings";
+    private static final String KEY_LMSETS = "lmsets";
     private static final String KEY_MAXCELLNODES = "maxcellnodes";
     private static final String KEY_METHODS_LM = "methods.lm";
     private static final String KEY_LANDMARKS = "landmarks";
@@ -117,7 +118,6 @@ public class RoutingProfile {
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
-    private static final String KEY_ASTARBI = Parameters.Algorithms.ASTAR_BI;
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
     private static final int KEY_FLEX_FULLY = 2;
@@ -359,8 +359,8 @@ public class RoutingProfile {
                             args.put("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
                         if (coreOpts.hasPath(KEY_WEIGHTINGS))
                             args.put(KEY_PREPARE_CORE_WEIGHTINGS, StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS)));
-                        if (coreOpts.hasPath("lmsets"))
-                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
+                        if (coreOpts.hasPath(KEY_LMSETS))
+                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
                         if (coreOpts.hasPath(KEY_LANDMARKS))
                             args.put("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
                     }
@@ -371,14 +371,17 @@ public class RoutingProfile {
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath(KEY_METHODS_CH)) {
-                Config coreOpts = opts.getConfig(KEY_METHODS_CH);
-                if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.ch.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                Config chOpts = opts.getConfig(KEY_METHODS_CH);
+                if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
+                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
             }
             if (opts.hasPath(KEY_METHODS_CORE)) {
-                Config chOpts = opts.getConfig(KEY_METHODS_CORE);
-                if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.core.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
+                if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
+                    args.put("routing.core.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+
+                if (coreOpts.hasPath(KEY_ACTIVE_LANDMARKS))
+                    args.put("routing.corelm.active_landmarks", coreOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
             if (opts.hasPath(KEY_METHODS_LM)) {
                 Config lmOpts = opts.getConfig(KEY_METHODS_LM);
@@ -387,14 +390,6 @@ public class RoutingProfile {
 
                 if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
                     args.put("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
-            }
-            if (opts.hasPath("methods.corelm")) {
-                Config lmOpts = opts.getConfig("methods.corelm");
-                if (lmOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean(KEY_DISABLING_ALLOWED));
-
-                if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    args.put("routing.corelm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
         }
 
@@ -901,7 +896,7 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+            req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
@@ -1055,8 +1050,8 @@ public class RoutingProfile {
         req.getHints().put(KEY_CORE_DISABLE, !useCore);
         req.getHints().put(KEY_LM_DISABLE, !useALT);
 
-        if(!useCH)
-            req.setAlgorithm(KEY_ASTARBI);
+        if (useCH)
+            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
     }
 
     boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {

@@ -43,20 +43,7 @@ import com.graphhopper.storage.CHProfile;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.DateTimeHelper;
-import com.graphhopper.util.DouglasPeucker;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.Instruction;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.InstructionList;
-import com.graphhopper.util.Parameters;
-import com.graphhopper.util.PathMerger;
-import com.graphhopper.util.PointList;
-import com.graphhopper.util.StopWatch;
-import com.graphhopper.util.Translation;
-import com.graphhopper.util.TranslationMap;
+import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.PointNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
@@ -361,6 +348,7 @@ public class ORSGraphHopper extends GraphHopper {
 					queryGraph.lookup(qResults);
 
 					weighting = createWeighting(hints, encoder, queryGraph);
+					tMode = chProfile.getTraversalMode();
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -438,9 +426,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
-				String date = getGraphHopperStorage().getProperties().get("datareader.data.date");
+				String date = getGraphHopperStorage().getProperties().get("datareader.import.date");
 				if (Helper.isEmpty(date)) {
-					date = getGraphHopperStorage().getProperties().get("datareader.import.date");
+					date = getGraphHopperStorage().getProperties().get("datareader.data.date");
 				}
 				ghRsp.getHints().put("data.date", date);
 
@@ -751,8 +739,18 @@ public class ORSGraphHopper extends GraphHopper {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
+
+					// extract weighting string and traversal mode
+					String configStr = "";
+					if (coreWeightingStr.contains("|")) {
+						configStr = coreWeightingStr;
+						coreWeightingStr = coreWeightingStr.split("\\|")[0];
+					}
+					PMap config = new PMap(configStr);
+
+					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
+					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
 		}
@@ -793,13 +791,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public void initCoreLMAlgoFactoryDecorator() {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreLMFactoryDecorator.addWeighting(weighting);
-				}
-			}
+			for (CHProfile profile : coreFactoryDecorator.getCHProfiles())
+				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
 		}
 	}
 
