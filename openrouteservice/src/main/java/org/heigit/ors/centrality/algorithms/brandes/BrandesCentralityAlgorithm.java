@@ -32,6 +32,8 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
             this.v = v;
         }
 
+        //TODO: x.compareTo(y)==0 doesn't imply x.equals(y), so instead of implementing compareTo,
+        //      the queue that uses it should use a custom comparator.
         public int compareTo(QueueElement other) {
             return Double.compare(this.dist, other.dist);
         }
@@ -52,7 +54,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
             Map<Integer, Integer> sigma = new HashMap<>();
 
             // single source shortest path
-            //S, P, sigma = SingleSourceDijkstra(graph, nodesInBBox, s);
+            // S, P, sigma = SingleSourceDijkstra(graph, nodesInBBox, s);
 
             for (int v : nodesInBBox) {
                 P.put(v, new ArrayList<>());
@@ -148,8 +150,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
         for (int s : nodesInBBox) {
             EdgeIterator iter = explorer.setBaseNode(s);
             while (iter.next()) {
-                System.out.printf("Edge: %d -> %d\n", iter.getBaseNode(), iter.getAdjNode());
-                Pair<Integer, Integer> p = new Pair(iter.getBaseNode(), iter.getAdjNode());
+                Pair<Integer, Integer> p = new Pair<>(iter.getBaseNode(), iter.getAdjNode());
                 edgeBetweenness.put(p, 0d);
             }
         }
@@ -239,7 +240,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 Double coefficient = (1 + delta.get(w)) / sigma.get(w);
                 for (Integer v : P.get(w)) {
                     delta.merge(v, sigma.get(v) * coefficient, Double::sum);
-                    edgeBetweenness.merge(new Pair(v,w), sigma.get(v) * coefficient, Double::sum);
+                    edgeBetweenness.merge(new Pair<>(v,w), sigma.get(v) * coefficient, Double::sum);
                 }
             }
         }
