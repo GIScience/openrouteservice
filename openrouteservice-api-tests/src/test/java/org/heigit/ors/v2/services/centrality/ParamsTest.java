@@ -20,16 +20,16 @@ public class ParamsTest extends ServiceTest {
         // set up coordinates for testing later
         JSONArray lowerLeft = new JSONArray();
         JSONArray upperRight = new JSONArray();
-        JSONArray tooLargeCoordinate = new JSONArray();
-        JSONArray tooSmallCoordinate = new JSONArray();
+        JSONArray additionalComponentCoordinate = new JSONArray();
+        JSONArray missingComponentCoordinate = new JSONArray();
         lowerLeft.put(8.677139);
         lowerLeft.put(49.412872);
         upperRight.put(8.690443);
         upperRight.put(49.421080);
-        tooLargeCoordinate.put(8.677139);
-        tooLargeCoordinate.put(49.395446);
-        tooLargeCoordinate.put(49.395446);
-        tooSmallCoordinate.put(8.65538);
+        additionalComponentCoordinate.put(8.677139);
+        additionalComponentCoordinate.put(49.395446);
+        additionalComponentCoordinate.put(49.395446);
+        missingComponentCoordinate.put(8.65538);
 
         // set up valid bounding box encompassing Neuenheim
         JSONArray neuenheimBBox = new JSONArray();
@@ -38,30 +38,30 @@ public class ParamsTest extends ServiceTest {
         addParameter("neuenheimBox", neuenheimBBox);
 
         // set up invalid bounding box containing too few coordinates
-        JSONArray tooSmallBox = new JSONArray();
-        tooSmallBox.put(lowerLeft);
-        addParameter("tooSmallBox", tooSmallBox);
+        JSONArray missingCoordinatesBox = new JSONArray();
+        missingCoordinatesBox.put(lowerLeft);
+        addParameter("missingCoordinatesBox", missingCoordinatesBox);
 
         // set up invalid bounding box containing too many coordinates
-        JSONArray tooLargeBox = new JSONArray();
-        tooLargeBox.put(lowerLeft);
-        tooLargeBox.put(upperRight);
-        tooLargeBox.put(upperRight);
-        addParameter("tooLargeBox", tooLargeBox);
+        JSONArray additionalCoordinatesBox = new JSONArray();
+        additionalCoordinatesBox.put(lowerLeft);
+        additionalCoordinatesBox.put(upperRight);
+        additionalCoordinatesBox.put(upperRight);
+        addParameter("additionalCoordinatesBox", additionalCoordinatesBox);
 
         // set up invalid bounding box containing a coordinate with too many ordinates
-        JSONArray tooLargeCoordBox = new JSONArray();
-        tooLargeCoordBox.put(lowerLeft);
-        tooLargeCoordBox.put(tooLargeCoordinate);
-        addParameter("tooLargeCoordBox", tooLargeCoordBox);
+        JSONArray additionalComponentCoordinateBox = new JSONArray();
+        additionalComponentCoordinateBox.put(lowerLeft);
+        additionalComponentCoordinateBox.put(additionalComponentCoordinate);
+        addParameter("additionalComponentCoordinateBox", additionalComponentCoordinateBox);
 
         //set up invalid bounding box containing a coordinate with too few ordinates
-        JSONArray tooSmallCoordBox = new JSONArray();
-        tooSmallCoordBox.put(lowerLeft);
-        tooSmallCoordBox.put(tooSmallCoordinate);
-        addParameter("tooSmallCoordBox", tooSmallCoordBox);
+        JSONArray missingComponentCoordinateBox = new JSONArray();
+        missingComponentCoordinateBox.put(lowerLeft);
+        missingComponentCoordinateBox.put(missingComponentCoordinate);
+        addParameter("missingComponentCoordinateBox", missingComponentCoordinateBox);
 
-        // set up empty bounding box by using the same values as edges
+        // set up empty bounding box by using the same values as corners
         JSONArray emptyBox = new JSONArray();
         emptyBox.put(lowerLeft);
         emptyBox.put(lowerLeft);
@@ -79,9 +79,8 @@ public class ParamsTest extends ServiceTest {
 
     }
 
-    // test general functionality
     @Test
-    public void testBasicFunctionality() {
+    public void testCentralityEndpointIsAvailable() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
 
@@ -100,13 +99,13 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // test that excludeNodes get excluded
     @Test
-    public void testExcludeNodes() {
+    public void testExcludeNodesGetExcluded() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
 
-        // check that nodes to exclude are present in the response
+        // Since node IDs are not consistent over graph builds, they cannot be specified beforehand,
+        // but have to be taken from a valid response
         List<Integer> nodeIds =  given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -115,18 +114,19 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .jsonPath().getList("locations.nodeId");
 
+        // save three nodes that should be excluded and one that should still be present
         int node0 = nodeIds.get(0);
         int node1 = nodeIds.get(1);
         int node2 = nodeIds.get(2);
         int node3 = nodeIds.get(3);
-        System.out.printf("%d, %d, %d, %d\n", node0, node1, node2, node3);
+
         JSONArray excludeNodes = new JSONArray();
         excludeNodes.put(node0);
         excludeNodes.put(node1);
         excludeNodes.put(node2);
 
         body.put("excludeNodes", excludeNodes);
-        //check that they are not present anymore if excluded
+
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -166,11 +166,10 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // test that invalid bounding boxes with too few/too many coordinates return an error
     @Test
-    public void testWrongSizeBBox() {
+    public void testErrorOnWrongSizeBBox() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("tooSmallBox"));
+        body.put("bbox", getParameter("missingCoordinatesBox"));
 
         given()
                 .header("Accept", "application/json")
@@ -185,7 +184,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
-        body.put("bbox", getParameter("tooLargeBox"));
+        body.put("bbox", getParameter("additionalCoordinatesBox"));
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -200,11 +199,10 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // test that invalid bounding boxes with too large/too small coordinates return an error
     @Test
-    public void testWrongSizedCoordinates() {
+    public void testErrorOnWrongSizeCoordinates() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("tooSmallCoordBox"));
+        body.put("bbox", getParameter("missingComponentCoordinateBox"));
 
         given()
                 .header("Accept", "application/json")
@@ -219,7 +217,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
-        body.put("bbox", getParameter("tooLargeCoordBox"));
+        body.put("bbox", getParameter("additionalComponentCoordinateBox"));
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -256,7 +254,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testEdgeMode() {
+    public void testEdgeCentralityCalculationIfEdgeModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "edges");
@@ -278,7 +276,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testNodeMode() {
+    public void testNodeScoreCalculationIfNodeModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "nodes");
@@ -300,7 +298,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testWrongMode() {
+    public void testErrorIfWrongModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "wrongMode");
