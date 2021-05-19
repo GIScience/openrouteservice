@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Changed
+- Improved road bike average speed to be faster on cycleways and slower on bad road surface or certain road types such as footways.
 
 ## [6.5.0] - 2021-05-17
 ### Added
