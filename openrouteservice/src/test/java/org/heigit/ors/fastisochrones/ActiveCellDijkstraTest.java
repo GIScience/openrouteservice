@@ -70,6 +70,9 @@ public class ActiveCellDijkstraTest {
         expectedNodeIds.add(1);
         expectedNodeIds.add(2);
         expectedNodeIds.add(3);
+        // Two bordernodes of adjacent cell are added to generate overlapping cell polygons
+        expectedNodeIds.add(4);
+        expectedNodeIds.add(7);
         expectedNodeIds.add(8);
         for (IntObjectCursor<SPTEntry> entry : activeCellDijkstra.getFromMap()) {
             nodeIds.add(entry.value.adjNode);

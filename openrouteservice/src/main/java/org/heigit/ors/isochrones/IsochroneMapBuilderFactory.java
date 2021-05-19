@@ -39,7 +39,7 @@ public class IsochroneMapBuilderFactory {
     private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws IllegalArgumentException{
         IsochroneMapBuilder isochroneBuilder;
         String method = parameters.getCalcMethod();
-        boolean canUseFastIsochrones = !(parameters.getRouteParameters().requiresDynamicPreprocessedWeights() || parameters.getRouteParameters().requiresFullyDynamicWeights());
+        boolean canUseFastIsochrones = !(parameters.getRouteParameters().requiresDynamicPreprocessedWeights() || parameters.getRouteParameters().requiresFullyDynamicWeights() || parameters.getReverseDirection());
         if (Helper.isEmpty(method) || "FastIsochrone".equalsIgnoreCase(method) || "Default".equalsIgnoreCase(method)) {
             if (canUseFastIsochrones &&
                     ((ORSGraphHopper) searchContext.getGraphHopper()).isFastIsochroneAvailable(searchContext, parameters.getRangeType()))

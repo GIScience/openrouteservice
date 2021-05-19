@@ -178,8 +178,8 @@ public class RouteRequest {
     private boolean hasBearings = false;
 
     @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
-            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for `driving-*`. " +
-            "CUSTOM_KEYS:{'apiDefault':'true','validWhen':{'ref':'profile','valueNot':['driving-*']}}",
+            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster." +
+            "CUSTOM_KEYS:{'apiDefault':'false'}",
             example = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
     private boolean continueStraightAtWaypoints;

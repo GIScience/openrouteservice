@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.3.1</version>
+    <version>6.5.0</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -50,6 +50,10 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
         <maven.compiler.target>1.8</maven.compiler.target>
         <geotools.version>19.1</geotools.version>
+        <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
+        <sonar.organization>giscience</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
     <scm>
         <url>git@github.com:GIScience/openrouteservice.git</url>
@@ -159,7 +163,7 @@
                     <dependency>
                         <groupId>org.apache.tomcat.embed</groupId>
                         <artifactId>tomcat-embed-core</artifactId>
-                        <version>7.0.106</version>
+                        <version>7.0.107</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -236,8 +240,34 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
                 <configuration>
-                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit</argLine>
+                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <!-- prepare agent for measuring unit tests -->
+                    <execution>
+                        <id>prepare-unit-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${sonar.jacoco.reportPath}</destFile>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -246,8 +276,8 @@
         <repository>
             <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
             <id>HeiGIT main</id>
-            <name>Central Repository for OSHDB dependency related artefacts</name>
-            <url>http://repo.heigit.org/artifactory/main</url>
+            <name>Central repository for HeiGIT service dependency related artefacts</name>
+            <url>https://repo.heigit.org/artifactory/main</url>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -349,19 +379,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.9</version>
+            <version>v0.13.13</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.9</version>
+            <version>v0.13.13</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.9</version>
+            <version>v0.13.13</version>
         </dependency>
 
         <!-- remove the comment to enable debugging

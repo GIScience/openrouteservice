@@ -20,19 +20,28 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
     - name: Cache Maven packages
       uses: actions/cache@v2
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    - name: Copy app.config for API test 
+    - name: Copy app.config for API test
       run: cp ./openrouteservice-api-tests/conf/app.config.test ./openrouteservice/src/main/resources/app.config 
-#    - name: All tests with jacoco/sonar
-#      run: mvn -B -f openrouteservice/pom.xml org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
-    - name: All tests
-      run: mvn -B -f openrouteservice/pom.xml verify
-
+    - name: Test, build, run API tests
+      run: mvn -B -f openrouteservice/pom.xml verify jacoco:report
+    - name: run SonarLint checks
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      if: env.SONAR_TOKEN != null
+      run: mvn -B -f openrouteservice/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
     - name: Rocket.Chat Notification
       uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
       env:
@@ -41,5 +50,4 @@ jobs:
       with:
         type: ${{ job.status }}
         job_name: '*ORS CI Test*'
-        commit: true
         token: ${{ secrets.PROJECT_AUTOMATION }}

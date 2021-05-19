@@ -58,6 +58,8 @@
       routing: {
         enabled: true,
         mode: "normal",
+        "routing_description": "This is a routing file from openrouteservice",
+        "routing_name": "openrouteservice routing",
         sources: ["openrouteservice-api-tests/data/heidelberg.osm.gz"],
         init_threads: 1,
         attribution: "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
@@ -113,7 +115,7 @@
           profile-vehicles-car: {
             profiles: "driving-car",
             parameters: {
-              encoder_options: "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true",
+              encoder_options: "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
               maximum_distance: 100000,
               elevation: true,
               preparation:

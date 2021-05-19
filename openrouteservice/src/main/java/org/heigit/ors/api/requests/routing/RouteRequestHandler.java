@@ -147,6 +147,9 @@ public class RouteRequestHandler extends GenericHandler {
         if (request.hasBearings())
             params.setBearings(convertBearings(request.getBearings(), coordinatesLength));
 
+        if (request.hasContinueStraightAtWaypoints())
+            params.setContinueStraight(request.getContinueStraightAtWaypoints());
+
         if (request.hasMaximumSearchRadii())
             params.setMaximumRadiuses(convertMaxRadii(request.getMaximumSearchRadii(), coordinatesLength, profileType));
 

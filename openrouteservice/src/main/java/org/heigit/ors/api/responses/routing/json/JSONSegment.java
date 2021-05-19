@@ -33,12 +33,15 @@ import java.util.List;
 public class JSONSegment {
     @ApiModelProperty(value = "Contains the distance of the segment in specified units.", example = "253")
     @JsonProperty("distance")
+    @JsonInclude()
     private Double distance;
     @ApiModelProperty(value = "Contains the duration of the segment in seconds.", example = "37.7")
     @JsonProperty("duration")
+    @JsonInclude()
     private Double duration;
     @ApiModelProperty("List containing the specific steps the segment consists of.")
     @JsonProperty("steps")
+    @JsonInclude()
     private List<JSONStep> steps;
     @ApiModelProperty(value = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'detourfactor'}}", example = "0.5")
     @JsonProperty("detourfactor")

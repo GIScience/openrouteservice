@@ -1253,12 +1253,11 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(1658.0f))
+                .body("routes[0].summary.duration", is(1709.5f))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound
         body.put("maximum_speed", 75);
-        body.put("optimized", false); //FIXME: remove once turn restrictions are supported by CALT
 
         given()
                 .header("Accept", "application/json")
@@ -1270,7 +1269,57 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(2148.5f))
+                .body("routes[0].summary.duration", is(1996.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testTurnRestrictions() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
+        body.put("preference", getParameter("preference"));
+
+        JSONObject options = new JSONObject();
+        JSONArray avoidFeatures = new JSONArray();
+        body.put("options", options.put("avoid_features", avoidFeatures.put("ferries")));// enforce use of CALT over CH
+
+        // Test that the "right turn only" restriction at the junction is taken into account
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(693.8f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testUTurnRestrictions() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.698302,49.412282|8.698801,49.41223"));
+        body.put("preference", getParameter("preference"));
+
+        JSONObject options = new JSONObject();
+        JSONArray avoidFeatures = new JSONArray();
+        body.put("options", options.put("avoid_features", avoidFeatures.put("ferries")));// enforce use of CALT over CH
+
+        // Test that the "right turn only" restriction at the junction is taken into account
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2968.5f))//FIXME: should be equal to the reference A* route distance of 2816.7f
                 .statusCode(200);
     }
 
@@ -1358,6 +1407,26 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(751.5f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testContinueStraightNoBearings() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("continue_straight", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(15173.0f))
                 .statusCode(200);
     }
 
@@ -2412,6 +2481,53 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.warnings[0].containsKey('code')", is(true))
                 .body("features[0].properties.warnings[0].code", is(3))
                 .statusCode(200);
+
+        skipSegments = new ArrayList<>(2);
+        skipSegments.add(2);
+        skipSegments.add(3);
+        body.put("skip_segments", skipSegments);
+        JSONArray coordsTooLong = new JSONArray();
+        JSONArray coordLong1 = new JSONArray();
+        coordLong1.put(8.678613);
+        coordLong1.put(49.411721);
+        coordsTooLong.put(coordLong1);
+        JSONArray coordLong2 = new JSONArray();
+        coordLong2.put(8.714733);
+        coordLong2.put(49.393267);
+        coordsTooLong.put(coordLong2);
+        JSONArray coordLong3 = new JSONArray();
+        coordLong3.put(0);
+        coordLong3.put(0);
+        coordsTooLong.put(coordLong3);
+        JSONArray coordLong4 = new JSONArray();
+        coordLong4.put(8.714733);
+        coordLong4.put(49.393267);
+        coordsTooLong.put(coordLong4);
+        JSONArray coordLong5 = new JSONArray();
+        coordLong5.put(8.687782);
+        coordLong5.put(49.424597);
+        coordsTooLong.put(coordLong5);
+        body.put("coordinates", coordsTooLong);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].containsKey('way_points')", is(true))
+                .body("routes[0].containsKey('warnings')", is(true))
+                .body("routes[0].warnings[0].containsKey('code')", is(true))
+                .body("routes[0].warnings[0].code", is(3))
+                .body("routes[0].segments.size", is(4))
+                .body("routes[0].way_points.size", is(5))
+                .body("routes[0].bbox[0]", is(0.0f))
+                .body("routes[0].bbox[1]", is(0.0f))
+                .statusCode(200);
     }
 
     @Test
@@ -2601,6 +2717,27 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].segments[1].steps[1].way_points[1]", is(15))
                 .body("routes[0].segments[1].steps[2].way_points[0]", is(15))
                 .body("routes[0].segments[1].steps[2].way_points[1]", is(15))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testIdenticalCoordinatesIndexing() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("features[0].geometry.coordinates.size()", is(314))
+                .body("features[0].properties.segments[1].steps[0].way_points[0]", is(160))
+                .body("features[0].properties.segments[1].steps[0].way_points[1]", is(160))
                 .statusCode(200);
     }
 
@@ -3048,6 +3185,284 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(2002.4f))
                 .body("routes[0].summary.ascent", is(7.5f))
                 .body("routes[0].summary.descent", is(6.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectDepartureAndArrival() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
+        body.put("departure", "2021-01-31T12:00");
+
+        // Test that if the request specifies departure time then the response contains both departure and arrival time
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("bikeProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('departure')", is(true))
+                .body("routes[0].containsKey('arrival')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testConditionalAccess() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.645178);
+        coord1.put(49.399496);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.646015);
+        coord2.put(49.400899);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Tag "motor_vehicle:conditional = no @ Mo-Fr 12:45-13:30" on way 27884831
+        // Test that way is accessible if no time is specified
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(230.2f))
+                .body("routes[0].summary.duration", is(72.1f))
+                .statusCode(200);
+
+        // Test that way is accessible on weekends
+        body.put("departure", "2021-01-31T13:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(230.2f))
+                .body("routes[0].summary.duration", is(72.1f))
+                .statusCode(200);
+
+        // Test that way is closed at certain times throughout the week
+        body.put("departure", "2021-12-31T13:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(369.5f))
+                .body("routes[0].summary.duration", is(75.2f))
+                .statusCode(200);
+
+        // Test that a shorter route around closed edge exists
+        body.put("preference", "shortest");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(367.2f))
+                .body("routes[0].summary.duration", is(88.1f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testConditionalSpeed() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.689993);
+        coord1.put(49.399208);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.692824);
+        coord2.put(49.406562);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Tag "maxspeed:conditional = 30 @ (22:00-06:00)" along Rohrbacher Strasse
+        // Test that the speed limit is not taken into account if no time is specified
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(97.9f))
+                .statusCode(200);
+
+        // Test that the speed limit does not apply throughout the day
+        body.put("arrival", "2021-01-31T22:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(97.9f))
+                .statusCode(200);
+
+        // Test that the speed limit applies at night
+        body.remove("arrival");
+        body.put("departure", "2021-01-31T22:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(119.9f))
+                .statusCode(200);
+
+        // Test that the speed limit applies for shortest weighting as well
+        body.put("preference", "shortest");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(97.9f)) //FIXME: once implemented should return the same value as fastest
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectZoneMaxpeed() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676031);
+        coord1.put(49.417011);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.674965);
+        coord2.put(49.419587);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Test that "zone:maxspeed = DE:urban" overrides default "highway = residential" speed for both car and hgv
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(367.9f))
+                .body("routes[0].summary.duration", is(53.0f))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(367.9f))
+                .body("routes[0].summary.duration", is(53.0f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectMaxpeedHgvForward() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.696237);
+        coord1.put(49.37186);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.693427);
+        coord2.put(49.367914);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Test that "maxspeed:hgv:forward = 30" when going downhill on Am Götzenberg is taken into account for hgv profile
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(497.5f))
+                .body("routes[0].summary.duration", is(61.9f))
+                .statusCode(200);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(497.5f))
+                .body("routes[0].summary.duration", is(81.1f))
                 .statusCode(200);
     }
 

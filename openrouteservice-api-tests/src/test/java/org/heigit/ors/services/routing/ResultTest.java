@@ -949,7 +949,7 @@ public class ResultTest extends ServiceTest {
 				.statusCode(200);
 	}
 
-	@Test
+    @Test
 	public void testNoBearings() {
 		given()
 				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
