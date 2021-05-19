@@ -19,9 +19,8 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.*;
+import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -32,6 +31,11 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
+import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
@@ -84,8 +88,8 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
+    private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
-    private static final String VAL_RECOMMENDED_PREF = "recommended_pref";
     private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
@@ -99,16 +103,15 @@ public class RoutingProfile {
     private static final String VAL_ENABLED = "enabled";
     private static final String KEY_THREADS = "threads";
     private static final String KEY_WEIGHTINGS = "weightings";
+    private static final String KEY_LMSETS = "lmsets";
     private static final String KEY_MAXCELLNODES = "maxcellnodes";
     private static final String KEY_METHODS_LM = "methods.lm";
     private static final String KEY_LANDMARKS = "landmarks";
     private static final String KEY_METHODS_CORE = "methods.core";
-    private static final String KEY_METHODS_FASTISOCHRONE = "methods.fastisochrone";
     private static final String KEY_DISABLING_ALLOWED = "disabling_allowed";
     private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     private static final String KEY_TOTAL_POP = "total_pop";
     private static final String KEY_TOTAL_AREA_KM = "total_area_km";
-    private static final String KEY_ASTARBI = "astarbi";
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
     private static final int KEY_FLEX_FULLY = 2;
@@ -176,7 +179,9 @@ public class RoutingProfile {
         // so the caching for elevation data will/can be reused across different vehicles. [the loadCntx is a single
         // Object that will shared across the (potential) multiple running instances]
         if(loadCntx.getElevationProvider() != null) {
-            gh.setElevationProvider(loadCntx.getElevationProvider());
+            if (args.has("graph.elevation.provider")) {
+                gh.setElevationProvider(loadCntx.getElevationProvider());
+            }
         }else {
             loadCntx.setElevationProvider(gh.getElevationProvider());
         }
@@ -337,8 +342,8 @@ public class RoutingProfile {
                             args.put("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
                         if (coreOpts.hasPath(KEY_WEIGHTINGS))
                             args.put(KEY_PREPARE_CORE_WEIGHTINGS, StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS)));
-                        if (coreOpts.hasPath("lmsets"))
-                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString("lmsets")));
+                        if (coreOpts.hasPath(KEY_LMSETS))
+                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
                         if (coreOpts.hasPath(KEY_LANDMARKS))
                             args.put("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
                     }
@@ -349,14 +354,17 @@ public class RoutingProfile {
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath(KEY_METHODS_CH)) {
-                Config coreOpts = opts.getConfig(KEY_METHODS_CH);
-                if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.ch.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                Config chOpts = opts.getConfig(KEY_METHODS_CH);
+                if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
+                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
             }
             if (opts.hasPath(KEY_METHODS_CORE)) {
-                Config chOpts = opts.getConfig(KEY_METHODS_CORE);
-                if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.core.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
+                if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
+                    args.put("routing.core.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+
+                if (coreOpts.hasPath(KEY_ACTIVE_LANDMARKS))
+                    args.put("routing.corelm.active_landmarks", coreOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
             if (opts.hasPath(KEY_METHODS_LM)) {
                 Config lmOpts = opts.getConfig(KEY_METHODS_LM);
@@ -365,14 +373,6 @@ public class RoutingProfile {
 
                 if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
                     args.put("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
-            }
-            if (opts.hasPath("methods.corelm")) {
-                Config lmOpts = opts.getConfig("methods.corelm");
-                if (lmOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean(KEY_DISABLING_ALLOWED));
-
-                if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    args.put("routing.corelm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
         }
 
@@ -567,9 +567,9 @@ public class RoutingProfile {
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
-
-            LOGGER.error(ex);
-
+            if (DebugUtility.isDebug()) {
+                LOGGER.error(ex);
+            }
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
 
@@ -603,8 +603,9 @@ public class RoutingProfile {
                 }
 
             } catch (Exception ex) {
-                LOGGER.error(ex);
-
+                if (DebugUtility.isDebug()) {
+                    LOGGER.error(ex);
+                }
                 throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
             }
         }
@@ -627,7 +628,7 @@ public class RoutingProfile {
         try {
             HintsMap hintsMap = new HintsMap();
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
-            setWeighting(hintsMap, weightingMethod, req.getProfileType());
+            setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
                 hintsMap.setVehicle(encoderName);
@@ -645,14 +646,56 @@ public class RoutingProfile {
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
-            LOGGER.error(ex);
             throw ex;
         } catch (Exception ex) {
-            LOGGER.error(ex);
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }
 
         return mtxResult;
+    }
+
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        CentralityResult res = new CentralityResult();
+
+        GraphHopper gh = getGraphhopper();
+        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
+
+        HintsMap hintsMap = new HintsMap();
+        int weightingMethod = WeightingMethod.FASTEST;
+        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
+        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+
+        // filter graph for nodes in Bounding Box
+        LocationIndex index = gh.getLocationIndex();
+        NodeAccess nodeAccess = graph.getNodeAccess();
+        BBox bbox = req.getBoundingBox();
+        List<Integer> excludeNodes = req.getExcludeNodes();
+
+        ArrayList<Integer> nodesInBBox = new ArrayList<>();
+        index.query(bbox, new LocationIndex.Visitor() {
+            @Override
+            public void onNode(int nodeId) {
+                if (!excludeNodes.contains(nodeId) && bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+                    nodesInBBox.add(nodeId);
+                }
+            }
+        });
+
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
+        alg.init(graph, weighting);
+
+        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
+
+        // transform node ids to coordinates
+        for (int v : nodesInBBox) {
+            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
+            res.addCentralityScore(coord, betweenness.get(v));
+            res.addNode(v, coord);
+        }
+
+        return res;
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
@@ -814,7 +857,7 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType))
-                setWeighting(req.getHints(), weightingMethod, profileType);
+                setWeighting(req.getHints(), weightingMethod, profileType, false);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
@@ -870,7 +913,7 @@ public class RoutingProfile {
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.setAlgorithm("dijkstrabi");
+            req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
@@ -882,26 +925,32 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeighting(req.getHints(), weightingMethod, profileType);
+                setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+                if (requiresTimeDependentWeighting(searchParams, searchCntx))
+                    flexibleMode = KEY_FLEX_PREPROCESSED;
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             }
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            if(flexibleMode == KEY_FLEX_STATIC)
+            if (flexibleMode == KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
                 setSpeedups(req, true, true, true);
 
             if (flexibleMode == KEY_FLEX_PREPROCESSED) {
-                if(optimized)
-                    setSpeedups(req, false, true, true);
-                else
-                    setSpeedups(req, false, false, true);
+                setSpeedups(req, false, optimized, true);
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if(flexibleMode == KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true);
+
+            if (searchParams.isTimeDependent()) {
+                if (searchParams.hasDeparture())
+                    req.getHints().put(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
+                else if (searchParams.hasArrival())
+                    req.getHints().put(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
+            }
 
             if (astarEpsilon != null)
                 req.getHints().put("astarbi.epsilon", astarEpsilon);
@@ -909,8 +958,6 @@ public class RoutingProfile {
                 req.getHints().put("astarbi.approximation", astarApproximation);
 
             if (searchParams.getAlternativeRoutesCount() > 0) {
-                //TAKB: CH and CORE have to be disabled for alternative routes
-                setSpeedups(req, false, false, true);
                 req.setAlgorithm("alternative_route");
                 req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
                 req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
@@ -953,10 +1000,8 @@ public class RoutingProfile {
      * @param profileType Necessary for HGV
      * @return flexibility as int
      */
-    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType){
-        if(searchParams.requiresDynamicPreprocessedWeights())
-            flexibleMode = KEY_FLEX_PREPROCESSED;
-        if(profileType == RoutingProfileType.WHEELCHAIR)
+    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
+        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
             flexibleMode = KEY_FLEX_PREPROCESSED;
 
         if(searchParams.requiresFullyDynamicWeights())
@@ -978,7 +1023,7 @@ public class RoutingProfile {
      * @param profileType Necessary for HGV
      * @return Weighting as int
      */
-    private void setWeighting(HintsMap map, int requestWeighting, int profileType){
+    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
         //Defaults
         String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
@@ -989,17 +1034,13 @@ public class RoutingProfile {
         //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
-                weighting = weightingMethod = VAL_FASTEST;
+                weighting = VAL_FASTEST;
+                weightingMethod = hasTimeDependentSpeed ? VAL_TD_FASTEST : VAL_FASTEST;
             }
-            else if (RoutingProfileType.isHeavyVehicle(profileType)) {
-                weighting = VAL_RECOMMENDED;
-                weightingMethod = VAL_RECOMMENDED_PREF;
-            }
-            if (RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
+            if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
                 weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED;
             }
-
         }
 
         map.put(KEY_WEIGHTING, weighting);
@@ -1026,8 +1067,24 @@ public class RoutingProfile {
         req.getHints().put(KEY_CORE_DISABLE, !useCore);
         req.getHints().put(KEY_LM_DISABLE, !useALT);
 
-        if(useCore || useALT)
-            req.setAlgorithm(KEY_ASTARBI);
+        if (useCH)
+            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+    }
+
+    boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
+        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
+    }
+
+    boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        if (!searchParams.isTimeDependent())
+            return false;
+
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED));
     }
 
     /**
@@ -1049,7 +1106,9 @@ public class RoutingProfile {
             endUseGH();
         } catch (Exception ex) {
             endUseGH();
-            LOGGER.error(ex);
+            if (DebugUtility.isDebug()) {
+                LOGGER.error(ex);
+            }
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
         }
 

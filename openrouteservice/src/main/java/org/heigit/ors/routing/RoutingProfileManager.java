@@ -14,7 +14,6 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
@@ -22,6 +21,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -35,9 +37,13 @@ import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -105,7 +111,7 @@ public class RoutingProfileManager {
             executor.shutdown();
             loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
-            LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
+            LOGGER.info("Graphs were prepared in " + TimeUtility.getElapsedTime(startTime, true) + ".");
         } catch (Exception ex) {
             LOGGER.error("Failed to prepare graphs.", ex);
         }
@@ -173,6 +179,7 @@ public class RoutingProfileManager {
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
+                    createRunFile();
 
                     if (rmc.getUpdateConfig().getEnabled()) {
                         profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
@@ -281,6 +288,9 @@ public class RoutingProfileManager {
                 if (obj instanceof ExtraInfoProcessor) {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor)obj;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                        }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
                     }
@@ -293,7 +303,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
+        return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -415,6 +425,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
                         extraInfoProcessorIndex++;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                        }
                     }
                 }
             } else {
@@ -422,6 +435,9 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor) {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor)o;
+                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
                         }
@@ -540,6 +556,7 @@ public class RoutingProfileManager {
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
+                List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
                 Coordinate c1;
                 double totalDist = 0.0;
@@ -550,17 +567,12 @@ public class RoutingProfileManager {
                         totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                     }
                 } else {
-                    if (nCoords == 2) {
-                        c1 = coords[1];
-                        totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                    } else {
-                        double dist = 0;
-                        for (int i = 1; i < nCoords; i++) {
-                            c1 = coords[i];
-                            dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                            totalDist += dist;
-                            c0 = c1;
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        if (!skipSegments.contains(i)) { // ignore skipped segments
+                            totalDist += distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                         }
+                        c0 = c1;
                     }
                 }
 
@@ -571,7 +583,7 @@ public class RoutingProfileManager {
                 if (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", config.getMaximumDistanceAvoidAreas()));
                 if (useAlternativeRoutes && config.getMaximumDistanceAlternativeRoutes() > 0 && totalDist > config.getMaximumDistanceAlternativeRoutes())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algotirhm.", config.getMaximumDistanceAlternativeRoutes()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.", config.getMaximumDistanceAlternativeRoutes()));
             }
         }
 
@@ -611,4 +623,21 @@ public class RoutingProfileManager {
         return rp.computeMatrix(req);
     }
 
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeCentrality(req);
+    }
+
+    public void createRunFile() {
+        File file = new File("ors.run");
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write("ORS init complete: "+ Instant.now().toString() + "\n");
+            fw.flush();
+        } catch(Exception ex) {
+            LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
+        }
+    }
 }

@@ -3,12 +3,133 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
+<!--
+This is how a Changelog entry should look like:
+
+## [version] - YYYY-MM-DD
+
+### Added
+- for new features.
+### Changed
+- existing functionality.
+### Deprecated
+- soon-to-be removed features.
+### Removed
+- now removed features.
+### Fixed
+- any bug.
+### Security
+- in case of vulnerabilities. (Use for vulnerability fixes)
+
+RELEASING:
+1. Change Unreleased to new release number
+2. Add today's Date
+3. Change unreleased link to compare new release:
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/vnew...HEAD
+4. Add new compare link below
+[new]: https://github.com/GIScience/openrouteservice/compare/vlast...vnew
+5. Git tag release commit with vX.X.X to enable links
+6. Double check issue links are valid
+7. Bump version in pom.xml
+ -->
+
 ## [Unreleased]
+### Changed
+- Improved road bike average speed to be faster on cycleways and slower on bad road surface or certain road types such as footways.
+
+## [6.5.0] - 2021-05-17
+### Added
+- Time-dependent core-based routing algorithms
+- Option to disable edge-based routing in core for a single weighting ([#928](https://github.com/GIScience/openrouteservice/issues/928))
+### Changed
+- Speed values falling below encoder's resolution are consequently stored as lowest possible non-zero value rather than being rounded to zero together with setting access to the corresponding edges to false ([#944](https://github.com/GIScience/openrouteservice/issues/944))
+### Fixed
+- Do not consider ill-defined "maxspeed = 0" OSM tags ([#940](https://github.com/GIScience/openrouteservice/issues/940))
+- Use JSON definitions of country-specific speed limits ([#939](https://github.com/GIScience/openrouteservice/issues/939))
+- Config file parameter to set the number of active landmarks for core routing ([#930](https://github.com/GIScience/openrouteservice/issues/930))
+- Make sure A* with beeline approximation is used as default fallback algorithm ([#926](https://github.com/GIScience/openrouteservice/issues/926))
+- Prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
+- Correct package declaration of BoundingBoxFactoryTest ([#933](https://github.com/GIScience/openrouteservice/issues/933))
+- Some corrections to Hungarian language support (thanks to [debyos](https://github.com/debyos))
+
+## [6.4.3] - 2021-04-28
+### Changed
+- Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
+### Fixed
+- Changed fast isochrone calculation behavior for multiple ranges
+
+## [6.4.2] - 2021-04-21
+### Added
+- Allow to disable OSM conditional access and speed encoders via parameter in config file
+- Turkish language support (thanks to [kucar17](https://github.com/kucar17) for the translation)
+### Changed
+- app.config.sample HGV profile has now same settings regarding speed calculation as public API ([#806](https://github.com/GIScience/openrouteservice/issues/806))
+### Fixed
+- Concurrency bug in core edge filters which caused crashes during CALT graph preparation ([#905](https://github.com/GIScience/openrouteservice/issues/905))
+- Fixed isochrones range documentation ([#882](https://github.com/GIScience/openrouteservice/issues/676))
+- Updated installation instructions and usage to reflect v2 api ([#744](https://github.com/GIScience/openrouteservice/issues/744))
+- Fixed isochrones algorithm selection for location_type parameter ([#676](https://github.com/GIScience/openrouteservice/issues/676))
+- Updated link to client translations in readme
+
+## [6.4.1] - 2021-03-31
+### Fixed
+- Fixed incorrect matrix response documentation ([#873](https://github.com/GIScience/openrouteservice/issues/873))
+- Fixed incorrect indexing of waypoints for consecutive identical coordinates ([#762](https://github.com/GIScience/openrouteservice/issues/762))
+- Changed isochrone polygon calculation to use more buffering
+
+## [6.4.0] - 2021-03-26
+### Added
+- API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+- Support for turn restrictions with core-based routing algorithms
+### Changed
+- Use Querygraph and virtual nodes for isochrone calculation in the same manner as in routing
+- Remove Isochrones v1 api tests
+### Fixed
+- Fixed calculation of route distance limits with skipped segments ([#814](https://github.com/GIScience/openrouteservice/issues/814))
+- Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695))
+- Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
+- Fixed continue_straight option with no bearing on CH-enabled profiles
+
+## [6.3.6] - 2021-02-02
+### Fixed
+- Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
+
+## [6.3.5] - 2021-01-28
+### Added
+- Output run file to signal completion of graph building/loading at init time
+### Fixed
+- Define behavior for first container start with existing app.config
+
+## [6.3.4] - 2021-01-19
+### Changed
+- Overhaul of Contour creation for fast isochrones. Fixing unexpected behaviour for border edges.
+
+## [6.3.3] - 2021-01-15
+### Fixed
+- Updated CGIAR URL in GH (see GH fork [#35](https://github.com/GIScience/graphhopper/pull/35))
+
+## [6.3.2] - 2020-12-14
+### Added
+- Prototype of time-dependent routing with A*, which takes into account OSM conditional access restrictions and speed limits
+- Japanese language support ([#811](https://github.com/GIScience/openrouteservice/pull/811), thanks to [higa4](https://github.com/higa4) for the translation)
+### Changed
+- Added performance improvement for fast isochrones in active cell calculation
+### Fixed
+- Stabilize geometry for small isochrones with small intervals
+- Updated dependencies
+
+## [6.3.1] - 2020-10-20
+### Fixed
+- Updated documentation for running in Docker ([#798](https://github.com/GIScience/openrouteservice/issues/798))
+- Handle invalid combination of HillIndexStorage without elevation ([#683](https://github.com/GIScience/openrouteservice/issues/683))
+- Enabled turning off elevation data handling for profiles
+- Fixed a bug in fast isochrones preprocessing
+
+## [6.3.0] - 2020-09-14
 ### Added
 - New fast isochrone algorithm based on preprocessed data
 ### Fixed
-### Changed
-### Deprecated
+- Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
 ## [6.2.1] - 2020-08-13
 ### Added
@@ -16,9 +137,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Updated Docker process to use Java 11 ([#777](https://github.com/GIScience/openrouteservice/issues/777))
 - Correctly resolve routing profile categories when initializing core edge filters in preprocessing ([#785](https://github.com/GIScience/openrouteservice/issues/785))
-### Changed
-- Improved road bike average speed to be faster on cycleways and slower on bad road surface or certain road types such as footways.
-### Deprecated
 
 ## [6.2.0] - 2020-07-15
 ### Added
@@ -58,7 +176,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Enable CH and Core-ALT preprocessing with recommended weighting for all profiles.
 - Refactor wheelchair builder
 - Running a Docker container will now create a `app.config` on the host machine, so it's now usable from Dockerhub
-### Deprecated
 
 ## [6.1.0] - 2020-03-06
 ### Added
@@ -80,7 +197,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
-### Deprecated
 
 ## [6.0.0] - 2019-12-03
 ### Added
@@ -127,7 +243,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Removed obsolete storages ([#536](https://github.com/GIScience/openrouteservice/issues/536))
 - Refactor fallback to preprocessing-independent algorithm for certain routing request params
 - Removed some landmark sets as default from app.config.sample
-### Deprecated
 
 ## [5.0.1] - 2019-04-08
 ### Added
@@ -153,7 +268,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Removed the code that was inserted for the prototype traffic weightings as it was not used and made GH updates more complicated.
 
 
-## [5.0] - 2019-02-25
+## [5.0.0] - 2019-02-25
 ### Added
 - Updated api code to use the Spring framework, with the v2 api being added ([Issue #233](https://github.com/GIScience/openrouteservice/issues/233))
 - Added support for ISO 3166-1 Alpha-2 / Alpha-3 codes for routing directions option avoid_countries ([Issue #195](https://github.com/GIScience/openrouteservice/issues/195))
@@ -170,7 +285,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Added /directions as an endpoint for routing ([Issue #384](https://github.com/GIScience/openrouteservice/issues/384))
 - Removed the following avoid features: pavedroads, unpavedroads, tunnels, tracks and hills, as well as the option to set maximum speed; for cycling and walking profiles the option to specify difficulty settings such as fitness level and maximum steepness ([issue #396](https://github.com/GIScience/openrouteservice/issues/396))
 - Updated pom to always build ors.war ([Issue #432](https://github.com/GIScience/openrouteservice/issues/432))
-### Deprecated
 
 ## [4.7.2] - 2018-12-10
 ### Added
@@ -188,7 +302,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Updated checks on pedestrian way filter for access restrictions
 ### Changed
 - Allowed access for cars and hgvs on access=destination roads ([Issue #342](https://github.com/GIScience/openrouteservice/issues/342))
-### Deprecated
 
 ## [4.7.1] - 2018-10-24
 ### Added
@@ -204,9 +317,8 @@ Added area_units for isochrones API as units being misleading ([Issue #272](http
 - Changed app.config.sample for docker to consider split profiles ([Issue #320](https://github.com/GIScience/openrouteservice/issues/320))
 - Changed minor information in pom.xml
 - Updated API test starting coordinates to be on a road ([Issue #328](https://github.com/GIScience/openrouteservice/issues/328))
-### Deprecated
 
-## [4.7] - 2018-10-10
+## [4.7.0] - 2018-10-10
 ### Added
 - Removed locations code as this will be handled by openpoiservice in the future ([Issue #120](https://github.com/GIScience/openrouteservice/issues/120))
 - Removed Geocoding code as this will be handled by the geocoder service rather than within ORS
@@ -265,7 +377,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Updated the error response for geocding when no address found ([Issue #134](https://github.com/GIScience/openrouteservice/issues/134))
 
 
-## [4.5] - 2018-02-27
+## [4.5.0] - 2018-02-27
 ### Added
 - Functionality has been added to restrict routes so that they do not cross all borders, controlled borders, or the borders of specific countries ([Issue #41](https://github.com/GIScience/openrouteservice/issues/41))
 - Added GeoJson export for routing exports ([Issue #54](https://github.com/GIScience/openrouteservice/issues/54))
@@ -327,11 +439,32 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-### Changed
--
-
-### Removed
--
-
-### Deprecated
--
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...HEAD
+[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
+[6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
+[6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
+[6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0
+[6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
+[6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
+[6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
+[6.3.3]: https://github.com/GIScience/openrouteservice/compare/v6.3.2...v6.3.3
+[6.3.2]: https://github.com/GIScience/openrouteservice/compare/v6.3.1...v6.3.2
+[6.3.1]: https://github.com/GIScience/openrouteservice/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/GIScience/openrouteservice/compare/v6.2.1...v6.3.0
+[6.2.1]: https://github.com/GIScience/openrouteservice/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/GIScience/openrouteservice/compare/v6.1.1...v6.2.0
+[6.1.1]: https://github.com/GIScience/openrouteservice/compare/v6.1.0...v6.1.1
+[6.1.0]: https://github.com/GIScience/openrouteservice/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/GIScience/openrouteservice/compare/v5.0.2...v6.0.0
+[5.0.2]: https://github.com/GIScience/openrouteservice/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/GIScience/openrouteservice/compare/5.0.0...v5.0.1
+[5.0.0]: https://github.com/GIScience/openrouteservice/compare/v4.7.2...5.0.0
+[4.7.2]: https://github.com/GIScience/openrouteservice/compare/4.7.1...v4.7.2
+[4.7.1]: https://github.com/GIScience/openrouteservice/compare/4.7.0...4.7.1
+[4.7.0]: https://github.com/GIScience/openrouteservice/compare/4.5.1...4.7.0
+[4.5.1]: https://github.com/GIScience/openrouteservice/compare/4.5.0...4.5.1
+[4.5.0]: https://github.com/GIScience/openrouteservice/compare/4.4.2...4.5.0
+[4.4.2]: https://github.com/GIScience/openrouteservice/compare/4.4.1...4.4.2
+[4.4.1]: https://github.com/GIScience/openrouteservice/compare/4.4.0...4.4.1
+[4.4.0]: https://github.com/GIScience/openrouteservice/compare/4.3.0...4.4.0

@@ -18,8 +18,12 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
+import com.graphhopper.reader.osm.conditional.ConditionalParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.PMap;
+
+import java.util.Arrays;
 
 /**
  * Defines bit layout for cars. (speed, access, ferries, ...)
@@ -39,14 +43,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         this((int) properties.getLong("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
-        this.properties = properties;
-        speedTwoDirections = properties.getBool("speed_two_directions", true);
-        this.setBlockFords(properties.getBool("block_fords", true));
-        this.setBlockByDefault(properties.getBool("block_barriers", true));
 
-        useAcceleration = properties.getBool("use_acceleration", false);
-
-        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 3);
+        setProperties(properties);
     }
 
     public CarFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -63,6 +61,14 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         initSpeedLimitHandler(this.toString());
 
         init();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
+        conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
+        setConditionalSpeedInspector(conditionalOSMSpeedInspector);
     }
 
     @Override
@@ -99,8 +105,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
         if (!firstValue.isEmpty()) {
-            if (restrictedValues.contains(firstValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                return EncodingManager.Access.CAN_SKIP;
+            if (restrictedValues.contains(firstValue))
+                return isRestrictedWayConditionallyPermitted(way);
             if (intendedValues.contains(firstValue))
                 return EncodingManager.Access.WAY;
         }
@@ -121,10 +127,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
             }
         }
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
-            return EncodingManager.Access.CAN_SKIP;
-        else
-            return EncodingManager.Access.WAY;
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     public double getMeanSpeed() {

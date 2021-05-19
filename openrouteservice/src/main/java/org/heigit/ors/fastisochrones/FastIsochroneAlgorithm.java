@@ -21,16 +21,13 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
-import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of Fast Isochrones
@@ -41,13 +38,13 @@ import java.util.Set;
 public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     private static final String NAME = "FastIsochrone";
     protected IntObjectMap<SPTEntry> startCellMap;
-    protected Set<Integer> activeCells;
     protected Set<Integer> activeBorderNodes;
     protected Set<Integer> inactiveBorderNodes;
     protected Set<Integer> fullyReachableCells;
     protected Map<Integer, Map<Integer, Double>> upAndCoreGraphDistMap;
     protected Map<Integer, IntObjectMap<SPTEntry>> activeCellMaps;
     int from;
+    int fromNonVirtual;
 
     public FastIsochroneAlgorithm(Graph graph,
                                   Weighting weighting,
@@ -66,10 +63,10 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     }
 
     @Override
-    public void init(int from, double isochroneLimit) {
+    public void init(int from, int fromNonVirtual, double isochroneLimit) {
         this.from = from;
+        this.fromNonVirtual = fromNonVirtual;
         this.isochroneLimit = isochroneLimit;
-        activeCells = new HashSet<>();
         activeBorderNodes = new HashSet<>();
         inactiveBorderNodes = new HashSet<>();
         fullyReachableCells = new HashSet<>();
@@ -78,7 +75,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     @Override
     void runStartCellPhase() {
-        int startCell = isochroneNodeStorage.getCellId(from);
+        int startCell = isochroneNodeStorage.getCellId(fromNonVirtual);
         CoreRangeDijkstra coreRangeDijkstra = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         if (additionalEdgeFilter != null)
@@ -134,7 +131,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     @Override
     void runActiveCellPhase() {
         activeCellMaps = new HashMap<>(upAndCoreGraphDistMap.entrySet().size());
-        activeCellMaps.put(isochroneNodeStorage.getCellId(from), startCellMap);
+        activeCellMaps.put(isochroneNodeStorage.getCellId(fromNonVirtual), startCellMap);
         for (Map.Entry<Integer, Map<Integer, Double>> entry : upAndCoreGraphDistMap.entrySet()) {
             ActiveCellDijkstra activeCellDijkstra = new ActiveCellDijkstra(graph, weighting, isochroneNodeStorage, entry.getKey());
             activeCellDijkstra.setIsochroneLimit(isochroneLimit);
@@ -165,22 +162,32 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
                     && eccentricityStorage.getFullyReachable(baseNode)) {
                 addFullyReachableCell(baseCell);
                 addInactiveBorderNode(baseNode);
-                getActiveCells().remove(baseCell);
             } else {
                 if (!getFullyReachableCells().contains(baseCell)) {
-                    addActiveCell(baseCell);
                     addActiveBorderNode(baseNode);
                 }
             }
         }
     }
 
-    private boolean isWithinLimit(SPTEntry sptEntry, int eccentricity) {
-        return sptEntry.getWeightOfVisitedPath() + eccentricity <= isochroneLimit;
+    /**
+     * Consider all active cells that have a percentage of *approximation* of their nodes visited to be fully reachable.
+     *
+     * @param approximation factor of approximation. 1 means all nodes must be found, 0 means no nodes have to be found.
+     */
+    public void approximateActiveCells(double approximation) {
+        Iterator<Map.Entry<Integer, IntObjectMap<SPTEntry>>> activeCellIterator = getActiveCellMaps().entrySet().iterator();
+        while (activeCellIterator.hasNext()) {
+            Map.Entry<Integer, IntObjectMap<SPTEntry>> activeCell = activeCellIterator.next();
+            if (activeCell.getValue().size() / (double) cellStorage.getNodesOfCell(activeCell.getKey()).size() > approximation) {
+                activeCellIterator.remove();
+                getFullyReachableCells().add(activeCell.getKey());
+            }
+        }
     }
 
-    protected void addActiveCell(int cellId) {
-        activeCells.add(cellId);
+    private boolean isWithinLimit(SPTEntry sptEntry, int eccentricity) {
+        return sptEntry.getWeightOfVisitedPath() + eccentricity <= isochroneLimit;
     }
 
     private void addFullyReachableCell(int cellId) {
@@ -197,10 +204,6 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     public Set<Integer> getFullyReachableCells() {
         return fullyReachableCells;
-    }
-
-    private Set<Integer> getActiveCells() {
-        return activeCells;
     }
 
     public IntObjectMap<SPTEntry> getStartCellMap() {

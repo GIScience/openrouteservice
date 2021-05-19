@@ -64,8 +64,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
             ,properties.getBool("consider_elevation", false)
             // MARQ24 MOD END
         );
-        this.properties = properties;
-        setBlockFords(properties.getBool("block_fords", true));
+        setProperties(properties);
     }
 
     public RoadBikeFlagEncoder(String propertiesStr) {

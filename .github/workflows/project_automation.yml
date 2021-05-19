@@ -12,7 +12,11 @@ jobs:
   Handle_event:
     runs-on: ubuntu-latest
     steps:
-      - uses: takb/project-board@master
+      - name: run project board action
+        uses: takb/project-board@master
+        env:
+          PROJECT_AUTOMATION: ${{ secrets.PROJECT_AUTOMATION }}
+        if: env.PROJECT_AUTOMATION != null
         with:
           token: "${{ secrets.PROJECT_AUTOMATION }}"
           owner: "GIScience"

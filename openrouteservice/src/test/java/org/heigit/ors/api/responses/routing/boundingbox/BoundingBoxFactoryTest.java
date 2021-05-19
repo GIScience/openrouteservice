@@ -1,4 +1,4 @@
-package org.heigit.ors.api.responses.routing.BoundingBox;
+package org.heigit.ors.api.responses.routing.boundingbox;
 
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.api.requests.common.APIEnums;

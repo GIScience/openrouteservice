@@ -38,13 +38,11 @@ public class ContourTest {
         Contour contour = new Contour(graphHopperStorage, graphHopperStorage.getBaseGraph().getNodeAccess(), ins, cs);
         contour.calculateContour();
         List<Double> coordinatesCell2 = cs.getCellContourOrder(2);
-        assertEquals(2686, coordinatesCell2.size());
-        assertEquals(3.0, coordinatesCell2.get(0), 1e-10);
-        assertEquals(1.0, coordinatesCell2.get(1), 1e-10);
-        assertEquals(3.0, coordinatesCell2.get(2), 1e-10);
-        assertEquals(1.003596954128078, coordinatesCell2.get(3), 1e-10);
-        assertEquals(3.0, coordinatesCell2.get(2684), 1e-10);
-        assertEquals(1.0, coordinatesCell2.get(2685), 1e-10);
+        assertEquals(9638, coordinatesCell2.size());
+        assertEquals(3.0, coordinatesCell2.get(0), 1e-3);
+        assertEquals(1.0, coordinatesCell2.get(1), 1e-3);
+        assertEquals(3.0, coordinatesCell2.get(2), 1e-3);
+        assertEquals(1.0002998858757293, coordinatesCell2.get(3), 1e-3);
     }
 
     @Test

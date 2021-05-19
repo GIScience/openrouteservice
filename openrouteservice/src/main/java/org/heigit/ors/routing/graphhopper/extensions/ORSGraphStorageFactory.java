@@ -52,12 +52,14 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 
 		if (graphStorageBuilders != null) {
-			for(GraphStorageBuilder builder : graphStorageBuilders) {
+			List<GraphStorageBuilder> iterateGraphStorageBuilders = new ArrayList<>(graphStorageBuilders);
+			for(GraphStorageBuilder builder : iterateGraphStorageBuilders) {
 				try {
 					GraphExtension ext = builder.init(gh);
 					if (ext != null)
 						graphExtensions.add(ext);
 				} catch(Exception ex) {
+					graphStorageBuilders.remove(builder);
 					LOGGER.error(ex);
 				}
 			}
@@ -85,9 +87,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			if (((ORSGraphHopper) gh).isCoreLMEnabled())
 				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
 		}
-
-		if (gh.getLMFactoryDecorator().isEnabled())
-			gh.initLMAlgoFactoryDecorator();
 
 		if (gh.getCHFactoryDecorator().isEnabled())
 			gh.initCHAlgoFactoryDecorator();

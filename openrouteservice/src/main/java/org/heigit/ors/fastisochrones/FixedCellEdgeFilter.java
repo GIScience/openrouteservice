@@ -15,12 +15,18 @@ public class FixedCellEdgeFilter implements EdgeFilter {
     private final int maxNodes;
     private IsochroneNodeStorage isochroneNodeStorage;
     private int cellId;
+    private boolean strict = true;
 
     /* Edge is within a specified Cell */
-    public FixedCellEdgeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes) {
+    public FixedCellEdgeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes, boolean strict) {
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.cellId = cellId;
         this.maxNodes = maxNodes;
+        this.strict = strict;
+    }
+
+    public FixedCellEdgeFilter(IsochroneNodeStorage isochroneNodeStorage, int cellId, int maxNodes) {
+        this(isochroneNodeStorage, cellId, maxNodes, true);
     }
 
     public void setCellId(int cellId) {
@@ -31,7 +37,11 @@ public class FixedCellEdgeFilter implements EdgeFilter {
     public final boolean accept(EdgeIteratorState iter) {
         if (iter.getBaseNode() >= maxNodes || iter.getAdjNode() >= maxNodes)
             return true;
+        if (strict) {
+            return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
+                    && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
+        }
         return isochroneNodeStorage.getCellId(iter.getBaseNode()) == cellId
-                && isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
+                || isochroneNodeStorage.getCellId(iter.getAdjNode()) == cellId;
     }
 }

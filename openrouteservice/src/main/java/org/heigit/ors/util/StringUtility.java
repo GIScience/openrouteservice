@@ -126,4 +126,8 @@ public class StringUtility {
 		// Decode the application/x-www-form-url encoded query string
 		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8"
 	}
+
+	public static boolean isNullOrEmpty(String str) {
+		return str == null || str.length() == 0;
+	}
 }

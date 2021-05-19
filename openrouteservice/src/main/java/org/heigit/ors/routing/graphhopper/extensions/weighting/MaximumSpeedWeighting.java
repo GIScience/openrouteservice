@@ -16,28 +16,28 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters.Routing;
-import org.heigit.ors.config.AppConfig;
 
 /**
  * This class creates the weighting for the routing according to the maximum speed set by user.
  *
  * @author Athanasios Kogios
+ * @author Andrzej Oles
  */
 
-public class MaximumSpeedWeighting implements Weighting {
+public class MaximumSpeedWeighting extends AbstractAdjustedWeighting {
     protected final static double SPEED_UNIT_CONVERTER = 3.6; //From km/h to m/s.
     private final double headingPenalty;
-    private final  double userMaxSpeed;
-    private final Weighting superWeighting;
+    private final double userMaxSpeed;
     private final DecimalEncodedValue avSpeedEnc;
     private boolean calculateWeight;
 
-    public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting weighting, double maximumSpeedLowerBound) {
+    public MaximumSpeedWeighting(FlagEncoder flagEncoder, HintsMap hintsMap, Weighting superWeighting, double maximumSpeedLowerBound) {
+        super(superWeighting);
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
-        this.superWeighting = weighting;
         this.headingPenalty = hintsMap.getDouble(Routing.HEADING_PENALTY, Routing.DEFAULT_HEADING_PENALTY);
         this.userMaxSpeed = hintsMap.getDouble("maximum_speed", maximumSpeedLowerBound);
         this.calculateWeight = (superWeighting.getName() != "shortest");
@@ -85,25 +85,14 @@ public class MaximumSpeedWeighting implements Weighting {
         }
     }
 
-
     @Override
     public double getMinWeight(double distance) {
         return superWeighting.getMinWeight(distance);
     }
 
     @Override
-    public FlagEncoder getFlagEncoder() {
-        return superWeighting.getFlagEncoder();
-    }
-
-    @Override
     public boolean matches(HintsMap weightingMap) {
         return superWeighting.matches(weightingMap);
-    }
-
-    @Override
-    public String toString() {
-        return "maximum_speed|" + superWeighting.toString();
     }
 
     @Override

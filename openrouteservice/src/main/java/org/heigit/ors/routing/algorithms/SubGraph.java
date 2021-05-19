@@ -315,6 +315,16 @@ public class SubGraph {
 		public void setFlagsAndWeight(int flags, double weight) {
 			// do nothing
 		}
+
+		@Override
+		public CHEdgeIteratorState setTime(long time) {
+			return null;
+		}
+
+		@Override
+		public long getTime() {
+			return 0;
+		}
 	}
 
 	public SubGraph(Graph graph) {

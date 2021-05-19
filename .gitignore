@@ -23,6 +23,9 @@ openrouteservice/src/main/resources/app.config*
 docker/elevation_cache
 docker/conf
 
+# Ignore ors.run file
+*ors.run
+
 app.config.local
 cgiar_provider/
 graphs/
