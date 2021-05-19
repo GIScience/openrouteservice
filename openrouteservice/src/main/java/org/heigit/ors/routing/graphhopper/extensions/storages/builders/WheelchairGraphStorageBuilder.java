@@ -119,14 +119,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now we need to process the way specific to whether it is a separate feature (i.e. footway) or is attached
 		// to a road feature (i.e. with the tag sidewalk=left)
-		if(isSeparateFootway(way)) {
-			// We have a separate footway feature
-			processWayAsSeparateFeature();
-		}
+		processWayAsSeparateFeature(way);
 
 		// We still need to always process the way itself even if it separate so that we can get sidewalk info (a
 		// separate footway can still have sidewalk tags...)
 		processSidewalksAttachedToWay(way);
+
+		// the way itself is pedestrianised if it can be classified as seperate footway
+		wheelchairAttributes.setPedestrianised(isSeparateFootway(way));
+
+		// the sidewalks are always pedestrianised
+		wheelchairAttributesLeftSide.setPedestrianised(true);
+		wheelchairAttributesRightSide.setPedestrianised(true);
 
 		// Process the kerb tags.
 		processKerbTags();
@@ -201,18 +205,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * way. The same as the attached processing, it looks for the different attributes as tags that are important for
 	 * wheelchair routing and stores them against the generic wheelchair storage object
 	 */
-	private void processWayAsSeparateFeature() {
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.SURFACE);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.SMOOTHNESS);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.TRACK);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.WIDTH);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.INCLINE);
-
+	private void processWayAsSeparateFeature(ReaderWay way) {
+		setSeparateWayAttribute(WheelchairAttributes.Attribute.SURFACE, way);
+		setSeparateWayAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, way);
+		setSeparateWayAttribute(WheelchairAttributes.Attribute.TRACK, way);
+		setSeparateWayAttribute(WheelchairAttributes.Attribute.WIDTH, way);
+		setSeparateWayAttribute(WheelchairAttributes.Attribute.INCLINE, way);
 	}
 
 	/**
@@ -220,9 +218,9 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * method ony sets the attribute in the attribute storage object for the standalone way and not sidewalks.
 	 * @param attribute	The attribute to process
 	 */
-	private void setSeparateWayAttribute(WheelchairAttributes.Attribute attribute) {
+	private void setSeparateWayAttribute(WheelchairAttributes.Attribute attribute, ReaderWay way) {
 		if (cleanedTags.containsKey(attributeToTagName(attribute))) {
-			setWheelchairAttribute((String) cleanedTags.get(attributeToTagName(attribute)), attribute);
+			setWheelchairAttribute((String) cleanedTags.get(attributeToTagName(attribute)), attribute, way);
 		}
 	}
 
@@ -297,11 +295,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		switch(side) {
 			case LEFT:
 				hasLeftSidewalk = true;
-				wheelchairAttributesLeftSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesLeftSide.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 				break;
 			case RIGHT:
 				hasRightSidewalk = true;
-				wheelchairAttributesRightSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesRightSide.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
 				break;
 			default:
 		}
@@ -313,8 +311,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @param value			The value to store
 	 * @param attribute		The attribute to store the value against
 	 */
-	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute) {
-		wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute, ReaderWay way) {
+		if (isSeparateFootway(way)) {
+			wheelchairAttributes.setKnownAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+		} else {
+			wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+		}
 	}
 
 	/**
@@ -653,6 +655,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		int in = getWorseAttributeValueFromSeparateItems(WheelchairAttributes.Attribute.INCLINE);
 		if (in > 0) at.setIncline(in);
 
+		at.setSurfaceQualityKnown(
+				wheelchairAttributesLeftSide.isSurfaceQualityKnown()
+				&& wheelchairAttributesRightSide.isSurfaceQualityKnown()
+				&& attributes.isSurfaceQualityKnown()
+		);
+
+		at.setPedestrianised(
+				wheelchairAttributesLeftSide.isPedestrianised()
+						&& wheelchairAttributesRightSide.isPedestrianised()
+						&& attributes.isPedestrianised()
+		);
+
 		return at;
 	}
 
@@ -782,7 +796,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 				"pedestrian",
 				"footway",
 				"path",
-				"crossing"
+				"crossing",
+				"track"
 		};
 
 		// Check if it is a footpath or pedestrian

@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Changed
+- Improved wheelchair routing ([#825](https://github.com/GIScience/openrouteservice/pull/825))
 
 ## [6.5.0] - 2021-05-17
 ### Added

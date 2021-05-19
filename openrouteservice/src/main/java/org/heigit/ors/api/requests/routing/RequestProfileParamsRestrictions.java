@@ -39,6 +39,8 @@ public class RequestProfileParamsRestrictions {
     public static final String PARAM_MAXIMUM_SLOPED_KERB = "maximum_sloped_kerb";
     public static final String PARAM_MAX_INCLINE = "maximum_incline";
     public static final String PARAM_MIN_WIDTH = "minimum_width";
+    public static final String PARAM_SURFACE_QUALITY_KNOWN = "surface_quality_known";
+    public static final String PARAM_PEDESTRIANISED = "pedestrianised";
 
     @ApiModelProperty(name = PARAM_LENGTH, value = "Length restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "8.4")
     @JsonProperty(PARAM_LENGTH)
@@ -126,6 +128,22 @@ public class RequestProfileParamsRestrictions {
     private Float minWidth;
     @JsonIgnore
     private boolean hasMinWidth = false;
+
+    @ApiModelProperty(name = PARAM_SURFACE_QUALITY_KNOWN, value = "Specifies if the information on surface quality needs to be known - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_SURFACE_QUALITY_KNOWN)
+    private boolean surfaceQualityKnown;
+    @JsonIgnore
+    private boolean hasSurfaceQualityKnown = false;
+
+    @ApiModelProperty(name = PARAM_PEDESTRIANISED, value = "Specifies if the way needs to be pedestrianised - default false" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            example = "true")
+    @JsonProperty(PARAM_PEDESTRIANISED)
+    private boolean pedestrianised;
+    @JsonIgnore
+    private boolean hasPedestrianised = false;
 
     public Float getLength() {
         return length;
@@ -231,6 +249,20 @@ public class RequestProfileParamsRestrictions {
         this.hasMinWidth = true;
     }
 
+    public boolean getSurfaceQualityKnown() { return surfaceQualityKnown; }
+
+    public void setSurfaceQualityKnown(boolean surfaceQualityKnown) {
+        this.surfaceQualityKnown = surfaceQualityKnown;
+        hasSurfaceQualityKnown = true;
+    }
+
+    public boolean getPedestrianised() { return pedestrianised; }
+
+    public void setPedestrianised(boolean pedestrianised) {
+        this.pedestrianised = pedestrianised;
+        hasPedestrianised = true;
+    }
+
     public boolean hasLength() {
         return hasLength;
     }
@@ -283,6 +315,10 @@ public class RequestProfileParamsRestrictions {
         return hasMinWidth;
     }
 
+    public boolean hasSurfaceQualityKnown() { return hasSurfaceQualityKnown; }
+
+    public boolean hasPedestrianised() { return hasPedestrianised; }
+
     @JsonIgnore
     public List<String> getRestrictionsThatAreSet() {
         List<String> setRestrictions = new ArrayList<>();
@@ -310,6 +346,10 @@ public class RequestProfileParamsRestrictions {
             setRestrictions.add(PARAM_MAX_INCLINE);
         if(hasMinWidth)
             setRestrictions.add(PARAM_MIN_WIDTH);
+        if(hasSurfaceQualityKnown)
+            setRestrictions.add(PARAM_SURFACE_QUALITY_KNOWN);
+        if(hasPedestrianised)
+            setRestrictions.add(PARAM_PEDESTRIANISED);
 
         return setRestrictions;
     }

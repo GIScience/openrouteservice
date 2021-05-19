@@ -134,6 +134,8 @@ public class RouteRequestHandlerTest {
         wheelchairParams.setMinWidth(2.0f);
         wheelchairParams.setSmoothnessType("good");
         wheelchairParams.setSurfaceType("asphalt");
+        wheelchairParams.setSurfaceQualityKnown(true);
+        wheelchairParams.setPedestrianised(true);
 
         RequestProfileParams params = new RequestProfileParams();
 
@@ -231,6 +233,8 @@ public class RouteRequestHandlerTest {
         Assert.assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         Assert.assertEquals(2.0f, params.getMinimumWidth(), 0);
         Assert.assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
+        Assert.assertEquals(true, params.isSurfaceQualityKnown());
+        Assert.assertEquals(true, params.isPedestrianised());
     }
 
     @Test

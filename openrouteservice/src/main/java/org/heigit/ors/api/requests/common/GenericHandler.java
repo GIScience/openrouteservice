@@ -272,6 +272,10 @@ public class GenericHandler {
             params.setMaximumIncline(restrictions.getMaxIncline());
         if(restrictions.hasMinWidth())
             params.setMinimumWidth(restrictions.getMinWidth());
+        if(restrictions.hasSurfaceQualityKnown())
+            params.setSurfaceQualityKnown(restrictions.getSurfaceQualityKnown());
+        if(restrictions.hasPedestrianised())
+            params.setPedestrianised(restrictions.getPedestrianised());
 
         return params;
     }

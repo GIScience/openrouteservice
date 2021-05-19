@@ -4,10 +4,11 @@ import com.graphhopper.storage.RAMDirectory;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class WheelchairAttributesGraphStorageTest {
     private WheelchairAttributesGraphStorage storage;
+
 
     public WheelchairAttributesGraphStorageTest() {
     }
@@ -21,6 +22,11 @@ public class WheelchairAttributesGraphStorageTest {
         WheelchairAttributes attrs = new WheelchairAttributes();
         attrs.setAttribute(WheelchairAttributes.Attribute.WIDTH, 180);
         attrs.setAttribute(WheelchairAttributes.Attribute.KERB, 3);
+        attrs.setAttribute(WheelchairAttributes.Attribute.INCLINE, 0);
+        attrs.setKnownAttribute(WheelchairAttributes.Attribute.SURFACE, 1);
+        attrs.setKnownAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, 1);
+        attrs.setPedestrianised(true);
+
 
         storage.setEdgeValues(1, attrs);
 
@@ -30,6 +36,9 @@ public class WheelchairAttributesGraphStorageTest {
 
         assertEquals(180, attrsRet.getWidth(), 0.0);
         assertEquals(3, attrsRet.getSlopedKerbHeight(), 0.0);
+        assertTrue(attrsRet.isSurfaceQualityKnown());
+        assertTrue(attrsRet.isPedestrianised());
+
     }
 
 }

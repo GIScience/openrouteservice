@@ -359,6 +359,14 @@ public class RouteSearchParameters {
                     wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
                 }
 
+                if (jRestrictions.has("surface_quality_known")) {
+                    wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
+                }
+
+                if (jRestrictions.has("pedestrianised")) {
+                    wheelchairParams.setPedestrianised((boolean) jRestrictions.getBoolean("pedestrianised"));
+                }
+
                 profileParams = wheelchairParams;
             } else
                 profileParams = new ProfileParameters();
