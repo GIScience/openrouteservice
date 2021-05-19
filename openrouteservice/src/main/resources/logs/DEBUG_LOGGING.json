@@ -50,14 +50,6 @@
           "AppenderRef": {
             "ref": "stdout"
           }
-        },
-        {
-          "name": "kafka",
-          "level": "error",
-          "additivity": "false",
-          "AppenderRef": {
-            "ref": "stdout"
-          }
         }
       ],
       "root": {
