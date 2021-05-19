@@ -31,6 +31,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import static org.heigit.ors.routing.RouteResult.*;
+
 class RouteResultBuilder
 {
 	private AngleCalc angleCalc;
@@ -95,8 +97,8 @@ class RouteResultBuilder
         result.calculateRouteSummary(request);
 
         if (request.getSearchParameters().isTimeDependent()) {
-            String timezoneDeparture = responses.get(0).getHints().get("timezone.departure", "");
-            String timezoneArrival = responses.get(responses.size()-1).getHints().get("timezone.arrival", "");
+            String timezoneDeparture = responses.get(0).getHints().get(KEY_TIMEZONE_DEPARTURE, "");
+            String timezoneArrival = responses.get(responses.size()-1).getHints().get(KEY_TIMEZONE_ARRIVAL, "");
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -141,8 +143,8 @@ class RouteResultBuilder
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().get("timezone.departure", "");
-                String timezoneArrival = response.getHints().get("timezone.arrival", "");
+                String timezoneDeparture = response.getHints().get(KEY_TIMEZONE_DEPARTURE, "");
+                String timezoneArrival = response.getHints().get(KEY_TIMEZONE_ARRIVAL, "");
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }
@@ -154,7 +156,8 @@ class RouteResultBuilder
     }
 
     private void setDepartureArrivalTimes(String timezoneDeparture, String timezoneArrival, RoutingRequest request, RouteResult result) {
-        ZonedDateTime departure, arrival;
+        ZonedDateTime departure;
+        ZonedDateTime arrival;
 
         long duration = (long) result.getSummary().getDuration();
 
@@ -321,7 +324,10 @@ class RouteResultBuilder
 	}
 
 	private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr) {
-		if (instrType == InstructionType.FINISH)
+		if (instrType == InstructionType.FINISH
+                // "empty" departure instruction means start and end coordinates are the same, index should not increase
+                || (instrType == InstructionType.DEPART && instr.getDistance() == 0.0 && instr.getPoints().size() == 1)
+            )
 			return startIndex;
 		else
 			return startIndex + instr.getPoints().size();

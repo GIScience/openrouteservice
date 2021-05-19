@@ -138,7 +138,7 @@ public class SystemMessage {
             }
         } catch (Exception e) {
             // ignore missing condition block and keep message
-            LOGGER.warn("Invalid or missing condition in message object.");
+            LOGGER.info("Invalid or missing condition in message object.");
         }
     }
 

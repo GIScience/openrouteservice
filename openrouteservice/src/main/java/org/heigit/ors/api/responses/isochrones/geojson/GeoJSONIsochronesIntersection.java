@@ -40,10 +40,10 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
         properties = fillProperties(intersection, request);
     }
 
-    private Map fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
-        Map<String, Object> props = new HashMap();
+    private Map<String, Object> fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
+        Map<String, Object> props = new HashMap<>();
 
-        List<Integer[]> contours = new ArrayList();
+        List<Integer[]> contours = new ArrayList<>();
         for (Pair<Integer, Integer> ref : intersection.getContourRefs()) {
             Integer[] pair = new Integer[2];
             pair[0] = ref.first;
@@ -54,26 +54,28 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
 
         props.put("contours", contours);
 
-        List<IsochronesRequestEnums.Attributes> attr = new ArrayList(Arrays.asList(request.getAttributes()));
+        if (request.hasAttributes()) {
+            List<IsochronesRequestEnums.Attributes> attr = new ArrayList<>(Arrays.asList(request.getAttributes()));
 
-        if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
-            try {
-                double areaValue = 0;
-                if (request.hasAreaUnits())
-                    areaValue = intersection.getArea(request.getAreaUnit().toString());
-                else
-                    areaValue = intersection.getArea("");
+            if (attr.contains(IsochronesRequestEnums.Attributes.AREA)) {
+                try {
+                    double areaValue = 0;
+                    if (request.hasAreaUnits())
+                        areaValue = intersection.getArea(request.getAreaUnit().toString());
+                    else
+                        areaValue = intersection.getArea("");
 
-                props.put("area", FormatUtility.roundToDecimals(areaValue, 4));
-            } catch (InternalServerException e) {
-                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "There was a problem calculating the area of the isochrone");
+                    props.put("area", FormatUtility.roundToDecimals(areaValue, 4));
+                } catch (InternalServerException e) {
+                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "There was a problem calculating the area of the isochrone");
+                }
             }
         }
 
         return props;
     }
 
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 

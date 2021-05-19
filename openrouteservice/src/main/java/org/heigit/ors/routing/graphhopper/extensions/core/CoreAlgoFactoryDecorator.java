@@ -16,11 +16,19 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import org.heigit.ors.routing.RoutingProfileCategory;
+import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -307,16 +315,17 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         }
     }
 
-    public void createPreparations(GraphHopperStorage ghStorage, EdgeFilter restrictionFilter) {
+    public void createPreparations(GraphHopperStorage ghStorage, GraphProcessContext processContext) {
         if (!isEnabled() || !preparations.isEmpty())
             return;
         if (!hasCHProfiles())
             throw new IllegalStateException("No profiles found");
 
         for (CHProfile chProfile : chProfiles) {
-            addPreparation(createCHPreparation(ghStorage, chProfile, restrictionFilter));
+            addPreparation(createCHPreparation(ghStorage, chProfile, createCoreEdgeFilter(chProfile, ghStorage, processContext)));
         }
     }
+
     private PrepareCore createCHPreparation(GraphHopperStorage ghStorage, CHProfile chProfile, EdgeFilter restrictionFilter) {
         PrepareCore tmpPrepareCore = new PrepareCore(
                 new GHDirectory("", DAType.RAM_INT), ghStorage, ghStorage.getCHGraph(chProfile), restrictionFilter);
@@ -326,4 +335,54 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
                 setLogMessages(preparationLogMessages);
         return tmpPrepareCore;
     }
+
+    private EdgeFilter createCoreEdgeFilter(CHProfile chProfile, GraphHopperStorage gs, GraphProcessContext processContext) {
+        EncodingManager encodingManager = gs.getEncodingManager();
+
+        int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
+
+        /* Initialize edge filter sequence */
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+
+        /* Heavy vehicle filter */
+        if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
+            edgeFilterSequence.add(new HeavyVehicleCoreEdgeFilter(gs));
+        }
+
+        /* Avoid features */
+        if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
+            edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
+        }
+
+        /* Avoid borders */
+        if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
+            edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(gs));
+        }
+
+        if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
+            edgeFilterSequence.add(new WheelchairCoreEdgeFilter(gs));
+        }
+
+        /* Maximum speed & turn restrictions */
+        if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0) {
+            String[] encoders = {FlagEncoderNames.CAR_ORS, FlagEncoderNames.HEAVYVEHICLE};
+            for (String encoderName: encoders) {
+                if (encodingManager.hasEncoder(encoderName)) {
+                    FlagEncoder flagEncoder = encodingManager.getEncoder(encoderName);
+                    edgeFilterSequence.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, processContext.getMaximumSpeedLowerBound()));
+                    if (chProfile.isEdgeBased() && flagEncoder.supports(TurnWeighting.class))
+                        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+                    break;
+                }
+            }
+        }
+
+        /* Conditional edges */
+        if (TimeDependentCoreEdgeFilter.hasConditionals(encodingManager)) {
+            edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
+        }
+
+        return edgeFilterSequence;
+    }
+
 }

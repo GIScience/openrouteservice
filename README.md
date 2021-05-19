@@ -1,6 +1,7 @@
 # Openrouteservice
 
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ors%3Aopenrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=org.heigit.ors%3Aopenrouteservice)
+[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=GIScience_openrouteservice&metric)
 [![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/giscienceopenrouteservice/)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
@@ -50,11 +51,11 @@ If you need to install without Docker, on an Ubuntu 16.04 system (also generally
   2. Make sure that you have java 1.8 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
-  5. Copy the `openrouteservice/WebContent/WEB-INF/app.config.sample` file to the same location but renaming it to `app.config`.
+  5. Copy the `openrouteservice/src/main/resources/app.config.sample` file to the same location but renaming it to `app.config`.
   6. Update the `app.config` file to reflect the various settings, profiles you want to have running, and the locations of various files, in particular the source location of the OSM file that will be used and additional files required for extended storages. You should make sure that these folders/files are accessible by the service, for example by using the `sudo chmod -R 777 [path to folder]` command.
   7. From within the `openrouteservice` folder (containing the pom file and the src folder, amongst others) run the command `mvn package`. This will build the openrouteservice ready for tomcat deployment.
 
-After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn tomcat7:run` command which triggers a self contained Tomcat instance, but this is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 8 as described next:
+After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn tomcat7:run` command which triggers a self contained Tomcat instance running on port `8082`, but this is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 8 as described next:
 
   1. Install Tomcat 8 using `sudo apt-get install tomcat8`.
   2. If you want to use system settings (i.e. Java heap size) other than the default, then you need to add these to the `/usr/share/tomcat8/bin/setenv.sh` file. If the file is not present, then you can create it. The settings generally used on our servers are similar to:
@@ -79,9 +80,11 @@ There are numerous settings within the `app.config` which are highly dependent o
 
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
 
-- `http://localhost:8080/name_of_war_archive/routes`
-- `http://localhost:8080/name_of_war_archive/isochrones`
-- `http://localhost:8080/name_of_war_archive/matrix`
+- `http://localhost:8080/ors/v2/directions`
+- `http://localhost:8080/ors/v2/isochrones`
+- `http://localhost:8080/ors/v2/matrix`
+
+Note, that Tomcat running via maven will use port `8082`.
 
 ## API Documentation
 
@@ -95,4 +98,4 @@ For questions please use our [community forum](https://ask.openrouteservice.org)
 
 ## Translations
 
-If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions on our [wiki page](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/openrouteservice-app/#translations) if you want to contribute the language to there aswell (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).
+If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions on our [wiki page](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/ors-map-client/#add-language) if you want to contribute the language to there as well (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).

@@ -56,7 +56,7 @@ public class CoreRangeDijkstraTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
 
         int startCell = ins.getCellId(5);
         CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(graphHopperStorage.getBaseGraph(), shortestWeighting, ins, ecc.getBorderNodeDistanceStorage(shortestWeighting));
@@ -71,14 +71,16 @@ public class CoreRangeDijkstraTest {
         rangeSweepToAndInCore.initFrom(5);
         rangeSweepToAndInCore.runAlgo();
         IntObjectMap<SPTEntry> bestWeightMap = rangeSweepToAndInCore.getFromMap();
-        assertNull(bestWeightMap.get(0));
+        assertNotNull(bestWeightMap.get(0));
         assertNotNull(bestWeightMap.get(1));
-        assertNull(bestWeightMap.get(2));
+        assertNotNull(bestWeightMap.get(2));
         assertNotNull(bestWeightMap.get(5));
         assertNull(bestWeightMap.get(3));
         assertNull(bestWeightMap.get(4));
 
+        assertEquals(3.0, bestWeightMap.get(0).weight, 1e-10);
         assertEquals(2.0, bestWeightMap.get(1).weight, 1e-10);
+        assertEquals(4.0, bestWeightMap.get(2).weight, 1e-10);
         assertEquals(0.0, bestWeightMap.get(5).weight, 1e-10);
     }
 
@@ -90,7 +92,7 @@ public class CoreRangeDijkstraTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
 
         int startCell = ins.getCellId(5);
         CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(graphHopperStorage.getBaseGraph(), shortestWeighting, ins, ecc.getBorderNodeDistanceStorage(shortestWeighting));
@@ -128,7 +130,7 @@ public class CoreRangeDijkstraTest {
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcBorderNodeDistances(shortestWeighting, carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
 
         int startCell = ins.getCellId(5);
         CoreRangeDijkstra rangeSweepToAndInCore = new CoreRangeDijkstra(graphHopperStorage.getBaseGraph(), shortestWeighting, ins, ecc.getBorderNodeDistanceStorage(shortestWeighting));
