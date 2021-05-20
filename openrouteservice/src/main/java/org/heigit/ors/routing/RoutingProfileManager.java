@@ -392,10 +392,10 @@ public class RoutingProfileManager {
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
                                 double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
 
-                                message.append(String.format("Could not find point %d: %s within a radius of %.1f meters.",
+                                message.append(String.format("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.",
+                                        pointRadius,
                                         pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate),
-                                        pointRadius));
+                                        FormatUtility.formatCoordinate(pointCoordinate)));
 
                             } else {
                                 message.append(error.getMessage());
