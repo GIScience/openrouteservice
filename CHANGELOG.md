@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Useful error message for isochrone range/interval mismatches
 
 ## [6.5.0] - 2021-05-17
 ### Added
