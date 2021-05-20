@@ -30,6 +30,7 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
