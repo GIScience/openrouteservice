@@ -15,7 +15,13 @@ public class DefaultSpeedCalculator implements SpeedCalculator{
         avSpeedEnc = encoder.getAverageSpeedEnc();
     }
 
+    @Override
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         return reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return false;
     }
 }

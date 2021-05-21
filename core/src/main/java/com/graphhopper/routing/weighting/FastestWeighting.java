@@ -58,7 +58,12 @@ public class FastestWeighting extends AbstractWeighting {
 
     @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-        double speed = reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
+        return calcWeight(edge, reverse, prevOrNextEdgeId, -1);
+    }
+
+    @Override
+    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        double speed = speedCalculator.getSpeed(edge, reverse, edgeEnterTime);
         if (speed == 0)
             return Double.POSITIVE_INFINITY;
 
@@ -73,14 +78,19 @@ public class FastestWeighting extends AbstractWeighting {
     }
 
     @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
         // TODO move this to AbstractWeighting? see #485
         long time = 0;
         boolean unfavoredEdge = edgeState.get(EdgeIteratorState.UNFAVORED_EDGE);
         if (unfavoredEdge)
             time += headingPenaltyMillis;
 
-        return time + super.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+        return time + super.calcMillis(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return speedCalculator.isTimeDependent();
     }
 
     @Override

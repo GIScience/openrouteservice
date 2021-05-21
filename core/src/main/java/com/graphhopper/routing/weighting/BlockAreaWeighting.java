@@ -21,11 +21,11 @@ public class BlockAreaWeighting extends AbstractAdjustedWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
         if (blockArea.contains(edgeState))
             return Double.POSITIVE_INFINITY;
 
-        return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+        return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
     }
 
     @Override
