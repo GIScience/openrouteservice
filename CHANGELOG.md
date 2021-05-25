@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Useful error message for isochrone range/interval mismatches
+### Fixed
+- Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 
 ## [6.5.0] - 2021-05-17
 ### Added
