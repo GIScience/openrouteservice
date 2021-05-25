@@ -31,27 +31,29 @@ public class CentralityRequestHandler extends GenericHandler {
     }
 
     private org.heigit.ors.centrality.CentralityRequest convertCentralityRequest(CentralityRequest request) throws StatusCodeException {
-        org.heigit.ors.centrality.CentralityRequest coreRequest = new org.heigit.ors.centrality.CentralityRequest();
+        org.heigit.ors.centrality.CentralityRequest centralityRequest = new org.heigit.ors.centrality.CentralityRequest();
 
         if  (request.hasId())
-            coreRequest.setId(request.getId());
+            centralityRequest.setId(request.getId());
 
         int profileType = -1;
 
         try {
             profileType = convertRouteProfileType(request.getProfile());
-            coreRequest.setProfileType(profileType);
+            centralityRequest.setProfileType(profileType);
         } catch (Exception e) {
             throw new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, CentralityRequest.PARAM_PROFILE);
         }
 
-        coreRequest.setBoundingBox(convertBBox(request.getBoundingBox()));
+        centralityRequest.setBoundingBox(convertBBox(request.getBoundingBox()));
+
+        centralityRequest.setMode(request.getMode().toString());
 
         if (request.hasExcludeNodes()) {
-            coreRequest.setExcludeNodes(request.getExcludeNodes());
+            centralityRequest.setExcludeNodes(request.getExcludeNodes());
         }
 
-        return coreRequest;
+        return centralityRequest;
     }
 
     BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {

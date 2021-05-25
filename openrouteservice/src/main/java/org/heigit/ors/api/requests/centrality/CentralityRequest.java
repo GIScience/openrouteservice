@@ -16,6 +16,7 @@ public class CentralityRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_BBOX = "bbox";
     public static final String PARAM_EXCLUDENODES = "excludeNodes";
+    public static final String PARAM_MODE = "mode";
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
 
@@ -44,6 +45,10 @@ public class CentralityRequest {
     @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
+
+     @ApiModelProperty(name = PARAM_MODE, value = "Specifies the centrality calculation mode. Currently, node-based and edge-based centrality calculation is supported.", example = "nodes")
+    @JsonProperty(PARAM_MODE)
+    private CentralityRequestEnums.Mode mode = CentralityRequestEnums.Mode.NODES;
 
     @JsonCreator
     public CentralityRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
@@ -91,5 +96,12 @@ public class CentralityRequest {
     public void setResponseType(APIEnums.CentralityResponseType responseType) {
         this.responseType = responseType;
     }
+
+    public CentralityRequestEnums.Mode getMode() { return mode; }
+
+    public void setMode(CentralityRequestEnums.Mode mode) {
+        this.mode = mode;
+    }
+
 
 }
