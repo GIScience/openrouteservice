@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
+### Fixed
+- Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 
 ## [6.5.0] - 2021-05-17
 ### Added
