@@ -23,10 +23,7 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	public MinimumWeightMultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MinimumWeightMultiTreeSPEntry parent, int numTrees) {
 		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
-		for (int i = 0; i < numTrees; ++i) {
-			MultiTreeSPEntryItem item = items[i];
-			minimumWeight = item.getWeight() < minimumWeight ? item.getWeight() : minimumWeight;
-		}
+		updateWeights();
 	}
 
 	@Override
