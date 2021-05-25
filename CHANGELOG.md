@@ -34,7 +34,7 @@ RELEASING:
  -->
 
 ## [Unreleased]
-### Fixed
+### Added
 - Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
 
 ## [6.5.0] - 2021-05-17
