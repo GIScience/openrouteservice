@@ -55,8 +55,8 @@
         <repository>
             <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
             <id>HeiGIT main</id>
-            <name>Central Repository for OSHDB dependency related artefacts</name>
-            <url>http://repo.heigit.org/artifactory/main</url>
+            <name>Central repository for HeiGIT service dependency related artefacts</name>
+            <url>https://repo.heigit.org/artifactory/main</url>
         </repository>
     </repositories>
 

@@ -21,12 +21,12 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 import java.util.*;
 
-import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
-import static com.graphhopper.util.Parameters.Algorithms.DIJKSTRA_BI;
+import static com.graphhopper.util.Parameters.Algorithms.*;
 
 /**
  * Prepare the core graph. The core graph is a contraction hierarchies graph in which specified parts are not contracted
@@ -41,7 +41,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private static final Logger LOGGER = Logger.getLogger(PrepareCore.class);
     private final CHProfile chProfile;
     private final PreparationWeighting prepareWeighting;
-    private final TraversalMode traversalMode;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
     private final CHGraphImpl prepareGraph;
@@ -85,7 +84,6 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         this.ghStorage = ghStorage;
         this.prepareGraph = (CHGraphImpl) chGraph;
         this.chProfile = chGraph.getCHProfile();
-        this.traversalMode = chProfile.getTraversalMode();
         this.weighting = chProfile.getWeighting();
         this.flagEncoder = weighting.getFlagEncoder();
         this.restrictionFilter = restrictionFilter;
@@ -528,8 +526,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
         AbstractCoreRoutingAlgorithm algo;
 
-        // TODO: Proper way of switching between Dijkstra and AStar in core
-        String algoStr = ASTAR_BI;
+        String algoStr = opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
             CoreALT tmpAlgo = new CoreALT(graph, opts.getWeighting());
@@ -537,6 +534,12 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(graph, opts.getWeighting());
+        } else if (TD_DIJKSTRA.equals(algoStr)) {
+            algo = new TDCoreDijkstra(graph, opts.getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+        } else if (TD_ASTAR.equals(algoStr)) {
+            CoreALT tmpAlgo = new TDCoreALT(graph, opts.getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts,graph .getNodeAccess()));
+            algo = tmpAlgo;
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
                     + " not supported for Contraction Hierarchies. Try with ch.disable=true");

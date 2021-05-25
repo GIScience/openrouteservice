@@ -25,6 +25,7 @@ import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.BitUtil;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 
@@ -64,6 +65,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     // This value determines the speed for roads with access=destination
     protected int destinationSpeed;
 
+    protected final double minPossibleSpeed;
+
     protected Map<String, Integer> trackTypeSpeedMap;
     protected Map<String, Integer> badSurfaceSpeedMap;
     protected Map<String, Integer> defaultSpeedMap;
@@ -83,6 +86,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     VehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
+
+        minPossibleSpeed = this.speedFactor;
 
         restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
@@ -186,9 +191,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
-        // FIXME: shouldn't this be directional?
         if (properties.getBool(ConditionalEdges.ACCESS, false))
-            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), false));
+            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
         if (properties.getBool(ConditionalEdges.SPEED, false))
             registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
 
@@ -225,18 +229,13 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
             speed = getSurfaceSpeed(way, speed);
 
-            if(way.hasTag(KEY_ESTIMATED_DISTANCE)) {
-                if(this.useAcceleration) {
+            if (way.hasTag(KEY_ESTIMATED_DISTANCE)) {
+                if (way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
+                    speed = addResedentialPenalty(speed, way);
+                }
+                else if (this.useAcceleration) {
                     double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
-                    if(way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
-                        speed = addResedentialPenalty(speed, way);
-                    } else {
-                        speed = Math.max(adjustSpeedForAcceleration(estDist, speed), speedFactor);
-                    }
-                } else {
-                    if(way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
-                        speed = addResedentialPenalty(speed, way);
-                    }
+                    speed = adjustSpeedForAcceleration(estDist, speed);
                 }
             }
 
@@ -267,12 +266,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
             if (isOneway(way) || isRoundabout) {
                 if (isForwardOneway(way))
-                    accessEnc.setBool(false, edgeFlags, true);
+                    setAccess(access, edgeFlags, true, false);
                 if (isBackwardOneway(way))
-                    accessEnc.setBool(true, edgeFlags, true);
+                    setAccess(access, edgeFlags, false, true);
             } else {
-                accessEnc.setBool(false, edgeFlags, true);
-                accessEnc.setBool(true, edgeFlags, true);
+                setAccess(access, edgeFlags, true, true);
             }
 
             if (access.isConditional() && conditionalAccessEncoder!=null)
@@ -296,6 +294,35 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return edgeFlags;
+    }
+
+    // Override this method in order to set minimum speed rather than disabling access
+    @Override
+    protected void setSpeed(boolean reverse, IntsRef edgeFlags, double speed) {
+        if (speed >= 0.0D && !Double.isNaN(speed)) {
+            if (speed < minPossibleSpeed)
+                speed = minPossibleSpeed;
+            else if (speed > this.getMaxSpeed())
+                speed = this.getMaxSpeed();
+
+            this.speedEncoder.setDecimal(reverse, edgeFlags, speed);
+        } else {
+            throw new IllegalArgumentException("Speed cannot be negative or NaN: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(edgeFlags));
+        }
+    }
+
+    private void setAccess(EncodingManager.Access access, IntsRef edgeFlags, boolean fwd, boolean bwd) {
+        if (fwd)
+            accessEnc.setBool(false, edgeFlags, true);
+        if (bwd)
+            accessEnc.setBool(true, edgeFlags, true);
+
+        if (access.isConditional() && conditionalAccessEncoder!=null) {
+            if (fwd)
+                conditionalAccessEncoder.setBool(false, edgeFlags, true);
+            if (bwd)
+                conditionalAccessEncoder.setBool(true, edgeFlags, true);
+        }
     }
 
     /**
@@ -325,21 +352,14 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     protected double getSpeed(ReaderWay way) {
-        String highwayValue = way.getTag(KEY_HIGHWAY);
-        if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
-                && !highwayValue.equals("motorway") && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
-            highwayValue = KEY_MOTORROAD;
-        }
+        String highwayValue = getHighway(way);
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
-        int maxSpeed = (int) Math.round(getMaxSpeed(way)); // Runge
+
+        int maxSpeed = (int) Math.round(getMaxSpeed(way));
+        if (maxSpeed <= 0)
+            maxSpeed = speedLimitHandler.getMaxSpeed(way);
         if (maxSpeed > 0)
             speed = maxSpeed;
-        else
-        {
-            maxSpeed = speedLimitHandler.getMaxSpeed(way); // Runge
-            if (maxSpeed > 0)
-                speed = maxSpeed;
-        }
 
         if (speed == null)
             throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
@@ -354,6 +374,21 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return speed;
+    }
+
+    protected String getHighway(ReaderWay way) {
+        String highwayValue = way.getTag(KEY_HIGHWAY);
+        if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
+                && !highwayValue.equals("motorway") && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
+            highwayValue = KEY_MOTORROAD;
+        }
+        return highwayValue;
+    }
+
+    @Override
+    protected double applyMaxSpeed(ReaderWay way, double speed) {
+        double maxSpeed = this.getMaxSpeed(way);
+        return maxSpeed > 0.0D ? maxSpeed * 0.9D : speed;
     }
 
     /**
@@ -458,9 +493,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             if(interimDistance < 100) {
                 speed = speed * 0.5;
             }
-            //Don't go below 2.5 because it will be stored as 0 later
-            if(speed < 5)
-                speed = 5;
         }
 
         return speed;
