@@ -404,6 +404,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
         NodeAccess nodeAccess = graph.getNodeAccess();
         int maxNodeId = graph.getNodes();
+        int maxEdgeId = graph.getEdges() - 1;
 
         double bufferSize = 0.0018;
         Quadtree qtree = new Quadtree();
@@ -440,7 +441,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             edgeId = goalEdge.originalEdge;
             nodeId = goalEdge.adjNode;
 
-            if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId)
+            if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId || edgeId > maxEdgeId)
                 continue;
 
             float maxCost = (float) goalEdge.weight;
