@@ -126,6 +126,16 @@ public class AppConfig {
 		return new ArrayList<>() ;
 	}
 
+	public boolean getBoolean(String path) {
+		try {
+			ConfigObject configObj = config.getObject("ors");
+			return configObj.toConfig().getBoolean(path);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return false;
+	}
+
 	public List<? extends ConfigObject> getObjectList(String paramName) {
 		try {
 			return config.getObjectList("ors." + paramName);
