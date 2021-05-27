@@ -34,6 +34,12 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
+- Useful error message for isochrone range/interval mismatches
+### Fixed
+- Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
+- Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 
 ## [6.5.0] - 2021-05-17
 ### Added

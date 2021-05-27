@@ -103,9 +103,6 @@ public class TravellerInfo  {
 	}
 
 	public void setRanges(double range, double interval) {
-		if (interval > range)
-			range = interval;
-
 		int nRanges = (int) Math.ceil(range / interval);
 		ranges = new double[nRanges];
 		for (int i = 0; i < nRanges - 1; i++) 
