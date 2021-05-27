@@ -20,11 +20,11 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
 import java.util.PriorityQueue;
@@ -138,7 +138,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
 
         while (true) {
             EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
-            System.out.println("Visited node " + currEdge.getAdjNode());
+//            System.out.println("Based node " + currEdge.getAdjNode());
             if (iter == null) // we reach one of the target nodes
                 return;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -147,6 +147,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             while (iter.next()) {
                 if (!accept(iter, -1))
                     continue;
+//                System.out.println("Checking edge " + iter.getEdge() + " to " + iter.getAdjNode());
 
                 double edgeWeight = weighting.calcWeight(iter, false, 0);
 
@@ -201,17 +202,35 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private boolean finished() {
         if (!targets.contains(currEdge.getAdjNode()))
             return false;
+        // Check whether all paths found
         for (int i = 0; i < treeEntrySize; ++i) {
             MultiTreeSPEntryItem msptItem = currEdge.getItem(i);
             double entryWeight = msptItem.getWeight();
 
             if (entryWeight == Double.POSITIVE_INFINITY)
                 return false;
-
         }
+        // Check whether a shorter path to one entry can be found
+        if(treeEntrySize > 1 && existsShorterPath())
+            return false;
+//        System.out.println("Found target " + currEdge.getAdjNode());
         targetsFound++;
 
         return targetsFound == targetsCount;
+    }
+
+    /**
+     * Check whether the priorityqueue has an entry that could possibly lead to a shorter path
+     * @return
+     */
+    private boolean existsShorterPath() {
+        for (MultiTreeSPEntry entry : prioQueue) {
+            for (int i = 0; i < treeEntrySize; ++i) {
+                if(entry.getItem(i).getWeight() < currEdge.getItem(i).getWeight())
+                    return true;
+            }
+        }
+        return false;
     }
 
 
