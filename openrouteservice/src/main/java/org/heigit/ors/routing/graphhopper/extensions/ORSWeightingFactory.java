@@ -23,11 +23,9 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,12 +68,6 @@ public class ORSWeightingFactory implements WeightingFactory {
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
-		else if ("td_fastest".equalsIgnoreCase(strWeighting)){
-			EncodingManager encodingManager = graphStorage.getEncodingManager();
-			result = encodingManager.hasEncodedValue(encodingManager.getKey(encoder, ConditionalEdges.SPEED))
-					? new TimeDependentFastestWeighting(encoder, hintsMap, new ConditionalSpeedCalculator(graphStorage, encoder))
-					: new TimeDependentFastestWeighting(encoder, hintsMap);
-		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
@@ -95,6 +87,11 @@ public class ORSWeightingFactory implements WeightingFactory {
 			}
 			else
 				result = new FastestWeighting(encoder, hintsMap);
+		}
+
+		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
+			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
+				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
