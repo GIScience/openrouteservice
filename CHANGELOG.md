@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
+- Useful error message for isochrone range/interval mismatches
 ### Fixed
 - Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 

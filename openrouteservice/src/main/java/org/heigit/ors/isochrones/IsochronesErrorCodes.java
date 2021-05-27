@@ -31,6 +31,7 @@ public class IsochronesErrorCodes {
     public static final int UNSUPPORTED_EXPORT_FORMAT = 3007;
     public static final int EMPTY_ELEMENT = 3008;
     public static final int UNKNOWN_PARAMETER = 3011;
+    public static final int PARAMETER_VALUE_EXCEEDS_MINIMUM = 3012;
     public static final int UNKNOWN = 3099;
 
     private IsochronesErrorCodes() {}
