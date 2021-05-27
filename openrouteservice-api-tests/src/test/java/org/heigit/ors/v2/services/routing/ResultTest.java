@@ -3370,7 +3370,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(850.2f))
-                .body("routes[0].summary.duration", is(97.9f)) //FIXME: once implemented should return the same value as fastest
+                .body("routes[0].summary.duration", is(119.9f))
                 .statusCode(200);
     }
 
