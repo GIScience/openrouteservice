@@ -1,7 +1,7 @@
 package org.heigit.ors.routing.traffic;
 
 import com.graphhopper.routing.EdgeKeys;
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -11,33 +11,27 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
-public class TrafficSpeedCalculator implements SpeedCalculator {
-//    public Map<Double, Double> changedSpeedCount = new HashMap();
-//    public Map<Double, Double> changedSpeed = new HashMap();
-    protected DecimalEncodedValue avSpeedEnc;
+public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
+    //protected DecimalEncodedValue avSpeedEnc;
     // time-dependent stuff
     private TrafficGraphStorage trafficGraphStorage;
     private int timeZoneOffset;
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
 
-    public TrafficSpeedCalculator() {
+    public TrafficSpeedCalculator(SpeedCalculator superSpeedCalculator) {
+        super(superSpeedCalculator);
     }
 
     public void init(GraphHopperStorage graphHopperStorage, FlagEncoder flagEncoder) {
-        setEncoder(flagEncoder);
-        if (flagEncoder instanceof VehicleFlagEncoder) {
-            this.vehicleFlagEncoder = (VehicleFlagEncoder) flagEncoder;
-            isVehicle = true;
-        }
+        if (flagEncoder instanceof VehicleFlagEncoder)
+            setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
         setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
     }
 
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
-        double speed = reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
+        double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
         if (time != -1) {
             int edgeId = EdgeKeys.getOriginalEdge(edge);
             double trafficSpeed = reverse ?
@@ -62,8 +56,9 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
         return speed;
     }
 
-    public void setEncoder(FlagEncoder flagEncoder) {
-        this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
+    public void setVehicleFlagEncoder(VehicleFlagEncoder flagEncoder) {
+        this.vehicleFlagEncoder = flagEncoder;
+        isVehicle = true;
     }
 
     public void setTrafficGraphStorage(TrafficGraphStorage trafficGraphStorage) {
@@ -71,7 +66,6 @@ public class TrafficSpeedCalculator implements SpeedCalculator {
     }
 
     public void setZonedDateTime(ZonedDateTime zdt) {
-
         this.timeZoneOffset = zdt.getOffset().getTotalSeconds() / 3600;
     }
 }

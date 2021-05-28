@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.traffic;
 
 import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.DefaultSpeedCalculator;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
@@ -20,9 +21,9 @@ public class TrafficSpeedCalculatorTest {
     public void setUp() {
         carEncoder = new CarFlagEncoder();
         encodingManager = EncodingManager.create(carEncoder);
-        trafficSpeedCalculator = new TrafficSpeedCalculator();
+        trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
         trafficSpeedCalculator.setTrafficGraphStorage(new MockTrafficStorage());
-        trafficSpeedCalculator.setEncoder(carEncoder);
+        //trafficSpeedCalculator.setVehicleFlagEncoder(carEncoder);
     }
 
     @Test
