@@ -45,7 +45,7 @@ public class CentralityRequestHandler extends GenericHandler {
             throw new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, CentralityRequest.PARAM_PROFILE);
         }
 
-        centralityRequest.setBoundingBox(convertBBox(request.getBoundingBox()));
+        centralityRequest.setBoundingBox(convertBBox(request.getBbox()));
 
         centralityRequest.setMode(request.getMode().toString());
 

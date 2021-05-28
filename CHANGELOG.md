@@ -42,6 +42,7 @@ RELEASING:
 - Compatibility of user provided maximum speed limit with HGV routing profile ([#955](https://github.com/GIScience/openrouteservice/issues/955))
 - Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
 - Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
+- Duplicate parameter in centrality docs due to spring reading getters for docs
 
 ## [6.5.0] - 2021-05-17
 ### Added
