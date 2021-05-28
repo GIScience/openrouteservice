@@ -24,7 +24,10 @@ import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
+import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,6 +95,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
 			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
 				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+			if (GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class) != null)
+				result.setSpeedCalculator(new RoutingTrafficSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH

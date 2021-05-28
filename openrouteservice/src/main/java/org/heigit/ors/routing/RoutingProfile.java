@@ -55,9 +55,9 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
@@ -1068,9 +1068,17 @@ public class RoutingProfile {
     }
 
     boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        if (!searchParams.isTimeDependent())
+            return false;
+
+        if (GraphStorageUtils.getGraphExtension(mGraphHopper.getGraphHopperStorage(), TrafficGraphStorage.class) != null)
+            return true;
+
         FlagEncoder flagEncoder = searchCntx.getEncoder();
-        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
-        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
+        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED)))
+            return true;
+
+        return false;
     }
 
     boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {

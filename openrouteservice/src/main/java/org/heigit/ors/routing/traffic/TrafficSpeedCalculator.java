@@ -15,8 +15,8 @@ import java.time.ZonedDateTime;
 public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     //protected DecimalEncodedValue avSpeedEnc;
     // time-dependent stuff
-    private TrafficGraphStorage trafficGraphStorage;
-    private int timeZoneOffset;
+    protected TrafficGraphStorage trafficGraphStorage;
+    protected int timeZoneOffset;
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
 
@@ -30,6 +30,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
     }
 
+    @Override
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
         if (time != -1) {
@@ -67,5 +68,10 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
 
     public void setZonedDateTime(ZonedDateTime zdt) {
         this.timeZoneOffset = zdt.getOffset().getTotalSeconds() / 3600;
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return true;
     }
 }
