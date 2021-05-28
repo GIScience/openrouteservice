@@ -21,10 +21,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.Parameters;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
@@ -34,8 +31,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.CentralityWarning;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
+import org.heigit.ors.common.Pair;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.Isochrone;
@@ -683,6 +682,7 @@ public class RoutingProfile {
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
@@ -700,16 +700,27 @@ public class RoutingProfile {
             }
         });
 
+        if (nodesInBBox.isEmpty()) {
+            // without nodes, no centrality can be calculated
+            res.setWarning(new CentralityWarning(CentralityWarning.EMPTY_BBOX));
+            return res;
+        }
+
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting);
+        alg.init(graph, weighting, explorer);
 
-        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
-
-        // transform node ids to coordinates
+        // transform node ids to coordinates,
         for (int v : nodesInBBox) {
             Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-            res.addCentralityScore(coord, betweenness.get(v));
-            res.addNode(v, coord);
+            res.addLocation(v, coord);
+        }
+
+        if (req.getMode().equals("nodes")) {
+            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
+            res.setNodeCentralityScores(nodeBetweenness);
+        } else {
+            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
+            res.setEdgeCentralityScores(edgeBetweenness);
         }
 
         return res;
