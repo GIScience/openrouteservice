@@ -39,32 +39,12 @@ public class TimeDependentAccessWeighting extends AbstractAdjustedWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
-        return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId);
-    }
-
-    @Override
     public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long linkEnterTime) {
         if (edgeFilter.accept(edge, linkEnterTime)) {
             return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId, linkEnterTime);
         } else {
             return Double.POSITIVE_INFINITY;
         }
-    }
-
-    @Override
-    public long calcMillis(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long linkEnterTime) {
-        return superWeighting.calcMillis(edge, reverse, prevOrNextEdgeId, linkEnterTime);
-    }
-
-    @Override
-    public double getMinWeight(double distance) {
-        return superWeighting.getMinWeight(distance);
-    }
-
-    @Override
-    public boolean matches(HintsMap map) {
-        return superWeighting.matches(map);
     }
 
     @Override

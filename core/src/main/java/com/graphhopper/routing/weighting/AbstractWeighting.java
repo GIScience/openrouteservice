@@ -19,8 +19,10 @@ package com.graphhopper.routing.weighting;
 
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.util.DefaultSpeedCalculator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.util.EdgeIteratorState;
 
 import static com.graphhopper.util.Helper.toLowerCase;
@@ -32,6 +34,7 @@ public abstract class AbstractWeighting implements Weighting {
     protected final FlagEncoder flagEncoder;
     protected final DecimalEncodedValue avSpeedEnc;
     protected final BooleanEncodedValue accessEnc;
+    protected SpeedCalculator speedCalculator;
 
     protected AbstractWeighting(FlagEncoder encoder) {
         this.flagEncoder = encoder;
@@ -42,6 +45,7 @@ public abstract class AbstractWeighting implements Weighting {
 
         avSpeedEnc = encoder.getAverageSpeedEnc();
         accessEnc = encoder.getAccessEnc();
+        speedCalculator = new DefaultSpeedCalculator(encoder);
     }
 
     @Override
@@ -51,6 +55,11 @@ public abstract class AbstractWeighting implements Weighting {
 
     @Override
     public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+        return calcMillis(edgeState, reverse, prevOrNextEdgeId, -1);
+    }
+
+    @Override
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
         // special case for loop edges: since they do not have a meaningful direction we always need to read them in
         // forward direction
         if (edgeState.getBaseNode() == edgeState.getAdjNode()) {
@@ -63,18 +72,13 @@ public abstract class AbstractWeighting implements Weighting {
                     + edgeState.fetchWayGeometry(3) + ", dist: " + edgeState.getDistance() + " "
                     + "Reverse:" + reverse + ", fwd:" + edgeState.get(accessEnc) + ", bwd:" + edgeState.getReverse(accessEnc) + ", fwd-speed: " + edgeState.get(avSpeedEnc) + ", bwd-speed: " + edgeState.getReverse(avSpeedEnc));
 
-        double speed = reverse ? edgeState.getReverse(avSpeedEnc) : edgeState.get(avSpeedEnc);
+        double speed = speedCalculator.getSpeed(edgeState, reverse, edgeEnterTime);
         if (Double.isInfinite(speed) || Double.isNaN(speed) || speed < 0)
             throw new IllegalStateException("Invalid speed stored in edge! " + speed);
         if (speed == 0)
             throw new IllegalStateException("Speed cannot be 0 for unblocked edge, use access properties to mark edge blocked! Should only occur for shortest path calculation. See #242.");
 
         return (long) (edgeState.getDistance() * 3600 / speed);
-    }
-
-    @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcMillis(edgeState, reverse, prevOrNextEdgeId);
     }
 
     @Override
@@ -126,5 +130,15 @@ public abstract class AbstractWeighting implements Weighting {
     @Override
     public boolean isTimeDependent() {
         return false;
+    }
+
+    @Override
+    public SpeedCalculator getSpeedCalculator() {
+        return speedCalculator;
+    }
+
+    @Override
+    public void setSpeedCalculator(SpeedCalculator speedCalculator) {
+        this.speedCalculator = speedCalculator;
     }
 }

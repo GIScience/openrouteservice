@@ -19,6 +19,7 @@ package com.graphhopper.routing.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.util.EdgeIteratorState;
 
 /**
@@ -51,7 +52,6 @@ public interface Weighting {
      * @return the calculated weight with the specified velocity has to be in the range of 0 and
      * +Infinity. Make sure your method does not return NaN which can e.g. occur for 0/0.
      */
-
     double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId);
 
     double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime);
@@ -75,4 +75,8 @@ public interface Weighting {
     boolean matches(HintsMap map);
 
     boolean isTimeDependent();
+
+    SpeedCalculator getSpeedCalculator();
+
+    void setSpeedCalculator(SpeedCalculator speedCalculator);
 }

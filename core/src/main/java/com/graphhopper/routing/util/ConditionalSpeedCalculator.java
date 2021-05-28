@@ -4,7 +4,6 @@ import ch.poole.conditionalrestrictionparser.ConditionalRestrictionParser;
 import ch.poole.conditionalrestrictionparser.Restriction;
 import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.profiles.BooleanEncodedValue;
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.DateTimeHelper;
 import com.graphhopper.storage.ConditionalEdgesMap;
@@ -20,18 +19,14 @@ import java.util.ArrayList;
  *
  * @author Andrzej Oles
  */
-public class ConditionalSpeedCalculator implements SpeedCalculator{
-    protected final DecimalEncodedValue avSpeedEnc;
-
-    // time-dependent stuff
+public class ConditionalSpeedCalculator extends AbstractAdjustedSpeedCalculator{
     private final BooleanEncodedValue conditionalEnc;
     private final ConditionalEdgesMap conditionalEdges;
     private final DateTimeHelper dateTimeHelper;
 
-    public ConditionalSpeedCalculator(GraphHopperStorage graph, FlagEncoder encoder) {
-        avSpeedEnc = encoder.getAverageSpeedEnc();
+    public ConditionalSpeedCalculator(SpeedCalculator superSpeedCalculator, GraphHopperStorage graph, FlagEncoder encoder) {
+        super(superSpeedCalculator);
 
-        // time-dependent stuff
         EncodingManager encodingManager = graph.getEncodingManager();
         String encoderName = EncodingManager.getKey(encoder, ConditionalEdges.SPEED);
 
@@ -46,7 +41,7 @@ public class ConditionalSpeedCalculator implements SpeedCalculator{
     }
 
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
-        double speed = reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
+        double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
 
         // retrieve time-dependent maxspeed here
         if (time != -1 && edge.get(conditionalEnc)) {
@@ -80,4 +75,8 @@ public class ConditionalSpeedCalculator implements SpeedCalculator{
         return -1;
     }
 
+    @Override
+    public boolean isTimeDependent() {
+        return true;
+    }
 }

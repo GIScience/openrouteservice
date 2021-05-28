@@ -20,6 +20,7 @@ package com.graphhopper.routing.weighting;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.routing.util.TurnCostEncoder;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.EdgeIterator;
@@ -33,14 +34,13 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  * @author Andrzej Oles
  */
-public class TurnWeighting implements Weighting {
+public class TurnWeighting extends AbstractAdjustedWeighting {
     public static final int INFINITE_U_TURN_COSTS = -1;
     /**
      * Encoder, which decodes the turn flags
      */
     private final TurnCostEncoder turnCostEncoder;
     private final TurnCostExtension turnCostExt;
-    private final Weighting superWeighting;
     private final double uTurnCosts;
     // ORS-GH MOD START
     // corrected turn restrictions for virtual edges have to be turned off if not in ORS due to failing tests
@@ -62,11 +62,11 @@ public class TurnWeighting implements Weighting {
      *                       whether or not turnCostExt contains explicit values for these turns.
      */
     public TurnWeighting(Weighting superWeighting, TurnCostExtension turnCostExt, double uTurnCosts) {
+        super(superWeighting);
         if (turnCostExt == null) {
             throw new RuntimeException("No storage set to calculate turn weight");
         }
         this.turnCostEncoder = superWeighting.getFlagEncoder();
-        this.superWeighting = superWeighting;
         this.turnCostExt = turnCostExt;
         this.uTurnCosts = uTurnCosts < 0 ? Double.POSITIVE_INFINITY : uTurnCosts;
     }
@@ -76,16 +76,8 @@ public class TurnWeighting implements Weighting {
     }
 
     @Override
-    public double getMinWeight(double distance) {
-        return superWeighting.getMinWeight(distance);
-    }
-
-    @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        return calcWeightInternal(superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId), edgeState, reverse, prevOrNextEdgeId);
-    }
-
-    private double calcWeightInternal(double weight, EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        double weight = superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId))
             return weight;
 
@@ -101,16 +93,8 @@ public class TurnWeighting implements Weighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcWeightInternal(superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime), edgeState, reverse, prevOrNextEdgeId);
-    }
-
-    @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        return calcMillisInternal(superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId), edgeState, reverse, prevOrNextEdgeId);
-    }
-
-    private long calcMillisInternal(long millis, EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        long millis = superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId))
             return millis;
 
@@ -122,11 +106,6 @@ public class TurnWeighting implements Weighting {
                 : calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), origEdgeId));
 
         return millis + 1000 * turnCostsInSeconds;
-    }
-
-    @Override
-    public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcMillisInternal(superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime), edgeState, reverse, prevOrNextEdgeId);
     }
 
     /**
@@ -155,11 +134,6 @@ public class TurnWeighting implements Weighting {
     }
 
     @Override
-    public FlagEncoder getFlagEncoder() {
-        return superWeighting.getFlagEncoder();
-    }
-
-    @Override
     public boolean matches(HintsMap weightingMap) {
         // TODO without 'turn' in comparison
         return superWeighting.matches(weightingMap);
@@ -173,10 +147,5 @@ public class TurnWeighting implements Weighting {
     @Override
     public String getName() {
         return "turn|" + superWeighting.getName();
-    }
-
-    @Override
-    public boolean isTimeDependent() {
-        return superWeighting.isTimeDependent();
     }
 }
