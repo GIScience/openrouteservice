@@ -63,7 +63,7 @@ public class TimeDependentAccessEdgeFilter implements TimeDependentEdgeFilter {
         try {
             ConditionalRestrictionParser crparser = new ConditionalRestrictionParser(new ByteArrayInputStream(conditional.getBytes()));
 
-            ArrayList<Restriction> restrictions = crparser.restrictions();
+            List<Restriction> restrictions = crparser.restrictions();
 
             // iterate over restrictions starting from the last one in order to match to the most specific one
             for (int i = restrictions.size() - 1 ; i >= 0; i--) {
