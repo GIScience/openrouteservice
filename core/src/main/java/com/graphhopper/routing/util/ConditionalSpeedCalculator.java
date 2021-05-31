@@ -13,6 +13,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import java.io.ByteArrayInputStream;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calculate time-dependent conditional speed
@@ -59,7 +60,7 @@ public class ConditionalSpeedCalculator extends AbstractAdjustedSpeedCalculator{
     private double getSpeed(String conditional, ZonedDateTime zonedDateTime)  {
         try {
             ConditionalRestrictionParser crparser = new ConditionalRestrictionParser(new ByteArrayInputStream(conditional.getBytes()));
-            ArrayList<Restriction> restrictions = crparser.restrictions();
+            List<Restriction> restrictions = crparser.restrictions();
 
             // iterate over restrictions starting from the last one in order to match to the most specific one
             for (int i = restrictions.size() - 1 ; i >= 0; i--) {

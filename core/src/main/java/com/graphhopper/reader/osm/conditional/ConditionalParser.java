@@ -107,7 +107,7 @@ public class ConditionalParser {
         return new ConditionalValueParser() {
             @Override
             public ConditionState checkCondition(String conditionString) {
-                ArrayList<Rule> rules;
+                List<Rule> rules;
                 try {
                     OpeningHoursParser parser = new OpeningHoursParser(new ByteArrayInputStream(conditionString.getBytes()));
                     rules = parser.rules(false);
@@ -252,12 +252,12 @@ public class ConditionalParser {
         if (tagValue == null || tagValue.isEmpty() || !tagValue.contains("@"))
             return result;
 
-        ArrayList<Restriction> parsedRestrictions = new ArrayList<>();
+        List<Restriction> parsedRestrictions = new ArrayList<>();
 
         try {
             ConditionalRestrictionParser parser = new ConditionalRestrictionParser(new ByteArrayInputStream(tagValue.getBytes()));
 
-            ArrayList<Restriction> restrictions = parser.restrictions();
+            List<Restriction> restrictions = parser.restrictions();
 
             // iterate over restrictions starting from the last one in order to match to the most specific one
             for (int i = restrictions.size() - 1 ; i >= 0; i--) {
