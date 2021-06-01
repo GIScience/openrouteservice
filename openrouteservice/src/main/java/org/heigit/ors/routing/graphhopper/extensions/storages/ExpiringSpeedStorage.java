@@ -2,6 +2,8 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
 
 import java.time.Instant;
 
@@ -20,6 +22,11 @@ public class ExpiringSpeedStorage extends SpeedStorage {
         super(flagEncoder);
     }
 
+    @Override
+    public void init(Graph graph, Directory directory) {
+        this.speedData = directory.find("ext_expiring_speeds_" + this.flagEncoder.toString());
+    }
+
     /**
      * Creates the storage and defaults all values to Byte.MIN_VALUE
      *
@@ -35,6 +42,13 @@ public class ExpiringSpeedStorage extends SpeedStorage {
             this.setSpeed(i, true, Byte.MIN_VALUE);
         }
         return this;
+    }
+
+    public void process(ORSKafkaConsumerMessageSpeedUpdate msg) {
+        if(!isValid(msg))
+            throw new IllegalArgumentException("Invalid kafka message");
+        byte speed = (byte) msg.getSpeed();
+        this.setSpeed(msg.getEdgeId(), msg.isReverse(), speed, msg.getDurationMin());
     }
 
     @Override
@@ -89,6 +103,12 @@ public class ExpiringSpeedStorage extends SpeedStorage {
      */
     public void setExpirationTime(int expirationTimeMinutes) {
         this.expirationTime = expirationTimeMinutes;
+    }
+
+    private boolean isValid(ORSKafkaConsumerMessageSpeedUpdate msg) {
+        if (msg.getSpeed() > Byte.MAX_VALUE || msg.getSpeed() < 0)
+            return false;
+        return true;
     }
 
 }

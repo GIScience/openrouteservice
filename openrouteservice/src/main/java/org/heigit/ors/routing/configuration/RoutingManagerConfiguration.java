@@ -230,6 +230,8 @@ public class RoutingManagerConfiguration  {
 					case "maximum_speed_lower_bound":
 						profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
 						break;
+					case "traffic_expiration_min":
+						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
 					default:
 					}
 				}

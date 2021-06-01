@@ -1,7 +1,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
 /**
  * Simple storage designed to hold edgeID - direction - speed
@@ -16,6 +19,7 @@ public class SpeedStorage implements GraphExtension {
     private static final long BYTE_POS_SPEED_REVERSE = 1;
     protected DataAccess speedData;
     protected int edgeCount;
+    private Graph graph;
     protected FlagEncoder flagEncoder;
 
     public SpeedStorage(FlagEncoder flagEncoder) {
@@ -24,7 +28,7 @@ public class SpeedStorage implements GraphExtension {
 
     @Override
     public void init(Graph graph, Directory directory) {
-        this.speedData = directory.find("speeds_" + this.flagEncoder.toString());
+        this.speedData = directory.find("ext_speeds_" + this.flagEncoder.toString());
     }
 
     @Override
@@ -43,7 +47,6 @@ public class SpeedStorage implements GraphExtension {
      */
     @Override
     public SpeedStorage create(long edgeCount) {
-        this.edgeCount = (int)edgeCount;
         speedData.create(BYTE_COUNT * edgeCount);
         for (int i = 0; i < edgeCount; i++) {
             this.setSpeed(i, false, Byte.MIN_VALUE);
@@ -96,8 +99,10 @@ public class SpeedStorage implements GraphExtension {
     }
 
     protected void checkEdgeInBounds(int edgeId) {
-        if (edgeId >= edgeCount)
-            throw new IllegalArgumentException("Invalid edgeId " + edgeId + " for SpeedStorage with edge count " + edgeCount);
+        if (edgeId >= speedData.getCapacity() / BYTE_COUNT) {
+            speedData.ensureCapacity(edgeId * BYTE_COUNT);
+//            throw new IllegalArgumentException("Invalid edgeId " + edgeId + " for SpeedStorage with edge count " + edgeCount);
+        }
     }
 
     @Override
