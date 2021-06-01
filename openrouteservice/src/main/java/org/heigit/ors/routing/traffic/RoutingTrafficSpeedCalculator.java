@@ -23,13 +23,8 @@ public class RoutingTrafficSpeedCalculator extends TrafficSpeedCalculator {
                     :trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
             if (trafficSpeed != -1) {
                 // This is important for the correctness of LM approximation
-                if (trafficSpeed < speed) {
-                    System.out.println(speed + " - " + trafficSpeed);//FIXME: debug printout
+                if (trafficSpeed < speed)
                     speed = trafficSpeed;
-                }
-                else {
-                    System.out.println(speed + " + " + trafficSpeed);//FIXME: debug printout
-                }
             }
         }
         return speed;

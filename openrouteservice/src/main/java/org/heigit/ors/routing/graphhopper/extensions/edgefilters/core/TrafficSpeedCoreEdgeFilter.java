@@ -13,35 +13,31 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.routing.util.FlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
 /**
- * This class includes in the core all edges with speed more than the one set in the app.config file max_speed.
+ * This class includes in the core all edges which have traffic speed assigned.
  *
- * @author Athanasios Kogios
+ * @author Andrzej Oles
  */
 
-public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
-    private double maximumSpeedLowerBound;
+public class TrafficSpeedCoreEdgeFilter implements EdgeFilter {
+    private TrafficGraphStorage trafficGraphStorage;
 
-    private final DecimalEncodedValue avSpeedEnc;
-
-    public MaximumSpeedCoreEdgeFilter(FlagEncoder flagEncoder, double maximumSpeedLowerBound) {
-        this.maximumSpeedLowerBound = maximumSpeedLowerBound;
-        this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
+    public TrafficSpeedCoreEdgeFilter(GraphHopperStorage graphHopperStorage) {
+        trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class);
     }
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( (edge.get(avSpeedEnc) > maximumSpeedLowerBound) || (edge.getReverse(avSpeedEnc)) > maximumSpeedLowerBound ) {
-            //If the max speed of the road is greater than that of the limit include it in the core.
-            return false;
-        } else {
+        if (trafficGraphStorage == null)
             return true;
-        }
+
+        return !trafficGraphStorage.hasTrafficSpeed(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode());
     }
 }
 

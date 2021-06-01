@@ -363,6 +363,13 @@ public class TrafficGraphStorage implements GraphExtension {
         return -1;
     }
 
+    public boolean hasTrafficSpeed(int edgeId, int baseNode, int adjNode) {
+        // Traffic patters are stored for all weekdays so it should be enough to check only one of them
+        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
+        // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
+        return patternId > 0;
+    }
+
     private void ensureEdgesPropertyIndex(int edgeId) {
         orsEdgesProperties.ensureCapacity(((long) edgeId + 1) * edgePropertyEntryBytes);
     }

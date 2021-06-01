@@ -146,8 +146,6 @@ public class RoutingProfile {
             if (optsExecute.hasPath("methods.astar.epsilon"))
                 astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
         }
-        mGraphHopper.getGraphHopperStorage().getCHProfiles();
-        mGraphHopper.matchTraffic();
 //        // TODO RAD
 //        GraphHopperStorage graphHopperStorage = mGraphHopper.getGraphHopperStorage();
 //        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {

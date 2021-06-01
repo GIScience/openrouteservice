@@ -230,7 +230,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	@Override
 	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp) {
-		if (getGraphHopperStorage() == null || !isFullyLoaded())
+		if (getGraphHopperStorage() == null)
 			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
 
 		if (getGraphHopperStorage().isClosed())
@@ -468,6 +468,10 @@ public class ORSGraphHopper extends GraphHopper {
 		req.setVehicle(vehicle);
 		req.setAlgorithm("dijkstrabi");
 		req.setWeighting("fastest");
+		// disable in order to allow calling mapmatching before preparations
+		req.getHints().put("ch.disable", true);
+		req.getHints().put("core.disable", true);
+		req.getHints().put("lm.disable", true);
 		// TODO add limit of maximum visited nodes
 
 
@@ -632,7 +636,7 @@ public class ORSGraphHopper extends GraphHopper {
     public void matchTraffic() {
         // Do the graph extension post processing
         // Reserved for processes that need a fully initiated graph e.g. for match making
-        if (getGraphHopperStorage() != null && processContext.getStorageBuilders() != null) {
+        if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
                 graphStorageBuilder.postProcess(this);
             }
@@ -661,6 +665,8 @@ public class ORSGraphHopper extends GraphHopper {
 		super.postProcessing();
 
 		GraphHopperStorage gs = getGraphHopperStorage();
+
+		matchTraffic();
 
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
