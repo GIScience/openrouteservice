@@ -24,13 +24,13 @@ public class ExpiringSpeedStorageTest {
         assertEquals(Byte.MIN_VALUE, storage.getSpeed(3, true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEdgeIdOutOfBounds() {
-        ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
-        storage.init(null, new RAMDirectory(""));
-        storage.create(4);
-        storage.getSpeed(4, true);
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testEdgeIdOutOfBounds() {
+//        ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
+//        storage.init(null, new RAMDirectory(""));
+//        storage.create(4);
+//        storage.getSpeed(4, true);
+//    }
 
     @Test
     public void testSetGetSpeed() {
