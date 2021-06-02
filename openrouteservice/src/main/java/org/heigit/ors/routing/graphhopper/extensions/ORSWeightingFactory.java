@@ -154,7 +154,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 			if (!softWeightings.isEmpty()) {
 				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
 				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder);
+				result = new AdditionWeighting(arrWeightings, result);
 			}
 		}
 		return result;
