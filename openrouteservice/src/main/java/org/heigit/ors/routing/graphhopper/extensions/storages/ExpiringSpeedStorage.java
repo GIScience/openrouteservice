@@ -16,7 +16,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
     private static final long BYTE_POS_SPEED_REVERSE = 5;
     private static final long BYTE_POS_TIMESTAMP = 1;
     private static final long BYTE_POS_TIMESTAMP_REVERSE = 6;
-    private int expirationTime = 15; //in minutes
+    private int defaultExpirationTime = 15; //in minutes
 
     public ExpiringSpeedStorage(FlagEncoder flagEncoder) {
         super(flagEncoder);
@@ -55,7 +55,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
     public void setSpeed(int edgeId, boolean reverse, byte speed) {
         checkEdgeInBounds(edgeId);
         speedData.setBytes(BYTE_COUNT * edgeId + (reverse ? BYTE_POS_SPEED_REVERSE : BYTE_POS_SPEED), new byte[]{speed}, 1);
-        speedData.setInt(BYTE_COUNT * edgeId + (reverse ? BYTE_POS_TIMESTAMP_REVERSE : BYTE_POS_TIMESTAMP), createIntTimeStamp() + expirationTime);
+        speedData.setInt(BYTE_COUNT * edgeId + (reverse ? BYTE_POS_TIMESTAMP_REVERSE : BYTE_POS_TIMESTAMP), createIntTimeStamp() + defaultExpirationTime);
     }
 
     public void setSpeed(int edgeId, boolean reverse, byte speed, int expirationTimeMin) {
@@ -99,10 +99,10 @@ public class ExpiringSpeedStorage extends SpeedStorage {
 
     /**
      * Set the expiration time in minutes
-     * @param expirationTimeMinutes
+     * @param newDefaultExpirationTimeMinutes
      */
-    public void setExpirationTime(int expirationTimeMinutes) {
-        this.expirationTime = expirationTimeMinutes;
+    public void setDefaultExpirationTime(int newDefaultExpirationTimeMinutes) {
+        this.defaultExpirationTime = newDefaultExpirationTimeMinutes;
     }
 
     private boolean isValid(ORSKafkaConsumerMessageSpeedUpdate msg) {
