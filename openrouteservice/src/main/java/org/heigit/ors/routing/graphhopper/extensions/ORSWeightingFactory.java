@@ -89,9 +89,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
-		if (hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false)) {
-			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
-				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+		if (hasTimeDependentSpeed(hintsMap) && hasConditionalSpeed(encoder, graphStorage)) {
+			result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
@@ -160,7 +159,15 @@ public class ORSWeightingFactory implements WeightingFactory {
 		return result;
 	}
 
-    public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
+	private boolean hasTimeDependentSpeed(HintsMap hintsMap) {
+		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
+	}
+
+	private boolean hasConditionalSpeed(FlagEncoder encoder, GraphHopperStorage graphStorage) {
+		return graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED));
+	}
+
+	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
         String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
         if (Helper.isEmpty(strWeighting))
             strWeighting = hintsMap.getWeighting();
