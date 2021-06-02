@@ -1057,7 +1057,7 @@ public class RoutingProfile {
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
-            map.put(ORSParameters.Routing.TIME_DEPENDENT_SPEED, true);
+            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
     }
     /**
      * Set the speedup techniques used for calculating the route.

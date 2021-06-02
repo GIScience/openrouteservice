@@ -89,7 +89,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
-		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
+		if (hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false)) {
 			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
 				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
 		}

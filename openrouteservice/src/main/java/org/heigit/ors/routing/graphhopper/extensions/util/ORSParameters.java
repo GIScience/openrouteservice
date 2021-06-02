@@ -28,7 +28,7 @@ public class ORSParameters {
     /**
      * Parameters that can be passed as hints and influence routing per request.
      */
-    public static final class Routing {
+    public static final class Weighting {
         public static final String TIME_DEPENDENT_SPEED = "time_dependent_speed";
     }
 
