@@ -3,21 +3,9 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.storage.RAMDirectory;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("jdk.internal.reflect.*")
-@PrepareForTest({ Instant.class })
 public class ExpiringSpeedStorageTest {
     @Test
     public void testCreation(){
