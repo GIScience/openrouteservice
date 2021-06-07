@@ -266,7 +266,8 @@ public class CellStorage implements Storable<CellStorage> {
     }
 
     /**
-     * Store super cells.
+     * Store super cells. It's a block at the end of all other data that stores [superCellId0, subcell0, subcell1, ..., -1, superCellId1, subcell0, subcell1, ..., -1, ..., -1]
+     * End denomination is by -1 for each supercell block and for the whole block we add another trailing -1.
      *
      * @param superCells the super cells
      */
@@ -276,6 +277,8 @@ public class CellStorage implements Storable<CellStorage> {
         cells.setHeader(8, (int) (cellContourPointer >> 32));
         cells.setHeader(12, (int) cellContourPointer);
         for (IntObjectCursor<IntHashSet> superCell : superCells) {
+            // + 1 for supercellId and + 1 for trailing -1
+            cells.ensureCapacity(cellContourPointer + (long) (superCell.value.size() + 2) * byteCount);
             cells.setInt(cellContourPointer, superCell.key);
             cellContourPointer = cellContourPointer + (long) byteCount;
             for (IntCursor cellId : superCell.value) {
@@ -288,6 +291,7 @@ public class CellStorage implements Storable<CellStorage> {
             cellContourPointer = cellContourPointer + (long) byteCount;
         }
         //Add second trailing -1 to mark end of superCell block
+        cells.ensureCapacity(cellContourPointer + (long) byteCount);
         cells.setInt(cellContourPointer, -1);
         cellContourPointer = cellContourPointer + (long) byteCount;
     }
