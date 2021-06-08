@@ -47,6 +47,7 @@ RELEASING:
 - Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 - Correct isochrones response documentation ([#670](https://github.com/GIScience/openrouteservice/issues/670))
 - Duplicate parameter in centrality docs due to spring reading getters for docs
+- Bug where supercell subcell ids were out of bounds in storage
 
 ## [6.5.0] - 2021-05-17
 ### Added
