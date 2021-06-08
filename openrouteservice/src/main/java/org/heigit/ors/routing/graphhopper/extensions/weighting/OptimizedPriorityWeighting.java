@@ -34,8 +34,8 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 	}
 
 	@Override
-	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
