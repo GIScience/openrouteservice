@@ -37,6 +37,9 @@ RELEASING:
 ### Added
 - Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
 - Useful error message for isochrone range/interval mismatches
+### Changed
+- Coordinate precision of locations in `maneuver`-object to 6 decimal places
+
 ### Fixed
 - Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
 - Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
