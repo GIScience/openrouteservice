@@ -87,7 +87,6 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
-    private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
@@ -1046,7 +1045,7 @@ public class RoutingProfile {
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
                 weighting = VAL_FASTEST;
-                weightingMethod = hasTimeDependentSpeed ? VAL_TD_FASTEST : VAL_FASTEST;
+                weightingMethod = VAL_FASTEST;
             }
             if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
                 weighting = VAL_RECOMMENDED;
@@ -1056,6 +1055,9 @@ public class RoutingProfile {
 
         map.put(KEY_WEIGHTING, weighting);
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
+
+        if (hasTimeDependentSpeed)
+            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
     }
     /**
      * Set the speedup techniques used for calculating the route.

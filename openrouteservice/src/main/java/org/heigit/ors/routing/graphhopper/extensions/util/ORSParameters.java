@@ -26,6 +26,16 @@ public class ORSParameters {
     static final String ROUTING_INIT_PREFIX = "routing.";
 
     /**
+     * Parameters that can be passed as hints and influence routing per request.
+     */
+    public static final class Weighting {
+        private Weighting() {}
+
+        public static final String TIME_DEPENDENT_SPEED = "time_dependent_speed";
+    }
+
+
+    /**
      * Properties for routing with contraction hierarchies speedup
      */
     public static final class Core {

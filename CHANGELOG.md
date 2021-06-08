@@ -41,6 +41,8 @@ RELEASING:
 - Coordinate precision of locations in `maneuver`-object to 6 decimal places
 
 ### Fixed
+- Correct travel time computation for routes involving time-dependent speeds regardless of the weighting used ([#956](https://github.com/GIScience/openrouteservice/issues/956))
+- Compatibility of user provided maximum speed limit with HGV routing profile ([#955](https://github.com/GIScience/openrouteservice/issues/955))
 - Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
 - Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
 - Correct isochrones response documentation ([#670](https://github.com/GIScience/openrouteservice/issues/670))
