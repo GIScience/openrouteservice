@@ -17,30 +17,59 @@ import static org.hamcrest.Matchers.*;
 public class ParamsTest extends ServiceTest {
 
     public ParamsTest() {
-        // set up valid bounding box encompassing main Heidelberg
-        JSONArray heidelbergBBox = new JSONArray();
+        // set up coordinates for testing later
         JSONArray lowerLeft = new JSONArray();
         JSONArray upperRight = new JSONArray();
-        lowerLeft.put(8.655705);
-        lowerLeft.put(49.395446);
-        upperRight.put(8.718184);
-        upperRight.put(49.434366);
+        JSONArray additionalComponentCoordinate = new JSONArray();
+        JSONArray missingComponentCoordinate = new JSONArray();
+        lowerLeft.put(8.677139);
+        lowerLeft.put(49.412872);
+        upperRight.put(8.690443);
+        upperRight.put(49.421080);
+        additionalComponentCoordinate.put(8.677139);
+        additionalComponentCoordinate.put(49.395446);
+        additionalComponentCoordinate.put(49.395446);
+        missingComponentCoordinate.put(8.65538);
 
-        heidelbergBBox.put(lowerLeft);
-        heidelbergBBox.put(upperRight);
-
-        addParameter("heidelberg", heidelbergBBox);
-
+        // set up valid bounding box encompassing Neuenheim
+        JSONArray neuenheimBBox = new JSONArray();
+        neuenheimBBox.put(lowerLeft);
+        neuenheimBBox.put(upperRight);
+        addParameter("neuenheimBox", neuenheimBBox);
 
         // set up invalid bounding box containing too few coordinates
-        JSONArray tooFewCoordsBox = new JSONArray();
-        tooFewCoordsBox.put(lowerLeft);
-        addParameter("invalidBox", tooFewCoordsBox);
+        JSONArray missingCoordinatesBox = new JSONArray();
+        missingCoordinatesBox.put(lowerLeft);
+        addParameter("missingCoordinatesBox", missingCoordinatesBox);
+
+        // set up invalid bounding box containing too many coordinates
+        JSONArray additionalCoordinatesBox = new JSONArray();
+        additionalCoordinatesBox.put(lowerLeft);
+        additionalCoordinatesBox.put(upperRight);
+        additionalCoordinatesBox.put(upperRight);
+        addParameter("additionalCoordinatesBox", additionalCoordinatesBox);
+
+        // set up invalid bounding box containing a coordinate with too many ordinates
+        JSONArray additionalComponentCoordinateBox = new JSONArray();
+        additionalComponentCoordinateBox.put(lowerLeft);
+        additionalComponentCoordinateBox.put(additionalComponentCoordinate);
+        addParameter("additionalComponentCoordinateBox", additionalComponentCoordinateBox);
+
+        //set up invalid bounding box containing a coordinate with too few ordinates
+        JSONArray missingComponentCoordinateBox = new JSONArray();
+        missingComponentCoordinateBox.put(lowerLeft);
+        missingComponentCoordinateBox.put(missingComponentCoordinate);
+        addParameter("missingComponentCoordinateBox", missingComponentCoordinateBox);
+
+        // set up empty bounding box by using the same values as corners
+        JSONArray emptyBox = new JSONArray();
+        emptyBox.put(lowerLeft);
+        emptyBox.put(lowerLeft);
+        addParameter("emptyBox", emptyBox);
 
         // set up invalid/non-present Node
         JSONArray nonPresentNodes = new JSONArray();
         nonPresentNodes.put(123456789);
-
         addParameter("invalidNodes", nonPresentNodes);
 
         // set different profiles
@@ -50,11 +79,10 @@ public class ParamsTest extends ServiceTest {
 
     }
 
-    // test general functionality
     @Test
-    public void testBasicFunctionality() {
+    public void testCentralityEndpointIsAvailable() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelberg"));
+        body.put("bbox", getParameter("neuenheimBox"));
 
         given()
                 .header("Accept", "application/json")
@@ -66,38 +94,39 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("any { it.key == 'locations' }", is(true))
-                .body("any { it.key == 'centralityScores' }", is(true))
+                .body("$", hasKey("locations"))
+                .body("$", hasKey("nodeScores"))
                 .statusCode(200);
     }
 
-    // test that excludeNodes get excluded
     @Test
-    public void testExcludeNodes() {
+    public void testExcludeNodesGetExcluded() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelberg"));
+        body.put("bbox", getParameter("neuenheimBox"));
 
-        // check that nodes to exclude are present in the response
+        // Since node IDs are not consistent over graph builds, they cannot be specified beforehand,
+        // but have to be taken from a valid response
         List<Integer> nodeIds =  given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .post(getEndPointPath()+"/{profile}/json")
-                .jsonPath().getList("nodeIds");
+                .jsonPath().getList("locations.nodeId");
 
+        // save three nodes that should be excluded and one that should still be present
         int node0 = nodeIds.get(0);
         int node1 = nodeIds.get(1);
         int node2 = nodeIds.get(2);
         int node3 = nodeIds.get(3);
+
         JSONArray excludeNodes = new JSONArray();
         excludeNodes.put(node0);
         excludeNodes.put(node1);
         excludeNodes.put(node2);
-        excludeNodes.put(node3);
 
         body.put("excludeNodes", excludeNodes);
-        //check that they are not present anymore if excluded
+
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -108,19 +137,17 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("nodeIds", not(contains(node0)))
-                .body("nodeIds", not(contains(node1)))
-                .body("nodeIds", not(contains(node2)))
-                .body("nodeIds", not(contains(node3)))
+                .body("locations.nodeId", not(hasItem(node0)))
+                .body("locations.nodeId", not(hasItem(node1)))
+                .body("locations.nodeId", not(hasItem(node2)))
+                .body("locations.nodeId", hasItem(node3))
                 .statusCode(200);
     }
 
-    // test that invalid excludeNodes don't lead to everything failing
-    // TODO: what should the system do here? If it should notify the user, how could that work?
     @Test
-    public void testInvalidExcludeNodes() {
+    public void testNotFailingOnInvalidExcludeNodes() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("heidelberg"));
+        body.put("bbox", getParameter("neuenheimBox"));
         body.put("excludeNodes", getParameter("invalidNodes"));
 
         given()
@@ -133,16 +160,14 @@ public class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .log().ifValidationFails()
-                .body("nodeIds.contains(123456789)", is(false))
+                .body("nodeIds", not(contains(123456789)))
                 .statusCode(200);
     }
 
-    // test wrong bounding box:
-    // + too few coords
     @Test
-    public void testInvalidBBox() {
+    public void testErrorOnWrongSizeBBox() {
         JSONObject body = new JSONObject();
-        body.put("bbox", getParameter("invalidBox"));
+        body.put("bbox", getParameter("missingCoordinatesBox"));
 
         given()
                 .header("Accept", "application/json")
@@ -156,9 +181,139 @@ public class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
-    }
-    // + too many coords
-    // + coords out of range?
 
-    //
+        body.put("bbox", getParameter("additionalCoordinatesBox"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void testErrorOnWrongSizeCoordinates() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("missingComponentCoordinateBox"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+
+        body.put("bbox", getParameter("additionalComponentCoordinateBox"));
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .statusCode(400);
+    }
+
+    @Test
+    public void testWarningAndEmptyLocationsOnEmptyBbox() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("emptyBox"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("$", hasKey("locations"))
+                .body("locations", is(empty()))
+                .body("warning.code", is(1))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testEdgeCentralityCalculationIfEdgeModeSpecified() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "edges");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("$", hasKey("locations")) // $ yields the JSON root
+                .body("$", hasKey("edgeScores"))
+                .body("$", not(hasKey("nodeScores")))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testNodeScoreCalculationIfNodeModeSpecified() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "nodes");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("$", hasKey("locations"))
+                .body("$", hasKey("nodeScores"))
+                .body("$", not(hasKey("edgeScores")))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testErrorIfWrongModeSpecified() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("neuenheimBox"));
+        body.put("mode", "wrongMode");
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath()+"/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.message", containsString("mode"))
+                .statusCode(400);
+    }
 }
+

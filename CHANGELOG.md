@@ -37,6 +37,21 @@ RELEASING:
 ### Changed
 - Improved wheelchair routing ([#825](https://github.com/GIScience/openrouteservice/pull/825))
 
+## [6.6.0] - 2021-06-08
+### Added
+- Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))
+- Useful error message for isochrone range/interval mismatches
+### Changed
+- Coordinate precision of locations in `maneuver`-object to 6 decimal places
+### Fixed
+- Correct travel time computation for routes involving time-dependent speeds regardless of the weighting used ([#956](https://github.com/GIScience/openrouteservice/issues/956))
+- Compatibility of user provided maximum speed limit with HGV routing profile ([#955](https://github.com/GIScience/openrouteservice/issues/955))
+- Clarified "Point not found"-Error message ([#922](https://github.com/GIScience/openrouteservice/issues/922))
+- Correct isochrones response documentation ([#670](https://github.com/GIScience/openrouteservice/issues/670))
+- Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
+- Duplicate parameter in centrality docs due to spring reading getters for docs
+- Bug where supercell subcell ids were out of bounds in storage
+
 ## [6.5.0] - 2021-05-17
 ### Added
 - Time-dependent core-based routing algorithms
@@ -439,7 +454,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...HEAD
+[6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2

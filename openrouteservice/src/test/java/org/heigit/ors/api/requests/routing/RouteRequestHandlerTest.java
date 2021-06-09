@@ -278,8 +278,16 @@ public class RouteRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidRadiusLength() throws Exception {
-        request.setMaximumSearchRadii(new Double[] {10.0});
+        request.setMaximumSearchRadii(new Double[] {10.0, 20.0});
         new RouteRequestHandler().convertRouteRequest(request);
+    }
+
+    @Test
+    public void testSingleRadius() throws Exception {
+        request.setMaximumSearchRadii(new Double[]{50d});
+
+        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        Assert.assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test(expected = ParameterValueException.class)

@@ -12,6 +12,7 @@
 - [ ] 10. For new features or changes involving building of graphs, I have tested on a larger dataset (at least Germany) and the graphs build without problems (i.e. no out-of-memory errors).
 - [ ] 11. For new features or changes involving the graphbuilding process (i.e. changing encoders, updating the importer etc.), I have generated longer distance routes for the affected profiles with different options (avoid features, max weight etc.) and compared these with the routes of the same parameters and start/end points generated from the current live ORS. If there are differences then the reasoning for these **MUST** be documented in the pull request.
 - [ ] 12. I have written in the Pull Request information about the changes made including their intended usage and why the change was needed.
+- [ ] 13. For changes touching the API documentation, i have tested that the API playground [renders correctly](https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice-infrastructure/ors-docs-api#test-new-ors-documentation).
 
 Fixes # .
 

@@ -9,6 +9,7 @@ import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.routing.*;
@@ -174,7 +175,7 @@ public class IsochronesRequestHandlerTest {
     }
 
     @Test
-    public void setRangeAndIntervals() throws ParameterValueException {
+    public void setRangeAndIntervals() throws ParameterValueException, ParameterOutOfRangeException {
         TravellerInfo info = new TravellerInfo();
         List<Double> rangeValues = new ArrayList<>();
         rangeValues.add(20.0);
