@@ -27,7 +27,7 @@ import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import org.json.JSONObject;
 
-@ApiModel(value = "RouteResponseInfo", description = "Information about the request")
+@ApiModel(value = "IsochronesResponseInfo", description = "Information about the request")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class IsochronesResponseInfo {
     @ApiModelProperty(value = "ID of the request (as passed in by the query)", example = "request123")
@@ -47,11 +47,11 @@ public class IsochronesResponseInfo {
     @JsonProperty("timestamp")
     private final long timeStamp;
 
-    @ApiModelProperty(value = "The information that was used for generating the route")
+    @ApiModelProperty(value = "The information that was used for generating the isochrones")
     @JsonProperty("query")
     private final IsochronesRequest request;
 
-    @ApiModelProperty(value = "Information about the routing service")
+    @ApiModelProperty(value = "Information about the isochrones service")
     @JsonProperty("engine")
     private final EngineInfo engineInfo;
 
@@ -83,7 +83,7 @@ public class IsochronesResponseInfo {
         engineInfo.setGraphDate(graphDate);
     }
 
-    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the route")
+    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the isochrones")
     private class EngineInfo {
         @ApiModelProperty(value = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")

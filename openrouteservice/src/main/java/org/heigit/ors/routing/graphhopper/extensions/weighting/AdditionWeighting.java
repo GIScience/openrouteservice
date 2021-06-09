@@ -13,39 +13,26 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.AbstractWeighting;
+import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
-public class AdditionWeighting extends AbstractWeighting {
-	private final Weighting superWeighting;
-	private final Weighting[] weightings;
+public class AdditionWeighting extends AbstractAdjustedWeighting {
+	private Weighting[] weightings;
 
-    public AdditionWeighting(Weighting[] weightings, Weighting superWeighting, FlagEncoder encoder) {
-        super(encoder);
-        this.superWeighting = superWeighting;
+    public AdditionWeighting(Weighting[] weightings, Weighting superWeighting) {
+        super(superWeighting);
         this.weightings = weightings.clone();
     }
     
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
         double sumOfWeights = 0;
 		for (Weighting w:weightings) {
 			sumOfWeights += w.calcWeight(edgeState, reverse, prevOrNextEdgeId);
 		}
-    	return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId) * sumOfWeights;
+    	return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime) * sumOfWeights;
     }
-
-	@Override
-	public double getMinWeight(double distance) {
-		return 0;
-	}
-	
-	@Override
-	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-    	return superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
-	}
 
 	@Override
 	public String getName() {

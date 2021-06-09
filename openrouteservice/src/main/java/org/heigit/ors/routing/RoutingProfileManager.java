@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.Helper;
@@ -27,6 +29,7 @@ import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -42,7 +45,6 @@ import org.heigit.ors.util.TimeUtility;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,8 +58,12 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager mInstance;
+    private boolean initComplete = false;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private long kafkaMessagesProcessed = 0;
+    private long kafkaMessagesFailed = 0;
 
-    public static synchronized RoutingProfileManager getInstance() throws IOException {
+    public static synchronized RoutingProfileManager getInstance() {
         if (mInstance == null) {
             mInstance = new RoutingProfileManager();
             mInstance.initialize(null);
@@ -104,7 +110,7 @@ public class RoutingProfileManager {
                     nCompletedTasks++;
                     rp.close();
                     LOGGER.info("Graph preparation done.");
-                } catch (InterruptedException|ExecutionException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     LOGGER.error(e);
                     throw e;
                 }
@@ -115,6 +121,7 @@ public class RoutingProfileManager {
             LOGGER.info("Graphs were prepared in " + TimeUtility.getElapsedTime(startTime, true) + ".");
         } catch (Exception ex) {
             LOGGER.error("Failed to prepare graphs.", ex);
+            Thread.currentThread().interrupt();
         }
 
         RuntimeUtility.clearMemory(LOGGER);
@@ -169,7 +176,7 @@ public class RoutingProfileManager {
                             nCompletedTasks++;
                             if (!routeProfiles.add(rp))
                                 LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException|InterruptedException e) {
+                        } catch (ExecutionException | InterruptedException e) {
                             LOGGER.error(e);
                             throw e;
                         }
@@ -180,7 +187,7 @@ public class RoutingProfileManager {
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
-                    createRunFile();
+                    initCompleted();
 
                     if (rmc.getUpdateConfig().getEnabled()) {
                         profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
@@ -192,6 +199,7 @@ public class RoutingProfileManager {
             }
         } catch (Exception ex) {
             LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
+            Thread.currentThread().interrupt();
         }
 
         RuntimeUtility.clearMemory(LOGGER);
@@ -288,12 +296,12 @@ public class RoutingProfileManager {
             for (Object obj : gr.getReturnObjects()) {
                 if (obj instanceof ExtraInfoProcessor) {
                     if (extraInfoProcessor == null) {
-                        extraInfoProcessor = (ExtraInfoProcessor)obj;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                        extraInfoProcessor = (ExtraInfoProcessor) obj;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
                         }
                     } else {
-                        extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+                        extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
                     }
                 }
             }
@@ -381,22 +389,22 @@ public class RoutingProfileManager {
                                         i + 1,
                                         FormatUtility.formatCoordinate(c1))
                         );
-                    } else if(gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
-                        for(Throwable error: gr.getErrors()) {
-                            if(message.length() > 0)
+                        for (Throwable error : gr.getErrors()) {
+                            if (message.length() > 0)
                                 message.append("; ");
                             if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                                 com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException = (com.graphhopper.util.exceptions.PointNotFoundException) error;
-                                int pointReference = (i-1) + pointNotFoundException.getPointIndex();
+                                int pointReference = (i - 1) + pointNotFoundException.getPointIndex();
 
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
                                 double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
 
-                                message.append(String.format("Could not find point %d: %s within a radius of %.1f meters.",
+                                message.append(String.format("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.",
+                                        pointRadius,
                                         pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate),
-                                        pointRadius));
+                                        FormatUtility.formatCoordinate(pointCoordinate)));
 
                             } else {
                                 message.append(error.getMessage());
@@ -424,10 +432,10 @@ public class RoutingProfileManager {
                 int extraInfoProcessorIndex = 0;
                 for (Object o : gr.getReturnObjects()) {
                     if (o instanceof ExtraInfoProcessor) {
-                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
+                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
                         extraInfoProcessorIndex++;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
+                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                         }
                     }
                 }
@@ -435,12 +443,12 @@ public class RoutingProfileManager {
                 for (Object o : gr.getReturnObjects()) {
                     if (o instanceof ExtraInfoProcessor) {
                         if (extraInfoProcessors[0] == null) {
-                            extraInfoProcessors[0] = (ExtraInfoProcessor)o;
-                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
-                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            extraInfoProcessors[0] = (ExtraInfoProcessor) o;
+                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
+                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                             }
                         } else {
-                            extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
+                            extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);
                         }
                     }
                 }
@@ -588,11 +596,11 @@ public class RoutingProfileManager {
             }
         }
 
-        if(searchParams.hasMaximumSpeed()){
-            if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
+        if (searchParams.hasMaximumSpeed()) {
+            if (searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
             }
-            if(RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING){
+            if (RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING) {
                 throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }
@@ -632,13 +640,55 @@ public class RoutingProfileManager {
         return rp.computeCentrality(req);
     }
 
-    public void createRunFile() {
+    public void initCompleted() {
+        initComplete = true;
         File file = new File("ors.run");
         try (FileWriter fw = new FileWriter(file)) {
-            fw.write("ORS init complete: "+ Instant.now().toString() + "\n");
+            fw.write("ORS init complete: " + Instant.now().toString() + "\n");
             fw.flush();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
+        }
+    }
+
+    public static boolean isInitComplete() {
+        return RoutingProfileManager.getInstance().initComplete;
+    }
+
+    public long getKafkaMessagesProcessed() {
+        return this.kafkaMessagesProcessed;
+    }
+
+    public long getKafkaMessagesFailed() {
+        return this.kafkaMessagesFailed;
+    }
+
+    /**
+     * Process message received via ORSKafkaConsumer.
+     *
+     * @param profile target profile according to configuration
+     * @param value   message value passed from KafkaConsumer
+     */
+    public void updateProfile(String profile, String value) {
+        switch (profile) {
+            case "driving-car":
+            case "driving-hgv":
+                // profile specific processing
+                break;
+            case "test":
+                try {
+                    ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
+                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
+                    this.kafkaMessagesProcessed++;
+                } catch (JsonProcessingException e) {
+                    LOGGER.error(e);
+                    this.kafkaMessagesFailed++;
+                }
+                break;
+            default:
+                LOGGER.error(String.format("kafka message received for unknown profile %s", profile));
+                this.kafkaMessagesFailed++;
+                break;
         }
     }
 }

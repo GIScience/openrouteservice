@@ -24,7 +24,7 @@ import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
 import org.heigit.ors.api.requests.centrality.CentralityRequestHandler;
-import org.heigit.ors.api.responses.centrality.json.JSONCentralityResponse;
+import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -80,19 +80,19 @@ public class CentralityAPI {
     @ApiResponses(
             @ApiResponse(code = 200,
                     message = "Standard response for successfully processed requests. Returns JSON.", //TODO: add docs
-                    response = JSONCentralityResponse.class)
+                    response = JsonCentralityResponse.class)
     )
-    public JSONCentralityResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                        @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
+    public JsonCentralityResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+                                             @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
         return getJsonCentrality(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON", value = "Centrality Service JSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JSONCentralityResponse.class)
+            @ApiResponse(code = 200, message = "JSON Response", response = JsonCentralityResponse.class)
     })
-    public JSONCentralityResponse getJsonCentrality(
+    public JsonCentralityResponse getJsonCentrality(
             @ApiParam(value = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
         request.setProfile(profile);
@@ -100,7 +100,7 @@ public class CentralityAPI {
 
         CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
 
-        return new JSONCentralityResponse(result);
+        return new JsonCentralityResponse(result);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

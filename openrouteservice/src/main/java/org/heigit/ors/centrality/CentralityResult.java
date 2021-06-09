@@ -1,41 +1,64 @@
 package org.heigit.ors.centrality;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import org.heigit.ors.common.Pair;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class CentralityResult {
-    private Map<Coordinate, Double> centralityScores;
-    private Map<Coordinate, Integer> nodes;
+    private Map<Integer, Coordinate> locations;
+    private Map<Integer, Double> nodeCentralityScores;
+    private Map<Pair<Integer, Integer>, Double> edgeCentralityScores;
+    private CentralityWarning warning;
 
     public CentralityResult() {
-        this.centralityScores = new HashMap<>();
-        this.nodes = new HashMap<>();
+        this.locations = new HashMap<>();
+        this.nodeCentralityScores = null;
+        this.edgeCentralityScores = null;
+        this.warning = null;
     }
 
-    public CentralityResult(Map<Coordinate, Double> centralityScores) {
-        this.setCentralityScores(centralityScores);
+    public Map<Integer, Double> getNodeCentralityScores() {
+        return nodeCentralityScores;
     }
 
-    public Map<Coordinate, Double> getCentralityScores() {
-        return centralityScores;
+    public void setNodeCentralityScores(Map<Integer, Double> nodeCentralityScores) {
+        this.nodeCentralityScores = nodeCentralityScores;
     }
 
-    public void setCentralityScores(Map<Coordinate, Double> centralityScores) {
-        this.centralityScores = centralityScores;
+    public boolean hasNodeCentralityScores() {
+        return this.nodeCentralityScores != null;
     }
 
-    public Map<Coordinate, Integer> getNodes() {return nodes; }
-
-    public void setNodes(Map<Coordinate, Integer> nodes) {
-        this.nodes = nodes;
+    public Map<Pair<Integer, Integer>, Double> getEdgeCentralityScores() {
+        return edgeCentralityScores;
     }
 
-    public void addCentralityScore(Coordinate coord, Double score) {
-        this.centralityScores.put(coord, score);
+    public void setEdgeCentralityScores(Map<Pair<Integer, Integer>, Double> edgeCentralityScores) {
+        this.edgeCentralityScores = edgeCentralityScores;
     }
 
-    public void addNode(Integer node, Coordinate coord) {
-        this.nodes.put(coord, node);
+    public boolean hasEdgeCentralityScores() {
+        return this.edgeCentralityScores != null;
     }
+
+    public Map<Integer, Coordinate> getLocations() {return locations; }
+
+    public void setLocations(Map<Integer, Coordinate> locations) {
+        this.locations = locations;
+    }
+
+    public void addLocation(Integer node, Coordinate coord) {
+        this.locations.put(node, coord);
+    }
+
+    public CentralityWarning getWarning() { return warning;}
+
+    public void setWarning(CentralityWarning warning) { this.warning = warning; }
+
+    public boolean hasWarning() {return this.warning != null; }
+
+
+
 }

@@ -9,6 +9,7 @@ import java.util.List;
 public class CentralityRequest extends ServiceRequest {
     private BBox bbox;
     private List<Integer> excludeNodes = new ArrayList<>();
+    private String mode;
 
     private int profileType = -1;
 
@@ -24,5 +25,7 @@ public class CentralityRequest extends ServiceRequest {
 
     public void setProfileType(int profileType) { this.profileType = profileType; }
 
+    public String getMode() { return mode; }
 
+    public void setMode(String mode) { this.mode = mode; }
 }
