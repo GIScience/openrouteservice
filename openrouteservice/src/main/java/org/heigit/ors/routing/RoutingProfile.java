@@ -662,6 +662,7 @@ public class RoutingProfile {
         LocationIndex index = gh.getLocationIndex();
         NodeAccess nodeAccess = graph.getNodeAccess();
         BBox bbox = req.getBoundingBox();
+        res.setBoundingBox(bbox);
         List<Integer> excludeNodes = req.getExcludeNodes();
 
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
