@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- made ORSKafkaConsumerInitContextListener non-blocking
 
 ## [6.6.0] - 2021-06-08
 ### Added
