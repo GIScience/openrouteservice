@@ -29,6 +29,11 @@ public class CommonSpeedCalculator implements SpeedCalculator {
         return modifiedSpeed;
     }
 
+    @Override
+    public boolean isTimeDependent() {
+        return false;
+    }
+
     public void setEncoder(FlagEncoder flagEncoder) {
         this.avSpeedEnc = flagEncoder.getAverageSpeedEnc();
     }
