@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.Helper;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
 
 import java.util.List;
@@ -40,6 +41,11 @@ public class ExpiringSpeedGraphStorageBuilder extends AbstractGraphStorageBuilde
 		flagEncoder = encoders.get(0);
 
 		storage = new ExpiringSpeedStorage(flagEncoder);
+		if (parameters != null) {
+			String value = parameters.get("expiration_min");
+			if (!Helper.isEmpty(value))
+				storage.setDefaultExpirationTime(Integer.parseInt(value));
+		}
 		return storage;
 	}
 
