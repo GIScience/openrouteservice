@@ -26,12 +26,12 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreDijkstraFilter implements EdgeFilter {
-    private final CHGraph graph;
-    private final int maxNodes;
-    private final int coreNodeLevel;
-    EdgeFilter restrictions;
+    protected final CHGraph graph;
+    protected final int maxNodes;
+    protected final int coreNodeLevel;
+    protected EdgeFilter restrictions;
 
-    boolean inCore = false;
+    protected boolean inCore = false;
 
     public void setInCore(boolean inCore) {
         this.inCore = inCore;

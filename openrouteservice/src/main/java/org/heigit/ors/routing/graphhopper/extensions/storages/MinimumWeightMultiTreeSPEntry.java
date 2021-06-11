@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
+import java.util.Arrays;
+
 /**
  * This class is used to create the shortest-path-tree from linked entities.
  * <p>
@@ -48,6 +50,6 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + 0 + ") weights: " + minimumWeight; // TODO
+		return adjNode + " (" + 0 + ") weights: " + Arrays.toString(items); // TODO
 	}
 }

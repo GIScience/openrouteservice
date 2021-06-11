@@ -27,6 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMulti
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
+import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
@@ -45,6 +46,13 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
+    }
+
+    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, IntObjectMap<MinimumWeightMultiTreeSPEntry> existingWeightMap, Weighting weighting, TraversalMode tMode) {
+        super(graph, weighting, tMode);
+        int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
+        initCollections(size);
+        bestWeightMapFrom = existingWeightMap;
     }
 
     protected void initCollections(int size) {
@@ -67,7 +75,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     }
 
     public void prepare(int[] from, int[] to) {
-        treeEntrySize = from.length;
         targetsCount = to.length;
         this.targets = new IntHashSet(targetsCount);
         for (int i = 0; i < to.length; ++i)
@@ -78,9 +85,11 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         }
     }
 
-    @Override
-    public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
-        prepare(from, to);
+    public void setTreeEntrySize(int entrySize){
+        this.treeEntrySize = entrySize;
+    }
+
+    private void createQueueAndMapFromIds(int[] from){
         for (int i = 0; i < from.length; i++) {
             if (from[i] == -1)
                 continue;
@@ -103,26 +112,33 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             else
                 throw new IllegalStateException("Edge-based behavior not supported");
         }
+    }
+
+    private void createQueueAndMapFromQueue(PriorityQueue<MinimumWeightMultiTreeSPEntry> queue) {
+        prioQueue = queue;
+        Iterator<MinimumWeightMultiTreeSPEntry> iterator = queue.iterator();
+        while(iterator.hasNext()){
+            MinimumWeightMultiTreeSPEntry item = iterator.next();
+            bestWeightMapFrom.put(item.getAdjNode(), item);
+        }
+    }
+
+    @Override
+    public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
+        return this.calcPaths(from, to, null);
+    }
+
+    public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to, PriorityQueue<MinimumWeightMultiTreeSPEntry> fromQueue) {
+        prepare(from, to);
+        if(from == null || fromQueue.isEmpty())
+            createQueueAndMapFromIds(from);
+        else {
+            createQueueAndMapFromQueue(fromQueue);
+        }
 
         outEdgeExplorer = graph.createEdgeExplorer();
 
         runAlgo();
-
-//        currEdge = bestWeightMapFrom.get(upwardEdgeFilter.getHighestNode());
-//        currEdge.setVisited(true);
-//        currEdge.resetUpdate(true);
-//        prioQueue.clear();
-//        prioQueue.add(currEdge);
-//
-//        for (int i = 0; i < from.length; i++) {
-//            int sourceNode = from[i];
-//            MinimumWeightMultiTreeSPEntry mspTree = bestWeightMapFrom.get(sourceNode);
-//            mspTree.getItem(i).setUpdate(true);
-//            prioQueue.add(mspTree);
-//        }
-
-//        outEdgeExplorer = targetGraph.createExplorer();
-//        runDownwardSearch();
 
         MinimumWeightMultiTreeSPEntry[] targets = new MinimumWeightMultiTreeSPEntry[to.length];
 

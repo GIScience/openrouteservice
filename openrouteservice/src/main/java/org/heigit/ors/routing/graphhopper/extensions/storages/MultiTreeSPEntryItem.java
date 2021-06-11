@@ -52,4 +52,10 @@ public class MultiTreeSPEntryItem {
 	public void setParent(MultiTreeSPEntry parent) {
 		this.parent = parent;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(weight); // TODO
+	}
+
 }

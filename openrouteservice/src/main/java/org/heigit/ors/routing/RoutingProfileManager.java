@@ -686,6 +686,8 @@ public class RoutingProfileManager {
                     catch (Exception e) {
                         e.printStackTrace();
                     }
+                    if(rp == null)
+                        return;
                     if (!msg.hasDurationMin())
                         msg.setDurationMin(rp.getConfiguration().getTrafficExpirationMin());
                     ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);

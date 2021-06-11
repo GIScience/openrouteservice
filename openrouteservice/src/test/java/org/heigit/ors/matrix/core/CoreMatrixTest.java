@@ -58,11 +58,23 @@ public class CoreMatrixTest {
 
         prepare.doWork();
 
+        if (DebugUtility.isDebug()) {
+            for (int i = 0; i < lg.getNodes(); i++)
+                System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
+            AllCHEdgesIterator iter = lg.getAllEdges();
+            while (iter.next()) {
+                System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+                if (iter.isShortcut())
+                    System.out.print(" (shortcut)");
+                System.out.println(" [weight: " + (new PreparationWeighting(weighting)).calcWeight(iter, false, -1) +"]");
+            }
+        }
+
         return lg;
     }
 
     @Test
-    public void testOneToManyAllInCore() {
+    public void testOneToManyAllEdgesInCore() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -109,7 +121,7 @@ public class CoreMatrixTest {
     /**
      * All start and goal nodes are in core
      */
-    public void testOneToManySomeInCore() {
+    public void testOneToManySomeEdgesInCore() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -148,7 +160,7 @@ public class CoreMatrixTest {
     /**
      * All start and goal nodes are in core
      */
-    public void testManyToManySomeInCore() {
+    public void testManyToManySomeEdgesInCore() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -184,6 +196,127 @@ public class CoreMatrixTest {
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
+    }
+
+    @Test
+    /**
+     * Not all start and goal nodes are in core
+     */
+    public void testOneToManySomeNodesInCore() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(5);
+        restrictedEdges.add(8);
+        restrictedEdges.add(9);
+        restrictedEdges.add(11);
+        restrictedEdges.add(12);
+
+        CHGraph g = contractGraph(graphHopperStorage, restrictedEdges);
+        MatrixLocations sources = new MatrixLocations(1);
+        sources.setData(0, 0, null);
+        MatrixLocations destinations = new MatrixLocations(2);
+        destinations.setData(0, 4, null);
+        destinations.setData(1, 5, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+
+        algorithm.init(matrixRequest, g, carEncoder, new PreparationWeighting(weighting), new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
+    }
+
+    @Test
+    /**
+     * Not all start and goal nodes are in core
+     */
+    public void testManyToManySomeNodesInCore() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(8);
+        restrictedEdges.add(9);
+        restrictedEdges.add(11);
+        restrictedEdges.add(12);
+
+        CHGraph g = contractGraph(graphHopperStorage, restrictedEdges);
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 1, null);
+        MatrixLocations destinations = new MatrixLocations(2);
+        destinations.setData(0, 4, null);
+        destinations.setData(1, 5, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+
+        algorithm.init(matrixRequest, g, carEncoder, new PreparationWeighting(weighting), new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
+        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
+        assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
+    }
+
+    @Test
+    /**
+     * Not all start and goal nodes are in core
+     */
+    public void testOneToManyNoNodesInCore() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(8);
+        restrictedEdges.add(9);
+        restrictedEdges.add(11);
+        restrictedEdges.add(12);
+
+        CHGraph g = contractGraph(graphHopperStorage, restrictedEdges);
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 1, null);
+        MatrixLocations destinations = new MatrixLocations(2);
+        destinations.setData(0, 3, null);
+        destinations.setData(1, 2, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+
+        algorithm.init(matrixRequest, g, carEncoder, new PreparationWeighting(weighting), new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
+        assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
 
     @Test
