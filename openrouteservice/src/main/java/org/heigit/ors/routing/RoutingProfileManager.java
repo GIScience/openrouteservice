@@ -680,12 +680,7 @@ public class RoutingProfileManager {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
                     RoutingProfile rp = null;
                     int profileType = RoutingProfileType.getFromString(profile);
-                    try {
-                        rp = routeProfiles.getRouteProfile(profileType);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    rp = getRoutingProfileFromType(rp, profileType);
                     if(rp == null)
                         return;
                     if (!msg.hasDurationMin())
@@ -693,12 +688,7 @@ public class RoutingProfileManager {
                     ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);
                     if(storage == null)
                         throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
-                    try{
-                        storage.process(msg);
-                    }
-                    catch (Exception e) {
-                        LOGGER.error(e);
-                    }
+                    processMessage(msg, storage);
                     LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
                 } catch (JsonProcessingException e) {
@@ -721,5 +711,24 @@ public class RoutingProfileManager {
                 this.kafkaMessagesFailed++;
                 break;
         }
+    }
+
+    private void processMessage(ORSKafkaConsumerMessageSpeedUpdate msg, ExpiringSpeedStorage storage) {
+        try{
+            storage.process(msg);
+        }
+        catch (Exception e) {
+            LOGGER.error(e);
+        }
+    }
+
+    private RoutingProfile getRoutingProfileFromType(RoutingProfile rp, int profileType) {
+        try {
+            rp = routeProfiles.getRouteProfile(profileType);
+        }
+        catch (Exception e) {
+            LOGGER.error(e);
+        }
+        return rp;
     }
 }

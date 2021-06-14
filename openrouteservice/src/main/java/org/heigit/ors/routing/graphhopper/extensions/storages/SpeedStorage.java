@@ -19,7 +19,6 @@ public class SpeedStorage implements GraphExtension {
     private static final long BYTE_POS_SPEED_REVERSE = 1;
     protected DataAccess speedData;
     protected int edgeCount;
-    private Graph graph;
     protected FlagEncoder flagEncoder;
 
     public SpeedStorage(FlagEncoder flagEncoder) {
@@ -33,10 +32,10 @@ public class SpeedStorage implements GraphExtension {
 
     @Override
     public boolean loadExisting() {
-         if (!speedData.loadExisting())
-             return false;
-         this.edgeCount = speedData.getHeader(0);
-         return true;
+        if (!speedData.loadExisting())
+            return false;
+        this.edgeCount = speedData.getHeader(0);
+        return true;
     }
 
     /**
@@ -101,7 +100,6 @@ public class SpeedStorage implements GraphExtension {
     protected void checkEdgeInBounds(int edgeId) {
         if (edgeId >= speedData.getCapacity() / BYTE_COUNT) {
             speedData.ensureCapacity(edgeId * BYTE_COUNT);
-//            throw new IllegalArgumentException("Invalid edgeId " + edgeId + " for SpeedStorage with edge count " + edgeCount);
         }
     }
 

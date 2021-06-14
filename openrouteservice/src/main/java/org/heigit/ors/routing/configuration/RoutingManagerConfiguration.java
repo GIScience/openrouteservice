@@ -232,6 +232,7 @@ public class RoutingManagerConfiguration  {
 						break;
 					case "traffic_expiration_min":
 						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

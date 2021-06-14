@@ -26,19 +26,15 @@ import java.util.List;
 
 public class ExpiringSpeedGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	private ExpiringSpeedStorage storage;
-	private FlagEncoder flagEncoder;
 
-	public ExpiringSpeedGraphStorageBuilder() {
-	}
-	
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
 		if (storage != null)
-			throw new Exception("GraphStorageBuilder has been already initialized.");
+			throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
 		// extract profiles from GraphHopper instance
 		EncodingManager encMgr = graphhopper.getEncodingManager();
 		List<FlagEncoder> encoders = encMgr.fetchEdgeEncoders();
-		flagEncoder = encoders.get(0);
+		FlagEncoder flagEncoder = encoders.get(0);
 
 		storage = new ExpiringSpeedStorage(flagEncoder);
 		if (parameters != null) {
@@ -51,12 +47,12 @@ public class ExpiringSpeedGraphStorageBuilder extends AbstractGraphStorageBuilde
 
 	@Override
 	public void processWay(ReaderWay way) {
-
+		//No processing on input data
 	}
 
 	@Override
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-
+		//No processing on input data
 	}
 
 	@Override

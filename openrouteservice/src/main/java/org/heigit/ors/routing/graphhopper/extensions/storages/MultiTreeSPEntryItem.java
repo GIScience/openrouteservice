@@ -55,7 +55,7 @@ public class MultiTreeSPEntryItem {
 
 	@Override
 	public String toString() {
-		return String.valueOf(weight); // TODO
+		return String.valueOf(weight);
 	}
 
 }

@@ -14,7 +14,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStora
 public class CommonSpeedCalculator implements SpeedCalculator {
     private ExpiringSpeedStorage expiringSpeedStorage;
     private DecimalEncodedValue avSpeedEnc;
-    private FlagEncoder flagEncoder;
 
     public void init(ExpiringSpeedStorage expiringSpeedStorage, FlagEncoder flagEncoder) {
         this.expiringSpeedStorage = expiringSpeedStorage;
@@ -25,7 +24,7 @@ public class CommonSpeedCalculator implements SpeedCalculator {
         int edgeId = EdgeKeys.getOriginalEdge(edge);
         double modifiedSpeed = expiringSpeedStorage.getSpeed(edgeId, reverse);
         if (modifiedSpeed == Byte.MIN_VALUE)
-            return reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);;
+            return reverse ? edge.getReverse(avSpeedEnc) : edge.get(avSpeedEnc);
         return modifiedSpeed;
     }
 

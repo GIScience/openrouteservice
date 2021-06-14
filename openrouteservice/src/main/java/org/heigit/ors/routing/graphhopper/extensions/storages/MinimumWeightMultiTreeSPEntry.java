@@ -50,6 +50,6 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + 0 + ") weights: " + Arrays.toString(items); // TODO
+		return adjNode + " (" + 0 + ") weights: " + Arrays.toString(items);
 	}
 }

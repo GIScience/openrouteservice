@@ -82,9 +82,6 @@ public class ExpiringSpeedStorage extends SpeedStorage {
         if (createIntTimeStamp() > storedTimeStamp)
             return Byte.MIN_VALUE;
 
-//        if (createIntTimeStamp() - storedTimeStamp < 0)
-//            throw new IllegalStateException("Invalid time stamp in storage " + storedTimeStamp);
-
         return speedByte[0];
     }
 
@@ -106,9 +103,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
     }
 
     private boolean isValid(ORSKafkaConsumerMessageSpeedUpdate msg) {
-        if (msg.getSpeed() > Byte.MAX_VALUE || msg.getSpeed() < 0)
-            return false;
-        return true;
+        return !(msg.getSpeed() > Byte.MAX_VALUE || msg.getSpeed() < 0);
     }
 
 }
