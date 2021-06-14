@@ -67,6 +67,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
+        weighting =  new PreparationWeighting(weighting);
         super.init(req, gh, graph, encoder, weighting);
 
         this.outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
@@ -325,7 +326,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     **/
     private void runPhaseInsideCore(MatrixLocations srcData) {
         // Calculate all paths only inside core
-        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, bestWeightMap, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
+        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, bestWeightMap, weighting, TraversalMode.NODE_BASED);
         //TODO Add restriction filter or do this differently
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(srcData.size());

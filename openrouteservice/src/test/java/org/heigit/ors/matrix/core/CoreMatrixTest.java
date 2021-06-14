@@ -111,7 +111,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -150,7 +149,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -190,7 +188,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -231,7 +228,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -270,7 +266,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -311,7 +306,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -353,7 +347,6 @@ public class CoreMatrixTest {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return;
         }
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
