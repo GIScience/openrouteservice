@@ -21,6 +21,7 @@ import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -29,6 +30,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -95,8 +99,14 @@ public class ORSWeightingFactory implements WeightingFactory {
 		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
 			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
 				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
-			if (GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class) != null)
-				result.setSpeedCalculator(new RoutingTrafficSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+			if (GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class) != null) {
+				//Use fixed time zone because original implementation was for German traffic data
+				String time = hintsMap.get(hintsMap.has(RouteRequest.PARAM_DEPARTURE) ? RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
+				ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
+				RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder);
+				routingTrafficSpeedCalculator.setZonedDateTime(zdt);
+				result.setSpeedCalculator(routingTrafficSpeedCalculator);
+			}
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
