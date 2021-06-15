@@ -27,7 +27,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMulti
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
@@ -89,53 +88,26 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         this.treeEntrySize = entrySize;
     }
 
-    private void createQueueAndMapFromIds(int[] from){
+    private void addEntriesFromMapToQueue(int[] from){
         for (int i = 0; i < from.length; i++) {
             if ((from[i] != -1)) {
                 //If two queried points are on the same node, this case can occur
                 MinimumWeightMultiTreeSPEntry existing = bestWeightMapFrom.get(from[i]);
-                if (existing != null) {
-                    existing.getItem(i).setWeight(0.0);
-                    continue;
+                if (existing == null) {
+                    throw new IllegalStateException("Node " + from[i] + " was not found in existing weight map");
                 }
-
-                MinimumWeightMultiTreeSPEntry newFrom = new MinimumWeightMultiTreeSPEntry(from[i], EdgeIterator.NO_EDGE, 0.0, true, null, from.length);
-                newFrom.getItem(i).setWeight(0.0);
-                newFrom.updateWeights();
-                newFrom.setVisited(true);
-                prioQueue.add(newFrom);
-
-                if (!traversalMode.isEdgeBased())
-                    bestWeightMapFrom.put(from[i], newFrom);
-                else
-                    throw new IllegalStateException("Edge-based behavior not supported");
+                prioQueue.add(existing);
             }
         }
     }
 
-    private void createQueueAndMapFromQueue(PriorityQueue<MinimumWeightMultiTreeSPEntry> queue) {
-        prioQueue = queue;
-        Iterator<MinimumWeightMultiTreeSPEntry> iterator = queue.iterator();
-        while(iterator.hasNext()){
-            MinimumWeightMultiTreeSPEntry item = iterator.next();
-            bestWeightMapFrom.put(item.getAdjNode(), item);
-        }
-    }
-
-    @Override
     public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
-        return this.calcPaths(from, to, null);
-    }
-
-    public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to, PriorityQueue<MinimumWeightMultiTreeSPEntry> fromQueue) {
+        if(from.length == 0 || to.length == 0)
+            return new MinimumWeightMultiTreeSPEntry[]{};
         if(from == null || to == null)
             throw new IllegalArgumentException("Input points are null");
         prepare(from, to);
-        if(fromQueue.isEmpty())
-            createQueueAndMapFromIds(from);
-        else {
-            createQueueAndMapFromQueue(fromQueue);
-        }
+        addEntriesFromMapToQueue(from);
 
         outEdgeExplorer = graph.createEdgeExplorer();
 
@@ -152,7 +124,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     protected void runAlgo() {
         EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
         currEdge = prioQueue.poll();
-
+        if(currEdge == null)
+            return;
         while (true) {
             EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
             if (!(isMaxVisitedNodesExceeded() || finished())){
