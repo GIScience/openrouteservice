@@ -22,6 +22,7 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSOSMReader;
 
 import java.util.HashSet;
@@ -49,6 +50,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_DESIGNATED = "designated";
     public static final String KEY_OFFICIAL = "official";
     public static final String KEY_CROSSING = "crossing";
+    private static double problematicSpeedFactor;
+    private static double preferredSpeedFactor;
 
     private OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
     private OSMPedestrianProcessor osmPedestrianProcessor = new OSMPedestrianProcessor();
@@ -133,8 +136,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
   	public WheelchairFlagEncoder(PMap configuration) {
-		 this(configuration.getInt("speed_bits", 4),
+		this(configuration.getInt("speed_bits", 4),
 			  configuration.getDouble("speed_factor", 1));
+
+        problematicSpeedFactor = configuration.getDouble("problematic_speed_factor", 1);
+        preferredSpeedFactor = configuration.getDouble("preferred_speed_factor", 1);
     }
 
     /**
@@ -521,12 +527,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                     || way.hasTag("smoothness", problematicSmoothnesses)
                     || way.hasTag("tracktype", problematicTracktypes)
             )
-        	    speed *= 0.1d;
+        	    speed *= problematicSpeedFactor;
 
             if (way.hasTag("surface", preferredSurfaces)
                     || way.hasTag("smoothness", preferredSmoothnesses)
             )
-                speed *= 3d;
+                speed *= preferredSpeedFactor;
 
             if (speed > 10d)
                 speed = 10d;

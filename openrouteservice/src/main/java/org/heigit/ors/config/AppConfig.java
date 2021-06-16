@@ -136,6 +136,16 @@ public class AppConfig {
 		return false;
 	}
 
+	public double getDouble(String path) {
+		try {
+			ConfigObject configObj = config.getObject("ors");
+			return configObj.toConfig().getDouble(path);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return Double.NaN;
+	}
+
 	public List<? extends ConfigObject> getObjectList(String paramName) {
 		try {
 			return config.getObjectList("ors." + paramName);
