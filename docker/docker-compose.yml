@@ -11,6 +11,7 @@ services:
 #      args:
 #        APP_CONFIG: ./openrouteservice/src/main/resources/app.config.sample
 #        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
+    user: "${ORS_UID:-1000}:${ORS_GID:-1000}"
     volumes:
       - ./graphs:/ors-core/data/graphs
       - ./elevation_cache:/ors-core/data/elevation_cache
