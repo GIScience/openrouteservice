@@ -23,9 +23,11 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -51,6 +53,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     protected int coreNodeLevel;
     protected int turnRestrictedNodeLevel;
+    private boolean hasTurnWeighting = false;
+    protected boolean approximate = false;
 
     protected int highestNodeLevel = -1;
     protected int highestNode = -1;
@@ -66,10 +70,15 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     IntHashSet coreExitPoints;
 
     IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
+    IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMapCore;
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
-        weighting =  new PreparationWeighting(weighting);
+        if (weighting instanceof TurnWeighting) {
+//            turnWeighting = (TurnWeighting) weighting;
+            hasTurnWeighting = true;
+        }
+        weighting = new PreparationWeighting(weighting);
         super.init(req, gh, graph, encoder, weighting);
 
         this.outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder));
@@ -79,6 +88,9 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
         maxNodes = graph.getNodes();
+
+        //TODO check whether this actually works with PreparationWeighting
+
 
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         initCollections(10);
@@ -111,6 +123,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         coreEntryPoints = new IntHashSet(size);
         coreExitPoints = new IntHashSet(size);
         bestWeightMap = new GHIntObjectHashMap<>(size);
+        bestWeightMapCore = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -141,6 +154,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             this.additionalCoreEdgeFilter.setInCore(false);
             outEdgeExplorer = targetGraph.createExplorer();
 
+            //Case if there was no core reached
             if(downwardQueue.isEmpty())
                 downwardQueue = createDownwardQueueFromHighestNode();
             runDownwardSearch(downwardQueue);
@@ -226,7 +240,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         targetGraph = new SubGraph(graph);
 
         addNodes(targetGraph, localPrioQueue, targets);
-        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder);
+        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder, true, this.hasTurnWeighting);
         while (!localPrioQueue.isEmpty()) {
             int adjNode = localPrioQueue.poll();
             EdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
@@ -287,11 +301,36 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             coreEntryPoints.add(currFrom.getAdjNode());
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
 // TODO           considerTurn from CoreALT
+            if (considerTurnRestrictions(currFrom.getAdjNode())) {
+                List<MinimumWeightMultiTreeSPEntry> existingEntryList = bestWeightMapCore.get(currFrom.getAdjNode());
+                if(existingEntryList == null)
+                    initBestWeightMapEntryList(bestWeightMapCore, currFrom.getAdjNode()).add(currFrom);
+                else
+                    existingEntryList.add(currFrom);
+            }
         }
         else {
             fillEdgesUpward(currFrom, upwardQueue, bestWeightMap, outEdgeExplorer);
         }
 
+        return true;
+    }
+
+    List<MinimumWeightMultiTreeSPEntry> initBestWeightMapEntryList(IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMap, int traversalId) {
+        if (bestWeightMap.get(traversalId) != null)
+            throw new IllegalStateException("Core entry point already exists in best weight map.");
+
+        List<MinimumWeightMultiTreeSPEntry> entryList = new ArrayList<>(5);// TODO: Proper assessment of the optimal size
+        bestWeightMap.put(traversalId, entryList);
+
+        return entryList;
+    }
+
+    boolean considerTurnRestrictions(int node) {
+        if (!hasTurnWeighting)
+            return false;
+//        if (approximate)
+//            return isTurnRestrictedNode(node);
         return true;
     }
 
@@ -308,8 +347,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
             updateHighestNode(iter.getAdjNode());
 
-            double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
-
+            double edgeWeight = weighting.calcWeight(iter, false, currEdge.getEdge());
+            System.out.println("Fill upward from edge " + currEdge.getEdge() + " via node " + currEdge.getAdjNode() + " to edge " + iter.getEdge() + " with weight " + edgeWeight);
             if (!Double.isInfinite(edgeWeight)) {
                 MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
@@ -341,10 +380,13 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     **/
     private PriorityQueue<MinimumWeightMultiTreeSPEntry> runPhaseInsideCore() {
         // Calculate all paths only inside core
-        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, bestWeightMap, weighting, TraversalMode.NODE_BASED);
+        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
         //TODO Add restriction filter or do this differently
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
+        //TODO set correctly with this.hasTurnWeighting
+        algorithm.setHasTurnWeighting(this.hasTurnWeighting);
+//        algorithm.setHasTurnWeighting(true);
 
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
@@ -387,7 +429,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             return;
 
         while (iter.next()) {
-            double edgeWeight = weighting.calcWeight(iter, false, 0);
+            double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
+            System.out.println("Fill downward from edge " + currEdge.getOriginalEdge() + " via node " + currEdge.getAdjNode() + " to edge " + iter.getEdge() + " with weight " + edgeWeight);
 
             if (!Double.isInfinite(edgeWeight)) {
                 MinimumWeightMultiTreeSPEntry adjEntry = shortestWeightMap.get(iter.getAdjNode());
