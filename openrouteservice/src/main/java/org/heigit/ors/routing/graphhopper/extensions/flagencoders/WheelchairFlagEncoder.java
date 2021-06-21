@@ -604,7 +604,25 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
              }
         }
 
+        if (way.hasTag("tunnel", intendedValues)) {
+        	negativeFeatures+=4;
+        }
         
+        if (way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
+        	negativeFeatures+=2;
+        }
+
+        // put penalty on these ways if no further information is available
+        if (limitedWheelchairAccessibleHighways.contains(highwayValue)) {
+        	boolean hasAccessibilityRelatedAttributes = false;
+        	for (String key : accessibilityRelatedAttributes) {
+        		hasAccessibilityRelatedAttributes |= way.hasTag(key);
+			}
+        	if (!hasAccessibilityRelatedAttributes) {
+        		negativeFeatures+=2;
+        	}
+        }
+
         if (assumedWheelchairAccessibleHighways.contains(highwayValue)) {
         	if (highwayValue.equalsIgnoreCase("trunk") || highwayValue.equalsIgnoreCase("trunk_link")) {
         		negativeFeatures+=5;
