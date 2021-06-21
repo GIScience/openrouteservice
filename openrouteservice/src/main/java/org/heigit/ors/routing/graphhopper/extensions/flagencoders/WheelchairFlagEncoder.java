@@ -22,19 +22,16 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.routing.graphhopper.extensions.ORSOSMReader;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
+    public static final String KEY_HORSE = "horse";
     private final boolean debugSkippedWays = false;
     private static final Logger LOGGER = Logger.getLogger(WheelchairFlagEncoder.class.getName());
     public static final int MEAN_SPEED = 4;
@@ -50,6 +47,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_DESIGNATED = "designated";
     public static final String KEY_OFFICIAL = "official";
     public static final String KEY_CROSSING = "crossing";
+    public static final String KEY_CYCLEWAY = "cycleway";
     private static double problematicSpeedFactor;
     private static double preferredSpeedFactor;
 
@@ -223,11 +221,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         // potentially not suitable for wheelchair users
         limitedWheelchairAccessibleHighways.add("path"); // Wanderweg
-        limitedWheelchairAccessibleHighways.add("track"); // Feldweg  
-        
-        // potentially not allowed for wheelchair users
-        restrictedWheelchairHighways.add(KEY_BRIDLEWAY); // disallowed in some countries - needs to be doublechecked with foot=yes
-        restrictedWheelchairHighways.add("cycleway"); // disallowed in some countries - needs to be doublechecked with foot=yes or wheelchair=yes
+        limitedWheelchairAccessibleHighways.add("track"); // Feldweg
+        limitedWheelchairAccessibleHighways.add(KEY_BRIDLEWAY); // Reitweg
         
         // highways that are not suitable for wheelchair users
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
@@ -446,6 +441,10 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 return EncodingManager.Access.CAN_SKIP;
             }
 
+            // In some countries bridleways cannot be travelled by anything other than a horse, so we should check if they have been explicitly allowed for foot or pedestrian
+            if (highwayValue.equals(KEY_BRIDLEWAY) && !(way.hasTag("foot", intendedValues) || way.hasTag(KEY_WHEELCHAIR, intendedValues))) {
+                return EncodingManager.Access.CAN_SKIP;
+            }
 
             if (fullyWheelchairAccessibleHighways.contains(highwayValue) || assumedWheelchairAccessibleHighways.contains(highwayValue) || limitedWheelchairAccessibleHighways.contains(highwayValue)) {
             	// check whether information on wheelchair accessbility is available
@@ -607,9 +606,15 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         if (way.hasTag("tunnel", intendedValues)) {
         	negativeFeatures+=4;
         }
-        
-        if (way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
-        	negativeFeatures+=2;
+
+        if (( way.hasTag(KEY_BICYCLE, KEY_DESIGNATED)
+                || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)
+                || way.hasTag(KEY_CYCLEWAY, KEY_DESIGNATED)
+                || way.hasTag(KEY_CYCLEWAY, KEY_OFFICIAL)
+                || way.hasTag(KEY_HORSE, KEY_DESIGNATED)
+                || way.hasTag(KEY_HORSE, KEY_OFFICIAL)
+            ) && !way.hasTag(restrictions, intendedValues)) {
+            negativeFeatures+=4;
         }
 
         // put penalty on these ways if no further information is available
