@@ -337,6 +337,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 LOGGER.info("Starting MapMatching traffic data");
                 processTrafficPatterns(hereTrafficReader.getHereTrafficData().getPatterns());
                 processLinks(graphHopper, hereTrafficReader.getHereTrafficData().getLinks());
+                storage.setMaxTrafficSpeeds();
                 storage.setMatched();
                 storage.flush();
                 LOGGER.info("Flush and lock storage.");

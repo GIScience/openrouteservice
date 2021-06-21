@@ -18,7 +18,6 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
-import com.graphhopper.util.DateTimeHelper;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
 import java.util.Calendar;
@@ -33,10 +32,15 @@ public class TrafficGraphStorage implements GraphExtension {
 
     /* pointer for road type */
     private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
-    private static final int LOCATION_FORWARD_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
-    private static final int LOCATION_FORWARD_TRAFFIC = 1;         // byte location of the from traffic link id
-    private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = 16;         // byte location of the to traffic link id
-    private static final int LOCATION_BACKWARD_TRAFFIC = 17;         // byte location of the to traffic link id
+    private static final int LOCATION_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
+    private static final int LOCATION_TRAFFIC = 1;         // byte location of the traffic link id
+    private static final int LOCATION_TRAFFIC_MAXSPEED = 15; // byte location of the weekly maximum traffic speed
+    private static final int FORWARD_OFFSET = 0;
+    private static final int LOCATION_FORWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + FORWARD_OFFSET;         // byte location of the from traffic link id
+    private static final int LOCATION_FORWARD_TRAFFIC = LOCATION_TRAFFIC + FORWARD_OFFSET;         // byte location of the from traffic link id
+    private static final int BACKWARD_OFFSET = 16;
+    private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + BACKWARD_OFFSET;         // byte location of the to traffic link id
+    private static final int LOCATION_BACKWARD_TRAFFIC = LOCATION_TRAFFIC + BACKWARD_OFFSET;         // byte location of the to traffic link id
 
     // road types
     public static final byte IGNORE = 0; // For unimportant edges that are below relevant street types (residential etc.)
@@ -55,8 +59,9 @@ public class TrafficGraphStorage implements GraphExtension {
     public static final byte UNCLASSIFIED = 13;
 
     public static final int PROPERTY_BYTE_COUNT = 1;
-    public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority = 2 * 7 * 2 + 2 = 30
+    public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority + fwd/bwd maxspeed = 2 * 7 * 2 + 2 + 2 = 32
     public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 96; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
+    public static final int MAX_DAILY_TRAFFIC_SPEED_BYTE_COUNT = 1; // Maximum over daily traffic pattern values
 
     private DataAccess orsEdgesProperties; // RAMDataAccess
     private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
@@ -75,7 +80,7 @@ public class TrafficGraphStorage implements GraphExtension {
         int edgeEntryIndex = 0;
         edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
         edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;
-        patternEntryBytes = edgeEntryIndex + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT;
+        patternEntryBytes = edgeEntryIndex + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT + MAX_DAILY_TRAFFIC_SPEED_BYTE_COUNT;
         propertyValue = new byte[1];
         speedValue = new byte[1];
         priorityValue = new byte[1];
@@ -216,14 +221,18 @@ public class TrafficGraphStorage implements GraphExtension {
         ensureSpeedPatternLookupIndex(patternId);
         // add entry
         int minuteCounter = 0;
+        short maxValue = 0;
         for (int i = 0; i < patternValues.length; i++) {
             if (minuteCounter > 3) {
                 minuteCounter = 0;
             }
             short patternValue = patternValues[i];
+            if (patternValue > maxValue)
+                maxValue = patternValue;
             setTrafficSpeed(patternId, patternValue, i / 4, (minuteCounter * 15));
             minuteCounter++;
         }
+        setMaxTrafficSpeed(patternId, maxValue);
     }
 
     /**
@@ -243,6 +252,20 @@ public class TrafficGraphStorage implements GraphExtension {
         speedValue = speedValue > 255 ? 255 : speedValue;
         this.speedValue[0] = (byte) speedValue;
         orsSpeedPatternLookup.setBytes(patternPointer + ((hour * 4) + minutePointer), this.speedValue, 1);
+    }
+
+    /**
+     * Store maximum speed value encountered in a daily traffic pattern
+     *
+     * @param patternId  Id of the traffic pattern.
+     * @param maxSpeedValue Speed value in mph or kph.
+     **/
+    private void setMaxTrafficSpeed(int patternId, short maxSpeedValue) {
+        long patternPointer = (long) patternId * patternEntryBytes;
+        ensureSpeedPatternLookupIndex(patternId);
+        maxSpeedValue = maxSpeedValue > 255 ? 255 : maxSpeedValue;
+        this.speedValue[0] = (byte) maxSpeedValue;
+        orsSpeedPatternLookup.setBytes(patternPointer + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT, this.speedValue, 1);
     }
 
     /**
@@ -328,6 +351,16 @@ public class TrafficGraphStorage implements GraphExtension {
         return Byte.toUnsignedInt(values[0]);
     }
 
+    /**
+     * Maximum speed value encountered in a daily traffic pattern
+     *
+     **/
+    private int getMaxTrafficSpeed(int patternId) {
+        byte[] value = new byte[1];
+        long patternPointer = (long) patternId * patternEntryBytes;
+        orsSpeedPatternLookup.getBytes(patternPointer + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT, value, 1);
+        return Byte.toUnsignedInt(value[0]);
+    }
 
     /**
      * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
@@ -363,8 +396,20 @@ public class TrafficGraphStorage implements GraphExtension {
         return -1;
     }
 
+    /**
+     * Maximum traffic speed value across the whole week
+     *
+     **/
+    public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
+        byte[] value = new byte[1];
+        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
+        int directionOffset = (baseNode < adjNode) ? FORWARD_OFFSET : BACKWARD_OFFSET;
+        orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, value, 1);
+        return Byte.toUnsignedInt(value[0]);
+    }
+
     public boolean hasTrafficSpeed(int edgeId, int baseNode, int adjNode) {
-        // Traffic patters are stored for all weekdays so it should be enough to check only one of them
+        // Traffic patters are stored for all weekdays so it should be enough to check only for one of them
         int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
         // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
         return patternId > 0;
@@ -568,6 +613,33 @@ public class TrafficGraphStorage implements GraphExtension {
             return 2;
         } else {
             return 3;
+        }
+    }
+
+    /**
+     * This method finds as stores for each edge the maximum forward and backward traffic speed across the whole week.
+     */
+    public void setMaxTrafficSpeeds() {
+        int [] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
+
+        for (int edgeId = 0; edgeId < edgesCount; edgeId++) {
+            long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
+
+            for (int directionOffset : directionOffsets) {
+                int weeklyMaxSpeed = 0;
+
+                for (TrafficEnums.WeekDay weekDay : TrafficEnums.WeekDay.values()) {
+                    int patternId = Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_TRAFFIC + directionOffset + weekDay.getByteLocation()));
+                    if (patternId == 0)
+                        break;
+                    int dailyMaxSpeed = getMaxTrafficSpeed(patternId);
+                    if (dailyMaxSpeed > weeklyMaxSpeed)
+                        weeklyMaxSpeed = dailyMaxSpeed;
+                }
+
+                this.speedValue[0] = (byte) weeklyMaxSpeed;
+                orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, this.speedValue, 1);
+            }
         }
     }
 
