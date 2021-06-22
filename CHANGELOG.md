@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Changed
 - Improved wheelchair routing ([#825](https://github.com/GIScience/openrouteservice/pull/825))
+### Fixed
+- made ORSKafkaConsumerInitContextListener non-blocking
 
 ## [6.6.0] - 2021-06-08
 ### Added

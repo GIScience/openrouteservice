@@ -43,24 +43,28 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        while (!RoutingProfileManager.isInitComplete()) { // wait until ORS init is completed
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
+        Thread thread = new Thread(() -> {
+            while (!RoutingProfileManager.isInitComplete()) { // wait until ORS init is completed
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
-        }
-        if (AppConfig.getGlobal().getBoolean("kafka_test_cluster")) {
-            LOGGER.info("Starting Kafka test cluster");
-            testCluster = new ORSKafkaTestCluster();
-        }
-        List<ORSKafkaConsumerConfiguration> configs = loadConfig();
-        if (!configs.isEmpty()) {
-            LOGGER.info("Starting Kafka consumer");
-            consumer = new ORSKafkaConsumer(configs);
-            consumer.startConsumer();
-        }
+            if (AppConfig.getGlobal().getBoolean("kafka_test_cluster")) {
+                LOGGER.info("Starting Kafka test cluster");
+                testCluster = new ORSKafkaTestCluster();
+            }
+            List<ORSKafkaConsumerConfiguration> configs = loadConfig();
+            if (!configs.isEmpty()) {
+                LOGGER.info("Starting Kafka consumer");
+                consumer = new ORSKafkaConsumer(configs);
+                consumer.startConsumer();
+            }
+        });
+        thread.setName("ORS-Kafka-Init");
+        thread.start();
     }
 
     private List<ORSKafkaConsumerConfiguration> loadConfig() {
