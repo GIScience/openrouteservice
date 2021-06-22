@@ -33,6 +33,9 @@ public class WheelchairEdgeFilter implements EdgeFilter  {
 		if (storage ==  null)
 			throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
 		this.params = params;
+		if (this.params == null)  {
+			this.params = new WheelchairParameters();
+		}
 		attributes = new WheelchairAttributes();
 		buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
 	}
@@ -48,7 +51,7 @@ public class WheelchairEdgeFilter implements EdgeFilter  {
 						|| checkMaximumSlopedKerb()
 						|| checkMinimumWidth()
 						|| checkSurfaceQualityKnown()
-						|| checkPedestrianised()
+						|| checkUnsuitable()
 		);
 	}
 
@@ -84,11 +87,11 @@ public class WheelchairEdgeFilter implements EdgeFilter  {
 	}
 
 	private boolean checkSurfaceQualityKnown() {
-		return params.isSurfaceQualityKnown() && !attributes.isSurfaceQualityKnown();
+		return params.isRequireSurfaceQualityKnown() && !attributes.isSurfaceQualityKnown();
 	}
 
-	private boolean checkPedestrianised() {
-		return params.isPedestrianised() && !attributes.isPedestrianised();
+	private boolean checkUnsuitable() {
+		return !params.allowUnsuitable() && !attributes.isSuitable();
 	}
 
 }

@@ -2048,7 +2048,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(333.7f))
+                .body("routes[0].summary.distance", is(359.0f))
                 .body("routes[0].summary.duration", is(240.3f))
                 .statusCode(200);
 
@@ -2124,6 +2124,48 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(172.1f))
                 .body("routes[0].summary.duration", is(129.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testWheelchairAllowUnsuitable() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.669769,49.419272|8.671947,49.418979"));
+        body.put("preference", "shortest");
+        body.put("instructions", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(423.2f))
+                .body("routes[0].summary.duration", is(347.3f))
+                .statusCode(200);
+
+        JSONObject params = new JSONObject();
+        params.put("allow_unsuitable", true);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(266.2f))
+                .body("routes[0].summary.duration", is(222.6f))
                 .statusCode(200);
     }
 

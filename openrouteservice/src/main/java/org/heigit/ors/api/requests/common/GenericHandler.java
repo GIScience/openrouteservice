@@ -175,6 +175,9 @@ public class GenericHandler {
             applyWeightings(weightings, params);
         }
 
+        if (options.getProfileParams().hasAllowUnsuitable() && params.getClass() == WheelchairParameters.class) {
+            ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+        }
         return params;
     }
 
@@ -183,7 +186,7 @@ public class GenericHandler {
         if (RoutingProfileType.isHeavyVehicle(profileType))
             params = convertHeavyVehicleParameters(restrictions, vehicleType);
         if (RoutingProfileType.isWheelchair(profileType))
-            params = convertWheelchairParameters(restrictions);
+            params = convertWheelchairParamRestrictions(restrictions);
         return params;
     }
 
@@ -256,8 +259,7 @@ public class GenericHandler {
         return params;
     }
 
-    private WheelchairParameters convertWheelchairParameters(RequestProfileParamsRestrictions restrictions) {
-
+    private WheelchairParameters convertWheelchairParamRestrictions(RequestProfileParamsRestrictions restrictions) {
         WheelchairParameters params = new WheelchairParameters();
 
         if(restrictions.hasSurfaceType())
@@ -274,8 +276,6 @@ public class GenericHandler {
             params.setMinimumWidth(restrictions.getMinWidth());
         if(restrictions.hasSurfaceQualityKnown())
             params.setSurfaceQualityKnown(restrictions.getSurfaceQualityKnown());
-        if(restrictions.hasPedestrianised())
-            params.setPedestrianised(restrictions.getPedestrianised());
 
         return params;
     }

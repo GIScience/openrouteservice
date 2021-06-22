@@ -1,9 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
-import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import junit.framework.Assert;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
@@ -44,7 +41,7 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertFalse(attrs.isSurfaceQualityKnown());
-        Assert.assertFalse(attrs.isPedestrianised());
+        Assert.assertFalse(attrs.isSuitable());
     }
 
 
@@ -66,7 +63,7 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertEquals(1, attrs.getTrackType());
         Assert.assertTrue(attrs.isSurfaceQualityKnown());
-        Assert.assertTrue(attrs.isPedestrianised());
+        Assert.assertTrue(attrs.isSuitable());
     }
 
     @Test
@@ -113,27 +110,27 @@ public class WheelchairGraphStorageBuilderTest {
         way.setTag("sidewalk:right:surface", "paving_stones");
 
         WheelchairAttributes correctWheelchairAttributes = new WheelchairAttributes();
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, 3);
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, 50);
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.INCLINE, 5);
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, 2);
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, 3);
-        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SURFACE, 4);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.KERB, 3, false);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.WIDTH, 50, false);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.INCLINE, 5, false);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.TRACK, 2, false);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, 3, false);
+        correctWheelchairAttributes.setAttribute(WheelchairAttributes.Attribute.SURFACE, 4, false);
         Assert.assertFalse(correctWheelchairAttributes.isSurfaceQualityKnown());
-        Assert.assertFalse(correctWheelchairAttributes.isPedestrianised());
+        Assert.assertFalse(correctWheelchairAttributes.isSuitable());
 
         builder.processWay(way);
         WheelchairAttributes left_attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.LEFT);
         Assert.assertTrue(left_attrs.isSurfaceQualityKnown());
-        Assert.assertTrue(left_attrs.isPedestrianised());
+        Assert.assertTrue(left_attrs.isSuitable());
 
         WheelchairAttributes right_attrs = builder.getStoredAttributes(WheelchairGraphStorageBuilder.Side.RIGHT);
         Assert.assertTrue(right_attrs.isSurfaceQualityKnown());
-        Assert.assertTrue(right_attrs.isPedestrianised());
+        Assert.assertTrue(right_attrs.isSuitable());
 
         WheelchairAttributes attrs = builder.combineAttributesOfWayWhenBothSidesPresent(new WheelchairAttributes());
         Assert.assertFalse(attrs.isSurfaceQualityKnown());
-        Assert.assertFalse(attrs.isPedestrianised());
+        Assert.assertFalse(attrs.isSuitable());
 
         Assert.assertEquals(wheelchairAttributesAsString(correctWheelchairAttributes), wheelchairAttributesAsString(attrs));
     }
@@ -201,7 +198,7 @@ public class WheelchairGraphStorageBuilderTest {
         Assert.assertEquals(2, attrs.getSmoothnessType());
         Assert.assertEquals(2, attrs.getSurfaceType());
         Assert.assertEquals(4, attrs.getTrackType());
-        Assert.assertTrue(attrs.isPedestrianised());
+        Assert.assertTrue(attrs.isSuitable());
         Assert.assertTrue(attrs.isSurfaceQualityKnown());
     }
 

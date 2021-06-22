@@ -522,7 +522,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     				}
         		}
         	}
-        	if (way.hasTag("surface", problematicSurfaces)
+            if (way.hasTag("surface", problematicSurfaces)
                     || way.hasTag("smoothness", problematicSmoothnesses)
                     || way.hasTag("tracktype", problematicTracktypes)
             )

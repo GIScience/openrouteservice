@@ -363,10 +363,6 @@ public class RouteSearchParameters {
                     wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
                 }
 
-                if (jRestrictions.has("pedestrianised")) {
-                    wheelchairParams.setPedestrianised((boolean) jRestrictions.getBoolean("pedestrianised"));
-                }
-
                 profileParams = wheelchairParams;
             } else
                 profileParams = new ProfileParameters();

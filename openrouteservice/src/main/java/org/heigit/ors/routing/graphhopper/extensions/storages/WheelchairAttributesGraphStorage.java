@@ -212,7 +212,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 				encodedValue = surfaceQualityKnownEncoder.setValue(encodedValue, 1);
 			}
 
-			if (attrs.isPedestrianised()) {
+			if (attrs.isSuitable()) {
 				encodedValue = pedestrianisedEncoder.setValue(encodedValue, 1);
 			}
 
@@ -287,7 +287,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 			attrs.setSurfaceQualityKnown((iValue != 0));
 
 			iValue = pedestrianisedEncoder.getValue(encodedValue);
-			attrs.setPedestrianised((iValue != 0));
+			attrs.setSuitable((iValue != 0));
 		}
 	}
 

@@ -23,7 +23,7 @@ public class WheelchairParameters extends ProfileParameters {
 	private int smoothnessType;
 	private float minWidth = 0.0f;
 	private boolean surfaceQualityKnown = false;
-	private boolean pedestrianised = false;
+	private boolean allowUnsuitable = false;
 
 	public float getMaximumIncline() {
 		return maxIncline;
@@ -69,13 +69,13 @@ public class WheelchairParameters extends ProfileParameters {
 
 	public void setMinimumWidth(float width) { minWidth = width; }
 
-	public boolean isSurfaceQualityKnown() { return surfaceQualityKnown; }
+	public boolean isRequireSurfaceQualityKnown() { return surfaceQualityKnown; }
 
 	public void setSurfaceQualityKnown(boolean surfaceQualityKnown) { this.surfaceQualityKnown = surfaceQualityKnown; }
 
-	public boolean isPedestrianised() { return pedestrianised; }
+	public boolean allowUnsuitable() { return allowUnsuitable; }
 
-	public void setPedestrianised(boolean pedestrianised) { this.pedestrianised = pedestrianised; }
+	public void setAllowUnsuitable(boolean allowUnsuitable) { this.allowUnsuitable = allowUnsuitable; }
 
 	@Override
 	public List<String> getValidRestrictions() {
@@ -87,7 +87,6 @@ public class WheelchairParameters extends ProfileParameters {
 		valid.add("maximum_incline");
 		valid.add("minimum_width");
 		valid.add("surface_quality_known");
-		valid.add("pedestrianised");
 		return valid;
 	}
 }
