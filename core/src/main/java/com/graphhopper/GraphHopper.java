@@ -940,6 +940,10 @@ public class GraphHopper implements GraphHopperAPI {
 
         initLocationIndex();
 
+        // ORS-GH MOD START
+        matchTraffic();
+        // ORS-GH MOD END
+
         if (chFactoryDecorator.isEnabled())
             chFactoryDecorator.createPreparations(ghStorage);
         if (!isCHPrepared())
@@ -949,6 +953,10 @@ public class GraphHopper implements GraphHopperAPI {
             lmFactoryDecorator.createPreparations(ghStorage, locationIndex);
         loadOrPrepareLM();
     }
+
+    // ORS-GH MOD START
+    public void matchTraffic() {};
+    // ORS-GH MOD END
 
     private static final String INTERPOLATION_KEY = "prepare.elevation_interpolation.done";
 
