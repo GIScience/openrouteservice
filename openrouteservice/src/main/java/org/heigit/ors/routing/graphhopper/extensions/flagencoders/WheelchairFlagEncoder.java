@@ -380,7 +380,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             }
 
             if (way.hasTag("smoothness", inaccessibleSmoothnesses)) {
-                // bad aod worse
+                // bad or worse
                 if (debugSkippedWays) LOGGER.warn("way skipped (bad smoothness): " + way.getId() + " Tags: " + way.getTags().toString());
                 return EncodingManager.Access.CAN_SKIP;
             }

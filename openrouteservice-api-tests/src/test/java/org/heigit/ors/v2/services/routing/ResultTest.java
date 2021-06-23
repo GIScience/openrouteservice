@@ -1944,8 +1944,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(591.7f))
-                .body("routes[0].summary.duration", is(498.7f))
+                .body("routes[0].summary.distance", is(594.4f))
+                .body("routes[0].summary.duration", is(493.8f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1979,7 +1979,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", false);
 
         JSONObject restrictions = new JSONObject();
-        restrictions.put("maximum_sloped_kerb", 0.1);
+        restrictions.put("maximum_sloped_kerb", 0.31);
         JSONObject params = new JSONObject();
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
@@ -2018,8 +2018,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(146.7f))
-                .body("routes[0].summary.duration", is(126.1f))
+                .body("routes[0].summary.distance", is(105.8f))
+                .body("routes[0].summary.duration", is(90.7f))
                 .statusCode(200);
     }
 
@@ -2034,6 +2034,7 @@ public class ResultTest extends ServiceTest {
         restrictions.put("surface_type", "cobblestone");
         JSONObject params = new JSONObject();
         params.put("restrictions", restrictions);
+        params.put("allow_unsuitable", true);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);
@@ -2049,13 +2050,14 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(359.0f))
-                .body("routes[0].summary.duration", is(240.3f))
+                .body("routes[0].summary.duration", is(264.0f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
-        restrictions.put("surface_type", "paved");
+        restrictions.put("surface_type", "cobblestone:flattened");
         params = new JSONObject();
         params.put("restrictions", restrictions);
+        params.put("allow_unsuitable", true);
         options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);
@@ -2070,8 +2072,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(336.0f))
-                .body("routes[0].summary.duration", is(302.4f))
+                .body("routes[0].summary.distance", is(380.0f))
+                .body("routes[0].summary.duration", is(342.0f))
                 .statusCode(200);
     }
 
