@@ -48,12 +48,16 @@ public class AppConfig {
 			File file;
 			if (System.getProperty("ors_app_config") != null) {
 				file = new FileSystemResource(System.getProperty("ors_app_config")).getFile();
+				LOGGER.warn("System property 'ors_app_config' set to " + file);
 			} else {
 				String appConfigName = "app.config";
-				if (System.getenv("ORS_APP_CONFIG") != null)
+				if (System.getenv("ORS_APP_CONFIG") != null) {
 					appConfigName = System.getenv("ORS_APP_CONFIG");
+					LOGGER.warn("Environment var 'ORS_APP_CONFIG' set to " + appConfigName);
+				}
 				file = new ClassPathResource(appConfigName).getFile();
 			}
+			LOGGER.info("Loading configuration from " + file);
 			config = ConfigFactory.parseFile(file);
 		} catch (IOException ioe) {
 			LOGGER.error(ioe);
