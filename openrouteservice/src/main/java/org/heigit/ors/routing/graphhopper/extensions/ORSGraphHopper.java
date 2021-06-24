@@ -633,6 +633,7 @@ public class ORSGraphHopper extends GraphHopper {
         return new GeometryFactory().createLineString(coords);
     }
 
+    @Override
     public void matchTraffic() {
         // Do the graph extension post processing
         // Reserved for processes that need a fully initiated graph e.g. for match making
@@ -657,6 +658,14 @@ public class ORSGraphHopper extends GraphHopper {
 //        // TODO RAD
     }
 
+	@Override
+	public void initLMAlgoFactoryDecorator() {
+		super.initLMAlgoFactoryDecorator();
+
+		// Add traffic speed
+		ORSWeightingFactory.addTrafficSpeedCalculator(getLMFactoryDecorator().getWeightings(), getGraphHopperStorage());
+	}
+
 	/**
 	 * Does the preparation and creates the location index as well as the traffic graph storage
 	 */
@@ -666,8 +675,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GraphHopperStorage gs = getGraphHopperStorage();
 
-		matchTraffic();
-
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
 			coreFactoryDecorator.createPreparations(gs, processContext);
@@ -675,9 +682,11 @@ public class ORSGraphHopper extends GraphHopper {
 			prepareCore();
 
 		//Create the landmarks in the core
-		if (coreLMFactoryDecorator.isEnabled())
+		if (coreLMFactoryDecorator.isEnabled()) {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
-		loadOrPrepareCoreLM();
+			ORSWeightingFactory.addTrafficSpeedCalculator(coreLMFactoryDecorator.getWeightings(), gs);
+			loadOrPrepareCoreLM();
+		}
 
 		if(fastIsochroneFactory.isEnabled()) {
 			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();

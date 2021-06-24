@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.traffic;
 
-import com.graphhopper.routing.EdgeKeys;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -23,21 +22,5 @@ public class RoutingTrafficSpeedCalculator extends TrafficSpeedCalculator {
             speed = maxPossibleSpeed;
 
         return speed;
-
-        /*
-        double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
-        if (time != -1) {
-            int edgeId = EdgeKeys.getOriginalEdge(edge);
-            double trafficSpeed = reverse ?
-                    trafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
-                    :trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
-            if (trafficSpeed != -1) {
-                // This is important for the correctness of LM approximation
-                if (trafficSpeed < speed)
-                    speed = trafficSpeed;
-            }
-        }
-        return speed;
-        */
     }
 }

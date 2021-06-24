@@ -99,14 +99,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
 			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
 				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
-			if (GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class) != null) {
-				//Use fixed time zone because original implementation was for German traffic data
-				String time = hintsMap.get(hintsMap.has(RouteRequest.PARAM_DEPARTURE) ? RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
-				ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
-				RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder);
-				routingTrafficSpeedCalculator.setZonedDateTime(zdt);
-				result.setSpeedCalculator(routingTrafficSpeedCalculator);
-			}
+
+			String time = hintsMap.get(hintsMap.has(RouteRequest.PARAM_DEPARTURE) ? RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
+			addTrafficSpeedCalculator(result, graphStorage, time);
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
@@ -221,4 +216,25 @@ public class ORSWeightingFactory implements WeightingFactory {
 		
 		return res;
 	}
+
+	public static void addTrafficSpeedCalculator(List<Weighting> weightings, GraphHopperStorage ghStorage) {
+        for (Weighting weighting : weightings)
+            addTrafficSpeedCalculator(weighting, ghStorage, "");
+    }
+
+    private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, String time) {
+        TrafficGraphStorage trafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, TrafficGraphStorage.class);
+
+        if (trafficGraphStorage != null) {
+            RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
+
+            if (!time.isEmpty()) {
+                //Use fixed time zone because original implementation was for German traffic data
+                ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
+                routingTrafficSpeedCalculator.setZonedDateTime(zdt);
+            }
+
+            weighting.setSpeedCalculator(routingTrafficSpeedCalculator);
+        }
+    }
 }

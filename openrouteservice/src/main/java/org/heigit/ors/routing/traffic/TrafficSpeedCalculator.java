@@ -33,27 +33,30 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     @Override
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
-        if (time != -1) {
-            int edgeId = EdgeKeys.getOriginalEdge(edge);
-            double trafficSpeed = reverse ?
+
+        int edgeId = EdgeKeys.getOriginalEdge(edge);
+        double trafficSpeed;
+        if (time == -1)
+            trafficSpeed = reverse ?
+                    trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode())
+                    : trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode());
+        else
+            trafficSpeed = reverse ?
                     trafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
-                    :trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
-            if (trafficSpeed != -1) {
-                //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
-                if (isVehicle) {
-                    trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
+                    : trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
+
+        if (trafficSpeed > 0) {
+            //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
+            if (isVehicle) {
+                trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
+                speed = trafficSpeed;
+            } else {
+                if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed) || trafficSpeed < speed) {
                     speed = trafficSpeed;
-                } else {
-                    if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed) || trafficSpeed < speed) {
-                        speed = trafficSpeed;
-                    }
                 }
-//                if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed) || trafficSpeed < speed) {
-//                if(trafficSpeed < speed){
-//                changedSpeed.put(speed, changedSpeed.getOrDefault(speed, 0.0) + trafficSpeed * edge.getDistance());
-//                changedSpeedCount.put(speed, changedSpeedCount.getOrDefault(speed, 0.0) + edge.getDistance());
             }
         }
+
         return speed;
     }
 
