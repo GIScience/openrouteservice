@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
+- edgeBetweenness only initializes edges within bbo
 
 ## [6.6.0] - 2021-06-08
 ### Added
