@@ -71,6 +71,7 @@ public class TrafficGraphStorage implements GraphExtension {
     private int edgeLinkLookupEntryBytes;
     private int patternEntryBytes;
     private int edgesCount; // number of edges with custom values
+    private int maxEdgeId = 0; // highest edge id for which traffic data is available
     private int patternCount; // number of traffic patterns
     private byte[] propertyValue;
     private byte[] speedValue;
@@ -151,7 +152,10 @@ public class TrafficGraphStorage implements GraphExtension {
         priority = priority > 255 ? 255 : priority;
         patternId = patternId > 65535 ? 0 : patternId;
 
+        if (edgeId > maxEdgeId)
+            maxEdgeId = edgeId;
         ensureEdgesTrafficLinkLookupIndex(edgeId);
+
         int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
 
         if (patternId <= 0)
@@ -159,10 +163,8 @@ public class TrafficGraphStorage implements GraphExtension {
 
         if (getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday) > 0 && lastPriority > priority)
             return;
-        long edgePointer;
 
-
-        edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
+        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
 
         priorityValue[0] = (byte) priority;
 
@@ -298,11 +300,17 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param weekday  Enum of Weekday to get the pattern for.
      **/
     public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, TrafficEnums.WeekDay weekday) {
+        if (invalidEdgeId(edgeId))
+            return 0;
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         if (baseNode < adjNode)
             return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation()));
         else
             return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation()));
+    }
+
+    private boolean invalidEdgeId(int edgeId) {
+        return (edgeId > maxEdgeId);
     }
 
     /**
@@ -320,7 +328,6 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param adjNode  Value of the adjacent Node of the edge.
      **/
     public int getEdgeIdTrafficPatternPriority(int edgeId, int baseNode, int adjNode) {
-        try {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         byte[] priority = new byte[1];
         if (baseNode < adjNode)
@@ -328,10 +335,6 @@ public class TrafficGraphStorage implements GraphExtension {
         else
             orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priority, 1);
         return Byte.toUnsignedInt(priority[0]);
-        } catch (Exception ex) {
-            System.out.println("");
-        }
-        return 0;
     }
 
     /**
@@ -390,9 +393,8 @@ public class TrafficGraphStorage implements GraphExtension {
         int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
         int minute = calendarDate.get(Calendar.MINUTE);
         int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
-        int trafficSpeed = getTrafficSpeed(patternId, hour, minute);
-        if (trafficSpeed > 0)
-            return trafficSpeed;
+        if (patternId > 0)
+            return getTrafficSpeed(patternId, hour, minute);
         return -1;
     }
 
@@ -401,6 +403,8 @@ public class TrafficGraphStorage implements GraphExtension {
      *
      **/
     public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
+        if (invalidEdgeId(edgeId))
+            return 0;
         byte[] value = new byte[1];
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         int directionOffset = (baseNode < adjNode) ? FORWARD_OFFSET : BACKWARD_OFFSET;
@@ -422,7 +426,6 @@ public class TrafficGraphStorage implements GraphExtension {
     public void ensureEdgesTrafficLinkLookupIndex(int edgeId) {
         orsEdgesTrafficLinkLookup.ensureCapacity(((long) edgeId + 1) * edgeLinkLookupEntryBytes);
     }
-
 
     private void ensureSpeedPatternLookupIndex(int patternId) {
         orsSpeedPatternLookup.ensureCapacity(((long) patternId + 1) * patternEntryBytes);
@@ -526,6 +529,7 @@ public class TrafficGraphStorage implements GraphExtension {
         orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);
         orsSpeedPatternLookup.copyTo(clonedTC.orsSpeedPatternLookup);
         clonedTC.edgesCount = edgesCount;
+        clonedTC.maxEdgeId = maxEdgeId;
 
         return clonedStorage;
     }
@@ -545,6 +549,7 @@ public class TrafficGraphStorage implements GraphExtension {
         edgeLinkLookupEntryBytes = orsEdgesTrafficLinkLookup.getHeader(0);
         patternEntryBytes = orsSpeedPatternLookup.getHeader(0);
         edgesCount = orsEdgesProperties.getHeader(4);
+        maxEdgeId = orsEdgesTrafficLinkLookup.getHeader(4);
         return true;
     }
 
@@ -572,7 +577,7 @@ public class TrafficGraphStorage implements GraphExtension {
         orsEdgesTrafficLinkLookup.setHeader(0, edgeLinkLookupEntryBytes);
         orsSpeedPatternLookup.setHeader(0, patternEntryBytes);
         orsEdgesProperties.setHeader(4, edgesCount);
-        orsEdgesTrafficLinkLookup.setHeader(4, edgesCount);
+        orsEdgesTrafficLinkLookup.setHeader(4, maxEdgeId);
         orsSpeedPatternLookup.setHeader(4, patternCount);
         orsEdgesProperties.flush();
         orsEdgesTrafficLinkLookup.flush();
@@ -622,7 +627,7 @@ public class TrafficGraphStorage implements GraphExtension {
     public void setMaxTrafficSpeeds() {
         int [] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
 
-        for (int edgeId = 0; edgeId < edgesCount; edgeId++) {
+        for (int edgeId = 0; edgeId <= maxEdgeId; edgeId++) {
             long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
 
             for (int directionOffset : directionOffsets) {
