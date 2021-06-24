@@ -205,7 +205,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                     int w = iter.getAdjNode(); // this is the node this edge state is "pointing to"
                     if (!nodesInBBox.contains(w)) {
                         // Node not in bbox, skipping edge
-                        System.out.printf("Skipping edge from %d to %d\n", v, w);
                         continue;
                     }
 
