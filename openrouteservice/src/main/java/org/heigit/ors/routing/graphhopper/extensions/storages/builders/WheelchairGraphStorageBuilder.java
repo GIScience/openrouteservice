@@ -725,10 +725,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 				centimetreHeight = 0;
 				break;
 			default:
-				// May be that it is already numeric (though it shouldn't be)
 				double metresHeight = UnitsConverter.convertOSMDistanceTagToMeters(value);
-				if (metresHeight >= 0) {
-					centimetreHeight = (int) (metresHeight*100);
+				// If no unit was given in the tag, the value might be in meters or centimeters; we can only guess
+				// depending on the value
+				if (metresHeight < 0.15) {
+					centimetreHeight = (int)(metresHeight*100);
+				} else {
+					centimetreHeight = (int)metresHeight;
 				}
 				break;
 		}
