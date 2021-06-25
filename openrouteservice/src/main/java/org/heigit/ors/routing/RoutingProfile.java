@@ -1069,14 +1069,9 @@ public class RoutingProfile {
         if (!searchParams.isTimeDependent())
             return false;
 
-        if (GraphStorageUtils.getGraphExtension(mGraphHopper.getGraphHopperStorage(), TrafficGraphStorage.class) != null)
-            return true;
-
         FlagEncoder flagEncoder = searchCntx.getEncoder();
-        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED)))
-            return true;
-
-        return false;
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || mGraphHopper.isTrafficEnabled();
     }
 
     boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
@@ -1086,7 +1081,8 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = searchCntx.getEncoder();
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
-                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED));
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || mGraphHopper.isTrafficEnabled();
     }
 
     /**

@@ -79,6 +79,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpe
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
@@ -126,8 +127,6 @@ public class ORSGraphHopper extends GraphHopper {
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
 	private double maximumSpeedLowerBound;
-
-	private HereTrafficGraphStorageBuilder trafficData;
 
 	private MapMatcher mMapMatcher;
     TrafficEdgeFilter trafficEdgeFilter;
@@ -662,8 +661,8 @@ public class ORSGraphHopper extends GraphHopper {
 	public void initLMAlgoFactoryDecorator() {
 		super.initLMAlgoFactoryDecorator();
 
-		// Add traffic speed
-		ORSWeightingFactory.addTrafficSpeedCalculator(getLMFactoryDecorator().getWeightings(), getGraphHopperStorage());
+		if (isTrafficEnabled())
+			ORSWeightingFactory.addTrafficSpeedCalculator(getLMFactoryDecorator().getWeightings(), getGraphHopperStorage());
 	}
 
 	/**
@@ -684,7 +683,8 @@ public class ORSGraphHopper extends GraphHopper {
 		//Create the landmarks in the core
 		if (coreLMFactoryDecorator.isEnabled()) {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
-			ORSWeightingFactory.addTrafficSpeedCalculator(coreLMFactoryDecorator.getWeightings(), gs);
+			if (isTrafficEnabled())
+				ORSWeightingFactory.addTrafficSpeedCalculator(coreLMFactoryDecorator.getWeightings(), gs);
 			loadOrPrepareCoreLM();
 		}
 
@@ -834,10 +834,6 @@ public class ORSGraphHopper extends GraphHopper {
 			return weightings.contains(weighting);
 		}
 		return false;
-	}
-
-	public HereTrafficGraphStorageBuilder getTrafficData() {
-		return trafficData;
 	}
 
 	public final boolean isCoreAvailable(String weighting) {
@@ -995,5 +991,9 @@ public class ORSGraphHopper extends GraphHopper {
 			return new RouteSegmentInfo[]{};
 		else
 			return routeSegmentInfo;
+	}
+
+	public boolean isTrafficEnabled() {
+		return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;
 	}
 }
