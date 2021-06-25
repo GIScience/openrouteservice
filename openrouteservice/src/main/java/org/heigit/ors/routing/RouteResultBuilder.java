@@ -135,7 +135,7 @@ class RouteResultBuilder
             result.addSegment(createRouteSegment(path, request, null));
 
             result.calculateRouteSummary(request);
-            if (!request.getIncludeGeometry() || !request.getIncludeInstructions()) {
+            if (!request.getIncludeInstructions()) {
                 result.resetSegments();
             }
 
