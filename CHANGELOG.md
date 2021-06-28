@@ -34,8 +34,11 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 ### Changed
-- Improved wheelchair routing ([#825](https://github.com/GIScience/openrouteservice/pull/825))
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 

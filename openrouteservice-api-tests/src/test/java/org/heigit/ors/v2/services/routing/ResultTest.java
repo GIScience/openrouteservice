@@ -2130,6 +2130,50 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testWheelchairSurfaceQualityKnown() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(761.9f))
+                .body("routes[0].summary.duration", is(562.1f))
+                .statusCode(200);
+
+        JSONObject restrictions = new JSONObject();
+        restrictions.put("surface_quality_known", true);
+        JSONObject params = new JSONObject();
+        params.put("restrictions", restrictions);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2215.7f))
+                .body("routes[0].summary.duration", is(1656.7f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testWheelchairAllowUnsuitable() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.669769,49.419272|8.671947,49.418979"));
