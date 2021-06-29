@@ -52,6 +52,7 @@ RELEASING:
 - Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
 - Duplicate parameter in centrality docs due to spring reading getters for docs
 - Bug where supercell subcell ids were out of bounds in storage
+- Correct initialization of edge centrality scores
 
 ## [6.5.0] - 2021-05-17
 ### Added
