@@ -27,6 +27,8 @@ import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.export.ExportRequest;
+import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
@@ -403,6 +405,11 @@ public class RoutingProfileManager {
 
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
                                 double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
+                                if (pointRadius == -1) {
+                                    RouteProfileConfiguration config = rp.getConfiguration();
+                                    pointRadius = config.getMaximumSnappingRadius();
+
+                                }
 
                                 // -1 is used to indicate the use of internal limits instead of specifying it in the request.
                                 // we should therefore let them know that they are already using the limit.
@@ -651,6 +658,14 @@ public class RoutingProfileManager {
         if (rp == null)
             throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeCentrality(req);
+    }
+
+    public ExportResult computeExport(ExportRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeExport(req);
     }
 
     public void initCompleted() {
