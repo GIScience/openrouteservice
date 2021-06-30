@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
+- Initialize edge centrality scores only for edges fully within bbox
 
 ## [6.6.0] - 2021-06-08
 ### Added
