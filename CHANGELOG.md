@@ -41,6 +41,7 @@ RELEASING:
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
+- Initialize edge centrality scores only for edges fully within bbox
 
 ## [6.6.0] - 2021-06-08
 ### Added
