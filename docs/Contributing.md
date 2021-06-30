@@ -1,0 +1,16 @@
+---
+title: Contributing
+nav_order: 4
+has_children: true
+---
+
+[ :arrow_backward: Home](https://github.com/GIScience/openrouteservice/wiki)
+# Contributing
+* [Contributing Code](Contributing-Code)
+* [Contributing Translations](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations)
+* Updating OpenStreetMap
+
+When people contribute to openrouteservice, it makes Tim do a little happy dance!
+There are many ways that you can contribute to make openrouteservice a better routing service. Whether you are a Java developer who is interested in fixing some bugs or adding some new functionality, someone who knows an area well and can update information in OSM so that openrouteservice can take it into account, or even someone who speaks different languages and is will to provide some translations for routing instructions, there will be something that you can help with.
+
+Feel free to create an [issue](https://github.com/GIScience/openrouteservice/issues) and label it accordingly. If your issue regards the openrouteservice web-app please use the [corresponding repository](https://github.com/GIScience/openrouteservice-app/issues).
