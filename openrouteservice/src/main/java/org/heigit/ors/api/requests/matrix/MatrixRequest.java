@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
@@ -43,6 +44,7 @@ public class MatrixRequest {
     public static final String PARAM_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
+    public static final String PARAM_AVOID_AREAS = "avoid_areas";
 
     @ApiModelProperty(name = "PARAM_ID", value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "matrix_request")
@@ -100,6 +102,15 @@ public class MatrixRequest {
     private Boolean optimized;
     @JsonIgnore
     private boolean hasOptimized = false;
+
+    @ApiModelProperty(name = PARAM_AVOID_AREAS,
+            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples)." +
+                    "Currently, only avoid_areas are supported.",
+            example = "{\"avoid_areas\": geojson_data}")
+    @JsonProperty(PARAM_AVOID_AREAS)
+    private RouteRequestOptions routeOptions;
+    @JsonIgnore
+    private boolean hasRouteOptions = false;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
@@ -241,6 +252,19 @@ public class MatrixRequest {
 
     public boolean hasOptimized() {
         return hasOptimized;
+    }
+
+    public RouteRequestOptions getRouteOptions() {
+        return routeOptions;
+    }
+
+    public boolean hasRouteOptions() {
+        return hasRouteOptions;
+    }
+
+    public void setRouteOptions(RouteRequestOptions routeOptions) {
+        this.routeOptions = routeOptions;
+        hasRouteOptions = true;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {

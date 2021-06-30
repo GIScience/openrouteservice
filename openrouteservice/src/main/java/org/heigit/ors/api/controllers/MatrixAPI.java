@@ -92,10 +92,10 @@ public class MatrixAPI {
     public JSONMatrixResponse getJsonMime(
             //TODO Flexible mode???
             @ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
+            @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws Exception {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = MatrixRequestHandler.generateMatrixFromRequest(originalRequest);
+        MatrixResult matrixResult = new MatrixRequestHandler().generateMatrixFromRequest(originalRequest);
 
         return new JSONMatrixResponse(matrixResult, originalRequest);
     }

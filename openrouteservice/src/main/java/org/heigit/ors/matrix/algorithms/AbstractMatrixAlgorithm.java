@@ -14,6 +14,7 @@
 package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -24,12 +25,14 @@ public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
   protected Graph graph;
   protected FlagEncoder encoder;
   protected Weighting weighting;
+  protected EdgeFilter filter;
   
-  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
+  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter filter)
   {
 	  graphHopper = gh;
 	  this.graph = graph;
 	  this.encoder = encoder;
 	  this.weighting = weighting;
+	  this.filter = filter;
   }
 }

@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.requests.common;
 
+import com.google.common.base.Strings;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
@@ -23,6 +24,8 @@ import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -36,6 +39,7 @@ import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.GeomUtility;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -112,7 +116,7 @@ public class GenericHandler {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+    public Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -137,6 +141,32 @@ public class GenericHandler {
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
             throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
+        }
+        return avoidAreas;
+    }
+
+    protected Polygon[] checkAvoidAreas(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
+        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+        double areaLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+        double extentLimit = Strings.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+        for (Polygon avoidArea : avoidAreas) {
+            try {
+                if (areaLimit > 0) {
+                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                    if (area > areaLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                    }
+                }
+                if (extentLimit > 0) {
+                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                    if (extent > extentLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                    }
+                }
+            } catch (InternalServerException e) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            }
         }
 
         return avoidAreas;

@@ -14,6 +14,7 @@
 package org.heigit.ors.matrix.algorithms.dijkstra;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -33,14 +34,15 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PathMetricsExtractor pathMetricsExtractor;
 
 	@Override
-	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
-		super.init(req, gh, graph, encoder, weighting);
+	public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter filter) {
+		super.init(req, gh, graph, encoder, weighting, filter);
 
 		pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), this.graph, this.encoder, this.weighting, req.getUnits());
 	}
 
 	@Override
 	public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
+	    
 		MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
 		float[] times = null; 
@@ -60,6 +62,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 				pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
 		} else {
 			DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
+			algorithm.setEdgeFilter(filter);
 			algorithm.prepare(srcData.getNodeIds(),  dstData.getNodeIds());
 			algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
 			

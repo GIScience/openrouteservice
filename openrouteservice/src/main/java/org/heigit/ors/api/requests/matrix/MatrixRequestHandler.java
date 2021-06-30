@@ -16,29 +16,41 @@
 package org.heigit.ors.api.requests.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
+
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.GenericHandler;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.util.DistanceUnitUtil;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatrixRequestHandler {
-    private MatrixRequestHandler() throws InternalServerException {
-        throw new InternalServerException("MatrixRequestHandler should not be instantiated empty");
+
+public class MatrixRequestHandler extends GenericHandler {
+    public MatrixRequestHandler() throws InternalServerException {
+        super();
+        this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
     }
 
-    public static MatrixResult generateMatrixFromRequest(MatrixRequest request) throws StatusCodeException {
+    public MatrixResult generateMatrixFromRequest(MatrixRequest request) throws Exception {
         org.heigit.ors.matrix.MatrixRequest coreRequest = convertMatrixRequest(request);
 
         try {
@@ -50,14 +62,39 @@ public class MatrixRequestHandler {
         }
     }
 
-    public static org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
+    private RouteSearchParameters processRouteRequestOptions(MatrixRequest request, RouteSearchParameters params) throws Exception {
+        RouteRequestOptions routeOptions = request.getRouteOptions();
+        params = processRequestOptions(routeOptions, params);
+        int profileType;
+        try {
+            profileType = convertToMatrixProfileType(request.getProfile());
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+        }
+        params.setProfileType(profileType);
+        if (routeOptions.hasProfileParams())
+            params.setProfileParams(convertParameters(routeOptions, params.getProfileType()));
+        return params;
+    }
+
+    public Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+        Polygon[] avoidAreas = super.convertAvoidAreas(geoJson, profileType);
+        return checkAvoidAreas(avoidAreas, profileType);
+    }
+
+    public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws StatusCodeException {
+        if (options.hasAvoidPolygonFeatures())
+            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+        return params;
+    }
+
+    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws Exception {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
 
         int sources = request.getSources() == null ? request.getLocations().size() : request.getSources().length;
         int destinations = request.getDestinations() == null ? request.getLocations().size() : request.getDestinations().length;
         Coordinate[] locations = convertLocations(request.getLocations(), sources * destinations);
 
-        coreRequest.setProfileType(convertToMatrixProfileType(request.getProfile()));
 
         if (request.hasMetrics())
             coreRequest.setMetrics(convertMetrics(request.getMetrics()));
@@ -80,6 +117,21 @@ public class MatrixRequestHandler {
             coreRequest.setResolveLocations(request.getResolveLocations());
         if (request.hasUnits())
             coreRequest.setUnits(convertUnits(request.getUnits()));
+        RouteSearchParameters params = new RouteSearchParameters();
+        if (request.hasRouteOptions()) {
+            params = processRouteRequestOptions(request, params);
+        }
+
+        int profileType = -1;
+        try {
+            profileType = convertToMatrixProfileType(request.getProfile());
+            params.setProfileType(profileType);
+        } catch (Exception e) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+        }
+        
+        coreRequest.setProfileType(params.getProfileType());
+        coreRequest.setSearchParameters(params);
 
         return coreRequest;
     }
@@ -100,7 +152,8 @@ public class MatrixRequestHandler {
         return combined;
     }
 
-    protected static Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
+    protected static Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes)
+            throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
