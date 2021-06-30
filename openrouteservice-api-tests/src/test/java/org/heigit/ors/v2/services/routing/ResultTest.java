@@ -1944,8 +1944,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(594.4f))
-                .body("routes[0].summary.duration", is(493.8f))
+                .body("routes[0].summary.distance", is(284.0f))
+                .body("routes[0].summary.duration", is(231.5f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -2102,8 +2102,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(748.4f))
-                .body("routes[0].summary.duration", is(593.3f))
+                .body("routes[0].summary.distance", is(473.7f))
+                .body("routes[0].summary.duration", is(379.0f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -2146,8 +2146,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(761.9f))
-                .body("routes[0].summary.duration", is(562.1f))
+                .body("routes[0].summary.distance", is(749.1f))
+                .body("routes[0].summary.duration", is(559.9f))
                 .statusCode(200);
 
         JSONObject restrictions = new JSONObject();
@@ -2176,7 +2176,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testWheelchairAllowUnsuitable() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.669769,49.419272|8.671947,49.418979"));
+        body.put("coordinates", constructCoords("8.668277,49.377836|8.664753,49.376104"));
         body.put("preference", "shortest");
         body.put("instructions", true);
 
@@ -2190,8 +2190,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(423.2f))
-                .body("routes[0].summary.duration", is(347.3f))
+                .body("routes[0].summary.distance", is(566.4f))
+                .body("routes[0].summary.duration", is(456.7f))
                 .statusCode(200);
 
         JSONObject params = new JSONObject();
@@ -2210,8 +2210,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(266.2f))
-                .body("routes[0].summary.duration", is(222.6f))
+                .body("routes[0].summary.distance", is(382.1f))
+                .body("routes[0].summary.duration", is(326.0f))
                 .statusCode(200);
     }
 
