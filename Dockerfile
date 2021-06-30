@@ -5,6 +5,7 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 
 ARG APP_CONFIG=./openrouteservice/src/main/resources/app.config.sample
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
+ARG BUILD_GRAPHS="False"
 
 WORKDIR /ors-core
 

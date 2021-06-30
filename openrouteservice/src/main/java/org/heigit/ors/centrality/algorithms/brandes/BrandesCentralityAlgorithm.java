@@ -147,11 +147,14 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
         Map<Pair<Integer, Integer>, Double> edgeBetweenness = new HashMap<>();
 
         //initialize betweenness for all edges
-        for (int s : nodesInBBox) {
-            EdgeIterator iter = explorer.setBaseNode(s);
+        for (int from : nodesInBBox) {
+            EdgeIterator iter = explorer.setBaseNode(from);
             while (iter.next()) {
-                Pair<Integer, Integer> p = new Pair<>(iter.getBaseNode(), iter.getAdjNode());
-                edgeBetweenness.put(p, 0d);
+                int to = iter.getAdjNode();
+                if (nodesInBBox.contains(to)) {
+                    Pair<Integer, Integer> p = new Pair<>(from, to);
+                    edgeBetweenness.put(p, 0d);
+                }
             }
         }
 
@@ -240,7 +243,13 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                 Double coefficient = (1 + delta.get(w)) / sigma.get(w);
                 for (Integer v : P.get(w)) {
                     delta.merge(v, sigma.get(v) * coefficient, Double::sum);
-                    edgeBetweenness.merge(new Pair<>(v,w), sigma.get(v) * coefficient, Double::sum);
+                    // This is where we write edge betweenness.
+                    // Let's check whether all nodes we enter are in the bbox:
+                    if (nodesInBBox.contains(v) && nodesInBBox.contains(w)) {
+                        edgeBetweenness.merge(new Pair<>(v, w), sigma.get(v) * coefficient, Double::sum);
+                    } else {
+
+                    }
                 }
             }
         }

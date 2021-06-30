@@ -66,5 +66,7 @@ public class ConstantWeighting implements Weighting {
     }
 
     @Override
-    public void setSpeedCalculator(SpeedCalculator speedCalculator) { }
+    public void setSpeedCalculator(SpeedCalculator speedCalculator) {
+        throw new UnsupportedOperationException();
+    }
 }

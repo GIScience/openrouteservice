@@ -96,8 +96,8 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
-		if (hintsMap.getBool(ORSParameters.Routing.TIME_DEPENDENT_SPEED, false)) {
-			if (graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
+		if (hasTimeDependentSpeed(hintsMap)) {
+			if (hasConditionalSpeed(encoder, graphStorage))
 				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
 
 			String time = hintsMap.get(hintsMap.has(RouteRequest.PARAM_DEPARTURE) ? RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
@@ -164,13 +164,21 @@ public class ORSWeightingFactory implements WeightingFactory {
 			if (!softWeightings.isEmpty()) {
 				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
 				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder);
+				result = new AdditionWeighting(arrWeightings, result);
 			}
 		}
 		return result;
 	}
 
-    public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
+	private boolean hasTimeDependentSpeed(HintsMap hintsMap) {
+		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
+	}
+
+	private boolean hasConditionalSpeed(FlagEncoder encoder, GraphHopperStorage graphStorage) {
+		return graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED));
+	}
+
+	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
         String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
         if (Helper.isEmpty(strWeighting))
             strWeighting = hintsMap.getWeighting();
