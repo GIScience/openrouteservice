@@ -36,7 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
-- edgeBetweenness only initializes edges within bbo
+- Initialize edge centrality scores only for edges fully within bbox
 
 ## [6.6.0] - 2021-06-08
 ### Added
@@ -52,7 +52,6 @@ RELEASING:
 - Rare bug where virtual edges are used to construct geometry of isochrone. Check whether edge is virtual before using it.
 - Duplicate parameter in centrality docs due to spring reading getters for docs
 - Bug where supercell subcell ids were out of bounds in storage
-- Correct initialization of edge centrality scores
 
 ## [6.5.0] - 2021-05-17
 ### Added
