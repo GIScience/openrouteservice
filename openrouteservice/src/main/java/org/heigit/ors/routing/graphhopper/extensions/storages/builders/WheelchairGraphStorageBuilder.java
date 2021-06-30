@@ -30,6 +30,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String KEY_SLOPED_KERB = "sloped_kerb";
 	public static final String KEY_KERB_HEIGHT = "kerb:height";
 	public static final String KEY_FOOTWAY = "footway";
+	public static final String KEY_RIGHT = "right";
+	public static final String KEY_LEFT = "left";
+	public static final String KEY_BOTH = "both";
+	public static final String KEY_SIDEWALK_BOTH = "sidewalk:both:";
+	public static final String KEY_FOOTWAY_BOTH = "footway:both:";
+	public static final String KEY_CURB_HEIGHT = "curb:height";
 
 	public enum Side {
 		LEFT,
@@ -126,7 +132,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		processSidewalksAttachedToWay(way);
 
 		// the way has known suitability if it can be classified as seperate footway
-		wheelchairAttributes.setSuitable(isSeparateFootway(way));
+		wheelchairAttributes.setSuitable(isSeparateFootway(way) || way.hasTag("wheelchair_accessible", true));
 
 		// the sidewalks always imply known suitability
 		wheelchairAttributesLeftSide.setSuitable(true);
@@ -252,13 +258,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case "left":
+				case KEY_LEFT:
 					hasLeftSidewalk = true;
 					break;
-				case "right":
+				case KEY_RIGHT:
 					hasRightSidewalk = true;
 					break;
-				case "both":
+				case KEY_BOTH:
 					hasLeftSidewalk = true;
 					hasRightSidewalk = true;
 					break;
@@ -351,12 +357,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] assumedKerbTags = new String[] {
 				"curb",
 				"kerb",
-				"sloped_curb",
-				"sloped_kerb"
+				KEY_SLOPED_CURB,
+				KEY_SLOPED_KERB
 		};
 		String[] explicitKerbTags = new String[] {
-				"kerb:height",
-				"curb:height"
+				KEY_KERB_HEIGHT,
+				KEY_CURB_HEIGHT
 		};
 
 		int height = calcSingleKerbHeightFromTagList(assumedKerbTags, -1);
@@ -545,13 +551,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
 		    String side = way.getTag("ors-sidewalk-side");
-		    if(side.equals("left")) {
+		    if(side.equals(KEY_LEFT)) {
 				// Only get the attributes for the left side
-				at = getAttributes("left");
+				at = getAttributes(KEY_LEFT);
 				at.setSide(WheelchairAttributes.Side.LEFT);
             }
-            if(side.equals("right")) {
-		    	at = getAttributes("right");
+            if(side.equals(KEY_RIGHT)) {
+		    	at = getAttributes(KEY_RIGHT);
 		    	at.setSide(WheelchairAttributes.Side.RIGHT);
 			}
         } else {
@@ -680,10 +686,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now get the specific items
 		switch(side) {
-			case "left":
+			case KEY_LEFT:
 				at = at.merge(wheelchairAttributesLeftSide);
 				break;
-			case "right":
+			case KEY_RIGHT:
 				at = at.merge(wheelchairAttributesRightSide);
 				break;
 			default:
@@ -706,7 +712,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		}
 		switch(value) {
 			case "yes":
-			case "both":
+			case KEY_BOTH:
 			case "low":
 			case "lowered":
 			case "dropped":
@@ -764,13 +770,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 			values[1] = (String) cleanedTags.get("footway:right:" + property);
 
 		// Both
-		if(cleanedTags.containsKey("sidewalk:both:" + property)) {
-			values[0] = (String) cleanedTags.get("sidewalk:both:" + property);
-			values[1] = (String) cleanedTags.get("sidewalk:both:" + property);
+		if(cleanedTags.containsKey(KEY_SIDEWALK_BOTH + property)) {
+			values[0] = (String) cleanedTags.get(KEY_SIDEWALK_BOTH + property);
+			values[1] = (String) cleanedTags.get(KEY_SIDEWALK_BOTH + property);
 		}
-		else if(cleanedTags.containsKey("footway:both:" +property)) {
-			values[0] = (String) cleanedTags.get("footway:both:" + property);
-			values[1] = (String) cleanedTags.get("footway:both:" + property);
+		else if(cleanedTags.containsKey(KEY_FOOTWAY_BOTH +property)) {
+			values[0] = (String) cleanedTags.get(KEY_FOOTWAY_BOTH + property);
+			values[1] = (String) cleanedTags.get(KEY_FOOTWAY_BOTH + property);
 		}
 		return values;
 	}
@@ -794,7 +800,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] pedestrianWayTypes = {
 				"living_street",
 				"pedestrian",
-				"footway",
+				KEY_FOOTWAY,
 				"path",
 				"crossing",
 				"track"

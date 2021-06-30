@@ -32,7 +32,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_HORSE = "horse";
-    private final boolean debugSkippedWays = false;
+    private static final boolean DEBUG_SKIPPED_WAYS = false;
     private static final Logger LOGGER = Logger.getLogger(WheelchairFlagEncoder.class.getName());
     public static final int MEAN_SPEED = 4;
     public static final String KEY_WHEELCHAIR = "wheelchair";
@@ -48,8 +48,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_OFFICIAL = "official";
     public static final String KEY_CROSSING = "crossing";
     public static final String KEY_CYCLEWAY = "cycleway";
-    private static double problematicSpeedFactor;
-    private static double preferredSpeedFactor;
+    public static final String KEY_SURFACE = "surface";
+    public static final String KEY_SMOOTHNESS = "smoothness";
+    public static final String KEY_TRACKTYPE = "tracktype";
+    public static final String DEBUG_MSG_SKIPPED = "way skipped (%s): %d - Tags: %s";
+    private double problematicSpeedFactor = 1;
+    private double preferredSpeedFactor = 1;
 
     private OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
     private OSMPedestrianProcessor osmPedestrianProcessor = new OSMPedestrianProcessor();
@@ -228,9 +232,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
         
         // attributes to be checked for limited wheelchair accessible highways
-        accessibilityRelatedAttributes.add("surface");
-        accessibilityRelatedAttributes.add("smoothness");
-        accessibilityRelatedAttributes.add("tracktype");
+        accessibilityRelatedAttributes.add(KEY_SURFACE);
+        accessibilityRelatedAttributes.add(KEY_SMOOTHNESS);
+        accessibilityRelatedAttributes.add(KEY_TRACKTYPE);
         accessibilityRelatedAttributes.add("incline");
         accessibilityRelatedAttributes.add("sloped_curb");
         accessibilityRelatedAttributes.add("sloped_kerb");
@@ -297,7 +301,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public EncodingManager.Access getAccess(ReaderWay way ) {
     	// check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !(way.hasTag(restrictions, intendedValues) || way.hasTag(KEY_SIDEWALK, usableSidewalkValues))) {
-            if (debugSkippedWays) LOGGER.warn("way skipped (access restrictions): " + way.getId() + " Tags: " + way.getTags().toString());
+            if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "access restrictions", way.getId(), way.getTags().toString()));
             return EncodingManager.Access.CAN_SKIP;
         }
 
@@ -314,7 +318,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 	}
                 	// wheelchair=no, restricted, private
                 	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
-                        if (debugSkippedWays) LOGGER.warn("way skipped (no wheelchair ferry): " + way.getId() + " Tags: " + way.getTags().toString());
+                        if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "no wheelchair ferry", way.getId(), way.getTags().toString()));
                 		return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
@@ -325,7 +329,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 	}
                 	// foot=no, restricted, private
                 	if (way.hasTag("foot", restrictedValues)) {
-                        if (debugSkippedWays) LOGGER.warn("way skipped (no pedestrian ferry): " + way.getId() + " Tags: " + way.getTags().toString());
+                        if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "no pedestrian ferry", way.getId(), way.getTags().toString()));
                         return EncodingManager.Access.CAN_SKIP;
                 	}
             	}
@@ -343,7 +347,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 	}
                 	// wheelchair=no, restricted, private
                 	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
-                        if (debugSkippedWays) LOGGER.warn("way skipped (no wheelchair public transport): " + way.getId() + " Tags: " + way.getTags().toString());
+                        if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "no wheelchair public transport", way.getId(), way.getTags().toString()));
                         return EncodingManager.Access.CAN_SKIP;
                 	}
                 }
@@ -354,14 +358,14 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 	}
                 	// foot=no, restricted, private
                 	if (way.hasTag("foot", restrictedValues)) {
-                        if (debugSkippedWays) LOGGER.warn("way skipped (no pedestrian public transport): " + way.getId() + " Tags: " + way.getTags().toString());
+                        if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "no pedestrian public transport", way.getId(), way.getTags().toString()));
                         return EncodingManager.Access.CAN_SKIP;
                 	}
             	}
                 return EncodingManager.Access.WAY;
             }
             // no highway, no ferry, no railway? --> do not accept way
-            if (debugSkippedWays) LOGGER.warn("way skipped (no highway, no ferry, no railway): " + way.getId() + " Tags: " + way.getTags().toString());
+            if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "no highway, no ferry, no railway", way.getId(), way.getTags().toString()));
             return EncodingManager.Access.CAN_SKIP;
         }
         // highway != null
@@ -369,25 +373,25 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             // http://wiki.openstreetmap.org/wiki/DE:Key:sac_scale
             if (way.hasTag("sac_scale", inaccessibleSacScales)) {
                 // everything except "hiking" is probably not possible for wheelchair user
-                if (debugSkippedWays) LOGGER.warn("way skipped (bad sac scale): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "bad sac scale", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
-            if (way.hasTag("surface", inaccessibleSurfaces)) {
+            if (way.hasTag(KEY_SURFACE, inaccessibleSurfaces)) {
                 // earth, grass, dirt, mud, sand, snow, ice
-                if (debugSkippedWays) LOGGER.warn("way skipped (bad surface): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "bad surface", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
-            if (way.hasTag("smoothness", inaccessibleSmoothnesses)) {
+            if (way.hasTag(KEY_SMOOTHNESS, inaccessibleSmoothnesses)) {
                 // bad or worse
-                if (debugSkippedWays) LOGGER.warn("way skipped (bad smoothness): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "bad smoothness", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
-            if (way.hasTag("tracktype", inaccessibleTracktypes)) {
+            if (way.hasTag(KEY_TRACKTYPE, inaccessibleTracktypes)) {
                 // grade4 and grade5
-                if (debugSkippedWays) LOGGER.warn("way skipped (bad tracktype): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "bad tracktype", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
@@ -397,14 +401,14 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	}
         	// wheelchair=no, restricted, private
         	if (way.hasTag(KEY_WHEELCHAIR, restrictedValues)) {
-                if (debugSkippedWays) LOGGER.warn("way skipped (wheelchair no, restricted or private): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "wheelchair no, restricted or private", way.getId(), way.getTags().toString()));
         		return EncodingManager.Access.CAN_SKIP;
         	}
         	
         	// do not include nonWheelchairAccessibleHighways
             if (nonWheelchairAccessibleHighways.contains(highwayValue)) {
             	// check for wheelchair accessibility
-                if (debugSkippedWays) LOGGER.warn("way skipped (in nonWheelchairAccessibleHighways list): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "in nonWheelchairAccessibleHighways list", way.getId(), way.getTags().toString()));
             	return EncodingManager.Access.CAN_SKIP;
             }
         	
@@ -415,7 +419,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         	
         	// foot=no, restricted, private
         	if (way.hasTag("foot", restrictedValues)) {
-                if (debugSkippedWays) LOGGER.warn("way skipped (pedestrian no, restricted or private): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "pedestrian no, restricted or private", way.getId(), way.getTags().toString()));
         		return EncodingManager.Access.CAN_SKIP;
         	}
         	
@@ -425,19 +429,19 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             
             // Runge
             if (way.hasTag(KEY_SIDEWALK, noSidewalkValues) && assumedWheelchairAccessibleHighways.contains(highwayValue)) {
-                if (debugSkippedWays) LOGGER.warn("way skipped (in assumedWheelchairAccessibleHighways list with no sidewalks): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "in assumedWheelchairAccessibleHighways list with no sidewalks", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
             // explicit motorroads are not usable
             if (way.hasTag("motorroad", "yes")) {
-                if (debugSkippedWays) LOGGER.warn("way skipped (motorroad): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "motorroad", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
             // do not get our feet wet, "yes" is already included above
             if (isBlockFords() && (way.hasTag(KEY_HIGHWAY, "ford") || way.hasTag("ford"))) {
-                if (debugSkippedWays) LOGGER.warn("way skipped (ford): " + way.getId() + " Tags: " + way.getTags().toString());
+                if (DEBUG_SKIPPED_WAYS) LOGGER.warn(String.format(DEBUG_MSG_SKIPPED, "ford", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
             }
 
@@ -447,7 +451,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             }
 
             if (fullyWheelchairAccessibleHighways.contains(highwayValue) || assumedWheelchairAccessibleHighways.contains(highwayValue) || limitedWheelchairAccessibleHighways.contains(highwayValue)) {
-            	// check whether information on wheelchair accessbility is available
+            	// check whether information on wheelchair accessbility is available and mark for suitability
+                way.setTag("wheelchair_accessible", true);
             	return EncodingManager.Access.WAY;
             }
 
@@ -461,7 +466,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         int code = 0;
         if (relation.hasTag(KEY_ROUTE, "hiking")
                 || relation.hasTag(KEY_ROUTE, "foot")
-                || relation.hasTag(KEY_ROUTE, "bicycle")
+                || relation.hasTag(KEY_ROUTE, KEY_BICYCLE)
                 || relation.hasTag(KEY_ROUTE, "inline_skates")
         ) {
             code = PriorityCode.PREFER.getValue();
@@ -517,19 +522,19 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         		}
         		if (restrictedWheelchairHighways.contains(highway) && (way.hasTag("foot", intendedValues) || way.hasTag(KEY_WHEELCHAIR, intendedValues))) {
         			speed *= 1.25d;
-    				if (way.hasTag("cycleway", KEY_CROSSING) || way.hasTag(KEY_BRIDLEWAY, KEY_CROSSING) || way.hasTag(KEY_HIGHWAY, KEY_CROSSING)) {
+    				if (way.hasTag(KEY_CYCLEWAY, KEY_CROSSING) || way.hasTag(KEY_BRIDLEWAY, KEY_CROSSING) || way.hasTag(KEY_HIGHWAY, KEY_CROSSING)) {
     					speed *= 2d; // should not exceed 10 in total due to encoding restrictions
     				}
         		}
         	}
-            if (way.hasTag("surface", problematicSurfaces)
-                    || way.hasTag("smoothness", problematicSmoothnesses)
-                    || way.hasTag("tracktype", problematicTracktypes)
+            if (way.hasTag(KEY_SURFACE, problematicSurfaces)
+                    || way.hasTag(KEY_SMOOTHNESS, problematicSmoothnesses)
+                    || way.hasTag(KEY_TRACKTYPE, problematicTracktypes)
             )
         	    speed *= problematicSpeedFactor;
 
-            if (way.hasTag("surface", preferredSurfaces)
-                    || way.hasTag("smoothness", preferredSmoothnesses)
+            if (way.hasTag(KEY_SURFACE, preferredSurfaces)
+                    || way.hasTag(KEY_SMOOTHNESS, preferredSmoothnesses)
             )
                 speed *= preferredSpeedFactor;
 
@@ -581,8 +586,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
     	int positiveFeatures = 0;
     	int negativeFeatures = 0;
-    	int priority;
-    	
+
     	// http://wiki.openstreetmap.org/wiki/DE:Key:traffic_calming
         String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
@@ -673,15 +677,13 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         int sum = positiveFeatures - negativeFeatures;
 
-        if (sum <= -6) priority = AVOID_AT_ALL_COSTS.getValue();
-        else if (sum <= -3) priority = REACH_DEST.getValue();
-        else if (sum <= -1) priority = AVOID_IF_POSSIBLE.getValue();
-        else if (sum ==0) priority = UNCHANGED.getValue();
-        else if (sum <= 2) priority = PREFER.getValue();
-        else if (sum <= 5) priority = VERY_NICE.getValue();
-        else priority = BEST.getValue();
-
-        return priority;
+        if (sum <= -6) return AVOID_AT_ALL_COSTS.getValue();
+        else if (sum <= -3) return REACH_DEST.getValue();
+        else if (sum <= -1) return AVOID_IF_POSSIBLE.getValue();
+        else if (sum ==0) return UNCHANGED.getValue();
+        else if (sum <= 2) return PREFER.getValue();
+        else if (sum <= 5) return VERY_NICE.getValue();
+        else return BEST.getValue();
     }
 
     @Override

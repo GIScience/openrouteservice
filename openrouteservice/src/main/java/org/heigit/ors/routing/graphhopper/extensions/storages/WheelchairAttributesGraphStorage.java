@@ -13,20 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-
 import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-
-import org.apache.log4j.Logger;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 
 public class WheelchairAttributesGraphStorage implements GraphExtension {
-	private static final Logger LOGGER = Logger.getLogger(WheelchairFlagEncoder.class.getName());
-
 	protected static final int WIDTH_MAX_VALUE = 300;
 	protected static final int KERB_MAX_VALUE = 15;
 	protected static final int INCLINE_MAX_VALUE = 30;

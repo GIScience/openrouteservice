@@ -6,16 +6,13 @@ import com.graphhopper.reader.ReaderWay;
 import java.io.InvalidObjectException;
 
 public class WheelchairWayFilter implements OSMFeatureFilter {
-    private OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor;
-    private OSMPedestrianProcessor osmPedestrianProcessor;
+    private final OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor;
 
     private Way osmWay;
 
     public WheelchairWayFilter() {
         super();
         osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
-        osmPedestrianProcessor = new OSMPedestrianProcessor();
-
     }
 
     @Override
