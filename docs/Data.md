@@ -1,9 +1,9 @@
 ---
 title: Data
-nav_order: 2
+nav_order: 3
+has_toc: false
 ---
 
-[ :arrow_backward:  Home](https://github.com/GIScience/openrouteservice/wiki)
 # Data
 openrouteservice makes use of public opensource data. To generate the best routes, a number of different datasets are used.
 

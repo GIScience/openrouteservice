@@ -23,15 +23,15 @@ _firstValue_ = value of the first encountered key from _restrictions_
 
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
-| highway!=* AND route!=[shuttle_train, ferry] | :heavy_check_mark: | | |
-| highway!=* AND route==[shuttle_train, ferry] AND _firstValue_=_restrictedValues_ | :heavy_check_mark: | | |
-| highway!=* AND route==[shuttle_train, ferry] AND ( _firstValue_=_intendedValues_ OR _firstValue_!=* AND foot!=* AND bicycle!=* ) | | :heavy_check_mark: | |
-| highway=track AND tracktype=* | | | :heavy_check_mark: |
+| highway!=\* AND route!=[shuttle_train, ferry] | :heavy_check_mark: | | |
+| highway!=\* AND route==[shuttle_train, ferry] AND _firstValue_=_restrictedValues_ | :heavy_check_mark: | | |
+| highway!=\* AND route==[shuttle_train, ferry] AND ( _firstValue_=_intendedValues_ OR _firstValue_!=\* AND foot!=\* AND bicycle!=\* ) | | :heavy_check_mark: | |
+| highway=track AND tracktype=\* | | | :heavy_check_mark: |
 | highway!=[motorway, motorway_link, motorroad, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, unclassified, residential, living_street, service, road, track] | :heavy_check_mark: | | |
 | impassable=yes OR [status, smoothness]=impassable | :heavy_check_mark: | | |
 | _firstValue_=_restrictedValues_ | :heavy_check_mark: | | |
 | _firstValue_=_intendedValues_ | | :heavy_check_mark: | |
-| highway=ford OR ford=* | | | :heavy_check_mark: |
+| highway=ford OR ford=\* | | | :heavy_check_mark: |
 | maxwidth<2 | :heavy_check_mark: | | |
 
 ## Driving HGV :truck: :bus: 🚜
@@ -57,18 +57,19 @@ _intendedValues_ = [yes, designated, official, permissive]
 
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
-(man_made=pier OR railway=platform OR (route=[shuttle_train, ferry] AND (bicycle=yes OR (bicycle!=* AND foot!=*)))) AND !(_restrictions_ = _restrictedValues_) | | :heavy_check_mark: | |
+(man_made=pier OR railway=platform OR (route=[shuttle_train, ferry] AND (bicycle=yes OR (bicycle!=\* AND foot!=\*)))) AND !(_restrictions_ = _restrictedValues_) | | :heavy_check_mark: | |
 |highway!=[cycleway, path, footway, pedestrian, track, service, residential, living_street, steps, unclassified, road, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link] | :heavy_check_mark: | | |
 |sac_scale=hiking AND highway=cycleway| | :heavy_check_mark: | |
-|_cycling-regular, cycling-electric:_<br/>sac_scale!=hiking<br/><br/>_cycling-road:_<br/>sac_scale=*<br/><br/>_cycling-mountain:_<br/>sac_scale!=[hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]<br/>| :heavy_check_mark:  | | |
+|_cycling-regular, cycling-electric:_<br/>sac_scale!=hiking<br/><br/>_cycling-road:_<br/>sac_scale=\*<br/><br/>_cycling-mountain:_<br/>sac_scale!=[hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]<br/>| :heavy_check_mark:  | | |
 |bicycle=_intendedValues_ OR bicycle=dismount OR highway=cycleway OR bicycle_road=yes | | :heavy_check_mark: | |
 |highway=[motorway, motorway_link] OR motorroad=yes| :heavy_check_mark: | | |
-|highway=ford OR ford=*| | | :heavy_check_mark: |
+|highway=ford OR ford=\*| | | :heavy_check_mark: |
 |_restrictions_ = _restrictedValues_| :heavy_check_mark: | | |
-|ELSE * =* | | :heavy_check_mark: | |
+|ELSE \* =\* | | :heavy_check_mark: | |
 
 
 ## Foot
+
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
 | sac_scale!=[hiking] | :heavy_check_mark: | | |
@@ -78,17 +79,18 @@ _intendedValues_ = [yes, designated, official, permissive]
 | sidewalk=[yes, both, left, right] | | :heavy_check_mark: | |
 | highway!=[footway, path, steps, pedestrian, living_street, track, residential, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, cycleway, unclassified, road] | :heavy_check_mark: | | |
 | motorroad=yes | :heavy_check_mark: | | |
-| highway=ford OR ford=* | | | :heavy_check_mark: |
+| highway=ford OR ford=\* | | | :heavy_check_mark: |
 
 The following are applicable only when no highway tag has been provided for the way
 
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
-| route=[shuttle_train, ferry] AND (foot!=* OR foot=yes) | | :heavy_check_mark: | |
+| route=[shuttle_train, ferry] AND (foot!=\* OR foot=yes) | | :heavy_check_mark: | |
 | railway=platform | | :heavy_check_mark: | |
 | man_made=pier | | :heavy_check_mark: | |
 
 ## Hiking
+
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
 | sac_scale!=[hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking] | :heavy_check_mark: | | |
@@ -98,17 +100,18 @@ The following are applicable only when no highway tag has been provided for the 
 | sidewalk=[yes, both, left, right] | | :heavy_check_mark: | |
 | highway!=[footway, path, steps, pedestrian, living_street, track, residential, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, cycleway, unclassified, road] | :heavy_check_mark: | | |
 | motorroad=yes | :heavy_check_mark: | | |
-| highway=ford OR ford=* | | | :heavy_check_mark: |
+| highway=ford OR ford=\* | | | :heavy_check_mark: |
 
 The following are applicable only when no highway tag has been provided for the way
 
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
-| route=[shuttle_train, ferry] AND (foot!=* OR foot=yes) | | :heavy_check_mark: | |
+| route=[shuttle_train, ferry] AND (foot!=\* OR foot=yes) | | :heavy_check_mark: | |
 | railway=platform | | :heavy_check_mark: | |
 | man_made=pier | | :heavy_check_mark: | |
 
 ## Wheelchair
+
 | Tag combination | Reject | Accept | Conditional |
 | --------------- |:------:|:------:|:-----------:|
 | motorroad=yes   | :heavy_check_mark: | | |
@@ -117,10 +120,10 @@ The following are applicable only when no highway tag has been provided for the 
 | highway=steps | :heavy_check_mark: | | |
 | foot=[yes, designated, official, permissive, limited] | | :heavy_check_mark: | |
 | foot=[private, no, restricted] | :heavy_check_mark: | | |
-| sac_scale=* | :heavy_check_mark: | | |
+| sac_scale=\* | :heavy_check_mark: | | |
 | sidewalk=[yes, both, left, right] | | :heavy_check_mark: |
 | sidewalk=[no, none, separate, detached] AND highway=[trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, road] | :heavy_check_mark: | | |
-| highway=ford OR ford=* | | | :heavy_check_mark: |
+| highway=ford OR ford=\* | | | :heavy_check_mark: |
 | (bicycle=[designated, official] OR horse=[designated, official]) AND [foot, access, wheelchair]=[yes, designated, official, permissive, limited] | :heavy_check_mark: | | |
 | highway=[bridleway, cycleway] | | | :heavy_check_mark: |
 | highway=[footway, pedestrian, living_street, residential, unclassified, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, road path, track] | | :heavy_check_mark: | |

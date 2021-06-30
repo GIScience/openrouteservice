@@ -1,16 +1,17 @@
 ---
 title: Installation and Usage
-nav_order: 1
+nav_order: 2
 has_children: true
+has_toc: false
 ---
 
-[ :arrow_backward:  Home](https://github.com/GIScience/openrouteservice/wiki)
 # Installation and Usage
 ## Installation
-* [Running with Docker](https://github.com/GIScience/openrouteservice/wiki/Running-with-Docker)
-* [Building from Source](https://github.com/GIScience/openrouteservice/wiki/Building-from-Source)
-* [System requirements](https://github.com/GIScience/openrouteservice/wiki/System-Requirements)
-* [Advanced Docker Setup](Advanced-Docker-Setup)
+* [Running with Docker](installation/Running-with-Docker)
+* [Building from Source](installation/Building-from-Source)
+* [System requirements](installation/System-Requirements)
+* [Configuration](installation/Configuration-(app.config))
+* [Advanced Docker Setup](installation/Advanced-Docker-Setup)
 
 ## Usage
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:

@@ -1,15 +1,15 @@
 ---
 title: Documentation
-nav_order: 3
+nav_order: 4
 has_children: true
+has_toc: false
 ---
 
-[:arrow_backward: Home](./)
 # Documentation
-* [API Documentation](API-Documentation)
-  * [Moving to V2 API](Switching-from-V1-API-to-V2)
-* [Travel speeds](Travel-speeds)
-* [Tag Filtering](Tag-Filtering)
+* [API Documentation](documentation/API-Documentation)
+  * [Moving to V2 API](documentation/Switching-from-V1-API-to-V2)
+* [Travel speeds](documentation/Travel-speeds)
+* [Tag Filtering](documentation/Tag-Filtering)
 * Request Enums
   * Country codes
-* [Extra Info Availability](Extra-Info-Availability)
+* [Extra Info Availability](documentation/Extra-Info-Availability)

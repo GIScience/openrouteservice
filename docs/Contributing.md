@@ -2,12 +2,12 @@
 title: Contributing
 nav_order: 4
 has_children: true
+has_toc: false
 ---
 
-[ :arrow_backward: Home](https://github.com/GIScience/openrouteservice/wiki)
 # Contributing
-* [Contributing Code](Contributing-Code)
-* [Contributing Translations](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations)
+* [Contributing Code](contributing/Contributing-Code)
+* [Contributing Translations](contributing/Contributing-Translations)
 * Updating OpenStreetMap
 
 When people contribute to openrouteservice, it makes Tim do a little happy dance!

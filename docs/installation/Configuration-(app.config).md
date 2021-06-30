@@ -10,24 +10,26 @@ In the following you will find the settings with descriptions which can be chang
 An example `app.config` can be found [here](https://github.com/GIScience/openrouteservice/blob/development/openrouteservice/src/main/resources/app.config.sample).
 
 # app.config
-| key | type | description | example value |
-|-----|------|-------------|-------|
+
+| key  | type | description | example value |
+|------|------|-------------|---------------|
 |  ors   |  object | describes the top level element   |  [ors](#ors)     |
 
 ---
 
 ## ors
+
 | key | type | description | example value |
 |-----|------|-------------|-------|
 | info  |  object | the topmost element to provide basic information about the service for signing and information purposes           |  [info](#orsinfo)   |
 | services   |  object |   an object comprising the services       |   [services](#orsservices)    |  
 | logging  |  object | the logging properties      |  [logging](#orslogging)   |
 | system_message   |  list |   List of system message objects       |   [system messages](#orssystem_message)    |  
- 
 
 ---
 
 ### ors.info
+
 | key | type | description | example value |
 |-----|------|-------------|-------|
 |  base_url  |  string |            |  `"https://openrouteservice.org"`   |
@@ -38,6 +40,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 ---
 
 ### ors.services
+
 | key | type | description | example value |
 |-----|------|-------------|-------|
 |   ors.services.routing            |  object |   settings for routing and its profiles          |    [routing](#orsservicesrouting)    | 
@@ -47,6 +50,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 ---
 
 #### ors.services.routing
+
 | key | type | description | example value |
 |-----|------|-------------|-------|      
 |   enabled  |   boolean       |   Enables or disables (true/false) the end-point. Default value is true.    | `true` |
@@ -61,15 +65,18 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 
 ---
 
-##### ors.services.routing.profiles
+##### **ors.services.routing.profiles**
+
 | key | type | description | example value |
 |-----|------|-------------|-------|      
 |   active    |  list | Defines a list of active routing profiles. The element name XXX must correspond to a notation "profile-XXX", which is used in the following sections. Can be one or many of `"car"`, `"hgv"`, `"bike-regular"`, `"bike-mountain"`, `"bike-road"`, `"bike-electric"`, `"walking"`, `"hiking"` or `"wheelchair"`      |    `["car", "bike-regular"]`  |
 |   default_params    |  object |  Set parameters that is applied to every profile by default     |    [default_params](#orsservicesroutingprofilesdefault_params)  |
-|   profile-XXX    |  object |  Settings that are applied to the specific profile. You may run multiple profiles at once.     |   [profile-XXX](#orsservicesroutingprofilesprofile-XXX)  |
+|   profile-XXX    |  object |  Settings that are applied to the specific profile. You may run multiple profiles at once.     |   [profile-XXX](#orsservicesroutingprofilesprofile-xxx)  |
+
 ---
 
-##### ors.services.routing.profiles.default_params
+##### **ors.services.routing.profiles.default_params**
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   encoder_flags_size    |  number |  The number of bytes used for FlagEncoders    |   `8`  |
@@ -92,26 +99,28 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   location_index_search_iterations   |   number   |   The maximum number of iterations performed in coordinates lookup. Higher values yield a broader search area, but might reduce query performance. It only affects the storage lookup but not its layout so changing this parameter does not require rebuilding the location index. Corresponds to GraphHopper's `index.max_region_search` configuration parameter.   |   `4` (default)   |
 |   maximum_speed_lower_bound   |   number   |   Specifies the threshold for the query parameter `maximum_speed`.   |   `80` (default)   |
 |   interpolate_bridges_and_tunnels   |   boolean   |   Interpolate elevation of bridges and tunnels.   |   `true` (default)   | 
-|   preparation    |  object |  ...    |    [preparation](#ors.services.routing.profiles.default_params.preparation)  |
+|   preparation    |  object |  ...    |    [preparation](#orsservicesroutingprofilesdefault_paramspreparation)  |
 |   execution    |  object |  ...    |    [execution](#orsservicesroutingprofilesdefault_paramsexecution)    |    `100` 
 
 ---
 
-##### ors.services.routing.profiles.default_params.preparation
+##### **ors.services.routing.profiles.default_params.preparation**
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   min_network_size    |  number |      |   `200`  |
 |   min_one_way_network_size    |  number |      |   `200`  |
 |   methods    |  object |      |   [methods](#orsservicesroutingprofilesdefault_paramspreparationmethods)  |     
               
-##### ors.services.routing.profiles.default_params.preparation.methods
+##### **ors.services.routing.profiles.default_params.preparation.methods**
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   ch    |  object |  Settings for preprocessing contraction hierarchies    |   [ch](#orsservicesroutingprofilesdefault_paramspreparationmethodsch)  |
 |   lm    |  object |  Settings for preprocessing landmarks    |   [lm](#orsservicesroutingprofilesdefault_paramspreparationmethodslm) |
 |   core    |  object |  Settings for preprocessing landmarks    |   [core](#orsservicesroutingprofilesdefault_paramspreparationmethodscore) |
 
-##### ors.services.routing.profiles.default_params.preparation.methods.ch
+##### **ors.services.routing.profiles.default_params.preparation.methods.ch**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -119,7 +128,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   threads    |  number |      |   `1`  |
 |   weightings  |  string |      |  `"recommended"` |
 
-##### ors.services.routing.profiles.default_params.preparation.methods.lm
+##### **ors.services.routing.profiles.default_params.preparation.methods.lm**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -128,7 +137,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   weightings  |  string |      | `"recommended,shortest"` |
 |   landmarks  |  number | Total number of precomputed landmarks, the subset used during the query is set in [`active_landmarks`](#orsservicesroutingprofilesdefault_paramsexecutionmethodslm) |  `16` |
 
-##### ors.services.routing.profiles.default_params.preparation.methods.core
+##### **ors.services.routing.profiles.default_params.preparation.methods.core**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -140,13 +149,13 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 
 ---
 
-##### ors.services.routing.profiles.default_params.execution
+##### **ors.services.routing.profiles.default_params.execution**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   methods    |  object |      |   [methods](#orsservicesroutingprofilesdefault_paramsexecutionmethods)  |
 
-##### ors.services.routing.profiles.default_params.execution.methods
+##### **ors.services.routing.profiles.default_params.execution.methods**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -154,20 +163,20 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   lm    |  object |  Settings for using landmarks in routing   |   [lm](#orsservicesroutingprofilesdefault_paramsexecutionmethodslm)  |
 |   core    |  object |  Settings for using landmarks in routing   |   [core](#orsservicesroutingprofilesdefault_paramsexecutionmethodscore)  |
 
-##### ors.services.routing.profiles.default_params.execution.methods.ch
+##### **ors.services.routing.profiles.default_params.execution.methods.ch**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   disabling_allowed    |  boolean |      |   `true`  |
 
-##### ors.services.routing.profiles.default_params.execution.methods.lm
+##### **ors.services.routing.profiles.default_params.execution.methods.lm**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   disabling_allowed    |  boolean |      |   `true`  |
 |   active_landmarks    |  number | Number of landmarks used for computing the route |   `8`  |
 
-##### ors.services.routing.profiles.default_params.execution.methods.core
+##### **ors.services.routing.profiles.default_params.execution.methods.core**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -176,13 +185,13 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 
 ---
 
-##### ors.services.routing.profiles.profile-XXX
+##### **ors.services.routing.profiles.profile-XXX**
    
 | key | type | description | example value |
 |-----|------|-------------|-------| 
-|   parameters    |  object |  the specific profile parameters of an profile    |   [parameters](#orsservicesroutingprofilesprofile-XXXparameters)  |
+|   parameters    |  object |  the specific profile parameters of an profile    |   [parameters](#orsservicesroutingprofilesprofile-xxxparameters)  |
 
-##### ors.services.routing.profiles.profile-XXX.parameters
+##### **ors.services.routing.profiles.profile-XXX.parameters**
    
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -195,16 +204,16 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   maximum_alternative_routes   |  number | The maximum number of alternative routes in a request    |   `3`  |
 |   maximum_avoid_polygon_area   |  number | The maximum allowed total area of a polygon in square kilometers, optional      |   `200000000`  |
 |   maximum_avoid_polygon_extent   |  number | The maximum extent (i.e. envelope side length) of a polygon in kilometers, optional    |   `20000`  |
-|   ext_storages    |  object |  Controls which external storages are enabled    |   [external storages](#orsservicesroutingprofilesprofile-XXXparametersext_storages)  |
+|   ext_storages    |  object |  Controls which external storages are enabled    |   [external storages](#orsservicesroutingprofilesprofile-xxxparametersext_storages)  |
 
-##### ors.services.routing.profiles.profile-XXX.parameters.encoder_options
+##### **ors.services.routing.profiles.profile-XXX.parameters.encoder_options**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   problematic_speed_factor    |  number | For wheelchair profile only! Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways   |   `problematic_speed_factor=0.7`  |
 |   preferred_speed_factor    |  number | For wheelchair profile only! Travel speeds on edges classified as preferrable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways   |   `preferred_speed_factor=1.2`  |
 
-##### ors.services.routing.profiles.profile-XXX.parameters.ext_storages
+##### **ors.services.routing.profiles.profile-XXX.parameters.ext_storages**
    
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -215,9 +224,9 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   RoadAccessRestrictions    |  object | RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances, e.g. access=destination. The use_for_warnings parameter tells the ors that this storage can be used for generating warning messages in the route response. For RoadAccessRestrictions, this means that whenever a route goes over a way which has some restrictions, a warning message will be delivered with the response and the roadaccessrestrictions extra info automatically added.     |   `{ use_for_warnings: true }`  |
 |   Wheelchair    |  object | Compatible for wheelchair     |   `{ KerbsOnCrossings: "true" }`  |
 |   OsmId    |  object |  Returns the OsmId of the way, Compatible for wheelchair    |   `{}`  |
-|   Borders    |  object |  Borders allows the restriction of routes to not cross country borders, compatible for any profile type     |   [Borders](#orsservicesroutingprofilesprofile-XXXparametersext_storagesBorders)  |    
+|   Borders    |  object |  Borders allows the restriction of routes to not cross country borders, compatible for any profile type     |   [Borders](#orsservicesroutingprofilesprofile-xxxparametersext_storagesBorders)  |    
 
-##### ors.services.routing.profiles.profile-XXX.parameters.ext_storages.Borders
+##### **ors.services.routing.profiles.profile-XXX.parameters.ext_storages.Borders**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
@@ -225,10 +234,8 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   ids    |  string | Path to a csv file containing a unique id for each country, its local name and its english name    |   `'ids.csv'`  |
 |   openborders    |  string | Path to a csv file contianing pairs of countries where the borders are open (i.e. Schengen borders)    |   `'openborders.csv'`  |
 
-
-         
 ---
-       
+
 #### ors.services.isochrones
 
 | key | type | description | example value |
@@ -240,21 +247,22 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   maximum_locations    |  number |  Maximum number of locations in one request    |  `2`  |
 |   allow_compute_area    |  number |  Speficies whether area computation is allowed     | `true`  |
 
-##### ors.services.isochrones.fastisochrones
+##### **ors.services.isochrones.fastisochrones**
 
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   maximum_range_distance    |  list |  Possible values for maximum_range_distance and maximum_range_time are an integer or a list of values specifically defined for each profile    | `[{profiles: "any", value: 50000}, {profiles: "driving-car, driving-hgv", value: 100000}]`   |
 |   maximum_range_time    |  list |      |  `[{profiles: "any", value: 18000},{profiles: "driving-car, driving-hgv", value: 3600}]`   |
 
-##### ors.services.isochrones.fastisochrones.profiles.default_params
+##### **ors.services.isochrones.fastisochrones.profiles.default_params**
 
 | key | type | description | example value |
-|-----|------|-------------|-------| 
+|-----|------|-------------|-------|
 |   enabled    |  boolean |      |   `true`  |
 |   threads    |  number |      |   `1`  |
 |   weightings  |  string |      | `"recommended,shortest"` |
 |   maxcellnodes  |  number | Maximum number of nodes allowed in single isochrone cell | `5000` |
+
 ---
 
 #### ors.services.matrix
@@ -268,7 +276,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   maximum_visited_nodes    |  number |   Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm  |   `100000`  |
 |   allow_resolve_locations    |  number |   Specifies whether the name of a nearest street to the location can be resolved or not. Default value is true  |   `true`  |
 |   attribution    |  string |   Specifies whether the name of a nearest street to the location can be resolved or not. Default value is true  |   `"openrouteservice.org, OpenStreetMap contributors"`  |
-        
+
 ---
 
 #### ors.logging
@@ -281,6 +289,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   stdout    |  boolean |   |   `true`  |
 
 ---
+
 #### ors.system_message 
 Array of message objects where each has
 
@@ -335,4 +344,5 @@ system_message: [
 ]
 ```
 ---
+
 compare with https://github.com/GIScience/openrouteservice/blob/1d2837a9d24cfad6840646069234f4f61c40bb57/openrouteservice/src/main/resources/app.config.sample
