@@ -1,3 +1,8 @@
+---
+title: Home
+nav_order: 1
+---
+
 # Openrouteservice
 
 [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) 
