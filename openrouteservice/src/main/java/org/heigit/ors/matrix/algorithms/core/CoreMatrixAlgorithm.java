@@ -31,7 +31,7 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
-import org.heigit.ors.routing.algorithms.DijkstraManyToManyMultiTreeAlgorithm;
+import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToManyMultiTreeAlgorithm;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;

@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.algorithms;
+package org.heigit.ors.matrix.algorithms.dijkstra;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
@@ -25,6 +25,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
+import org.heigit.ors.routing.algorithms.AbstractManyToManyRoutingAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
