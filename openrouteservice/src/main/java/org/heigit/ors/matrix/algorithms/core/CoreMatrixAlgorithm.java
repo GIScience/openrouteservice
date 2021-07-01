@@ -27,10 +27,8 @@ import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.DijkstraManyToManyMultiTreeAlgorithm;
@@ -38,10 +36,12 @@ import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
-import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private MultiTreeMetricsExtractor pathMetricsExtractor;
@@ -75,7 +75,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     @Override
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
         if (weighting instanceof TurnWeighting) {
-//            turnWeighting = (TurnWeighting) weighting;
             hasTurnWeighting = true;
         }
         weighting = new PreparationWeighting(weighting);
@@ -388,9 +387,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         //TODO Add restriction filter or do this differently
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
-        //TODO set correctly with this.hasTurnWeighting
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
-//        algorithm.setHasTurnWeighting(true);
 
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
