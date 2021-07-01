@@ -59,6 +59,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int highestNodeLevel = -1;
     protected int highestNode = -1;
     protected int maxNodes;
+    protected int maxVisitedNodes = Integer.MAX_VALUE;
+    protected int visitedNodes;
 
     protected boolean finishedFrom;
     protected boolean finishedTo;
@@ -87,10 +89,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
         maxNodes = graph.getNodes();
-
-        //TODO check whether this actually works with PreparationWeighting
-
-
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         initCollections(10);
     }
@@ -154,7 +152,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             outEdgeExplorer = targetGraph.createExplorer();
 
             //Case if there was no core reached
-            if(downwardQueue.isEmpty())
+            if (downwardQueue.isEmpty())
                 downwardQueue = createDownwardQueueFromHighestNode();
             runDownwardSearch(downwardQueue);
             extractMetrics(srcData, dstData, times, distances, weights);
@@ -203,11 +201,11 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     }
 
     /**
-     /
-     /
-     __________OUT-CORE
-     /
-     /
+     * /
+     * /
+     * __________OUT-CORE
+     * /
+     * /
      **/
     private void prepareSourceNodes(int[] from) {
         for (int i = 0; i < from.length; i++) {
@@ -250,10 +248,10 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     continue;
 
                 if (targetGraph.addEdge(adjNode, iter, true)) {
-                  if(isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode()))
-                      coreExitPoints.add(iter.getAdjNode());
-                  else
-                    localPrioQueue.add(iter.getAdjNode());
+                    if (isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode()))
+                        coreExitPoints.add(iter.getAdjNode());
+                    else
+                        localPrioQueue.add(iter.getAdjNode());
                 }
             }
         }
@@ -266,30 +264,27 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 if (graph != null)
                     graph.addEdge(nodeId, null, true);
                 prioQueue.add(nodeId);
-                if(isCoreNode(nodeId)) {
+                if (isCoreNode(nodeId)) {
                     coreExitPoints.add(nodeId);
                 }
             }
         }
     }
-    
+
     private void runPhaseOutsideCore(MatrixLocations srcData) {
         prepareSourceNodes(srcData.getNodeIds());
-        //TODO maxvisited isMaxVisitedExceeded
-        while (!finishedPhase1()){
+        while (!finishedPhase1() && !isMaxVisitedNodesExceeded()) {
             if (!finishedFrom)
-                finishedFrom = !fillEdgesFrom();
+                finishedFrom = !fillEdgesOutsideCore();
         }
     }
-
-    
 
 
     public boolean finishedPhase1() {
         return finishedFrom;
     }
 
-    public boolean fillEdgesFrom() {
+    public boolean fillEdgesOutsideCore() {
         if (upwardQueue.isEmpty())
             return false;
 
@@ -299,18 +294,18 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             // core entry point, do not relax its edges
             coreEntryPoints.add(currFrom.getAdjNode());
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
-// TODO           considerTurn from CoreALT
             if (considerTurnRestrictions(currFrom.getAdjNode())) {
                 List<MinimumWeightMultiTreeSPEntry> existingEntryList = bestWeightMapCore.get(currFrom.getAdjNode());
-                if(existingEntryList == null)
+                if (existingEntryList == null)
                     initBestWeightMapEntryList(bestWeightMapCore, currFrom.getAdjNode()).add(currFrom);
                 else
                     existingEntryList.add(currFrom);
             }
-        }
-        else {
+        } else {
             fillEdgesUpward(currFrom, upwardQueue, bestWeightMap, outEdgeExplorer);
         }
+
+        visitedNodes++;
 
         return true;
     }
@@ -319,7 +314,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         if (bestWeightMap.get(traversalId) != null)
             throw new IllegalStateException("Core entry point already exists in best weight map.");
 
-        List<MinimumWeightMultiTreeSPEntry> entryList = new ArrayList<>(5);// TODO: Proper assessment of the optimal size
+        List<MinimumWeightMultiTreeSPEntry> entryList = new ArrayList<>(5);
         bestWeightMap.put(traversalId, entryList);
 
         return entryList;
@@ -341,10 +336,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                          EdgeExplorer explorer) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
 
-// TODO time //            entry.time = calcTime(iter, currEdge, reverse)
-
         while (iter.next()) {
-            if(!additionalCoreEdgeFilter.accept(iter)) {
+            if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
 
@@ -367,7 +360,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                         entry.updateWeights();
                         prioQueue.remove(entry);
                         prioQueue.add(entry);
-
                     }
                 }
             }
@@ -375,12 +367,12 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     }
 
     /**
-    /
-    /
-    __________IN-CORE
-    /
-    /
-    **/
+     * /
+     * /
+     * __________IN-CORE
+     * /
+     * /
+     **/
     private PriorityQueue<MinimumWeightMultiTreeSPEntry> runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
@@ -388,22 +380,24 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
+        algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
+        algorithm.setVisitedNodes(this.visitedNodes);
 
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
         MinimumWeightMultiTreeSPEntry[] destTrees = algorithm.calcPaths(entryPoints, exitPoints);
         // Set all found core exit points as start points of the downward search phase
-        PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = new PriorityQueue<>(destTrees.length > 0? destTrees.length : 1);
+        PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = new PriorityQueue<>(destTrees.length > 0 ? destTrees.length : 1);
         Collections.addAll(downwardQueue, destTrees);
         return downwardQueue;
     }
 
     /**
-     /
-     /
-     __________OUT-CORE 2nd PHASE
-     /
-     /
+     * /
+     * /
+     * __________OUT-CORE 2nd PHASE
+     * /
+     * /
      **/
 
     protected void runDownwardSearch(PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue) {
@@ -496,23 +490,28 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         return chGraph.getLevel(node) >= coreNodeLevel;
     }
 
-    void updateHighestNode(int adjNode ) {
+    void updateHighestNode(int adjNode) {
         //We have already reached the core. No need to keep track of the highest node anymore.
-        if(highestNodeLevel == coreNodeLevel)
+        if (highestNodeLevel == coreNodeLevel)
             return;
 
-        if (adjNode < maxNodes)
-        {
-            if (highestNode == -1 || highestNodeLevel < chGraph.getLevel(adjNode))
-            {
-                highestNode =  adjNode;
+        if (adjNode < maxNodes) {
+            if (highestNode == -1 || highestNodeLevel < chGraph.getLevel(adjNode)) {
+                highestNode = adjNode;
                 highestNodeLevel = chGraph.getLevel(highestNode);
             }
-        }
-        else
-        {
+        } else {
             if (highestNode == -1)
-                highestNode =  adjNode;
+                highestNode = adjNode;
         }
+    }
+
+    //TODO integrate into algorithm creation
+    public void setMaxVisitedNodes(int numberOfNodes) {
+        this.maxVisitedNodes = numberOfNodes;
+    }
+
+    protected boolean isMaxVisitedNodesExceeded() {
+        return this.maxVisitedNodes < this.visitedNodes;
     }
 }

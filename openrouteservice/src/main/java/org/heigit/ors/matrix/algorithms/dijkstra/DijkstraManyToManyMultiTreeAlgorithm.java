@@ -43,6 +43,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private IntHashSet targets;
     protected MinimumWeightMultiTreeSPEntry currEdge;
     //TODO visited nodes
+    private int maxVisitedNodes = Integer.MAX_VALUE;
     private int visitedNodes;
     private int treeEntrySize;
 
@@ -76,14 +77,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         prioQueue.clear();
         bestWeightMap.clear();
         targetsFound = 0;
-    }
-
-    public int getFoundTargets() {
-        return targetsFound;
-    }
-
-    public int getTargetsCount() {
-        return targetsCount;
     }
 
     public void prepare(int[] from, int[] to) {
@@ -160,6 +153,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 throw new AssertionError("Empty edge cannot happen");
             System.out.println();
             System.out.println("Polled queue entry for edge " + currEdge.getEdge() + " to node " + currEdge.getAdjNode() + " with weight " + currEdge.toString());
+            visitedNodes++;
         }
     }
 
@@ -364,6 +358,18 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     @Override
     public int getVisitedNodes() {
         return visitedNodes;
+    }
+
+    public void setMaxVisitedNodes(int numberOfNodes) {
+        this.maxVisitedNodes = numberOfNodes;
+    }
+
+    public void setVisitedNodes(int numberOfNodes) {
+        this.visitedNodes = numberOfNodes;
+    }
+
+    protected boolean isMaxVisitedNodesExceeded() {
+        return this.maxVisitedNodes < this.visitedNodes;
     }
 
     @Override
