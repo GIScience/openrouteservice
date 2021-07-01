@@ -54,7 +54,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
     protected int turnRestrictedNodeLevel;
     private boolean hasTurnWeighting = false;
-    protected boolean approximate = false;
+    protected boolean approximate = true;
 
     protected int highestNodeLevel = -1;
     protected int highestNode = -1;
@@ -329,9 +329,13 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     boolean considerTurnRestrictions(int node) {
         if (!hasTurnWeighting)
             return false;
-//        if (approximate)
-//            return isTurnRestrictedNode(node);
+        if (approximate)
+            return isTurnRestrictedNode(node);
         return true;
+    }
+
+    boolean isTurnRestrictedNode(int node) {
+        return chGraph.getLevel(node) == turnRestrictedNodeLevel;
     }
 
     void fillEdgesUpward(MinimumWeightMultiTreeSPEntry currEdge, PriorityQueue<MinimumWeightMultiTreeSPEntry> prioQueue, IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap,
@@ -380,7 +384,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     **/
     private PriorityQueue<MinimumWeightMultiTreeSPEntry> runPhaseInsideCore() {
         // Calculate all paths only inside core
-        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
+        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
         //TODO Add restriction filter or do this differently
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);

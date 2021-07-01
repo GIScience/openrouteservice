@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
@@ -38,30 +39,30 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     protected IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMapCore;
     protected PriorityQueue<MinimumWeightMultiTreeSPEntry> prioQueue;
+    private CHGraph chGraph;
     private IntHashSet targets;
     protected MinimumWeightMultiTreeSPEntry currEdge;
+    //TODO visited nodes
     private int visitedNodes;
     private int treeEntrySize;
 
     private boolean hasTurnWeighting = false;
-    protected boolean approximate = false;
+    private int turnRestrictedNodeLevel;
+    protected boolean approximate = true;
 
     private int targetsFound = 0;
     private int targetsCount = 0;
 
-    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
+        this.chGraph = chGraph;
+        this.turnRestrictedNodeLevel = chGraph.getNodes() + 2;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
-        //TODO weighting is prepare|prepare|...
-        if (weighting instanceof TurnWeighting) {
-//            turnWeighting = (TurnWeighting) weighting;
-            hasTurnWeighting = true;
-        }
     }
 
-    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, IntObjectMap<MinimumWeightMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> existingCoreWeightMap,  Weighting weighting, TraversalMode tMode) {
-        this(graph, weighting, tMode);
+    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, CHGraph chGraph, IntObjectMap<MinimumWeightMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
+        this(graph, chGraph, weighting, tMode);
         bestWeightMap = existingWeightMap;
         bestWeightMapCore = existingCoreWeightMap;
     }
@@ -343,9 +344,13 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     boolean considerTurnRestrictions(int node) {
         if (!hasTurnWeighting)
             return false;
-//        if (approximate)
-//            return isTurnRestrictedNode(node);
+        if (approximate)
+            return isTurnRestrictedNode(node);
         return true;
+    }
+
+    boolean isTurnRestrictedNode(int node) {
+        return chGraph.getLevel(node) == turnRestrictedNodeLevel;
     }
 
 
