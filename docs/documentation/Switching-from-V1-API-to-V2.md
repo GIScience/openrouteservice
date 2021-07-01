@@ -1,5 +1,6 @@
 ---
 nav_exclude: true
+parent: Documentation
 title: Switching from V1 API to V2
 ---
 
