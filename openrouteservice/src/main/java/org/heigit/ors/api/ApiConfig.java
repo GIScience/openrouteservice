@@ -22,11 +22,15 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
+import org.heigit.ors.config.AppConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
@@ -45,6 +49,18 @@ public class ApiConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
+    }
+
+    /**
+     * Adds Access Control for allowed origins specified in the app.config.
+     * Incoming requests with a different `Origin` header are forbidden.
+     * Default configuration should be * to allow pairing of web applications with local ors instances.
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        List<String> allowed_origins = AppConfig.getGlobal().getStringList("ors.api_settings.allowed_origins");
+        registry.addMapping("/**")
+                .allowedOrigins(allowed_origins.toArray(new String[0]));
     }
 
     @Bean

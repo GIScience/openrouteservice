@@ -19,6 +19,7 @@ import com.typesafe.config.ConfigException.WrongType;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +100,15 @@ public class AppConfig {
         }
 
         return null;
+    }
+
+    public List<String> getStringList(String path) {
+        try {
+            return _config.getStringList(path);
+        } catch (Exception e) {
+            // IGNORE
+        }
+        return new ArrayList<>();
     }
 
     public List<String> getServiceParametersList(String serviceName, String paramName) {

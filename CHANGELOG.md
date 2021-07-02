@@ -34,6 +34,10 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+### Added
+- configurable CORS Header to Responses ([#994](https://github.com/GIScience/openrouteservice/issues/994))
+
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
