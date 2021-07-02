@@ -168,6 +168,15 @@ public class AppConfig {
 		return new ArrayList<>();
 	}
 
+	public List<String> getStringList(String path) {
+		try {
+			return config.getStringList(path);
+		} catch (Exception e) {
+			// IGNORE
+		}
+		return new ArrayList<>();
+	}
+
 	public List<String> getServiceParametersList(String serviceName, String paramName) {
 		try {
 			return config.getStringList(PREFIX_ORS_SERVICES + serviceName + "." + paramName);
