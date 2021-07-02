@@ -13,85 +13,83 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.EdgeIteratorState;
+public class WheelchairEdgeFilter implements EdgeFilter {
+    private byte[] buffer;
+    private WheelchairAttributesGraphStorage storage;
+    private WheelchairAttributes attributes;
+    private WheelchairParameters params;
 
-public class WheelchairEdgeFilter implements EdgeFilter  {
-	private byte[] buffer;
-	private WheelchairAttributesGraphStorage storage;
-	private WheelchairAttributes attributes;
-	private WheelchairParameters params;
+    public WheelchairEdgeFilter(WheelchairParameters params, GraphStorage graphStorage) throws Exception {
+        storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
+        if (storage == null)
+            throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
+        this.params = params;
+        if (this.params == null) {
+            this.params = new WheelchairParameters();
+        }
+        attributes = new WheelchairAttributes();
+        buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
+    }
 
-	public WheelchairEdgeFilter(WheelchairParameters params, GraphStorage graphStorage) throws Exception {
-		storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
-		if (storage ==  null)
-			throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
-		this.params = params;
-		if (this.params == null)  {
-			this.params = new WheelchairParameters();
-		}
-		attributes = new WheelchairAttributes();
-		buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-	}
+    @Override
+    public boolean accept(EdgeIteratorState iter) {
+        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+        return !attributes.hasValues() || !(
+                checkSurfaceType()
+                        || checkSmoothnessType()
+                        || checkTrackType()
+                        || checkMaximumIncline()
+                        || checkMaximumSlopedKerb()
+                        || checkMinimumWidth()
+                        || checkSurfaceQualityKnown()
+                        || checkUnsuitable()
+        );
+    }
 
-	@Override
-	public boolean accept(EdgeIteratorState iter) {
-		storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-		return !attributes.hasValues() || !(
-				checkSurfaceType()
-						|| checkSmoothnessType()
-						|| checkTrackType()
-						|| checkMaximumIncline()
-						|| checkMaximumSlopedKerb()
-						|| checkMinimumWidth()
-						|| checkSurfaceQualityKnown()
-						|| checkUnsuitable()
-		);
-	}
+    private boolean checkSurfaceType() {
+        return params.getSurfaceType() > 0
+                && params.getSurfaceType() < attributes.getSurfaceType();
+    }
 
-	private boolean checkSurfaceType() {
-		return params.getSurfaceType() > 0
-				&& params.getSurfaceType() < attributes.getSurfaceType();
-	}
+    private boolean checkSmoothnessType() {
+        return params.getSmoothnessType() > 0
+                && params.getSmoothnessType() < attributes.getSmoothnessType();
+    }
 
-	private boolean checkSmoothnessType() {
-		return params.getSmoothnessType() > 0
-				&& params.getSmoothnessType() < attributes.getSmoothnessType();
-	}
+    private boolean checkTrackType() {
+        return params.getTrackType() > 0 && attributes.getTrackType() != 0
+                && params.getTrackType() <= attributes.getTrackType();
+    }
 
-	private boolean checkTrackType() {
-		return params.getTrackType() > 0 && attributes.getTrackType() != 0
-				&& params.getTrackType() <= attributes.getTrackType();
-	}
+    private boolean checkMaximumIncline() {
+        return params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f)
+                && params.getMaximumIncline() < attributes.getIncline();
+    }
 
-	private boolean checkMaximumIncline() {
-		return params.getMaximumIncline() > (Float.MAX_VALUE * -1.0f)
-				&& params.getMaximumIncline() < attributes.getIncline();
-	}
+    private boolean checkMaximumSlopedKerb() {
+        return params.getMaximumSlopedKerb() >= 0.0
+                && params.getMaximumSlopedKerb() * 100.0 < attributes.getSlopedKerbHeight();// Stored in storage in cm
+    }
 
-	private boolean checkMaximumSlopedKerb() {
-		return params.getMaximumSlopedKerb() >= 0.0
-				&& params.getMaximumSlopedKerb() * 100.0 < attributes.getSlopedKerbHeight();// Stored in storage in cm
-	}
+    private boolean checkMinimumWidth() {
+        return params.getMinimumWidth() > 0.0
+                && attributes.getWidth() > 0.0 // if the attribute value is 0, this signifies that no data is available
+                && params.getMinimumWidth() * 100.0 > attributes.getWidth(); // stored in storage in cm
+    }
 
-	private boolean checkMinimumWidth() {
-		return params.getMinimumWidth() > 0.0
-				&& attributes.getWidth() > 0.0 // if the attribute value is 0, this signifies that no data is available
-				&& params.getMinimumWidth()*100.0 > attributes.getWidth(); // stored in storage in cm
-	}
+    private boolean checkSurfaceQualityKnown() {
+        return params.isRequireSurfaceQualityKnown() && !attributes.isSurfaceQualityKnown();
+    }
 
-	private boolean checkSurfaceQualityKnown() {
-		return params.isRequireSurfaceQualityKnown() && !attributes.isSurfaceQualityKnown();
-	}
-
-	private boolean checkUnsuitable() {
-		return !params.allowUnsuitable() && !attributes.isSuitable();
-	}
-
+    private boolean checkUnsuitable() {
+        return !params.allowUnsuitable() && !attributes.isSuitable();
+    }
 }

@@ -175,7 +175,7 @@ public class GenericHandler {
             applyWeightings(weightings, params);
         }
 
-        if (options.getProfileParams().hasAllowUnsuitable() && params.getClass() == WheelchairParameters.class) {
+        if (params instanceof WheelchairParameters && options.getProfileParams().hasAllowUnsuitable()) {
             ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
         }
         return params;

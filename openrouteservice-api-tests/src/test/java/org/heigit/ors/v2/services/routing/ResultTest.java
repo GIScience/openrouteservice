@@ -2034,7 +2034,6 @@ public class ResultTest extends ServiceTest {
         restrictions.put("surface_type", "cobblestone");
         JSONObject params = new JSONObject();
         params.put("restrictions", restrictions);
-        params.put("allow_unsuitable", true);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);

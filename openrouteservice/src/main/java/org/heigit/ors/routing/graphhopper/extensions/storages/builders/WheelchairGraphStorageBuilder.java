@@ -224,6 +224,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * Set the specified attribute in the attribute storage object based on the information gathered from the way. This
 	 * method ony sets the attribute in the attribute storage object for the standalone way and not sidewalks.
 	 * @param attribute	The attribute to process
+	 * @param markSurfaceQualityKnown Whether or not to also set the surfaceQualityKnown flag in the WheelchairAttributes object
 	 */
 	private void setWayAttribute(WheelchairAttributes.Attribute attribute, boolean markSurfaceQualityKnown) {
 		if (cleanedTags.containsKey(attributeToTagName(attribute))) {
@@ -317,6 +318,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 *
 	 * @param value			The value to store
 	 * @param attribute		The attribute to store the value against
+	 * @param markSurfaceQualityKnown Whether or not to also set the surfaceQualityKnown flag in the WheelchairAttributes object
 	 */
 	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute, boolean markSurfaceQualityKnown) {
 		wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), markSurfaceQualityKnown);

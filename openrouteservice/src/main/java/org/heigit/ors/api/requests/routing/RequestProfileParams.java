@@ -38,7 +38,7 @@ public class RequestProfileParams {
     @JsonIgnore
     private boolean hasRestrictions = false;
 
-    @ApiModelProperty(name = PARAM_ALLOW_UNSUITABLE, value = "Specifies if unsuitable roads should be allowed to find routes - default false" +
+    @ApiModelProperty(name = PARAM_ALLOW_UNSUITABLE, value = "Specifies if ways that might not be suitable (e.g. unknown pedestrian usage) should be included in finding routes - default false" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "true")
     @JsonProperty(PARAM_ALLOW_UNSUITABLE)
