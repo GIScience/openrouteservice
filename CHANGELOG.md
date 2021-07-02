@@ -37,7 +37,9 @@ RELEASING:
 ### Added
 - optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
-- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+- docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+- configurable CORS Header to Responses ([#994](https://github.com/GIScience/openrouteservice/issues/994))
+
 ### Changed
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))

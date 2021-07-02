@@ -6,6 +6,9 @@
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
     },
+    "api_settings": {
+      "allowed_origins": ["*"]
+    },
     "services": {
       "matrix": {
         "enabled": true,
