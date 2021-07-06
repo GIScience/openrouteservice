@@ -76,7 +76,7 @@ servers as it can lead to undesirable routes.
 ### Walking profiles
 The travel speeds for `foot-*` profiles (walking and hiking) are set to
 5 km/h on all allowed waytypes.
-For ways with a [`sac_scale`](../extra-info-encoding/Trail-Difficulty) higher than
+For ways with a [`sac_scale`](../extra-info/Trail-Difficulty) higher than
 `hiking`, they are reduced to 2 km/h.
 
 Allowed waytypes consist of ways that are safe for use, ways that are better

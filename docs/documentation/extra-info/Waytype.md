@@ -7,6 +7,8 @@ title: Waytype
 
 ## Waytype
 
+This extra provides info about the type of the way of the corresponding parts of the route.
+
 | Value |     Name     |
 |:-----:|:------------:|
 | 0     | Unknown      |

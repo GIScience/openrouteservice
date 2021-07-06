@@ -8,6 +8,7 @@ title: Road Access Restrictions
 ## Road access restrictions
 
 Provides information about possible restrictions on roads.
+Explanation of the values can be found in the [list of possible values](https://wiki.openstreetmap.org/wiki/Key:access)
 
 | Value |  Encoding  |
 |:-----:|:----------:|

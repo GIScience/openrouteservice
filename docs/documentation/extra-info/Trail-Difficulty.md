@@ -9,7 +9,7 @@ title: Trail Difficulty
 
 This extra provides information about a trails difficulty for [hiking](https://wiki.openstreetmap.org/wiki/Key:sac_scale) as well as for [mountain-biking](https://wiki.openstreetmap.org/wiki/Key:mtb:scale).
 
-| Value | foot-*                              | cycling-*   |
+| Value | foot-\*                              | cycling-\* |
 |:-----:|-------------------------------------|-------------|
 |   0   | no tag                              | no tag      |
 |   1   | sac_scale=hiking                    | mtb:scale=0 |
