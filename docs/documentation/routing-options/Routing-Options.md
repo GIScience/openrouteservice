@@ -12,9 +12,6 @@ For advanced options formatted as json object. For structure refer to the [examp
 The available parameters are:
 
 
-- `maximum_speed` : Specifies a maximum travel speed restriction in km/h.
-
-
 - `avoid_features` : array of features to avoid.
   The available features are :
 
