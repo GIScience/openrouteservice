@@ -6,7 +6,8 @@ title: Tracktype Speeds
 ---
 
 ## Tracktype Speeds
-Corresponds to the OSM [tracktype](https://wiki.openstreetmap.org/wiki/Key:tracktype) tag value.
+The tracktypes corresponds to the OSM [tracktype](https://wiki.openstreetmap.org/wiki/Key:tracktype) tag value.
+This table aggregates the values in the [speed value files][svf].
 
 _(all Values in km/h)_
 
@@ -17,3 +18,5 @@ _(all Values in km/h)_
   |         grade3         |      20     |      20     |        8       |
   |         grade4         |      15     |      15     |        6       |
   |         grade5         |      10     |      10     |        4       |
+
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits

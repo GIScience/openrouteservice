@@ -5,8 +5,9 @@ nav_order: 2
 title: Surface Speeds
 ---
 
-## Surface Speeds
-Corresponds to the OSM [surface](https://wiki.openstreetmap.org/wiki/Key:surface) tag value.
+# Surface Speeds
+The surfaces correspond to the OSM [surface](https://wiki.openstreetmap.org/wiki/Key:surface) tag value.
+This table aggregates the values in the [speed value files][svf].
 
 _(all Values in km/h)_
 
@@ -41,3 +42,5 @@ _(all Values in km/h)_
   |         sand         |      15     |      15     |         6       |
   |          mud         |      10     |      10     |        10       |
   |       unknown:       |      30     |      30     |        -1       |
+
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits

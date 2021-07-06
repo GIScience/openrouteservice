@@ -5,8 +5,9 @@ nav_order: 1
 title: Waytype Speeds
 ---
 
-## Waytype Speeds
-Corresponds to the OSM [highway](https://wiki.openstreetmap.org/wiki/Key:highway) tag value.
+# Waytype Speeds
+The waytypes correspond to the OSM [highway](https://wiki.openstreetmap.org/wiki/Key:highway) tag value.
+This table aggregates the values in the [speed value files][svf].
 
 _(all Values in km/h)_
 
@@ -33,3 +34,5 @@ _(all Values in km/h)_
   |        footway       |      -      |      -      |        6        |
   |      pedestrian      |      -      |      -      |        6        |
   |       cycleway       |      -      |      -      |        18       |
+
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
