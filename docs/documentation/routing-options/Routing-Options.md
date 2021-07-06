@@ -2,6 +2,7 @@
 parent: Documentation
 nav_order: 4
 has_children: true
+has_toc: false
 title: Routing Options
 ---
 
@@ -14,27 +15,23 @@ The available parameters are:
 - `maximum_speed` : Specifies a maximum travel speed restriction in km/h.
 
 
-- `avoid_features` : Pipe (|) separated list of features to avoid.
+- `avoid_features` : array of features to avoid.
   The available features are :
 
   |     Feature         | Available for                               |
   |:-------------------:|---------------------------------------------|
-  | `highways`          | driving-*                                   |
-  | `tollways`          | driving-*                                   |
+  | `highways`          | driving-\*                                  |
+  | `tollways`          | driving-\*                                  |
   | `ferries`           | driving-\*, cycling-\*, foot-\*, wheelchair |
-  | `tunnels`           | driving-*                                   |
-  | `tracks`            | driving-*                                   |
-  | `fords`             | driving-\*, cycling-\*, foot-*              |
+  | `fords`             | driving-\*, cycling-\*, foot-\*             |
   | `steps`             | cycling-\*, foot-\*, wheelchair             |
-  | `hills`             | cycling-\*, foot-\*                         |
 
 
 - `avoid_borders` : `"all"` for no border crossing. `"controlled"` to cross open borders but avoid controlled ones. Only for `driving-*` profiles.
 
-- `avoid_countries` : Pipe (|) separated list of countries to exclude from routing with `driving-*` profiles. Can be used together with `"avoid_borders": "controlled"`. `"11|193"` would exclude Austria and Switzerland. List of countries and application examples can be found in the [country list](#country-list).
+- `avoid_countries` : array of country ids to exclude from routing with `driving-*` profiles. Can be used together with `"avoid_borders": "controlled"`. `"[11,193]"` would exclude Austria and Switzerland. List of countries and application examples can be found in the [country list](#country-list).
 
 - `vehicle_type` (for `profile=driving-hgv` only): `hgv`,`bus`,`agricultural`,`delivery`,`forestry` and `goods`. It is needed for **vehicle restrictions** to work.
-
 
 - `profile_params` : Specifies additional routing parameters.
 

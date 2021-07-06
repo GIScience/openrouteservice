@@ -16,7 +16,7 @@ Examples on how to decode _X,Y,Z_ polylines can be found below:
 1. TOC
 {:toc}
 
-## Java:
+## Java
 
 ```java
 import org.json.JSONArray;

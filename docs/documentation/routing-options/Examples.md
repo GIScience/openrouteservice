@@ -15,26 +15,20 @@ for `profile=driving-car`:
 
 ```json
 {
-    "maximum_speed": 100,
-    "avoid_features": "ferries|tollways"
+    "avoid_features": ["ferries", "tollways"]
 }
 ```
-`{"maximum_speed":100,"avoid_features":"ferries|tollways"}`
+`{"avoid_features":["ferries","tollways"]}`
 
 for `profile=cycling-*`:
 
 ```json
 {
-"maximum_speed": 18,
-"avoid_features": "hills|unpavedroads",
+"avoid_features": ["steps"],
 "profile_params": {
     "weightings": {
-        "steepness_difficulty": {
-            "level": 2
+        "steepness_difficulty": 2,
         },
-  "restrictions": {
-            "gradient": 13
-  }
     }
 },
 "avoid_polygons": {
@@ -44,13 +38,13 @@ for `profile=cycling-*`:
  ]}
 }
 ```
-`{"maximum_speed":18,"avoid_features":"hills|unpavedroads","profile_params":{"weightings":{"steepness_difficulty":{"level":2},"restrictions":{"gradient":13}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+`{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
 for `profile=foot-*`:
 
 ```json
 {
-    "avoid_features": "fords|ferries",
+    "avoid_features": ["fords","ferries"],
     "profile_params": {
         "weightings": {
             "green": {
@@ -68,13 +62,13 @@ for `profile=foot-*`:
      ]}
 }
 ```
-`{"avoid_features":"fords|ferries","profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+`{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
 for `profile=driving-hgv`:
 
 ```json
 {
-    "avoid_features": "hills|ferries|tollways",
+    "avoid_features": ["ferries","tollways"],
     "vehcile_type": "hgv",
     "profile_params": {
         "restrictions": {
@@ -93,13 +87,13 @@ for `profile=driving-hgv`:
      ]}
 }
 ```
-`{"avoid_features":"hills|ferries|tollways","vehcile_type":"hgv","profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+`{"avoid_features":["ferries","tollways"],"vehicle_type":"hgv","profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
 for `profile=wheelchair`:
 
 ```json
 {
-    "avoid_features": "hills|ferries|steps",
+    "avoid_features": ["ferries","steps"],
     "profile_params": {
         "restrictions": {
             "surface_type": "cobblestone:flattened",
@@ -111,9 +105,9 @@ for `profile=wheelchair`:
     }
 }
 ```
-`{"avoid_features":"hills|ferries|steps","profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_curb":0.06,"maximum_incline":6}}}`
+`{"avoid_features":["ferries","steps"],"profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_curb":0.06,"maximum_incline":6}}}`
 
-## border restrictions
+## Border restrictions
 
 Examples for routing options object with border restrictions:
 
@@ -141,21 +135,19 @@ Examples for routing options object with border restrictions:
 
 ```json
 {
-    "avoid_countries": "1|120"
+    "avoid_countries": [1,120],
 }
 ```
 
-`{"avoid_countries": "1|120"}`
+`{"avoid_countries": [1,120]}`
 
 *Pass open borders but do not cross into Switzerland:*
 
 ```json
 {
     "avoid_borders": "controlled",
-    "avoid_countries": "193"
+    "avoid_countries": [193],
 }
 ```
 
-`{"avoid_borders": "controlled","avoid_countries": "193"}`
-
-
+`{"avoid_borders": "controlled","avoid_countries": [193]}`

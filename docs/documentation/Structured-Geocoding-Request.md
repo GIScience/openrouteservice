@@ -20,7 +20,7 @@ For a structured request insert a JSON Object with at least on of the following 
   |   postalcode  | A postalcode                                                                                                                                                                                             |
   |    country    | Name of a country. Supports two- and three-letter abbreviations                                                                                                                                          |
 
-example:
+## Example
 
 ```json
 {
@@ -30,6 +30,7 @@ example:
   "postalcode": "69120"
 }
 ```
-uglyfied and encoded:
+
+## Uglyfied and encoded:
 
 `%7B"address": "Berliner Straße 45","locality": "Heidelberg","country": "Germany","postalcode": "69120"%7D`
