@@ -2,10 +2,10 @@
 grand_parent: Documentation
 parent: Travel Speeds
 nav_order: 4
-title: Country Speed Sets
+title: Country Speeds
 ---
 
-# Country Speed Sets
+# Country-specific Speeds
 As there are various traffic regulations in different countries. If [maximum speed](http://wiki.openstreetmap.org/wiki/Key:maxspeed) tag is not given in openstreetmap, we adjust the maximum speed according to the following key values taken from [country specific speed limits](http://wiki.openstreetmap.org/wiki/Speed_limits).
 
 _(all Values in km/h)_
