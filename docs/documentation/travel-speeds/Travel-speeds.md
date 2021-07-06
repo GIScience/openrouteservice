@@ -1,6 +1,7 @@
 ---
 parent: Documentation
 nav_order: 2
+has_children: true
 title: Travel Speeds
 ---
 [:arrow_backward:  Documentation](Documentation)
