@@ -37,3 +37,29 @@ When requesting routes, there are a number of "extra info" items that can be req
 | foot-hiking | x | x | x | x | x |   | x |   |   |   | x | x |
 | wheelchair | x | x | x | x | x |   | x | x |   |   |   |   |
 
+## Suitability
+
+The suitability values for the selected profile range from ``10`` for best suitability to ``1`` for worst suitability.
+
+
+
+## AvgSpeed
+
+This value is in _km/h_ and equals the average speed for this way segment after grading and applying factors.
+
+
+## Tollways
+
+Tollway specific information for the [selected mode of
+transport](https://en.wikipedia.org/wiki/Vehicle_category). Thus it depends on
+the `profile` if a ways is marked as
+[tollway](https://wiki.openstreetmap.org/wiki/Key:toll). 
+
+| Value |  Encoding  |
+|:-----:|:----------:|
+|   0   | no tollway |
+|   1   | is tollway |
+
+
+
+
