@@ -22,7 +22,7 @@ adjusting them for different
 If multiple values apply for this segment, the lowest value is used. For
 `cycling` profiles, the steepness is considered as well.
 
-The speed limits can be reduced by setting the `maxSpeed` parameter in the [options](routing-options).
+The speed limits can be reduced by setting the `maxSpeed` parameter in the [options](../routing-options/Routing-Options).
 The final [average speed](route-attributes#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
 The [waytype table](/waytype-speeds) shows the initial speed-limits used for the main profiles.
 
@@ -99,3 +99,9 @@ avoided (but still allowed) and other allowed ways in between:
 The wheelchair profile has a base speed of 4km/h which is then modified based
 on a number of parameters. As such, based on the presence of sidewalks and type
 of way, the actual speed can range from 3 to 10km/h
+
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
+[cbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/CommonBikeFlagEncoder.java#L179
+[mbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/MountainBikeFlagEncoder.java#L52
+[rbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/RoadBikeFlagEncoder.java#L91
+[ebfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/ElectroBikeFlagEncoder.java#L41
