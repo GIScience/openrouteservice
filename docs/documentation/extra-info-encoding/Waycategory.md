@@ -1,6 +1,6 @@
 ---
 grand_parent: Documentation
-parent: Extra Info Availability
+parent: Extra Info
 nav_order: 3
 title: Waycategory
 ---
