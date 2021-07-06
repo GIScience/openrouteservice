@@ -10,6 +10,16 @@ A main component that determines things such as fastest routes and the travel ti
 
 More information about the individual components and assigned speeds can be found in the more detailed [documentation](https://github.com/GIScience/openrouteservice-docs/blob/master/README.md#travel-time-calculation).
 
+# Travel Time Calculation
+
+The travel time is calculated for each segment by using speed-limits for different [waytypes](https://wiki.openstreetmap.org/wiki/Key:highway) and adjusting them for different [grades](https://wiki.openstreetmap.org/wiki/Key:tracktype) or [surfaces](https://wiki.openstreetmap.org/wiki/Key:surface) of the road.
+If multiple values apply for this segment, the lowest value is used. For `cycling` profiles also the steepness is considered.
+These limits can be reduced by setting the `maxSpeed` parameter in the [options](#routing-options).
+The final [average speed-limits](#avgspeed) can be requested by adding `AvgSpeed` to the `extra_info` parameter.
+The following table shows the initial speed-limits used for the main profiles:
+
+_(all Values in km/h)_
+
 ## Driving profiles (car and HGV)
 The base travel speed for any road is based on a cascading assessment:
 1. When an tag explicitly stating the speed limit for a road is present on the way in OSM (`maxspeed` or `maxspeed:forward / maxspeed:backward`), this is used as the base speed.
@@ -33,6 +43,21 @@ Note that also, each bike profile has a different value set for the maximum down
 
 ## Walking profiles
 The travel speed for walking profiles (walking and hiking) are set as constant values. For both it is set to be 5km/h, except for when the way has a `sac_scale` tag other than `hiking` whereby it is reduced to 2km/h. 
+
+## Pedestrian Speeds
+The `foot-*` profiles generally use 5 km/h on all allowed waytypes.
+Allowed waytypes consist of ways that are safe for use, ways that are better avoided (but still allowed) and other allowed ways in between:
+
+  |        safe tags       |  avoid tags      |  other highway tags |
+  |:----------------------:|:----------------:|:-------------------:|
+  |         footway        |   trunk          |       cycleway      |
+  |         path           | trunk_link       |    unclassified     |
+  |         steps          |  primary         |       road        |
+  |         pedestrian     |  primary_link    |                   |
+  |         living_street  |  secondary       |                   |
+  |         track          |  secondary_link  |                   |
+  |         residential    |  tertiary        |                   |
+  |         service        |  tertiary_link   |                   |
 
 ## Wheelchair profile
 The wheelchair profile has a base speed of 4km/h which is then modified based on a number of parameters. As such, based on the presence of sidewalks and type of way, the actual speed can range from 3 to 10km/h
