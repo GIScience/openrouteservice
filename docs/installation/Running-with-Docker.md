@@ -6,15 +6,7 @@ title: Running with Docker
 
 # Running with Docker
 
-We suggest using docker to install and launch openrouteservice backend. In short, run the following command under the source code tree will get everything done (for this please
-clone the repository, running docker via the archive is currently not supported).
-
-```bash
-cd docker && docker-compose up
-```
-
-For more details, check the [docker installation guide](https://github.com/GIScience/openrouteservice/blob/master/docker/README.md).
-# Install and run openrouteservice with docker
+## Install and run openrouteservice with docker
 
 Installing the openrouteservice backend service with Docker is quite straightforward. All you need is a OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de).
 
