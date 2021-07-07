@@ -6,11 +6,12 @@ title: Building from Source
 
 [:arrow_backward:  Installation and Usage](Installation-and-Usage)
 # Building from Source
-
-1. TOC
-{: .toc }
+{: .no_toc }
 
 **We recommend running openrouteservice using a Docker container (see [Running with Docker](Running-with-Docker))**
+
+1. TOC
+{:toc}
 
 ## Installation from source
 
@@ -57,7 +58,7 @@ To run the project from within your IDE, you have to:
 
   3. You can run API tests via JUnit.
 
-## Install and Run Tomcat 8
+## Installing and running tomcat8
 
   1. Install Tomcat 8 using `sudo apt-get install tomcat8`.
 
@@ -108,52 +109,62 @@ however you can look at the `app.config.sample` file in the
 to out of memory or similar, then you will need to adjust java/tomcat settings
 accordingly.
 
-## Integrate GraphHopper
+## Integrating GraphHopper
 
-If you need to make adjustments to our forked and edited [GraphHopper repository](https://github.com/GIScience/graphhopper), follow these steps:
+If you need to make adjustments to our forked and edited [GraphHopper
+repository](https://github.com/GIScience/graphhopper), follow these steps:
 
 1. Clone and checkout `ors_0.13.2`:
 
-```bash
-git clone https://github.com/GIScience/graphhopper.git
-cd graphhopper
-git checkout ors_0.13.2
-```
+   ```bash
+   git clone https://github.com/GIScience/graphhopper.git
+   cd graphhopper
+   git checkout ors_0.13.2
+   ```
 
 2. Build the project to create the local snapshot.
 
 3. Change the `openrouteservice/pom.xml`:
 
-```xml
-<!--
-<dependency>
-<groupId>com.github.GIScience.graphhopper</groupId>
-<artifactId>graphhopper-core</artifactId>
-    <version>v0.9.12</version>
-</dependency>
+   ```xml
+   <!--
+   <dependency>
+   <groupId>com.github.GIScience.graphhopper</groupId>
+   <artifactId>graphhopper-core</artifactId>
+       <version>v0.9.12</version>
+   </dependency>
+   
+   <dependency>
+   <groupId>com.github.GIScience.graphhopper</groupId>
+   <artifactId>graphhopper-reader-osm</artifactId>
+   <version>v0.9.12</version>
+   </dependency>
+   -->
+   
+   <dependency>
+       <groupId>com.graphhopper</groupId>
+       <artifactId>graphhopper-core</artifactId>
+       <version>0.13-SNAPSHOT</version>
+   </dependency>
+   
+   <dependency>
+       <groupId>com.graphhopper</groupId>
+       <artifactId>graphhopper-reader-osm</artifactId>
+       <version>0.13-SNAPSHOT</version>
+   </dependency>
+   ```
 
-<dependency>
-<groupId>com.github.GIScience.graphhopper</groupId>
-<artifactId>graphhopper-reader-osm</artifactId>
-<version>v0.9.12</version>
-</dependency>
--->
+4. Test your new functionality and run `openrouteservice-api-tests` after
+   rebasing your feature branch with the latest `development` branch. Adjust
+   tests if necessary
 
-<dependency>
-    <groupId>com.graphhopper</groupId>
-    <artifactId>graphhopper-core</artifactId>
-    <version>0.13-SNAPSHOT</version>
-</dependency>
+5. If successful, create a PR for both
+   [openrouteservice](https://github.com/GIScience/openrouteservice/pulls) and
+   [GraphHopper](https://github.com/GIScience/graphhopper/pulls) against `master`
+   and `ors_0.13.2` branches, respectively.
 
-<dependency>
-    <groupId>com.graphhopper</groupId>
-    <artifactId>graphhopper-reader-osm</artifactId>
-    <version>0.13-SNAPSHOT</version>
-</dependency>
-```
-
-4. Test your new functionality and run `openrouteservice-api-tests` after rebasing your feature branch with the latest `development` branch. Adjust tests if necessary
-
-5. If successful, create a PR for both [openrouteservice](https://github.com/GIScience/openrouteservice/pulls) and [GraphHopper](https://github.com/GIScience/graphhopper/pulls) against `master` and `ors_0.13.2` branches, respectively.
-
-**Note that in these examples, the 0.13_2 version of GH is used - you should update which you use accordingly. To know which to use, check the openrouteservice pom file and see what version is being used for the `com.github.GIScience.graphhopper` dependencies**
+**Note that in these examples, the 0.13_2 version of GH is used - you should
+update which you use accordingly. To know which to use, check the
+[openrouteservice pom file](https://github.com/GIScience/openrouteservice/pom.xml) 
+and see what version is being used for the `com.github.GIScience.graphhopper`
+dependencies**
