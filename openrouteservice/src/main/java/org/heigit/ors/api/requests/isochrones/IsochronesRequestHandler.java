@@ -230,6 +230,10 @@ public class IsochronesRequestHandler extends GenericHandler {
         if (request.hasOptions()) {
             routeSearchParameters = processIsochronesRequestOptions(request, routeSearchParameters);
         }
+        if (request.hasTime()) {
+            routeSearchParameters.setDeparture(request.getTime());
+            routeSearchParameters.setArrival(request.getTime());
+        }
         routeSearchParameters.setConsiderTurnRestrictions(false);
         return routeSearchParameters;
     }

@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -43,6 +44,8 @@ public class IsochronesRequest {
     public static final String PARAM_ATTRIBUTES = "attributes";
     public static final String PARAM_INTERVAL = "interval";
     public static final String PARAM_SMOOTHING = "smoothing";
+    public static final String PARAM_TIME = "time";
+
 
     @ApiModelProperty(name = PARAM_ID,
             value = "Arbitrary identification string of the request reflected in the meta information.",
@@ -155,6 +158,14 @@ public class IsochronesRequest {
     private Double smoothing;
     @JsonIgnore
     private boolean hasSmoothing = false;
+
+    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
+            example = "2020-01-31T12:45:00")
+    @JsonProperty(PARAM_TIME)
+    private LocalDateTime time;
+    @JsonIgnore
+    private boolean hasTime = false;
 
     @JsonCreator
     public IsochronesRequest() {
@@ -332,4 +343,16 @@ public class IsochronesRequest {
     public boolean hasInterval() {
         return hasInterval;
     }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+        hasTime = true;
+    }
+
+    public boolean hasTime() { return hasTime; }
+
 }

@@ -25,9 +25,9 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
@@ -37,19 +37,25 @@ import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.isochrones.*;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneMapBuilderFactory;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.mapmatching.MapMatcher;
-import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import org.heigit.ors.matrix.*;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixSearchContext;
+import org.heigit.ors.matrix.MatrixSearchContextBuilder;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
@@ -120,7 +126,6 @@ public class RoutingProfile {
     private Integer[] mRoutePrefs;
     private Integer mUseCounter;
     private boolean mUpdateRun;
-    private MapMatcher mMapMatcher;
 
     private RouteProfileConfiguration config;
     private String astarApproximation;
@@ -141,6 +146,16 @@ public class RoutingProfile {
             if (optsExecute.hasPath("methods.astar.epsilon"))
                 astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
         }
+//        // TODO RAD
+//        GraphHopperStorage graphHopperStorage = mGraphHopper.getGraphHopperStorage();
+//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
+//            if (ge instanceof TrafficGraphStorage) {
+//                int edgeValue = ((TrafficGraphStorage) ge).getEdgeValue(27215, TrafficGraphStorage.Property.FROM_TRAFFIC);
+//                // 808170452
+//                System.out.println("");
+//            }
+//        }
+//        // TODO RAD
     }
 
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
@@ -187,7 +202,7 @@ public class RoutingProfile {
         gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
-
+        // After load make match making and to the same as green stuff etc.
         // store CountryBordersReader for later use
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
             if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
@@ -794,40 +809,6 @@ public class RoutingProfile {
         return searchCntx;
     }
 
-    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
-            throws Exception {
-        RouteSegmentInfo[] rsi = null;
-
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            throw ex;
-        }
-
-        return rsi;
-    }
-
-    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations,
-                                                          double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
-        if (mMapMatcher == null) {
-            mMapMatcher = new HiddenMarkovMapMatcher();
-            mMapMatcher.setGraphHopper(mGraphHopper);
-        }
-
-        mMapMatcher.setSearchRadius(searchRadius);
-        mMapMatcher.setEdgeFilter(edgeFilter);
-
-        return mMapMatcher.match(locations, bothDirections);
-    }
-
     public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
 
@@ -1085,9 +1066,12 @@ public class RoutingProfile {
     }
 
     boolean hasTimeDependentSpeed (RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+        if (!searchParams.isTimeDependent())
+            return false;
+
         FlagEncoder flagEncoder = searchCntx.getEncoder();
-        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
-        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || mGraphHopper.isTrafficEnabled();
     }
 
     boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
@@ -1097,7 +1081,8 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = searchCntx.getEncoder();
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
-                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED));
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || mGraphHopper.isTrafficEnabled();
     }
 
     /**

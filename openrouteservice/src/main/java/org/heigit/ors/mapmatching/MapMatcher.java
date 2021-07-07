@@ -15,15 +15,22 @@ package org.heigit.ors.mapmatching;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
+
+import java.util.regex.MatchResult;
+
 
 public interface MapMatcher {
 	
-	public void setSearchRadius(double radius);
+	void setSearchRadius(double radius);
 	
-	public void setEdgeFilter(EdgeFilter edgeFilter);
+	void setEdgeFilter(EdgeFilter edgeFilter);
 	
-	public void setGraphHopper(GraphHopper gh);
+	void setGraphHopper(GraphHopper gh);
 	
-	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
+	RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
+
+	MatchResult match(Coordinate[] coordinateList);
+
+	void clear();
 }

@@ -68,6 +68,8 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     public HeavyVehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
 
+        maxPossibleSpeed = 90;
+
         intendedValues.add(VAL_DESIGNATED);
         intendedValues.add(VAL_AGRICULTURAL);
         intendedValues.add(VAL_FORESTRY);

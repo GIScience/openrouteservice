@@ -146,4 +146,8 @@ public class IsochroneSearchParameters {
     public String[] getAttributes() {
         return attributes;
     }
+
+    public boolean isTimeDependent() {
+        return (getRouteParameters().isTimeDependent());
+    }
 }

@@ -19,6 +19,7 @@ import java.util.Map;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 {
@@ -32,6 +33,8 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 	{
 		this.parameters = parameters;
 	}
-	
+
 	public void finish(){}
+
+    public void postProcess(ORSGraphHopper graphHopper) {}
 }

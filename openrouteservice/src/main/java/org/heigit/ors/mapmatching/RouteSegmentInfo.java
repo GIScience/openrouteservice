@@ -57,12 +57,19 @@ public class RouteSegmentInfo {
 		return edges.get(index).getName();
 	}
 
+	/**
+	 * @return Returns all Edges.
+	 */
+	public List<EdgeIteratorState> getEdgesStates() {
+		return edges;
+	}
+
 	public List<Integer> getEdges() {
 		List<Integer> res = new ArrayList<>(edges.size());
-	    
+
 		for(EdgeIteratorState edge : edges)
 			res.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
-		
+
 		return res;
 	}
 

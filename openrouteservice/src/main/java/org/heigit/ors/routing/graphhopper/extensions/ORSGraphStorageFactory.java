@@ -81,7 +81,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			graphExtension = getExtension(graphExtensions);
 		}
 
-		if(gh instanceof ORSGraphHopper) {
+		if (gh instanceof ORSGraphHopper) {
 			if (((ORSGraphHopper) gh).isCoreEnabled())
 				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
 			if (((ORSGraphHopper) gh).isCoreLMEnabled())
@@ -96,9 +96,10 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		if (gh.isCHEnabled()) {
 			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
 		}
-		if (((ORSGraphHopper)gh).isCoreEnabled()) {
+		if (gh instanceof ORSGraphHopper && ((ORSGraphHopper)gh).isCoreEnabled()) {
 			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
 		}
+
 		if (!profiles.isEmpty())
 			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
 

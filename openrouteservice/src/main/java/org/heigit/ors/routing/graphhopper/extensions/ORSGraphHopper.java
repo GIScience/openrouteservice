@@ -18,7 +18,11 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.PathWrapper;
 import com.graphhopper.reader.DataReader;
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.RoutingAlgorithmFactory;
+import com.graphhopper.routing.RoutingAlgorithmFactorySimple;
 import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.lm.LMAlgoFactoryDecorator;
@@ -26,8 +30,13 @@ import com.graphhopper.routing.template.AlternativeRoutingTemplate;
 import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
-import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.PathProcessor;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
@@ -47,10 +56,12 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.isochrones.IsochroneWeightingFactory;
+import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
+import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
@@ -59,19 +70,40 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
+import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
@@ -95,6 +127,10 @@ public class ORSGraphHopper extends GraphHopper {
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
 	private double maximumSpeedLowerBound;
+
+	private MapMatcher mMapMatcher;
+    TrafficEdgeFilter trafficEdgeFilter;
+
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
@@ -193,7 +229,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 	@Override
 	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp) {
-		if (getGraphHopperStorage() == null || !isFullyLoaded())
+		if (getGraphHopperStorage() == null)
 			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
 
 		if (getGraphHopperStorage().isClosed())
@@ -347,7 +383,7 @@ public class ORSGraphHopper extends GraphHopper {
 				if (isRequestTimeDependent(hints)) {
 					weighting = createTimeDependentAccessWeighting(weighting);
 
-					if (weighting.isTimeDependent())
+					if (hints.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false))
 						algoStr = TD_ASTAR;
 
 					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
@@ -431,6 +467,10 @@ public class ORSGraphHopper extends GraphHopper {
 		req.setVehicle(vehicle);
 		req.setAlgorithm("dijkstrabi");
 		req.setWeighting("fastest");
+		// disable in order to allow calling mapmatching before preparations
+		req.getHints().put("ch.disable", true);
+		req.getHints().put("core.disable", true);
+		req.getHints().put("lm.disable", true);
 		// TODO add limit of maximum visited nodes
 
 
@@ -592,17 +632,41 @@ public class ORSGraphHopper extends GraphHopper {
         return new GeometryFactory().createLineString(coords);
     }
 
-
-    public HashMap<Integer, Long> getTmcGraphEdges() {
-        return tmcEdges;
+    @Override
+    public void matchTraffic() {
+        // Do the graph extension post processing
+        // Reserved for processes that need a fully initiated graph e.g. for match making
+        if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
+            for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
+                graphStorageBuilder.postProcess(this);
+            }
+        }
+//        // TODO RAD
+//        GraphHopperStorage graphHopperStorage = this.getGraphHopperStorage();
+//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
+//            if (ge instanceof TrafficGraphStorage) {
+//                int edgeValue = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16077, 12942, 12941);
+//                // 865268782
+//                int edgeValue2 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16898, 9924, 9923);
+//                // 809152926
+//                int edgeValue3 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(10281, 12941, 7296);
+//                // 1078771638
+//                System.out.println("");
+//            }
+//        }
+//        // TODO RAD
     }
 
-    public HashMap<Long, ArrayList<Integer>> getOsmId2EdgeIds() {
-        return osmId2EdgeIds;
-    }
+	@Override
+	public void initLMAlgoFactoryDecorator() {
+		super.initLMAlgoFactoryDecorator();
+
+		if (isTrafficEnabled())
+			ORSWeightingFactory.addTrafficSpeedCalculator(getLMFactoryDecorator().getWeightings(), getGraphHopperStorage());
+	}
 
 	/**
-	 * Does the preparation and creates the location index
+	 * Does the preparation and creates the location index as well as the traffic graph storage
 	 */
 	@Override
 	public void postProcessing() {
@@ -617,9 +681,12 @@ public class ORSGraphHopper extends GraphHopper {
 			prepareCore();
 
 		//Create the landmarks in the core
-		if (coreLMFactoryDecorator.isEnabled())
+		if (coreLMFactoryDecorator.isEnabled()) {
 			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
-		loadOrPrepareCoreLM();
+			if (isTrafficEnabled())
+				ORSWeightingFactory.addTrafficSpeedCalculator(coreLMFactoryDecorator.getWeightings(), gs);
+			loadOrPrepareCoreLM();
+		}
 
 		if(fastIsochroneFactory.isEnabled()) {
 			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
@@ -825,5 +892,108 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public Eccentricity getEccentricity(){
 		return eccentricity;
+	}
+
+    public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
+                                                         double originalTrafficLinkLength,
+                                                         int trafficLinkFunctionalClass,
+                                                         boolean bothDirections,
+                                                         int matchingRadius) {
+        if (mMapMatcher == null || mMapMatcher.getClass() != HiddenMarkovMapMatcher.class) {
+            mMapMatcher = new HiddenMarkovMapMatcher();
+            if (this.getGraphHopperStorage() != null) {
+                mMapMatcher.setGraphHopper(this);
+            }
+        } else {
+            mMapMatcher.clear();
+        }
+
+        if (trafficEdgeFilter == null) {
+            trafficEdgeFilter = new TrafficEdgeFilter(getGraphHopperStorage());
+        }
+        trafficEdgeFilter.setHereFunctionalClass(trafficLinkFunctionalClass);
+        mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+
+        RouteSegmentInfo[] routeSegmentInfos;
+        mMapMatcher.setSearchRadius(matchingRadius);
+        routeSegmentInfos = matchInternalSegments(geometry, originalTrafficLinkLength, bothDirections);
+        for (RouteSegmentInfo routeSegmentInfo : routeSegmentInfos) {
+            if (routeSegmentInfo != null) {
+                return routeSegmentInfos;
+            }
+        }
+        return routeSegmentInfos;
+    }
+
+    private RouteSegmentInfo[] matchInternalSegments(Geometry geometry, double originalTrafficLinkLength, boolean bothDirections) {
+
+        if (trafficEdgeFilter == null || !trafficEdgeFilter.getClass().equals(TrafficEdgeFilter.class)) {
+            return new RouteSegmentInfo[]{};
+        }
+        org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
+        int originalFunctionalClass = trafficEdgeFilter.getHereFunctionalClass();
+        RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
+        match = validateRouteSegment(originalTrafficLinkLength, match);
+
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.CLASS1 && originalFunctionalClass != TrafficRelevantWayType.CLASS1LINK)) {
+            // Test a higher functional class based from the original class
+//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
+            trafficEdgeFilter.higherFunctionalClass();
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.UNCLASSIFIED && originalFunctionalClass != TrafficRelevantWayType.CLASS4LINK)) {
+            // Try matching in the next lower functional class.
+            trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
+            trafficEdgeFilter.lowerFunctionalClass();
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.UNCLASSIFIED && originalFunctionalClass != TrafficRelevantWayType.CLASS4LINK)) {
+            // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.UNCLASSIFIED);
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.UNCLASSIFIED || originalFunctionalClass == TrafficRelevantWayType.CLASS4LINK || originalFunctionalClass == TrafficRelevantWayType.CLASS4)) {
+            // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.CLASS5);
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        return match;
+    }
+
+
+    private RouteSegmentInfo[] validateRouteSegment(double originalTrafficLinkLength, RouteSegmentInfo[] routeSegmentInfo) {
+        if (routeSegmentInfo == null || routeSegmentInfo.length == 0)
+            // Cases that shouldn't happen while matching Here data correctly. Return empty array to potentially restart the matching.
+            return new RouteSegmentInfo[]{};
+        int nullCounter = 0;
+        for (int i = 0; i < routeSegmentInfo.length; i++) {
+            if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdgesStates() == null) {
+                nullCounter += 1;
+                break;
+            }
+            RouteSegmentInfo routeSegment = routeSegmentInfo[i];
+            if (routeSegment.getDistance() > (originalTrafficLinkLength * 1.8)) {
+                // Worst case scenario!
+                routeSegmentInfo[i] = null;
+                nullCounter += 1;
+            }
+        }
+
+		if (nullCounter == routeSegmentInfo.length)
+			return new RouteSegmentInfo[]{};
+		else
+			return routeSegmentInfo;
+	}
+
+	public boolean isTrafficEnabled() {
+		return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;
 	}
 }

@@ -382,6 +382,9 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
             edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
         }
 
+        //FIXME fail-save init
+        edgeFilterSequence.add(new TrafficSpeedCoreEdgeFilter(gs));
+
         return edgeFilterSequence;
     }
 
