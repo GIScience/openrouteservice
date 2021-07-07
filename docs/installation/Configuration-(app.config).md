@@ -7,7 +7,7 @@ title: Configuration
 Configuration of setting up your own **openrouteservice** instance is made with a app.config file formatted as JSON.
 This config file controls which geographic area is covered, which services are enabled and for which routing profiles graphs will be built for.
 In the following you will find the settings with descriptions which can be changed to your needs.
-An example `app.config` can be found [here](https://github.com/GIScience/openrouteservice/blob/development/openrouteservice/src/main/resources/app.config.sample).
+An example `app.config` can be found [here](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/resources/app.config.sample).
 
 # app.config
 
@@ -224,7 +224,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   RoadAccessRestrictions    |  object | RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances, e.g. access=destination. The use_for_warnings parameter tells the ors that this storage can be used for generating warning messages in the route response. For RoadAccessRestrictions, this means that whenever a route goes over a way which has some restrictions, a warning message will be delivered with the response and the roadaccessrestrictions extra info automatically added.     |   `{ use_for_warnings: true }`  |
 |   Wheelchair    |  object | Compatible for wheelchair     |   `{ KerbsOnCrossings: "true" }`  |
 |   OsmId    |  object |  Returns the OsmId of the way, Compatible for wheelchair    |   `{}`  |
-|   Borders    |  object |  Borders allows the restriction of routes to not cross country borders, compatible for any profile type     |   [Borders](#orsservicesroutingprofilesprofile-xxxparametersext_storagesBorders)  |    
+|   Borders    |  object |  Borders allows the restriction of routes to not cross country borders, compatible for any profile type     |   [Borders](#orsservicesroutingprofilesprofile-xxxparametersext_storagesborders)  |    
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters.ext_storages.Borders**
 
@@ -343,6 +343,3 @@ system_message: [
     }
 ]
 ```
----
-
-compare with https://github.com/GIScience/openrouteservice/blob/1d2837a9d24cfad6840646069234f4f61c40bb57/openrouteservice/src/main/resources/app.config.sample
