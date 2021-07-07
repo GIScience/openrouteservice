@@ -1,4 +1,5 @@
 ---
+parent: Installation and Usage
 nav_exclude: true
 title: Opening openrouteservice code in IntelliJ
 ---
