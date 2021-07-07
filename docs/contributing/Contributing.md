@@ -6,8 +6,8 @@ has_toc: false
 ---
 
 # Contributing
-* [Contributing Code](contributing/Contributing-Code)
-* [Contributing Translations](contributing/Contributing-Translations)
+* [Contributing Code](Contributing-Code)
+* [Contributing Translations](Contributing-Translations)
 * [Updating OpenStreetMap](https://wiki.openstreetmap.org/wiki/Beginners%27_guide)
 
 When people contribute to openrouteservice, it makes [the whole team](https://heigit.org/heigit-team/) do a little happy dance!
