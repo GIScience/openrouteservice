@@ -4,8 +4,6 @@ nav_order: 5
 title: Advanced Docker Setup
 ---
 
-[:arrow_backward:  Installation and Usage](Installation-and-Usage)
-
 # Advanced Docker Setup 
 
 Running openrouteservice out of the box via Docker and docker-compose is a great way to quickly get into how to use openrouteservice. For most applications though, you would want to customise some things such as which profiles you want to build and the data that you want to route with. In it's initial Docker container form, openrouteservice uses an older test dataset of Heidelberg (Germany) as the base data, and only builds the car profile. To do more than that, you need to get your hands a little dirty with some configuration settings. This may sound a little daunting, but it is designed in a way that once you overcome the initial understanding of the configuration and Docker, you will be able to use your own datasets and decide which profiles to use in no time. 
