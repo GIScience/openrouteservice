@@ -38,6 +38,7 @@ RELEASING:
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
+- References to old documentation now point to rendered version of new docs
 
 ### Added
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
