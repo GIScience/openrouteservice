@@ -13,12 +13,12 @@
  */
 package org.heigit.ors.services.routing;
 
+import io.restassured.response.Response;
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
-import io.restassured.response.Response;
-import junit.framework.Assert;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

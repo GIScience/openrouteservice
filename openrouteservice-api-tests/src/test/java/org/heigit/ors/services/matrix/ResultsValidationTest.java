@@ -20,18 +20,16 @@
  */
 package org.heigit.ors.services.matrix;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.is;
-
-import org.junit.Test;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import io.restassured.response.Response;
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
-import io.restassured.response.Response;
-import junit.framework.Assert;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 
 @EndPointAnnotation(name = "matrix")
