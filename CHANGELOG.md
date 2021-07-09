@@ -39,6 +39,9 @@ RELEASING:
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
 
+### Added
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+
 ## [6.6.0] - 2021-06-08
 ### Added
 - Accept single value and array of length 1 as `radiuses`-parameter ([#923](https://github.com/GIScience/openrouteservice/issues/923))

@@ -1,0 +1,13 @@
+remote_theme: pmarsceill/just-the-docs
+title: openrouteservice documentation
+description: documentation for the free open source routing service openrouteservice
+logo: "/assets/images/openrouteservice.png"
+search_enabled: true
+heading_anchors: true
+color_scheme: ors
+aux_links:
+  "check it on github":
+    - "//github.com/GIScience/openrouteservice"
+
+gems:
+  - jemoji
