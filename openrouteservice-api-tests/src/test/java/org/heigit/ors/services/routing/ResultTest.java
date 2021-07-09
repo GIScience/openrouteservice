@@ -106,7 +106,7 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
         Assert.assertTrue(doc_length > 0);
         boolean gpxMetadata = false;
@@ -205,10 +205,8 @@ public class ResultTest extends ServiceTest {
                                 boolean metadataExtensionsSystemMessage = false;
                                 for (int k = 0; k < metadataExtensionsLength; k++) {
                                     Node extensionsElement = metadataItem.getChildNodes().item(k);
-                                    switch (extensionsElement.getNodeName()) {
-                                        case "system-message":
-                                            metadataExtensionsSystemMessage = true;
-                                            break;
+                                    if ("system-message".equals(extensionsElement.getNodeName())) {
+                                        metadataExtensionsSystemMessage = true;
                                     }
                                 }
                                 Assert.assertTrue(metadataExtensionsSystemMessage);
@@ -789,7 +787,7 @@ public class ResultTest extends ServiceTest {
 				.when().log().ifValidationFails()
 				.get(getEndPointName());
 
-		Assert.assertEquals(response.getStatusCode(), 200);
+		Assert.assertEquals(200, response.getStatusCode());
 
 		checkExtraConsistency(response);
 	}
@@ -1080,17 +1078,16 @@ public class ResultTest extends ServiceTest {
 			JSONArray jValues = jExtraValues.getJSONArray(0);
 			int fromValue = jValues.getInt(0);
 			int toValue = jValues.getInt(1);
-			Assert.assertEquals(fromValue < toValue, true);
+			Assert.assertTrue(fromValue < toValue);
 
 			for (int j = 1; j < jExtraValues.length(); j++) {
 				jValues = jExtraValues.getJSONArray(j);
 				int fromValue1 = jValues.getInt(0);
 				int toValue1 = jValues.getInt(1);
 
-				Assert.assertEquals(fromValue1 < toValue1, true);
-				Assert.assertEquals(fromValue1 == toValue, true);
+				Assert.assertTrue(fromValue1 < toValue1);
+				Assert.assertEquals(fromValue1, toValue);
 
-				fromValue = fromValue1;
 				toValue = toValue1;
 			}
 
@@ -1105,9 +1102,9 @@ public class ResultTest extends ServiceTest {
 				amount += jSummaryValues.getDouble("amount");
 			}
 
-			Assert.assertEquals(Math.abs(routeDistance - distance) < 0.5, true);
+			Assert.assertTrue(Math.abs(routeDistance - distance) < 0.5);
 
-			Assert.assertEquals(Math.abs(amount - 100.0) < 0.1, true);
+			Assert.assertTrue(Math.abs(amount - 100.0) < 0.1);
 		}
 	}
 
