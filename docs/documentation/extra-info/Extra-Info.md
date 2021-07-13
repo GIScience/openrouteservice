@@ -5,7 +5,6 @@ has_children: true
 has_toc: false
 title: Extra Info 
 ---
-[:arrow_backward:  Documentation](Documentation)
 
 # Extra Info
 

@@ -3,7 +3,7 @@ parent: Documentation
 nav_order: 1
 title: Tag Filtering
 ---
-[:arrow_backward:  Documentation](Documentation)
+
 # Tag Filtering
 During the graph build process, openrouteservice looks at various tags that are given to OSM ways as a means of identifying whether that way should be included into the routing graph or not. For example, in the foot profile any ways that are marked as `highway=motorway` are rejected and not included in the graph, meaning that they can never be routed over (for that profile).
 

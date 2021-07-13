@@ -4,7 +4,6 @@ nav_order: 2
 title: Building from Source
 ---
 
-[:arrow_backward:  Installation and Usage](Installation-and-Usage)
 # Building from Source
 {: .no_toc }
 
