@@ -4,8 +4,6 @@ nav_exclude: true
 title: Opening openrouteservice code in IntelliJ
 ---
 
-[:arrow_backward:  Installation and Usage](Installation-and-Usage)
-
 # Opening openrouteservice code in IntelliJ
 
 Though IntelliJ provides functionality to directly clone a repository, the steps below are the general procedure for getting openrouteservice up and running in IntelliJ:

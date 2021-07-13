@@ -208,7 +208,7 @@ public class RouteRequest {
     private boolean hasUseContractionHierarchies = false;
 
     @ApiModelProperty(name = PARAM_OPTIONS,
-            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
+            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
             example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;

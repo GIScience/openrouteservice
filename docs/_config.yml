@@ -6,8 +6,10 @@ search_enabled: true
 heading_anchors: true
 color_scheme: ors
 aux_links:
-  "check it on github":
+  "openrouteservice on github":
     - "//github.com/GIScience/openrouteservice"
+  "ask a question":
+    - "//ask.openrouteservice.org"
 
 gems:
   - jemoji
