@@ -4,6 +4,7 @@ nav_order: 4
 title: Configuration
 ---
 
+# Configuration
 Configuration of setting up your own **openrouteservice** instance is made with a app.config file formatted as JSON.
 This config file controls which geographic area is covered, which services are enabled and for which routing profiles graphs will be built for.
 In the following you will find the settings with descriptions which can be changed to your needs.
