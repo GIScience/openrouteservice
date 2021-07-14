@@ -7,10 +7,6 @@ import java.io.InvalidObjectException;
 
 public class WheelchairWayFilter implements OSMFeatureFilter {
     private final OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor;
-<<<<<<< HEAD
-    private final OSMPedestrianProcessor osmPedestrianProcessor;
-=======
->>>>>>> master
 
     private Way osmWay;
 
