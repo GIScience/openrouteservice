@@ -34,7 +34,7 @@ public class JSONStep {
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private Double duration;
-    @ApiModelProperty(value = "The [instruction](https://github.com/GIScience/openrouteservice-docs#instruction-types) action for symbolisation purposes.", example = "1")
+    @ApiModelProperty(value = "The [instruction](https://GIScience.github.io/openrouteservice/documentation/Instruction-Types.html) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
     private Integer type;
     @ApiModelProperty(value = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")

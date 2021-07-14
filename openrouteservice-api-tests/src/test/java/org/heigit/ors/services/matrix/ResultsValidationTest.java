@@ -20,18 +20,16 @@
  */
 package org.heigit.ors.services.matrix;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.is;
-
-import org.junit.Test;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import io.restassured.response.Response;
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
-import io.restassured.response.Response;
-import junit.framework.Assert;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 
 @EndPointAnnotation(name = "matrix")
@@ -84,7 +82,7 @@ public class ResultsValidationTest extends ServiceTest {
 
         response.then().assertThat().body("info.containsKey('system_message')", is(true));
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "distances", 3, 3);
     }
@@ -135,7 +133,7 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "distances", 2, 1);
     }
@@ -151,7 +149,7 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "durations", 2, 1);
     }
@@ -167,7 +165,7 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "durations", 2, 1);
         checkTableDimensions(jResponse, "distances", 2, 1);
@@ -184,9 +182,9 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
-        Assert.assertEquals(jResponse.getJSONObject("info").getJSONObject("query").get("id"), "34629723410");
+        Assert.assertEquals("34629723410", jResponse.getJSONObject("info").getJSONObject("query").get("id"));
     }
 
     @Test
@@ -200,13 +198,13 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
-        Assert.assertEquals(true, jResponse.getJSONArray("sources").getJSONObject(0).has("name"));
+        Assert.assertTrue(jResponse.getJSONArray("sources").getJSONObject(0).has("name"));
     }
 
     private void checkTableDimensions(JSONObject json, String tableName, int rows, int columns) {
-        Assert.assertEquals(true, json.has(tableName));
+        Assert.assertTrue(json.has(tableName));
 
         JSONArray jTable = json.getJSONArray(tableName);
         Assert.assertEquals(jTable.length(), rows);
@@ -233,7 +231,7 @@ public class ResultsValidationTest extends ServiceTest {
 
         String[] locations = (String[]) getParameter("manyLocationsArray");
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         JSONArray jDistances = jResponse.getJSONArray("distances");
         //Query Routing API 12x12 times
