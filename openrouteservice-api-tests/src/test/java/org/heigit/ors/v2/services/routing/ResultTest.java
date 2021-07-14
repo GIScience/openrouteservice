@@ -1520,9 +1520,8 @@ public class ResultTest extends ServiceTest {
                 amount += jSummaryValues.getDouble("amount");
             }
 
-            Assert.assertTrue(Math.abs(routeDistance - distance) < 0.5);
-
-            Assert.assertTrue(Math.abs(amount - 100.0) < 0.1);
+            Assert.assertEquals(routeDistance, distance, 0.5);
+            Assert.assertEquals(100, amount, 0.1);
         }
     }
 
