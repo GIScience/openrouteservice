@@ -42,10 +42,7 @@
 package org.heigit.ors.jts;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -101,7 +98,7 @@ class GeometrySmoother {
      * vertex distance and a constant number of points
      * per smoothed segment.
      */
-    private SmootherControl defaultControl = new SmootherControl() {
+    private final SmootherControl defaultControl = new SmootherControl() {
         public double getMinLength() {
             return 0.0;
         }
@@ -127,7 +124,7 @@ class GeometrySmoother {
     /**
      * Cache of previously calculated interpolation parameters
      */
-    private Map<Integer, WeakReference<InterpPoint[]>> lookup = 
+    private final Map<Integer, WeakReference<InterpPoint[]>> lookup =
             new HashMap<>();
 
     /**
@@ -179,9 +176,7 @@ class GeometrySmoother {
                         smoothN);
             
                 int copyN = i < N - 1 ? segment.length - 1 : segment.length;
-                for (int k = 0; k < copyN; k++) {
-                    smoothCoords.add(segment[k]);
-                }
+                smoothCoords.addAll(Arrays.asList(Arrays.copyOf(segment, copyN)));
             }
         }
         smoothCoords.add(coords[N - 1]);
@@ -226,9 +221,7 @@ class GeometrySmoother {
                         smoothN);
             
                 int copyN = i < N - 1 ? segment.length - 1 : segment.length;
-                for (int k = 0; k < copyN; k++) {
-                    smoothCoords.add(segment[k]);
-                }
+                smoothCoords.addAll(Arrays.asList(Arrays.copyOf(segment, copyN)));
             }
         }
         
@@ -453,7 +446,7 @@ class GeometrySmoother {
                 ip[i].tsum = ip[i].t[0] + ip[i].t[1] + ip[i].t[2] + ip[i].t[3];
             }
             
-            lookup.put(npoints, new WeakReference<InterpPoint[]>(ip));
+            lookup.put(npoints, new WeakReference<>(ip));
         }
         
         return ip;

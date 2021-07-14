@@ -17,7 +17,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.NamedLocation;
 
 public class ResolvedLocation extends NamedLocation {
-   private double snappedDistance;
+   private final double snappedDistance;
    
    public ResolvedLocation(Coordinate coord, String name, double snappedDistance) {
 	   super(coord, name);

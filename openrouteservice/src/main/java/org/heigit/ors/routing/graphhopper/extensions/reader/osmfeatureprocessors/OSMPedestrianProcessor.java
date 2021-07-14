@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class OSMPedestrianProcessor {
-    private List<String> allowed;
+    private final List<String> allowed;
 
     public OSMPedestrianProcessor() {
         allowed = new ArrayList<>();

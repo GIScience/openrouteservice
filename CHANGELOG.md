@@ -40,12 +40,15 @@ RELEASING:
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+### Removed
+- old v1 API code and related classes
+### Fixed
+- References to old documentation now point to rendered version of new docs
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
-- References to old documentation now point to rendered version of new docs
 
 ## [6.6.0] - 2021-06-08
 ### Added

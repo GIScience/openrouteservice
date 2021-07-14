@@ -32,7 +32,7 @@ import org.opengis.referencing.operation.TransformException;
 
 public class GeomUtility {
 
-	private static GeometryFactory geometryFactory = new GeometryFactory();
+	private static final GeometryFactory geometryFactory = new GeometryFactory();
 	
 	private static MathTransform transformWgs84Sphericalmercator = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
 

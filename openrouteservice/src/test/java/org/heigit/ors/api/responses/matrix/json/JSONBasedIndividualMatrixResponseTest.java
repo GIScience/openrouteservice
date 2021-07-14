@@ -16,11 +16,11 @@ import java.util.List;
 
 public class JSONBasedIndividualMatrixResponseTest {
 
-    private MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
+    private final MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
     private MatrixResult matrixResult;
     private JSONBasedIndividualMatrixResponse jsonBasedIndividualMatrixResponse;
 
-    private Coordinate[] coordinates = new Coordinate[3];
+    private final Coordinate[] coordinates = new Coordinate[3];
 
     @Before
     public void setUp() {

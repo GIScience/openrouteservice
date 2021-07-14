@@ -9,9 +9,9 @@ import org.junit.Test;
 import java.util.Arrays;
 
 public class GeomUtilityTest {
-    private static PointList pointList3D = new PointList(14, true);
-    private static PointList pointList2D = new PointList(14, false);
-    private static PointList emptyPointList = new PointList(14, false);
+    private static final PointList pointList3D = new PointList(14, true);
+    private static final PointList pointList2D = new PointList(14, false);
+    private static final PointList emptyPointList = new PointList(14, false);
     @BeforeClass
     public static void setUp() {
         pointList3D.add(41.310824, -3.164063, 113.0);

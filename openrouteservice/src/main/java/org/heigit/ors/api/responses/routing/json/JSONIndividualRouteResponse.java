@@ -43,23 +43,23 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @ApiModelProperty(value = "The geometry of the route. For JSON route responses this is an encoded polyline.", example = "yuqlH{i~s@gaUe@VgEQFcBRbB_C")
     @JsonProperty("geometry")
     @JsonUnwrapped
-    private String geomResponse;
+    private final String geomResponse;
 
     @ApiModelProperty("Summary information about the route")
-    private JSONSummary summary;
+    private final JSONSummary summary;
 
     @ApiModelProperty("List containing the segments and its corresponding steps which make up the route.")
-    private List<JSONSegment> segments;
+    private final List<JSONSegment> segments;
 
     @JsonProperty("way_points")
     @ApiModelProperty(value = "List containing the indices of way points corresponding to the *geometry*.", example = "[0,23]")
-    private List<Integer> wayPoints;
+    private final List<Integer> wayPoints;
 
     @JsonProperty("warnings")
     @ApiModelProperty("List of warnings that have been generated for the route")
     private List<JSONWarning> warnings;
 
-    private Map<String, JSONExtra> extras;
+    private final Map<String, JSONExtra> extras;
 
     @ApiModelProperty(value = "Departure date and time" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")

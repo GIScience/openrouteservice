@@ -26,7 +26,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; 
-	private byte[] byteValue;
+	private final byte[] byteValue;
 
 	public TollwaysGraphStorage()  {
 		efTollways = nextBlockEntryIndex (1);

@@ -18,6 +18,8 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
 
@@ -58,12 +60,10 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 		//Check if the avoidBordersFilter has the same countries or a subset
 		for (EdgeFilter edgeFilter: filters) {
 			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter){
-				ArrayList<Integer> filterCountries =
-						new ArrayList<Integer>() {{ for (int i : ((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()) add(i); }};
 				//There are no countries queried, but there are some in the lmset
 				if(queryCountries.isEmpty())
 					return false;
-				return queryCountries.containsAll(filterCountries);
+				return queryCountries.containsAll(Arrays.stream(((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()).boxed().collect(Collectors.toList()));
 			}
 		}
 

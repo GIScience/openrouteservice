@@ -222,11 +222,9 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     }
 
     public boolean hasWeighting(Weighting weighting) {
-        if (getWeighting().getName() != null
+        return getWeighting().getName() != null
                 && getWeighting().getName().equals(weighting.getName())
                 && getWeighting().getFlagEncoder().toString() != null
-                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
-            return true;
-        return false;
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString());
     }
 }

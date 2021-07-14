@@ -26,9 +26,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphSto
  * Created by lliu on 15/03/2017.
  */
 public class GreenWeighting extends FastestWeighting {
-    private GreenIndexGraphStorage gsGreenIndex;
-    private byte[] buffer = new byte[1];
-    private double[] factors = new double[TOTAL_LEVEL];
+    private final GreenIndexGraphStorage gsGreenIndex;
+    private final byte[] buffer = new byte[1];
+    private final double[] factors = new double[TOTAL_LEVEL];
 
     private static final int TOTAL_LEVEL = 64;
 
@@ -77,6 +77,6 @@ public class GreenWeighting extends FastestWeighting {
 
     @Override
     public int hashCode() {
-        return ("GreenWeighting" + toString()).hashCode();
+        return ("GreenWeighting" + this).hashCode();
     }
 }

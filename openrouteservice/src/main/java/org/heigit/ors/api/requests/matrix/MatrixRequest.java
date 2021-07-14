@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 
 import java.util.ArrayList;
 import java.util.HashSet;

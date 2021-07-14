@@ -27,7 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
  * @author Peter Karich
  */
 public class FastestSafeWeighting extends FastestWeighting {
-	private Double thresholdAvoidAtAllCosts = PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST.getValue();
+	private final Double thresholdAvoidAtAllCosts = PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST.getValue();
 	
 	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);
@@ -59,6 +59,6 @@ public class FastestSafeWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("FastestSafeWeighting" + toString()).hashCode();
+		return ("FastestSafeWeighting" + this).hashCode();
 	}
 }

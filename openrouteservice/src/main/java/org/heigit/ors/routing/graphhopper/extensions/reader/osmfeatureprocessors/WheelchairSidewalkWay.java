@@ -5,8 +5,8 @@ import com.graphhopper.reader.ReaderWay;
 
 
 public class WheelchairSidewalkWay extends PedestrianWay {
-    private OSMAttachedSidewalkProcessor sidewalkProcessor;
-    private OSMAttachedSidewalkProcessor.Side side;
+    private final OSMAttachedSidewalkProcessor sidewalkProcessor;
+    private final OSMAttachedSidewalkProcessor.Side side;
     private OSMAttachedSidewalkProcessor.Side lastPrepared = OSMAttachedSidewalkProcessor.Side.NONE;
 
     public WheelchairSidewalkWay(ReaderWay way) {

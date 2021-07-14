@@ -25,6 +25,7 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.apache.juli.logging.LogFactory;
+import org.heigit.ors.util.FormatUtility;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -54,6 +55,7 @@ public class ORSInitContextListener implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		try {
 			LOGGER.info("Start shutting down ORS and releasing resources.");
+			FormatUtility.unload();
 			if (RoutingProfileManagerStatus.isReady())
 				RoutingProfileManager.getInstance().destroy();
 			StatisticsProviderFactory.releaseProviders();

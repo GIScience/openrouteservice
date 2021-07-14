@@ -54,6 +54,6 @@ public class DistanceWeighting extends AbstractWeighting {
 
     @Override
     public int hashCode() {
-        return ("DistanceWeighting" + toString()).hashCode();
+        return ("DistanceWeighting" + this).hashCode();
     }
 }

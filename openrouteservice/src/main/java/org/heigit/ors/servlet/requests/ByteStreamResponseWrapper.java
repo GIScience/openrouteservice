@@ -59,7 +59,7 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
     public String toString()
     {
         return ((null == this.byteStream)
-                ? null : new String(this.byteStream.toByteArray()));
+                ? null : this.byteStream.toString());
     }
  
     public byte[] toBytes()
@@ -69,7 +69,7 @@ public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
     }
     
 	public class ServletOutputStreamImpl extends ServletOutputStream {
-		private OutputStream outputStream;
+		private final OutputStream outputStream;
 		private byte[] buffer;
 
 		public ServletOutputStreamImpl(OutputStream out) {

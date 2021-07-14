@@ -14,7 +14,7 @@
 package org.heigit.ors.matrix;
 
 public class MatrixResult {
-  private float[][] tables;
+  private final float[][] tables;
   private ResolvedLocation[] destinations;
   private ResolvedLocation[] sources;
   private String graphDate;

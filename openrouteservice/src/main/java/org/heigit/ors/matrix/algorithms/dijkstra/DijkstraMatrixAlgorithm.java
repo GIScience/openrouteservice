@@ -27,7 +27,7 @@ import org.heigit.ors.matrix.MatrixLocations;
 import org.heigit.ors.matrix.PathMetricsExtractor;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 
 public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PathMetricsExtractor pathMetricsExtractor;

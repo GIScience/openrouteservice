@@ -53,7 +53,7 @@ public abstract class AbstractIsochroneAlgorithm {
     double isochroneLimit;
     private boolean alreadyRun;
 
-    public AbstractIsochroneAlgorithm(Graph graph,
+    protected AbstractIsochroneAlgorithm(Graph graph,
                                       Weighting weighting,
                                       TraversalMode tMode,
                                       CellStorage cellStorage,

@@ -37,7 +37,7 @@ public class InertialFlow implements Runnable {
     private static final boolean SEPARATEDISCONNECTED = true;
     //The projections are evaluated before the max flow algorithm. Only the best CONSIDERED_PROJECTIONS are actually run through the algorithm, as MaxFlow is relatively costly
     private static final int CONSIDERED_PROJECTIONS = 3;
-    private static Projector projector = new Projector();
+    private static final Projector projector = new Projector();
     private static FlagEncoder flagEncoder;
     protected Map<Projection, IntArrayList> projections;
     private int cellId;
@@ -211,9 +211,7 @@ public class InertialFlow implements Runnable {
         boolean[] invokeNext = new boolean[]{false, false};
 
         for (int i = 0; i < 2; i++) {
-            boolean invokeRecursion = false;
-            if ((cellId < MAX_SPLITTING_ITERATION) && (biPartition.getPartition(i).size() > getMaxCellNodesNumber()))
-                invokeRecursion = true;
+            boolean invokeRecursion = (cellId < MAX_SPLITTING_ITERATION) && (biPartition.getPartition(i).size() > getMaxCellNodesNumber());
 
             if ((cellId < MIN_SPLITTING_ITERATION))
                 invokeRecursion = true;

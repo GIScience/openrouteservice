@@ -14,9 +14,9 @@
 package org.heigit.ors.routing;
 
 public class ExtraSummaryItem {
-   private double value;
-   private double distance;
-   private double amount;
+   private final double value;
+   private final double distance;
+   private final double amount;
    
    public ExtraSummaryItem(double value, double distance, double amount)
    {

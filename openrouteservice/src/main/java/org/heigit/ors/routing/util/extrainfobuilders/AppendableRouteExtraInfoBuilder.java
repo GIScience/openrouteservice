@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class AppendableRouteExtraInfoBuilder extends SimpleRouteExtraInfoBuilder {
-	private ArrayList<SegmentParams> segmentParamsList;
+	private final ArrayList<SegmentParams> segmentParamsList;
 
     public AppendableRouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
     	super(extraInfo);

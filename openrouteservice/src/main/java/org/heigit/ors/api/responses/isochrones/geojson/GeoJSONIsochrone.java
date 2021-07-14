@@ -6,7 +6,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.heigit.ors.isochrones.Isochrone;
 
 public class GeoJSONIsochrone extends GeoJSONIsochroneBase {
-    private Isochrone isochrone;
+    private final Isochrone isochrone;
 
     @JsonProperty("properties")
     public GeoJSONIsochroneProperties properties;

@@ -33,7 +33,7 @@ public class StatisticsProviderFactory {
 	
 	private static final Logger LOGGER = Logger.getLogger(StatisticsProviderFactory.class.getName());
 	
-	private static Map<String, StatisticsProviderItem> providers;
+	private static final Map<String, StatisticsProviderItem> providers;
     private static final Object lockObj;
 
 	static {

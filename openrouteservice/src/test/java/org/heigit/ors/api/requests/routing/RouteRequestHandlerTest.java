@@ -45,7 +45,7 @@ public class RouteRequestHandlerTest {
     private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
-    private JSONObject geoJsonPolygon;
+    private final JSONObject geoJsonPolygon;
 
     public RouteRequestHandlerTest() throws Exception {
         init();

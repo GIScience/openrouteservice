@@ -1,6 +1,7 @@
 package org.heigit.ors.exceptions;
 
 
+import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.common.StatusCode;
 
 /**
@@ -13,7 +14,7 @@ public class ExportException extends StatusCodeException {
 
     /**
      * @param errorCode         Represents the the error code as described in the "error_codes.md"
-     * @param toBeExportedClass Represents the specific {@link org.heigit.ors.services.ServiceRequest} class. E.g. geocodingRequest.getClass()
+     * @param toBeExportedClass Represents the specific {@link ServiceRequest} class. E.g. geocodingRequest.getClass()
      * @param exportMethod      Represents the export format as a {@link String}
      */
     public ExportException(int errorCode, Class rootClass, Class toBeExportedClass, String exportMethod) {
@@ -22,7 +23,7 @@ public class ExportException extends StatusCodeException {
 
     /**
      * @param errorCode         Represents the the error code as described in the "error_codes.md"
-     * @param toBeExportedClass Represents the specific {@link org.heigit.ors.services.ServiceRequest} class. E.g. geocodingRequest.getClass()
+     * @param toBeExportedClass Represents the specific {@link ServiceRequest} class. E.g. geocodingRequest.getClass()
      * @param exportMethod      Represents the export format as a {@link String}. E.g. "GeoJSON" or "JSON"
      */
     public ExportException(int errorCode, Class toBeExportedClass, String exportMethod) {

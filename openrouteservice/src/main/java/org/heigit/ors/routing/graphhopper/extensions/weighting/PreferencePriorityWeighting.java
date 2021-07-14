@@ -72,6 +72,6 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("PreferencePriorityWeighting" + toString()).hashCode();
+		return ("PreferencePriorityWeighting" + this).hashCode();
 	}
 }

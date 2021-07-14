@@ -34,7 +34,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
     public final String type = "Feature";
 
     @JsonProperty("properties")
-    private GeoJSONSummary properties;
+    private final GeoJSONSummary properties;
 
     public GeoJSONIndividualRouteResponse(RouteResult routeResult, RouteRequest request) throws StatusCodeException {
         super(routeResult, request);

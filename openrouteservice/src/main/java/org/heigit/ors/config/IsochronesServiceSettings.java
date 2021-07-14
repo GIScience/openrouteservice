@@ -11,14 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.services.isochrones;
+package org.heigit.ors.config;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigObject;
-import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.TravelRangeType;
-import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.RoutingProfileType;
 
@@ -38,10 +35,10 @@ public class IsochronesServiceSettings {
 	private static Map<Integer, Integer> fastIsochronesProfileMaxRangeDistances;
 	private static int fastIsochronesMaximumRangeTime = 3600; // in seconds
 	private static Map<Integer, Integer> fastIsochronesProfileMaxRangeTimes;
-	private static Set<Integer> fastIsochroneProfiles = new HashSet<>();
+	private static final Set<Integer> fastIsochroneProfiles = new HashSet<>();
 	private static int maximumIntervals = 1;
 	private static boolean allowComputeArea = true;
-	private static Map<String, StatisticsProviderConfiguration> statsProviders;
+	private static final Map<String, StatisticsProviderConfiguration> statsProviders;
 	private static String attribution = "";
 	private static String weightings = "";
 	private static AppConfig config;
@@ -56,6 +53,10 @@ public class IsochronesServiceSettings {
 
 	public static final String KEY_ATTRIBUTION = "attribution";
 
+	public static final String MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
+
+	public static final String MAXIMUM_RANGE_TIME = "maximum_range_time";
+
 	static {
 		config = AppConfig.getGlobal();
 		String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
@@ -68,21 +69,21 @@ public class IsochronesServiceSettings {
 		if (value != null)
 			weightings = value;
 
-		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, MAXIMUM_RANGE_DISTANCE);
 		if (value != null)
 			maximumRangeDistance = Integer.parseInt(value);
 		else {
-			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, MAXIMUM_RANGE_DISTANCE);
 			profileMaxRangeDistances = getParameters(params);
 			if (profileMaxRangeDistances.containsKey(-1))
 				maximumRangeDistance = profileMaxRangeDistances.get(-1);
 		}
 
-		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, MAXIMUM_RANGE_TIME);
 		if (value != null)
 			maximumRangeTime = Integer.parseInt(value);
 		else {
-			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, MAXIMUM_RANGE_TIME);
 			profileMaxRangeTimes = getParameters(params);
 			if (profileMaxRangeTimes.containsKey(-1))
 				maximumRangeTime = profileMaxRangeTimes.get(-1);
@@ -96,21 +97,21 @@ public class IsochronesServiceSettings {
 			allowComputeArea = Boolean.parseBoolean(value);
 
 		//Fast isochrones
-		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + MAXIMUM_RANGE_DISTANCE);
 		if (value != null)
 			fastIsochronesMaximumRangeDistance = Integer.parseInt(value);
 		else {
-			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + MAXIMUM_RANGE_DISTANCE);
 			fastIsochronesProfileMaxRangeDistances = getParameters(params);
 			if (fastIsochronesProfileMaxRangeDistances.containsKey(-1))
 				fastIsochronesMaximumRangeDistance = fastIsochronesProfileMaxRangeDistances.get(-1);
 		}
 
-		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+		value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + MAXIMUM_RANGE_TIME);
 		if (value != null)
 			fastIsochronesMaximumRangeTime = Integer.parseInt(value);
 		else {
-			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+			List<? extends ConfigObject> params = AppConfig.getGlobal().getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + MAXIMUM_RANGE_TIME);
 			fastIsochronesProfileMaxRangeTimes = getParameters(params);
 			if (fastIsochronesProfileMaxRangeTimes.containsKey(-1))
 				fastIsochronesMaximumRangeTime = fastIsochronesProfileMaxRangeTimes.get(-1);
@@ -185,9 +186,7 @@ public class IsochronesServiceSettings {
 	}
 
 	public static String getWeightings() {
-		if (weightings == "")
-			return "fastest";
-		return weightings;
+		return weightings.equals("") ? "fastest" : weightings;
 	}
 
 	public static boolean getAllowComputeArea() {
@@ -258,10 +257,10 @@ public class IsochronesServiceSettings {
 		return config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
 	}
 
-	public static String getParameter(String paramName, boolean notNull) throws Exception  {
+	public static String getParameter(String paramName, boolean notNull) {
 		String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
 		if (notNull && Helper.isEmpty(value))
-			throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
+			throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
 
 		return value;
 	}

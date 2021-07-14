@@ -30,11 +30,11 @@ import java.util.List;
 @JsonDeserialize(using = CoordinateListDeserializer.class)
 public class CoordinateListWrapper {
     @JsonIgnore
-    private Coordinate start;
+    private final Coordinate start;
     @JsonIgnore
-    private Coordinate end;
+    private final Coordinate end;
     @JsonIgnore
-    private List<Coordinate> via;
+    private final List<Coordinate> via;
 
     public CoordinateListWrapper(Coordinate start, Coordinate end) {
         this(start, new ArrayList<>(), end);

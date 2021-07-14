@@ -8,8 +8,8 @@ import com.graphhopper.storage.Graph;
  * @author Hendrik Leuschner
  */
 public class PartitioningDataBuilder {
-    private Graph graph;
-    private PartitioningData pData;
+    private final Graph graph;
+    private final PartitioningData pData;
 
     PartitioningDataBuilder(Graph graph, PartitioningData pData) {
         this.graph = graph;

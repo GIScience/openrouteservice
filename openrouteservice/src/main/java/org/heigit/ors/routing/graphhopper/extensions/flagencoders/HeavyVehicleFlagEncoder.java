@@ -335,6 +335,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("HeavyVehicleFlagEncoder" + toString()).hashCode();
+        return ("HeavyVehicleFlagEncoder" + this).hashCode();
     }
 }

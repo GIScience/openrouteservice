@@ -32,7 +32,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
     protected int edgeEntryIndex = 0;
     protected int edgeEntryBytes;
     protected int edgesCount;
-    private byte[] byteData;
+    private final byte[] byteData;
 
     public RoadAccessRestrictionsGraphStorage() {
         efRestrictions = nextBlockEntryIndex(1);

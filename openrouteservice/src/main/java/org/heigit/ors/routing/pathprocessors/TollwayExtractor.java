@@ -22,8 +22,8 @@ import org.heigit.ors.routing.parameters.VehicleParameters;
 
 public class TollwayExtractor {
 	private VehicleParameters vehicleParams;
-	private int profileType;
-	private TollwaysGraphStorage storage;
+	private final int profileType;
+	private final TollwaysGraphStorage storage;
 
 	public TollwayExtractor(TollwaysGraphStorage storage, int profileType, ProfileParameters vehicleParams) {
 		this.storage = storage;

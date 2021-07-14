@@ -46,8 +46,8 @@ public class CoreLMApproximator implements WeightApproximator {
     // store node ids
     private int[] activeLandmarks;
     // store weights as int
-    private int[] activeFromIntWeights;
-    private int[] activeToIntWeights;
+    private final int[] activeFromIntWeights;
+    private final int[] activeToIntWeights;
     private double epsilon = 1;
     private int to = -1;
     private double proxyWeight = 0;

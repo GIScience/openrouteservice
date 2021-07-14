@@ -29,7 +29,7 @@ public class RouteResponse {
     protected BoundingBox bbox;
 
     @JsonIgnore
-    protected List routeResults;
+    protected List<IndividualRouteResponse> routeResults;
 
     public RouteResponse(RouteRequest request) {
         responseInformation = new RouteResponseInfo(request);
@@ -43,7 +43,7 @@ public class RouteResponse {
         return bbox;
     }
 
-    public List getRouteResults() {
+    public List<IndividualRouteResponse> getRouteResults() {
         return routeResults;
     }
 }

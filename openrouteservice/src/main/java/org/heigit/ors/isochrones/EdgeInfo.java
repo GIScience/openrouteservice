@@ -16,11 +16,11 @@ package org.heigit.ors.isochrones;
 import com.graphhopper.util.PointList;
 
 public class EdgeInfo {
-   private PointList geometry;
-   private float v1;
-   private float v2;
-   private float dist;
-   private long edgeId;
+   private final PointList geometry;
+   private final float v1;
+   private final float v2;
+   private final float dist;
+   private final long edgeId;
    
    public EdgeInfo(long id, PointList geom, float v1, float v2, float dist)
    {

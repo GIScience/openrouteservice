@@ -23,8 +23,8 @@ package org.heigit.ors.fastisochrones.partitioning;
  * @author Hendrik Leuschner
  */
 public class EKEdgeEntry implements Comparable<EKEdgeEntry> {
-    private int node;
-    private int weight;
+    private final int node;
+    private final int weight;
 
     public EKEdgeEntry(int node, int weight) {
         this.node = node;

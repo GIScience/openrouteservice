@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RouteSegment {
-	private double distance;
-	private double duration;
-	private double ascent;
-	private double descent;
+	private final double distance;
+	private final double duration;
+	private final double ascent;
+	private final double descent;
 	private double detourFactor = 0.0;
-	private List<RouteStep> steps;
+	private final List<RouteStep> steps;
 
 	public RouteSegment(PathWrapper path, DistanceUnit units) throws Exception {
 		distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.METERS, units), units);

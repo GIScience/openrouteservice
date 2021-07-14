@@ -37,7 +37,7 @@ import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
@@ -558,7 +558,7 @@ public class RoutingProfileManager {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
             if (config.getMaximumWayPoints() > 0 && !oneToMany && nCoords > config.getMaximumWayPoints()) {
-                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
+                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + config.getMaximumWayPoints() + ".");
             }
 
             if (config.getMaximumDistance() > 0

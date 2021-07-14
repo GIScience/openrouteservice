@@ -22,7 +22,7 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
 	private int adjNode;
 	private boolean visited = false;
-	private MultiTreeSPEntryItem[] items;
+	private final MultiTreeSPEntryItem[] items;
 	private double totalWeight = 0.0;
 
 	public MultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MultiTreeSPEntry parent, int numTrees) {

@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.util.RuntimeUtility;
 
 public class RoutingProfilesCollection {
-	private HashMap<Integer, RoutingProfile> routeProfiles;
-	private ArrayList<RoutingProfile> uniqueProfiles;
+	private final HashMap<Integer, RoutingProfile> routeProfiles;
+	private final ArrayList<RoutingProfile> uniqueProfiles;
 
 	public RoutingProfilesCollection() {
 		routeProfiles = new HashMap<>();

@@ -8,8 +8,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class InertialFlowTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -33,7 +32,7 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
-        assertFalse(cellId0 == cellId1);
+        assertNotEquals(cellId0, cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0}, nodeToCell);
     }
 
@@ -55,7 +54,7 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
-        assertFalse(cellId0 == cellId1);
+        assertNotEquals(cellId0, cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId0, cellId1, cellId1, cellId1, cellId1, cellId0}, nodeToCell);
     }
 
@@ -75,7 +74,7 @@ public class InertialFlowTest {
         }
         threadPool.shutdown();
         //Check for partitioning. Cell numbers are not too relevant.
-        assertFalse(nodeToCell[0] == nodeToCell[1]);
+        assertNotEquals(nodeToCell[0], nodeToCell[1]);
     }
 
     @Test
@@ -102,8 +101,8 @@ public class InertialFlowTest {
         int cellId1 = nodeToCell[3];
         int cellId2 = nodeToCell[6];
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0, cellId2, cellId2, cellId2, cellId2, cellId1, cellId1}, nodeToCell);
-        assertFalse(cellId0 == cellId1);
-        assertFalse(cellId1 == cellId2);
-        assertFalse(cellId2 == cellId0);
+        assertNotEquals(cellId0, cellId1);
+        assertNotEquals(cellId1, cellId2);
+        assertNotEquals(cellId2, cellId0);
     }
 }

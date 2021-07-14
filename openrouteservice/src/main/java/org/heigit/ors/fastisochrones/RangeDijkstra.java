@@ -40,7 +40,7 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
     private static final boolean USERELEVANTONLY = true;
     private double maximumWeight = 0;
     private IntHashSet cellNodes;
-    private Set<Integer> visitedIds = new HashSet<>();
+    private final Set<Integer> visitedIds = new HashSet<>();
     private IntHashSet relevantNodes = new IntHashSet();
 
     public RangeDijkstra(Graph graph, Weighting weighting) {

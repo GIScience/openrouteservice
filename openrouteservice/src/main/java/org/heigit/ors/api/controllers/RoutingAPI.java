@@ -40,7 +40,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Directions Service", description = "Get directions for different modes of transport", tags = "Directions")
+@Api(value = "Directions Service", tags = "Directions")
+@SwaggerDefinition(tags = {
+        @Tag(name = "Directions", description = "Get directions for different modes of transport")
+})
 @RequestMapping("/v2/directions")
 @ApiResponses({
         @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),

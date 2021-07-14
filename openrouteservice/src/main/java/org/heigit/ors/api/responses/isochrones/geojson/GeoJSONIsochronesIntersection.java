@@ -30,10 +30,10 @@ import java.util.*;
 
 public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
     @JsonIgnore
-    private IsochronesIntersection intersection;
+    private final IsochronesIntersection intersection;
 
     @JsonProperty("properties")
-    private Map<String, Object> properties;
+    private final Map<String, Object> properties;
 
     public GeoJSONIsochronesIntersection(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException {
         this.intersection = intersection;

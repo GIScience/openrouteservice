@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 public class JSONExtraSummary {
-    private double value;
-    private double distance;
-    private double amount;
+    private final double value;
+    private final double distance;
+    private final double amount;
 
     public JSONExtraSummary(double value, double distance, double amount) {
         this.value = value;

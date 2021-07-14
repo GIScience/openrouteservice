@@ -75,7 +75,7 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
 
         for (int i=0; i<sourceCount; i++) {
             for (int j=0; j<destinationCount; j++) {
-                double value = (double) table[(i*destinationCount) + j];
+                double value = table[(i*destinationCount) + j];
                 if (value == -1)
                     constructedTable[i][j] = null;
                 else

@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LanguageResources {
-	private Map<Integer,LocalString> localStrings;
-	private Language lang;
+	private final Map<Integer,LocalString> localStrings;
+	private final Language lang;
 	
 	public LanguageResources(String langTag) {
 		this.lang = new Language(langTag);
