@@ -40,6 +40,9 @@ RELEASING:
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Formatting of tag filtering
+### Fixed
+- Errors in travel speed explanation
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
