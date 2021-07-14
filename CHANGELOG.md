@@ -35,10 +35,14 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+### Changed
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 ### Removed
 - old v1 API code and related classes
-### Fixed 
+### Fixed
 - References to old documentation now point to rendered version of new docs
 
 ## [6.6.1] - 2021-07-05
