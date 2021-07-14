@@ -31,7 +31,7 @@ public class ORSKafkaConsumerMessageSpeedUpdate {
     public static ORSKafkaConsumerMessageSpeedUpdate generateRandom() {
         ORSKafkaConsumerMessageSpeedUpdate msg = new ORSKafkaConsumerMessageSpeedUpdate();
         SecureRandom random = new SecureRandom();
-        msg.setEdgeId(random.nextInt(Integer.MAX_VALUE));
+        msg.setEdgeId(random.nextInt(100));
         msg.setReverse(random.nextBoolean());
         msg.setSpeed(random.nextInt(130));
         msg.setDurationMin(random.nextInt(120));
@@ -64,6 +64,10 @@ public class ORSKafkaConsumerMessageSpeedUpdate {
 
     public int getDurationMin() {
         return durationMin;
+    }
+
+    public boolean hasDurationMin() {
+        return this.durationMin > 0;
     }
 
     public void setDurationMin(int durationMin) {

@@ -4,7 +4,7 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import java.util.List;

@@ -6,7 +6,7 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

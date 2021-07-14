@@ -139,13 +139,19 @@ public class MultiTreeMetricsExtractor {
 					MultiTreeSPEntry targetEntry = targets[i];
 
 					if (targetEntry != null) {
-						pathTime = 0.0;
-						pathDistance = 0.0;
-						pathWeight = 0.0;
+						//Only set values to 0 if target and start node are the same
+						if(srcData.getNodeId(j) == targetEntry.getAdjNode()) {
+							pathTime = 0.0;
+							pathDistance = 0.0;
+							pathWeight = 0.0;
+						}
 
 						sptItem = targetEntry.getItem(srcNode);
 
 						if (sptItem.getParent() != null) {
+							pathTime = 0.0;
+							pathDistance = 0.0;
+							pathWeight = 0.0;
 							while (EdgeIterator.Edge.isValid(sptItem.getEdge())) {
 								edgeMetricsItem = null;
 								if (edgeMetrics != null) {
@@ -161,7 +167,7 @@ public class MultiTreeMetricsExtractor {
 										boolean unpackDistance = true;
 										if (calcWeight || calcTime || unpackDistance) {
 											if (iterState.isShortcut()) {
-												if (chGraph.getLevel(iterState.getBaseNode()) > chGraph
+												if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
 														.getLevel(iterState.getAdjNode())) {
 													reverseOrder = true;
 													extractEdgeValues(iterState, false);
@@ -220,7 +226,6 @@ public class MultiTreeMetricsExtractor {
 									if (calcWeight)
 										pathWeight += edgeMetricsItem.weight;
 								}
-
 								targetEntry = sptItem.getParent();
 
 								if (targetEntry == null)

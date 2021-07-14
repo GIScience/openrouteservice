@@ -3,7 +3,7 @@ package org.heigit.ors.fastisochrones.partitioning;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;

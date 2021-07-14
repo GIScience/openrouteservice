@@ -10,6 +10,7 @@ import com.graphhopper.storage.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

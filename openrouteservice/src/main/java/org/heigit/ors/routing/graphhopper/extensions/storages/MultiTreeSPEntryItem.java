@@ -17,6 +17,7 @@ import com.graphhopper.util.EdgeIterator;
 
 public class MultiTreeSPEntryItem {
 	private int edge = EdgeIterator.NO_EDGE;
+	private int originalEdge = EdgeIterator.NO_EDGE;
 	private double weight = Double.POSITIVE_INFINITY;
 	private boolean update =  false;
 	private MultiTreeSPEntry parent = null;
@@ -27,6 +28,14 @@ public class MultiTreeSPEntryItem {
 
 	public void setEdge(int edge) {
 		this.edge = edge;
+	}
+
+	public int getOriginalEdge() {
+		return originalEdge;
+	}
+
+	public void setOriginalEdge(int originalEdge) {
+		this.originalEdge = originalEdge;
 	}
 
 	public double getWeight() {
@@ -52,4 +61,10 @@ public class MultiTreeSPEntryItem {
 	public void setParent(MultiTreeSPEntry parent) {
 		this.parent = parent;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(weight);
+	}
+
 }
