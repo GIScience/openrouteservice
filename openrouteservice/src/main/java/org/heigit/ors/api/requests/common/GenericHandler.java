@@ -161,6 +161,10 @@ public class GenericHandler {
 
     protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
+        if (options.getProfileParams().hasSurfaceQualityKnown() || options.getProfileParams().hasAllowUnsuitable()) {
+            params = new WheelchairParameters();
+        }
+
         if (options.getProfileParams().hasRestrictions()) {
 
             RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
@@ -175,6 +179,14 @@ public class GenericHandler {
             applyWeightings(weightings, params);
         }
 
+        if (params instanceof WheelchairParameters) {
+            if (options.getProfileParams().hasSurfaceQualityKnown()) {
+                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+            }
+            if (options.getProfileParams().hasAllowUnsuitable()) {
+                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+            }
+        }
         return params;
     }
 
@@ -183,7 +195,7 @@ public class GenericHandler {
         if (RoutingProfileType.isHeavyVehicle(profileType))
             params = convertHeavyVehicleParameters(restrictions, vehicleType);
         if (RoutingProfileType.isWheelchair(profileType))
-            params = convertWheelchairParameters(restrictions);
+            params = convertWheelchairParamRestrictions(restrictions);
         return params;
     }
 
@@ -256,8 +268,7 @@ public class GenericHandler {
         return params;
     }
 
-    private WheelchairParameters convertWheelchairParameters(RequestProfileParamsRestrictions restrictions) {
-
+    private WheelchairParameters convertWheelchairParamRestrictions(RequestProfileParamsRestrictions restrictions) {
         WheelchairParameters params = new WheelchairParameters();
 
         if(restrictions.hasSurfaceType())

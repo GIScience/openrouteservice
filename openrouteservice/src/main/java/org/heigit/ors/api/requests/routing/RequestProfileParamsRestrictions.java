@@ -310,7 +310,6 @@ public class RequestProfileParamsRestrictions {
             setRestrictions.add(PARAM_MAX_INCLINE);
         if(hasMinWidth)
             setRestrictions.add(PARAM_MIN_WIDTH);
-
         return setRestrictions;
     }
 }
