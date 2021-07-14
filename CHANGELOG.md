@@ -40,6 +40,7 @@ RELEASING:
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
