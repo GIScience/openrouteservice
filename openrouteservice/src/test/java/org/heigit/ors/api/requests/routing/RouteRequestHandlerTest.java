@@ -132,7 +132,7 @@ public class RouteRequestHandlerTest {
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
-        wheelchairParams.setSmoothnessType("good");
+        wheelchairParams.setSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD);
         wheelchairParams.setSurfaceType("asphalt");
 
         RequestProfileParams params = new RequestProfileParams();
@@ -228,7 +228,7 @@ public class RouteRequestHandlerTest {
         routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
-        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType("good"), params.getSmoothnessType());
+        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD), params.getSmoothnessType());
         Assert.assertEquals(3.0f, params.getMaximumIncline(), 0);
         Assert.assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         Assert.assertEquals(2.0f, params.getMinimumWidth(), 0);
