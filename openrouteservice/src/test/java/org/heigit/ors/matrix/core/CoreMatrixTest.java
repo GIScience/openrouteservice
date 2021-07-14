@@ -999,4 +999,37 @@ public class CoreMatrixTest {
         assertEquals(11.0, result.getTable(MatrixMetricsType.DISTANCE)[4], 0);
         assertEquals(12.0, result.getTable(MatrixMetricsType.DISTANCE)[5], 0);
     }
+
+    @Test
+    public void testOneToOneLevelProblemCase() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createUpDownGraph(createGHStorage());
+
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(9);
+        edgeFilterSequence.add(restrictedEdges);
+        CHGraph g = contractGraph(graphHopperStorage, edgeFilterSequence);
+
+        MatrixLocations sources = new MatrixLocations(1);
+        sources.setData(0, 0, null);
+        MatrixLocations destinations = new MatrixLocations(1);
+        destinations.setData(0, 7, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
+        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+
+    }
 }

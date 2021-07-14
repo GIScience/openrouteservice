@@ -18,6 +18,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
@@ -625,7 +626,9 @@ public class RoutingProfile {
 
         try {
             HintsMap hintsMap = new HintsMap();
-            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
+            //TODO Graph choice depending on algorithm
+
+            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
@@ -635,12 +638,18 @@ public class RoutingProfile {
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
+            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+            graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
+
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
 
-            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
+            //TODO edgeFIlter, additionaledgefilter
+//            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), encoder, getGraphHopperStorage());
+
+            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), 0);
+            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {

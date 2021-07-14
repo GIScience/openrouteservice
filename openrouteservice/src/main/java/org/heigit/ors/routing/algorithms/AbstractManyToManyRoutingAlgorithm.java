@@ -63,7 +63,12 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	}
 
 	protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-		return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
+		//TODO make this depend on whether u turn cost is infinite or not
+		if (iter.getEdge() == prevOrNextEdgeId) {
+			return false;
+		} else {
+			return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
+		}
 	}
 
 	@Override

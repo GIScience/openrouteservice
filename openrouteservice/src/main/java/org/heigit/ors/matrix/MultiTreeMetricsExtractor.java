@@ -167,7 +167,7 @@ public class MultiTreeMetricsExtractor {
 										boolean unpackDistance = true;
 										if (calcWeight || calcTime || unpackDistance) {
 											if (iterState.isShortcut()) {
-												if (chGraph.getLevel(iterState.getBaseNode()) > chGraph
+												if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
 														.getLevel(iterState.getAdjNode())) {
 													reverseOrder = true;
 													extractEdgeValues(iterState, false);
@@ -226,7 +226,6 @@ public class MultiTreeMetricsExtractor {
 									if (calcWeight)
 										pathWeight += edgeMetricsItem.weight;
 								}
-
 								targetEntry = sptItem.getParent();
 
 								if (targetEntry == null)

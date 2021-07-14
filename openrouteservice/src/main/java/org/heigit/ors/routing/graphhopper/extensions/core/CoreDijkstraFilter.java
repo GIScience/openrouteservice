@@ -54,7 +54,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
      * the level of the adjacent node
      */
     @Override
-    
+
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
@@ -79,7 +79,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
             // do not follow virtual edges, and stay within core
             if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
-                return restrictions.accept(edgeIterState);
+                return restrictions == null || restrictions.accept(edgeIterState);
             else
                 return false;
         }

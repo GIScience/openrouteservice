@@ -48,7 +48,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 			item.setUpdate(updated);
 			totalWeight += item.getWeight();
 		}
-		System.out.println("Creating new entry for node " + this.adjNode + " with weights " + this.toString());
 	}
 
 	public int getAdjNode() {

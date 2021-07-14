@@ -55,9 +55,7 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 		if(useCore && useCoreTurnRestrictions) {
 			if(baseNodeLevel == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel + 1)
 				return false;
-			if (baseNode >= maxNodes
-					|| adj >= maxNodes
-					|| baseNodeLevel < graph.getLevel(adj))
+			if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
 				return edgeIterState.getReverse(accessEnc);
 			else
 				return false;

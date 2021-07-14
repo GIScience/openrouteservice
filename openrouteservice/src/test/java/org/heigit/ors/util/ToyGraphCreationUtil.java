@@ -279,4 +279,23 @@ public class ToyGraphCreationUtil {
         g.edge(3, 4, 1, true); //5
         return g;
     }
+
+    public static GraphHopperStorage createUpDownGraph(GraphHopperStorage g) {
+        //      8------9
+        //       \    /
+        //0---1---3  5---6---7
+        //       / \/
+        //      2  4
+        g.edge(0, 1, 1, true); //0
+        g.edge(1, 3, 1, true); //1
+        g.edge(2, 3, 1, true); //2
+        g.edge(3, 4, 1, true); //3
+        g.edge(3, 8, 5, true); //4
+        g.edge(4, 5, 1, true); //5
+        g.edge(5, 6, 1, true); //6
+        g.edge(5, 9, 5, true); //7
+        g.edge(6, 7, 1, true); //8
+        g.edge(8, 9, 1, true); //9
+        return g;
+    }
 }
