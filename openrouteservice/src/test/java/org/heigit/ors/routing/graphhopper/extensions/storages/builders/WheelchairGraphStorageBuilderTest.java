@@ -1,12 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
-import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
-import junit.framework.Assert;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

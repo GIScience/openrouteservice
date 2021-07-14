@@ -29,7 +29,7 @@ public class JSONExtraSummary {
         this.amount = amount;
     }
 
-    @ApiModelProperty(value = "[Value](https://github.com/GIScience/openrouteservice-docs#routing-response) of a info category.", example = "5")
+    @ApiModelProperty(value = "[Value](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html) of a info category.", example = "5")
     @JsonProperty("value")
     public double getValue() {
         return value;

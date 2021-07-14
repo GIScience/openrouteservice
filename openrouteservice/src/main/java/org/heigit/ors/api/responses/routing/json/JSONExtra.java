@@ -49,7 +49,7 @@ public class JSONExtra {
     @ApiModelProperty(value = "A list of values representing a section of the route. The individual values are: \n" +
             "Value 1: Indice of the staring point of the geometry for this section,\n" +
             "Value 2: Indice of the end point of the geoemetry for this sections,\n" +
-            "Value 3: [Value](https://github.com/GIScience/openrouteservice-docs#routing-response) assigned to this section.",
+            "Value 3: [Value](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html) assigned to this section.",
             example = "[[0,3,26],[3,10,12]]")
     @JsonProperty("values")
     private List<List<Long>> getValues() {

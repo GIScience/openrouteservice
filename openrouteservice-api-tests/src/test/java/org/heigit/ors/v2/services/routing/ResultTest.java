@@ -14,12 +14,12 @@
 package org.heigit.ors.v2.services.routing;
 
 import io.restassured.response.Response;
-import junit.framework.Assert;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -174,32 +174,29 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
         Assert.assertTrue(doc_length > 0);
         boolean gpxRte = false;
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
-            switch (item) {
-                case "rte":
-                    gpxRte = true;
-                    NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
-                    int rteSize = rteChildren.getLength();
-                    Assert.assertEquals(76, rteSize);
-                    Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()));
-                    Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()));
-                    Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()));
-                    Assert.assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()));
-                    Assert.assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue())); // The last item (-1) is the extension pack
-                    Assert.assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue())); // The last item (-1) is the extension pack
-                    Node extensions = rteChildren.item(rteSize - 1);
-                    String item1 = extensions.getChildNodes().item(0).getTextContent();
-                    Assert.assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()));
-                    Assert.assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()));
-                    Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()));
-                    Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()));
-                    Assert.assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()));
-                    break;
+            if ("rte".equals(item)) {
+                gpxRte = true;
+                NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                int rteSize = rteChildren.getLength();
+                Assert.assertEquals(76, rteSize);
+                Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                Assert.assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                Assert.assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue()), 0); // The last item (-1) is the extension pack
+                Assert.assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue()), 0); // The last item (-1) is the extension pack
+                Node extensions = rteChildren.item(rteSize - 1);
+                Assert.assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()), 0);
+                Assert.assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()), 0);
+                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()), 0);
+                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()), 0);
+                Assert.assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()), 0);
             }
         }
         Assert.assertTrue(gpxRte);
@@ -221,7 +218,7 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
         Assert.assertTrue(doc_length > 0);
         boolean gpxMetadata = false;
@@ -322,10 +319,8 @@ public class ResultTest extends ServiceTest {
                                 boolean metadataExtensionsSystemMessage = false;
                                 for (int k = 0; k < metadataExtensionsLength; k++) {
                                     Node extensionsElement = metadataItem.getChildNodes().item(k);
-                                    switch (extensionsElement.getNodeName()) {
-                                        case "system-message":
-                                            metadataExtensionsSystemMessage = true;
-                                            break;
+                                    if ("system-message".equals(extensionsElement.getNodeName())) {
+                                        metadataExtensionsSystemMessage = true;
                                     }
                                 }
                                 Assert.assertTrue(metadataExtensionsSystemMessage);
@@ -963,7 +958,7 @@ public class ResultTest extends ServiceTest {
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}");
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
 
         checkExtraConsistency(response);
     }
@@ -1501,17 +1496,16 @@ public class ResultTest extends ServiceTest {
             JSONArray jValues = jExtraValues.getJSONArray(0);
             int fromValue = jValues.getInt(0);
             int toValue = jValues.getInt(1);
-            Assert.assertEquals(fromValue < toValue, true);
+            Assert.assertTrue(fromValue < toValue);
 
             for (int j = 1; j < jExtraValues.length(); j++) {
                 jValues = jExtraValues.getJSONArray(j);
                 int fromValue1 = jValues.getInt(0);
                 int toValue1 = jValues.getInt(1);
 
-                Assert.assertEquals(fromValue1 < toValue1, true);
-                Assert.assertEquals(fromValue1 == toValue, true);
+                Assert.assertTrue(fromValue1 < toValue1);
+                Assert.assertEquals(fromValue1, toValue);
 
-                fromValue = fromValue1;
                 toValue = toValue1;
             }
 
@@ -1526,9 +1520,8 @@ public class ResultTest extends ServiceTest {
                 amount += jSummaryValues.getDouble("amount");
             }
 
-            Assert.assertEquals(Math.abs(routeDistance - distance) < 0.5, true);
-
-            Assert.assertEquals(Math.abs(amount - 100.0) < 0.1, true);
+            Assert.assertEquals(routeDistance, distance, 0.5);
+            Assert.assertEquals(100, amount, 0.1);
         }
     }
 

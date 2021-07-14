@@ -34,8 +34,17 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Removed
 - old v1 API code and related classes
+### Fixed 
+- References to old documentation now point to rendered version of new docs
+
+## [6.6.1] - 2021-07-05
+### Fixed
+- made ORSKafkaConsumerInitContextListener non-blocking
+- Initialize edge centrality scores only for edges fully within bbox
 
 ## [6.6.0] - 2021-06-08
 ### Added
@@ -454,7 +463,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
+[6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3

@@ -62,6 +62,7 @@ public class RoutingProfileManager {
     private final ObjectMapper mapper = new ObjectMapper();
     private long kafkaMessagesProcessed = 0;
     private long kafkaMessagesFailed = 0;
+    public static final boolean KAFKA_DEBUG = false;
 
     public static synchronized RoutingProfileManager getInstance() {
         if (mInstance == null) {
@@ -678,7 +679,8 @@ public class RoutingProfileManager {
             case "test":
                 try {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
-                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
+                    if (KAFKA_DEBUG)
+                        LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
                 } catch (JsonProcessingException e) {
                     LOGGER.error(e);
