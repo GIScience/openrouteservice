@@ -37,6 +37,7 @@ RELEASING:
 ### Added
 - optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 
@@ -44,9 +45,6 @@ RELEASING:
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
-
-### Added
-- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 
 ## [6.6.0] - 2021-06-08
 ### Added

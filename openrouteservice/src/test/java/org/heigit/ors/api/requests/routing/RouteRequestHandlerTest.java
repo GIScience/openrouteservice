@@ -134,7 +134,6 @@ public class RouteRequestHandlerTest {
         wheelchairParams.setMinWidth(2.0f);
         wheelchairParams.setSmoothnessType("good");
         wheelchairParams.setSurfaceType("asphalt");
-        wheelchairParams.setSurfaceQualityKnown(true);
 
         RequestProfileParams params = new RequestProfileParams();
 
@@ -144,6 +143,7 @@ public class RouteRequestHandlerTest {
         weightings.setSteepnessDifficulty(3);
 
         params.setWeightings(weightings);
+        params.setSurfaceQualityKnown(true);
         params.setAllowUnsuitable(true);
 
         options.setProfileParams(params);

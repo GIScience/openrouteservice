@@ -86,7 +86,6 @@ public class WheelchairParameters extends ProfileParameters {
 		valid.add("maximum_sloped_kerb");
 		valid.add("maximum_incline");
 		valid.add("minimum_width");
-		valid.add("surface_quality_known");
 		return valid;
 	}
 }

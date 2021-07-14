@@ -2149,10 +2149,8 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.duration", is(559.9f))
                 .statusCode(200);
 
-        JSONObject restrictions = new JSONObject();
-        restrictions.put("surface_quality_known", true);
         JSONObject params = new JSONObject();
-        params.put("restrictions", restrictions);
+        params.put("surface_quality_known", true);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);

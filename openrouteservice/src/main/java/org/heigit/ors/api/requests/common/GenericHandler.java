@@ -161,6 +161,10 @@ public class GenericHandler {
 
     protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
+        if (options.getProfileParams().hasSurfaceQualityKnown() || options.getProfileParams().hasAllowUnsuitable()) {
+            params = new WheelchairParameters();
+        }
+
         if (options.getProfileParams().hasRestrictions()) {
 
             RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
@@ -175,8 +179,13 @@ public class GenericHandler {
             applyWeightings(weightings, params);
         }
 
-        if (params instanceof WheelchairParameters && options.getProfileParams().hasAllowUnsuitable()) {
-            ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+        if (params instanceof WheelchairParameters) {
+            if (options.getProfileParams().hasSurfaceQualityKnown()) {
+                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+            }
+            if (options.getProfileParams().hasAllowUnsuitable()) {
+                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+            }
         }
         return params;
     }
@@ -274,8 +283,6 @@ public class GenericHandler {
             params.setMaximumIncline(restrictions.getMaxIncline());
         if(restrictions.hasMinWidth())
             params.setMinimumWidth(restrictions.getMinWidth());
-        if(restrictions.hasSurfaceQualityKnown())
-            params.setSurfaceQualityKnown(restrictions.getSurfaceQualityKnown());
 
         return params;
     }
