@@ -403,7 +403,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
         GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
         NodeAccess nodeAccess = graph.getNodeAccess();
-        int maxNodeId = graph.getNodes();
+        int maxNodeId = graph.getNodes() - 1;
         int maxEdgeId = graph.getEdges() - 1;
 
         double bufferSize = 0.0018;
