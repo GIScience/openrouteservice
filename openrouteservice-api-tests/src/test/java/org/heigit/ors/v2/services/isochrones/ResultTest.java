@@ -424,7 +424,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(51))
+                .body("features[0].geometry.coordinates[0].size", is(49))
                 .statusCode(200);
 
         body.put("smoothing", "100");
