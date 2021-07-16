@@ -40,6 +40,7 @@ RELEASING:
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
 
 ## [6.6.1] - 2021-07-05
 ### Fixed

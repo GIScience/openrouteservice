@@ -153,7 +153,7 @@ public class RouteRequest {
     private boolean hasIncludeManeuvers = false;
 
     @ApiModelProperty(name = PARAM_RADII, value = "A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
-            "The values must be greater than 0, the value of -1 specifies no limit in the search. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.",
+            "The values must be greater than 0, the value of -1 specifies using the maximum possible search radius. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.",
             example = "[200, -1, 30]")
     @JsonProperty(PARAM_RADII)
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
