@@ -41,6 +41,7 @@ RELEASING:
 ### Changed
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
 - Formatting of tag filtering
 ### Fixed
 - Errors in travel speed explanation
