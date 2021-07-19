@@ -90,7 +90,7 @@ public class IsochronesRequestHandlerTest {
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
-        wheelchairParams.setSmoothnessType("good");
+        wheelchairParams.setSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD);
         wheelchairParams.setSurfaceType("asphalt");
 
         RequestProfileParams params = new RequestProfileParams();
