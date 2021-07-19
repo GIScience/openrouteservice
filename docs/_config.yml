@@ -11,5 +11,8 @@ aux_links:
   "ask a question":
     - "//ask.openrouteservice.org"
 
+search:
+  button: true
+
 gems:
   - jemoji
