@@ -39,8 +39,11 @@ RELEASING:
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 ### Changed
-- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Formatting of tag filtering
+### Fixed
+- Errors in travel speed explanation
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
