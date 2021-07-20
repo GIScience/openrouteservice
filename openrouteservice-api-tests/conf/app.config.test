@@ -64,7 +64,7 @@
               "weightings": "recommended",
               "maxcellnodes": 5000
             },
-            "profile-vehicles-hgv": {
+            "profile-hgv": {
               "enabled": true,
               "threads": 12,
               "weightings": "recommended, shortest",
@@ -90,14 +90,14 @@
         "elevation_preprocessed": false,
         "profiles": {
           "active": [
-            "vehicles-car",
-            "vehicles-hgv",
-            "bike",
-            "bike-mtb",
+            "car",
+            "hgv",
+            "bike-regular",
+            "bike-mountain",
             "bike-road",
-            "bike-e",
-            "pedestrian-walk",
-            "pedestrian-hike",
+            "bike-electric",
+            "walking",
+            "hiking",
             "wheelchair"
           ],
           "default_params": {
@@ -136,7 +136,7 @@
               }
             }
           },
-          "profile-vehicles-car": {
+          "profile-car": {
             "profiles": "driving-car",
             "parameters": {
               "encoder_options": "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
@@ -199,7 +199,7 @@
               "traffic": false
             }
           },
-          "profile-vehicles-hgv": {
+          "profile-hgv": {
             "profiles": "driving-hgv",
             "parameters": {
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
@@ -260,7 +260,7 @@
               "traffic": false
             }
           },
-          "profile-bike": {
+          "profile-bike-regular": {
             "profiles": "cycling-regular",
             "parameters": {
               "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
@@ -293,7 +293,7 @@
               }
             }
           },
-          "profile-bike-mtb": {
+          "profile-bike-mountain": {
             "profiles": "cycling-mountain",
             "parameters": {
               "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
@@ -320,7 +320,7 @@
               }
             }
           },
-          "profile-bike-e": {
+          "profile-bike-electric": {
             "profiles": "cycling-electric",
             "parameters": {
               "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
@@ -333,7 +333,7 @@
               }
             }
           },
-          "profile-pedestrian-walk": {
+          "profile-walking": {
             "profiles": "foot-walking",
             "parameters": {
               "encoder_options": "block_fords=false",
@@ -353,7 +353,7 @@
               }
             }
           },
-          "profile-pedestrian-hike": {
+          "profile-hiking": {
             "profiles": "foot-hiking",
             "parameters": {
               "encoder_options": "block_fords=false",
