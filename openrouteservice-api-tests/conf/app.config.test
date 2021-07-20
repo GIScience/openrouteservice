@@ -80,14 +80,13 @@
         "enabled": true,
         "mode": "normal",
         "routing_description": "This is a routing file from openrouteservice",
-        "routing_name": "openrouteservice routing",
+        "routing_name": "ORSRouting",
         "sources": [
           "openrouteservice-api-tests/data/heidelberg.osm.gz"
         ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         "distance_approximation": true,
-        "routing_name": "ORSRouting",
         "elevation_preprocessed": false,
         "profiles": {
           "active": [
