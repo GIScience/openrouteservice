@@ -89,7 +89,7 @@
             <testResource>
                 <directory>../openrouteservice-api-tests/conf</directory>
                 <includes>
-                    <include>app.config.test</include>
+                    <include>ors-config-test.json</include>
                 </includes>
                 <filtering>true</filtering>
             </testResource>
