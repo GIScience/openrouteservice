@@ -16,24 +16,46 @@
       },
       "isochrones": {
         "enabled": true,
-        "maximum_range_distance":
-          [
-            {"profiles": "any", "value": 50000},
-            {"profiles": "driving-car, driving-hgv", "value": 100000}
-          ],
-        "maximum_range_time":
-          [
-            {"profiles": "any", "value": 18000},
-            {"profiles": "driving-car, driving-hgv", "value": 3600}
-          ],
+        "maximum_range_distance": [
+          {
+            "profiles": "any",
+            "value": 50000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 100000
+          }
+        ],
+        "maximum_range_time": [
+          {
+            "profiles": "any",
+            "value": 18000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 3600
+          }
+        ],
         "fastisochrones": {
           "maximum_range_distance": [
-            {"profiles": "any", "value": 50000 },
-            {"profiles": "driving-car, driving-hgv", "value": 500000 }
+            {
+              "profiles": "any",
+              "value": 50000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 500000
+            }
           ],
           "maximum_range_time": [
-            {"profiles": "any", "value": 18000 },
-            {"profiles": "driving-car, driving-hgv", "value": 10800 }
+            {
+              "profiles": "any",
+              "value": 18000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 10800
+            }
           ],
           "profiles": {
             "default_params": {
@@ -53,20 +75,32 @@
         "maximum_intervals": 10,
         "maximum_locations": 2,
         "allow_compute_area": true
-        },
+      },
       "routing": {
         "enabled": true,
         "mode": "normal",
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
-        "sources": ["openrouteservice-api-tests/data/heidelberg.osm.gz"],
+        "sources": [
+          "openrouteservice-api-tests/data/heidelberg.osm.gz"
+        ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         "distance_approximation": true,
         "routing_name": "ORSRouting",
         "elevation_preprocessed": false,
         "profiles": {
-          "active": ["vehicles-car", "vehicles-hgv", "bike", "bike-mtb", "bike-road", "bike-e", "pedestrian-walk", "pedestrian-hike", "wheelchair"],
+          "active": [
+            "vehicles-car",
+            "vehicles-hgv",
+            "bike",
+            "bike-mtb",
+            "bike-road",
+            "bike-e",
+            "pedestrian-walk",
+            "pedestrian-hike",
+            "wheelchair"
+          ],
           "default_params": {
             "encoder_flags_size": 4,
             "graphs_root_path": "graphs",
@@ -82,93 +116,76 @@
             "maximum_snapping_radius": 350,
             "maximum_avoid_polygon_area": 200000000,
             "maximum_avoid_polygon_extent": 20000,
-            "preparation":
-              {
-                "min_network_size": 200,
-                "min_one_way_network_size": 200,
-
-                "methods":
-                  {
-                    "lm":
-                      {
-                        "enabled": true,
-                        "threads": 1,
-                        "weightings": "recommended,shortest",
-                        "landmarks": 16
-                      }
-                  }
-              },
-            "execution":
-              {
-                "methods":
-                  {
-                    "lm":
-                      {
-                        "disabling_allowed": true,
-                        "active_landmarks": 8
-                      }
-                  }
+            "preparation": {
+              "min_network_size": 200,
+              "min_one_way_network_size": 200,
+              "methods": {
+                "lm": {
+                  "enabled": true,
+                  "threads": 1,
+                  "weightings": "recommended,shortest",
+                  "landmarks": 16
+                }
               }
+            },
+            "execution": {
+              "methods": {
+                "lm": {
+                  "disabling_allowed": true,
+                  "active_landmarks": 8
+                }
+              }
+            }
           },
-
           "profile-vehicles-car": {
             "profiles": "driving-car",
             "parameters": {
               "encoder_options": "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
               "maximum_distance": 100000,
               "elevation": true,
-              "preparation":
-                {
-                  "min_network_size": 200,
-                  "min_one_way_network_size": 200,
-
-                  "methods":
-                    {
-                      "ch":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "fastest"
-                        },
-                      "lm":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "fastest",
-                          "landmarks": 16
-                        },
-                      "core":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "fastest,shortest",
-                          "landmarks": 32
-                        }
-                    }
-                },
-              "execution":
-                {
-                  "methods":
-                    {
-                      "ch":
-                        {
-                          "disabling_allowed": true
-                        },
-                      "lm":
-                        {
-                          "disabling_allowed": true,
-                          "active_landmarks": 8
-                        },
-                      "core":
-                        {
-                          "disabling_allowed": true,
-                          "active_landmarks": 6
-                        }
-                    }
-                },
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "ch": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest"
+                  },
+                  "lm": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest",
+                    "landmarks": 16
+                  },
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "ch": {
+                    "disabling_allowed": true
+                  },
+                  "lm": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 8
+                  },
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
               "ext_storages": {
                 "WayCategory": {},
-                "HeavyVehicle": {"restrictions": true},
+                "HeavyVehicle": {
+                  "restrictions": true
+                },
                 "WaySurfaceType": {},
                 "Tollways": {},
                 "Borders": {
@@ -190,58 +207,49 @@
               "maximum_distance": 100000,
               "elevation": true,
               "maximum_speed_lower_bound": 75,
-              "preparation":
-                {
-                  "min_network_size": 200,
-                  "min_one_way_network_size": 200,
-
-                  "methods":
-                    {
-                      "ch":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "recommended"
-                        },
-                      "lm":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "recommended",
-                          "landmarks": 16
-                        },
-                      "core":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "recommended,shortest",
-                          "landmarks": 32
-                        }
-                    }
-                },
-              "execution":
-                {
-                  "methods":
-                    {
-                      "ch":
-                        {
-                          "disabling_allowed": true
-                        },
-                      "lm":
-                        {
-                          "disabling_allowed": true,
-                          "active_landmarks": 8
-                        },
-                      "core":
-                        {
-                          "disabling_allowed": true,
-                          "active_landmarks": 6
-                        }
-                    }
-                },
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "ch": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended"
+                  },
+                  "lm": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended",
+                    "landmarks": 16
+                  },
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "ch": {
+                    "disabling_allowed": true
+                  },
+                  "lm": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 8
+                  },
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
               "ext_storages": {
                 "WayCategory": {},
-                "HeavyVehicle": {"restrictions": true},
+                "HeavyVehicle": {
+                  "restrictions": true
+                },
                 "WaySurfaceType": {},
                 "Tollways": {},
                 "Borders": {
@@ -253,38 +261,31 @@
               "traffic": false
             }
           },
-
           "profile-bike": {
             "profiles": "cycling-regular",
             "parameters": {
               "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
               "elevation": true,
-              "preparation":
-                {
-                  "min_network_size": 200,
-                  "min_one_way_network_size": 200,
-                  "methods":
-                    {
-                      "core":
-                        {
-                          "enabled": true,
-                          "threads": 1,
-                          "weightings": "recommended,shortest",
-                          "landmarks": 32
-                        }
-                    }
-                },
-              "execution":
-                {
-                  "methods":
-                    {
-                      "core":
-                        {
-                          "disabling_allowed": true,
-                          "active_landmarks": 6
-                        }
-                    }
-                },
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -333,7 +334,6 @@
               }
             }
           },
-
           "profile-pedestrian-walk": {
             "profiles": "foot-walking",
             "parameters": {
@@ -374,7 +374,6 @@
               }
             }
           },
-
           "profile-wheelchair": {
             "profiles": "wheelchair",
             "parameters": {
@@ -402,42 +401,42 @@
     },
     "kafka_test_cluster": true,
     "kafka_consumer": [
-        {
-            "cluster": "127.0.0.1:9092",
-            "topic": "test-topic",
-            "profile": "test"
-        }
+      {
+        "cluster": "127.0.0.1:9092",
+        "topic": "test-topic",
+        "profile": "test"
+      }
     ],
     "system_message": [
-        {
-            "active": true,
-            "text": "This message would be sent with every routing bike fastest request",
-            "condition": {
-                "request_service": "routing",
-                "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-                "request_preference": "fastest"
-            }
-        },
-        {
-            "active": true,
-            "text": "This message would be sent with every request for geojson response",
-            "condition": {
-                "api_format": "geojson"
-            }
-        },
-        {
-            "active": true,
-            "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-            "condition": {
-                "api_version": 1,
-                "time_after": "2020-01-01T00:00:00Z",
-                "time_before": "2050-06-01T00:00:00Z"
-            }
-        },
-        {
-            "active": true,
-            "text": "This message would be sent with every request"
+      {
+        "active": true,
+        "text": "This message would be sent with every routing bike fastest request",
+        "condition": {
+          "request_service": "routing",
+          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+          "request_preference": "fastest"
         }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request for geojson response",
+        "condition": {
+          "api_format": "geojson"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
+        "condition": {
+          "api_version": 1,
+          "time_after": "2020-01-01T00:00:00Z",
+          "time_before": "2050-06-01T00:00:00Z"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request"
+      }
     ]
   }
 }
