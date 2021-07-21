@@ -27,6 +27,16 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
 		updateWeights();
 	}
+	public MinimumWeightMultiTreeSPEntry(int adjNode, int edgeId, int originalEdgeId, double edgeWeight, boolean updated, MinimumWeightMultiTreeSPEntry parent, int numTrees) {
+		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
+		updateWeights();
+	}
+
+	public void setSubItemOriginalEdgeIds(int newOriginalEdgeId) {
+		for (MultiTreeSPEntryItem item : items) {
+			item.setOriginalEdge(newOriginalEdgeId);
+		}
+	}
 
 	@Override
 	public void updateWeights() {

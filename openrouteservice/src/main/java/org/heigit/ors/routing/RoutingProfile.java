@@ -73,6 +73,8 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
+
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
  * <p>
@@ -628,7 +630,7 @@ public class RoutingProfile {
             HintsMap hintsMap = new HintsMap();
             //TODO Graph choice depending on algorithm
 
-            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
+            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.SHORTEST : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
@@ -648,7 +650,8 @@ public class RoutingProfile {
             //TODO edgeFIlter, additionaledgefilter
 //            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), encoder, getGraphHopperStorage());
 
-            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), 0);
+            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), INFINITE_U_TURN_COSTS);
+            ((TurnWeighting)turnWeighting).setInORS(true);
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
 
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());

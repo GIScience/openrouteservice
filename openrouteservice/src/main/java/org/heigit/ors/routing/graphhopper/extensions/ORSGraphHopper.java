@@ -373,7 +373,9 @@ public class ORSGraphHopper extends GraphHopper {
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 					((TurnWeighting)weighting).setInORS(true);
-
+				//TODO debug only
+				if(hints.getBool("core.disable", false))
+					algoStr = "dijkstrabi";
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
 
