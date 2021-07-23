@@ -15,6 +15,9 @@ package org.heigit.ors.matrix.algorithms.core;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.ObjectHashSet;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
@@ -141,6 +144,9 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             runPhaseOutsideCore(srcData);
 
             this.additionalCoreEdgeFilter.setInCore(true);
+            ObjectHashSet<MinimumWeightMultiTreeSPEntry> reachedNodes = new ObjectHashSet(bestWeightMap.size());
+            for (IntObjectCursor<MinimumWeightMultiTreeSPEntry> reachedNode : bestWeightMap)
+                reachedNodes.add(reachedNode.value);
             PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = runPhaseInsideCore();
 
             this.additionalCoreEdgeFilter.setInCore(false);
@@ -151,48 +157,58 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 downwardQueue = createDownwardQueueFromHighestNode();
 
             addNodesToQueue(srcData, downwardQueue);
+            //TODO check whether it is necessary to add the bestweightmap nodes to the queue
+            for(ObjectCursor<MinimumWeightMultiTreeSPEntry> entry : reachedNodes)
+                downwardQueue.add(entry.value);
 
             for (MultiTreeSPEntry entry : downwardQueue)
                 entry.resetUpdate(true);
 
             runDownwardSearch(downwardQueue);
-//            int nodeToInspect = 12493;
-//            int nodeToGoTo = 12494;
-//            MinimumWeightMultiTreeSPEntry goalNode = bestWeightMap.get(nodeToInspect);
-//            MinimumWeightMultiTreeSPEntry node12495 = bestWeightMap.get(12495);
+            boolean outputNodeData = false;
+            if(outputNodeData) {
+                try {
+                    int nodeToInspect = dstData.getNodeId(0);
+                    int nodeToGoTo = srcData.getNodeId(0);
+                    MinimumWeightMultiTreeSPEntry goalNode = bestWeightMap.get(nodeToInspect);
+                    MinimumWeightMultiTreeSPEntry node12495 = bestWeightMap.get(12495);
 //            System.out.println("DST 12494 after PHASE 3: " + bestWeightMap.get(12494));
 //            System.out.println("DST 12495 after PHASE 3: " + bestWeightMap.get(12495));
-//            if(goalNode != null) {
-//                MultiTreeSPEntryItem item = goalNode.getItem(0);
-//                int node = goalNode.getAdjNode();
-//                while (node != nodeToGoTo) {
-//                    System.out.print("[");
-//                    System.out.print(this.graph.getNodeAccess().getLon(node));
-//                    System.out.print(",");
-//                    System.out.print(this.graph.getNodeAccess().getLat(node));
-//                    System.out.print("],");
-//                    System.out.println();
-//                    node = item.getParent().getAdjNode();
-//                    item = item.getParent().getItem(0);
-////                    System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
-//                }
-//                System.out.print("[");
-//                System.out.print(this.graph.getNodeAccess().getLon(node));
-//                System.out.print(",");
-//                System.out.print(this.graph.getNodeAccess().getLat(node));
-//                System.out.print("],");
-//                System.out.println();
-//            }
-//            if(goalNode != null) {
-//                MultiTreeSPEntryItem item = goalNode.getItem(0);
-//                int node = goalNode.getAdjNode();
-//                System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
-//                while (node != nodeToGoTo) {
-//                    node = item.getParent().getAdjNode();
-//                    item = item.getParent().getItem(0);
+
+                    if (goalNode != null) {
+                        MultiTreeSPEntryItem item = goalNode.getItem(0);
+                        int node = goalNode.getAdjNode();
+                        while (node != nodeToGoTo) {
+                            System.out.print("[");
+                            System.out.print(this.graph.getNodeAccess().getLon(node));
+                            System.out.print(",");
+                            System.out.print(this.graph.getNodeAccess().getLat(node));
+                            System.out.print("],");
+                            System.out.println();
+                            node = item.getParent().getAdjNode();
+                            item = item.getParent().getItem(0);
 //                    System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
-//                }
-//            }
+                        }
+                        System.out.print("[");
+                        System.out.print(this.graph.getNodeAccess().getLon(node));
+                        System.out.print(",");
+                        System.out.print(this.graph.getNodeAccess().getLat(node));
+                        System.out.print("],");
+                        System.out.println();
+                    }
+                    if (goalNode != null) {
+                        MultiTreeSPEntryItem item = goalNode.getItem(0);
+                        int node = goalNode.getAdjNode();
+                        System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
+                        while (node != nodeToGoTo) {
+                            node = item.getParent().getAdjNode();
+                            item = item.getParent().getItem(0);
+                            System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
             extractMetrics(srcData, dstData, times, distances, weights);
         }
 
