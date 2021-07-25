@@ -15,20 +15,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package com.graphhopper.util.shapes;
 
-package com.graphhopper.jackson;
+import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.graphhopper.util.PMap;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @see GHRequestMixIn
+ * @author Peter Karich
  */
-public interface ProfileMixIn {
-    @JsonAnySetter
-    void putHint(String key, Object value);
-
-    @JsonIgnore
-    PMap getHints();
+public class GHPointTest {
+    @Test
+    public void testIsValid() {
+        GHPoint instance = new GHPoint();
+        assertFalse(instance.isValid());
+        instance.lat = 1;
+        assertFalse(instance.isValid());
+        instance.lon = 1;
+        assertTrue(instance.isValid());
+    }
 }

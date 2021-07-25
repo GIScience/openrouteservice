@@ -15,12 +15,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package com.graphhopper.util.exceptions;
 
-package com.graphhopper.jackson;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public interface LMProfileMixIn {
-    @JsonProperty("maximum_lm_weight")
-    void setMaximumLMWeight(double maximumLMWeight);
+/**
+ * If a route cannot be found due to disconnected graphs.
+ *
+ * @author Peter Karich
+ */
+public class PointDistanceExceededException extends DetailedIllegalArgumentException {
+    public PointDistanceExceededException(String var1, Map<String, Object> details) {
+        super(var1, details);
+    }
 }

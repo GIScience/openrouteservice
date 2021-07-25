@@ -15,23 +15,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.jackson;
-
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graphhopper.GHRequest;
-
-import java.util.List;
+package com.graphhopper;
 
 /**
- * With this approach we avoid the jackson annotations dependency in core
+ * Wrapper of the graphhopper online or offline API. Provides read only access.
+ * <p>
+ *
+ * @author Peter Karich
  */
-interface GHRequestMixIn {
+public interface GraphHopperAPI {
 
-    // a good trick to serialize unknown properties into the HintsMap
-    @JsonAnySetter
-    void putHint(String fieldName, Object value);
-
-    @JsonProperty("details")
-    GHRequest setPathDetails(List<String> pathDetails);
+    /**
+     * Calculates the path from specified request visiting the specified locations.
+     * <p>
+     *
+     * @return the response with the route and possible errors
+     */
+    GHResponse route(GHRequest request);
 }
