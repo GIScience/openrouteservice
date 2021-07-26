@@ -43,6 +43,7 @@ RELEASING:
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
 - Formatting of tag filtering
+- test config format and filetype to JSON
 ### Fixed
 - Errors in travel speed explanation
 
