@@ -37,7 +37,7 @@ public class AppConfig {
 
     public AppConfig() {
         try {
-            String appConfigPath = "./conf/app.config.test";
+            String appConfigPath = "./conf/ors-config-test.json";
             File file = new File(appConfigPath);
             _config = ConfigFactory.parseFile(file);
         } catch (Exception ioe) {

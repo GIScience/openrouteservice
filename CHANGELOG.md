@@ -43,16 +43,17 @@ RELEASING:
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
 - Formatting of tag filtering
+- test config format and filetype to JSON
 ### Removed
 - old v1 API code and related classes
 ### Fixed
-- References to old documentation now point to rendered version of new docs
 - Errors in travel speed explanation
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
+- References to old documentation now point to rendered version of new docs
 
 ## [6.6.0] - 2021-06-08
 ### Added
