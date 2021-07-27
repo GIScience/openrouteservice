@@ -72,7 +72,7 @@ the mountain bike profile, [RoadBikeFlagEncoder][ebfe] for the road bike, and
 
 Note that each bike profile has a different value set for the maximum
 downhill speed which is calculated when `consider_elevation=true` is set in the
-app.config. Currently, this option is turned off for openrouteservice live
+ors-config.json. Currently, this option is turned off for openrouteservice live
 servers as it can lead to undesirable routes.
 
 ### Walking profiles

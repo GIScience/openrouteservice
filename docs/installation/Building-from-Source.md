@@ -25,10 +25,10 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
   2. Make sure that you have java 1.11 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
-  5. Copy the `openrouteservice/src/main/resources/app.config.sample` file to
-     the same location but renaming it to `app.config`.  For testing, use the
+  5. Copy the `openrouteservice/src/main/resources/ors-config-sample.json` file to
+     the same location but renaming it to `ors-config.json`.  For testing, use the
      `openrouteservice-api-tests/conf/ors-config-test.json`-file.
-  6. Update the `app.config` file to reflect the various settings, profiles you
+  6. Update the `ors-config.json` file to reflect the various settings, profiles you
      want to have running, and the locations of various files, in particular
      the source location of the OSM file that will be used and additional files
      required for extended storages. You should make sure that these folders/files
@@ -53,7 +53,7 @@ To run the project from within your IDE, you have to:
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
   2. Configure your IDE to run `tomcat7:run-war` as the maven goal, setting the
-     environment variable `ORS_APP_CONIFG=ors-config-test.json`.
+     environment variable `ORS_CONIFG=ors-config-test.json`.
 
   3. You can run API tests via JUnit.
 
