@@ -34,7 +34,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
      required for extended storages. You should make sure that these folders/files
      are accessible by the service, for example by using the `sudo chmod -R 777
      [path to folder]` command.
-     An explanation of the file format and parameters can be found [here](Configuration-%28app.config%29)
+     An explanation of the file format and parameters can be found [here](Configuration)
   7. From within the `openrouteservice` folder (containing the pom file and the
      src folder, amongst others) run the command `mvn package`. This will build
      the openrouteservice ready for tomcat deployment.
@@ -101,9 +101,9 @@ To run the project from within your IDE, you have to:
      have installed Tomcat differently than above). If you get a `status: ready`
      message, you are good to go in creating routes.
 
-There are numerous settings within the `app.config` which are highly dependent
-on your individual circumstances, but many of these [are documented](Configuration-%28app.config%29). As a guide
-however you can look at the `app.config.sample` file in the
+There are numerous settings within the `ors-config.json` which are highly dependent
+on your individual circumstances, but many of these [are documented](Configuration). As a guide
+however you can look at the `ors-config-sample.json` file in the
 `openrouteservice/src/main/resources` folder. If you run into issues relating
 to out of memory or similar, then you will need to adjust java/tomcat settings
 accordingly.
