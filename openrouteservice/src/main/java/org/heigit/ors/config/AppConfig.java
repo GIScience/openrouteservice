@@ -17,6 +17,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
@@ -44,6 +45,15 @@ public class AppConfig {
 	}
 
 	public AppConfig() {
+		// root Logger is not configured properly at this point as AppConfig gets called the first time to read the
+		// path for the Logging configuration file.
+		// Adjusting level to INFO and reset after LOGGER usage
+		// TODO: adjust the log pattern to default spring pattern.
+		//  did not work so far. It was not possible to load the default configuration from DEFAULT_LOGGING.json, add an
+		//  Appender, or change the layout of the current default sysOut appender of the root Logger.
+		Level entryLogLevel = LOGGER.getLevel();
+		LOGGER.setLevel(Level.INFO);
+
 		try {
 			File file;
 			if (System.getProperty("ors_app_config") != null) {
@@ -73,6 +83,8 @@ public class AppConfig {
 				LOGGER.error(e);
 			}
 		}
+
+		LOGGER.setLevel(entryLogLevel);
 	}
 
 	public static AppConfig getGlobal() {
