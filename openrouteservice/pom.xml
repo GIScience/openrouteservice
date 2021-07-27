@@ -81,6 +81,7 @@
                     <include>resources/services/routing/speed_limits/*.*</include>
                     <include>META-INF/services/*.*</include>
                     <include>app.config*</include>
+                    <include>ors-config*.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
