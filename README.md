@@ -40,7 +40,7 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 We recommend using Docker to install and launch the openrouteservice backend: 
 
 ```bash
-cd docker && docker-compose up
+cd docker && mkdir -p conf elevation_cache graphs logs/ors logs/tomcat && docker-compose up
 ```
 
 For more details, check the [docker installation guide](https://GIScience.github.io/openrouteservice/installation/Running-with-Docker.html).

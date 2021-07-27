@@ -15,7 +15,9 @@ Use Dockerhub's hosted Openrouteservice image or build your own image
 - either with `docker run`
 
 ```bash
-docker run -dt \
+# create directories for volumes to mount as local user
+mkdir -p conf elevation_cache graphs logs/ors logs/tomcat
+docker run -dt -u "${UID}:${GID}" \
   --name ors-app \
   -p 8080:8080 \
   -v $PWD/graphs:/ors-core/data/graphs \
@@ -31,7 +33,18 @@ docker run -dt \
 
 ```bash
 cd docker
+# create directories for volumes to mount as local user
+mkdir -p conf elevation_cache graphs logs/ors logs/tomcat
 docker-compose up -d
+```
+
+If you need to change the UID the ors is running with, you can use these variables:
+```bash
+# set it explicitly to 1001
+ORS_UID=1001 ORS_GID=1001 docker-compose up -d
+
+# or set it to the current user
+ORS_UID=${UID} ORS_GID=${GID} docker-compose up -d
 ```
 
 This will:
