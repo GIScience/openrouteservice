@@ -34,8 +34,24 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+### Changed
+- Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
+- Formatting of tag filtering
+- test config format and filetype to JSON
+### Fixed
+- Errors in travel speed explanation
+
+## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
+- Initialize edge centrality scores only for edges fully within bbox
+- References to old documentation now point to rendered version of new docs
 
 ## [6.6.0] - 2021-06-08
 ### Added
@@ -454,7 +470,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
+[6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3

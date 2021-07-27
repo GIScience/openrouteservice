@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.6.0</version>
+    <version>6.6.1</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -89,7 +89,7 @@
             <testResource>
                 <directory>../openrouteservice-api-tests/conf</directory>
                 <includes>
-                    <include>app.config.test</include>
+                    <include>ors-config-test.json</include>
                 </includes>
                 <filtering>true</filtering>
             </testResource>

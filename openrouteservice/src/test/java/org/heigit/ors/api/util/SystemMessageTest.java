@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class SystemMessageTest {
     @Test
     public void testGetSystemMessage() throws ParameterValueException {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_app_config", "target/test-classes/ors-config-test.json");
 
         RoutingRequest v1RouteRequest = new RoutingRequest();
         Assert.assertEquals("This message would be sent with every request on API v1 from January 2020 until June 2050", SystemMessage.getSystemMessage(v1RouteRequest));
