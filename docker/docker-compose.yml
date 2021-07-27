@@ -9,7 +9,7 @@ services:
 #    build:
 #      context: ../
 #      args:
-#        APP_CONFIG: ./openrouteservice/src/main/resources/app.config.sample
+#        ORS_CONFIG: ./openrouteservice/src/main/resources/ors-config-sample.json
 #        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
     user: "${ORS_UID:-0}:${ORS_GID:-0}"
     volumes:
