@@ -47,6 +47,7 @@ RELEASING:
     1. File in class path `ors-config.json` > `app.config`
     1. Error if none of the above is specified.
 ### Changed
+- Update tomcat version used by docker setup ([#1022](https://github.com/GIScience/openrouteservice/pull/1022))
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
 - Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
