@@ -25,16 +25,16 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
   2. Make sure that you have java 1.11 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
-  5. Copy the `openrouteservice/src/main/resources/app.config.sample` file to
-     the same location but renaming it to `app.config`.  For testing, use the
+  5. Copy the `openrouteservice/src/main/resources/ors-config-sample.json` file to
+     the same location but renaming it to `ors-config.json`.  For testing, use the
      `openrouteservice-api-tests/conf/ors-config-test.json`-file.
-  6. Update the `app.config` file to reflect the various settings, profiles you
+  6. Update the `ors-config.json` file to reflect the various settings, profiles you
      want to have running, and the locations of various files, in particular
      the source location of the OSM file that will be used and additional files
      required for extended storages. You should make sure that these folders/files
      are accessible by the service, for example by using the `sudo chmod -R 777
      [path to folder]` command.
-     An explanation of the file format and parameters can be found [here](Configuration-%28app.config%29)
+     An explanation of the file format and parameters can be found [here](Configuration)
   7. From within the `openrouteservice` folder (containing the pom file and the
      src folder, amongst others) run the command `mvn package`. This will build
      the openrouteservice ready for tomcat deployment.
@@ -53,7 +53,7 @@ To run the project from within your IDE, you have to:
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
   2. Configure your IDE to run `tomcat7:run-war` as the maven goal, setting the
-     environment variable `ORS_APP_CONIFG=ors-config-test.json`.
+     environment variable `ORS_CONIFG=ors-config-test.json`.
 
   3. You can run API tests via JUnit.
 
@@ -101,9 +101,9 @@ To run the project from within your IDE, you have to:
      have installed Tomcat differently than above). If you get a `status: ready`
      message, you are good to go in creating routes.
 
-There are numerous settings within the `app.config` which are highly dependent
-on your individual circumstances, but many of these [are documented](Configuration-%28app.config%29). As a guide
-however you can look at the `app.config.sample` file in the
+There are numerous settings within the `ors-config.json` which are highly dependent
+on your individual circumstances, but many of these [are documented](Configuration). As a guide
+however you can look at the `ors-config-sample.json` file in the
 `openrouteservice/src/main/resources` folder. If you run into issues relating
 to out of memory or similar, then you will need to adjust java/tomcat settings
 accordingly.

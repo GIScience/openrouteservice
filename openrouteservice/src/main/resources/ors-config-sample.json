@@ -19,21 +19,45 @@
       "isochrones": {
         "enabled": true,
         "maximum_range_distance": [
-          { "profiles": "any", "value": 50000 },
-          { "profiles": "driving-car, driving-hgv", "value": 100000 }
+          {
+            "profiles": "any",
+            "value": 50000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 100000
+          }
         ],
         "maximum_range_time": [
-          { "profiles": "any", "value": 18000 },
-          { "profiles": "driving-car, driving-hgv", "value": 3600 }
+          {
+            "profiles": "any",
+            "value": 18000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 3600
+          }
         ],
         "fastisochrones": {
           "maximum_range_distance": [
-            { "profiles": "any", "value": 50000 },
-            { "profiles": "driving-car, driving-hgv", "value": 500000 }
+            {
+              "profiles": "any",
+              "value": 50000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 500000
+            }
           ],
           "maximum_range_time": [
-            { "profiles": "any", "value": 18000 },
-            { "profiles": "driving-car, driving-hgv", "value": 10800 }
+            {
+              "profiles": "any",
+              "value": 18000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 10800
+            }
           ],
           "profiles": {
             "default_params": {
@@ -59,7 +83,9 @@
         "mode": "normal",
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
-        "sources": ["openrouteservice/src/main/files/heidelberg.osm.gz"],
+        "sources": [
+          "openrouteservice/src/main/files/heidelberg.osm.gz"
+        ],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
         "elevation_preprocessed": false,
@@ -96,7 +122,6 @@
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,
-
               "methods": {
                 "lm": {
                   "enabled": true,
@@ -126,7 +151,6 @@
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
-
                 "methods": {
                   "ch": {
                     "enabled": true,
@@ -140,11 +164,11 @@
                     "landmarks": 16
                   },
                   "core": {
-                      "enabled": true,
-                      "threads": 1,
-                      "weightings": "fastest,shortest",
-                      "landmarks": 64,
-                      "lmsets": "highways;allow_all"
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest,shortest",
+                    "landmarks": 64,
+                    "lmsets": "highways;allow_all"
                   }
                 }
               },
@@ -183,7 +207,6 @@
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
-
                 "methods": {
                   "ch": {
                     "enabled": true,
@@ -208,7 +231,6 @@
                     "disabling_allowed": true,
                     "active_landmarks": 6
                   }
-
                 }
               },
               "ext_storages": {
@@ -298,7 +320,6 @@
               }
             }
           },
-
           "profile-wheelchair": {
             "profiles": "wheelchair",
             "parameters": {
@@ -325,35 +346,35 @@
       "stdout": true
     },
     "system_message": [
-        {
-            "active": false,
-            "text": "This message would be sent with every routing bike fastest request",
-            "condition": {
-                "request_service": "routing",
-                "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-                "request_preference": "fastest"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request for geojson response",
-            "condition": {
-                "api_format": "geojson"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-            "condition": {
-                "api_version": 1,
-                "time_after": "2020-01-01T00:00:00Z",
-                "time_before": "2050-06-01T00:00:00Z"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request"
+      {
+        "active": false,
+        "text": "This message would be sent with every routing bike fastest request",
+        "condition": {
+          "request_service": "routing",
+          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+          "request_preference": "fastest"
         }
+      },
+      {
+        "active": false,
+        "text": "This message would be sent with every request for geojson response",
+        "condition": {
+          "api_format": "geojson"
+        }
+      },
+      {
+        "active": false,
+        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
+        "condition": {
+          "api_version": 1,
+          "time_after": "2020-01-01T00:00:00Z",
+          "time_before": "2050-06-01T00:00:00Z"
+        }
+      },
+      {
+        "active": false,
+        "text": "This message would be sent with every request"
+      }
     ]
   }
 }

@@ -21,7 +21,7 @@ public class LoggingConfigFactory extends ConfigurationFactory{
     protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 
     public Configuration getConfiguration(LoggerContext context, ConfigurationSource source) {
-        // We need to read the settings from the app.config if it is available
+        // We need to read the settings from the ors-config.json if it is available
         if (LoggingSettings.getEnabled()) {
             String settingsFileName = LoggingSettings.getLevelFile();
 
