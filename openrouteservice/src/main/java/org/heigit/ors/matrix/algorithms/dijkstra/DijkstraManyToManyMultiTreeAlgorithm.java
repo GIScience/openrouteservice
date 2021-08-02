@@ -253,9 +253,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             // Modification by Maxim Rylov: Assign the original edge id.
             // TODO original edge
             entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-            if(entry.getAdjNode() == 8270) {
-                int x = 0;
-            }
             entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
             iterateMultiTree(iter, entry);
 //            if(targets.contains(iter.getAdjNode())) {
@@ -265,9 +262,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             prioQueue.add(entry);
 
         } else {
-            if(entry.getAdjNode() == 8270) {
-                int x = 0;
-            }
             boolean addToQueue = iterateMultiTree(iter, entry);
             if (addToQueue) {
                 prioQueue.remove(entry);
@@ -315,14 +309,16 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         boolean addToQueue = false;
 
         for (int i = 0; i < treeEntrySize; ++i) {
-            MultiTreeSPEntryItem msptItem = currEdge.getItem(i);
-            double entryWeight = msptItem.getWeight();
+            MultiTreeSPEntryItem currEdgeItem = this.currEdge.getItem(i);
+            double entryWeight = currEdgeItem.getWeight();
 
             if (entryWeight == Double.POSITIVE_INFINITY)// || !msptItem.isUpdate())
                 continue;
 
             MultiTreeSPEntryItem msptSubItem = entry.getItem(i);
-            double edgeWeight = weighting.calcWeight(iter, false, msptItem.getOriginalEdge());
+            if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
+                turnWeighting.setInORS(false);
+            double edgeWeight = weighting.calcWeight(iter, false, currEdgeItem.getOriginalEdge());
 
             double tmpWeight = edgeWeight + entryWeight;
 
@@ -331,7 +327,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 //TODO check whether these are the correct edges. Think they are
                 msptSubItem.setEdge(iter.getEdge());
                 msptSubItem.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                msptSubItem.setParent(currEdge);
+                msptSubItem.setParent(this.currEdge);
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
 //                if(targets.contains(entry.getAdjNode())) {
@@ -395,8 +391,21 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         return false;
     }
 
+    /**
+     * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
+     * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
+     * because the same edge id left and right of a virtual node results in a u turn
+     * @param iter
+     * @param currEdge
+     * @return
+     */
     private boolean isInORS(EdgeIteratorState iter, MinimumWeightMultiTreeSPEntry currEdge) {
         if(currEdge.getEdge() != iter.getEdge() && currEdge.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
+            return false;
+        return true;
+    }
+    private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
+        if(currEdgeItem.getEdge() != iter.getEdge() && currEdgeItem.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
             return false;
         return true;
     }

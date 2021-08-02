@@ -513,28 +513,32 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 turnWeighting.setInORS(false);
 
             double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
-            if (!Double.isInfinite(edgeWeight)) {
-                updateHighestNode(iter.getAdjNode());
+//            if (!Double.isInfinite(edgeWeight)) {
                 MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
                 if (entry == null) {
-                    entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), edgeWeight, true, currEdge, currEdge.getSize());
-                    entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                    entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                    bestWeightMap.put(iter.getAdjNode(), entry);
-                    prioQueue.add(entry);
-                    updateTarget(entry);
+                    if (!Double.isInfinite(edgeWeight)) {
+                        updateHighestNode(iter.getAdjNode());
+
+                        entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), edgeWeight, true, currEdge, currEdge.getSize());
+                        entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                        entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                        bestWeightMap.put(iter.getAdjNode(), entry);
+                        prioQueue.add(entry);
+                        updateTarget(entry);
+                    }
                 } else {
                     boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
 
                     if (addToQueue) {
+                        updateHighestNode(iter.getAdjNode());
                         prioQueue.remove(entry);
                         entry.updateWeights();
                         prioQueue.add(entry);
                         updateTarget(entry);
                     }
                 }
-            }
+//            }
             if(hasTurnWeighting)
                 turnWeighting.setInORS(true);
         }
@@ -665,16 +669,23 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private boolean iterateMultiTree(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, boolean upward, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
         boolean addToQueue = false;
         for (int i = 0; i < treeEntrySize; ++i) {
-            MultiTreeSPEntryItem msptItem = currEdge.getItem(i);
-            double entryWeight = msptItem.getWeight();
+            MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(i);
+            double entryWeight = currEdgeItem.getWeight();
 
-            if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !msptItem.isUpdate()))
+            if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !currEdgeItem.isUpdate()))
                 continue;
             double edgeWeight;
-            if(!upward)
-                edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), false, msptItem.getOriginalEdge());
-            else
-                edgeWeight = weighting.calcWeight(iter, false, msptItem.getOriginalEdge());
+
+            if(!upward) {
+                if(hasTurnWeighting && !isInORS(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem))
+                    turnWeighting.setInORS(false);
+                edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), false, currEdgeItem.getOriginalEdge());
+            }
+            else {
+                if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
+                    turnWeighting.setInORS(false);
+                edgeWeight = weighting.calcWeight(iter, false, currEdgeItem.getOriginalEdge());
+            }
             double tmpWeight = edgeWeight + entryWeight;
 
             MultiTreeSPEntryItem eeItem = adjEntry.getItem(i);
@@ -686,6 +697,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
+            if(hasTurnWeighting)
+                turnWeighting.setInORS(true);
         }
 
         return addToQueue;
@@ -715,8 +728,22 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
     }
 
+    /**
+     * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
+     * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
+     * because the same edge id left and right of a virtual node results in a u turn
+     * @param iter
+     * @param currEdge
+     * @return
+     */
     private boolean isInORS(EdgeIteratorState iter, MinimumWeightMultiTreeSPEntry currEdge) {
         if(currEdge.getEdge() != iter.getEdge() && currEdge.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
+            return false;
+        return true;
+    }
+
+    private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
+        if(currEdgeItem.getEdge() != iter.getEdge() && currEdgeItem.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
             return false;
         return true;
     }
