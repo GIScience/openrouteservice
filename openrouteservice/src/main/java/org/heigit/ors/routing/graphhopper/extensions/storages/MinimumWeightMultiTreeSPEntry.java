@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
+import com.graphhopper.util.EdgeIteratorState;
+
 import java.util.Arrays;
 
 /**
@@ -37,6 +39,7 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 			item.setOriginalEdge(newOriginalEdgeId);
 		}
 	}
+
 
 	@Override
 	public void updateWeights() {

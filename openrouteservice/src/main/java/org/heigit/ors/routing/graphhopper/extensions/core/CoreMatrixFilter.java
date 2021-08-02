@@ -17,6 +17,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
+
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
  *
@@ -25,26 +26,13 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  * @author Andrzej Oles, Hendrik Leuschner
  */
-public class CoreDijkstraFilter implements EdgeFilter {
-    protected final CHGraph graph;
-    protected final int maxNodes;
-    protected final int coreNodeLevel;
-    protected EdgeFilter restrictions;
-
-    protected boolean inCore = false;
-
-    public void setInCore(boolean inCore) {
-        this.inCore = inCore;
-    }
+public class CoreMatrixFilter extends CoreDijkstraFilter {
 
     /**
-     *
      * @param graph
      */
-    public CoreDijkstraFilter(CHGraph graph) {
-        this.graph = graph;
-        maxNodes = graph.getNodes();
-        coreNodeLevel = maxNodes + 1;
+    public CoreMatrixFilter(CHGraph graph) {
+        super(graph);
     }
 
     /**
@@ -70,8 +58,8 @@ public class CoreDijkstraFilter implements EdgeFilter {
                 return graph.getLevel(base) <= graph.getLevel(adj);
         }
         else {
-            if (adj >= maxNodes)
-                return false;
+            if (base >= maxNodes || adj >= maxNodes)
+                return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
             if (((CHEdgeIteratorState) edgeIterState).isShortcut())
                 return true;
@@ -83,13 +71,5 @@ public class CoreDijkstraFilter implements EdgeFilter {
             else
                 return false;
         }
-    }
-
-    protected boolean isCoreNode(int node) {
-        return graph.getLevel(node) >= coreNodeLevel;
-    }
-
-    public void addRestrictionFilter (EdgeFilter restrictions) {
-        this.restrictions = restrictions;
     }
 }

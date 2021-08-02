@@ -33,11 +33,13 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToManyMultiTreeAlgorithm;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
@@ -63,17 +65,21 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     IntHashSet coreExitPoints;
     IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMapCore;
+    IntObjectMap<MinimumWeightMultiTreeSPEntry> targetMap;
+    IntHashSet targetSet;
     private MultiTreeMetricsExtractor pathMetricsExtractor;
     private CoreDijkstraFilter additionalCoreEdgeFilter;
     private int treeEntrySize;
     private CHGraph chGraph;
     private SubGraph targetGraph;
     private boolean hasTurnWeighting = false;
+    private TurnWeighting turnWeighting;
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
         if (weighting instanceof TurnWeighting) {
             hasTurnWeighting = true;
+            turnWeighting = (TurnWeighting) weighting;
         }
         weighting = new PreparationWeighting(weighting);
         super.init(req, gh, graph, encoder, weighting);
@@ -101,7 +107,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     }
 
     private void initFilter(EdgeFilter additionalEdgeFilter, Graph graph) {
-        CoreDijkstraFilter levelFilter = new CoreDijkstraFilter((CHGraph) graph);
+        CoreDijkstraFilter levelFilter = new CoreMatrixFilter((CHGraph) graph);
         if (additionalEdgeFilter != null)
             levelFilter.addRestrictionFilter(additionalEdgeFilter);
 
@@ -112,8 +118,10 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         upwardQueue = new PriorityQueue<>(size);
         coreEntryPoints = new IntHashSet(size);
         coreExitPoints = new IntHashSet(size);
+        targetSet = new IntHashSet(size);
         bestWeightMap = new GHIntObjectHashMap<>(size);
         bestWeightMapCore = new GHIntObjectHashMap<>(size);
+        targetMap = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -121,6 +129,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         this.treeEntrySize = srcData.size();
 
         prepareTargetGraph(dstData.getNodeIds());
+        targetSet.addAll(dstData.getNodeIds());
         MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
         float[] times = null;
         float[] distances = null;
@@ -148,6 +157,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             for (IntObjectCursor<MinimumWeightMultiTreeSPEntry> reachedNode : bestWeightMap)
                 reachedNodes.add(reachedNode.value);
             PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = runPhaseInsideCore();
+            updateTargetNodes(srcData, dstData, downwardQueue.toArray(new MinimumWeightMultiTreeSPEntry[downwardQueue.size()]));
+
 
             this.additionalCoreEdgeFilter.setInCore(false);
             targetGraphExplorer = targetGraph.createExplorer();
@@ -171,9 +182,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     int nodeToInspect = dstData.getNodeId(0);
                     int nodeToGoTo = srcData.getNodeId(0);
                     MinimumWeightMultiTreeSPEntry goalNode = bestWeightMap.get(nodeToInspect);
-                    MinimumWeightMultiTreeSPEntry node12495 = bestWeightMap.get(12495);
-//            System.out.println("DST 12494 after PHASE 3: " + bestWeightMap.get(12494));
-//            System.out.println("DST 12495 after PHASE 3: " + bestWeightMap.get(12495));
 
                     if (goalNode != null) {
                         MultiTreeSPEntryItem item = goalNode.getItem(0);
@@ -212,7 +220,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             extractMetrics(srcData, dstData, times, distances, weights);
         }
 
-//        int[] nodesToPrint = new int[]{11941, 1326, 8527, 1325, 5162};
+//        int[] nodesToPrint = new int[]{8860,3073,1023,2622,2623,2624,8600,8860,9959,3074,3066,2477,9623,2637};
 //        for(int node : nodesToPrint) {
 //                System.out.print("[");
 //                System.out.print(this.graph.getNodeAccess().getLon(node));
@@ -234,6 +242,72 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             mtxResult.setTable(MatrixMetricsType.WEIGHT, weights);
 
         return mtxResult;
+    }
+
+    private void updateTarget(MinimumWeightMultiTreeSPEntry update) {
+        int nodeId = update.getAdjNode();
+        if(targetSet.contains(nodeId)) {
+            if (!targetMap.containsKey(nodeId)) {
+                MinimumWeightMultiTreeSPEntry newTarget = new MinimumWeightMultiTreeSPEntry(nodeId, EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, true, null, update.getSize());
+                newTarget.setOriginalEdge(EdgeIterator.NO_EDGE);
+                newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
+                targetMap.put(nodeId, newTarget);
+            }
+            MinimumWeightMultiTreeSPEntry target = targetMap.get(nodeId);
+            for (int i = 0; i < treeEntrySize; ++i) {
+                MultiTreeSPEntryItem targetItem = target.getItem(i);
+                double targetWeight = targetItem.getWeight();
+
+                MultiTreeSPEntryItem msptSubItem = update.getItem(i);
+                double updateWeight = msptSubItem.getWeight();
+
+                if (targetWeight > updateWeight) {
+                    targetItem.setWeight(updateWeight);
+                    targetItem.setEdge(msptSubItem.getEdge());
+                    targetItem.setOriginalEdge(msptSubItem.getOriginalEdge());
+                    targetItem.setParent(msptSubItem.getParent());
+                    targetItem.setUpdate(true);
+                }
+            }
+        }
+    }
+
+    //TODO this might be problematic if a dst node is a core exit point and at the same time a transit node for a different source
+    //case [8.692132373141273, 49.42731846581362], [8.665652031863742, 49.42549485115359]
+    private void updateTargetNodes(MatrixLocations srcData, MatrixLocations dstData, MinimumWeightMultiTreeSPEntry[] updates) {
+        IntHashSet srcNodes = new IntHashSet();
+        srcNodes.addAll(srcData.getNodeIds());
+        IntHashSet dstNodes = new IntHashSet();
+        dstNodes.addAll(dstData.getNodeIds());
+        for (MinimumWeightMultiTreeSPEntry entry : updates) {
+            updateTarget(entry);
+//            if (coreExitPoints.contains(entry.getAdjNode())) {
+//                MinimumWeightMultiTreeSPEntry target = bestWeightMap.get(entry.getAdjNode());
+//                if(target == null){
+//                    MinimumWeightMultiTreeSPEntry newTarget = entry;//new MinimumWeightMultiTreeSPEntry(entry.getAdjNode(), EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, true, null, srcData.size());
+////                    newTarget.setOriginalEdge(EdgeIterator.NO_EDGE);
+////                    newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
+//                    bestWeightMap.put(entry.getAdjNode(), entry);
+////                    target = newTarget;
+//                }
+//                for (int i = 0; i < treeEntrySize; ++i) {
+//                    MultiTreeSPEntryItem targetItem = target.getItem(i);
+//                    double targetWeight = targetItem.getWeight();
+//
+//                    MultiTreeSPEntryItem msptSubItem = entry.getItem(i);
+//                    double updateWeight = msptSubItem.getWeight();
+//
+//                    if (targetWeight > updateWeight) {
+//                        targetItem.setWeight(updateWeight);
+//                        targetItem.setEdge(msptSubItem.getEdge());
+//                        targetItem.setOriginalEdge(msptSubItem.getOriginalEdge());
+//                        targetItem.setParent(msptSubItem.getParent());
+//                        targetItem.setUpdate(true);
+//                    }
+//                }
+//                target.updateWeights();
+//            }
+        }
     }
 
     private void addNodesToQueue(MatrixLocations srcData, PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue) {
@@ -258,7 +332,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private void extractMetrics(MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception {
         MinimumWeightMultiTreeSPEntry[] destTrees = new MinimumWeightMultiTreeSPEntry[dstData.size()];
         for (int i = 0; i < dstData.size(); i++)
-            destTrees[i] = bestWeightMap.get(dstData.getNodeIds()[i]);
+            destTrees[i] = targetMap.get(dstData.getNodeIds()[i]);
 
         MinimumWeightMultiTreeSPEntry[] originalDestTrees = new MinimumWeightMultiTreeSPEntry[dstData.size()];
 
@@ -308,6 +382,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             updateHighestNode(from[i]);
 
             bestWeightMap.put(from[i], newFrom);
+            updateTarget(newFrom);
         }
     }
 
@@ -434,6 +509,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
+            if(hasTurnWeighting && !isInORS(iter, currEdge))
+                turnWeighting.setInORS(false);
 
             double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
             if (!Double.isInfinite(edgeWeight)) {
@@ -446,16 +523,20 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
                     bestWeightMap.put(iter.getAdjNode(), entry);
                     prioQueue.add(entry);
+                    updateTarget(entry);
                 } else {
-                    boolean addToQueue = iterateMultiTree(currEdge, iter, edgeWeight, entry, false);
+                    boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
 
                     if (addToQueue) {
                         prioQueue.remove(entry);
                         entry.updateWeights();
                         prioQueue.add(entry);
+                        updateTarget(entry);
                     }
                 }
             }
+            if(hasTurnWeighting)
+                turnWeighting.setInORS(true);
         }
         //TODO check if necessary
         if(!targetGraph.containsNode(currEdge.getAdjNode())) currEdge.resetUpdate(false);
@@ -478,6 +559,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
         algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
         algorithm.setVisitedNodes(this.visitedNodes);
+        algorithm.setTurnWeighting(turnWeighting);
 
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
@@ -517,7 +599,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     }
 
     private void fillEdgesDownward(MinimumWeightMultiTreeSPEntry currEdge, PriorityQueue<MinimumWeightMultiTreeSPEntry> prioQueue,
-                                   IntObjectMap<MinimumWeightMultiTreeSPEntry> shortestWeightMap, EdgeExplorer explorer) {
+                                   IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap, EdgeExplorer explorer) {
 
         EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
 
@@ -526,49 +608,61 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
         while (iter.next()) {
 //            double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
+            //            if(currEdge.getEdge() != ((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState().getEdge() && currEdge.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState()))
+
+            if(hasTurnWeighting && !isInORS(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdge))
+                turnWeighting.setInORS(false);
             double edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), false, currEdge.getOriginalEdge());
 
             //TODO removed this check because it can lead to a scenario where a lower node that has been visited in the previous upward run cannot be reached in the
             //down pass because it is blocked behind some infinite weight
 //            if (!Double.isInfinite(edgeWeight)) {
-                MinimumWeightMultiTreeSPEntry adjEntry = shortestWeightMap.get(iter.getAdjNode());
+            MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
-                if (adjEntry == null) {
-                    if (!Double.isInfinite(edgeWeight)) {
-                        adjEntry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), edgeWeight, true, currEdge, currEdge.getSize());
-                        adjEntry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                        adjEntry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                        adjEntry.setVisited(true);
+            if (entry == null) {
+                if (!Double.isInfinite(edgeWeight)) {
+                    entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, currEdge, currEdge.getSize());
+                    entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                    entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                    entry.setVisited(true);
+                    //TODO check if this is correct. This iterates over all subitems instead of assigning a "global" one to this entry. All global properties should be removed
+                    iterateMultiTree(currEdge, iter, false, entry, false);
+                    entry.updateWeights();
 
-                        shortestWeightMap.put(iter.getAdjNode(), adjEntry);
-                        prioQueue.add(adjEntry);
-                    }
-                } else {
-                    boolean addToQueue = iterateMultiTree(currEdge, iter, edgeWeight, adjEntry, false);
-
-
-                    if (!adjEntry.isVisited()) {
-                        // This is the case if the node has been assigned a weight in
-                        // the upwards pass (fillEdges). We need to use it in the
-                        // downwards pass to access lower level nodes, though
-                        // the weight does not have to be reset necessarily
-                        adjEntry.setVisited(true);
-                        prioQueue.remove(adjEntry);
-                        adjEntry.updateWeights();
-                        prioQueue.add(adjEntry);
-                    } else
-                        if (addToQueue) {
-                        adjEntry.setVisited(true);
-                        prioQueue.remove(adjEntry);
-                        adjEntry.updateWeights();
-                        prioQueue.add(adjEntry);
-                    }
+                    bestWeightMap.put(iter.getAdjNode(), entry);
+                    prioQueue.add(entry);
+                    updateTarget(entry);
                 }
-//            }
+            } else {
+                boolean addToQueue = iterateMultiTree(currEdge, iter, false, entry, false);
+
+
+                if (!entry.isVisited()) {
+                    // This is the case if the node has been assigned a weight in
+                    // the upwards pass (fillEdges). We need to use it in the
+                    // downwards pass to access lower level nodes, though
+                    // the weight does not have to be reset necessarily
+                    entry.setVisited(true);
+                    prioQueue.remove(entry);
+                    entry.updateWeights();
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                } else
+                if (addToQueue) {
+                    entry.setVisited(true);
+                    prioQueue.remove(entry);
+                    entry.updateWeights();
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                }
+            }
+            if(hasTurnWeighting)
+                turnWeighting.setInORS(true);
+            //}
         }
     }
 
-    private boolean iterateMultiTree(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, double edgeWeight, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
+    private boolean iterateMultiTree(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, boolean upward, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
         boolean addToQueue = false;
         for (int i = 0; i < treeEntrySize; ++i) {
             MultiTreeSPEntryItem msptItem = currEdge.getItem(i);
@@ -576,8 +670,11 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
             if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !msptItem.isUpdate()))
                 continue;
-
-            edgeWeight = weighting.calcWeight(iter, false, msptItem.getOriginalEdge());
+            double edgeWeight;
+            if(!upward)
+                edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), false, msptItem.getOriginalEdge());
+            else
+                edgeWeight = weighting.calcWeight(iter, false, msptItem.getOriginalEdge());
             double tmpWeight = edgeWeight + entryWeight;
 
             MultiTreeSPEntryItem eeItem = adjEntry.getItem(i);
@@ -616,6 +713,12 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if (highestNode == -1)
                 highestNode = adjNode;
         }
+    }
+
+    private boolean isInORS(EdgeIteratorState iter, MinimumWeightMultiTreeSPEntry currEdge) {
+        if(currEdge.getEdge() != iter.getEdge() && currEdge.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
+            return false;
+        return true;
     }
 
     //TODO integrate into algorithm creation
