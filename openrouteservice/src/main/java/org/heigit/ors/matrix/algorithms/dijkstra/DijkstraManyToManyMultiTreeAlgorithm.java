@@ -16,6 +16,7 @@ package org.heigit.ors.matrix.algorithms.dijkstra;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
@@ -30,6 +31,7 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.algorithms.AbstractManyToManyRoutingAlgorithm;
+import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
@@ -42,26 +44,31 @@ import java.util.PriorityQueue;
 public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMapCore;
+    IntObjectMap<MinimumWeightMultiTreeSPEntry> targetMap;
+    IntHashSet targetSet;
     protected PriorityQueue<MinimumWeightMultiTreeSPEntry> prioQueue;
     private CHGraph chGraph;
-    private IntHashSet targets;
+    private IntHashSet coreExitPoints;
+    private IntObjectMap<Boolean> foundCoreExitPoints;
     private IntObjectMap<Boolean> foundTargets;
     protected MinimumWeightMultiTreeSPEntry currEdge;
+    private EdgeExplorer targetGraphExplorer;
     //TODO visited nodes
     private int maxVisitedNodes = Integer.MAX_VALUE;
     private int visitedNodes;
     private int treeEntrySize;
 
     private boolean hasTurnWeighting = false;
+    private int coreNodeLevel;
     private int turnRestrictedNodeLevel;
     protected boolean approximate = false;
-    private int targetsCount = 0;
     private TurnWeighting turnWeighting = null;
 
     public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
         this.chGraph = chGraph;
-        this.turnRestrictedNodeLevel = chGraph.getNodes() + 2;
+        this.coreNodeLevel = chGraph.getNodes() + 1;
+        this.turnRestrictedNodeLevel = this.coreNodeLevel + 1;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -83,15 +90,23 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     }
 
     public void prepare(int[] from, int[] to) {
-        targetsCount = to.length;
-        this.targets = new IntHashSet(targetsCount);
-        this.foundTargets = new IntObjectHashMap<>(targetsCount);
+        int targetsCount = to.length;
+        this.coreExitPoints = new IntHashSet(targetsCount);
+        this.foundCoreExitPoints = new IntObjectHashMap<>(targetsCount);
+        this.foundTargets = new IntObjectHashMap<>(targetSet.size());
 
         for (int i = 0; i < to.length; ++i)
         {
             int nodeId = to[i];
             if (nodeId >= 0) {
-                this.targets.add(nodeId);
+                this.coreExitPoints.add(nodeId);
+                this.foundCoreExitPoints.put(nodeId, false);
+            }
+        }
+        for (IntCursor entry : targetSet)
+        {
+            int nodeId = entry.value;
+            if (nodeId >= 0) {
                 this.foundTargets.put(nodeId, false);
             }
         }
@@ -106,16 +121,18 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     }
 
     private void addEntriesFromMapToQueue(int[] from){
-        for (int j : from) {
-            if ((j != -1)) {
+//        for (int j : from) {
+//            if ((j != -1)) {
                 //If two queried points are on the same node, this case can occur
-                MinimumWeightMultiTreeSPEntry existing = bestWeightMap.get(j);
-                if (existing == null) {
-                    throw new IllegalStateException("Node " + j + " was not found in existing weight map");
-                }
-                prioQueue.add(existing);
-            }
+        for (IntObjectCursor<MinimumWeightMultiTreeSPEntry> reachedNode : bestWeightMap) {
+            prioQueue.add(reachedNode.value);
         }
+//                if (existing == null) {
+//                    throw new IllegalStateException("Node " + j + " was not found in existing weight map");
+//                }
+//                prioQueue.add(existing);
+//            }
+//        }
     }
 
     public MinimumWeightMultiTreeSPEntry[] calcPaths(int[] from, int[] to) {
@@ -160,22 +177,34 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = chGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
         currEdge = prioQueue.poll();
         if(currEdge == null)
             return;
 
-        while (!(isMaxVisitedNodesExceeded() || finished())) {
-            EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
-            exploreEntry(iter);
-            if (prioQueue.isEmpty())
+        while (!(isMaxVisitedNodesExceeded())){// || finishedCore())) {
+            int currNode = currEdge.getAdjNode();
+            boolean isCoreNode = isCoreNode(currNode);
+            if(isCoreNode) {
+                EdgeIterator iter = explorer.setBaseNode(currNode);
+                exploreEntry(iter);
+            }
+            // If we find a core exit node or a node in the subgraph, explore it
+            if (coreExitPoints.contains(currNode) || !isCoreNode) {
+                EdgeIterator iter = targetGraphExplorer.setBaseNode(currNode);
+                exploreEntryDownwards(iter);
+            }
+
+            if (finishedDownwards() || prioQueue.isEmpty()) {
                 break;
+            }
 
             currEdge = prioQueue.poll();
             if (currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
             visitedNodes++;
         }
+        System.out.println("visited nodes: " + visitedNodes);
     }
 
     private void exploreEntry(EdgeIterator iter) {
@@ -185,6 +214,111 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             }
             else {
                 handleSingleEdgeCase(iter);
+            }
+        }
+    }
+
+    private void exploreEntryDownwards(EdgeIterator iter) {
+        currEdge.resetUpdate(true);
+        currEdge.setVisited(true);
+        if (iter == null)
+            return;
+
+        while (iter.next()) {
+            MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
+
+            if (entry == null) {
+                entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+//                entry.setVisited(true);
+                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry, false);
+                entry.updateWeights();
+                if(addToQueue) {
+                    bestWeightMap.put(iter.getAdjNode(), entry);
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                }
+            } else {
+                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry, false);
+                if (!entry.isVisited()) {
+                    // This is the case if the node has been assigned a weight in
+                    // the upwards pass (fillEdges). We need to use it in the
+                    // downwards pass to access lower level nodes, though
+                    // the weight does not have to be reset necessarily
+//                    entry.setVisited(true);
+                    prioQueue.remove(entry);
+                    entry.updateWeights();
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                } else
+                if (addToQueue) {
+//                    entry.setVisited(true);
+                    prioQueue.remove(entry);
+                    entry.updateWeights();
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                }
+            }
+            if(hasTurnWeighting)
+                turnWeighting.setInORS(true);
+        }
+    }
+
+    private boolean iterateMultiTreeDownwards(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
+        boolean addToQueue = false;
+        for (int i = 0; i < treeEntrySize; ++i) {
+            MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(i);
+            double entryWeight = currEdgeItem.getWeight();
+
+            if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !currEdgeItem.isUpdate()))
+                continue;
+            double edgeWeight;
+
+            if(hasTurnWeighting && !isInORS(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem))
+                turnWeighting.setInORS(false);
+            edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), false, currEdgeItem.getOriginalEdge());
+            if(Double.isInfinite(edgeWeight))
+                continue;
+            double tmpWeight = edgeWeight + entryWeight;
+
+            MultiTreeSPEntryItem eeItem = adjEntry.getItem(i);
+            if (eeItem.getWeight() > tmpWeight) {
+                eeItem.setWeight(tmpWeight);
+                eeItem.setEdge(iter.getEdge());
+                eeItem.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                eeItem.setParent(currEdge);
+                eeItem.setUpdate(true);
+                addToQueue = true;
+            }
+            if(hasTurnWeighting)
+                turnWeighting.setInORS(true);
+        }
+        return addToQueue;
+    }
+
+    private void updateTarget(MinimumWeightMultiTreeSPEntry update) {
+        int nodeId = update.getAdjNode();
+        if(targetSet.contains(nodeId)) {
+            if (!targetMap.containsKey(nodeId)) {
+                MinimumWeightMultiTreeSPEntry newTarget = new MinimumWeightMultiTreeSPEntry(nodeId, EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, true, null, update.getSize());
+                newTarget.setOriginalEdge(EdgeIterator.NO_EDGE);
+                newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
+                targetMap.put(nodeId, newTarget);
+            }
+            MinimumWeightMultiTreeSPEntry target = targetMap.get(nodeId);
+            for (int i = 0; i < treeEntrySize; ++i) {
+                MultiTreeSPEntryItem targetItem = target.getItem(i);
+                double targetWeight = targetItem.getWeight();
+
+                MultiTreeSPEntryItem msptSubItem = update.getItem(i);
+                double updateWeight = msptSubItem.getWeight();
+
+                if (targetWeight > updateWeight) {
+                    targetItem.setWeight(updateWeight);
+                    targetItem.setEdge(msptSubItem.getEdge());
+                    targetItem.setOriginalEdge(msptSubItem.getOriginalEdge());
+                    targetItem.setParent(msptSubItem.getParent());
+                    targetItem.setUpdate(true);
+                }
             }
         }
     }
@@ -274,7 +408,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         List<MinimumWeightMultiTreeSPEntry> entries;
         entries = initBestWeightMapEntryList(bestWeightMapCore, iter.getAdjNode());
         //Initialize target entry in normal weight map
-        if(targets.contains(iter.getAdjNode())){
+        if(coreExitPoints.contains(iter.getAdjNode())){
             MinimumWeightMultiTreeSPEntry target = bestWeightMap.get(iter.getAdjNode());
             if (target == null) {
                 target = createEmptyEntry(iter);
@@ -327,8 +461,34 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         return addToQueue;
     }
 
-    private boolean finished() {
-        if (!targets.contains(currEdge.getAdjNode()))
+    /**
+     *
+     * @return whether all coreExitPoints have been settled
+     */
+    private boolean finishedCore() {
+        if (!coreExitPoints.contains(currEdge.getAdjNode()))
+            return false;
+        // Check whether all paths found
+        for (int i = 0; i < treeEntrySize; ++i) {
+            MultiTreeSPEntryItem msptItem = currEdge.getItem(i);
+            double entryWeight = msptItem.getWeight();
+
+            if (entryWeight == Double.POSITIVE_INFINITY)
+                return false;
+        }
+        // Check whether a shorter path to one entry can be found
+        if(couldExistShorterPath())
+            return false;
+        updateCoreExitFound(currEdge.getAdjNode());
+        return allExitsFound();
+    }
+
+    /**
+     *
+     * @return whether all goal nodes have been found
+     */
+    private boolean finishedDownwards() {
+        if (!targetSet.contains(currEdge.getAdjNode()))
             return false;
         // Check whether all paths found
         for (int i = 0; i < treeEntrySize; ++i) {
@@ -345,8 +505,21 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         return allTargetsFound();
     }
 
+    private void updateCoreExitFound(int node){
+        this.foundCoreExitPoints.put(node, true);
+    }
+
     private void updateTargetFound(int node){
         this.foundTargets.put(node, true);
+    }
+
+    private boolean allExitsFound(){
+        for (IntObjectCursor<Boolean> entry : this.foundCoreExitPoints) {
+            if(entry.value == false)
+                return false;
+        }
+        System.out.println("+++++++++++++++++++++++all EXITS found");
+        return true;
     }
 
     private boolean allTargetsFound(){
@@ -354,8 +527,11 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if(entry.value == false)
                 return false;
         }
+        System.out.println("all TARGETS found");
         return true;
     }
+
+
 
     /**
      * Check whether the priorityqueue has an entry that could possibly lead to a shorter path for any of the subItems
@@ -399,12 +575,28 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         this.turnWeighting = turnWeighting;
     }
 
+    public void setTargetGraphExplorer(EdgeExplorer targetGraphExplorer) {
+        this.targetGraphExplorer = targetGraphExplorer;
+    }
+
+    public void setTargetMap(IntObjectMap<MinimumWeightMultiTreeSPEntry> targetMap) {
+        this.targetMap = targetMap;
+    }
+
+    public void setTargetSet(IntHashSet targetSet) {
+        this.targetSet = targetSet;
+    }
+
     boolean considerTurnRestrictions(int node) {
         if (!hasTurnWeighting)
             return false;
         if (approximate)
             return isTurnRestrictedNode(node);
         return true;
+    }
+
+    boolean isCoreNode(int node) {
+        return chGraph.getLevel(node) >= coreNodeLevel;
     }
 
     boolean isTurnRestrictedNode(int node) {
