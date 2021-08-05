@@ -180,83 +180,108 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
 
     private void exploreEntry(EdgeIterator iter) {
         while (iter.next()) {
-                if(hasTurnWeighting && !isInORS(iter, currEdge))
-                    turnWeighting.setInORS(false);
-
-                if (considerTurnRestrictions(iter.getAdjNode())) {
-                    handleMultiEdgeCase(iter);
-                }
-                else {
-                    handleSingleEdgeCase(iter);
-                }
-            if(hasTurnWeighting)
-                turnWeighting.setInORS(true);
+            if (considerTurnRestrictions(iter.getAdjNode())) {
+                handleMultiEdgeCase(iter);
+            }
+            else {
+                handleSingleEdgeCase(iter);
+            }
         }
     }
 
     private void handleSingleEdgeCase(EdgeIterator iter) {
         MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
         if (entry == null) {
-            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+            entry = createEmptyEntry(iter);
             boolean addToQueue = iterateMultiTree(iter, entry);
             if (addToQueue) {
-                entry.updateWeights();
+                updateEntryInQueue(entry);
                 bestWeightMap.put(iter.getAdjNode(), entry);
-                prioQueue.add(entry);
             }
         } else {
             boolean addToQueue = iterateMultiTree(iter, entry);
-
             if (addToQueue) {
-                prioQueue.remove(entry);
-                entry.updateWeights();
-                prioQueue.add(entry);
+                updateEntryInQueue(entry);
             }
         }
     }
 
     private void handleMultiEdgeCase(EdgeIterator iter) {
-        List<MinimumWeightMultiTreeSPEntry> entries = bestWeightMapCore.get(iter.getAdjNode());
         MinimumWeightMultiTreeSPEntry entry = null;
+        List<MinimumWeightMultiTreeSPEntry> entries = bestWeightMapCore.get(iter.getAdjNode());
 
-        if (entries == null) {
-            entries = initBestWeightMapEntryList(bestWeightMapCore, iter.getAdjNode());
-            //Initialize target entry in normal weight map
-            if(targets.contains(iter.getAdjNode())){
-                MinimumWeightMultiTreeSPEntry target = bestWeightMap.get(iter.getAdjNode());
-                if (target == null) {
-                    target = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
-                    bestWeightMap.put(iter.getAdjNode(), target);
-                }
-            }
-        } else {
-            ListIterator<MinimumWeightMultiTreeSPEntry> it = entries.listIterator();
-            while (it.hasNext()) {
-                MinimumWeightMultiTreeSPEntry listEntry = it.next();
-                if (listEntry.getEdge() == iter.getEdge()) {
-                    entry = listEntry;
-                    break;
-                }
-            }
-        }
-
+        //Select or generate edge based entry list and entry
+        if (entries == null)
+            entries = createEntriesList(iter);
+        else
+            entry = getEdgeEntry(iter, entries);
+        //Handle entry
         if (entry == null) {
-            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+            entry = createEmptyEntry(iter);
             boolean addToQueue = iterateMultiTree(iter, entry);
             if (addToQueue) {
                 entries.add(entry);
-                entry.updateWeights();
-                prioQueue.add(entry);
+                updateEntryInQueue(entry);
             }
 
         } else {
             boolean addToQueue = iterateMultiTree(iter, entry);
             if (addToQueue) {
-                prioQueue.remove(entry);
-                entry.updateWeights();
-                prioQueue.add(entry);
+                updateEntryInQueue(entry);
             }
         }
+    }
+
+    private MinimumWeightMultiTreeSPEntry createEmptyEntry(EdgeIterator iter) {
+        return new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+    }
+
+    /**
+     * Update an existing entry in the priority queue
+     * @param entry entry to update
+     */
+    private void updateEntryInQueue(MinimumWeightMultiTreeSPEntry entry) {
+        prioQueue.remove(entry);
+        entry.updateWeights();
+        prioQueue.add(entry);
+    }
+
+    /**
+     * Select the entry from the entries list that corresponds to the current edge. This is based on adj node and edge id.
+     * @param iter the entry to select
+     * @param entries the list to select from
+     * @return the entry in the list or null if does not exist
+     */
+    private MinimumWeightMultiTreeSPEntry getEdgeEntry(EdgeIterator iter, List<MinimumWeightMultiTreeSPEntry> entries) {
+        MinimumWeightMultiTreeSPEntry entry = null;
+        ListIterator<MinimumWeightMultiTreeSPEntry> it = entries.listIterator();
+        while (it.hasNext()) {
+            MinimumWeightMultiTreeSPEntry listEntry = it.next();
+            if (listEntry.getEdge() == iter.getEdge()) {
+                entry = listEntry;
+                break;
+            }
+        }
+        return entry;
+    }
+
+    /**
+     * Generate the list of entries for a given node. Initialize the target node in the normal weight map if none exists
+     * @param iter Iterator with adj node to initialize
+     * @return list of entries
+     */
+    private List<MinimumWeightMultiTreeSPEntry> createEntriesList(EdgeIterator iter) {
+        List<MinimumWeightMultiTreeSPEntry> entries;
+        entries = initBestWeightMapEntryList(bestWeightMapCore, iter.getAdjNode());
+        //Initialize target entry in normal weight map
+        if(targets.contains(iter.getAdjNode())){
+            MinimumWeightMultiTreeSPEntry target = bestWeightMap.get(iter.getAdjNode());
+            if (target == null) {
+                target = createEmptyEntry(iter);
+                bestWeightMap.put(iter.getAdjNode(), target);
+            }
+        }
+        return entries;
     }
 
     List<MinimumWeightMultiTreeSPEntry> initBestWeightMapEntryList(IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> map, int traversalId) {
@@ -283,16 +308,15 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if (!accept(iter, currEdgeItem.getEdge()))
                 continue;
 
-            if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
-                turnWeighting.setInORS(false);
+            configureTurnWeighting(iter, currEdgeItem);
             double edgeWeight = weighting.calcWeight(iter, false, currEdgeItem.getOriginalEdge());
+            resetTurnWeighting();
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
 
             if (msptSubItem.getWeight() > tmpWeight) {
                 msptSubItem.setWeight(tmpWeight);
-                //TODO check whether these are the correct edges. Think they are
                 msptSubItem.setEdge(iter.getEdge());
                 msptSubItem.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
                 msptSubItem.setParent(this.currEdge);
@@ -347,19 +371,24 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         return false;
     }
 
+    private void configureTurnWeighting(EdgeIterator iter, MultiTreeSPEntryItem currEdgeItem) {
+        if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
+            turnWeighting.setInORS(false);
+    }
+
+    private void resetTurnWeighting() {
+        if(hasTurnWeighting)
+            turnWeighting.setInORS(true);
+    }
+
     /**
      * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
      * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
      * because the same edge id left and right of a virtual node results in a u turn
      * @param iter
-     * @param currEdge
+     * @param currEdgeItem
      * @return
      */
-    private boolean isInORS(EdgeIteratorState iter, MinimumWeightMultiTreeSPEntry currEdge) {
-        if(currEdge.getEdge() != iter.getEdge() && currEdge.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
-            return false;
-        return true;
-    }
     private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         if(currEdgeItem.getEdge() != iter.getEdge() && currEdgeItem.getOriginalEdge() == EdgeIteratorStateHelper.getOriginalEdge(iter))
             return false;
