@@ -298,4 +298,42 @@ public class ToyGraphCreationUtil {
         g.edge(8, 9, 1, true); //9
         return g;
     }
+
+    public static GraphHopperStorage createTwoWayGraph(GraphHopperStorage g) {
+        // 0<----------<-1
+        // |             |
+        // 2             |
+        // | R           |
+        // 3---4---5     |
+        // |             |
+        // 6-----7-------8
+        // |
+        // 9
+        g.edge(0, 2, 1, false); //0
+        g.edge(1, 0, 1, false); //1
+        g.edge(2, 3, 1, false); //2
+        g.edge(3, 4, 1, false); //3
+        g.edge(4, 5, 1, true); //4
+        g.edge(3, 6, 1, true); //5
+        g.edge(7, 8, 1, true); //6
+        g.edge(6, 9, 1, true); //7
+        g.edge(6, 7, 10, true); //8
+        g.edge(8, 1, 1, true); //9
+        g.edge(8, 1, 1, true); //10 Just to put 8, 1 and 0 in core
+        g.edge(1, 0, 1, false); //11  Just to put 8, 1 and 0 in core
+        return g;
+    }
+    public static GraphHopperStorage createUpdatedGraph(GraphHopperStorage g) {
+        //     2---3
+        //    / \
+        //   1  |
+        //    \ |
+        //     0
+        g.edge(0, 1, 5, true); //0
+        g.edge(0, 2, 1, true); //1
+        g.edge(1, 2, 1, true); //2
+        g.edge(2, 3, 1, true); //3
+
+        return g;
+    }
 }

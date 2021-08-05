@@ -153,8 +153,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             }
         }
         MinimumWeightMultiTreeSPEntry[] extractedTargets = new MinimumWeightMultiTreeSPEntry[targetEntries.size()];
-        int testNodeId = 8270;
-        List<MinimumWeightMultiTreeSPEntry> entries = bestWeightMapCore.get(testNodeId);
+//        int testNodeId = 8270;
+//        List<MinimumWeightMultiTreeSPEntry> entries = bestWeightMapCore.get(testNodeId);
 
         return targetEntries.toArray(extractedTargets);
     }
@@ -180,36 +180,30 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
 
     private void exploreEntry(EdgeIterator iter) {
         while (iter.next()) {
-            if (accept(iter, currEdge.getEdge())) {
-
                 if(hasTurnWeighting && !isInORS(iter, currEdge))
                     turnWeighting.setInORS(false);
 
-                double edgeWeight = weighting.calcWeight(iter, false, currEdge.getOriginalEdge());
-
-                if (Double.isInfinite(edgeWeight))
-                    continue;
-
                 if (considerTurnRestrictions(iter.getAdjNode())) {
-                    handleMultiEdgeCase(iter, edgeWeight);
+                    handleMultiEdgeCase(iter);
                 }
                 else {
-                    handleSingleEdgeCase(iter, edgeWeight);
+                    handleSingleEdgeCase(iter);
                 }
-            }
             if(hasTurnWeighting)
                 turnWeighting.setInORS(true);
         }
     }
 
-    private void handleSingleEdgeCase(EdgeIterator iter, double edgeWeight) {
+    private void handleSingleEdgeCase(EdgeIterator iter) {
         MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
         if (entry == null) {
-            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), edgeWeight, true, currEdge, currEdge.getSize());
-            entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-            entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
-            bestWeightMap.put(iter.getAdjNode(), entry);
-            prioQueue.add(entry);
+            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+            boolean addToQueue = iterateMultiTree(iter, entry);
+            if (addToQueue) {
+                entry.updateWeights();
+                bestWeightMap.put(iter.getAdjNode(), entry);
+                prioQueue.add(entry);
+            }
         } else {
             boolean addToQueue = iterateMultiTree(iter, entry);
 
@@ -221,7 +215,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         }
     }
 
-    private void handleMultiEdgeCase(EdgeIterator iter, double edgeWeight) {
+    private void handleMultiEdgeCase(EdgeIterator iter) {
         List<MinimumWeightMultiTreeSPEntry> entries = bestWeightMapCore.get(iter.getAdjNode());
         MinimumWeightMultiTreeSPEntry entry = null;
 
@@ -231,9 +225,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if(targets.contains(iter.getAdjNode())){
                 MinimumWeightMultiTreeSPEntry target = bestWeightMap.get(iter.getAdjNode());
                 if (target == null) {
-                    target = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, currEdge, currEdge.getSize());
-                    target.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-                    target.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
+                    target = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
                     bestWeightMap.put(iter.getAdjNode(), target);
                 }
             }
@@ -249,17 +241,13 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         }
 
         if (entry == null) {
-            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, currEdge, currEdge.getSize());
-            // Modification by Maxim Rylov: Assign the original edge id.
-            // TODO original edge
-            entry.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-            entry.setSubItemOriginalEdgeIds(EdgeIteratorStateHelper.getOriginalEdge(iter));
-            iterateMultiTree(iter, entry);
-//            if(targets.contains(iter.getAdjNode())) {
-//                updateTargetEntry(entry, bestWeightMap.get(iter.getAdjNode()));
-//            }
-            entries.add(entry);
-            prioQueue.add(entry);
+            entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+            boolean addToQueue = iterateMultiTree(iter, entry);
+            if (addToQueue) {
+                entries.add(entry);
+                entry.updateWeights();
+                prioQueue.add(entry);
+            }
 
         } else {
             boolean addToQueue = iterateMultiTree(iter, entry);
@@ -267,32 +255,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 prioQueue.remove(entry);
                 entry.updateWeights();
                 prioQueue.add(entry);
-//                if(targets.contains(iter.getAdjNode())) {
-//                    updateTargetEntry(entry, bestWeightMap.get(iter.getAdjNode()));
-//                }
             }
         }
-    }
-
-    private void updateTargetEntry(MinimumWeightMultiTreeSPEntry updateEntry, MinimumWeightMultiTreeSPEntry target) {
-//        target.setOriginalEdge(updateEntry.getOriginalEdge());
-
-        for (int i = 0; i < treeEntrySize; ++i) {
-            MultiTreeSPEntryItem targetItem = target.getItem(i);
-            double targetWeight = targetItem.getWeight();
-
-            MultiTreeSPEntryItem msptSubItem = updateEntry.getItem(i);
-            double updateWeight = msptSubItem.getWeight();
-
-            if (targetWeight > updateWeight) {
-                targetItem.setWeight(updateWeight);
-                targetItem.setEdge(msptSubItem.getEdge());
-                targetItem.setOriginalEdge(msptSubItem.getOriginalEdge());
-                targetItem.setParent(currEdge);
-                targetItem.setUpdate(true);
-            }
-        }
-        target.updateWeights();
     }
 
     List<MinimumWeightMultiTreeSPEntry> initBestWeightMapEntryList(IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> map, int traversalId) {
@@ -312,14 +276,18 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             MultiTreeSPEntryItem currEdgeItem = this.currEdge.getItem(i);
             double entryWeight = currEdgeItem.getWeight();
 
-            if (entryWeight == Double.POSITIVE_INFINITY)// || !msptItem.isUpdate())
+            if (entryWeight == Double.POSITIVE_INFINITY || !currEdgeItem.isUpdate())
                 continue;
 
             MultiTreeSPEntryItem msptSubItem = entry.getItem(i);
+            if (!accept(iter, currEdgeItem.getEdge()))
+                continue;
+
             if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
                 turnWeighting.setInORS(false);
             double edgeWeight = weighting.calcWeight(iter, false, currEdgeItem.getOriginalEdge());
-
+            if (edgeWeight == Double.POSITIVE_INFINITY)
+                continue;
             double tmpWeight = edgeWeight + entryWeight;
 
             if (msptSubItem.getWeight() > tmpWeight) {
@@ -330,18 +298,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 msptSubItem.setParent(this.currEdge);
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
-//                if(targets.contains(entry.getAdjNode())) {
-//                    MinimumWeightMultiTreeSPEntry targetEntry = bestWeightMap.get(entry.getAdjNode());
-//                    MultiTreeSPEntryItem targetItem = targetEntry.getItem(i);
-//                    if (targetItem.getWeight() > tmpWeight) {
-//                        targetItem.setWeight(tmpWeight);
-//                        //TODO check whether these are the correct edges. Think they are
-//                        targetItem.setEdge(iter.getEdge());
-//                        targetItem.setOriginalEdge(EdgeIteratorStateHelper.getOriginalEdge(iter));
-//                        targetItem.setParent(currEdge);
-//                        targetItem.setUpdate(true);
-//                    }
-//                }
             }
         }
         return addToQueue;
