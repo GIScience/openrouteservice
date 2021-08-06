@@ -38,7 +38,7 @@ public class MatrixRequestHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);

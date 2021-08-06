@@ -34,14 +34,37 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+- `ors-config.json` as default ors config option, which will replace `app.config` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- system property `ors_config` which will replace the `ors_app_config` property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- environment variable `ORS_CONFIG` which will replace the `ORS_APP_CONFIG` one ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- ors config reading priority
+    1. System property `ors_conf` > `ors_app_conf`
+    1. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
+    1. File in class path `ors-config.json` > `app.config`
+    1. Error if none of the above is specified.
+### Changed
+- Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
+- Formatting of tag filtering
+- test config format and filetype to JSON
+- docker `APP_CONFIG` argument to `ORS_CONFIG` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+### Deprecated
+- `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+### Fixed
+- Errors in travel speed explanation
+
 ## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
 - References to old documentation now point to rendered version of new docs
-
-### Added
-- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
 
 ## [6.6.0] - 2021-06-08
 ### Added

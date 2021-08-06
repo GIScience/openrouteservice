@@ -30,6 +30,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String KEY_SLOPED_KERB = "sloped_kerb";
 	public static final String KEY_KERB_HEIGHT = "kerb:height";
 	public static final String KEY_FOOTWAY = "footway";
+	public static final String KEY_RIGHT = "right";
+	public static final String KEY_LEFT = "left";
+	public static final String KEY_BOTH = "both";
+	public static final String KEY_SIDEWALK_BOTH = "sidewalk:both:";
+	public static final String KEY_FOOTWAY_BOTH = "footway:both:";
+	public static final String KEY_CURB_HEIGHT = "curb:height";
 
 	public enum Side {
 		LEFT,
@@ -119,14 +125,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now we need to process the way specific to whether it is a separate feature (i.e. footway) or is attached
 		// to a road feature (i.e. with the tag sidewalk=left)
-		if(isSeparateFootway(way)) {
-			// We have a separate footway feature
-			processWayAsSeparateFeature();
-		}
+		processWayCheckForSeparateFeature(way);
 
 		// We still need to always process the way itself even if it separate so that we can get sidewalk info (a
 		// separate footway can still have sidewalk tags...)
 		processSidewalksAttachedToWay(way);
+
+		// the way has known suitability if it can be classified as seperate footway
+		wheelchairAttributes.setSuitable(isSeparateFootway(way) || way.hasTag("wheelchair_accessible", true));
+
+		// the sidewalks always imply known suitability
+		wheelchairAttributesLeftSide.setSuitable(true);
+		wheelchairAttributesRightSide.setSuitable(true);
 
 		// Process the kerb tags.
 		processKerbTags();
@@ -201,28 +211,24 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * way. The same as the attached processing, it looks for the different attributes as tags that are important for
 	 * wheelchair routing and stores them against the generic wheelchair storage object
 	 */
-	private void processWayAsSeparateFeature() {
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.SURFACE);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.SMOOTHNESS);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.TRACK);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.WIDTH);
-
-		setSeparateWayAttribute(WheelchairAttributes.Attribute.INCLINE);
-
+	private void processWayCheckForSeparateFeature(ReaderWay way) {
+		boolean markSurfaceQualityKnown = isSeparateFootway(way);
+		setWayAttribute(WheelchairAttributes.Attribute.SURFACE, markSurfaceQualityKnown);
+		setWayAttribute(WheelchairAttributes.Attribute.SMOOTHNESS, markSurfaceQualityKnown);
+		setWayAttribute(WheelchairAttributes.Attribute.TRACK, markSurfaceQualityKnown);
+		setWayAttribute(WheelchairAttributes.Attribute.WIDTH, markSurfaceQualityKnown);
+		setWayAttribute(WheelchairAttributes.Attribute.INCLINE, markSurfaceQualityKnown);
 	}
 
 	/**
 	 * Set the specified attribute in the attribute storage object based on the information gathered from the way. This
 	 * method ony sets the attribute in the attribute storage object for the standalone way and not sidewalks.
 	 * @param attribute	The attribute to process
+	 * @param markSurfaceQualityKnown Whether or not to also set the surfaceQualityKnown flag in the WheelchairAttributes object
 	 */
-	private void setSeparateWayAttribute(WheelchairAttributes.Attribute attribute) {
+	private void setWayAttribute(WheelchairAttributes.Attribute attribute, boolean markSurfaceQualityKnown) {
 		if (cleanedTags.containsKey(attributeToTagName(attribute))) {
-			setWheelchairAttribute((String) cleanedTags.get(attributeToTagName(attribute)), attribute);
+			setWheelchairAttribute((String) cleanedTags.get(attributeToTagName(attribute)), attribute, markSurfaceQualityKnown);
 		}
 	}
 
@@ -253,13 +259,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case "left":
+				case KEY_LEFT:
 					hasLeftSidewalk = true;
 					break;
-				case "right":
+				case KEY_RIGHT:
 					hasRightSidewalk = true;
 					break;
-				case "both":
+				case KEY_BOTH:
 					hasLeftSidewalk = true;
 					hasRightSidewalk = true;
 					break;
@@ -297,11 +303,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		switch(side) {
 			case LEFT:
 				hasLeftSidewalk = true;
-				wheelchairAttributesLeftSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesLeftSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), true);
 				break;
 			case RIGHT:
 				hasRightSidewalk = true;
-				wheelchairAttributesRightSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+				wheelchairAttributesRightSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), true);
 				break;
 			default:
 		}
@@ -312,9 +318,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 *
 	 * @param value			The value to store
 	 * @param attribute		The attribute to store the value against
+	 * @param markSurfaceQualityKnown Whether or not to also set the surfaceQualityKnown flag in the WheelchairAttributes object
 	 */
-	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute) {
-		wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value));
+	private void setWheelchairAttribute(String value, WheelchairAttributes.Attribute attribute, boolean markSurfaceQualityKnown) {
+		wheelchairAttributes.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), markSurfaceQualityKnown);
 	}
 
 	/**
@@ -352,12 +359,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] assumedKerbTags = new String[] {
 				"curb",
 				"kerb",
-				"sloped_curb",
-				"sloped_kerb"
+				KEY_SLOPED_CURB,
+				KEY_SLOPED_KERB
 		};
 		String[] explicitKerbTags = new String[] {
-				"kerb:height",
-				"curb:height"
+				KEY_KERB_HEIGHT,
+				KEY_CURB_HEIGHT
 		};
 
 		int height = calcSingleKerbHeightFromTagList(assumedKerbTags, -1);
@@ -546,13 +553,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
 		    String side = way.getTag("ors-sidewalk-side");
-		    if(side.equals("left")) {
+		    if(side.equals(KEY_LEFT)) {
 				// Only get the attributes for the left side
-				at = getAttributes("left");
+				at = getAttributes(KEY_LEFT);
 				at.setSide(WheelchairAttributes.Side.LEFT);
             }
-            if(side.equals("right")) {
-		    	at = getAttributes("right");
+            if(side.equals(KEY_RIGHT)) {
+		    	at = getAttributes(KEY_RIGHT);
 		    	at.setSide(WheelchairAttributes.Side.RIGHT);
 			}
         } else {
@@ -653,6 +660,18 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		int in = getWorseAttributeValueFromSeparateItems(WheelchairAttributes.Attribute.INCLINE);
 		if (in > 0) at.setIncline(in);
 
+		at.setSurfaceQualityKnown(
+				wheelchairAttributesLeftSide.isSurfaceQualityKnown()
+				&& wheelchairAttributesRightSide.isSurfaceQualityKnown()
+				&& attributes.isSurfaceQualityKnown()
+		);
+
+		at.setSuitable(
+				wheelchairAttributesLeftSide.isSuitable()
+						&& wheelchairAttributesRightSide.isSuitable()
+						&& attributes.isSuitable()
+		);
+
 		return at;
 	}
 
@@ -669,10 +688,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now get the specific items
 		switch(side) {
-			case "left":
+			case KEY_LEFT:
 				at = at.merge(wheelchairAttributesLeftSide);
 				break;
-			case "right":
+			case KEY_RIGHT:
 				at = at.merge(wheelchairAttributesRightSide);
 				break;
 			default:
@@ -695,7 +714,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		}
 		switch(value) {
 			case "yes":
-			case "both":
+			case KEY_BOTH:
 			case "low":
 			case "lowered":
 			case "dropped":
@@ -714,10 +733,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 				centimetreHeight = 0;
 				break;
 			default:
-				// May be that it is already numeric (though it shouldn't be)
 				double metresHeight = UnitsConverter.convertOSMDistanceTagToMeters(value);
-				if (metresHeight >= 0) {
-					centimetreHeight = (int) (metresHeight*100);
+				// If no unit was given in the tag, the value might be in meters or centimeters; we can only guess
+				// depending on the value
+				if (metresHeight < 0.15) {
+					centimetreHeight = (int)(metresHeight*100);
+				} else {
+					centimetreHeight = (int)metresHeight;
 				}
 				break;
 		}
@@ -750,13 +772,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 			values[1] = (String) cleanedTags.get("footway:right:" + property);
 
 		// Both
-		if(cleanedTags.containsKey("sidewalk:both:" + property)) {
-			values[0] = (String) cleanedTags.get("sidewalk:both:" + property);
-			values[1] = (String) cleanedTags.get("sidewalk:both:" + property);
+		if(cleanedTags.containsKey(KEY_SIDEWALK_BOTH + property)) {
+			values[0] = (String) cleanedTags.get(KEY_SIDEWALK_BOTH + property);
+			values[1] = (String) cleanedTags.get(KEY_SIDEWALK_BOTH + property);
 		}
-		else if(cleanedTags.containsKey("footway:both:" +property)) {
-			values[0] = (String) cleanedTags.get("footway:both:" + property);
-			values[1] = (String) cleanedTags.get("footway:both:" + property);
+		else if(cleanedTags.containsKey(KEY_FOOTWAY_BOTH +property)) {
+			values[0] = (String) cleanedTags.get(KEY_FOOTWAY_BOTH + property);
+			values[1] = (String) cleanedTags.get(KEY_FOOTWAY_BOTH + property);
 		}
 		return values;
 	}
@@ -780,9 +802,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		String[] pedestrianWayTypes = {
 				"living_street",
 				"pedestrian",
-				"footway",
+				KEY_FOOTWAY,
 				"path",
-				"crossing"
+				"crossing",
+				"track"
 		};
 
 		// Check if it is a footpath or pedestrian

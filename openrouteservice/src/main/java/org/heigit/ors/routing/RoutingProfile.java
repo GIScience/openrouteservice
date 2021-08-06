@@ -768,8 +768,7 @@ public class RoutingProfile {
         }
 
         /* Wheelchair filter */
-        else if (profileType == RoutingProfileType.WHEELCHAIR
-            && searchParams.hasParameters(WheelchairParameters.class)) {
+        else if (profileType == RoutingProfileType.WHEELCHAIR) {
             props.put("edgefilter_wheelchair", "true");
         }
 

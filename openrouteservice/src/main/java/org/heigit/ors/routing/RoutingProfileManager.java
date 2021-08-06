@@ -404,10 +404,20 @@ public class RoutingProfileManager {
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
                                 double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
 
-                                message.append(String.format("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.",
-                                        pointRadius,
-                                        pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate)));
+                                // -1 is used to indicate the use of internal limits instead of specifying it in the request.
+                                // we should therefore let them know that they are already using the limit.
+                                if (pointRadius == -1) {
+                                    pointRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
+                                    message.append(String.format("Could not find routable point within the maximum possible radius of specified coordinate %d: %s.",
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                } else {
+                                    message.append(String.format("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.",
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                }
 
                             } else {
                                 message.append(error.getMessage());
