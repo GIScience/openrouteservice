@@ -139,8 +139,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         if(from == null || to == null)
             throw new IllegalArgumentException("Input points are null");
 
-        if(from.length == 0 || to.length == 0)
-            return new MinimumWeightMultiTreeSPEntry[]{};
+//        if(from.length == 0 || to.length == 0)
+//            return new MinimumWeightMultiTreeSPEntry[]{};
 
         prepare(from, to);
         addEntriesFromMapToQueue(from);

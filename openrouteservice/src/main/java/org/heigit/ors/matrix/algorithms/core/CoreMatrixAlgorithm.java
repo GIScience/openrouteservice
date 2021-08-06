@@ -380,13 +380,13 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         while (iter.next()) {
             if (!downwardEdgeFilter.accept(iter))
                 continue;
-            if (targetGraph.addEdge(adjNode, iter, true)) {
-                if (isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode())) {
-                    coreExitPoints.add(iter.getAdjNode());
-                } else {
-                    localPrioQueue.add(iter.getAdjNode());
-                }
+            boolean isNewNode = targetGraph.addEdge(adjNode, iter, true);
+            if (isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode())) {
+                coreExitPoints.add(iter.getAdjNode());
+            } else if(isNewNode) {
+                localPrioQueue.add(iter.getAdjNode());
             }
+
         }
     }
 
@@ -473,28 +473,28 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if(hasTurnWeighting && !isInORS(iter, currEdge))
                 turnWeighting.setInORS(false);
 
-                MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
+            MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
-                if (entry == null) {
-                        entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
-                        boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
-                        if(addToQueue) {
-                            entry.updateWeights();
-                            updateHighestNode(iter.getAdjNode());
-                            bestWeightMap.put(iter.getAdjNode(), entry);
-                            prioQueue.add(entry);
-                            updateTarget(entry);
-                        }
-                } else {
-                    boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
-                    if (addToQueue) {
-                        updateHighestNode(iter.getAdjNode());
-                        prioQueue.remove(entry);
-                        entry.updateWeights();
-                        prioQueue.add(entry);
-                        updateTarget(entry);
-                    }
+            if (entry == null) {
+                entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+                boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
+                if(addToQueue) {
+                    entry.updateWeights();
+                    updateHighestNode(iter.getAdjNode());
+                    bestWeightMap.put(iter.getAdjNode(), entry);
+                    prioQueue.add(entry);
+                    updateTarget(entry);
                 }
+            } else {
+                boolean addToQueue = iterateMultiTree(currEdge, iter, true, entry, false);
+                if (addToQueue) {
+                    updateHighestNode(iter.getAdjNode());
+                    prioQueue.remove(entry);
+                    entry.updateWeights();
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                }
+            }
             if(hasTurnWeighting)
                 turnWeighting.setInORS(true);
         }
@@ -573,15 +573,15 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             MinimumWeightMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
             if (entry == null) {
-                    entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
-                    entry.setVisited(true);
-                    boolean addToQueue = iterateMultiTree(currEdge, iter, false, entry, false);
-                    if(addToQueue) {
-                        entry.updateWeights();
-                        bestWeightMap.put(iter.getAdjNode(), entry);
-                        prioQueue.add(entry);
-                        updateTarget(entry);
-                    }
+                entry = new MinimumWeightMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
+                entry.setVisited(true);
+                boolean addToQueue = iterateMultiTree(currEdge, iter, false, entry, false);
+                if(addToQueue) {
+                    entry.updateWeights();
+                    bestWeightMap.put(iter.getAdjNode(), entry);
+                    prioQueue.add(entry);
+                    updateTarget(entry);
+                }
             } else {
                 boolean addToQueue = iterateMultiTree(currEdge, iter, false, entry, false);
                 if (!entry.isVisited()) {
