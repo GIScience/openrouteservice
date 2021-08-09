@@ -7,7 +7,7 @@ ARG ORS_CONFIG=./openrouteservice/src/main/resources/ors-config-sample.json
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
 ARG BUILD_GRAPHS="False"
 ARG UID=1000
-ARG TOMCAT_VERSION=8.5.39
+ARG TOMCAT_VERSION=8.5.69
 
 # Create user
 RUN useradd -u $UID -md /ors-core ors
