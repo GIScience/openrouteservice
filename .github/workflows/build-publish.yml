@@ -74,17 +74,17 @@ jobs:
         run: |
           docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args_nightly }}
       - name: Login to DockerHub
-        if: success() && github.ref == 'refs/heads/master'
+        if: ${{ success() && github.ref == 'refs/heads/master' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Publish version and latest if not present
-        if: ${{ steps.prepare.outputs.build_version == 'true' }} && github.ref == 'refs/heads/master'
+        if: ${{ github.ref == 'refs/heads/master' && steps.prepare.outputs.build_version == 'true' }}
         run: |
           docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args_version }}
           docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args_latest }}
       - name: Publish nightly
-        if: github.ref == 'refs/heads/master'
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args_nightly }}
