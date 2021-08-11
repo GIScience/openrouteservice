@@ -10,8 +10,6 @@ on:
 
 jobs:
   push_to_registries:
-    needs:
-      - lint
     name: Push Docker image to docker hub and github packages
     runs-on: ubuntu-latest
     steps:
