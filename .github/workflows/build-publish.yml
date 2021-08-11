@@ -57,13 +57,10 @@ jobs:
 
           echo ::set-output name=build_version::${BUILD_VERSION}
           echo ::set-output name=buildx_args_version::--platform ${DOCKER_PLATFORMS} \
-                      --build-arg OHSOMEAPI_VERSION=${DOCKER_VERSION} \
                       ${TAGS_VERSION} .
           echo ::set-output name=buildx_args_latest::--platform ${DOCKER_PLATFORMS} \
-                      --build-arg OHSOMEAPI_VERSION=${DOCKER_VERSION} \
                       ${TAGS_LATEST} .
           echo ::set-output name=buildx_args_nightly::--platform ${DOCKER_PLATFORMS} \
-                      --build-arg OHSOMEAPI_VERSION=latest \
                       ${TAGS_NIGHTLY} .
       - name: Build version if not present
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
