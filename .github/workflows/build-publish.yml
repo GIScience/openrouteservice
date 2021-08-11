@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  push_to_registries:
+  build_and_publish_docker:
     name: Push Docker image to docker hub and github packages
     runs-on: ubuntu-latest
     steps:
