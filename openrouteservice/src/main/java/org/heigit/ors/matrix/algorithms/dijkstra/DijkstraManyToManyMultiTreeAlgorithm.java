@@ -34,10 +34,7 @@ import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
@@ -159,8 +156,9 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             currEdge = prioQueue.poll();
             if (currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
-            visitedNodes++;
+//            visitedNodes++;
         }
+        System.out.println("Visited nodes " + visitedNodes);
     }
 
     private void exploreEntry(EdgeIterator iter) {
@@ -208,6 +206,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private boolean iterateMultiTreeDownwards(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
         boolean addToQueue = false;
         for (int i = 0; i < treeEntrySize; ++i) {
+            visitedNodes++;
             MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(i);
             double entryWeight = currEdgeItem.getWeight();
 
@@ -378,6 +377,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private boolean iterateMultiTree(EdgeIterator iter, MinimumWeightMultiTreeSPEntry entry) {
         boolean addToQueue = false;
         for (int i = 0; i < treeEntrySize; ++i) {
+            visitedNodes++;
             MultiTreeSPEntryItem currEdgeItem = this.currEdge.getItem(i);
             double entryWeight = currEdgeItem.getWeight();
 
@@ -394,7 +394,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
-
+            if(combinedUnsettled != null && tmpWeight > combinedUnsettled.getItem(i).getWeight())
+                continue;
             if (msptSubItem.getWeight() > tmpWeight) {
                 msptSubItem.setWeight(tmpWeight);
                 msptSubItem.setEdge(iter.getEdge());
@@ -403,9 +404,26 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
             }
+//            if(addToQueue)
+//                debugCheckMerge(entry);
         }
         return addToQueue;
     }
+
+//    boolean checkMerge = true;
+//    private void debugCheckMerge(MinimumWeightMultiTreeSPEntry entry){
+//        if(!checkMerge)
+//            return;
+//        boolean allReached = true;
+//        for (int i = 0; i < treeEntrySize; ++i){
+//            if(entry.getItem(i).getWeight() == Double.POSITIVE_INFINITY)
+//                allReached = false;
+//        }
+//        if(allReached) {
+////            System.out.println("First merge at iteration " + visitedNodes);
+//            checkMerge = false;
+//        }
+//    }
 
     /**
      *
@@ -454,7 +472,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     }
 
     /**
-     * Create a single non-real target entry that combines all individual min weights of the unsettled nodes
+     * Create a single non-real target entry that combines all individual max weights of the unsettled nodes
      * This is done to minimize the iterations over the unsettled targets, which need to be done for correctness
      * until the prioQueue has no more possible better values
      * @param unsettledTargets the set of unsettled target nodes
@@ -497,16 +515,22 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
      */
     private ObjectSet<MinimumWeightMultiTreeSPEntry> getAllSmallerThanTargetEntriesFromQueue() {
         ObjectSet<MinimumWeightMultiTreeSPEntry> targetsWithPotentialBetterPath = new ObjectHashSet<>();
+        Set<MinimumWeightMultiTreeSPEntry> entriesWorseThanTarget = new HashSet<>();
         for (MinimumWeightMultiTreeSPEntry entry : prioQueue) {
+            boolean isWorseThanTarget = true;
             for(IntObjectCursor<MinimumWeightMultiTreeSPEntry> target : targetMap) {
                 for (int i = 0; i < treeEntrySize; ++i) {
                     if (entry.getItem(i).getWeight() < target.value.getItem(i).getWeight()) {
                         targetsWithPotentialBetterPath.add(target.value);
+                        isWorseThanTarget = false;
                         break;
                     }
                 }
             }
+            if(isWorseThanTarget)
+                entriesWorseThanTarget.add(entry);
         }
+        prioQueue.removeAll(entriesWorseThanTarget);
         return targetsWithPotentialBetterPath;
     }
 
