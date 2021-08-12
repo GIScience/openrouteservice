@@ -43,7 +43,9 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSear
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
@@ -153,8 +155,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             for (IntObjectCursor<MinimumWeightMultiTreeSPEntry> reachedNode : bestWeightMap) {
                 reachedNodes.add(reachedNode.value);
             }
-            PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = runPhaseInsideCore();
-            updateTargetNodes(downwardQueue.toArray(new MinimumWeightMultiTreeSPEntry[downwardQueue.size()]));
+            runPhaseInsideCore();
 
             boolean outputNodeData = false;
             if(outputNodeData) {
@@ -466,7 +467,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * /
      * /
      **/
-    private PriorityQueue<MinimumWeightMultiTreeSPEntry> runPhaseInsideCore() {
+    private void runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
         //TODO Add restriction filter or do this differently
@@ -482,14 +483,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
-        MinimumWeightMultiTreeSPEntry[] destTrees = algorithm.calcPaths(entryPoints, exitPoints);
-        MinimumWeightMultiTreeSPEntry[] nonNullTrees = Arrays.stream(destTrees).filter(Objects::nonNull).toArray(MinimumWeightMultiTreeSPEntry[]::new);
-
-        // Set all found core exit points as start points of the downward search phase
-        PriorityQueue<MinimumWeightMultiTreeSPEntry> downwardQueue = new PriorityQueue<>(destTrees.length > 0 ? destTrees.length : 1);
-
-        Collections.addAll(downwardQueue, nonNullTrees);
-        return downwardQueue;
+        algorithm.calcPaths(entryPoints, exitPoints);
     }
 
     private boolean iterateMultiTree(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {

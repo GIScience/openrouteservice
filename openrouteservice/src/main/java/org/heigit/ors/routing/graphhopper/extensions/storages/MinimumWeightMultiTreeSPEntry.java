@@ -1,19 +1,17 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
-
-import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.Arrays;
 
@@ -29,10 +27,6 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
 		updateWeights();
 	}
-	public MinimumWeightMultiTreeSPEntry(int adjNode, int edgeId, int originalEdgeId, double edgeWeight, boolean updated, MinimumWeightMultiTreeSPEntry parent, int numTrees) {
-		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
-		updateWeights();
-	}
 
 	public void setSubItemOriginalEdgeIds(int newOriginalEdgeId) {
 		for (MultiTreeSPEntryItem item : items) {
@@ -43,11 +37,11 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public void updateWeights() {
-		minimumWeight = Double.POSITIVE_INFINITY;
-
 		for (int i = 0; i < items.length; i++) {
 			MultiTreeSPEntryItem item = items[i];
-			minimumWeight = item.getWeight() < minimumWeight ? item.getWeight() : minimumWeight;
+			if(item.getWeight() < minimumWeight) {
+				minimumWeight = item.getWeight();
+			}
 		}
 	}
 
