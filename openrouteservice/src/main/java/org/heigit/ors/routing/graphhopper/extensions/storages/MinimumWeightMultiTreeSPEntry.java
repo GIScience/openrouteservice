@@ -22,6 +22,7 @@ import java.util.Arrays;
  */
 public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 	private double minimumWeight = Double.POSITIVE_INFINITY;
+	private int numInfiniteWeights = 0;
 
 	public MinimumWeightMultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MinimumWeightMultiTreeSPEntry parent, int numTrees) {
 		super(adjNode,edgeId, edgeWeight, updated, parent, numTrees);
@@ -37,17 +38,25 @@ public class MinimumWeightMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public void updateWeights() {
+		double averageWeight = 0;
+		int numNonInfiniteWeights = 0;
 		for (int i = 0; i < items.length; i++) {
 			MultiTreeSPEntryItem item = items[i];
-			if(item.getWeight() < minimumWeight) {
-				minimumWeight = item.getWeight();
+//			if(item.getWeight() < minimumWeight) {
+//				minimumWeight = item.getWeight();
+//			}
+			if(item.getWeight() != Double.POSITIVE_INFINITY) {
+				averageWeight += item.getWeight();
+				numNonInfiniteWeights++;
 			}
 		}
+		minimumWeight = averageWeight / numNonInfiniteWeights;
 	}
 
 	@Override
 	public int compareTo(MultiTreeSPEntry other) {
 		MinimumWeightMultiTreeSPEntry o = (MinimumWeightMultiTreeSPEntry) other;
+
 		if (minimumWeight < o.minimumWeight)
 			return -1;
 

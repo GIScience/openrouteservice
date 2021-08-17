@@ -15,6 +15,7 @@ package org.heigit.ors.matrix.algorithms.dijkstra;
 
 import com.carrotsearch.hppc.*;
 import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
@@ -34,13 +35,18 @@ import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MinimumWeightMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.PriorityQueue;
 
 public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<MinimumWeightMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<MinimumWeightMultiTreeSPEntry>> bestWeightMapCore;
     IntObjectMap<MinimumWeightMultiTreeSPEntry> targetMap;
     ObjectSet<MinimumWeightMultiTreeSPEntry> unsettledTargets;
+    IntIntHashMap nodeVisitations;
+    IntObjectMap<Boolean> allTargetsForSourceFound;
     IntHashSet targetSet;
     protected PriorityQueue<MinimumWeightMultiTreeSPEntry> prioQueue;
     private CHGraph chGraph;
@@ -51,6 +57,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private EdgeExplorer targetGraphExplorer;
     //TODO visited nodes
     private int visitedNodes;
+    private int skippedCombinedUnsettled;
     private int treeEntrySize;
 
     private boolean hasTurnWeighting = false;
@@ -78,6 +85,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         prioQueue = new PriorityQueue<>(size);
         bestWeightMap = new GHIntObjectHashMap<>(size);
         unsettledTargets = new ObjectHashSet<>(size);
+        nodeVisitations = new IntIntHashMap(size);
     }
 
     public void reset() {
@@ -89,6 +97,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         int targetsCount = to.length;
         this.coreExitPoints = new IntHashSet(targetsCount);
         this.foundTargets = new IntObjectHashMap<>(targetSet.size());
+        this.allTargetsForSourceFound = new IntObjectHashMap<>(treeEntrySize);
 
         for (int i = 0; i < to.length; ++i)
         {
@@ -141,6 +150,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         while (!(isMaxVisitedNodesExceeded())){
             int currNode = currEdge.getAdjNode();
             boolean isCoreNode = isCoreNode(currNode);
+            nodeVisitations.put(currNode, nodeVisitations.getOrDefault(currNode, 0) + 1);
             if(isCoreNode) {
                 EdgeIterator iter = explorer.setBaseNode(currNode);
                 exploreEntry(iter);
@@ -158,7 +168,18 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 throw new AssertionError("Empty edge cannot happen");
 //            visitedNodes++;
         }
-        System.out.println("Visited nodes " + visitedNodes);
+        int sum = 0;
+        double sumNodes = 0.0;
+        for (IntIntCursor entry : nodeVisitations) {
+            sum += entry.value;
+            sumNodes += 1.0;
+        }
+//        System.out.println("Average visitations: " + sum / sumNodes);
+//        System.out.println("Nodes that have been visited: " + sumNodes);
+        System.out.println("Visitations to nodes " + visitedNodes);
+
+//        System.out.println("Skipped combined unsettled " + skippedCombinedUnsettled);
+//        System.out.println();
     }
 
     private void exploreEntry(EdgeIterator iter) {
@@ -205,13 +226,20 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
 
     private boolean iterateMultiTreeDownwards(MinimumWeightMultiTreeSPEntry currEdge, EdgeIterator iter, MinimumWeightMultiTreeSPEntry adjEntry, boolean checkUpdate) {
         boolean addToQueue = false;
+        visitedNodes++;
+
         for (int i = 0; i < treeEntrySize; ++i) {
-            visitedNodes++;
             MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(i);
             double entryWeight = currEdgeItem.getWeight();
 
             if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !currEdgeItem.isUpdate()))
                 continue;
+            if(combinedUnsettled != null
+                    && combinedUnsettled.getItem(i).getWeight() != -1.0
+                    && entryWeight > combinedUnsettled.getItem(i).getWeight()) {
+                skippedCombinedUnsettled++;
+                continue;
+            }
             double edgeWeight;
 
             if(hasTurnWeighting && !isInORS(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem))
@@ -220,8 +248,14 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if(Double.isInfinite(edgeWeight))
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
-
+            if(combinedUnsettled != null
+                    && combinedUnsettled.getItem(i).getWeight() != -1.0
+                    && tmpWeight > combinedUnsettled.getItem(i).getWeight()) {
+                skippedCombinedUnsettled++;
+                continue;
+            }
             MultiTreeSPEntryItem eeItem = adjEntry.getItem(i);
+
             if (eeItem.getWeight() > tmpWeight) {
                 eeItem.setWeight(tmpWeight);
                 eeItem.setEdge(iter.getEdge());
@@ -264,7 +298,8 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 }
             }
             if(updated && combinedUnsettled != null)
-                this.combinedUnsettled = createSingleUnsettledTarget(this.unsettledTargets);
+                this.combinedUnsettled = updateSingleSourceSpecificUnsettledTarget();
+
         }
     }
 
@@ -376,13 +411,22 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
 
     private boolean iterateMultiTree(EdgeIterator iter, MinimumWeightMultiTreeSPEntry entry) {
         boolean addToQueue = false;
+        visitedNodes++;
+
+//        System.out.println(combinedUnsettled);
         for (int i = 0; i < treeEntrySize; ++i) {
-            visitedNodes++;
             MultiTreeSPEntryItem currEdgeItem = this.currEdge.getItem(i);
             double entryWeight = currEdgeItem.getWeight();
 
             if (entryWeight == Double.POSITIVE_INFINITY || !currEdgeItem.isUpdate())
                 continue;
+
+            if(combinedUnsettled != null
+                    && combinedUnsettled.getItem(i).getWeight() != -1.0
+                    && entryWeight > combinedUnsettled.getItem(i).getWeight()) {
+                skippedCombinedUnsettled++;
+                continue;
+            }
 
             MultiTreeSPEntryItem msptSubItem = entry.getItem(i);
             if (!accept(iter, currEdgeItem.getEdge()))
@@ -394,8 +438,13 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
-            if(combinedUnsettled != null && tmpWeight > combinedUnsettled.getItem(i).getWeight())
+            if(combinedUnsettled != null
+                    && combinedUnsettled.getItem(i).getWeight() != -1.0
+                    && tmpWeight > combinedUnsettled.getItem(i).getWeight()) {
+                skippedCombinedUnsettled++;
                 continue;
+            }
+
             if (msptSubItem.getWeight() > tmpWeight) {
                 msptSubItem.setWeight(tmpWeight);
                 msptSubItem.setEdge(iter.getEdge());
@@ -404,49 +453,78 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
             }
-//            if(addToQueue)
-//                debugCheckMerge(entry);
         }
         return addToQueue;
     }
-
-//    boolean checkMerge = true;
-//    private void debugCheckMerge(MinimumWeightMultiTreeSPEntry entry){
-//        if(!checkMerge)
-//            return;
-//        boolean allReached = true;
-//        for (int i = 0; i < treeEntrySize; ++i){
-//            if(entry.getItem(i).getWeight() == Double.POSITIVE_INFINITY)
-//                allReached = false;
-//        }
-//        if(allReached) {
-////            System.out.println("First merge at iteration " + visitedNodes);
-//            checkMerge = false;
-//        }
-//    }
 
     /**
      *
      * @return whether all goal nodes have been found
      */
     private boolean finishedDownwards() {
-        //All targets have been found, but they might not be settled yet
-        if(!unsettledTargets.isEmpty())
+        //First check whether all targets found for all sources
+        if(combinedUnsettled != null && checkAllTargetsForAllSourcesFound())
             return !queueHasSmallerWeight(combinedUnsettled);
+
+        //All targets have been found, but they might not be settled yet
+//        if(!unsettledTargets.isEmpty()) {
+//            return !queueHasSmallerWeight(combinedUnsettled);
+//        }
         //Not all targets found yet
         if (!targetSet.contains(currEdge.getAdjNode()))
             return false;
 
-        MinimumWeightMultiTreeSPEntry target = currEdge;
+//        MinimumWeightMultiTreeSPEntry target = currEdge;
         // Check whether all paths found
-        if (!isTargetFound(target))
-            return false;
-        updateTargetFound(target.getAdjNode());
+        setSourceTargetsFound();
+//            System.out.println("Found all targets for source count " + sizePost + " after nodecount " + visitedNodes);
+        createCombinedUnsettled();
+//        if (!isTargetFound(target))
+//            return false;
+//        updateTargetFound(target.getAdjNode());
+//
+//        if(!allTargetsFound())
+//            return false;
+//
+//        return unsettledTargetsExist();
+        return false;
+    }
 
-        if(!allTargetsFound())
-            return false;
+    private int countFoundTargets() {
+        int count = 0;
+        for (int source = 0; source < treeEntrySize; source++){
+            if(allTargetsForSourceFound.getOrDefault(source, false))
+                count++;
+        }
+        return count;
+    }
 
-        return unsettledTargetsExist();
+    private boolean checkAllTargetsForAllSourcesFound(){
+        for (int source = 0; source < treeEntrySize; source++){
+            if(combinedUnsettled.getItem(source).getWeight() == -1.0)
+                return false;
+        }
+        return true;
+    }
+
+    private void setSourceTargetsFound() {
+        for(int source = 0; source < treeEntrySize; source += 1){
+            if(allTargetsForSourceFound.getOrDefault(source, false) == true)
+                continue;
+            boolean allFound = true;
+            for (IntCursor targetId : targetSet) {
+                //The target has not been reached yet
+                if(!targetMap.containsKey(targetId.value))
+                    return;
+                MinimumWeightMultiTreeSPEntry target = targetMap.get(targetId.value);
+                if(target.getItem(source).getWeight() == Double.POSITIVE_INFINITY) {
+                    allFound = false;
+                    break;
+                }
+
+            }
+            allTargetsForSourceFound.put(source, allFound);
+        }
     }
 
     private boolean isTargetFound(MinimumWeightMultiTreeSPEntry target) {
@@ -460,15 +538,22 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         return true;
     }
 
-    private boolean unsettledTargetsExist() {
-        ObjectSet<MinimumWeightMultiTreeSPEntry> newUnsettledTargets = getAllSmallerThanTargetEntriesFromQueue();
-        if(newUnsettledTargets.isEmpty())
-            return true;
-        else{
-            this.unsettledTargets = newUnsettledTargets;
-            this.combinedUnsettled = createSingleUnsettledTarget(newUnsettledTargets);
-            return false;
-        }
+//    private boolean unsettledTargetsExist() {
+//        ObjectSet<MinimumWeightMultiTreeSPEntry> newUnsettledTargets = getAllSmallerThanTargetEntriesFromQueue();
+//        if(newUnsettledTargets.isEmpty())
+//            return true;
+//        else{
+//            this.unsettledTargets = newUnsettledTargets;
+//            this.combinedUnsettled = createSingleUnsettledTarget(newUnsettledTargets);
+//            return false;
+//        }
+//    }
+
+    private boolean createCombinedUnsettled() {
+        if(this.combinedUnsettled == null)
+            this.combinedUnsettled = initCombinedUnsettled();
+        updateSingleSourceSpecificUnsettledTarget();
+        return false;
     }
 
     /**
@@ -478,23 +563,49 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
      * @param unsettledTargets the set of unsettled target nodes
      * @return a single combined unsettled node
      */
-    private MinimumWeightMultiTreeSPEntry createSingleUnsettledTarget(ObjectSet<MinimumWeightMultiTreeSPEntry> unsettledTargets){
+//    private MinimumWeightMultiTreeSPEntry createSingleUnsettledTarget(ObjectSet<MinimumWeightMultiTreeSPEntry> unsettledTargets){
+//        MinimumWeightMultiTreeSPEntry combinedUnsettledTarget = new MinimumWeightMultiTreeSPEntry(-1, -1, -1.0, false, null, treeEntrySize);
+//        //Set all weights to low start weight
+//        for (int i = 0; i < treeEntrySize; ++i)
+//            combinedUnsettledTarget.getItem(i).setWeight(-1.0);
+//
+//        for(ObjectCursor<MinimumWeightMultiTreeSPEntry> entry : unsettledTargets){
+//            MinimumWeightMultiTreeSPEntry unsettledTarget = entry.value;
+//            for (int i = 0; i < treeEntrySize; ++i) {
+//                double entryWeight = unsettledTarget.getItem(i).getWeight();
+//
+//                if (entryWeight > combinedUnsettledTarget.getItem(i).getWeight()) {
+//                    combinedUnsettledTarget.getItem(i).setWeight(entryWeight);
+//                }
+//            }
+//        }
+//        return combinedUnsettledTarget;
+//    }
+
+    private MinimumWeightMultiTreeSPEntry initCombinedUnsettled(){
         MinimumWeightMultiTreeSPEntry combinedUnsettledTarget = new MinimumWeightMultiTreeSPEntry(-1, -1, -1.0, false, null, treeEntrySize);
         //Set all weights to low start weight
         for (int i = 0; i < treeEntrySize; ++i)
             combinedUnsettledTarget.getItem(i).setWeight(-1.0);
 
-        for(ObjectCursor<MinimumWeightMultiTreeSPEntry> entry : unsettledTargets){
-            MinimumWeightMultiTreeSPEntry unsettledTarget = entry.value;
-            for (int i = 0; i < treeEntrySize; ++i) {
-                double entryWeight = unsettledTarget.getItem(i).getWeight();
+        return combinedUnsettledTarget;
+    }
 
-                if (entryWeight > combinedUnsettledTarget.getItem(i).getWeight()) {
-                    combinedUnsettledTarget.getItem(i).setWeight(entryWeight);
+    private MinimumWeightMultiTreeSPEntry updateSingleSourceSpecificUnsettledTarget(){
+        //
+        for(IntObjectCursor<MinimumWeightMultiTreeSPEntry>  entry : targetMap){
+            for (int source = 0; source < treeEntrySize; ++source) {
+                if(allTargetsForSourceFound.getOrDefault(source, false) == true) {
+
+                    double entryWeight = entry.value.getItem(source).getWeight();
+
+                    if (entryWeight > this.combinedUnsettled.getItem(source).getWeight()) {
+                        this.combinedUnsettled.getItem(source).setWeight(entryWeight);
+                    }
                 }
             }
         }
-        return combinedUnsettledTarget;
+        return this.combinedUnsettled;
     }
 
     private void updateTargetFound(int node){
@@ -507,31 +618,6 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
                 return false;
         }
         return true;
-    }
-    /**
-     * Return a set of targets that can be potentially found with a shorter path
-     * This is the case if an entry in the prioQueue has a smaller weight than the target for any subitem
-     * @return
-     */
-    private ObjectSet<MinimumWeightMultiTreeSPEntry> getAllSmallerThanTargetEntriesFromQueue() {
-        ObjectSet<MinimumWeightMultiTreeSPEntry> targetsWithPotentialBetterPath = new ObjectHashSet<>();
-        Set<MinimumWeightMultiTreeSPEntry> entriesWorseThanTarget = new HashSet<>();
-        for (MinimumWeightMultiTreeSPEntry entry : prioQueue) {
-            boolean isWorseThanTarget = true;
-            for(IntObjectCursor<MinimumWeightMultiTreeSPEntry> target : targetMap) {
-                for (int i = 0; i < treeEntrySize; ++i) {
-                    if (entry.getItem(i).getWeight() < target.value.getItem(i).getWeight()) {
-                        targetsWithPotentialBetterPath.add(target.value);
-                        isWorseThanTarget = false;
-                        break;
-                    }
-                }
-            }
-            if(isWorseThanTarget)
-                entriesWorseThanTarget.add(entry);
-        }
-        prioQueue.removeAll(entriesWorseThanTarget);
-        return targetsWithPotentialBetterPath;
     }
 
     /**
