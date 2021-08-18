@@ -1097,4 +1097,70 @@ public class CoreMatrixTest {
         }
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
+
+    @Test
+    public void testSwapStartsGoalsNoCore() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDirectedGraph(createGHStorage());
+
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+        CHGraph g = contractGraph(graphHopperStorage, edgeFilterSequence);
+
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 2, null);
+        MatrixLocations destinations = new MatrixLocations(1);
+        destinations.setData(0, 1, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
+        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
+    }
+
+    @Test
+    public void testSwapStartsGoalsCore() {
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDirectedGraph(createGHStorage());
+
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(0);
+        restrictedEdges.add(1);
+        restrictedEdges.add(2);
+        restrictedEdges.add(3);
+
+        CHGraph g = contractGraph(graphHopperStorage, restrictedEdges);
+
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 2, null);
+        MatrixLocations destinations = new MatrixLocations(1);
+        destinations.setData(0, 1, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
+        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
+        MatrixResult result = null;
+        try{
+            result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
+        assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
+    }
 }

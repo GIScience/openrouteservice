@@ -22,6 +22,7 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 	protected final BooleanEncodedValue accessEnc;
 	private boolean useCore = false;
 	private boolean useCoreTurnRestrictions = false;
+	private boolean swap = false;
 	private int coreNodeLevel = -1;
 
 
@@ -37,10 +38,11 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
 	}
 
-	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean useCore, boolean useCoreTurnRestrictions) {
+	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean useCore, boolean useCoreTurnRestrictions, boolean swap) {
 		this(g, encoder, useCore);
 		if(useCore == false && useCoreTurnRestrictions == true)
 			throw new IllegalArgumentException("If turn restrictions in core should be respected, core must be respected, too.");
+		this.swap = swap;
 	}
 
 	@Override
@@ -48,7 +50,7 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 		int adj = edgeIterState.getAdjNode(); 
 		if(useCore && !useCoreTurnRestrictions) {
 			if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
-				return edgeIterState.getReverse(accessEnc);
+				return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
 			else
 				return false;
 		}
@@ -56,12 +58,12 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 			if(baseNodeLevel == coreNodeLevel && graph.getLevel(adj) == coreNodeLevel + 1)
 				return false;
 			if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
-				return edgeIterState.getReverse(accessEnc);
+				return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
 			else
 				return false;
 		}
 		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.getReverse(accessEnc);
+			return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
 		else
 			return false;
 	}

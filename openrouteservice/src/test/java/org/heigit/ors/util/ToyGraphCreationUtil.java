@@ -323,6 +323,7 @@ public class ToyGraphCreationUtil {
         g.edge(1, 0, 1, false); //11  Just to put 8, 1 and 0 in core
         return g;
     }
+
     public static GraphHopperStorage createUpdatedGraph(GraphHopperStorage g) {
         //     2---3
         //    / \
@@ -333,6 +334,18 @@ public class ToyGraphCreationUtil {
         g.edge(0, 2, 1, true); //1
         g.edge(1, 2, 1, true); //2
         g.edge(2, 3, 1, true); //3
+
+        return g;
+    }
+
+    public static GraphHopperStorage createDirectedGraph(GraphHopperStorage g) {
+        // 0----->1<-----2
+        // |     / \     |
+        // |-<--/   \-->-|
+        g.edge(0, 1, 1, false); //0
+        g.edge(1, 0, 5, false); //1
+        g.edge(1, 2, 6, false); //2
+        g.edge(2, 1, 2, false); //3
 
         return g;
     }

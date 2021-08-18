@@ -72,6 +72,7 @@ public class MultiTreeMetricsExtractor {
 	private boolean reverseOrder = true;
 	private GHLongObjectHashMap<MetricsItem> edgeMetrics;
 	private long maxEdgeId;
+	private boolean swap;
 
 	public MultiTreeMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting,
 			DistanceUnit units) {
@@ -95,6 +96,11 @@ public class MultiTreeMetricsExtractor {
 		maxEdgeId = chGraph.getAllEdges().length();
 	}
 
+	public void setSwap(boolean swap){
+		this.swap = swap;
+//		this.reverseOrder = !swap;
+	}
+
 	public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
 		int i = sourceIndex * dstData.size();
 		int[] targetNodes = dstData.getNodeIds();
@@ -111,7 +117,7 @@ public class MultiTreeMetricsExtractor {
 	}
 
 	public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData, MatrixLocations dstData, float[] times,
-			float[] distances, float[] weights) throws Exception {
+						   float[] distances, float[] weights) throws Exception {
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set");
 
@@ -170,13 +176,13 @@ public class MultiTreeMetricsExtractor {
 												if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
 														.getLevel(iterState.getAdjNode())) {
 													reverseOrder = true;
-													extractEdgeValues(iterState, false);
+													extractEdgeValues(iterState, swap);
 												} else {
 													reverseOrder = false;
-													extractEdgeValues(iterState, true);
+													extractEdgeValues(iterState, !swap);
 												}
 											} else {
-												extractEdgeValues(iterState, false);
+												extractEdgeValues(iterState, swap);
 											}
 
 											if (unpackDistance)
@@ -189,7 +195,7 @@ public class MultiTreeMetricsExtractor {
 											edgeDistance = (distUnits == DistanceUnit.METERS)
 													? iterState.getDistance()
 													: DistanceUnitUtil.convert(iterState.getDistance(),
-															DistanceUnit.METERS, distUnits);
+													DistanceUnit.METERS, distUnits);
 									} else {
 										EdgeIteratorState iter = graph.getEdgeIteratorState(sptItem.getEdge(),
 												targetEntry.getAdjNode());
