@@ -50,6 +50,7 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -57,7 +58,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
-import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
@@ -72,8 +72,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -643,14 +641,25 @@ public class RoutingProfile {
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
             graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
+
+            //TODO add the edgefilter here already, because it needs to be used when finding the points
+            //USe something like this
+//            EdgeFilter edgeFilter = this.mGraphHopper.edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+            EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+            edgeFilterSequence.add(DefaultEdgeFilter.allEdges(flagEncoder));
+//            try {
+//                edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.HIGHWAYS, this.mGraphHopper.getGraphHopperStorage()));
+//            }
+//            catch (Exception e){
+//            }
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilterSequence, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
 
             //TODO edgeFIlter, additionaledgefilter
 //            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), encoder, getGraphHopperStorage());
 
-            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), INFINITE_U_TURN_COSTS);
+            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), MatrixServiceSettings.getUTurnCost());
             ((TurnWeighting)turnWeighting).setInORS(true);
             alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
 

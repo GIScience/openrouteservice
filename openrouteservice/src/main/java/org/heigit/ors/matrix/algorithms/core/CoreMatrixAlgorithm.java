@@ -15,8 +15,6 @@ package org.heigit.ors.matrix.algorithms.core;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.ObjectHashSet;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
@@ -35,10 +33,11 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToManyMultiTreeAlgorithm;
+import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToMany;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
@@ -159,6 +158,47 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             this.additionalCoreEdgeFilter.setInCore(true);
 
             runPhaseInsideCore();
+
+            boolean outputNodeData = false;
+            if(outputNodeData) {
+                try {
+                    int nodeToInspect = dstData.getNodeId(0);
+                    int nodeToGoTo = srcData.getNodeId(0);
+                    AveragedMultiTreeSPEntry goalNode = targetMap.get(nodeToInspect);
+
+                    if (goalNode != null) {
+                        MultiTreeSPEntryItem item = goalNode.getItem(0);
+                        int node = goalNode.getAdjNode();
+                        while (node != nodeToGoTo) {
+                            System.out.print("[");
+                            System.out.print(this.graph.getNodeAccess().getLon(node));
+                            System.out.print(",");
+                            System.out.print(this.graph.getNodeAccess().getLat(node));
+                            System.out.print("],");
+                            System.out.println();
+                            node = item.getParent().getAdjNode();
+                            item = item.getParent().getItem(0);
+                        }
+                        System.out.print("[");
+                        System.out.print(this.graph.getNodeAccess().getLon(node));
+                        System.out.print(",");
+                        System.out.print(this.graph.getNodeAccess().getLat(node));
+                        System.out.print("],");
+                        System.out.println();
+                    }
+                    if (goalNode != null) {
+                        MultiTreeSPEntryItem item = goalNode.getItem(0);
+                        int node = goalNode.getAdjNode();
+                        System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
+                        while (node != nodeToGoTo) {
+                            node = item.getParent().getAdjNode();
+                            item = item.getParent().getItem(0);
+                            System.out.println("Node " + node + " level " + chGraph.getLevel(node) + " weight " + item.getWeight());
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
 
             extractMetrics(srcData, dstData, times, distances, weights);
         }
@@ -511,9 +551,18 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      **/
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
-        DijkstraManyToManyMultiTreeAlgorithm algorithm = new DijkstraManyToManyMultiTreeAlgorithm(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
-        //TODO Add restriction filter or do this differently
-        algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
+        DijkstraManyToMany algorithm = new DijkstraManyToMany(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
+        // This is for testing only. Get filter from request instead
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+        edgeFilterSequence.add(this.additionalCoreEdgeFilter);
+        //TODO
+//        try {
+//            edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.HIGHWAYS, graphHopper.getGraphHopperStorage()));
+//        }
+//        catch (Exception e){
+//        }
+
+        algorithm.setEdgeFilter(edgeFilterSequence);
         algorithm.setTreeEntrySize(this.treeEntrySize);
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
         algorithm.setMaxVisitedNodes(this.maxVisitedNodes);

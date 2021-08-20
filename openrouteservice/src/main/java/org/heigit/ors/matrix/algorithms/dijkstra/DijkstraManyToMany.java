@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
 
-public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRoutingAlgorithm {
+public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<AveragedMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<AveragedMultiTreeSPEntry>> bestWeightMapCore;
     IntObjectMap<AveragedMultiTreeSPEntry> targetMap;
@@ -61,7 +61,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
     private TurnWeighting turnWeighting = null;
     private boolean swap = false;
 
-    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToMany(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
         this.chGraph = chGraph;
         this.coreNodeLevel = chGraph.getNodes() + 1;
@@ -70,7 +70,7 @@ public class DijkstraManyToManyMultiTreeAlgorithm extends AbstractManyToManyRout
         initCollections(size);
     }
 
-    public DijkstraManyToManyMultiTreeAlgorithm(Graph graph, CHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToMany(Graph graph, CHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
         this(graph, chGraph, weighting, tMode);
         bestWeightMap = existingWeightMap;
         bestWeightMapCore = existingCoreWeightMap;
