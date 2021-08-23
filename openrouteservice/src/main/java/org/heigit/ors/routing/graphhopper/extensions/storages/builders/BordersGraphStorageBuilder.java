@@ -56,7 +56,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
     /**
      * Initialize the Borders graph extension <br/><br/>
-     * Files required for the process are obtained from the app.config and passed to a CountryBordersReader object
+     * Files required for the process are obtained from the ors-config.json and passed to a CountryBordersReader object
      * which stores information required for the process (i.e. country geometries and border types)
      *
      * @param graphhopper

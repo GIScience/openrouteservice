@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 graphs=/ors-core/data/graphs
-tomcat_appconfig=/usr/local/tomcat/webapps/ors/WEB-INF/classes/app.config
-source_appconfig=/ors-core/openrouteservice/src/main/resources/app.config
+tomcat_ors_config=/usr/local/tomcat/webapps/ors/WEB-INF/classes/ors-config.json
+source_ors_config=/ors-core/openrouteservice/src/main/resources/ors-config.json
 
 if [ -z "${CATALINA_OPTS}" ]; then
 	export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
@@ -18,15 +18,18 @@ echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 if [ "${BUILD_GRAPHS}" = "True" ]; then
   rm -rf ${graphs}/*
 fi
-
-# if Tomcat built before, copy the mounted app.config to the Tomcat webapp app.config, else copy it from the source
+echo "### openrouteservice configuration ###"
+# if Tomcat built before, copy the mounted ors-config.json to the Tomcat webapp ors-config.json, else copy it from the source
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
-	cp -f /ors-conf/app.config $tomcat_appconfig
+  echo "Tomcat already built: Copying /ors-conf/ors-config.json to tomcat webapp folder"
+	cp -f /ors-conf/ors-config.json $tomcat_ors_config
 else
-	if [ ! -f /ors-conf/app.config ]; then
-		cp -f $source_appconfig /ors-conf/app.config
+	if [ ! -f /ors-conf/ors-config.json ]; then
+	  echo "No ors-config.json in ors-conf folder. Copy config from ${source_ors_config}"
+		cp -f $source_ors_config /ors-conf/ors-config.json
 	else
-		cp -f /ors-conf/app.config $source_appconfig
+	  echo "ors-config.json exists in ors-conf folder. Copy config to ${source_ors_config}"
+		cp -f /ors-conf/ors-config.json $source_ors_config
 	fi
 	echo "### Package openrouteservice and deploy to Tomcat ###"
 	mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \

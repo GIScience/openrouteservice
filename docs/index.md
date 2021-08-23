@@ -31,7 +31,7 @@ If that doesn't work, the sidebar has you covered:
   info about setting up the ors locally, whether from
   [docker](installation/Running-with-Docker) or from
   [source](installation/Building-from-Source). It also contains info about
-  [configuring openrouteservice](installation/Configuration-%28app-config%29),
+  [configuring openrouteservice](installation/Configuration),
   [IDE usage](installation-Opening-Project-in-IntelliJ) and
   [more docker stuff](installation/Advanced-Docker-Setup)
 * [Data](Data) contains info about the used data sets.

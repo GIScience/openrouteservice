@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
@@ -72,11 +72,11 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             row = csvBuffer.readLine();
             char separator = row.contains(";") ? ';': ',';
             String[] rowValues = new String[2];
-            
+
             while ((row = csvBuffer.readLine()) != null)  {
-                if (!parseCSVrow(row, separator, rowValues)) 
+                if (!parseCSVrow(row, separator, rowValues))
                 	continue;
-                
+
                 greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
             }
         } catch (IOException openFileEx) {
@@ -88,7 +88,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private boolean parseCSVrow(String row, char separator,  String[] rowValues) {
         if (Helper.isEmpty(row))
         	return false;
-        
+
         int pos = row.indexOf(separator);
         if (pos > 0) {
         	rowValues[0] = row.substring(0, pos).trim();
@@ -129,7 +129,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         // No such @id key in the _greenIndices, or the value of it is null
         // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-        // TODO this DEFAULT_LEVEL should be put in the app.config file and
+        // TODO this DEFAULT_LEVEL should be put in the ors-config.json file and
         // injected back in the code
         if (gi == null)
             return (byte) (DEFAULT_LEVEL);

@@ -714,6 +714,44 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testCompleteMetadata() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("id", "request123");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'metadata'}", is(true))
+                .body("metadata.containsKey('id')", is(true))
+                .body("metadata.id", is("request123"))
+                .body("metadata.containsKey('attribution')", is(true))
+                .body("metadata.service", is("routing"))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.query.containsKey('coordinates')", is(true))
+                .body("metadata.query.coordinates.size()", is(2))
+                .body("metadata.query.coordinates[0][0]", is(8.678613f))
+                .body("metadata.query.coordinates[0][1]", is(49.411721f))
+                .body("metadata.query.coordinates[1][0]", is(8.687782f))
+                .body("metadata.query.coordinates[1][1]", is(49.424597f))
+                .body("metadata.query.profile", is("driving-car"))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.engine.containsKey('version')", is(true))
+                .body("metadata.engine.containsKey('build_date')", is(true))
+                .body("metadata.engine.containsKey('graph_date')", is(true))
+                .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
     public void expectSegmentsToMatchCoordinates() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));

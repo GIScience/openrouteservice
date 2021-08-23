@@ -55,7 +55,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     public void generateIsochronesFromRequest(IsochronesRequest request) throws Exception {
         isochroneRequest = convertIsochroneRequest(request);
-        // request object is built, now check if app config allows all settings
+        // request object is built, now check if ors config allows all settings
         List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
         // TODO where should we put the validation code?

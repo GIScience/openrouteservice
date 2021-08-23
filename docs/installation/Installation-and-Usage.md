@@ -22,7 +22,7 @@ For more details, check the [Running with Docker](Running-with-Docker)-Section. 
 
 * [Building from Source](Building-from-Source)
 * [System requirements](System-Requirements)
-* [Configuration](Configuration-(app.config))
+* [Configuration](Configuration)
 
 ## Usage
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:

@@ -5,27 +5,21 @@ title: Configuration
 ---
 
 # Configuration
-Configuration of setting up your own **openrouteservice** instance is made with a app.config file formatted as JSON.
-This config file controls which geographic area is covered, which services are enabled and for which routing profiles graphs will be built for.
-In the following you will find the settings with descriptions which can be changed to your needs.
-An example `app.config` can be found [here](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/resources/app.config.sample).
+The configuration of your own **openrouteservice** instance is read from the `ors-config.json` file.
+For a quick start with the default values, the [ors-config-sample.json][sample_config] can be copied to that location
+and adjusted as needed.
 
-# app.config
-
-| key  | type | description | example value |
-|------|------|-------------|---------------|
-|  ors   |  object | describes the top level element   |  [ors](#ors)     |
-
----
+[comment]: <> (TOC here?)
 
 ## ors
+The top level element.
 
 | key | type | description | example value |
 |-----|------|-------------|-------|
 | info  |  object | the topmost element to provide basic information about the service for signing and information purposes           |  [info](#orsinfo)   |
 | services   |  object |   an object comprising the services       |   [services](#orsservices)    |  
 | logging  |  object | the logging properties      |  [logging](#orslogging)   |
-| system_message   |  list |   List of system message objects       |   [system messages](#orssystem_message)    |  
+| system_message   |  list |   List of system message objects       |   [system messages](#orssystem_message)    |
 
 ---
 
@@ -112,7 +106,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   min_network_size    |  number |      |   `200`  |
 |   min_one_way_network_size    |  number |      |   `200`  |
 |   methods    |  object |      |   [methods](#orsservicesroutingprofilesdefault_paramspreparationmethods)  |     
-              
+
 ##### **ors.services.routing.profiles.default_params.preparation.methods**
 
 | key | type | description | example value |
@@ -187,13 +181,13 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 ---
 
 ##### **ors.services.routing.profiles.profile-XXX**
-   
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   parameters    |  object |  the specific profile parameters of an profile    |   [parameters](#orsservicesroutingprofilesprofile-xxxparameters)  |
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters**
-   
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   encoder_options    |  string |      |  `"turn_costs=true\|block_fords=false"` [encoder options](#orsservicesroutingprofilesprofile-xxxparametersencoder_options) |
@@ -215,7 +209,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 |   preferred_speed_factor    |  number | For wheelchair profile only! Travel speeds on edges classified as preferrable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways   |   `preferred_speed_factor=1.2`  |
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters.ext_storages**
-   
+
 | key | type | description | example value |
 |-----|------|-------------|-------| 
 |   WayCategory    |  object | Returns the way category in the route response, Compatible for any profile type    |   `{}`  |
@@ -291,7 +285,7 @@ An example `app.config` can be found [here](https://github.com/GIScience/openrou
 
 ---
 
-#### ors.system_message 
+#### ors.system_message
 Array of message objects where each has
 
 | key | type | description | example value |
@@ -344,3 +338,5 @@ system_message: [
     }
 ]
 ```
+
+[sample_config]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/resources/ors-config-sample.json
