@@ -55,7 +55,7 @@ public class IsochronesRequestHandler extends GenericHandler {
 
     public void generateIsochronesFromRequest(IsochronesRequest request) throws Exception {
         isochroneRequest = convertIsochroneRequest(request);
-        // request object is built, now check if app config allows all settings
+        // request object is built, now check if ors config allows all settings
         List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
         // TODO where should we put the validation code?
@@ -250,21 +250,21 @@ public class IsochronesRequestHandler extends GenericHandler {
         if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
             throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
 
-        for (int i = 0; i < travellers.size(); ++i) {
-            TravellerInfo traveller = travellers.get(i);
+        for (TravellerInfo traveller : travellers) {
             int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());
             double maxRange = traveller.getMaximumRange();
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
 
-            if (IsochronesServiceSettings.getMaximumIntervals() > 0 && IsochronesServiceSettings.getMaximumIntervals() < traveller.getRanges().length) {
-                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Integer.toString(traveller.getRanges().length), Integer.toString(IsochronesServiceSettings.getMaximumIntervals()));
+            int maxIntervals = IsochronesServiceSettings.getMaximumIntervals();
+            if (maxIntervals > 0 && maxIntervals < traveller.getRanges().length) {
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM, IsochronesRequest.PARAM_INTERVAL, "Resulting number of " + traveller.getRanges().length + " isochrones exceeds maximum value of " + maxIntervals + ".");
             }
         }
 
     }
 
-    void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues, Double intervalValue) throws ParameterValueException {
+    void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues, Double intervalValue) throws ParameterValueException, ParameterOutOfRangeException {
         double rangeValue = -1;
         if (rangeValues.size() == 1) {
             try {
@@ -288,6 +288,9 @@ public class IsochronesRequestHandler extends GenericHandler {
         // interval, only use if one range is defined
 
         if (rangeValues.size() == 1 && rangeValue != -1 && intervalValue != null){
+            if (intervalValue > rangeValue) {
+                throw new ParameterOutOfRangeException (IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_INTERVAL, Double.toString(intervalValue), Double.toString(rangeValue));
+            }
             travellerInfo.setRanges(rangeValue, intervalValue);
         }
     }

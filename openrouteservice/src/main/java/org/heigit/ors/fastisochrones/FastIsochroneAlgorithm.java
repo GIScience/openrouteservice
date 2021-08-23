@@ -44,6 +44,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     protected Map<Integer, Map<Integer, Double>> upAndCoreGraphDistMap;
     protected Map<Integer, IntObjectMap<SPTEntry>> activeCellMaps;
     int from;
+    int fromNonVirtual;
 
     public FastIsochroneAlgorithm(Graph graph,
                                   Weighting weighting,
@@ -62,8 +63,9 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     }
 
     @Override
-    public void init(int from, double isochroneLimit) {
+    public void init(int from, int fromNonVirtual, double isochroneLimit) {
         this.from = from;
+        this.fromNonVirtual = fromNonVirtual;
         this.isochroneLimit = isochroneLimit;
         activeBorderNodes = new HashSet<>();
         inactiveBorderNodes = new HashSet<>();
@@ -73,7 +75,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
 
     @Override
     void runStartCellPhase() {
-        int startCell = isochroneNodeStorage.getCellId(from);
+        int startCell = isochroneNodeStorage.getCellId(fromNonVirtual);
         CoreRangeDijkstra coreRangeDijkstra = new CoreRangeDijkstra(graph, weighting, isochroneNodeStorage, borderNodeDistanceStorage);
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         if (additionalEdgeFilter != null)
@@ -129,7 +131,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
     @Override
     void runActiveCellPhase() {
         activeCellMaps = new HashMap<>(upAndCoreGraphDistMap.entrySet().size());
-        activeCellMaps.put(isochroneNodeStorage.getCellId(from), startCellMap);
+        activeCellMaps.put(isochroneNodeStorage.getCellId(fromNonVirtual), startCellMap);
         for (Map.Entry<Integer, Map<Integer, Double>> entry : upAndCoreGraphDistMap.entrySet()) {
             ActiveCellDijkstra activeCellDijkstra = new ActiveCellDijkstra(graph, weighting, isochroneNodeStorage, entry.getKey());
             activeCellDijkstra.setIsochroneLimit(isochroneLimit);

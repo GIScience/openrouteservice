@@ -86,7 +86,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
     }
 
     private boolean isCoreNode(int node) {
-        return graph.getLevel(node) == coreNodeLevel;
+        return graph.getLevel(node) >= coreNodeLevel;
     }
 
     public void addRestrictionFilter (EdgeFilter restrictions) {

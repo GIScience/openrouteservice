@@ -27,9 +27,11 @@ import com.graphhopper.routing.template.RoundTripRoutingTemplate;
 import com.graphhopper.routing.template.RoutingTemplate;
 import com.graphhopper.routing.template.ViaRoutingTemplate;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHProfile;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.*;
@@ -40,6 +42,7 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -51,22 +54,15 @@ import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidBordersCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeaturesCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.HeavyVehicleCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.WheelchairCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.MaximumSpeedCoreEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
@@ -80,7 +76,7 @@ import java.util.concurrent.locks.Lock;
 
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.*;
-
+import static org.heigit.ors.routing.RouteResult.*;
 
 
 public class ORSGraphHopper extends GraphHopper {
@@ -298,22 +294,14 @@ public class ORSGraphHopper extends GraphHopper {
 						throw new IllegalArgumentException(
 								"Heading is not (fully) supported for CHGraph. See issue #483");
 
-					// if LM is enabled we have the LMFactory with the CH algo!
-					RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-					if (tmpAlgoFactory instanceof CoreLMAlgoFactoryDecorator.CoreLMRAFactory)
-						chAlgoFactory = ((CoreLMAlgoFactoryDecorator.CoreLMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
-
-					if (chAlgoFactory instanceof PrepareCore)
-						weighting = ((PrepareCore) chAlgoFactory).getWeighting();
-					else
-						throw new IllegalStateException(
-								"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-
 					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
 
 					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
 					queryGraph.lookup(qResults);
+
+					weighting = createWeighting(hints, encoder, queryGraph);
+					tMode = chProfile.getTraversalMode();
 				}
 				else{
 					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
@@ -351,38 +339,39 @@ public class ORSGraphHopper extends GraphHopper {
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
 
-				if(hints.has("maximum_speed")) {
-					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
+				if (hints.has(RouteRequest.PARAM_MAXIMUM_SPEED)) {
+					double maximumSpeed = hints.getDouble("maximum_speed", maximumSpeedLowerBound);
+					weighting.setSpeedCalculator(new MaximumSpeedCalculator(weighting.getSpeedCalculator(), maximumSpeed));
 				}
 
+				if (isRequestTimeDependent(hints)) {
+					weighting = createTimeDependentAccessWeighting(weighting);
 
-				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
-				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
-				if (weighting instanceof TurnWeighting)
-	                ((TurnWeighting)weighting).setInORS(true);
+					if (weighting.isTimeDependent())
+						algoStr = TD_ASTAR;
 
-				weighting = createTimeDependentAccessWeighting(weighting, algoStr);
-
-				if (weighting.isTimeDependent()) {
 					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
-					String key;
 					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
 					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
-					ghRsp.getHints().put("timezone.departure", dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
-					ghRsp.getHints().put("timezone.arrival", dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
-					if (hints.has("departure")) {
-						key = "departure";
+					ghRsp.getHints().put(KEY_TIMEZONE_DEPARTURE, dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
+					ghRsp.getHints().put(KEY_TIMEZONE_ARRIVAL, dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
+
+					String key;
+					if (hints.has(RouteRequest.PARAM_DEPARTURE)) {
+						key = RouteRequest.PARAM_DEPARTURE;
 						point = departurePoint;
 					} else {
-						key = "arrival";
+						key = RouteRequest.PARAM_ARRIVAL;
 						point = arrivalPoint;
 					}
 					String time = hints.get(key, "");
 					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
-				} else {
-					hints.remove("departure");
-					hints.remove("arrival");
 				}
+
+				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
+				if (weighting instanceof TurnWeighting)
+					((TurnWeighting)weighting).setInORS(true);
 
 				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
 						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
@@ -391,9 +380,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
 
-				String date = getGraphHopperStorage().getProperties().get("datareader.data.date");
+				String date = getGraphHopperStorage().getProperties().get("datareader.import.date");
 				if (Helper.isEmpty(date)) {
-					date = getGraphHopperStorage().getProperties().get("datareader.import.date");
+					date = getGraphHopperStorage().getProperties().get("datareader.data.date");
 				}
 				ghRsp.getHints().put("data.date", date);
 
@@ -418,6 +407,18 @@ public class ORSGraphHopper extends GraphHopper {
 		} finally {
 			readLock.unlock();
 		}
+	}
+
+	private boolean isRequestTimeDependent(HintsMap hints) {
+		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
+	}
+
+	public Weighting createTimeDependentAccessWeighting(Weighting weighting) {
+		FlagEncoder flagEncoder = weighting.getFlagEncoder();
+		if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
+			return new TimeDependentAccessWeighting(weighting, getGraphHopperStorage(), flagEncoder);
+		else
+			return weighting;
 	}
 
 	public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
@@ -609,53 +610,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GraphHopperStorage gs = getGraphHopperStorage();
 
-		EncodingManager encodingManager = getEncodingManager();
-
-		int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
-
-		/* Initialize edge filter sequence */
-
-		EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
-		/* Heavy vehicle filter */
-
-		if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-			coreEdgeFilter.add(new HeavyVehicleCoreEdgeFilter(gs));
-		}
-
-		/* Avoid features */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
-			coreEdgeFilter.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
-		}
-
-		/* Avoid borders of some form */
-
-		if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
-			coreEdgeFilter.add(new AvoidBordersCoreEdgeFilter(gs));
-		}
-
-		if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
-			coreEdgeFilter.add(new WheelchairCoreEdgeFilter(gs));
-		}
-
-		/* Maximum Speed Filter */
-		if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0 ) {
-			FlagEncoder flagEncoder = null;
-			if(encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.HEAVYVEHICLE);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-			else if(encodingManager.hasEncoder(FlagEncoderNames.CAR_ORS)) {
-				flagEncoder = getEncodingManager().getEncoder(FlagEncoderNames.CAR_ORS);
-				coreEdgeFilter.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, maximumSpeedLowerBound));
-			}
-		}
-
-		/* End filter sequence initialization */
-
 		//Create the core
 		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(gs, coreEdgeFilter);
+			coreFactoryDecorator.createPreparations(gs, processContext);
 		if (!isCorePrepared())
 			prepareCore();
 
@@ -721,8 +678,18 @@ public class ORSGraphHopper extends GraphHopper {
 			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
 					// ghStorage is null at this point
+
+					// extract weighting string and traversal mode
+					String configStr = "";
+					if (coreWeightingStr.contains("|")) {
+						configStr = coreWeightingStr;
+						coreWeightingStr = coreWeightingStr.split("\\|")[0];
+					}
+					PMap config = new PMap(configStr);
+
+					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
+					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}
 		}
@@ -763,13 +730,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public void initCoreLMAlgoFactoryDecorator() {
 		if (!coreLMFactoryDecorator.hasWeightings()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
-					// ghStorage is null at this point
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
-					coreLMFactoryDecorator.addWeighting(weighting);
-				}
-			}
+			for (CHProfile profile : coreFactoryDecorator.getCHProfiles())
+				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
 		}
 	}
 

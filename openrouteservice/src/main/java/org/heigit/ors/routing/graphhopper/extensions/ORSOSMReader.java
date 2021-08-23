@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -355,8 +355,8 @@ public class ORSOSMReader extends OSMReader {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
-	@Override 
+
+	@Override
     protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
     {
 		try
@@ -366,7 +366,7 @@ public class ORSOSMReader extends OSMReader {
 		catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
-		
+
 		return false;
     }
 
@@ -423,7 +423,7 @@ public class ORSOSMReader extends OSMReader {
 			double ele = node.getEle();
 			if (Double.isNaN(ele)) {
 				if (!getElevationFromPreprocessedDataErrorLogged) {
-					LOGGER.error("elevation_preprocessed set to true in app.config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
 					getElevationFromPreprocessedDataErrorLogged = true;
 				}
 				ele = 0;

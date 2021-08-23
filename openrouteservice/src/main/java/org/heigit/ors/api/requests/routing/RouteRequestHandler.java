@@ -147,6 +147,9 @@ public class RouteRequestHandler extends GenericHandler {
         if (request.hasBearings())
             params.setBearings(convertBearings(request.getBearings(), coordinatesLength));
 
+        if (request.hasContinueStraightAtWaypoints())
+            params.setContinueStraight(request.getContinueStraightAtWaypoints());
+
         if (request.hasMaximumSearchRadii())
             params.setMaximumRadiuses(convertMaxRadii(request.getMaximumSearchRadii(), coordinatesLength, profileType));
 
@@ -425,8 +428,13 @@ public class RouteRequestHandler extends GenericHandler {
 
     private double[] convertMaxRadii(Double[] radiiIn, int coordinatesLength, int profileType) throws ParameterValueException {
         if (radiiIn != null) {
+            if (radiiIn.length == 1) {
+                double[] maxRadii = new double[coordinatesLength];
+                Arrays.fill(maxRadii, radiiIn[0]);
+                return maxRadii;
+            }
             if (radiiIn.length != coordinatesLength)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_RADII, Arrays.toString(radiiIn), "The number of radius pairs must be equal to the number of waypoints on the route.");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_RADII, Arrays.toString(radiiIn), "The number of specified radiuses must be one or equal to the number of specified waypoints.");
             return Stream.of(radiiIn).mapToDouble(Double::doubleValue).toArray();
         } else if (profileType == RoutingProfileType.WHEELCHAIR) {
             // As there are generally less ways that can be used as pedestrian ways, we need to restrict search

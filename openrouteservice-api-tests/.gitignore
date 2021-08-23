@@ -1,4 +1,5 @@
 /target/
 /.classpath
 /.gitignore
-/data/elevation/srtm_38_03.gh
+/data/elevation/*
+!/data/elevation/srtm_38_03.zip
