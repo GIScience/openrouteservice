@@ -18,16 +18,18 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 public class MatrixAlgorithmFactory {
 	private MatrixAlgorithmFactory() {}
 
 	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
-		//TODO
-		return new CoreMatrixAlgorithm();
 //		if (!req.getFlexibleMode() && gh.isCHEnabled())
 //			return new RPHASTMatrixAlgorithm();
-//		else
-//			return new DijkstraMatrixAlgorithm();
+//		if(gh instanceof ORSGraphHopper) {
+//			if(((ORSGraphHopper)gh).isCoreEnabled())
+				return new CoreMatrixAlgorithm();
+//		}
+//		return new DijkstraMatrixAlgorithm();
 	}
 }

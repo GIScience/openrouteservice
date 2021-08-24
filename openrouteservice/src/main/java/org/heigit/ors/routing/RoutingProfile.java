@@ -48,6 +48,7 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -627,6 +628,7 @@ public class RoutingProfile {
         try {
             HintsMap hintsMap = new HintsMap();
             //TODO Graph choice depending on algorithm
+            RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
 
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
@@ -637,32 +639,22 @@ public class RoutingProfile {
             }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
-
+//            hintsMap.merge(searchCntx.getProperties());
+            ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
             graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
 
+            EdgeFilter edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
 
-            //TODO add the edgefilter here already, because it needs to be used when finding the points
-            //USe something like this
-//            EdgeFilter edgeFilter = this.mGraphHopper.edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), flagEncoder, this.mGraphHopper.getGraphHopperStorage());
-            EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-            edgeFilterSequence.add(DefaultEdgeFilter.allEdges(flagEncoder));
-//            try {
-//                edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.HIGHWAYS, this.mGraphHopper.getGraphHopperStorage()));
-//            }
-//            catch (Exception e){
-//            }
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilterSequence, req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-
-
-            //TODO edgeFIlter, additionaledgefilter
-//            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(req.getAdditionalHints(), encoder, getGraphHopperStorage());
 
             Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), MatrixServiceSettings.getUTurnCost());
             ((TurnWeighting)turnWeighting).setInORS(true);
-            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
-
+            if(alg instanceof  CoreMatrixAlgorithm)
+                ((CoreMatrixAlgorithm)alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting, edgeFilter);
+            else
+                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
             throw ex;

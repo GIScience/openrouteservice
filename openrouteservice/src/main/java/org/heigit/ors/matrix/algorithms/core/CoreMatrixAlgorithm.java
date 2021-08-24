@@ -552,16 +552,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToMany algorithm = new DijkstraManyToMany(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
-        // This is for testing only. Get filter from request instead
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         edgeFilterSequence.add(this.additionalCoreEdgeFilter);
-        //TODO
-//        try {
-//            edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.HIGHWAYS, graphHopper.getGraphHopperStorage()));
-//        }
-//        catch (Exception e){
-//        }
-
         algorithm.setEdgeFilter(edgeFilterSequence);
         algorithm.setTreeEntrySize(this.treeEntrySize);
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);

@@ -15,6 +15,7 @@ package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.ServiceRequest;
 
@@ -28,6 +29,7 @@ public class MatrixRequest extends ServiceRequest {
 	private boolean resolveLocations = false;
 	private boolean flexibleMode = false;
 	private String algorithm;
+	private RouteSearchParameters searchParameters;
 
 	public Coordinate[] getSources()
 	{
@@ -110,6 +112,13 @@ public class MatrixRequest extends ServiceRequest {
 
 	public void setAlgorithm(String algorithm) {
 		this.algorithm = algorithm;
+	}
+
+	public void setSearchParameters(RouteSearchParameters searchParameters) {
+		this.searchParameters = searchParameters;
+	}
+	public RouteSearchParameters getSearchParameters() {
+		return searchParameters;
 	}
 
 	public boolean isValid(){
