@@ -16,6 +16,7 @@
       },
       "isochrones": {
         "enabled": true,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         "maximum_range_distance": [
           {
             "profiles": "any",
