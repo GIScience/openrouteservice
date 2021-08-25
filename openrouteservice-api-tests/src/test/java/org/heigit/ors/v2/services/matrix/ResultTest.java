@@ -87,6 +87,18 @@ public class ResultTest extends ServiceTest {
 
         addParameter("locations5", locations5);
 
+        JSONArray locations6 = new JSONArray();
+        coord1 = new JSONArray();
+        coord1.put(8.684081);
+        coord1.put(49.398155);
+        locations6.put(coord1);
+        coord2 = new JSONArray();
+        coord2.put(8.684703);
+        coord2.put(49.397359);
+        locations6.put(coord2);
+
+        addParameter("locations6", locations6);
+
         // Fake array to test maximum exceedings
         JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1);
         addParameter("maximumLocations", maximumLocations);
@@ -847,6 +859,35 @@ public class ResultTest extends ServiceTest {
                 .body("destinations[2].snapped_distance", is(7.11f))
                 .body("sources[0].snapped_distance", is(8.98f))
                 .body("sources[1].snapped_distance", is(7.87f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void expectTurnRestrictionDurations() {
+        JSONObject body = new JSONObject();
+        JSONObject options = new JSONObject();
+        body.put("locations", getParameter("locations6"));
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsDuration"));
+        body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
+
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations.size()", is(2))
+                .body("durations[0][0]", is(0.0f))
+                .body("durations[0][1]", is(126.45f))
+                .body("durations[1][0]", is(48.27f))
+                .body("durations[1][1]", is(0.0f))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 }
