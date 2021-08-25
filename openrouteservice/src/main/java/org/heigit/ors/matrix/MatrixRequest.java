@@ -29,7 +29,7 @@ public class MatrixRequest extends ServiceRequest {
 	private boolean resolveLocations = false;
 	private boolean flexibleMode = false;
 	private String algorithm;
-	private RouteSearchParameters searchParameters;
+	private MatrixSearchParameters searchParameters;
 
 	public Coordinate[] getSources()
 	{
@@ -114,10 +114,10 @@ public class MatrixRequest extends ServiceRequest {
 		this.algorithm = algorithm;
 	}
 
-	public void setSearchParameters(RouteSearchParameters searchParameters) {
+	public void setSearchParameters(MatrixSearchParameters searchParameters) {
 		this.searchParameters = searchParameters;
 	}
-	public RouteSearchParameters getSearchParameters() {
+	public MatrixSearchParameters getSearchParameters() {
 		return searchParameters;
 	}
 

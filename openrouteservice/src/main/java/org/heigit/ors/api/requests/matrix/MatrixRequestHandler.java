@@ -30,6 +30,7 @@ import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
@@ -91,14 +92,14 @@ public class MatrixRequestHandler {
         if (request.hasUnits())
             coreRequest.setUnits(convertUnits(request.getUnits()));
 
-        RouteSearchParameters params = new RouteSearchParameters();
+        MatrixSearchParameters params = new MatrixSearchParameters();
         if(request.hasMatrixOptions())
-            params = processMatrixRequestOptions(request, params);
+            coreRequest.setFlexibleMode(processMatrixRequestOptions(request, params));
         coreRequest.setSearchParameters(params);
         return coreRequest;
     }
 
-    private static RouteSearchParameters processMatrixRequestOptions(MatrixRequest request, RouteSearchParameters params) throws StatusCodeException {
+    private static boolean processMatrixRequestOptions(MatrixRequest request, MatrixSearchParameters params) throws StatusCodeException {
         MatrixRequestOptions routeOptions = request.getMatrixOptions();
         try {
             int profileType = convertRouteProfileType(request.getProfile());
@@ -106,34 +107,42 @@ public class MatrixRequestHandler {
         } catch (Exception e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
-        params = processRequestOptions(routeOptions, params);
-//        if (routeOptions.hasProfileParams())
-//            params.setProfileParams(convertParameters(routeOptions, params.getProfileType()));
-        return params;
+        boolean flexibleMode = processRequestOptions(routeOptions, params);
+        return flexibleMode;
     }
 
     public static int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    public static RouteSearchParameters processRequestOptions(MatrixRequestOptions options, RouteSearchParameters params) throws StatusCodeException {
-        if (options.hasAvoidBorders())
+    public static boolean processRequestOptions(MatrixRequestOptions options, MatrixSearchParameters params) throws StatusCodeException {
+        boolean flexibleMode = false;
+        if (options.hasAvoidBorders()) {
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+            flexibleMode = true;
+        }
 
-        if (options.hasAvoidPolygonFeatures())
+        if (options.hasAvoidPolygonFeatures()) {
             params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+            flexibleMode = true;
+        }
 
-        if (options.hasAvoidCountries())
+        if (options.hasAvoidCountries()) {
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
+            flexibleMode = true;
+        }
 
-        if (options.hasAvoidFeatures())
+        if (options.hasAvoidFeatures()) {
             params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
+            flexibleMode = true;
+        }
 
-//        if (options.hasVehicleType())
-//            params.setVehicleType(convertVehicleType(options.getVehicleType(), params.getProfileType()));
+        if (options.hasDynamicSpeeds()) {
+            params.setDynamicSpeeds(options.getDynamicSpeeds());
+            flexibleMode = true;
+        }
 
-
-        return params;
+        return flexibleMode;
     }
 
     public static int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {

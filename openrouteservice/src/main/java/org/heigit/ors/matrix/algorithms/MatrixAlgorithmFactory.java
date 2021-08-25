@@ -24,12 +24,12 @@ public class MatrixAlgorithmFactory {
 	private MatrixAlgorithmFactory() {}
 
 	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
-//		if (!req.getFlexibleMode() && gh.isCHEnabled())
-//			return new RPHASTMatrixAlgorithm();
-//		if(gh instanceof ORSGraphHopper) {
-//			if(((ORSGraphHopper)gh).isCoreEnabled())
+		if (!req.getFlexibleMode() && gh.isCHEnabled())
+			return new RPHASTMatrixAlgorithm();
+		if(gh instanceof ORSGraphHopper) {
+			if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)gh).isCoreEnabled())
 				return new CoreMatrixAlgorithm();
-//		}
-//		return new DijkstraMatrixAlgorithm();
+		}
+		return new DijkstraMatrixAlgorithm();
 	}
 }

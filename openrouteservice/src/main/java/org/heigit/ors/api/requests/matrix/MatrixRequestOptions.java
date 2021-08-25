@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.json.simple.JSONObject;
 
@@ -36,7 +35,7 @@ public class MatrixRequestOptions {
     public static final String PARAM_VEHICLE_TYPE = "vehicle_type";
     public static final String PARAM_PROFILE_PARAMS = "profile_params";
     public static final String PARAM_AVOID_POLYGONS = "avoid_polygons";
-    public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
+    public static final String PARAM_DYNAMIC_SPEEDS = "dynamic_speeds";
 
     @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
             "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}",
@@ -84,12 +83,12 @@ public class MatrixRequestOptions {
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
 
-    @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.",
-            example = "{\"length\":10000,\"points\":5}")
-    @JsonProperty(PARAM_ROUND_TRIP_OPTIONS)
-    private RouteRequestRoundTripOptions roundTripOptions;
+    @ApiModelProperty(name = PARAM_DYNAMIC_SPEEDS, value = "Option to use dynamic speed updates on some pre-defined speeds.",
+            example = "{true}")
+    @JsonProperty(PARAM_DYNAMIC_SPEEDS)
+    private boolean dynamicSpeeds;
     @JsonIgnore
-    private boolean hasRoundTripOptions = false;
+    private boolean hasDynamicSpeeds = false;
 
     public APIEnums.AvoidFeatures[] getAvoidFeatures() {
         return avoidFeatures;
@@ -145,13 +144,13 @@ public class MatrixRequestOptions {
         hasAvoidPolygonFeatures = true;
     }
 
-    public RouteRequestRoundTripOptions getRoundTripOptions() {
-        return roundTripOptions;
+    public boolean getDynamicSpeeds() {
+        return dynamicSpeeds;
     }
 
-    public void setRoundTripOptions(RouteRequestRoundTripOptions roundTripOptions) {
-        this.roundTripOptions = roundTripOptions;
-        hasRoundTripOptions = true;
+    public void setDynamicSpeeds(boolean dynamicSpeeds) {
+        this.dynamicSpeeds = dynamicSpeeds;
+        hasDynamicSpeeds = true;
     }
 
     public boolean hasAvoidFeatures() {
@@ -178,7 +177,8 @@ public class MatrixRequestOptions {
         return hasAvoidPolygonFeatures;
     }
 
-    public boolean hasRoundTripOptions() {
-        return hasRoundTripOptions;
+    public boolean hasDynamicSpeeds() {
+        return hasDynamicSpeeds;
     }
+
 }

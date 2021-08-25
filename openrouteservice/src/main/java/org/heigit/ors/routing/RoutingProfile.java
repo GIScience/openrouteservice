@@ -628,23 +628,23 @@ public class RoutingProfile {
         try {
             HintsMap hintsMap = new HintsMap();
             //TODO Graph choice depending on algorithm
-            RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-
+            EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(flagEncoder);
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
+            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
                 hintsMap.setVehicle(encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
+            else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
+                graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
+                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+                ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
+                edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+            }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
-//            hintsMap.merge(searchCntx.getProperties());
-            ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-            graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
-
-            EdgeFilter edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
 
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
