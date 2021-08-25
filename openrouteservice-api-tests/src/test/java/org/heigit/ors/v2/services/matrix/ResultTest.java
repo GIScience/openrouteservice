@@ -885,7 +885,7 @@ public class ResultTest extends ServiceTest {
                 .body("durations.size()", is(2))
                 .body("durations[0][0]", is(0.0f))
                 .body("durations[0][1]", is(126.46f))
-                .body("durations[1][0]", is(48.27f))
+                .body("durations[1][0]", is(48.77f))
                 .body("durations[1][1]", is(0.0f))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
