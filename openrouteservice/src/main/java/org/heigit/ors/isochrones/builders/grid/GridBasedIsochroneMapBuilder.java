@@ -70,7 +70,7 @@ public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
      	//index.setMinResolutionInMeter(200);
 
 		if (gridIndex == null) {
-			gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getGraph(Graph.class), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
+			gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getCHGraph(), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
 	                setResolution(500).prepareIndex();
 		}
 		

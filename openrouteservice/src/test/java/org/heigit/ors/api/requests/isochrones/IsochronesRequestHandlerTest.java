@@ -9,6 +9,7 @@ import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.routing.*;
@@ -39,10 +40,10 @@ public class IsochronesRequestHandlerTest {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[]{123.0, 100.0});
-        coordsArray.add(new Double[]{150.0, 138.0});
-        coordsArray.add(new Double[]{140.0, 115.0});
-        coordsArray.add(new Double[]{123.0, 100.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
+        coordsArray.add(new Double[] { 49.005, 8.01});
+        coordsArray.add(new Double[] { 49.01, 8.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
@@ -53,6 +54,8 @@ public class IsochronesRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+
         handler = new IsochronesRequestHandler();
         geoJsonPolygon = constructGeoJson();
 
@@ -87,7 +90,7 @@ public class IsochronesRequestHandlerTest {
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
-        wheelchairParams.setSmoothnessType("good");
+        wheelchairParams.setSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD);
         wheelchairParams.setSurfaceType("asphalt");
 
         RequestProfileParams params = new RequestProfileParams();
@@ -172,7 +175,7 @@ public class IsochronesRequestHandlerTest {
     }
 
     @Test
-    public void setRangeAndIntervals() throws ParameterValueException {
+    public void setRangeAndIntervals() throws ParameterValueException, ParameterOutOfRangeException {
         TravellerInfo info = new TravellerInfo();
         List<Double> rangeValues = new ArrayList<>();
         rangeValues.add(20.0);

@@ -50,6 +50,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
 
         for(RouteResult result : routeResults) {
             this.routeResults.add(new GeoJSONIndividualRouteResponse(result, request));
+            responseInformation.setGraphDate(result.getGraphDate());
         }
 
         List<BBox> bboxes = new ArrayList<>();

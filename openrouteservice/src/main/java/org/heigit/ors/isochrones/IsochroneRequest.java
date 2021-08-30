@@ -16,10 +16,14 @@ package org.heigit.ors.isochrones;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.ServiceRequest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class IsochroneRequest extends ServiceRequest {
     private List<TravellerInfo> travellers;
@@ -147,5 +151,19 @@ public class IsochroneRequest extends ServiceRequest {
             throw new Exception("'traveller' argument is null.");
 
         travellers.add(traveller);
+    }
+
+    public Set<String> getProfilesForAllTravellers() {
+        Set<String> ret = new HashSet<>();
+        for (TravellerInfo traveller : travellers)
+            ret.add(RoutingProfileType.getName(traveller.getRouteSearchParameters().getProfileType()));
+        return ret;
+    }
+
+    public Set<String> getWeightingsForAllTravellers() {
+        Set<String> ret = new HashSet<>();
+        for (TravellerInfo traveller : travellers)
+            ret.add(WeightingMethod.getName(traveller.getRouteSearchParameters().getWeightingMethod()));
+        return ret;
     }
 }

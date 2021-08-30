@@ -31,7 +31,7 @@ public class ParamsTest extends ServiceTest {
 		addParameter("coordinatesLong", "8.678613,49.411721|4.78906,53.071752");
 		addParameter("coordinatesShortThree", "8.678613,49.411721|8.687782,49.424597|8.691087,49.425009");
 		addParameter("extra_info", "surface|suitability|steepness");
-		addParameter("preference", "fastest");
+		addParameter("preference", "recommended");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
 	}
@@ -338,7 +338,6 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", getParameter("profile"))
 				.param("geometry", "false")
 				.when()
-				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -474,8 +473,8 @@ public class ParamsTest extends ServiceTest {
 		JSONObject options = new JSONObject();
 		JSONObject polygon = new JSONObject();
 		polygon.put("type", "Polygon");
-		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.06081" },
-				{ "8.86699", "53.07381" }, { "8.91197", "53.07257" } } };
+		String[][][] coords = new String[][][] { { { "8.91197", "53.07257" }, { "8.91883", "53.07381" },
+				{ "8.92699", "53.07381" }, { "8.91197", "53.07257" } } };
 		polygon.put("coordinates", coords);
 		options.put("avoid_polygons", polygon);
 
@@ -567,7 +566,6 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", "cycling-road")
 				.param("options", options.toString())
 				.when()
-				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -589,7 +587,6 @@ public class ParamsTest extends ServiceTest {
 				.param("profile", getParameter("carProfile"))
 				.param("options", options.toString())
 				.when()
-				.log().all()
 				.get(getEndPointName())
 				.then()
 				.assertThat()
@@ -659,9 +656,9 @@ public class ParamsTest extends ServiceTest {
 	public void expectNoNearestEdge() {
 		given()
 				.param("coordinates", "8.689585,49.399733|8.686495,49.40349")
-				.param("preference", "fastest")
+				.param("preference", getParameter("preference"))
 				.param("geometry", "true")
-				.param("profile", "cycling-regular")
+				.param("profile", getParameter("profile"))
 				.param("radiuses", "5|150")
 				.when()
 				.get(getEndPointName())
@@ -693,9 +690,9 @@ public class ParamsTest extends ServiceTest {
 				.param("coordinates", "8.675154,49.407727|8.675863,49.407162")
 				.param("preference", "shortest")
 				.param("profile", getParameter("carProfile"))
-				.when().log().all()
+				.when()
 				.get(getEndPointName())
-				.then().log().all()
+				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('warnings')", is(true))
@@ -728,7 +725,7 @@ public class ParamsTest extends ServiceTest {
 				.param("geometry_simplify", "true")
 				.when()
 				.get(getEndPointName())
-				.then().log().all()
+				.then()
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.statusCode(200);

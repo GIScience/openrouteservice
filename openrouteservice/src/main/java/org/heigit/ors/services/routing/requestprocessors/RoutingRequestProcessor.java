@@ -74,6 +74,7 @@ public class RoutingRequestProcessor extends AbstractHttpRequestProcessor {
         JSONObject geojson = null;
         String gpx;
         String respFormat = request.getParameter(KEY_FORMAT);
+        rreq.setResponseFormat(respFormat);
         String geometryFormat = rreq.getGeometryFormat();
 
         if (Helper.isEmpty(respFormat) || "json".equalsIgnoreCase(respFormat)) {

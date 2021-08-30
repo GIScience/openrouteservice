@@ -3,12 +3,13 @@ package org.heigit.ors.api.requests.matrix;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
@@ -37,6 +38,8 @@ public class MatrixRequestHandlerTest {
 
     @Before
     public void setUp() {
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
         bareCoordinatesList.add(49.41461);
@@ -94,7 +97,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(3, matrixRequest.getSources().length);
         Assert.assertEquals(3, matrixRequest.getDestinations().length);
         Assert.assertEquals(1, matrixRequest.getMetrics());
-        Assert.assertNull(matrixRequest.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.UNKNOWN, matrixRequest.getWeightingMethod());
         Assert.assertEquals(DistanceUnit.METERS, matrixRequest.getUnits());
         Assert.assertFalse(matrixRequest.getResolveLocations());
         Assert.assertFalse(matrixRequest.getFlexibleMode());

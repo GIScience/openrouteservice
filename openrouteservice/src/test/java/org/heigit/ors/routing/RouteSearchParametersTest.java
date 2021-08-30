@@ -6,9 +6,14 @@ import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class RouteSearchParametersTest {
+    @Before
+    public void setUp() {
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+    }
 
     @Test(expected = ParameterValueException.class)
     public void expectFailingProfileParamsWithVehicleProfile() throws Exception {
@@ -218,47 +223,39 @@ public class RouteSearchParametersTest {
     }
 
     @Test
-    public void requiresDynamicWeights() throws Exception {
+    public void requiresDynamicPreprocessedWeights() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.requiresDynamicWeights());
+        Assert.assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidAreas(new Polygon[1]);
-        Assert.assertTrue("avoid areas", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("avoid areas", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidFeatureTypes(1);
-        Assert.assertTrue("avoid features", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("avoid features", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        Assert.assertTrue("avoid borders", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("avoid borders", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidCountries(new int[1]);
-        Assert.assertTrue("avoid countries", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("avoid countries", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setConsiderTurnRestrictions(true);
-        Assert.assertTrue("turn restrictions", routeSearchParameters.requiresDynamicWeights());
-
-        routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setWeightingMethod(WeightingMethod.SHORTEST);
-        Assert.assertTrue("shortest", routeSearchParameters.requiresDynamicWeights());
-
-        routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
-        Assert.assertTrue("recommended", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("turn restrictions", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setVehicleType(HeavyVehicleAttributes.HGV);
-        Assert.assertTrue("heavy vehicle", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("heavy vehicle", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
-        Assert.assertTrue("profile param", routeSearchParameters.requiresDynamicWeights());
+        Assert.assertTrue("profile param", routeSearchParameters.requiresDynamicPreprocessedWeights());
     }
 
     @Test

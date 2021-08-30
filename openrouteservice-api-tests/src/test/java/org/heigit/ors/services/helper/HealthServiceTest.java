@@ -37,7 +37,7 @@ public class HealthServiceTest extends ServiceTest {
 	public void pingTest() {
 
 		given()
-				.when().log().all()
+				.when()
 				.get(getEndPointName())
 				.then()
 				.statusCode(200);

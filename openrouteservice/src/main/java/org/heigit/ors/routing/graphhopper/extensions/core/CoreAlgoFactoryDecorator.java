@@ -16,13 +16,19 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import org.heigit.ors.routing.RoutingProfileCategory;
+import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +37,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.graphhopper.util.Helper.toLowerCase;
 
 /**
  * This class implements the Core Algo decorator and provides several helper methods related to core
@@ -46,8 +54,8 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     private final List<PrepareCore> preparations = new ArrayList<>();
     // we need to decouple weighting objects from the weighting list of strings
     // as we need the strings to create the GraphHopperStorage and the GraphHopperStorage to create the preparations from the Weighting objects currently requiring the encoders
-    private final List<Weighting> weightings = new ArrayList<>();
-    private final Set<String> weightingsAsStrings = new LinkedHashSet<>();
+    private final List<CHProfile> chProfiles = new ArrayList<>();
+    private final Set<String> chProfileStrings = new LinkedHashSet<>();
     private boolean disablingAllowed = true;
     // for backward compatibility enable CH by default.
     private boolean enabled = true;
@@ -61,7 +69,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
     public CoreAlgoFactoryDecorator() {
         setPreparationThreads(1);
-        setWeightingsAsStrings(Arrays.asList(getDefaultWeighting()));
+        setCHProfilesAsStrings(Arrays.asList(getDefaultProfile()));
     }
 
     @Override
@@ -75,18 +83,17 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
 
         setPreparationThreads(args.getInt(Core.PREPARE + "threads", getPreparationThreads()));
 
-        // default is enabled & fastest
+        // default is enabled & recommended
         String coreWeightingsStr = args.get(Core.PREPARE + "weightings", "");
 
         if ("no".equals(coreWeightingsStr)) {
-            // default is fastest and we need to clear this explicitely
-            weightingsAsStrings.clear();
+            // default is recommended and we need to clear this explicitely
+            chProfileStrings.clear();
         } else if (!coreWeightingsStr.isEmpty()) {
-            List<String> tmpCHWeightingList = Arrays.asList(coreWeightingsStr.split(","));
-            setWeightingsAsStrings(tmpCHWeightingList);
+            setCHProfilesAsStrings(Arrays.asList(coreWeightingsStr.split(",")));
         }
 
-        boolean enableThis = !weightingsAsStrings.isEmpty();
+        boolean enableThis = !chProfileStrings.isEmpty();
         setEnabled(enableThis);
         if (enableThis)
             setDisablingAllowed(args.getBool(Core.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
@@ -169,72 +176,75 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     /**
-     * Decouple weightings from PrepareCore as we need weightings for the
+     * Decouple CH profiles from PrepareContractionHierarchies as we need CH profiles for the
      * graphstorage and the graphstorage for the preparation.
      */
-    public CoreAlgoFactoryDecorator addWeighting(Weighting weighting) {
-        weightings.add(weighting);
-        return this;
-    }
-
-    public CoreAlgoFactoryDecorator addWeighting(String weighting) {
-        weightingsAsStrings.add(weighting);
+    public CoreAlgoFactoryDecorator addCHProfile(CHProfile chProfile) {
+        chProfiles.add(chProfile);
         return this;
     }
 
     public CoreAlgoFactoryDecorator addPreparation(PrepareCore pc) {
+        if (preparations.size() >= chProfiles.size()) {
+            throw new IllegalStateException("You need to add the corresponding CH profiles before adding preparations.");
+        }
+        CHProfile expectedProfile = chProfiles.get(preparations.size());
+        if (!pc.getCHProfile().equals(expectedProfile)) {
+            throw new IllegalArgumentException("CH profile of preparation: " + pc + " needs to be identical to previously added CH profile: " + expectedProfile);
+        }
         preparations.add(pc);
-        int lastIndex = preparations.size() - 1;
-        if (lastIndex >= weightings.size())
-            throw new IllegalStateException("Cannot access weighting for PrepareCore with " + pc.getWeighting()
-                    + ". Call add(Weighting) before");
-
-        if (preparations.get(lastIndex).getWeighting() != weightings.get(lastIndex))
-            throw new IllegalArgumentException("Weighting of PrepareCore " + preparations.get(lastIndex).getWeighting()
-                    + " needs to be identical to previously added " + weightings.get(lastIndex));
         return this;
     }
 
-    public final boolean hasWeightings() {
-        return !weightings.isEmpty();
+    public final boolean hasCHProfiles() {
+        return !chProfiles.isEmpty();
     }
 
-    public final List<Weighting> getWeightings() {
-        return weightings;
+    public List<CHProfile> getCHProfiles() {
+        return chProfiles;
     }
 
-    public CoreAlgoFactoryDecorator setWeightingsAsStrings(String... weightingNames) {
-        return setWeightingsAsStrings(Arrays.asList(weightingNames));
+    public List<String> getCHProfileStrings() {
+        if (chProfileStrings.isEmpty())
+            throw new IllegalStateException("Potential bug: chProfileStrings is empty");
+
+        return new ArrayList<>(chProfileStrings);
     }
 
-    public List<String> getWeightingsAsStrings() {
-        if (this.weightingsAsStrings.isEmpty())
-            throw new IllegalStateException("Potential bug: weightingsAsStrings is empty");
-
-        return new ArrayList<>(this.weightingsAsStrings);
+    public CoreAlgoFactoryDecorator setCHProfileStrings(String... profileStrings) {
+        return setCHProfilesAsStrings(Arrays.asList(profileStrings));
     }
 
     /**
-     * Enables the use of core to reduce query times. Enabled by default.
-     *
-     * @param weightingList A list containing multiple weightings like: "fastest", "shortest" or
-     *                      your own weight-calculation type.
+     * @param profileStrings A list of multiple CH profile strings
+     * @see #addCHProfileAsString(String)
      */
-    public CoreAlgoFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
-        if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
+    public CoreAlgoFactoryDecorator setCHProfilesAsStrings(List<String> profileStrings) {
+        if (profileStrings.isEmpty())
+            throw new IllegalArgumentException("It is not allowed to pass an empty list of CH profile strings");
 
-        weightingsAsStrings.clear();
-        for (String strWeighting : weightingList) {
-            strWeighting = strWeighting.toLowerCase();
-            strWeighting = strWeighting.trim();
-            addWeighting(strWeighting);
+        chProfileStrings.clear();
+        for (String profileString : profileStrings) {
+            profileString = toLowerCase(profileString);
+            profileString = profileString.trim();
+            addCHProfileAsString(profileString);
         }
         return this;
     }
 
-    private String getDefaultWeighting() {
-        return weightingsAsStrings.isEmpty() ? "fastest" : weightingsAsStrings.iterator().next();
+    /**
+     * Enables the use of contraction hierarchies to reduce query times. Enabled by default.
+     *
+     * @param profileString String representation of a CH profile like: "fastest", "shortest|edge_based=true",
+     *                      "fastest|u_turn_costs=30 or your own weight-calculation type.
+     */
+    public CoreAlgoFactoryDecorator addCHProfileAsString(String profileString) {
+        chProfileStrings.add(profileString);
+        return this;
+    }
+
+    private String getDefaultProfile() {
+        return chProfileStrings.isEmpty() ? "recommended" : chProfileStrings.iterator().next();
     }
 
     public List<PrepareCore> getPreparations() {
@@ -251,7 +261,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
             throw new IllegalStateException("No preparations added to this decorator");
 
         if (map.getWeighting().isEmpty())
-            map.setWeighting(getDefaultWeighting());
+            map.setWeighting(getDefaultProfile());
 
         StringBuilder entriesStr = new StringBuilder();
         for (PrepareCore p : preparations) {
@@ -283,7 +293,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         for (final PrepareCore prepare : getPreparations()) {
             if (LOGGER.isInfoEnabled())
                 LOGGER.info(String.format("%d/%d calling Core prepare.doWork for %s ... (%s)", ++counter, getPreparations().size(), prepare.getWeighting(), Helper.getMemInfo()));
-            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting(), false);
+            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting());
             completionService.submit(() -> {
                 // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
                 Thread.currentThread().setName(name);
@@ -305,32 +315,74 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         }
     }
 
-    public void createPreparations(GraphHopperStorage ghStorage, TraversalMode traversalMode, EdgeFilter restrictionFilter) {
+    public void createPreparations(GraphHopperStorage ghStorage, GraphProcessContext processContext) {
         if (!isEnabled() || !preparations.isEmpty())
             return;
-        if (weightings.isEmpty())
-            throw new IllegalStateException("No Core weightings found");
+        if (!hasCHProfiles())
+            throw new IllegalStateException("No profiles found");
 
-        traversalMode = getNodeBase();
-
-        for (Weighting weighting : getWeightings()) {
-            PrepareCore tmpPrepareCore = new PrepareCore(
-                    new GHDirectory("", DAType.RAM_INT), ghStorage, ghStorage.getGraph(CHGraph.class, weighting),
-                    weighting, traversalMode, restrictionFilter);
-            tmpPrepareCore.setPeriodicUpdates(preparationPeriodicUpdates).
-                    setLazyUpdates(preparationLazyUpdates).
-                    setNeighborUpdates(preparationNeighborUpdates).
-                    setLogMessages(preparationLogMessages);
-
-            addPreparation(tmpPrepareCore);
+        for (CHProfile chProfile : chProfiles) {
+            addPreparation(createCHPreparation(ghStorage, chProfile, createCoreEdgeFilter(chProfile, ghStorage, processContext)));
         }
     }
 
-    /**
-     * For now only node based will work, later on we can easily find usage of this method to remove
-     * it.
-     */
-    public TraversalMode getNodeBase() {
-        return TraversalMode.NODE_BASED;
+    private PrepareCore createCHPreparation(GraphHopperStorage ghStorage, CHProfile chProfile, EdgeFilter restrictionFilter) {
+        PrepareCore tmpPrepareCore = new PrepareCore(
+                new GHDirectory("", DAType.RAM_INT), ghStorage, ghStorage.getCHGraph(chProfile), restrictionFilter);
+        tmpPrepareCore.setPeriodicUpdates(preparationPeriodicUpdates).
+                setLazyUpdates(preparationLazyUpdates).
+                setNeighborUpdates(preparationNeighborUpdates).
+                setLogMessages(preparationLogMessages);
+        return tmpPrepareCore;
     }
+
+    private EdgeFilter createCoreEdgeFilter(CHProfile chProfile, GraphHopperStorage gs, GraphProcessContext processContext) {
+        EncodingManager encodingManager = gs.getEncodingManager();
+
+        int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
+
+        /* Initialize edge filter sequence */
+        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
+
+        /* Heavy vehicle filter */
+        if (encodingManager.hasEncoder(FlagEncoderNames.HEAVYVEHICLE)) {
+            edgeFilterSequence.add(new HeavyVehicleCoreEdgeFilter(gs));
+        }
+
+        /* Avoid features */
+        if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
+            edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
+        }
+
+        /* Avoid borders */
+        if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING)) != 0) {
+            edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(gs));
+        }
+
+        if (routingProfileCategory == RoutingProfileCategory.WHEELCHAIR) {
+            edgeFilterSequence.add(new WheelchairCoreEdgeFilter(gs));
+        }
+
+        /* Maximum speed & turn restrictions */
+        if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0) {
+            String[] encoders = {FlagEncoderNames.CAR_ORS, FlagEncoderNames.HEAVYVEHICLE};
+            for (String encoderName: encoders) {
+                if (encodingManager.hasEncoder(encoderName)) {
+                    FlagEncoder flagEncoder = encodingManager.getEncoder(encoderName);
+                    edgeFilterSequence.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, processContext.getMaximumSpeedLowerBound()));
+                    if (chProfile.isEdgeBased() && flagEncoder.supports(TurnWeighting.class))
+                        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
+                    break;
+                }
+            }
+        }
+
+        /* Conditional edges */
+        if (TimeDependentCoreEdgeFilter.hasConditionals(encodingManager)) {
+            edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
+        }
+
+        return edgeFilterSequence;
+    }
+
 }

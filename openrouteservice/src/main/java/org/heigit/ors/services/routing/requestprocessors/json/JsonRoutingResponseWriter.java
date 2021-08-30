@@ -17,6 +17,7 @@ package org.heigit.ors.services.routing.requestprocessors.json;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.Coordinate;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -63,6 +64,8 @@ public class JsonRoutingResponseWriter {
 		if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
 			jInfo.put("attribution", RoutingServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
+
+		jInfo.put("system_message", SystemMessage.getSystemMessage(request));
 
 		if (AppConfig.hasValidMD5Hash())
 			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());

@@ -63,7 +63,7 @@ class GZIPResponseStream extends ServletOutputStream {
 	@Override
 	public void flush() throws IOException {
 		if (closed)
-			throw new IOException("Cannot flush a closed output stream");
+			return; // already closed, nothing to do
 		
 		gzipOutputStream.flush();
 	}

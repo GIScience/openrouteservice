@@ -107,8 +107,8 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		
 		byte compValue = buffer[0];
 		WaySurfaceDescription res = new WaySurfaceDescription();
-		res.setWayType((byte)((compValue & 0b11110000) >> 4));
-	    res.setSurfaceType((byte)(compValue & 0b00001111));
+		res.setWayType((compValue & 0b11110000) >> 4);
+	    res.setSurfaceType(compValue & 0b00001111);
 	    
 	    return res;
 	}

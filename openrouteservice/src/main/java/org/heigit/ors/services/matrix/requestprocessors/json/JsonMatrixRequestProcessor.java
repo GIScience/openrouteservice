@@ -13,32 +13,28 @@
  */
 package org.heigit.ors.services.matrix.requestprocessors.json;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
-
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.matrix.MatrixResult;
-import org.heigit.ors.matrix.ResolvedLocation;
-import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.*;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.servlet.http.AbstractHttpRequestProcessor;
 import org.heigit.ors.servlet.util.ServletUtility;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 	public JsonMatrixRequestProcessor(HttpServletRequest request) throws Exception {
@@ -90,6 +86,8 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 			jInfo.put("attribution", MatrixServiceSettings.getAttribution());
 		jInfo.put("timestamp", System.currentTimeMillis());
 
+		jInfo.put("system_message", SystemMessage.getSystemMessage(request));
+
 		if (AppConfig.hasValidMD5Hash())
 			jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
 
@@ -100,8 +98,8 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 		if (request.getUnits() != null)
 			jQuery.put("units", DistanceUnitUtil.toString(request.getUnits()));
 		
-		if (request.getWeightingMethod() != null)
-			jQuery.put("preference", request.getWeightingMethod());
+		if (request.getWeightingMethod() != WeightingMethod.UNKNOWN)
+			jQuery.put("preference", WeightingMethod.getName(request.getWeightingMethod()));
 
 		if (request.getId() != null)
 			jQuery.put("id", request.getId());
@@ -115,7 +113,7 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 	private JSONArray createLocations(ResolvedLocation[] locations, boolean includeLocationNames)
 	{
 		JSONArray jLocations = new JSONArray(locations.length);
-		
+
 		for (int i = 0; i < locations.length; i++)
 		{
 			JSONObject jLoc = new JSONObject(true);
@@ -163,10 +161,10 @@ public class JsonMatrixRequestProcessor extends AbstractHttpRequestProcessor {
 				else
 					jRow.put(FormatUtility.roundToDecimals(value, 2));
 			}
-			
+
 			jMatrix.put(jRow);
 		}
-		
+
 		return jMatrix;
 	}
 }

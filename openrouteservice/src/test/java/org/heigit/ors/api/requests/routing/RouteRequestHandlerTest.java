@@ -56,10 +56,10 @@ public class RouteRequestHandlerTest {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 123.0, 100.0});
-        coordsArray.add(new Double[] { 150.0, 138.0});
-        coordsArray.add(new Double[] { 140.0, 115.0});
-        coordsArray.add(new Double[] { 123.0, 100.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
+        coordsArray.add(new Double[] { 49.005, 8.01});
+        coordsArray.add(new Double[] { 49.01, 8.0});
+        coordsArray.add(new Double[] { 49.0, 8.0});
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
@@ -70,6 +70,8 @@ public class RouteRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});
         coords.add(new Double[] {27.4,38.6});
@@ -130,7 +132,7 @@ public class RouteRequestHandlerTest {
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
-        wheelchairParams.setSmoothnessType("good");
+        wheelchairParams.setSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD);
         wheelchairParams.setSurfaceType("asphalt");
 
         RequestProfileParams params = new RequestProfileParams();
@@ -141,6 +143,8 @@ public class RouteRequestHandlerTest {
         weightings.setSteepnessDifficulty(3);
 
         params.setWeightings(weightings);
+        params.setSurfaceQualityKnown(true);
+        params.setAllowUnsuitable(true);
 
         options.setProfileParams(params);
         request.setRouteOptions(options);
@@ -224,11 +228,13 @@ public class RouteRequestHandlerTest {
         routingRequest = new RouteRequestHandler().convertRouteRequest(request);
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
-        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType("good"), params.getSmoothnessType());
+        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD), params.getSmoothnessType());
         Assert.assertEquals(3.0f, params.getMaximumIncline(), 0);
         Assert.assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         Assert.assertEquals(2.0f, params.getMinimumWidth(), 0);
         Assert.assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
+        Assert.assertEquals(true, params.isRequireSurfaceQualityKnown());
+        Assert.assertEquals(true, params.allowUnsuitable());
     }
 
     @Test
@@ -272,8 +278,16 @@ public class RouteRequestHandlerTest {
 
     @Test(expected = ParameterValueException.class)
     public void invalidRadiusLength() throws Exception {
-        request.setMaximumSearchRadii(new Double[] {10.0});
+        request.setMaximumSearchRadii(new Double[] {10.0, 20.0});
         new RouteRequestHandler().convertRouteRequest(request);
+    }
+
+    @Test
+    public void testSingleRadius() throws Exception {
+        request.setMaximumSearchRadii(new Double[]{50d});
+
+        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        Assert.assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test(expected = ParameterValueException.class)
