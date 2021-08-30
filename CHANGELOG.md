@@ -60,6 +60,7 @@ RELEASING:
 - `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 ### Fixed
 - Errors in travel speed explanation
+- Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
