@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 ### Deprecated
 
+## [6.0.1] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.0.0] - 2019-12-03
 ### Added
 - Indonesian Translation Language
