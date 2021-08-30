@@ -35,6 +35,10 @@ RELEASING:
 
 ## [Unreleased]
 
+## [6.4.4] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.4.3] - 2021-04-28
 ### Changed
 - Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
@@ -422,7 +426,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.4.4...HEAD
+[6.4.4]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.4.4
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
