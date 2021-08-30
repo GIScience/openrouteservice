@@ -26,6 +26,16 @@ public class ORSParameters {
     static final String ROUTING_INIT_PREFIX = "routing.";
 
     /**
+     * Parameters that can be passed as hints and influence routing per request.
+     */
+    public static final class Weighting {
+        private Weighting() {}
+
+        public static final String TIME_DEPENDENT_SPEED = "time_dependent_speed";
+    }
+
+
+    /**
      * Properties for routing with contraction hierarchies speedup
      */
     public static final class Core {
@@ -55,7 +65,7 @@ public class ORSParameters {
 
         public static final String PREPARE = "prepare.corelm.";
         /**
-         * This property name in HintsMap configures at runtime if CH routing should be ignored.
+         * Specifies landmark sets.
          */
         public static final String LMSETS = PREPARE + "lmsets";
         /**
@@ -65,7 +75,7 @@ public class ORSParameters {
         /**
          * Specifies how many active landmarks should be used when routing
          */
-        public static final String ACTIVE_COUNT = ROUTING_INIT_PREFIX + "corelm.active_landmarks";
+        public static final String ACTIVE_COUNT = "corelm.active_landmarks";
         /**
          * Default for active count
          */

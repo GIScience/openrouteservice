@@ -23,8 +23,10 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 
-public class RouteResult 
-{
+public class RouteResult {
+	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
+	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
+
 	private RouteSummary summary;
 	private Coordinate[] geometry;
 	private List<RouteSegment> segments;

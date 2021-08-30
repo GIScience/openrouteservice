@@ -210,7 +210,7 @@ public class ParamsTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
+                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM))
                 .statusCode(400);
     }
 
