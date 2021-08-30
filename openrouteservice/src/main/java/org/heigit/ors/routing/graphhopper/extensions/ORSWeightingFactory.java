@@ -13,11 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.FootFlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.Helper;
@@ -25,11 +23,9 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +53,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 			strWeighting = hintsMap.getWeighting();
 
 		Weighting result = null;
+
+        if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
+            return createIsochroneWeighting(hintsMap, encoder);
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
@@ -90,6 +89,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
+		if (hasTimeDependentSpeed(hintsMap) && hasConditionalSpeed(encoder, graphStorage)) {
+			result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+		}
+
+		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
+		/*
 		if (encoder.supports(TurnWeighting.class) && !isFootBasedFlagEncoder(encoder) && graphStorage != null && !tMode.equals(TraversalMode.NODE_BASED)) {
 			Path path = Paths.get(graphStorage.getDirectory().getLocation(), "turn_costs");
 			File file = path.toFile();
@@ -107,7 +112,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new TurnWeighting(result, turnCostExt);
 			}
 		}
-
+		*/
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
@@ -148,11 +153,44 @@ public class ORSWeightingFactory implements WeightingFactory {
 			if (!softWeightings.isEmpty()) {
 				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
 				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder);
+				result = new AdditionWeighting(arrWeightings, result);
 			}
 		}
 		return result;
 	}
+
+	private boolean hasTimeDependentSpeed(HintsMap hintsMap) {
+		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
+	}
+
+	private boolean hasConditionalSpeed(FlagEncoder encoder, GraphHopperStorage graphStorage) {
+		return graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED));
+	}
+
+	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
+        String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+        if (Helper.isEmpty(strWeighting))
+            strWeighting = hintsMap.getWeighting();
+
+        Weighting result = null;
+
+        //Isochrones only support fastest or shortest as no path is found.
+        //CalcWeight must be directly comparable to the isochrone limit
+
+        if ("shortest".equalsIgnoreCase(strWeighting))
+        {
+            result = new ShortestWeighting(encoder);
+        }
+        else if ("fastest".equalsIgnoreCase(strWeighting)
+                || "priority".equalsIgnoreCase(strWeighting)
+                || "recommended_pref".equalsIgnoreCase(strWeighting)
+                || "recommended".equalsIgnoreCase(strWeighting))
+        {
+            result = new FastestWeighting(encoder, hintsMap);
+        }
+
+        return result;
+    }
 
 	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
 		return encoder instanceof FootFlagEncoder;

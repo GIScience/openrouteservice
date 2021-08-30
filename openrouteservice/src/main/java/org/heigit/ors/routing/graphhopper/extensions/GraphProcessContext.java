@@ -45,20 +45,11 @@ public class GraphProcessContext {
 
 		if (config.getExtStorages() != null) {
 			storageBuilders = mgrGraphStorageBuilders.createInstances(config.getExtStorages());
-
-			if (storageBuilders != null && !storageBuilders.isEmpty()) {
-				arrStorageBuilders = new GraphStorageBuilder[storageBuilders.size()];
-				arrStorageBuilders = storageBuilders.toArray(arrStorageBuilders);
-			}
 		}
 
 		PluginManager<GraphBuilder> mgrGraphBuilders = PluginManager.getPluginManager(GraphBuilder.class);
 		if (config.getGraphBuilders() != null) {
 			graphBuilders = mgrGraphBuilders.createInstances(config.getGraphBuilders());
-			if (graphBuilders != null && !graphBuilders.isEmpty()) {
-				arrGraphBuilders = new GraphBuilder[graphBuilders.size()];
-				arrGraphBuilders = graphBuilders.toArray(arrGraphBuilders);
-			}
 		}
 
 		maximumSpeedLowerBound = config.getMaximumSpeedLowerBound();
@@ -73,6 +64,17 @@ public class GraphProcessContext {
 					LOGGER.warning(ex.getMessage());
 				}
 			}
+		}
+	}
+
+	public void initArrays() {
+		if (storageBuilders != null && !storageBuilders.isEmpty()) {
+			arrStorageBuilders = new GraphStorageBuilder[storageBuilders.size()];
+			arrStorageBuilders = storageBuilders.toArray(arrStorageBuilders);
+		}
+		if (graphBuilders != null && !graphBuilders.isEmpty()) {
+			arrGraphBuilders = new GraphBuilder[graphBuilders.size()];
+			arrGraphBuilders = graphBuilders.toArray(arrGraphBuilders);
 		}
 	}
 

@@ -13,17 +13,23 @@ nohup.out
 
 .project
 
-# Ignore all app.config files except for the .sample one
+# Ignore all ors and app config files except for the sample ones
 openrouteservice/WebContent/WEB-INF/app.config*
 !openrouteservice/WebContent/WEB-INF/app.config.sample
 openrouteservice/src/main/resources/app.config*
 !openrouteservice/src/main/resources/app.config.sample
+openrouteservice/WebContent/WEB-INF/ors-config*
+!openrouteservice/WebContent/WEB-INF/ors-config-sample.json
+openrouteservice/src/main/resources/ors-config*
+!openrouteservice/src/main/resources/ors-config-sample.json
 
 # Ignore folders generated from docker
 docker/elevation_cache
 docker/conf
 
-app.config.local
+# Ignore ors.run file
+*ors.run
+
 cgiar_provider/
 graphs/
 target/

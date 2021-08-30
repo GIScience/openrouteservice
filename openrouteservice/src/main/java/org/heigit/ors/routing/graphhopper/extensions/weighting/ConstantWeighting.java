@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HintsMap;
+import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -25,8 +26,18 @@ public class ConstantWeighting implements Weighting {
     }
 
     @Override
+    public double calcWeight(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcWeight(edgeIteratorState, reverse, prevOrNextEdgeId);
+    }
+
+    @Override
     public long calcMillis(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId) {
         return millis;
+    }
+
+    @Override
+    public long calcMillis(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+        return calcMillis(edgeIteratorState, reverse, prevOrNextEdgeId);
     }
 
     @Override
@@ -42,5 +53,20 @@ public class ConstantWeighting implements Weighting {
     @Override
     public boolean matches(HintsMap hintsMap) {
         return false;
+    }
+
+    @Override
+    public boolean isTimeDependent() {
+        return false;
+    }
+
+    @Override
+    public SpeedCalculator getSpeedCalculator() {
+        return null;
+    }
+
+    @Override
+    public void setSpeedCalculator(SpeedCalculator speedCalculator) {
+        throw new UnsupportedOperationException();
     }
 }

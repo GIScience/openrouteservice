@@ -37,11 +37,6 @@
                         <exclude>**/locations/ParametersValidationTest.java</exclude>
                         <exclude>**/locations/ResultsValidationTest.java</exclude>
                     </excludes>
-                    <dependencies><dependency>
-                      <groupId>org.ow2.asm</groupId>
-                      <artifactId>asm</artifactId>
-                      <version>6.2</version>
-                    </dependency></dependencies>
                 </configuration>
             </plugin>
             <plugin>
@@ -60,7 +55,7 @@
         <repository>
             <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
             <id>HeiGIT main</id>
-            <name>Central Repository for OSHDB dependency related artefacts</name>
+            <name>Central repository for HeiGIT service dependency related artefacts</name>
             <url>https://repo.heigit.org/artifactory/main</url>
         </repository>
     </repositories>
@@ -70,7 +65,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>3.0.3</version>
+            <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -78,7 +73,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -91,12 +86,17 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>2.8.2</version>
+            <version>2.13.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.30</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>1.3.1</version>
+            <version>1.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
@@ -107,12 +107,12 @@
         <dependency>
            <groupId>org.ow2.asm</groupId>
            <artifactId>asm</artifactId>
-            <version>6.2</version>
+            <version>9.0</version>
        </dependency>
        <dependency>
           <groupId>javax.xml.bind</groupId>
           <artifactId>jaxb-api</artifactId>
-          <version>2.4.0-b180725.0427</version>
+          <version>2.4.0-b180830.0359</version>
        </dependency>
     </dependencies>
 </project>

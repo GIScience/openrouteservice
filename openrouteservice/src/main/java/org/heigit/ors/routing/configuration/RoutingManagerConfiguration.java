@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.configuration;
 
@@ -17,6 +17,7 @@ import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Envelope;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 
@@ -52,14 +53,37 @@ public class RoutingManagerConfiguration  {
 	private RouteUpdateConfiguration updateConfig;
 	private RouteProfileConfiguration[] profiles;
 
+	private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String,Object> defaultFastIsochroneParams, RouteProfileConfiguration profile){
+		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.profile-" + profile.getName();
+		Map<String, Object> profileParams = IsochronesServiceSettings.getParametersMap(profileRef, true);
+
+		if (profileParams == null)
+			profileParams = defaultFastIsochroneParams;
+		else if (defaultFastIsochroneParams != null) {
+			for (Map.Entry<String, Object> defParamItem : defaultFastIsochroneParams.entrySet()) {
+				if (!profileParams.containsKey(defParamItem.getKey()))
+					profileParams.put(defParamItem.getKey(), defParamItem.getValue());
+			}
+		}
+		profile.setIsochronePreparationOpts(ConfigFactory.parseString(profileParams.toString()));
+	}
+
 	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception {
 		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
-		if (!Helper.isEmpty(path))
+		if (!Helper.isEmpty(path)) {
 			RoutingServiceSettings.loadFromFile(path);
+			IsochronesServiceSettings.loadFromFile(path);
+		}
 
 		// Read profile settings
 		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
+		List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
+		Map<String,Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
+		if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in ors-config.json
+			defaultFastIsochroneParams = new HashMap<>();
+			defaultFastIsochroneParams.put("enabled", false);
+		}
 		List<String> profileList = RoutingServiceSettings.getParametersList("profiles.active");
 		Map<String,Object> defaultParams = RoutingServiceSettings.getParametersMap("profiles.default_params", true);
 		String rootGraphsPath = (defaultParams != null && defaultParams.containsKey("graphs_root_path")) ? StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"') : null;
@@ -82,6 +106,8 @@ public class RoutingManagerConfiguration  {
 
 			profile.setGraphPath(graphPath);
 
+			addFastIsochronesToProfileConfiguration(fastIsochroneProfileList, defaultFastIsochroneParams, profile);
+
 			Map<String, Object> profileParams = RoutingServiceSettings.getParametersMap(profileRef + ".parameters", true);
 
 			if (profileParams == null)
@@ -90,7 +116,7 @@ public class RoutingManagerConfiguration  {
 				for(Map.Entry<String, Object> defParamItem : defaultParams.entrySet()) {
 					if (!profileParams.containsKey(defParamItem.getKey()))
 						profileParams.put(defParamItem.getKey(), defParamItem.getValue());
-				}				
+				}
 			}
 
 			if (profileParams != null) {
@@ -135,7 +161,7 @@ public class RoutingManagerConfiguration  {
 						}
 						break;
 					case "ext_storages":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						Map<String, Object> storageList = (Map<String, Object>)paramItem.getValue();
 
 						for(Map.Entry<String, Object> storageEntry : storageList.entrySet()) {
@@ -151,7 +177,7 @@ public class RoutingManagerConfiguration  {
 						}
 						break;
 					case "graph_processors":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						Map<String, Object> storageList2 = (Map<String, Object>)paramItem.getValue();
 
 						for(Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
@@ -185,7 +211,7 @@ public class RoutingManagerConfiguration  {
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					case "extent":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						List<Double> bbox = (List<Double>)paramItem.getValue();
 
 						if (bbox.size() != 4)

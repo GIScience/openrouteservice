@@ -41,6 +41,7 @@ public class RouteProfileConfiguration {
 	private int encoderFlagsSize = 4;
 	private String encoderOptions = null;
 	
+	private Config isochronePreparationOpts;
 	private Config preparationOpts;
 	private Config executionOpts;
 	
@@ -80,6 +81,7 @@ public class RouteProfileConfiguration {
 
 		encoderFlagsSize = rpc.encoderFlagsSize;
 		encoderOptions = rpc.encoderOptions;
+		isochronePreparationOpts = rpc.isochronePreparationOpts;
 		preparationOpts = rpc.preparationOpts;
 		executionOpts = rpc.executionOpts;
 
@@ -326,6 +328,14 @@ public class RouteProfileConfiguration {
 
 	public void setInterpolateBridgesAndTunnels(boolean interpolateBridgesAndTunnels) {
 		this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
+	}
+
+	public Config getIsochronePreparationOpts() {
+		return isochronePreparationOpts;
+	}
+
+	public void setIsochronePreparationOpts(Config isochronePreparationOpts) {
+		this.isochronePreparationOpts = isochronePreparationOpts;
 	}
 
 	public Config getPreparationOpts() {

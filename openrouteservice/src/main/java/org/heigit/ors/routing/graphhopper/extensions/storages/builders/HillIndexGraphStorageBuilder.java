@@ -34,8 +34,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 			
 			return storage;
 		}
-		else 
-			return null;
+		throw new Exception("HillIndexGraphStorageBuilder cannot be initialized since elevation is deactivated for this profile.");
 	}
 
 	public void processWay(ReaderWay way) {
