@@ -15,10 +15,7 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -155,10 +152,11 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
-    @ApiModelProperty(name = PARAM_RADII, value = "A pipe list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
-            "The values must be greater than 0, the value of -1 specifies no limit in the search. The number of radiuses correspond to the number of waypoints.",
+    @ApiModelProperty(name = PARAM_RADII, value = "A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
+            "The values must be greater than 0, the value of -1 specifies using the maximum possible search radius. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.",
             example = "[200, -1, 30]")
     @JsonProperty(PARAM_RADII)
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private Double[] maximumSearchRadii;
     @JsonIgnore
     private boolean hasMaximumSearchRadii = false;
@@ -210,7 +208,7 @@ public class RouteRequest {
     private boolean hasUseContractionHierarchies = false;
 
     @ApiModelProperty(name = PARAM_OPTIONS,
-            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
+            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
             example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;

@@ -322,7 +322,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
             throw new IllegalStateException("No profiles found");
 
         for (CHProfile chProfile : chProfiles) {
-            addPreparation(createCHPreparation(ghStorage, chProfile, createCoreEdgeFilter(ghStorage, processContext)));
+            addPreparation(createCHPreparation(ghStorage, chProfile, createCoreEdgeFilter(chProfile, ghStorage, processContext)));
         }
     }
 
@@ -336,7 +336,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         return tmpPrepareCore;
     }
 
-    private EdgeFilter createCoreEdgeFilter(GraphHopperStorage gs, GraphProcessContext processContext) {
+    private EdgeFilter createCoreEdgeFilter(CHProfile chProfile, GraphHopperStorage gs, GraphProcessContext processContext) {
         EncodingManager encodingManager = gs.getEncodingManager();
 
         int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
@@ -370,11 +370,16 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
                 if (encodingManager.hasEncoder(encoderName)) {
                     FlagEncoder flagEncoder = encodingManager.getEncoder(encoderName);
                     edgeFilterSequence.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, processContext.getMaximumSpeedLowerBound()));
-                    if (flagEncoder.supports(TurnWeighting.class))
+                    if (chProfile.isEdgeBased() && flagEncoder.supports(TurnWeighting.class))
                         edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
                     break;
                 }
             }
+        }
+
+        /* Conditional edges */
+        if (TimeDependentCoreEdgeFilter.hasConditionals(encodingManager)) {
+            edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
         }
 
         return edgeFilterSequence;

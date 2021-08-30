@@ -9,31 +9,54 @@
     "services": {
       "matrix": {
         "enabled": true,
-        "maximum_routes": 100,
-        "maximum_routes_flexible": 25,
-        "maximum_search_radius": 5000,
+        "maximum_routes": 200,
         "maximum_visited_nodes": 100000,
         "allow_resolve_locations": true,
         "attribution": "openrouteservice.org, OpenStreetMap contributors"
       },
       "isochrones": {
         "enabled": true,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
         "maximum_range_distance": [
-          { "profiles": "any", "value": 50000 },
-          { "profiles": "driving-car, driving-hgv", "value": 100000 }
+          {
+            "profiles": "any",
+            "value": 50000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 100000
+          }
         ],
         "maximum_range_time": [
-          { "profiles": "any", "value": 18000 },
-          { "profiles": "driving-car, driving-hgv", "value": 3600 }
+          {
+            "profiles": "any",
+            "value": 18000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 3600
+          }
         ],
         "fastisochrones": {
           "maximum_range_distance": [
-            { "profiles": "any", "value": 50000 },
-            { "profiles": "driving-car, driving-hgv", "value": 500000 }
+            {
+              "profiles": "any",
+              "value": 50000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 500000
+            }
           ],
           "maximum_range_time": [
-            { "profiles": "any", "value": 18000 },
-            { "profiles": "driving-car, driving-hgv", "value": 10800 }
+            {
+              "profiles": "any",
+              "value": 18000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 10800
+            }
           ],
           "profiles": {
             "default_params": {
@@ -42,7 +65,7 @@
               "weightings": "recommended",
               "maxcellnodes": 5000
             },
-            "profile-vehicles-hgv": {
+            "profile-hgv": {
               "enabled": true,
               "threads": 12,
               "weightings": "recommended, shortest",
@@ -58,10 +81,13 @@
         "enabled": true,
         "mode": "normal",
         "routing_description": "This is a routing file from openrouteservice",
-        "routing_name": "openrouteservice routing",
-        "sources": ["openrouteservice/src/main/files/heidelberg.osm.gz"],
-        "init_threads": 2,
-        "attribution": "openrouteservice.org, OpenStreetMap contributors",
+        "routing_name": "ORSRouting",
+        "sources": [
+          "openrouteservice-api-tests/data/heidelberg.osm.gz"
+        ],
+        "init_threads": 1,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
+        "distance_approximation": true,
         "elevation_preprocessed": false,
         "profiles": {
           "active": [
@@ -76,27 +102,23 @@
             "wheelchair"
           ],
           "default_params": {
-            "encoder_flags_size": 8,
+            "encoder_flags_size": 4,
             "graphs_root_path": "graphs",
             "elevation_provider": "multi",
-            "elevation_cache_path": "cgiar_provider",
             "elevation_cache_clear": false,
+            "elevation_cache_path": "openrouteservice-api-tests/data/elevation",
+            "elevation_smoothing": false,
             "instructions": true,
             "maximum_distance": 100000,
-            "maximum_distance_dynamic_weights": 100000,
-            "maximum_distance_avoid_areas": 100000,
+            "maximum_distance_round_trip_routes": 100000,
+            "maximum_segment_distance_with_dynamic_weights": 50000,
             "maximum_waypoints": 50,
-            "maximum_snapping_radius": 400,
+            "maximum_snapping_radius": 350,
             "maximum_avoid_polygon_area": 200000000,
             "maximum_avoid_polygon_extent": 20000,
-            "maximum_distance_alternative_routes": 100000,
-            "maximum_alternative_routes": 3,
-            "maximum_distance_round_trip_routes": 100000,
-            "maximum_speed_lower_bound": 80,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,
-
               "methods": {
                 "lm": {
                   "enabled": true,
@@ -118,15 +140,12 @@
           "profile-car": {
             "profiles": "driving-car",
             "parameters": {
-              "encoder_flags_size": 8,
-              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
+              "encoder_options": "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
               "maximum_distance": 100000,
               "elevation": true,
-              "maximum_snapping_radius": 350,
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
-
                 "methods": {
                   "ch": {
                     "enabled": true,
@@ -134,17 +153,16 @@
                     "weightings": "fastest"
                   },
                   "lm": {
-                    "enabled": false,
+                    "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "fastest",
                     "landmarks": 16
                   },
                   "core": {
-                      "enabled": true,
-                      "threads": 1,
-                      "weightings": "fastest,shortest",
-                      "landmarks": 64,
-                      "lmsets": "highways;allow_all"
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest,shortest",
+                    "landmarks": 32
                   }
                 }
               },
@@ -155,7 +173,7 @@
                   },
                   "lm": {
                     "disabling_allowed": true,
-                    "active_landmarks": 6
+                    "active_landmarks": 8
                   },
                   "core": {
                     "disabling_allowed": true,
@@ -165,37 +183,50 @@
               },
               "ext_storages": {
                 "WayCategory": {},
-                "HeavyVehicle": {},
+                "HeavyVehicle": {
+                  "restrictions": true
+                },
                 "WaySurfaceType": {},
+                "Tollways": {},
+                "Borders": {
+                  "boundaries": "openrouteservice-api-tests/data/borders/borders.geojson",
+                  "ids": "openrouteservice-api-tests/data/borders/ids.csv",
+                  "openborders": "openrouteservice-api-tests/data/borders/openborders.csv"
+                },
                 "RoadAccessRestrictions": {
                   "use_for_warnings": true
                 }
-              }
+              },
+              "traffic": false
             }
           },
           "profile-hgv": {
             "profiles": "driving-hgv",
             "parameters": {
-              "encoder_flags_size": 8,
               "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
               "maximum_distance": 100000,
               "elevation": true,
+              "maximum_speed_lower_bound": 75,
               "preparation": {
                 "min_network_size": 200,
                 "min_one_way_network_size": 200,
-
                 "methods": {
                   "ch": {
                     "enabled": true,
                     "threads": 1,
                     "weightings": "recommended"
                   },
+                  "lm": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended",
+                    "landmarks": 16
+                  },
                   "core": {
                     "enabled": true,
                     "threads": 1,
                     "weightings": "recommended,shortest",
-                    "landmarks": 64,
-                    "lmsets": "highways;allow_all"
+                    "landmarks": 32
                   }
                 }
               },
@@ -204,11 +235,14 @@
                   "ch": {
                     "disabling_allowed": true
                   },
+                  "lm": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 8
+                  },
                   "core": {
                     "disabling_allowed": true,
                     "active_landmarks": 6
                   }
-
                 }
               },
               "ext_storages": {
@@ -216,15 +250,42 @@
                 "HeavyVehicle": {
                   "restrictions": true
                 },
-                "WaySurfaceType": {}
-              }
+                "WaySurfaceType": {},
+                "Tollways": {},
+                "Borders": {
+                  "boundaries": "openrouteservice-api-tests/data/borders/borders.geojson",
+                  "ids": "openrouteservice-api-tests/data/borders/ids.csv",
+                  "openborders": "openrouteservice-api-tests/data/borders/openborders.csv"
+                }
+              },
+              "traffic": false
             }
           },
           "profile-bike-regular": {
             "profiles": "cycling-regular",
             "parameters": {
-              "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
               "elevation": true,
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -236,8 +297,9 @@
           "profile-bike-mountain": {
             "profiles": "cycling-mountain",
             "parameters": {
-              "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
               "elevation": true,
+              "maximum_snapping_radius": 10,
               "ext_storages": {
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -249,7 +311,7 @@
           "profile-bike-road": {
             "profiles": "cycling-road",
             "parameters": {
-              "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
+              "encoder_options": "consider_elevation=false|turn_costs=false|block_fords=false",
               "elevation": true,
               "ext_storages": {
                 "WayCategory": {},
@@ -262,7 +324,7 @@
           "profile-bike-electric": {
             "profiles": "cycling-electric",
             "parameters": {
-              "encoder_options": "consider_elevation=true|turn_costs=true|block_fords=false",
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
               "elevation": true,
               "ext_storages": {
                 "WayCategory": {},
@@ -277,7 +339,14 @@
             "parameters": {
               "encoder_options": "block_fords=false",
               "elevation": true,
+              "interpolate_bridges_and_tunnels": false,
               "ext_storages": {
+                "GreenIndex": {
+                  "filepath": "openrouteservice-api-tests/data/green_streets_hd.csv"
+                },
+                "NoiseIndex": {
+                  "filepath": "openrouteservice-api-tests/data/noise_data_hd.csv"
+                },
                 "WayCategory": {},
                 "WaySurfaceType": {},
                 "HillIndex": {},
@@ -290,7 +359,14 @@
             "parameters": {
               "encoder_options": "block_fords=false",
               "elevation": true,
+              "elevation_smoothing": true,
               "ext_storages": {
+                "GreenIndex": {
+                  "filepath": "openrouteservice-api-tests/data/green_streets_hd.csv"
+                },
+                "NoiseIndex": {
+                  "filepath": "openrouteservice-api-tests/data/noise_data_hd.csv"
+                },
                 "WayCategory": {},
                 "WaySurfaceType": {},
                 "HillIndex": {},
@@ -298,7 +374,6 @@
               }
             }
           },
-
           "profile-wheelchair": {
             "profiles": "wheelchair",
             "parameters": {
@@ -306,11 +381,11 @@
               "elevation": true,
               "maximum_snapping_radius": 50,
               "ext_storages": {
-                "WayCategory": {},
-                "WaySurfaceType": {},
                 "Wheelchair": {
                   "KerbsOnCrossings": "true"
                 },
+                "WaySurfaceType": {},
+                "WayCategory": {},
                 "OsmId": {}
               }
             }
@@ -321,39 +396,47 @@
     "logging": {
       "enabled": true,
       "level_file": "DEBUG_LOGGING.json",
-      "location": "/var/log/ors",
+      "location": "./logs",
       "stdout": true
     },
+    "kafka_test_cluster": true,
+    "kafka_consumer": [
+      {
+        "cluster": "127.0.0.1:9092",
+        "topic": "test-topic",
+        "profile": "test"
+      }
+    ],
     "system_message": [
-        {
-            "active": false,
-            "text": "This message would be sent with every routing bike fastest request",
-            "condition": {
-                "request_service": "routing",
-                "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-                "request_preference": "fastest"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request for geojson response",
-            "condition": {
-                "api_format": "geojson"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-            "condition": {
-                "api_version": 1,
-                "time_after": "2020-01-01T00:00:00Z",
-                "time_before": "2050-06-01T00:00:00Z"
-            }
-        },
-        {
-            "active": false,
-            "text": "This message would be sent with every request"
+      {
+        "active": true,
+        "text": "This message would be sent with every routing bike fastest request",
+        "condition": {
+          "request_service": "routing",
+          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+          "request_preference": "fastest"
         }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request for geojson response",
+        "condition": {
+          "api_format": "geojson"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
+        "condition": {
+          "api_version": 1,
+          "time_after": "2020-01-01T00:00:00Z",
+          "time_before": "2050-06-01T00:00:00Z"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request"
+      }
     ]
   }
 }

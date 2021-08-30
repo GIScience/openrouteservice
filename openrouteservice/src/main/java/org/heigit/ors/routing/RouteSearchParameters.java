@@ -17,6 +17,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
@@ -347,7 +348,7 @@ public class RouteSearchParameters {
                     wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jRestrictions.getString("track_type")));
 
                 if (jRestrictions.has("smoothness_type"))
-                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
+                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.forValue(jRestrictions.getString("smoothness_type"))));
 
                 if (jRestrictions.has("maximum_sloped_kerb"))
                     wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
@@ -357,6 +358,10 @@ public class RouteSearchParameters {
 
                 if (jRestrictions.has("minimum_width")) {
                     wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
+                }
+
+                if (jRestrictions.has("surface_quality_known")) {
+                    wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
                 }
 
                 profileParams = wheelchairParams;

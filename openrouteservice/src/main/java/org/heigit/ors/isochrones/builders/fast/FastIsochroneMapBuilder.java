@@ -512,7 +512,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         GraphHopperStorage graphHopperStorage = searchcontext.getGraphHopper().getGraphHopperStorage();
         Quadtree qtree = new Quadtree();
 
-        int maxNodeId = graphHopperStorage.getNodes();
+        int maxNodeId = graphHopperStorage.getNodes() - 1;
+        int maxEdgeId = graphHopperStorage.getEdges() - 1;
 
         SPTEntry goalEdge;
 
@@ -548,7 +549,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             int edgeId = goalEdge.originalEdge;
             int nodeId = goalEdge.adjNode;
 
-            if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId)
+            if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId || edgeId > maxEdgeId)
                 continue;
 
             float maxCost = (float) goalEdge.weight;

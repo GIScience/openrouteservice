@@ -70,8 +70,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     }
 
     @Override
-    public void initFrom(int from, double weight) {
-        currFrom = createSPTEntry(from, weight);
+    public void initFrom(int from, double weight, long time) {
+        currFrom = createSPTEntry(from, weight, time);
         fromPriorityQueueCH.add(currFrom);
         bestWeightMapFromCH.put(from, currFrom);
         if (currTo != null) {
@@ -81,8 +81,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     }
 
     @Override
-    public void initTo(int to, double weight) {
-        currTo = createSPTEntry(to, weight);
+    public void initTo(int to, double weight, long time) {
+        currTo = createSPTEntry(to, weight, time);
         toPriorityQueueCH.add(currTo);
         bestWeightMapToCH.put(to, currTo);
         if (currFrom != null) {
@@ -225,7 +225,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
             int traversalId = iter.getAdjNode();
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-            double tmpWeight = weighting.calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.weight;
+            double tmpWeight = calcWeight(iter, currEdge, reverse) + currEdge.weight;
             if (Double.isInfinite(tmpWeight))
                 continue;
 
@@ -250,17 +250,17 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                     ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     // Modification by Maxim Rylov: Assign the original edge id.
                     ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    ee.parent = currEdge;
                     entries.add(ee);
-                    prioQueue.add(ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
                     ee.edge = iter.getEdge();
                     ee.weight = tmpWeight;
-                    ee.parent = currEdge;
-                    prioQueue.add(ee);
                 } else
                     continue;
+
+                ee.parent = currEdge;
+                ee.time = calcTime(iter, currEdge, reverse);
+                prioQueue.add(ee);
 
                 updateBestPathCore(ee, traversalId, reverse);
             }
@@ -270,17 +270,17 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                     ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     // Modification by Maxim Rylov: Assign the original edge id.
                     ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
-                    ee.parent = currEdge;
                     bestWeightMap.put(traversalId, ee);
-                    prioQueue.add(ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
                     ee.edge = iter.getEdge();
                     ee.weight = tmpWeight;
-                    ee.parent = currEdge;
-                    prioQueue.add(ee);
                 } else
                     continue;
+
+                ee.parent = currEdge;
+                ee.time = calcTime(iter, currEdge, reverse);
+                prioQueue.add(ee);
 
                 updateBestPathCH(ee, traversalId, reverse);
             }
@@ -319,6 +319,14 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 updateBestPath(entryCurrent, entryOther, newWeight, reverse);
             }
         }
+    }
+
+    double calcWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
+        return weighting.calcWeight(iter, reverse, currEdge.originalEdge);
+    }
+
+    long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return 0;
     }
 
     @Override

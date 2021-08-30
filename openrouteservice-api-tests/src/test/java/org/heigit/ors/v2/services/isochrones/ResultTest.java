@@ -221,7 +221,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1688618.6f))
+                .body("features[0].properties.area", is(1699492.0f))
                 .statusCode(200);
 
         body.put("location_type", "destination");
@@ -233,7 +233,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1552274.2f))
+                .body("features[0].properties.area", is(1561223.9f))
                 .statusCode(200);
     }
 
@@ -444,7 +444,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIdInSummary() {
+    public void testCompleteMetadata() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -462,6 +462,24 @@ public class ResultTest extends ServiceTest {
                 .body("any {it.key == 'metadata'}", is(true))
                 .body("metadata.containsKey('id')", is(true))
                 .body("metadata.id", is("request123"))
+                .body("metadata.containsKey('attribution')", is(true))
+                .body("metadata.service", is("isochrones"))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.query.containsKey('locations')", is(true))
+                .body("metadata.query.locations.size()", is(1))
+                .body("metadata.query.locations[0][0]", is(8.684177f))
+                .body("metadata.query.locations[0][1]", is(49.423034f))
+                .body("metadata.query.containsKey('range')", is(true))
+                .body("metadata.query.range.size()", is(1))
+                .body("metadata.query.range[0]", is(400.0f))
+                .body("metadata.query.profile", is("cycling-regular"))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.engine.containsKey('version')", is(true))
+                .body("metadata.engine.containsKey('build_date')", is(true))
+                .body("metadata.engine.containsKey('graph_date')", is(true))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 }
