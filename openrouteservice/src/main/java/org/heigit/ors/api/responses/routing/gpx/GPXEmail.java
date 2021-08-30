@@ -40,7 +40,7 @@ public class GPXEmail {
                 domain = parts[1];
             }
         } catch (Exception e) {
-            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Error creating GPX Email attribute, has it been set in the app.config?");
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Error creating GPX Email attribute, has it been set in the ors-config.json?");
         }
     }
 

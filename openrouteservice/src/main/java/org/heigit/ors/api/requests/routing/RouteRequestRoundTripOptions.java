@@ -28,19 +28,22 @@ public class RouteRequestRoundTripOptions {
     public static final String PARAM_POINTS = "points";
     public static final String PARAM_SEED = "seed";
 
-    @ApiModelProperty(name = PARAM_LENGTH, value = "The target length of the route (note that this is a preferred value, but results may be different).")
+    @ApiModelProperty(name = PARAM_LENGTH, value = "The target length of the route in `m` (note that this is a preferred value, but results may be different).",
+            example = "10000")
     @JsonProperty(PARAM_LENGTH)
     private Float length;
     @JsonIgnore
     private boolean hasLength = false;
 
-    @ApiModelProperty(name = PARAM_POINTS, value = "The number of points to use on the route. Larger values create more circular routes.")
+    @ApiModelProperty(name = PARAM_POINTS, value = "The number of points to use on the route. Larger values create more circular routes.",
+            example = "5")
     @JsonProperty(PARAM_POINTS)
     private Integer points;
     @JsonIgnore
     private boolean hasPoints = false;
 
-    @ApiModelProperty(name = PARAM_SEED, value = "A seed to use for adding randomisation to the generated route")
+    @ApiModelProperty(name = PARAM_SEED, value = "A seed to use for adding randomisation to the overall direction of the generated route",
+            example = "1")
     @JsonProperty(PARAM_SEED)
     private Long seed;
     @JsonIgnore

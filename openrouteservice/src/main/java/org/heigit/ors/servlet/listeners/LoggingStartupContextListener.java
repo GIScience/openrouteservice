@@ -21,6 +21,7 @@ import javax.servlet.ServletContextListener;
 
 //@WebListener
 public class LoggingStartupContextListener implements ServletContextListener {
+	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		 contextEvent.getServletContext();
 		 try {
@@ -30,6 +31,7 @@ public class LoggingStartupContextListener implements ServletContextListener {
 		 }
 	}
 
+	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		// DO NOTHING
 	}

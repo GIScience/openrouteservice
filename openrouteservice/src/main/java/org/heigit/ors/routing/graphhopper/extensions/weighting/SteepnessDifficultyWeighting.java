@@ -8,8 +8,8 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
@@ -24,146 +24,24 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStor
 
 public class SteepnessDifficultyWeighting extends FastestWeighting {
     
-	private HillIndexGraphStorage gsHillIndex;
-	private byte[] buffer;
+	private final HillIndexGraphStorage gsHillIndex;
+	private final byte[] buffer;
 	private double[] difficultyWeights;
-	private static final double[][] BIKE_DIFFICULTY_MATRIX;
 
-	static  {
-		BIKE_DIFFICULTY_MATRIX = new double[4][20];
-
-		for (int d = 0; d <= 3; d++) {
-			double[] bikeDifficultyWeights = BIKE_DIFFICULTY_MATRIX[d];
-
-			for (int i = 0; i < 20; i++) {
-				if (d == 0) {
-					// BIKE 
-					if (i <= 0)
-						bikeDifficultyWeights[i] = 0.5;
-					else if(i == 1)
-						bikeDifficultyWeights[i] = 0.5;
-					else if (i == 2)
-						bikeDifficultyWeights[i] = 0.5;
-					else if (i == 3)
-						bikeDifficultyWeights[i] = 0.7;
-					else if (i == 4)
-						bikeDifficultyWeights[i] = 0.9;
-					else if (i == 5)
-						bikeDifficultyWeights[i] = 1.5;
-					else if (i == 6)
-						bikeDifficultyWeights[i] = 3;
-					else if (i == 7)
-						bikeDifficultyWeights[i] = 3.5;
-					else if (i == 8)
-						bikeDifficultyWeights[i] = 4;
-					else if (i == 9)
-						bikeDifficultyWeights[i] = 5;
-					else
-						bikeDifficultyWeights[i] = 6 + 0.5*i;
-				} else if (d == 1) {
-					if (i <= 0)
-						bikeDifficultyWeights[i] = 0.7;
-					else if(i == 1)
-						bikeDifficultyWeights[i] = 0.6;
-					else if (i == 2)
-						bikeDifficultyWeights[i] = 0.6;
-					else if (i == 3)
-						bikeDifficultyWeights[i] = 0.5;  // prefer
-					else if (i == 4)
-						bikeDifficultyWeights[i] = 0.5;  // prefer
-					else if (i == 5)
-						bikeDifficultyWeights[i] = 0.8;
-					else if (i == 6)
-						bikeDifficultyWeights[i] = 1.0;
-					else if (i == 7)
-						bikeDifficultyWeights[i] = 2;
-					else if (i == 8)
-						bikeDifficultyWeights[i] = 3;
-					else if (i == 9)
-						bikeDifficultyWeights[i] = 4;
-					else if (i == 10)
-						bikeDifficultyWeights[i] = 5;
-					else 
-						bikeDifficultyWeights[i] = 6 + 0.5*i;
-				} else if (d == 2) {
-					if (i <= 0)
-						bikeDifficultyWeights[i] = 1.6;
-					else if(i == 1)
-						bikeDifficultyWeights[i] = 1.6;
-					else if (i == 2)
-						bikeDifficultyWeights[i] = 1.5;
-					else if (i == 3)
-						bikeDifficultyWeights[i] = 1.5;
-					else if (i == 4)
-						bikeDifficultyWeights[i] = 0.7;
-					else if (i == 5)
-						bikeDifficultyWeights[i] = 0.5;
-					else if (i == 6)
-						bikeDifficultyWeights[i] = 0.5;  // prefer
-					else if (i == 7)
-						bikeDifficultyWeights[i] = 0.5;    // prefer
-					else if (i == 8)
-						bikeDifficultyWeights[i] = 1;   // prefer
-					else if (i == 9)
-						bikeDifficultyWeights[i] = 2;
-					else if (i == 10)
-						bikeDifficultyWeights[i] = 2.5;
-					else if (i == 11)
-						bikeDifficultyWeights[i] = 2.5;
-					else if (i == 12)
-						bikeDifficultyWeights[i] = 3;
-					else if (i == 13)
-						bikeDifficultyWeights[i] = 4;
-					else if (i <= 16)
-						bikeDifficultyWeights[i] = 5;
-					else 
-						bikeDifficultyWeights[i] = 6 + 0.1*i;
-				} else {
-					if (i <= 0)
-						bikeDifficultyWeights[i] = 1.6;
-					else if(i == 1)
-						bikeDifficultyWeights[i] = 1.6;
-					else if (i == 2)
-						bikeDifficultyWeights[i] = 1.5;
-					else if (i == 3)
-						bikeDifficultyWeights[i] = 1.5;
-					else if (i == 4)
-						bikeDifficultyWeights[i] = 0.9;
-					else if (i == 5)
-						bikeDifficultyWeights[i] = 0.7;
-					else if (i == 6)
-						bikeDifficultyWeights[i] = 0.5;  // prefer
-					else if (i == 7)
-						bikeDifficultyWeights[i] = 0.5;    // prefer
-					else if (i == 8)
-						bikeDifficultyWeights[i] = 0.6;   // prefer
-					else if (i == 9)
-						bikeDifficultyWeights[i] = 0.7;
-					else if (i == 10)
-						bikeDifficultyWeights[i] = 0.9;
-					else if (i == 11)
-						bikeDifficultyWeights[i] = 1.2;
-					else if (i == 12)
-						bikeDifficultyWeights[i] = 2;
-					else if (i == 13)
-						bikeDifficultyWeights[i] = 3;
-					else if (i == 14)
-						bikeDifficultyWeights[i] = 5;
-					else if (i <= 16)
-						bikeDifficultyWeights[i] = 6;
-					else 
-						bikeDifficultyWeights[i] = 6 + 0.1*i;
-				}
-			}
-			// TODO create its own weights for hike/pedestrian profiles
-		}
-	}
+    private static final double[][] BIKE_DIFFICULTY_MATRIX = { // [4][20]
+        {0.5, 0.5, 0.5, 0.7, 0.9, 1.5, 3, 3.5, 4, 5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5},
+        {0.7, 0.6, 0.6, 0.5, 0.5, 0.8, 1.0, 2, 3, 4, 5, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5},
+        {1.6, 1.6, 1.5, 1.5, 0.7, 0.5, 0.5, 0.5, 1, 2, 2.5, 2.5, 3, 4, 5, 7.5, 7.6, 7.7, 7.8, 7.9},
+        {1.6, 1.6, 1.5, 1.5, 0.9, 0.7, 0.5, 0.5, 0.6, 0.7, 0.9, 1.2, 2, 3, 5, 6, 7.7, 7.8, 7.9, 8.0}
+      };
 
     public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
         buffer = new byte[1];
 	    int difficultyLevel = map.getInt("level", -1);
         gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
+        // TODO: Check for upper bound of difficultyLevel. What is the right behavior here?
+		// TODO: Ignoring as for negative values, or throwing a dedicated exception?
         if (gsHillIndex != null && difficultyLevel >= 0) {
 				difficultyWeights = BIKE_DIFFICULTY_MATRIX[difficultyLevel];
         }
@@ -175,14 +53,17 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
     		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), revert, buffer);
 
-    		if (difficultyWeights != null)
+    		if (difficultyWeights != null) {
+				// TODO: Clarify whether hillIndex should be checked for out of bounds.
     			return difficultyWeights[hillIndex];
+			}
     	}
    		return 1.0;
     }
 
 	@Override
 	public boolean equals(Object obj) {
+    	// TODO: Clarify whether equals should depend on difficulty level.
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
@@ -193,6 +74,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
+		// TODO: Clarify whether hashCode should depend on difficulty level.
 		return ("SteepnessDifficultyWeighting" + toString()).hashCode();
 	}
 }

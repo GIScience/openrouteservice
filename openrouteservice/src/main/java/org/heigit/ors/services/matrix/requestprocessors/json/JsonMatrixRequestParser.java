@@ -91,7 +91,7 @@ public class JsonMatrixRequestParser {
             int weightingMethod = WeightingMethod.getFromString(value);
             if (weightingMethod == WeightingMethod.UNKNOWN)
                 throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PREFERENCE, value);
-            req.setWeightingMethod(value);
+            req.setWeightingMethod(weightingMethod);
         }
 
 
@@ -218,7 +218,7 @@ public class JsonMatrixRequestParser {
             if (weightingMethod == WeightingMethod.UNKNOWN)
                 throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, KEY_PREFERENCE, value);
 
-            req.setWeightingMethod(value);
+            req.setWeightingMethod(weightingMethod);
         }
 
         Coordinate[] locations = null;

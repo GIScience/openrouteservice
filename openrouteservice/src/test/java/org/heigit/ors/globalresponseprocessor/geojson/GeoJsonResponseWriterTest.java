@@ -61,7 +61,7 @@ public class GeoJsonResponseWriterTest {
      */
     @BeforeClass
     public static void setUp() {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         // routingRequest = new RoutingRequestMockup().create(RoutingRequestMockup.routeProfile.standardHeidelberg2d);
         // routeResult = RouteResultMockup.create(RouteResultMockup.routeResultProfile.standardHeidelberg);

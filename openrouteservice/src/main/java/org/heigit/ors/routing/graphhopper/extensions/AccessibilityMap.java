@@ -23,16 +23,17 @@ public class AccessibilityMap {
     private GHPoint3D snappedPosition;
 
     public AccessibilityMap(IntObjectMap<SPTEntry> map, SPTEntry edgeEntry) {
-
         this(map, edgeEntry, null);
     }
 
     public AccessibilityMap(IntObjectMap<SPTEntry> map, SPTEntry edgeEntry, GHPoint3D snappedPosition) {
-
         this.map = map;
         this.edgeEntry = edgeEntry;
         this.snappedPosition = snappedPosition;
+    }
 
+    public AccessibilityMap(IntObjectMap<SPTEntry> map, GHPoint3D snappedPosition) {
+        this(map, null, snappedPosition);
     }
 
     public boolean isEmpty() {

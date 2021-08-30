@@ -35,7 +35,7 @@ If you encounter a bug, please make sure to be as descriptive as possible, i.e.:
 
 ### Routing issues
 
-If you encounter weird or unexpected behavior during routing, please make sure to rule out expected behavior based on road attributes from e.g. [openstreetmap.org](https://openstreetmap.org/query), such as unexpected one-way streets or access restrictions. Find an overview of our tagging filters for all transportation profiles in our [wiki](https://github.com/GIScience/openrouteservice/wiki/Tag-Filtering).
+If you encounter weird or unexpected behavior during routing, please make sure to rule out expected behavior based on road attributes from e.g. [openstreetmap.org](https://openstreetmap.org/query), such as unexpected one-way streets or access restrictions. Find an overview of our tagging filters for all transportation profiles in our [backend documentation](https://GIScience.github.io/openrouteservice/documentation/Tag-Filtering.html).
 
 Information to include:
 
@@ -58,16 +58,16 @@ We'd like all pull requests to adhere to the following rules:
 
 - a PR has to **close an issue**. If there is none yet for yours, please [create one](https://github.com/GIScience/openrouteservice/issues/new)
 - branch off [master](https://github.com/GIScience/openrouteservice/tree/master)
-- name your branch according to `<[hotfix/bugfix/feat/algo]>/<issue#>-<purpose>`, e.g. `[feat]/#381-simplify_geometry`
+- name your branch according to `<[hotfix/bugfix/feat/algo]>/<issue#>-<purpose>`, e.g. `feat/#381-simplify_geometry`
 - if you introduce new functions/classes, write unit or API tests
 - **limit the number of commits to a minimum**, i.e. use [`git commit --amend [--no-edit]`](https://www.atlassian.com/git/tutorials/rewriting-history#git-commit--amend)
-- use meaningful commit messages, e.g. `commit -m "[feat] include geometry_simplify in API and core code"`
+- use meaningful commit messages, e.g. `commit -m "Include geometry_simplify in API and core code"`
 - if your branch needs an update from its base branch, use [`rebase`](https://blog.algolia.com/master-git-rebase/#rebasing-on-the-base-branch), e.g.
 
 ```
 git checkout my-new-feat
 git stash
-git rebase development
+git rebase master
 git stash pop
 ```
 
@@ -77,7 +77,7 @@ Be extra careful using `rebase` commands when collaborating on a branch with oth
 
 ### Contributing code
 
-For a short explanation on how to setup, deploy and test **openrouteservice** locally for development, see our [wiki entry](https://github.com/GIScience/openrouteservice/wiki/Contributing-Code).
+For a short explanation on how to setup, deploy and test **openrouteservice** locally for development, see our [installation instructions](https://GIScience.github.io/openrouteservice/installation/Building-from-Source).
 
 Though there are no concrete rules for code that is contributed, we have a few general styles that should be adopted:
 

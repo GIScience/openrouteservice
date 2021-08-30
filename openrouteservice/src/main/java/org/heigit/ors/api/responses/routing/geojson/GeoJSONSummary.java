@@ -18,12 +18,14 @@ package org.heigit.ors.api.responses.routing.geojson;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.responses.routing.json.JSONExtra;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.api.responses.routing.json.JSONSummary;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteWarning;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,14 @@ public class GeoJSONSummary extends JSONSummary {
     private List<Integer> wayPoints;
     private Map<String, JSONExtra> extras;
     private List<RouteWarning> warnings;
+    @ApiModelProperty(value = "Departure date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
+    @JsonProperty(value = "departure")
+    protected ZonedDateTime departure;
+    @ApiModelProperty(value = "Arrival date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}", example = "2020-01-31T13:15:00+01:00")
+    @JsonProperty(value = "arrival")
+    protected ZonedDateTime arrival;
 
     public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map extras, boolean includeElevation) {
         super(result, includeElevation);
@@ -44,6 +54,11 @@ public class GeoJSONSummary extends JSONSummary {
         this.wayPoints = result.getWayPointsIndices();
         this.extras = extras;
         this.warnings = result.getWarnings();
+
+        if(result.hasDepartureAndArrival()) {
+            departure = result.getDeparture();
+            arrival = result.getArrival();
+        }
     }
 
     public List<JSONSegment> getSegments() {

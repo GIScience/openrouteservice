@@ -81,7 +81,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         setPreparationThreads(args.getInt(CoreLandmark.PREPARE + "threads", getPreparationThreads()));
 
         landmarkCount = args.getInt(CoreLandmark.COUNT, landmarkCount);
-        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT, Math.min(4, landmarkCount));
+        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT_DEFAULT, Math.min(4, landmarkCount));
         logDetails = args.getBool(CoreLandmark.PREPARE + "log_details", false);
         minNodes = args.getInt(CoreLandmark.PREPARE + "min_network_size", -1);
 
@@ -155,7 +155,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      */
     public CoreLMAlgoFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
         if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
+            throw new IllegalArgumentException("It is not allowed to pass an empty weightingList");
 
         weightingsAsStrings.clear();
         for (String strWeighting : weightingList) {

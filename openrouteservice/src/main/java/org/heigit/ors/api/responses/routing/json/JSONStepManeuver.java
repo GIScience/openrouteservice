@@ -21,10 +21,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.routing.RouteStepManeuver;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.util.FormatUtility;
 
 @ApiModel(description = "Maneuver object of the step")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStepManeuver {
+    private static final int COORDINATE_PRECISION = 6;
+    private static final int ELEVATION_DECIMAL_PLACES = 2;
+
+
     @ApiModelProperty(value = "The coordinate of the point where a maneuver takes place.", example = "[8.678962,49.407819]")
     @JsonProperty("location")
     private Double[] location;
@@ -40,12 +45,12 @@ public class JSONStepManeuver {
         if(coordinate != null) {
             if (!Double.isNaN(coordinate.z)) {
                 location = new Double[3];
-                location[2] = coordinate.z;
+                location[2] = FormatUtility.roundToDecimals(coordinate.z, ELEVATION_DECIMAL_PLACES);
             } else {
                 location = new Double[2];
             }
-            location[0] = coordinate.x;
-            location[1] = coordinate.y;
+            location[0] = FormatUtility.roundToDecimals(coordinate.x, COORDINATE_PRECISION);
+            location[1] = FormatUtility.roundToDecimals(coordinate.y, COORDINATE_PRECISION);
         }
 
         bearingAfter = maneuver.getBearingAfter();
