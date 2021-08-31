@@ -180,6 +180,10 @@ RELEASING:
 ### Fixed
 - Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
+## [6.2.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.2.1] - 2020-08-13
 ### Added
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
@@ -203,6 +207,10 @@ RELEASING:
 - Upgrade to Java 11
 ### Deprecated
 - Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
+
+## [6.1.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.1.1] - 2020-06-02
 ### Added
@@ -246,6 +254,10 @@ RELEASING:
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
+
+## [6.0.1] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.0.0] - 2019-12-03
 ### Added
