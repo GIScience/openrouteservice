@@ -176,6 +176,10 @@ RELEASING:
 ### Fixed
 - Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
+## [6.2.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.2.1] - 2020-08-13
 ### Added
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
