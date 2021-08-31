@@ -60,6 +60,7 @@ RELEASING:
 - `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 ### Fixed
 - Errors in travel speed explanation
+- Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
 
 ## [6.6.1] - 2021-07-05
 ### Fixed

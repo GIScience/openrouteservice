@@ -1564,6 +1564,48 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testVehicleType() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.71189,49.41165|8.71128,49.40971"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        JSONObject options = new JSONObject();
+        options.put("vehicle_type", "hgv");
+        body.put("options", options);
+
+        // Test that buses are not allowed on Neue Schlossstraße (https://www.openstreetmap.org/way/150549948)
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(605.3f))
+                .statusCode(200);
+
+        options.put("vehicle_type", "bus");
+        body.put("options", options);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1039.9f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testHGVWidthRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.690915,49.430117|8.68834,49.427758"));
