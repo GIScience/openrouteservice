@@ -97,6 +97,10 @@ RELEASING:
 - Correct package declaration of BoundingBoxFactoryTest ([#933](https://github.com/GIScience/openrouteservice/issues/933))
 - Some corrections to Hungarian language support (thanks to [debyos](https://github.com/debyos))
 
+## [6.4.4] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.4.3] - 2021-04-28
 ### Changed
 - Reduced unnecessary warning messages caused by spring output stream handling ([#899](https://github.com/GIScience/openrouteservice/issues/899)
@@ -503,7 +507,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 [unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
 [6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
-[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
+[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.4...v6.5.0
+[6.4.4]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.4.4
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
