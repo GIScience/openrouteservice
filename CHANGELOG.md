@@ -135,6 +135,10 @@ RELEASING:
 - Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 - Fixed continue_straight option with no bearing on CH-enabled profiles
 
+## [6.3.7] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.3.6] - 2021-02-02
 ### Fixed
 - Expand coordinates of all previous limit polygons before adding to new builder to prevent break-in on long polygon edges
@@ -503,7 +507,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
-[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0
+[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.7...v6.4.0
+[6.3.7]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.3.7
 [6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
 [6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
