@@ -39,6 +39,7 @@ jobs:
 
           DOCKER_IMAGE=openrouteservice/openrouteservice
           CURRENT_VERSIONS=$(test_version)
+          echo "Current Docker versions $CURRENT_VERSIONS"
           IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
           DOCKER_PLATFORMS=linux/amd64
 
