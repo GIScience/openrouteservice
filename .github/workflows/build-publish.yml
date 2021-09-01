@@ -4,7 +4,7 @@ on:
     branches: [ master ]
   push:
     branches: [ master ]
-    tags: ['v*.*.*']
+    tags: [ 'v*.*.*' ]
   workflow_dispatch:
 
 jobs:
@@ -61,20 +61,19 @@ jobs:
                       ${TAGS_LATEST} .
           echo ::set-output name=buildx_args_nightly::--platform ${DOCKER_PLATFORMS} \
                       ${TAGS_NIGHTLY} .
-      - name: Build version if not present
+      - name: Build nightly
+        run: |
+          docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args_nightly }}
+      - name: Checkout version if needed
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
         uses: actions/checkout@v2
         with:
           ref: ${{ steps.previoustag.outputs.tag }}
+      - name: Build version if needed
+        if: ${{ steps.prepare.outputs.build_version == 'true' }}
         run: |
           docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args_version }}
           docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args_latest }}
-      - name: Build nightly
-        uses: actions/checkout@v2
-        with:
-          ref: 'master'
-        run: |
-          docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args_nightly }}
       - name: Login to DockerHub
         if: ${{ success() && github.ref == 'refs/heads/master' }}
         uses: docker/login-action@v1
