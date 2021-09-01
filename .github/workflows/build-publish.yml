@@ -39,18 +39,18 @@ jobs:
 
           DOCKER_IMAGE=openrouteservice/openrouteservice
           CURRENT_VERSIONS=$(test_version)
-          DOCKER_VERSION=${{ steps.previoustag.outputs.tag }}
+          IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
           DOCKER_PLATFORMS=linux/amd64
 
-          TAGS_VERSION="--tag ${DOCKER_IMAGE}:${DOCKER_VERSION}"
+          TAGS_VERSION="--tag ${DOCKER_IMAGE}:${IMAGE_VERSION}"
           TAGS_LATEST="--tag ${DOCKER_IMAGE}:latest"
           TAGS_NIGHTLY="--tag ${DOCKER_IMAGE}:nightly"
 
-          if [[ $CURRENT_VERSIONS =~ $DOCKER_VERSION ]]; then
-            echo "Version: $DOCKER_VERSION present or latest. Skipping it!"
+          if [[ $CURRENT_VERSIONS =~ $IMAGE_VERSION ]]; then
+            echo "Image version: $IMAGE_VERSION present or latest. Skipping it!"
             BUILD_VERSION=false
           else
-            echo "Version $DOCKER_VERSION not present and not latest. Building it!"
+            echo "Image version $IMAGE_VERSION not present and not latest. Building it!"
             BUILD_VERSION=true
           fi
 
