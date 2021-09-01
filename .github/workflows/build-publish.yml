@@ -26,6 +26,12 @@ jobs:
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: 'Get next minor version'
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+
       - name: Prepare
         id: prepare
         run: |
@@ -40,23 +46,27 @@ jobs:
 
           DOCKER_IMAGE=openrouteservice/openrouteservice
           CURRENT_VERSIONS=$(test_version)
-          IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
+          LATEST_IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
+          HIGHEST_IMAGE_VERSION=${{ steps.semvers.outputs.v_mayor }}
           DOCKER_PLATFORMS=linux/amd64
           BUILD_VERSION=true
 
-          TAGS_VERSION="--tag ${DOCKER_IMAGE}:${IMAGE_VERSION}"
+          # We should the latest and highest tag via https://github.com/WyriHaximus/github-action-next-semvers
+          TAGS_LATEST_VERSION="--tag ${DOCKER_IMAGE}:${LATEST_IMAGE_VERSION}"
+          TAGS_HIGHEST_VERSION="--tag ${DOCKER_IMAGE}:${HIGHEST_IMAGE_VERSION}"
+          echo "HIGHEST MAYOR VERSION: $TAGS_HIGHEST_VERSION"
           TAGS_LATEST="--tag ${DOCKER_IMAGE}:latest"
           TAGS_NIGHTLY="--tag ${DOCKER_IMAGE}:nightly"
 
           # Test if the latest published version is already in the versions at docker hub. If so skip the version build.
-          if [[ $CURRENT_VERSIONS =~ $IMAGE_VERSION ]]; then
-            echo "Image version: $IMAGE_VERSION present or latest. Skipping it!"
+          if [[ $CURRENT_VERSIONS =~ $LATEST_IMAGE_VERSION ]]; then
+            echo "Image version: $LATEST_IMAGE_VERSION present or latest. Skipping it!"
             BUILD_VERSION=false
           fi
 
           echo ::set-output name=build_version::${BUILD_VERSION}
           echo ::set-output name=buildx_args_version::--platform ${DOCKER_PLATFORMS} \
-                      ${TAGS_VERSION} .
+                      ${TAGS_LATEST_VERSION} .
           echo ::set-output name=buildx_args_latest::--platform ${DOCKER_PLATFORMS} \
                       ${TAGS_LATEST} .
           echo ::set-output name=buildx_args_nightly::--platform ${DOCKER_PLATFORMS} \
