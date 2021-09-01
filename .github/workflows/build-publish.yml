@@ -30,6 +30,7 @@ jobs:
         id: prepare
         run: |
           function test_version() {
+            # Loads all versions ever published under the given namespace (max 1024) and splits them. The result is sorted.
             curl -s -S "https://registry.hub.docker.com/v2/repositories/openrouteservice/openrouteservice/tags/?page_size=1024" |
               sed -e 's/,/,\n/g' -e 's/\[/\[\n/g' |
               grep '"name"' |
@@ -39,20 +40,18 @@ jobs:
 
           DOCKER_IMAGE=openrouteservice/openrouteservice
           CURRENT_VERSIONS=$(test_version)
-          echo "Current Docker versions $CURRENT_VERSIONS"
           IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
           DOCKER_PLATFORMS=linux/amd64
+          BUILD_VERSION=true
 
           TAGS_VERSION="--tag ${DOCKER_IMAGE}:${IMAGE_VERSION}"
           TAGS_LATEST="--tag ${DOCKER_IMAGE}:latest"
           TAGS_NIGHTLY="--tag ${DOCKER_IMAGE}:nightly"
 
+          # Test if the latest published version is already in the versions at docker hub. If so skip the version build.
           if [[ $CURRENT_VERSIONS =~ $IMAGE_VERSION ]]; then
             echo "Image version: $IMAGE_VERSION present or latest. Skipping it!"
             BUILD_VERSION=false
-          else
-            echo "Image version $IMAGE_VERSION not present and not latest. Building it!"
-            BUILD_VERSION=true
           fi
 
           echo ::set-output name=build_version::${BUILD_VERSION}
