@@ -4,8 +4,7 @@ on:
     branches: [ master ]
   push:
     branches: [ master ]
-    tags:
-      - '*.*.*'
+    tags: ['*.*.*']
   workflow_dispatch:
 
 jobs:
