@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Changed
 ### Deprecated
 
+## [6.1.3] - 2021-09-03
+### Changed
+- removed unused dependency
+
 ## [6.1.2] - 2021-08-30
 ### Changed
 - URL for repo.heigit.org to HTTPS
