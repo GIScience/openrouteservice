@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- add new workflow to build and publish the docker image ([#1035](https://github.com/GIScience/openrouteservice/pull/1035))
 - optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
