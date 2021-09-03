@@ -17,20 +17,31 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.heigit.ors.routing.parameters.*;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 
 /**
@@ -54,6 +65,7 @@ public class RouteSearchParameters {
     private int vehicleType = HeavyVehicleAttributes.UNKNOWN;
     private ProfileParameters profileParams;
     private WayPointBearing[] bearings = null;
+    private boolean continueStraight = false;
     private double[] maxRadiuses;
     private boolean flexibleMode = false;
     private boolean optimized = true;
@@ -71,7 +83,13 @@ public class RouteSearchParameters {
     private int roundTripPoints = 2;
     private long roundTripSeed = -1;
 
+    private double maximumSpeed;
+    private boolean hasMaximumSpeed = false;
+
     private String options;
+
+    private LocalDateTime departure;
+    private LocalDateTime arrival;
 
     public int getProfileType() {
         return profileType;
@@ -330,7 +348,7 @@ public class RouteSearchParameters {
                     wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jRestrictions.getString("track_type")));
 
                 if (jRestrictions.has("smoothness_type"))
-                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
+                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.forValue(jRestrictions.getString("smoothness_type"))));
 
                 if (jRestrictions.has("maximum_sloped_kerb"))
                     wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
@@ -340,6 +358,10 @@ public class RouteSearchParameters {
 
                 if (jRestrictions.has("minimum_width")) {
                     wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
+                }
+
+                if (jRestrictions.has("surface_quality_known")) {
+                    wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
                 }
 
                 profileParams = wheelchairParams;
@@ -369,6 +391,29 @@ public class RouteSearchParameters {
             } else {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
             }
+
+            String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+            String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+            double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+            double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+            for (Polygon avoidArea : avoidAreas) {
+                try {
+                    if (areaLimit > 0) {
+                        long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                        if (area > areaLimit) {
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                        }
+                    }
+                    if (extentLimit > 0) {
+                        long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                        if (extent > extentLimit) {
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                        }
+                    }
+                } catch (InternalServerException e) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+                }
+            }
         }
 
         if (json.has("alternative_routes_count")) {
@@ -376,6 +421,11 @@ public class RouteSearchParameters {
                 alternativeRoutesCount = json.getInt("alternative_routes_count");
             } catch (Exception ex) {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+            }
+            String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
+            int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+            if (countLimit > 0 && alternativeRoutesCount > countLimit) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
             if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {
@@ -465,6 +515,18 @@ public class RouteSearchParameters {
         this.bearings = bearings;
     }
 
+    public boolean hasBearings() {
+        return bearings != null && bearings.length > 0;
+    }
+
+    public void setContinueStraight(boolean continueStraightAtWaypoints) {
+        continueStraight = continueStraightAtWaypoints;
+    }
+
+    public boolean hasContinueStraight() {
+        return continueStraight;
+    }
+
     public void setRoundTripLength(float length) {
         roundTripLength = length;
     }
@@ -489,6 +551,19 @@ public class RouteSearchParameters {
         return roundTripSeed;
     }
 
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
+
     public boolean isProfileTypeDriving() {
         return RoutingProfileType.isDriving(this.getProfileType());
     }
@@ -497,24 +572,53 @@ public class RouteSearchParameters {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
 
-    public boolean requiresDynamicWeights() {
+    public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
             || hasAvoidFeatures()
             || hasAvoidBorders()
             || hasAvoidCountries()
             || getConsiderTurnRestrictions()
-            || getWeightingMethod() == WeightingMethod.SHORTEST
-            || getWeightingMethod() == WeightingMethod.RECOMMENDED
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-        ;
+            || hasMaximumSpeed();
     }
 
     /**
      * Check if the request is compatible with preprocessed graphs
      */
-    public boolean requiresFallbackAlgorithm() {
+    public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
-                || (getProfileParameters() != null && getProfileParameters().hasWeightings());
+            || hasBearings()
+            || hasContinueStraight()
+            || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+            || getAlternativeRoutesCount() > 0;
     }
+
+    // time-dependent stuff
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+    }
+
+    public boolean hasDeparture() {
+        return departure!=null;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+    }
+
+    public boolean hasArrival() { return arrival!=null; }
+
+    public boolean isTimeDependent() {
+        return (hasDeparture() || hasArrival());
+    }
+
 }

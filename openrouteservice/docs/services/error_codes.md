@@ -86,3 +86,15 @@ The following sections describes the list of possible internal error codes that 
 | 6007 |  Unsupported export format. |
 | 6008 |  Empty Element. |
 | 6099 |  Unknown internal error. |
+
+## Centrality API
+| Error Code | Description |
+|----------|-------------|
+| 7000 | Unable to parse JSON request. |
+| 7001 | Required parameter is missing. |
+| 7002 | Invalid parameter format. |
+| 7003 | Invalid parameter value. |
+| 7004 | Unknown parameter. |
+| 7005 | Mismatched input. |
+| 7006 | Unsupported export format. |
+| 7099 | Unknown internal error. |

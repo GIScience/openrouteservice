@@ -342,10 +342,12 @@ public class JsonIsochroneRequestParser {
 		if (!Helper.isEmpty(value)) {
 			try {
 				travellerInfo.getRouteSearchParameters().setOptions(value);
+				req.setCalcMethod("ConcaveBalls");
 			} catch(Exception ex) {
 				throw new ParameterValueException(IsochronesErrorCodes.INVALID_JSON_FORMAT, KEY_OPTIONS, value);
 			}
 		}
+		else req.setCalcMethod("FastIsochrone");
 
 		setIsochroneSmoothing(req, request.getParameter(KEY_SMOOTHING));
 		

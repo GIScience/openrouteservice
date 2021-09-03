@@ -37,7 +37,7 @@
         },
         {
           "name": "org.springframework",
-          "level": "error",
+          "level": "warn",
           "additivity": "false",
           "AppenderRef": {
             "ref": "stdout"
@@ -45,7 +45,7 @@
         },
         {
           "name": "org.hibernate",
-          "level": "error",
+          "level": "warn",
           "additivity": "false",
           "AppenderRef": {
             "ref": "stdout"

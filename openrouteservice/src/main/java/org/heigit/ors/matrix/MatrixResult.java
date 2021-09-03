@@ -17,6 +17,7 @@ public class MatrixResult {
   private float[][] tables;
   private ResolvedLocation[] destinations;
   private ResolvedLocation[] sources;
+  private String graphDate;
 
   public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations) {
 	  tables = new float[6][];
@@ -57,4 +58,8 @@ public class MatrixResult {
   {
 	  sources = locations;
   }
+
+  public void setGraphDate(String graphDate) {this.graphDate = graphDate; }
+
+  public String getGraphDate() { return graphDate; }
 }

@@ -62,6 +62,9 @@
 	<listener>
 		<listener-class>org.heigit.ors.servlet.listeners.ORSInitContextListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>org.heigit.ors.servlet.listeners.ORSKafkaConsumerInitContextListener</listener-class>
+	</listener>
 </web-app>
 
 

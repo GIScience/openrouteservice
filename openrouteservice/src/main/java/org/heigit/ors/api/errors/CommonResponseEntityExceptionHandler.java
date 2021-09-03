@@ -15,13 +15,14 @@
 
 package org.heigit.ors.api.errors;
 
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.DebugUtility;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,54 +51,43 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
     public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        if (LOCAL_LOGGER.isDebugEnabled()) {
-            // Log also the stack trace
-            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
-        } else {
-            // Log only the error message
-            LOCAL_LOGGER.error(exception);
-        }
-
+        logException(exception);
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
     public ResponseEntity handleUnknownParameterException(UnknownParameterException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        if (LOCAL_LOGGER.isDebugEnabled()) {
-            // Log also the stack trace
-            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
-        } else {
-            // Log only the error message
-            LOCAL_LOGGER.error(exception);
-        }
-
+        logException(exception);
         return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
     public ResponseEntity handleGenericException(Exception exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        if (LOCAL_LOGGER.isDebugEnabled()) {
-            // Log also the stack trace
-            LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
-        } else {
-            // Log only the error message
-            LOCAL_LOGGER.error(exception);
-        }
-
+        logException(exception);
         Throwable cause = exception.getCause();
-        if (cause instanceof InvalidDefinitionException) {
-            InvalidDefinitionException e = (InvalidDefinitionException) cause;
+        if (cause instanceof ValueInstantiationException) {
+            ValueInstantiationException e = (ValueInstantiationException) cause;
             if (e.getCause() instanceof StatusCodeException) {
                 StatusCodeException origExc = (StatusCodeException) e.getCause();
                 return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
         }
-
         return new ResponseEntity(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private void logException(Exception exception) {
+        if (DebugUtility.isDebug()) {
+            if (LOCAL_LOGGER.isDebugEnabled()) {
+                // Log also the stack trace
+                LOCAL_LOGGER.error(EXCEPTION_MESSAGE, exception);
+            } else {
+                // Log only the error message
+                LOCAL_LOGGER.error(exception);
+            }
+        }
     }
 
     private HttpStatus convertOrsToSpringHttpCode(int statusCode) {

@@ -34,14 +34,14 @@ public class ProfileWeighting {
 		return name;
 	}
 
-	public void addParameter(String name, String value) {
-		if (params == null)
-			params = new PMap();
-		params.put(name, value);
+	public void addParameter(String name, Object value) {
+		getParameters().put(name, value);
 	}
 
 	public PMap getParameters()
 	{
+		if (params == null)
+			params = new PMap();
 		return params;
 	}
 

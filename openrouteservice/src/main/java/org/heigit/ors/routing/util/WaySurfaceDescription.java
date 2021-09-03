@@ -8,16 +8,16 @@ public class WaySurfaceDescription {
         return wayType;
     }
 
-    public void setWayType(byte wayType) {
-        this.wayType = wayType;
+    public void setWayType(int wayType) {
+        this.wayType = (byte)wayType;
     }
 
     public byte getSurfaceType() {
         return surfaceType;
     }
 
-    public void setSurfaceType(byte surfaceType) {
-        this.surfaceType = surfaceType;
+    public void setSurfaceType(int surfaceType) {
+        this.surfaceType = (byte)surfaceType;
     }
 
     public void reset() {

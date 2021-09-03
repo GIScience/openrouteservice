@@ -29,6 +29,7 @@ package org.heigit.ors.globalresponseprocessor.gpx;
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.globalresponseprocessor.gpx.beans.*;
 import org.heigit.ors.routing.*;
@@ -62,7 +63,8 @@ public class GpxResponseWriter {
 
     /**
      * toGPX can be used to convert a  {@link RoutingRequest} and {@link RouteResult} to a gpx.
-     * Specific values should be set in the App.config. If not, the process continues with empty values and a log4j error message.
+     * Specific values should be set in the ors-config.json.
+     * If not, the process continues with empty values and a log4j error message.
      *
      * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.
@@ -251,6 +253,11 @@ public class GpxResponseWriter {
         copyright.setYear(cal);
         // Set the metadata information
         metadata.setCopyright(copyright);
+
+        MetadataTypeExtensions ext = new MetadataTypeExtensions();
+        ext.setSystemMessage(SystemMessage.getSystemMessage(rreq));
+        metadata.setExtensions(ext);
+
         if (RoutingServiceSettings.getParameter(PARAM_NAME_ROUTING_DESCRIPTION) != null) {
 
             metadata.setDesc(RoutingServiceSettings.getParameter(PARAM_NAME_ROUTING_DESCRIPTION));

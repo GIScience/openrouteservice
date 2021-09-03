@@ -32,6 +32,8 @@ public class RouteProfileConfiguration {
 	private Double maximumDistance = 0.0;
 	private Double maximumDistanceDynamicWeights = 0.0;
 	private Double maximumDistanceAvoidAreas = 0.0;
+	private Double maximumDistanceAlternativeRoutes = 0.0;
+	private Double maximumDistanceRoundTripRoutes = 0.0;
 	private Integer maximumWayPoints = 0;
 	private boolean instructions = true;
 	private boolean optimize = false;
@@ -39,6 +41,7 @@ public class RouteProfileConfiguration {
 	private int encoderFlagsSize = 4;
 	private String encoderOptions = null;
 	
+	private Config isochronePreparationOpts;
 	private Config preparationOpts;
 	private Config executionOpts;
 	
@@ -46,10 +49,17 @@ public class RouteProfileConfiguration {
 	private String elevationCachePath = null;
 	private String elevationDataAccess = "MMAP";
 	private boolean elevationCacheClear = true;
+	private boolean elevationSmoothing = true;
+	private boolean interpolateBridgesAndTunnels = true;
 	private int maximumSnappingRadius = 350;
 
 	private Envelope extent;
 	private boolean hasMaximumSnappingRadius = false;
+
+	private int locationIndexResolution = 500;
+	private int locationIndexSearchIterations = 4;
+
+	private double maximumSpeedLowerBound = 80;
 
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
@@ -71,6 +81,7 @@ public class RouteProfileConfiguration {
 
 		encoderFlagsSize = rpc.encoderFlagsSize;
 		encoderOptions = rpc.encoderOptions;
+		isochronePreparationOpts = rpc.isochronePreparationOpts;
 		preparationOpts = rpc.preparationOpts;
 		executionOpts = rpc.executionOpts;
 
@@ -81,11 +92,15 @@ public class RouteProfileConfiguration {
 		elevationCacheClear = rpc.elevationCacheClear;
 		elevationProvider = rpc.elevationProvider;
 		elevationDataAccess = rpc.elevationDataAccess;
+		elevationSmoothing = rpc.elevationSmoothing;
+		interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
 
 		maximumSnappingRadius = rpc.maximumSnappingRadius;
 		hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
 
 		extent = rpc.extent;
+
+		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 	}
 
 	public Integer[] getProfilesTypes() {
@@ -203,7 +218,22 @@ public class RouteProfileConfiguration {
 	{
 		return maximumDistanceAvoidAreas;
 	}
-	
+	public Double getMaximumDistanceAlternativeRoutes() {
+		return maximumDistanceAlternativeRoutes;
+	}
+
+	public void setMaximumDistanceAlternativeRoutes(Double maximumDistanceAlternativeRoutes) {
+		this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
+	}
+
+	public Double getMaximumDistanceRoundTripRoutes() {
+		return maximumDistanceRoundTripRoutes;
+	}
+
+	public void setMaximumDistanceRoundTripRoutes(Double maximumDistanceRoundTripRoutes) {
+		this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
+	}
+
 	public void setMaximumWayPoints(Integer value)
 	{
 		maximumWayPoints = value;
@@ -284,6 +314,30 @@ public class RouteProfileConfiguration {
 		return elevationCacheClear;
 	}
 
+	public boolean getElevationSmoothing() {
+		return elevationSmoothing;
+	}
+
+	public void setElevationSmoothing(boolean elevationSmoothing) {
+		this.elevationSmoothing = elevationSmoothing;
+	}
+
+	public boolean getInterpolateBridgesAndTunnels() {
+		return interpolateBridgesAndTunnels;
+	}
+
+	public void setInterpolateBridgesAndTunnels(boolean interpolateBridgesAndTunnels) {
+		this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
+	}
+
+	public Config getIsochronePreparationOpts() {
+		return isochronePreparationOpts;
+	}
+
+	public void setIsochronePreparationOpts(Config isochronePreparationOpts) {
+		this.isochronePreparationOpts = isochronePreparationOpts;
+	}
+
 	public Config getPreparationOpts() {
 		return preparationOpts;
 	}
@@ -319,5 +373,29 @@ public class RouteProfileConfiguration {
 	public void setMaximumSnappingRadius(int maximumSnappingRadius) {
 		this.maximumSnappingRadius = maximumSnappingRadius;
 		this.hasMaximumSnappingRadius = true;
+	}
+
+	public int getLocationIndexResolution() {
+		return locationIndexResolution;
+	}
+
+	public void setLocationIndexResolution(int locationIndexResolution) {
+		this.locationIndexResolution = locationIndexResolution;
+	}
+
+	public int getLocationIndexSearchIterations() {
+		return locationIndexSearchIterations;
+	}
+
+	public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
+		this.locationIndexSearchIterations = locationIndexSearchIterations;
+	}
+
+	public void setMaximumSpeedLowerBound(double maximumSpeedLowerBound){
+		this.maximumSpeedLowerBound = maximumSpeedLowerBound;
+	}
+
+	public double getMaximumSpeedLowerBound(){
+		return maximumSpeedLowerBound;
 	}
 }

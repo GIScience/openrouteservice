@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,10 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 
-public class RouteResult 
-{
+public class RouteResult {
+	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
+	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
+
 	private RouteSummary summary;
 	private Coordinate[] geometry;
 	private List<RouteSegment> segments;
@@ -32,6 +35,9 @@ public class RouteResult
 	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
 	private String graphDate = "";
+
+	private ZonedDateTime departure;
+	private ZonedDateTime arrival;
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
@@ -127,7 +133,7 @@ public class RouteResult
 
 	public void addPointlist(PointList pointlistToAdd) {
 		if (pointlist == null) {
-			pointlist = new PointList();
+			pointlist = new PointList(pointlistToAdd.getSize(), pointlistToAdd.is3D());
 		}
 		pointlist.add(pointlistToAdd);
 	}
@@ -191,4 +197,24 @@ public class RouteResult
 	public void setGraphDate(String graphDate) {
 		this.graphDate = graphDate;
 	}
+
+	public boolean hasDepartureAndArrival() {
+		return (departure!=null && arrival!=null);
+	}
+
+	public ZonedDateTime getDeparture() {
+		return departure;
+	}
+
+	public void setDeparture(ZonedDateTime departure) {
+	    this.departure = departure;
+    }
+
+	public ZonedDateTime getArrival() {
+		return arrival;
+	}
+
+	public void setArrival(ZonedDateTime arrival) {
+	    this.arrival = arrival;
+    }
 }

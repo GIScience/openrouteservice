@@ -18,29 +18,30 @@ package org.heigit.ors.api.requests.common;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
+import org.apache.commons.lang.StringUtils;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
-import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import org.heigit.ors.routing.parameters.*;
+import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.VehicleParameters;
+import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class GenericHandler {
@@ -111,7 +112,7 @@ public class GenericHandler {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws ParameterValueException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -160,6 +161,10 @@ public class GenericHandler {
 
     protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
+        if (options.getProfileParams().hasSurfaceQualityKnown() || options.getProfileParams().hasAllowUnsuitable()) {
+            params = new WheelchairParameters();
+        }
+
         if (options.getProfileParams().hasRestrictions()) {
 
             RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
@@ -174,6 +179,14 @@ public class GenericHandler {
             applyWeightings(weightings, params);
         }
 
+        if (params instanceof WheelchairParameters) {
+            if (options.getProfileParams().hasSurfaceQualityKnown()) {
+                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+            }
+            if (options.getProfileParams().hasAllowUnsuitable()) {
+                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+            }
+        }
         return params;
     }
 
@@ -182,7 +195,7 @@ public class GenericHandler {
         if (RoutingProfileType.isHeavyVehicle(profileType))
             params = convertHeavyVehicleParameters(restrictions, vehicleType);
         if (RoutingProfileType.isWheelchair(profileType))
-            params = convertWheelchairParameters(restrictions);
+            params = convertWheelchairParamRestrictions(restrictions);
         return params;
     }
 
@@ -255,8 +268,7 @@ public class GenericHandler {
         return params;
     }
 
-    private WheelchairParameters convertWheelchairParameters(RequestProfileParamsRestrictions restrictions) {
-
+    private WheelchairParameters convertWheelchairParamRestrictions(RequestProfileParamsRestrictions restrictions) {
         WheelchairParameters params = new WheelchairParameters();
 
         if(restrictions.hasSurfaceType())
@@ -313,25 +325,25 @@ public class GenericHandler {
         try {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
-                float greenFactor = weightings.getGreenIndex();
-                if (greenFactor > 1)
-                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("%.2f", greenFactor), "green factor", "1.0");
-                pw.addParameter("factor", String.format("%.2f", greenFactor));
+                Float greenFactor = weightings.getGreenIndex();
+                if (greenFactor.floatValue() > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", greenFactor), "green factor", "1.0");
+                pw.addParameter("factor", greenFactor);
                 params.add(pw);
             }
 
             if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
-                float quietFactor = weightings.getQuietIndex();
-                if (quietFactor > 1)
-                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("%.2f", quietFactor), "quiet factor", "1.0");
-                pw.addParameter("factor", String.format("%.2f", quietFactor));
+                Float quietFactor = weightings.getQuietIndex();
+                if (quietFactor.floatValue() > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", quietFactor), "quiet factor", "1.0");
+                pw.addParameter("factor", quietFactor);
                 params.add(pw);
             }
 
             if (weightings.hasSteepnessDifficulty()) {
                 ProfileWeighting pw = new ProfileWeighting("steepness_difficulty");
-                pw.addParameter("level", String.format("%d", weightings.getSteepnessDifficulty()));
+                pw.addParameter("level", weightings.getSteepnessDifficulty());
                 params.add(pw);
             }
         } catch (InternalServerException e) {

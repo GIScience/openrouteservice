@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.heigit.ors.common.Pair;
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @author Hendrik Leuschner, Andrzej Oles, Djime Gueye
  */
 public class PrepareCoreTest {
-    private final CarFlagEncoder carEncoder = new CarFlagEncoder();
+    private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
@@ -46,7 +47,7 @@ public class PrepareCoreTest {
     }
 
     GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCoreGraph(weighting).create();
+        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
     }
 
     private GraphHopperStorage createSimpleGraph() {
@@ -119,8 +120,8 @@ public class PrepareCoreTest {
     }
 
     private CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
-        CHGraph lg = g.getGraph(CHGraph.class);
-        PrepareCore prepare = new PrepareCore(dir, g, lg, weighting, tMode, restrictedEdges);
+        CHGraph lg = g.getCHGraph(new CHProfile(weighting, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
+        PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
         prepare.setPeriodicUpdates(20);
@@ -400,7 +401,7 @@ public class PrepareCoreTest {
 
 
     /**
-     * Test whether all the expected shortcuts are built and they are no addtional shortcuts
+     * Test whether all the expected shortcuts are built and they are no additional shortcuts
      * @param g contraction hierarchy Graph
      * @param shortcuts map with edge ids as key and as a value a pair of the nodes of the corresponding edge
      */

@@ -19,7 +19,11 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
-import org.heigit.ors.common.*;
+import org.heigit.ors.api.util.SystemMessage;
+import org.heigit.ors.common.AttributeValue;
+import org.heigit.ors.common.Pair;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -75,7 +79,7 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
 
         for (int i = 0; i < travellers.size(); ++i) {
             TravellerInfo traveller = travellers.get(i);
-            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), traveller.getRangeType());
+            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), req.getCalcMethod(), traveller.getRangeType());
             double maxRange = traveller.getMaximumRange();
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "range", Double.toString(maxRange), Integer.toString(maxAllowedRange));
@@ -221,6 +225,8 @@ public class JsonIsochronesRequestProcessor extends AbstractHttpRequestProcessor
         if (!Helper.isEmpty(sourceAttribution.toString()))
             jInfo.put("attribution", sourceAttribution.toString());
         jInfo.put("timestamp", System.currentTimeMillis());
+
+        jInfo.put("system_message", SystemMessage.getSystemMessage(request));
 
         if (AppConfig.hasValidMD5Hash())
             jInfo.put("osm_file_md5_hash", AppConfig.getMD5Hash());
