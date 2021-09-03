@@ -25,20 +25,22 @@ public class HelperFunctions {
     }
 
     /**
-     * This function creates a {@link JSONArray} with fake coordinates.
-     * The size depends on maximumSize.
+     * This function creates a {@link JSONArray} with coordinates.
      *
-     * @param maximumSize number of maximum coordinates in the {@link JSONArray}
+     * @param coordString coordinates string
      * @return {@link JSONArray}
      */
-    public List<List<Double>> fakeListLocations(int maximumSize) {
-        List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
-        for (int i = 0; i < maximumSize; i++) {
-            List<Double> bareCoordinatesList = new ArrayList<>();
-            bareCoordinatesList.add(8.681495);
-            bareCoordinatesList.add(49.41461);
-            listOfBareCoordinatesList.add(bareCoordinatesList);
+    public static JSONArray constructCoords(String coordString) {
+        JSONArray coordinates = new JSONArray();
+        String[] coordPairs = coordString.split("\\|");
+        for (String pair : coordPairs) {
+            JSONArray coord = new JSONArray();
+            String[] pairCoords = pair.split(",");
+            coord.put(Double.parseDouble(pairCoords[0]));
+            coord.put(Double.parseDouble(pairCoords[1]));
+            coordinates.put(coord);
         }
-        return listOfBareCoordinatesList;
+
+        return coordinates;
     }
 }

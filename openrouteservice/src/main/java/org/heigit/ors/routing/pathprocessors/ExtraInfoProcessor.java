@@ -105,6 +105,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private byte[] buffer;
 	private static final Logger LOGGER = Logger.getLogger(ExtraInfoProcessor.class.getName());
 
+	private String skippedExtraInfo = "";
+
 	private CountryBordersReader countryBordersReader;
 
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
@@ -115,14 +117,18 @@ public class ExtraInfoProcessor implements PathProcessor {
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
 		encoder = enc;
 		encoderWithPriority = encoder.supports(PriorityWeighting.class);
+		List<String> skippedExtras = new ArrayList<>();
 
 		try {
 			ORSPMap params = (ORSPMap)opts;
+			if (params == null) {
+				params = new ORSPMap();
+			}
 
 			int extraInfo = params.getInt("routing_extra_info", 0);
 			profileType = params.getInt("routing_profile_type", 0);
 			ProfileParameters profileParameters = (ProfileParameters) params.getObj("routing_profile_params");
-			boolean suppressWarnings = opts.getBool("routing_suppress_warnings", false);
+			boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
 			warningExtensions = new ArrayList<>();
 
@@ -131,34 +137,37 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
 				extWayCategory = GraphStorageUtils.getGraphExtension(graphHopperStorage, WayCategoryGraphStorage.class);
-
-				if (extWayCategory == null)
-					throw new Exception("WayCategory storage is not found.");
-
-				wayCategoryInfo = new RouteExtraInfo("waycategory");
-				wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
+				if (extWayCategory != null) {
+					wayCategoryInfo = new RouteExtraInfo("waycategory");
+					wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
+				} else {
+					skippedExtras.add("waycategory");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE) || includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
 				extWaySurface = GraphStorageUtils.getGraphExtension(graphHopperStorage, WaySurfaceTypeGraphStorage.class);
-
-				if (extWaySurface == null)
-					throw new Exception("WaySurfaceType storage is not found.");
-
-				if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
-					surfaceInfo = new RouteExtraInfo("surface");
-					surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
-				}
-
-				if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
-					wayTypeInfo = new RouteExtraInfo("waytypes");
-					wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
+				if (extWaySurface != null) {
+					if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
+						surfaceInfo = new RouteExtraInfo("surface");
+						surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
+					}
+					if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
+						wayTypeInfo = new RouteExtraInfo("waytypes");
+						wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
+					}
+				} else {
+					skippedExtras.add("surface/waytypes");
 				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.STEEPNESS)) {
-				steepnessInfo = new RouteExtraInfo("steepness");
-				steepnessInfoBuilder = new AppendableSteepnessExtraInfoBuilder(steepnessInfo);
+				if ("true".equals(graphHopperStorage.getProperties().get("elevation"))) {
+					steepnessInfo = new RouteExtraInfo("steepness");
+					steepnessInfoBuilder = new AppendableSteepnessExtraInfoBuilder(steepnessInfo);
+				} else {
+					skippedExtras.add("steepness");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SUITABILITY)) {
@@ -174,13 +183,13 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TOLLWAYS)) {
 				extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
-
-				if (extTollways == null)
-					throw new Exception("Tollways storage is not found.");
-
-				tollwaysInfo = new RouteExtraInfo("tollways", extTollways);
-				tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
-				tollwayExtractor = new TollwayExtractor(extTollways, profileType, profileParameters);
+				if (extTollways != null) {
+					tollwaysInfo = new RouteExtraInfo("tollways", extTollways);
+					tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
+					tollwayExtractor = new TollwayExtractor(extTollways, profileType, profileParameters);
+				} else {
+					skippedExtras.add("tollways");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
@@ -193,38 +202,42 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.GREEN)) {
 				extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, GreenIndexGraphStorage.class);
-
-				if (extGreenIndex == null)
-					throw new Exception("GreenIndex storage is not found.");
-				greenInfo = new RouteExtraInfo("green");
-				greenInfoBuilder = new AppendableRouteExtraInfoBuilder(greenInfo);
+				if (extGreenIndex != null) {
+					greenInfo = new RouteExtraInfo("green");
+					greenInfoBuilder = new AppendableRouteExtraInfoBuilder(greenInfo);
+				} else {
+					skippedExtras.add("green");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.NOISE)) {
 				extNoiseIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, NoiseIndexGraphStorage.class);
-
-				if (extNoiseIndex == null)
-					throw new Exception("NoiseIndex storage is not found.");
-				noiseInfo = new RouteExtraInfo("noise");
-				noiseInfoBuilder = new AppendableRouteExtraInfoBuilder(noiseInfo);
+				if (extNoiseIndex != null) {
+					noiseInfo = new RouteExtraInfo("noise");
+					noiseInfoBuilder = new AppendableRouteExtraInfoBuilder(noiseInfo);
+				} else {
+					skippedExtras.add("noise");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
 				extOsmId = GraphStorageUtils.getGraphExtension(graphHopperStorage, OsmIdGraphStorage.class);
-
-				if(extOsmId == null)
-					throw new Exception("OsmId storage is not found");
-				osmIdInfo = new RouteExtraInfo("osmId");
-				osmIdInfoBuilder = new AppendableRouteExtraInfoBuilder(osmIdInfo);
+				if (extOsmId != null) {
+					osmIdInfo = new RouteExtraInfo("osmId");
+					osmIdInfoBuilder = new AppendableRouteExtraInfoBuilder(osmIdInfo);
+				} else {
+					skippedExtras.add("osmid");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS)) {
 				extRoadAccessRestrictions = GraphStorageUtils.getGraphExtension(graphHopperStorage, RoadAccessRestrictionsGraphStorage.class);
-
-				if(extRoadAccessRestrictions == null)
-					throw new Exception("RoadAccessRestrictions storage is not found");
-				roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", extRoadAccessRestrictions);
-				roadAccessRestrictionsInfoBuilder = new AppendableRouteExtraInfoBuilder(roadAccessRestrictionsInfo);
+				if (extRoadAccessRestrictions != null) {
+					roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", extRoadAccessRestrictions);
+					roadAccessRestrictionsInfoBuilder = new AppendableRouteExtraInfoBuilder(roadAccessRestrictionsInfo);
+				} else {
+					skippedExtras.add("roadaccessrestrictions");
+				}
 			}
 
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.COUNTRY_INFO)) {
@@ -232,13 +245,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 				if (extCountryTraversalInfo != null) {
 					countryTraversalInfo = new RouteExtraInfo("countryinfo", extCountryTraversalInfo);
 					countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
+				} else {
+					skippedExtras.add("countryinfo");
 				}
 			}
-
 		} catch (Exception ex) {
 			LOGGER.error(ex);
 		}
-
+		if (!skippedExtras.isEmpty()) {
+			skippedExtraInfo = String.join(", ", skippedExtras);
+		}
 		buffer = new byte[4];
 	}
 
@@ -486,5 +502,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 		}
 
 		return result;
+	}
+
+	public String getSkippedExtraInfo() {
+		return skippedExtraInfo;
 	}
 }

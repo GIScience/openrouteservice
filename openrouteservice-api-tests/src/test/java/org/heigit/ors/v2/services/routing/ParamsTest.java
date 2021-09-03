@@ -27,6 +27,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -84,7 +85,17 @@ public class ParamsTest extends ServiceTest {
 
 		addParameter("coordinatesWithViaPoint", coordsVia);
 
+		JSONArray coordsFoot = new JSONArray();
+		JSONArray coordFoot1 = new JSONArray();
+		coordFoot1.put(8.676023);
+		coordFoot1.put(49.416809);
+		coordsFoot.put(coordFoot1);
+		JSONArray coordFoot2 = new JSONArray();
+		coordFoot2.put(8.696837);
+		coordFoot2.put(49.411839);
+		coordsFoot.put(coordFoot2);
 
+		addParameter("coordinatesWalking", coordsFoot);
 
 		JSONArray extraInfo = new JSONArray();
 		extraInfo.put("surface");
@@ -92,7 +103,7 @@ public class ParamsTest extends ServiceTest {
 		extraInfo.put("steepness");
 		addParameter("extra_info", extraInfo);
 
-		addParameter("preference", "fastest");
+		addParameter("preference", "recommended");
 		addParameter("profile", "cycling-regular");
 		addParameter("carProfile", "driving-car");
 		addParameter("footProfile", "foot-walking");
@@ -935,7 +946,7 @@ public class ParamsTest extends ServiceTest {
 		coordinates.put(coord2);
 
 		body.put("coordinates", coordinates);
-		body.put("preference", "fastest");
+		body.put("preference", getParameter("preference"));
 
 		JSONArray radii = new JSONArray();
 		radii.put(50);
@@ -947,7 +958,7 @@ public class ParamsTest extends ServiceTest {
 		given()
 				.header("Accept", "application/json")
 				.header("Content-Type", "application/json")
-				.pathParam("profile", "cycling-regular")
+				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath()+"/{profile}/json")
@@ -1508,18 +1519,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void testGreenWeightingTooHigh() {
 		JSONObject body = new JSONObject();
-
-		JSONArray coordinates = new JSONArray();
-		JSONArray coord1 = new JSONArray();
-		coord1.put(8.676023);
-		coord1.put(49.416809);
-		coordinates.put(coord1);
-		JSONArray coord2 = new JSONArray();
-		coord2.put(8.696837);
-		coord2.put(49.411839);
-		coordinates.put(coord2);
-		body.put("coordinates", coordinates);
-
+		body.put("coordinates", getParameter("coordinatesWalking"));
 		JSONObject weightings = new JSONObject();
 		weightings.put("green", 1.1);
 		JSONObject params = new JSONObject();
@@ -1544,18 +1544,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void testQuietWeightingTooHigh() {
 		JSONObject body = new JSONObject();
-
-		JSONArray coordinates = new JSONArray();
-		JSONArray coord1 = new JSONArray();
-		coord1.put(8.676023);
-		coord1.put(49.416809);
-		coordinates.put(coord1);
-		JSONArray coord2 = new JSONArray();
-		coord2.put(8.696837);
-		coord2.put(49.411839);
-		coordinates.put(coord2);
-		body.put("coordinates", coordinates);
-
+		body.put("coordinates", getParameter("coordinatesWalking"));
 		JSONObject weightings = new JSONObject();
 		weightings.put("quiet", 1.1);
 		JSONObject params = new JSONObject();
@@ -1732,5 +1721,111 @@ public class ParamsTest extends ServiceTest {
 				.assertThat()
 				.body("error.code", is(RoutingErrorCodes.MISSING_PARAMETER))
 				.statusCode(400);
+	}
+
+	@Test
+	public void testMaximumSpeedLowerBound() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+		body.put("preference", getParameter("preference"));
+		body.put("maximum_speed", 75);
+
+		//Test that the distance of the computed route.
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
+				.statusCode(400);
+	}
+
+	@Test
+	public void testMaximumSpeedUnsupportedProfile() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+		body.put("preference", getParameter("preference"));
+		body.put("maximum_speed", 80);
+
+		//Test that the distance of the computed route.
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectDepartureAndArrivalToBeMutuallyExclusive() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+		body.put("departure", "2021-01-31T12:00");
+		body.put("arrival", "2021-01-31T12:00");
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
+				.statusCode(400);
+	}
+
+	@Test
+	public void expectNoErrorOnSingleRadiusForMultipleCoordinates() {
+		JSONObject body = new JSONObject();
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+		body.put("preference", getParameter("preference"));
+
+		// setting a single value should work
+		body.put("radiuses", 500);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.statusCode(200);
+
+		// as should setting an array containing a single value
+		JSONArray radii = new JSONArray();
+		radii.put(500);
+
+		body.put("radiuses", radii);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("carProfile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath()+"/{profile}/json")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.statusCode(200);
 	}
 }

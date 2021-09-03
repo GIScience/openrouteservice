@@ -22,6 +22,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
@@ -31,7 +32,6 @@ import java.util.*;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static com.graphhopper.routing.util.PriorityCode.*;
-import static com.graphhopper.util.Helper.keepIn;
 
 /**
  * Defines bit layout of bicycles (not motorcycles) for speed, access and relations (network).
@@ -89,7 +89,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // This is the specific bicycle class
     private String classBicycleKey;
 
-    boolean considerElevation = false;
+    private BooleanEncodedValue conditionalAccessEncoder;
 
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
@@ -103,6 +103,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         this(speedBits, speedFactor, maxTurnCosts, false);
     }
     // MARQ24 MOD END
+
+    protected void setProperties(PMap properties) {
+        this.properties = properties;
+        this.setBlockFords(properties.getBool("block_fords", true));
+    }
 
     // MARQ24 MOD START
     protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
@@ -262,6 +267,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(wayTypeEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
+        if (properties.getBool(ConditionalEdges.ACCESS, false))
+            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
     }
 
     @Override
@@ -294,9 +301,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             }
 
             if (!acceptPotentially.canSkip()) {
-                if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)){
-                    return EncodingManager.Access.CAN_SKIP;
-                }
+                if (way.hasTag(restrictions, restrictedValues))
+                    acceptPotentially = isRestrictedWayConditionallyPermitted(way, acceptPotentially);
                 return acceptPotentially;
             }
 
@@ -326,7 +332,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 || way.hasTag(KEY_BICYCLE_ROAD, "yes")
                 // MARQ24 MOD END
         ){
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
         }
 
         // accept only if explicitly tagged for bike usage
@@ -344,15 +350,10 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way)) {
-            return EncodingManager.Access.CAN_SKIP;
-        }
+        if (way.hasTag(restrictions, restrictedValues))
+            return isRestrictedWayConditionallyPermitted(way);
 
-        if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way)){
-            return EncodingManager.Access.CAN_SKIP;
-        }else {
-            return EncodingManager.Access.WAY;
-        }
+        return isPermittedWayConditionallyRestricted(way);
     }
 
     boolean isSacScaleAllowed(String sacScale) {
@@ -394,7 +395,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
-        if (maxSpeed >= 0 && maxSpeed < speed) {
+        if (maxSpeed > 0 && maxSpeed < speed) {
             return maxSpeed;
         }
         return speed;
@@ -411,6 +412,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
             handleBikeRelated(edgeFlags, way, relationFlags > UNCHANGED.getValue());
+            if (access.isConditional() && conditionalAccessEncoder!=null)
+                conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
             if (isRoundabout) {
                 roundaboutEnc.setBool(true, edgeFlags, true);

@@ -3,7 +3,7 @@
 <!-- https://ask.openrouteservice.org/c/ors-->
 
 #### Here's what I did
-<!-- include request URLs, link to app.config or other relevant ifnormation -->
+<!-- include request URLs, link to ors-config.json or other relevant information -->
 
 ---
 #### Here's what I got

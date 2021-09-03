@@ -44,10 +44,10 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
     private String geomColumn = null;
     private HikariDataSource dataSource;
     /**
-     * This function initializes the connection to the server according to the settings in the app.config.
-     * The connection is established using a {@link HikariDataSource} object with the configuration data from the app.config.
+     * This function initializes the connection to the server according to the settings in the ors-config.json.
+     * The connection is established using a {@link HikariDataSource} object with the configuration data from the ors-config.json.
      *
-     * @param parameters {@link Map} holding the server configuration data from the app.config.
+     * @param parameters {@link Map} holding the server configuration data from the ors-config.json.
      * @throws Exception
      */
     @Override

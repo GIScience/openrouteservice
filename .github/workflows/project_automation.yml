@@ -1,0 +1,26 @@
+name: project_automation
+
+on:
+  issues:
+    types: [opened, labeled]
+  pull_request:
+    types: [opened]
+  release:
+    types: [created]
+
+jobs:
+  Handle_event:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run project board action
+        uses: takb/project-board@master
+        env:
+          PROJECT_AUTOMATION: ${{ secrets.PROJECT_AUTOMATION }}
+        if: env.PROJECT_AUTOMATION != null
+        with:
+          token: "${{ secrets.PROJECT_AUTOMATION }}"
+          owner: "GIScience"
+          repo: "openrouteservice"
+          project: "16"
+          columnbylabel: '{":bug: bug": "Priority"}'
+          ignorecolumnnames: "Priority,Assigned,In progress,Review,Awaiting release,Done"

@@ -68,7 +68,7 @@ public class IsochronesRequest {
     private boolean hasLocationType = false;
 
     @ApiModelProperty(name = PARAM_RANGE, value = "Maximum range value of the analysis in **seconds** for time and **metres** for distance." +
-            "Alternatively a comma separated list of specific single range values if more than one location is set.",
+            "Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.",
             example = "[ 300, 200 ]",
             required = true)
     @JsonProperty(PARAM_RANGE)
@@ -95,7 +95,6 @@ public class IsochronesRequest {
     private boolean hasRangeUnits = false;
 
     @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
-    @JsonIgnore
     private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_OPTIONS,
@@ -133,7 +132,7 @@ public class IsochronesRequest {
     @JsonIgnore
     private boolean hasAttributes = false;
 
-    @ApiModelProperty(name = PARAM_INTERVAL, value = "Interval of isochrones or equidistants for one range value. " +
+    @ApiModelProperty(name = PARAM_INTERVAL, value = "Interval of isochrones or equidistants. This is only used if a single range value is given. " +
             "Value in **seconds** for time and **meters** for distance.",
             example = "30"
     )
