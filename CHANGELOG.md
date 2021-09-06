@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- add new workflow to build and publish the docker image ([#1035](https://github.com/GIScience/openrouteservice/pull/1035))
 - optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
@@ -62,6 +63,9 @@ RELEASING:
 - old v1 API code and related classes
 ### Fixed
 - Errors in travel speed explanation
+- Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
+- Improve travel time estimation for ferry routes ([#1037](https://github.com/GIScience/openrouteservice/issues/1037))
+- Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
@@ -98,6 +102,10 @@ RELEASING:
 - Prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
 - Correct package declaration of BoundingBoxFactoryTest ([#933](https://github.com/GIScience/openrouteservice/issues/933))
 - Some corrections to Hungarian language support (thanks to [debyos](https://github.com/debyos))
+
+## [6.4.4] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.4.3] - 2021-04-28
 ### Changed
@@ -136,6 +144,10 @@ RELEASING:
 - Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695))
 - Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 - Fixed continue_straight option with no bearing on CH-enabled profiles
+
+## [6.3.7] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
@@ -178,6 +190,10 @@ RELEASING:
 ### Fixed
 - Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
+## [6.2.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.2.1] - 2020-08-13
 ### Added
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
@@ -201,6 +217,14 @@ RELEASING:
 - Upgrade to Java 11
 ### Deprecated
 - Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
+
+## [6.1.3] - 2021-09-03
+### Changed
+- removed unused dependency
+
+## [6.1.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.1.1] - 2020-06-02
 ### Added
@@ -244,6 +268,14 @@ RELEASING:
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
+
+## [6.0.2] - 2021-09-03
+### Changed
+- removed unused dependency
+
+## [6.0.1] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.0.0] - 2019-12-03
 ### Added
@@ -489,11 +521,13 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 [unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
 [6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
-[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
+[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.4...v6.5.0
+[6.4.4]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.4.4
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
-[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0
+[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.7...v6.4.0
+[6.3.7]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.3.7
 [6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
 [6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4

@@ -60,7 +60,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        chGraph = (CHGraph) ((QueryGraph) graph).getMainGraph();
+        qGraph = (QueryGraph) graph;
+        chGraph = (CHGraph) qGraph.getMainGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
@@ -68,6 +69,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected abstract void initCollections(int size);
     protected PathBidirRef bestPath;
 
+    QueryGraph qGraph;
     CHGraph chGraph;
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
@@ -200,7 +202,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     boolean isCoreNode(int node) {
-        return chGraph.getLevel(node) >= coreNodeLevel;
+        return !qGraph.isVirtualNode(node) && chGraph.getLevel(node) >= coreNodeLevel;
     }
 
     boolean isTurnRestrictedNode(int node) {
