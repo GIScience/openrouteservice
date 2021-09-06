@@ -67,16 +67,17 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private static final int MODE_ROUTE = 0;
 
 	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphStorage graphStorage) {
-
-		this.hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
-
 		float[] vehicleAttrs = new float[VehicleDimensionRestrictions.COUNT];
 
-		vehicleAttrs[VehicleDimensionRestrictions.MAX_HEIGHT] = (float)vehicleParams.getHeight();
-		vehicleAttrs[VehicleDimensionRestrictions.MAX_WIDTH] = (float)vehicleParams.getWidth();
-		vehicleAttrs[VehicleDimensionRestrictions.MAX_WEIGHT] = (float)vehicleParams.getWeight();
-		vehicleAttrs[VehicleDimensionRestrictions.MAX_LENGTH] = (float)vehicleParams.getLength();
-		vehicleAttrs[VehicleDimensionRestrictions.MAX_AXLE_LOAD] = (float)vehicleParams.getAxleload();
+		if (vehicleParams!=null) {
+			this.hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
+
+			vehicleAttrs[VehicleDimensionRestrictions.MAX_HEIGHT] = (float) vehicleParams.getHeight();
+			vehicleAttrs[VehicleDimensionRestrictions.MAX_WIDTH] = (float) vehicleParams.getWidth();
+			vehicleAttrs[VehicleDimensionRestrictions.MAX_WEIGHT] = (float) vehicleParams.getWeight();
+			vehicleAttrs[VehicleDimensionRestrictions.MAX_LENGTH] = (float) vehicleParams.getLength();
+			vehicleAttrs[VehicleDimensionRestrictions.MAX_AXLE_LOAD] = (float) vehicleParams.getAxleload();
+		}
 
 		ArrayList<Integer> idx = new ArrayList<>();
 		ArrayList<Integer> idxl = new ArrayList<>();
