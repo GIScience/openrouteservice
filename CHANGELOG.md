@@ -267,6 +267,10 @@ RELEASING:
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
 
+## [6.0.2] - 2021-09-03
+### Changed
+- removed unused dependency
+
 ## [6.0.1] - 2021-08-30
 ### Changed
 - URL for repo.heigit.org to HTTPS
