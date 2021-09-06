@@ -216,6 +216,10 @@ RELEASING:
 ### Deprecated
 - Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
 
+## [6.1.3] - 2021-09-03
+### Changed
+- removed unused dependency
+
 ## [6.1.2] - 2021-08-30
 ### Changed
 - URL for repo.heigit.org to HTTPS
