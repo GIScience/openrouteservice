@@ -22,7 +22,6 @@ import com.graphhopper.util.PMap;
 import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.apache.log4j.Logger;
@@ -39,34 +38,33 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
         edgeFilters.add(DefaultEdgeFilter.allEdges(flagEncoder));
 
         try {
-            ORSPMap params = (ORSPMap)opts;
-            if (params == null) {
-                params = new ORSPMap();
+            if (opts == null) {
+                opts = new PMap();
             }
 
             /* Avoid areas */
-            if (params.hasObj("avoid_areas")) {
-                edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) params.getObj("avoid_areas")));
+            if (opts.has("avoid_areas")) {
+                edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) opts.getObject("avoid_areas", new Polygon[]{})));
             }
     
             /* Heavy vehicle filter */
-            if (params.has("edgefilter_hgv")) {
-                edgeFilters.add(new HeavyVehicleEdgeFilter(params.getInt("edgefilter_hgv", 0), (VehicleParameters)params.getObj("routing_profile_params"), gs));
+            if (opts.has("edgefilter_hgv")) {
+                edgeFilters.add(new HeavyVehicleEdgeFilter(opts.getInt("edgefilter_hgv", 0), opts.getObject("routing_profile_opts", new VehicleParameters()), gs));
             }
 
             /* Wheelchair filter */
-            else if (params.has("edgefilter_wheelchair")) {
-                edgeFilters.add(new WheelchairEdgeFilter((WheelchairParameters)params.getObj("routing_profile_params"), gs));
+            else if (opts.has("edgefilter_wheelchair")) {
+                edgeFilters.add(new WheelchairEdgeFilter(opts.getObject("routing_profile_opts", new WheelchairParameters()), gs));
             }
     
             /* Avoid features */
-            if (params.hasObj("avoid_features") && params.has("routing_profile_type")) {
-                edgeFilters.add(new AvoidFeaturesEdgeFilter(params.getInt("routing_profile_type", 0), (RouteSearchParameters) params.getObj("avoid_features"), gs));
+            if (opts.has("avoid_features") && opts.has("routing_profile_type")) {
+                edgeFilters.add(new AvoidFeaturesEdgeFilter(opts.getInt("routing_profile_type", 0), opts.getObject("avoid_features", new RouteSearchParameters()), gs));
             }
     
             /* Avoid borders */
-            if (params.hasObj("avoid_borders")) {
-                edgeFilters.add(new AvoidBordersEdgeFilter((RouteSearchParameters) params.getObj("avoid_borders"), gs));
+            if (opts.has("avoid_borders")) {
+                edgeFilters.add(new AvoidBordersEdgeFilter(opts.getObject("avoid_borders", new RouteSearchParameters()), gs));
             }
             
         } catch (Exception ex) {

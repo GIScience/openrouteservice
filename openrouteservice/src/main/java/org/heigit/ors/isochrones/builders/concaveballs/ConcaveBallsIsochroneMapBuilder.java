@@ -34,6 +34,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.apache.log4j.Logger;

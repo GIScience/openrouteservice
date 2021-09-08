@@ -18,12 +18,12 @@ import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -252,7 +252,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
     }
 
     @Override
-    public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory, HintsMap map) {
+    public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory, PMap map) {
         boolean disableCore = map.getBool(Core.DISABLE, false);
         if (!isEnabled() || disablingAllowed && disableCore)
             return defaultAlgoFactory;
@@ -260,8 +260,8 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         if (preparations.isEmpty())
             throw new IllegalStateException("No preparations added to this decorator");
 
-        if (map.getWeighting().isEmpty())
-            map.setWeighting(getDefaultProfile());
+        if (map.getString("weighting", "").isEmpty())
+            map.putObject("weighting", getDefaultProfile());
 
         StringBuilder entriesStr = new StringBuilder();
         for (PrepareCore p : preparations) {

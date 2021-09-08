@@ -1,10 +1,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PMap;
 
 public class ConstantWeighting implements Weighting {
     private final double weight;
@@ -51,7 +51,7 @@ public class ConstantWeighting implements Weighting {
     }
 
     @Override
-    public boolean matches(HintsMap hintsMap) {
+    public boolean matches(PMap hintsMap) {
         return false;
     }
 

@@ -52,7 +52,6 @@ import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -614,11 +613,11 @@ public class RoutingProfile {
         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
 
         try {
-            HintsMap hintsMap = new HintsMap();
+            PMap hintsMap = new PMap();
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph;
-            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
+            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
                 hintsMap.setVehicle(encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
@@ -650,7 +649,7 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
@@ -699,7 +698,7 @@ public class RoutingProfile {
     }
 
     private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
-        ORSPMap props = new ORSPMap();
+        PMap props = new PMap();
 
         int profileType = searchParams.getProfileType();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
@@ -720,11 +719,11 @@ public class RoutingProfile {
          * ======================================================================================================
          */
 
-        props.put("routing_extra_info", searchParams.getExtraInfo());
-        props.put("routing_suppress_warnings", searchParams.getSuppressWarnings());
+        props.putObject("routing_extra_info", searchParams.getExtraInfo());
+        props.putObject("routing_suppress_warnings", searchParams.getSuppressWarnings());
 
-        props.put("routing_profile_type", profileType);
-        props.putObj("routing_profile_params", profileParams);
+        props.putObject("routing_profile_type", profileType);
+        props.putObject("routing_profile_params", profileParams);
 
         /*
         * PARAMETERS FOR EdgeFilterFactory
@@ -733,43 +732,43 @@ public class RoutingProfile {
 
         /* Avoid areas */
         if (searchParams.hasAvoidAreas()) {
-            props.put("avoid_areas", true);
-            props.putObj("avoid_areas", searchParams.getAvoidAreas());
+            props.putObject("avoid_areas", true);
+            props.putObject("avoid_areas", searchParams.getAvoidAreas());
         }
 
         /* Heavy vehicle filter */
         if (profileType == RoutingProfileType.DRIVING_HGV) {
-            props.put("edgefilter_hgv", searchParams.getVehicleType());
+            props.putObject("edgefilter_hgv", searchParams.getVehicleType());
         }
 
         /* Wheelchair filter */
         else if (profileType == RoutingProfileType.WHEELCHAIR) {
-            props.put("edgefilter_wheelchair", "true");
+            props.putObject("edgefilter_wheelchair", "true");
         }
 
         /* Avoid features */
         if (searchParams.hasAvoidFeatures()) {
-            props.put("avoid_features", searchParams.getAvoidFeatureTypes());
-            props.putObj("avoid_features", searchParams);
+            props.putObject("avoid_features", searchParams.getAvoidFeatureTypes());
+            props.putObject("avoid_features", searchParams);
         }
 
         /* Avoid borders of some form */
         if ((searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries())
             && (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType))) {
-            props.putObj("avoid_borders", searchParams);
+            props.putObject("avoid_borders", searchParams);
             if(searchParams.hasAvoidCountries())
-                props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
+                props.putObject("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
         }
 
         if (profileParams != null && profileParams.hasWeightings()) {
-            props.put(KEY_CUSTOM_WEIGHTINGS, true);
+            props.putObject(KEY_CUSTOM_WEIGHTINGS, true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
             while (iterator.hasNext()) {
                 ProfileWeighting weighting = iterator.next();
                 if (!weighting.getParameters().isEmpty()) {
                     String name = ProfileWeighting.encodeName(weighting.getName());
-                    for (Map.Entry<String, String> kv : weighting.getParameters().toMap().entrySet())
-                        props.put(name + kv.getKey(), kv.getValue());
+                    for (Map.Entry<String, Object> kv : weighting.getParameters().toMap().entrySet())
+                        props.putObject(name + kv.getKey(), kv.getValue());
                 }
             }
         }
@@ -839,18 +838,18 @@ public class RoutingProfile {
             }
 
             req.setVehicle(searchCntx.getEncoder().toString());
-            req.getHints().put(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
-            req.getHints().put(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
+            req.getHints().putObject(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
+            req.getHints().putObject(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
 
             if (searchParams.getRoundTripSeed() > -1) {
-               req.getHints().put(Parameters.Algorithms.RoundTrip.SEED, searchParams.getRoundTripSeed());
+               req.getHints().putObject(Parameters.Algorithms.RoundTrip.SEED, searchParams.getRoundTripSeed());
             }
 
             PMap props = searchCntx.getProperties();
             req.setAdditionalHints(props);
 
             if (props != null && !props.isEmpty())
-                req.getHints().merge(props);
+                req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType))
                 setWeighting(req.getHints(), weightingMethod, profileType, false);
@@ -861,9 +860,9 @@ public class RoutingProfile {
             setSpeedups(req, false, false, true);
 
             if (astarEpsilon != null)
-                req.getHints().put("astarbi.epsilon", astarEpsilon);
+                req.getHints().putObject("astarbi.epsilon", astarEpsilon);
             if (astarApproximation != null)
-                req.getHints().put("astarbi.approximation", astarApproximation);
+                req.getHints().putObject("astarbi.approximation", astarApproximation);
             //Overwrite algorithm selected in setSpeedups
             req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
 
@@ -918,7 +917,7 @@ public class RoutingProfile {
             req.setAdditionalHints(props);
 
             if (props != null && !props.isEmpty())
-                req.getHints().merge(props);
+                req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType)) {
                 setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
@@ -943,25 +942,25 @@ public class RoutingProfile {
 
             if (searchParams.isTimeDependent()) {
                 if (searchParams.hasDeparture())
-                    req.getHints().put(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
+                    req.getHints().putObject(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
                 else if (searchParams.hasArrival())
-                    req.getHints().put(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
+                    req.getHints().putObject(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
             }
 
             if (astarEpsilon != null)
-                req.getHints().put("astarbi.epsilon", astarEpsilon);
+                req.getHints().putObject("astarbi.epsilon", astarEpsilon);
             if (astarApproximation != null)
-                req.getHints().put("astarbi.approximation", astarApproximation);
+                req.getHints().putObject("astarbi.approximation", astarApproximation);
 
             if (searchParams.getAlternativeRoutesCount() > 0) {
                 req.setAlgorithm("alternative_route");
-                req.getHints().put("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
-                req.getHints().put("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
-                req.getHints().put("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
+                req.getHints().putObject("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
+                req.getHints().putObject("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
+                req.getHints().putObject("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
             }
 
             if(searchParams.hasMaximumSpeed()){
-                req.getHints().put("maximum_speed", searchParams.getMaximumSpeed());
+                req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
             }
 
             if (directedSegment) {
@@ -971,10 +970,10 @@ public class RoutingProfile {
                 resp = mGraphHopper.route(req);
             }
             if (DebugUtility.isDebug() && !directedSegment) {
-                LOGGER.info("visited_nodes.average - " + resp.getHints().get("visited_nodes.average", ""));
+                LOGGER.info("visited_nodes.average - " + resp.getHints().getString("visited_nodes.average", ""));
             }
             if (DebugUtility.isDebug() && directedSegment) {
-                LOGGER.info("skipped segment - " + resp.getHints().get("skipped_segment", ""));
+                LOGGER.info("skipped segment - " + resp.getHints().getString("skipped_segment", ""));
             }
             endUseGH();
         } catch (Exception ex) {
@@ -1018,7 +1017,7 @@ public class RoutingProfile {
      * @param requestWeighting Originally requested weighting
      * @param profileType Necessary for HGV
      */
-    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
+    private void setWeighting(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed){
         //Defaults
         String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
@@ -1038,11 +1037,11 @@ public class RoutingProfile {
             }
         }
 
-        map.put(KEY_WEIGHTING, weighting);
-        map.put(KEY_WEIGHTING_METHOD, weightingMethod);
+        map.putObject(KEY_WEIGHTING, weighting);
+        map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
-            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
+            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
     }
     /**
      * Set the speedup techniques used for calculating the route.
@@ -1054,16 +1053,16 @@ public class RoutingProfile {
      * @param useALT Should ALT be enabled
      */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
-        String weighting = req.getWeighting();
+        String weighting = req.getHints().getString("weighting", "");
 
         //Priority: CH->Core->ALT
         useCH = useCH && mGraphHopper.isCHAvailable(weighting);
         useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(weighting);
         useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(weighting);
 
-        req.getHints().put(KEY_CH_DISABLE, !useCH);
-        req.getHints().put(KEY_CORE_DISABLE, !useCore);
-        req.getHints().put(KEY_LM_DISABLE, !useALT);
+        req.getHints().putObject(KEY_CH_DISABLE, !useCH);
+        req.getHints().putObject(KEY_CORE_DISABLE, !useCore);
+        req.getHints().putObject(KEY_LM_DISABLE, !useALT);
 
         if (useCH)
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);

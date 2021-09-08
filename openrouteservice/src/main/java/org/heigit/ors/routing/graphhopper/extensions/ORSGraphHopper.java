@@ -61,7 +61,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEd
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
@@ -215,8 +214,8 @@ public class ORSGraphHopper extends GraphHopper {
 				throw new IllegalArgumentException(
 						"Vehicle " + vehicle + " unsupported. " + "Supported are: " + getEncodingManager());
 
-			HintsMap hints = request.getHints();
-			String tModeStr = hints.get("traversal_mode", TraversalMode.EDGE_BASED.name());
+			PMap hints = request.getHints();
+			String tModeStr = hints.getString("traversal_mode", TraversalMode.EDGE_BASED.name());
 			TraversalMode tMode = TraversalMode.fromString(tModeStr);
 			if (hints.has(Parameters.Routing.EDGE_BASED))
 				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED
@@ -366,7 +365,7 @@ public class ORSGraphHopper extends GraphHopper {
 						key = RouteRequest.PARAM_ARRIVAL;
 						point = arrivalPoint;
 					}
-					String time = hints.get(key, "");
+					String time = hints.getString(key, "");
 					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
 				}
 
@@ -411,7 +410,7 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 	}
 
-	private boolean isRequestTimeDependent(HintsMap hints) {
+	private boolean isRequestTimeDependent(PMap hints) {
 		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
 	}
 
@@ -432,7 +431,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		req.setVehicle(vehicle);
 		req.setAlgorithm("dijkstrabi");
-		req.setWeighting("fastest");
+		req.getHints().putObject("weighting", "fastest");
 		// TODO add limit of maximum visited nodes
 
 
@@ -488,14 +487,14 @@ public class ORSGraphHopper extends GraphHopper {
 	 */
 	private void checkAvoidBorders(GHRequest request, List<QueryResult> queryResult) {
 		/* Avoid borders */
-		ORSPMap params = (ORSPMap)request.getAdditionalHints();
+		PMap params = request.getAdditionalHints();
 		if (params == null) {
-			params = new ORSPMap();
+			params = new PMap();
 		}
 		boolean isRouteable = true;
 
-		if (params.hasObj("avoid_borders")) {
-				RouteSearchParameters routeSearchParameters = (RouteSearchParameters) params.getObj("avoid_borders");
+		if (params.has("avoid_borders")) {
+				RouteSearchParameters routeSearchParameters = params.getObject("avoid_borders", new RouteSearchParameters());
 				//Avoiding All borders
 				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.ALL) {
 					List<Integer> edgeIds =  new ArrayList<>();
@@ -636,7 +635,7 @@ public class ORSGraphHopper extends GraphHopper {
 				List<CHProfile> chProfiles = new ArrayList<>();
 				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
-						Weighting weighting = createWeighting(new HintsMap(coreWeightingStr).put("isochroneWeighting", "true"), encoder, null);
+						Weighting weighting = createWeighting(new PMap(coreWeightingStr).putObject("isochroneWeighting", "true"), encoder, null);
 						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
 					}
 				}
@@ -680,7 +679,7 @@ public class ORSGraphHopper extends GraphHopper {
 					PMap config = new PMap(configStr);
 
 					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-					Weighting weighting = createWeighting(new HintsMap(coreWeightingStr), encoder, null);
+					Weighting weighting = createWeighting(new PMap(coreWeightingStr), encoder, null);
 					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
 				}
 			}

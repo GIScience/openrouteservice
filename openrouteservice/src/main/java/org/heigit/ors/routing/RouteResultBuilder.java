@@ -91,14 +91,14 @@ class RouteResultBuilder
             }
 
             result.addSegment(createRouteSegment(path, request, getNextResponseFirstStepPoints(responses, ri)));
-            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().getString("data.date", "0000-00-00T00:00:00Z"));
         }
 
         result.calculateRouteSummary(request);
 
         if (request.getSearchParameters().isTimeDependent()) {
-            String timezoneDeparture = responses.get(0).getHints().get(KEY_TIMEZONE_DEPARTURE, "");
-            String timezoneArrival = responses.get(responses.size()-1).getHints().get(KEY_TIMEZONE_ARRIVAL, "");
+            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
+            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -139,12 +139,12 @@ class RouteResultBuilder
                 result.resetSegments();
             }
 
-            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().getString("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().get(KEY_TIMEZONE_DEPARTURE, "");
-                String timezoneArrival = response.getHints().get(KEY_TIMEZONE_ARRIVAL, "");
+                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
+                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }
@@ -434,7 +434,7 @@ class RouteResultBuilder
 	}
 
     private void handleResponseWarnings(RouteResult result, GHResponse response) {
-        String skippedExtras = response.getHints().get("skipped_extra_info", "");
+        String skippedExtras = response.getHints().getString("skipped_extra_info", "");
         if (!skippedExtras.isEmpty()) {
             result.addWarning(new RouteWarning(RouteWarning.SKIPPED_EXTRAS, skippedExtras));
         }

@@ -30,7 +30,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.util.ElevationSmoother;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
@@ -120,14 +119,14 @@ public class ExtraInfoProcessor implements PathProcessor {
 		List<String> skippedExtras = new ArrayList<>();
 
 		try {
-			ORSPMap params = (ORSPMap)opts;
+			PMap params = (PMap)opts;
 			if (params == null) {
-				params = new ORSPMap();
+				params = new PMap();
 			}
 
 			int extraInfo = params.getInt("routing_extra_info", 0);
 			profileType = params.getInt("routing_profile_type", 0);
-			ProfileParameters profileParameters = (ProfileParameters) params.getObj("routing_profile_params");
+			ProfileParameters profileParameters = params.getObject("routing_profile_params", new ProfileParameters());
 			boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
 			warningExtensions = new ArrayList<>();

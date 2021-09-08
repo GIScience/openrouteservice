@@ -20,7 +20,6 @@ import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraphImpl;
@@ -217,7 +216,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
 
     @Override
     public RoutingAlgorithmFactory getDecoratedAlgorithmFactory(RoutingAlgorithmFactory defaultAlgoFactory,
-            HintsMap map) {
+            PMap map) {
         // for now do not allow mixing CH&LM #1082
         boolean disableCH = map.getBool(Parameters.CH.DISABLE, false);
         boolean disableLM = map.getBool(Core.DISABLE, false);
