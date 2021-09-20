@@ -37,7 +37,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
-
+/**
+ * A Core and Dijkstra based algorithm that runs a many to many search in the core and downwards.
+ * Can only be used as part of the core matrix algorithm.
+ *
+ * @author Hendrik Leuschner
+ */
 public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<AveragedMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<AveragedMultiTreeSPEntry>> bestWeightMapCore;
@@ -85,13 +90,18 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         bestWeightMap.clear();
     }
 
-    public void prepare(int[] from, int[] to) {
-        int targetsCount = to.length;
+    /**
+     * Create the coreExitPoints from the from[], which we need to know to start downwards searches
+     * @param from
+     * @param coreExitPoints
+     */
+    public void prepare(int[] from, int[] coreExitPoints) {
+        int targetsCount = coreExitPoints.length;
         this.coreExitPoints = new IntHashSet(targetsCount);
 
-        for (int i = 0; i < to.length; ++i)
+        for (int i = 0; i < coreExitPoints.length; ++i)
         {
-            int nodeId = to[i];
+            int nodeId = coreExitPoints[i];
             if (nodeId >= 0) {
                 this.coreExitPoints.add(nodeId);
             }
@@ -112,6 +122,9 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         return new AveragedMultiTreeSPEntry[0];
     }
 
+    /**
+     * We need to add all entries that have been found in the upwards pass to the queue for possible downwards search
+     */
     private void addEntriesFromMapToQueue(){
         for (IntObjectCursor<AveragedMultiTreeSPEntry> reachedNode : bestWeightMap)
             prioQueue.add(reachedNode.value);
@@ -141,21 +154,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             currEdge = prioQueue.poll();
             if (currEdge == null)
                 throw new AssertionError("Empty edge cannot happen");
-        }
-    }
-
-    /**
-     * Explore an entry, either for the turn restricted or not turn restricted case
-     * @param iter
-     */
-    private void exploreEntry(EdgeIterator iter) {
-        while (iter.next()) {
-            if (considerTurnRestrictions(iter.getAdjNode())) {
-                handleMultiEdgeCase(iter);
-            }
-            else {
-                handleSingleEdgeCase(iter);
-            }
         }
     }
 
@@ -193,6 +191,28 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             }
             if(updated)
                 stoppingCriterion.updateCombinedUnsettled();
+        }
+    }
+
+    /**
+     *
+     *
+     * _____SEARCH IN CORE
+     *
+     */
+
+    /**
+     * Explore an entry, either for the turn restricted or not turn restricted case
+     * @param iter
+     */
+    private void exploreEntry(EdgeIterator iter) {
+        while (iter.next()) {
+            if (considerTurnRestrictions(iter.getAdjNode())) {
+                handleMultiEdgeCase(iter);
+            }
+            else {
+                handleSingleEdgeCase(iter);
+            }
         }
     }
 
@@ -247,6 +267,11 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         }
     }
 
+    /**
+     * Iterate over a MultiTree entry and its subItems to adapt new weights
+     * @param iter the iterator adjacent to currEdge
+     * @return true if there are updates to any of the weights
+     */
     private boolean iterateMultiTree(EdgeIterator iter, AveragedMultiTreeSPEntry entry) {
         boolean addToQueue = false;
         visitedNodes++;
@@ -287,6 +312,17 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         return addToQueue;
     }
 
+    /**
+     *
+     *
+     * _____SEARCH OUTSIDE CORE DOWNWARDS
+     *
+     */
+
+    /**
+     * Explore a single entry with a downwards filter
+     * @param iter the iterator over the entries
+     */
     private void exploreEntryDownwards(EdgeIterator iter) {
         currEdge.resetUpdate(true);
         currEdge.setVisited(true);
@@ -298,13 +334,13 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
 
             if (entry == null) {
                 entry = createEmptyEntry(iter);
-                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry, false);
+                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry);
                 if(addToQueue) {
                     bestWeightMap.put(iter.getAdjNode(), entry);
                     updateEntryInQueue(entry, true);
                 }
             } else {
-                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry, false);
+                boolean addToQueue = iterateMultiTreeDownwards(currEdge, iter, entry);
                 if (!entry.isVisited() || addToQueue) {
                     // This is the case if the node has been assigned a weight in
                     // the upwards pass (fillEdges). We need to use it in the
@@ -318,7 +354,14 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         }
     }
 
-    private boolean iterateMultiTreeDownwards(AveragedMultiTreeSPEntry currEdge, EdgeIterator iter, AveragedMultiTreeSPEntry adjEntry, boolean checkUpdate) {
+    /**
+     * Search all items of an entry in the downwards pass
+     * @param currEdge the current edge
+     * @param iter iterator over current adj entry
+     * @param adjEntry the entry to be searched in the map
+     * @return
+     */
+    private boolean iterateMultiTreeDownwards(AveragedMultiTreeSPEntry currEdge, EdgeIterator iter, AveragedMultiTreeSPEntry adjEntry) {
         boolean addToQueue = false;
         visitedNodes++;
 
@@ -326,15 +369,13 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(source);
             double entryWeight = currEdgeItem.getWeight();
 
-            if (entryWeight == Double.POSITIVE_INFINITY || (checkUpdate && !currEdgeItem.isUpdate()))
+            if (entryWeight == Double.POSITIVE_INFINITY)
                 continue;
             if (stoppingCriterion.isEntryLargerThanAllTargets(source, entryWeight))
                 continue;
 
             double edgeWeight;
-
-            if(hasTurnWeighting && !isInORS(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem))
-                turnWeighting.setInORS(false);
+            configureTurnWeighting(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem);
             edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), swap, currEdgeItem.getOriginalEdge());
             if(Double.isInfinite(edgeWeight))
                 continue;
@@ -353,8 +394,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            if(hasTurnWeighting)
-                turnWeighting.setInORS(true);
+            resetTurnWeighting();
         }
         return addToQueue;
     }
@@ -432,7 +472,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
 
     }
 
-    private void configureTurnWeighting(EdgeIterator iter, MultiTreeSPEntryItem currEdgeItem) {
+    private void configureTurnWeighting(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
             turnWeighting.setInORS(false);
     }
