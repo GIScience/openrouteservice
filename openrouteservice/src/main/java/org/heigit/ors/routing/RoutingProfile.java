@@ -761,10 +761,7 @@ public class RoutingProfile {
         }
 
         /* Heavy vehicle filter */
-        if (profileType == RoutingProfileType.DRIVING_HGV
-            && searchParams.hasParameters(VehicleParameters.class)
-            && ((VehicleParameters)profileParams).hasAttributes()
-        ) {
+        if (profileType == RoutingProfileType.DRIVING_HGV) {
             props.put("edgefilter_hgv", searchParams.getVehicleType());
         }
 
