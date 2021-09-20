@@ -45,6 +45,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/**
+ * A Core and Dijkstra based algorithm that calculates the weights from multiple start to multiple goal nodes.
+ * Using core and true many to many.
+ * @author Hendrik Leuschner
+ */
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
     protected int maxVisitedNodes = Integer.MAX_VALUE;
