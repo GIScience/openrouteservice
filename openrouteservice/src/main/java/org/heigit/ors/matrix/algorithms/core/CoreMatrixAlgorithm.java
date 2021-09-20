@@ -132,7 +132,11 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         this.treeEntrySize = srcData.size();
 
-        prepareTargetGraph(dstData.getNodeIds());
+        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, graph, encoder, hasTurnWeighting, swap, coreNodeLevel);
+        targetGraph = targetGraphResults.getTargetGraph();
+        coreExitPoints.addAll(targetGraphResults.getCoreExitPoints());
+        targetGraphExplorer = targetGraph.createExplorer();
+
         targetSet.addAll(dstData.getNodeIds());
         float[] times = null;
         float[] distances = null;
@@ -360,70 +364,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
             bestWeightMap.put(from[i], newFrom);
             updateTarget(newFrom);
-        }
-    }
-
-    /**
-     * Phase I: build shortest path tree from all target nodes to the core, only upwards in level.
-     * The EdgeFilter in use is a downward search edge filter with reverse access acceptance so that in the last phase of the algorithm, the targetGraph can be explored downwards
-     *
-     * @param targets the targets that form the seed for target graph building
-     */
-    public void prepareTargetGraph(int[] targets) {
-        PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
-        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder, true, this.hasTurnWeighting, swap);
-        EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(encoder));
-        targetGraph = new SubGraph(graph);
-
-        addNodes(targetGraph, localPrioQueue, targets);
-
-        while (!localPrioQueue.isEmpty()) {
-            int adjNode = localPrioQueue.poll();
-            EdgeIterator iter = edgeExplorer.setBaseNode(adjNode);
-            downwardEdgeFilter.setBaseNode(adjNode);
-            exploreEntry(localPrioQueue, downwardEdgeFilter, adjNode, iter);
-        }
-        targetGraphExplorer = targetGraph.createExplorer();
-    }
-
-    /**
-     * Explore the target graph and build coreExitPoints
-     * @param localPrioQueue
-     * @param downwardEdgeFilter
-     * @param adjNode
-     * @param iter
-     */
-    private void exploreEntry(PriorityQueue<Integer> localPrioQueue, DownwardSearchEdgeFilter downwardEdgeFilter, int adjNode, EdgeIterator iter) {
-        while (iter.next()) {
-            if (!downwardEdgeFilter.accept(iter))
-                continue;
-            boolean isNewNode = targetGraph.addEdge(adjNode, iter, true);
-            if (isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode())) {
-                coreExitPoints.add(iter.getAdjNode());
-            } else if(isNewNode) {
-                localPrioQueue.add(iter.getAdjNode());
-            }
-
-        }
-    }
-
-    /**
-     * Add nodes to target graph and prioQueue for target graph
-     * @param graph
-     * @param prioQueue
-     * @param nodes
-     */
-    private void addNodes(SubGraph graph, PriorityQueue<Integer> prioQueue, int[] nodes) {
-        for (int i = 0; i < nodes.length; i++) {
-            int nodeId = nodes[i];
-            if (nodeId >= 0) {
-                if (graph != null)
-                    graph.addEdge(nodeId, null, true);
-                prioQueue.add(nodeId);
-                if (isCoreNode(nodeId)) {
-                    coreExitPoints.add(nodeId);
-                }
-            }
         }
     }
 
