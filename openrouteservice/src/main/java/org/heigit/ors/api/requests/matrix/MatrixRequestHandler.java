@@ -341,18 +341,4 @@ public class MatrixRequestHandler {
 
         return flags;
     }
-
-//    protected static int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
-//        if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-//            throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(),
-//                    "vehicle_type", vehicleTypeIn.toString(),
-//                    KEY_PROFILE, RoutingProfileType.getName(profileType));
-//        }
-//
-//        if (vehicleTypeIn == null) {
-//            return HeavyVehicleAttributes.UNKNOWN;
-//        }
-//
-//        return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
-//    }
 }
