@@ -14,7 +14,7 @@ import com.graphhopper.storage.GraphExtension;
  * @author Hendrik Leuschner
  */
 public class SpeedStorage implements GraphExtension {
-    private static final long BYTE_COUNT = 2; //One byte for forward speed, one byte for backward speed, 2 x 4 bytes for time stamp in unix time minutes
+    private static final long BYTE_COUNT = 2; //One byte for forward speed, one byte for backward speed.
     private static final long BYTE_POS_SPEED = 0;
     private static final long BYTE_POS_SPEED_REVERSE = 1;
     protected DataAccess speedData;
