@@ -41,22 +41,4 @@ public class ExpiringSpeedStorageTest {
         storage.create(4);
         storage.setSpeed(0, false, 128);
     }
-
-
-    //TODO Fix powermock so this can be used
-//    @Test
-//    public void testExpiredSpeed(){
-//        ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
-//        storage.init(null, new RAMDirectory(""));
-//        storage.create(4);
-//        storage.setDefaultExpirationTime(1);
-//        storage.setSpeed(0, false, 100);
-//        assertEquals(100, storage.getSpeed(0, false));
-//        // Set to some late
-//        Instant future = Instant.now().plus(2, ChronoUnit.MINUTES);
-//        mockStatic(Instant.class);
-//        when(Instant.now()).thenReturn(future);
-//
-//        assertEquals(Byte.MIN_VALUE, storage.getSpeed(0, false));
-//    }
 }
