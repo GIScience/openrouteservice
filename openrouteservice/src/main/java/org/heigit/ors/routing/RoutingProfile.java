@@ -627,7 +627,6 @@ public class RoutingProfile {
 
         try {
             HintsMap hintsMap = new HintsMap();
-            //TODO Graph choice depending on algorithm
             EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(flagEncoder);
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
