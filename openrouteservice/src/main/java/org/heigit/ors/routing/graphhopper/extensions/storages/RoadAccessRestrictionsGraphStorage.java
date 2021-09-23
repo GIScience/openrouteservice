@@ -24,7 +24,7 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 /**
  * The graph storage for road access restrictions.
  */
-public class RoadAccessRestrictionsGraphStorage implements GraphExtension, WarningGraphExtension {
+public class RoadAccessRestrictionsGraphStorage implements Storable<RoadAccessRestrictionsGraphStorage>, WarningGraphExtension {
     private static final int NO_ENTRY = -1;
     private final int efRestrictions;
 
@@ -83,7 +83,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.setSegmentSize(bytes);
     }
 
-    public GraphExtension create(long initBytes) {
+    public RoadAccessRestrictionsGraphStorage create(long initBytes) {
         edges.create(initBytes * edgeEntryBytes);
         return this;
     }
@@ -119,36 +119,6 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
     }
 
-    public boolean isRequireNodeField() {
-        return true;
-    }
-
-    public boolean isRequireEdgeField() {
-        // we require the additional field in the graph to point to the first
-        // entry in the node table
-        return true;
-    }
-
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof RoadAccessRestrictionsGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        RoadAccessRestrictionsGraphStorage clonedTC = (RoadAccessRestrictionsGraphStorage) clonedStorage;
-
-        edges.copyTo(clonedTC.edges);
-        clonedTC.edgesCount = edgesCount;
-
-        return clonedStorage;
-    }
 
     @Override
     public boolean isClosed() {

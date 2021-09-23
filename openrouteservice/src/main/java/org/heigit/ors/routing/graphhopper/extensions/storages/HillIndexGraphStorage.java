@@ -18,9 +18,9 @@ import java.util.Map;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 
-public class HillIndexGraphStorage implements GraphExtension {
+public class HillIndexGraphStorage implements Storable<HillIndexGraphStorage> {
 	private final int efHillIndex;
 
 	private DataAccess orsEdges;
@@ -54,7 +54,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public HillIndexGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -132,37 +132,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 			return reverse ? buffer[1] : buffer[0];
 		}
-	}
-
-	public boolean isRequireNodeField() {
-		return true;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1; //throw new UnsupportedOperationException("Not supported by this storage")
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof HillIndexGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		HillIndexGraphStorage clonedTC = (HillIndexGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

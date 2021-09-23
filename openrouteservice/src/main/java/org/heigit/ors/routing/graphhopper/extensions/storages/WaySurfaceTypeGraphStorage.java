@@ -13,13 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
+import com.graphhopper.storage.Storable;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
 
-public class WaySurfaceTypeGraphStorage implements GraphExtension {
+public class WaySurfaceTypeGraphStorage implements Storable<WaySurfaceTypeGraphStorage> {
 	/* pointer for no entry */
 	protected final int efWaytype;
 
@@ -54,7 +54,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public WaySurfaceTypeGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -111,37 +111,6 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	    res.setSurfaceType(compValue & 0b00001111);
 	    
 	    return res;
-	}
-
-	public boolean isRequireNodeField() {
-		return false;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		throw new UnsupportedOperationException("Not supported by this storage");
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof WaySurfaceTypeGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		WaySurfaceTypeGraphStorage clonedTC = (WaySurfaceTypeGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

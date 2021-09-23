@@ -13,14 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.EncodedValueOld;
 
-public class WheelchairAttributesGraphStorage implements GraphExtension {
+public class WheelchairAttributesGraphStorage implements Storable<WheelchairAttributesGraphStorage> {
 	protected static final int WIDTH_MAX_VALUE = 300;
 	protected static final int KERB_MAX_VALUE = 15;
 	protected static final int INCLINE_MAX_VALUE = 30;
@@ -106,7 +106,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public WheelchairAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -309,7 +309,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		return -1;
 	}
 
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
+	public WheelchairAttributesGraphStorage copyTo(WheelchairAttributesGraphStorage clonedStorage) {
 		if (!(clonedStorage instanceof WheelchairAttributesGraphStorage)) {
 			throw new IllegalStateException("the extended storage to clone must be the same");
 		}
@@ -326,4 +326,5 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 	public boolean isClosed() {
 		return false;
 	}
+
 }

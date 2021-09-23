@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.ExtendedStorageSequence;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 

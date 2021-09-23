@@ -19,18 +19,17 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.*;
-import com.graphhopper.routing.util.EncodedValueOld;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionAnnotation;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.EncodedValueOld;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 
 import java.util.*;
@@ -101,6 +100,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // conditions...
     private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
+    private UnsignedDecimalEncodedValue speedEncoder;
     // MARQ24 MOD END
 
     // MARQ24 MOD START
@@ -135,7 +135,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         oppositeLanes.add("opposite_lane");
         oppositeLanes.add("opposite_track");
 
-        setBlockByDefault(false);
+        blockBarriersByDefault(flase);
         potentialBarriers.add("gate");
         potentialBarriers.add("swing_gate");
 
@@ -278,11 +278,12 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
     }
 
-    @Override
-    public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
-    }
+    // TODO: never used
+//    @Override
+//    public int defineRelationBits(int index, int shift) {
+//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
+//        return shift + relationCodeEncoder.getBits();
+//    }
 
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
@@ -368,7 +369,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         return "hiking".equals(sacScale);
     }
 
-    @Override
+    // TODO: how to handle @Override
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(KEY_ROUTE, KEY_BICYCLE)) {
@@ -408,7 +409,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         return speed;
     }
 
-    @Override
+    // TODO: how to handle @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
         if (access.canSkip()) {
             return edgeFlags;
@@ -426,7 +427,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 roundaboutEnc.setBool(true, edgeFlags, true);
             }
         } else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             handleSpeed(edgeFlags, way, ferrySpeed);
         }
         int priorityFromRelation = 0;
@@ -572,16 +573,17 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
     }
 
-    @Override
-    public InstructionAnnotation getAnnotation(IntsRef edgeFlags, Translation tr) {
-        int paveType = 0; // paved
-        if (unpavedEncoder.getBool(false, edgeFlags)) {
-            paveType = 1; // unpaved
-        }
-        int wayType = wayTypeEncoder.getInt(false, edgeFlags);
-        String wayName = getWayName(paveType, wayType, tr);
-        return new InstructionAnnotation(0, wayName);
-    }
+    // TODO: never used
+//    @Override
+//    public InstructionAnnotation getAnnotation(IntsRef edgeFlags, Translation tr) {
+//        int paveType = 0; // paved
+//        if (unpavedEncoder.getBool(false, edgeFlags)) {
+//            paveType = 1; // unpaved
+//        }
+//        int wayType = wayTypeEncoder.getInt(false, edgeFlags);
+//        String wayName = getWayName(paveType, wayType, tr);
+//        return new InstructionAnnotation(0, wayName);
+//    }
 
     String getWayName(int pavementType, int wayType, Translation tr) {
         String pavementName = "";

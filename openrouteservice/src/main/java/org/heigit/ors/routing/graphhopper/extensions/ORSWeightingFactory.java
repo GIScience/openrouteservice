@@ -30,22 +30,22 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
+	public Weighting createWeighting(PMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
-		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+		TraversalMode tMode = encoder.supportsTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
 			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-		if (tMode.isEdgeBased() && !encoder.supports(TurnWeighting.class)) {
+		if (tMode.isEdgeBased() && !encoder.supportsTurnCosts()) {
 			throw new IllegalArgumentException("You need a turn cost extension to make use of edge_based=true, e.g. use car|turn_costs=true");
 		}
 
-		String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+		String strWeighting = hintsMap.getString("weighting_method", "").toLowerCase();
 		if (Helper.isEmpty(strWeighting))
-			strWeighting = hintsMap.getWeighting();
+			strWeighting = hintsMap.getString("weighting", "");
 
 		Weighting result = null;
 
-        if("true".equalsIgnoreCase(hintsMap.get("isochroneWeighting", "false")))
+        if("true".equalsIgnoreCase(hintsMap.getString("isochroneWeighting", "false")))
             return createIsochroneWeighting(hintsMap, encoder);
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
@@ -54,8 +54,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		else if ("fastest".equalsIgnoreCase(strWeighting)) 
 		{
+			TurnCostProvider tcp = null; // TODO: setup correctly
 			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE))
-				result = new PriorityWeighting(encoder, hintsMap);
+				result = new PriorityWeighting(encoder, hintsMap, tcp);
 	         else
 	        	 result = new FastestWeighting(encoder, hintsMap);
 		}
@@ -107,10 +108,10 @@ public class ORSWeightingFactory implements WeightingFactory {
 		// Apply soft weightings
 		if (hintsMap.getBool("custom_weightings", false))
 		{
-			Map<String, String> map = hintsMap.toMap();
+			Map<String, Object> map = hintsMap.toMap();
 
 			List<String> weightingNames = new ArrayList<>();
-			for (Map.Entry<String, String> kv : map.entrySet())
+			for (Map.Entry<String, Object> kv : map.entrySet())
 			{
 				String name = ProfileWeighting.decodeName(kv.getKey());
 				if (name != null && !weightingNames.contains(name))
@@ -150,7 +151,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		return result;
 	}
 
-	private boolean hasTimeDependentSpeed(HintsMap hintsMap) {
+	private boolean hasTimeDependentSpeed(PMap hintsMap) {
 		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
 	}
 
@@ -158,10 +159,10 @@ public class ORSWeightingFactory implements WeightingFactory {
 		return graphStorage.getEncodingManager().hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED));
 	}
 
-	public Weighting createIsochroneWeighting(HintsMap hintsMap, FlagEncoder encoder) {
-        String strWeighting = hintsMap.get("weighting_method", "").toLowerCase();
+	public Weighting createIsochroneWeighting(PMap hintsMap, FlagEncoder encoder) {
+        String strWeighting = hintsMap.getString("weighting_method", "").toLowerCase();
         if (Helper.isEmpty(strWeighting))
-            strWeighting = hintsMap.getWeighting();
+            strWeighting = hintsMap.getString("weighting", "");
 
         Weighting result = null;
 
@@ -183,19 +184,19 @@ public class ORSWeightingFactory implements WeightingFactory {
         return result;
     }
 
-	private PMap getWeightingProps(String weightingName, Map<String, String> map)
+	private PMap getWeightingProps(String weightingName, Map<String, Object> map)
 	{
 		PMap res = new PMap();
 
 		String prefix = "weighting_#" + weightingName;
 		int n = prefix.length();
 		
-		for (Map.Entry<String, String> kv : map.entrySet())
+		for (Map.Entry<String, Object> kv : map.entrySet())
 		{
 			String name = kv.getKey();
 		    int p = name.indexOf(prefix);
 		    if (p >= 0)
-		    	res.put(name.substring(p + n + 1), kv.getValue());
+		    	res.putObject(name.substring(p + n + 1), kv.getValue());
 		}
 		
 		return res;

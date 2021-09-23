@@ -172,9 +172,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         absoluteBarriers.add("wire_fence");
         absoluteBarriers.add("embankment");
 
-        // specify whether potential barriers block a route if no further information is available
-        setBlockByDefault(false);
-        
+        blockBarriersByDefault(false);
+
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
         // potential barriers do not block, if no further information is available
@@ -284,14 +283,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         return MEAN_SPEED;
     }
     
-    @Override
-    public int defineNodeBits(int index, int shift) {
-        shift = super.defineNodeBits(index, shift);
-
-        return shift;
-    }
-
-
     /**
      * Some ways are okay but not separate for pedestrians.
      *
@@ -556,7 +547,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         } 
         else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
@@ -575,7 +566,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         long encoded = super.handleNodeTags(node);
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-            encoded = getEncoderBit();
+            // TODO: How to handle the following line?
+            // encoded = getEncoderBit();
         }
         return encoded;
     }

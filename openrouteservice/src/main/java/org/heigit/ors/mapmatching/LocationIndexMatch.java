@@ -24,7 +24,8 @@ import com.graphhopper.coll.GHTBitSet;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndexTree;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.DistancePlaneProjection;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -39,10 +40,11 @@ import java.util.List;
  */
 public class LocationIndexMatch extends LocationIndexTree {
 
-    private static final Comparator<QueryResult> QR_COMPARATOR = (o1, o2) -> Double.compare(o1.getQueryDistance(), o2.getQueryDistance());
+    private static final Comparator<Snap> QR_COMPARATOR = (o1, o2) -> Double.compare(o1.getQueryDistance(), o2.getQueryDistance());
 
     private double returnAllResultsWithin;
     private final LocationIndexTree index;
+    private static final DistancePlaneProjection distCalc = DistancePlaneProjection.DIST_PLANE;
 
     public LocationIndexMatch(GraphHopperStorage graph, LocationIndexTree index) {
         this(graph, index, 15);
@@ -63,9 +65,9 @@ public class LocationIndexMatch extends LocationIndexTree {
     	returnAllResultsWithin = distCalc.calcNormalizedDist(gpxAccuracyInMetern);
     }
 
-    public List<QueryResult> findNClosest(final double queryLat, final double queryLon, final EdgeFilter edgeFilter) {
+    public List<Snap> findNClosest(final double queryLat, final double queryLon, final EdgeFilter edgeFilter) {
     	 // implement a cheap priority queue via List, sublist and Collections.sort
-        final List<QueryResult> queryResults = new ArrayList<>();
+        final List<Snap> queryResults = new ArrayList<>();
         GHIntHashSet set = new GHIntHashSet();
 
         for (int iteration = 0; iteration < 2; iteration++) {
@@ -83,14 +85,14 @@ public class LocationIndexMatch extends LocationIndexTree {
                 }
 
                 @Override
-                protected boolean check(int node, double normedDist, int wayIndex, EdgeIteratorState edge, QueryResult.Position pos) {
+                protected boolean check(int node, double normedDist, int wayIndex, EdgeIteratorState edge, Snap.Position pos) {
                     if (normedDist < returnAllResultsWithin
                             || queryResults.isEmpty()
                             || queryResults.get(0).getQueryDistance() > normedDist) {
 
                         int localIndex = -1;
                         for (int qrIndex = 0; qrIndex < queryResults.size(); qrIndex++) {
-                            QueryResult qr = queryResults.get(qrIndex);
+                            Snap qr = queryResults.get(qrIndex);
                             // overwrite older queryResults which are potentially more far away than returnAllResultsWithin
                             if (qr.getQueryDistance() > returnAllResultsWithin) {
                                 localIndex = qrIndex;
@@ -110,7 +112,7 @@ public class LocationIndexMatch extends LocationIndexTree {
                             }
                         }
 
-                        QueryResult qr = new QueryResult(queryLat, queryLon);
+                        Snap qr = new Snap(queryLat, queryLon);
                         qr.setQueryDistance(normedDist);
                         qr.setClosestNode(node);
                         qr.setClosestEdge(edge.detach(false));
@@ -130,7 +132,7 @@ public class LocationIndexMatch extends LocationIndexTree {
 
         Collections.sort(queryResults, QR_COMPARATOR);
 
-        for (QueryResult qr : queryResults) {
+        for (Snap qr : queryResults) {
             if (qr.isValid()) {
                 // denormalize distance
                 qr.setQueryDistance(distCalc.calcDenormalizedDist(qr.getQueryDistance()));

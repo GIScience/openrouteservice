@@ -19,7 +19,7 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.*;

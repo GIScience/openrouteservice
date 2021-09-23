@@ -15,15 +15,15 @@ package org.heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.SPTEntry;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
@@ -49,8 +49,8 @@ public class GraphEdgeMapFinder {
 		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
 		
 		Coordinate loc = parameters.getLocation();
-		QueryResult res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
-		List<QueryResult> queryResults = new ArrayList<>(1);
+		Snap res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
+		List<Snap> queryResults = new ArrayList<>(1);
 		queryResults.add(res);
 		QueryGraph queryGraph = new QueryGraph(graph);
 		queryGraph.lookup(queryResults);

@@ -16,7 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.graphhopper.routing.DijkstraOneToMany;
 import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.ch.PrepareEncoder;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -75,10 +75,10 @@ public class CoreNodeContractor {
         ignoreNodeFilterSequence = new IgnoreNodeFilterSequence(prepareGraph, maxLevel);
         ignoreNodeFilterSequence.add(restrictionFilter);
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
-        vehicleInExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
-        vehicleOutExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
+        vehicleInExplorer = prepareGraph.createEdgeExplorer(AccessFilter.inEdges(prepareFlagEncoder.getAccessEnc()));
+        vehicleOutExplorer = prepareGraph.createEdgeExplorer(AccessFilter.outEdges(prepareFlagEncoder.getAccessEnc()));
         // always use node-based traversal because all turn restrictions are in the core
-        prepareAlgo = new DijkstraOneToMany(prepareGraph, prepareWeighting, TraversalMode.NODE_BASED);
+        prepareAlgo = new DijkstraOneToMany(prepareGraph.getBaseGraph(), prepareWeighting, TraversalMode.NODE_BASED);
     }
 
     public void close() {
@@ -122,7 +122,7 @@ public class CoreNodeContractor {
             if (uFromNode == sch.getNode() || isContracted(uFromNode))
                 continue;
 
-            final double incomingEdgeWeight = prepareWeighting.calcWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
+            final double incomingEdgeWeight = prepareWeighting.calcEdgeWeight(incomingEdges, true, EdgeIterator.NO_EDGE);
             // this check is important to prevent calling calcMillis on inaccessible edges and also allows early exit
             if (Double.isInfinite(incomingEdgeWeight)) {
                 continue;
@@ -144,10 +144,10 @@ public class CoreNodeContractor {
                 // If we decrease the correct weight we only explore less and introduce more shortcuts.
                 // I.e. no change to accuracy is made.
                 double existingDirectWeight = incomingEdgeWeight
-                        + prepareWeighting.calcWeight(outgoingEdges, false, incomingEdges.getEdge());
+                        + prepareWeighting.calcEdgeWeight(outgoingEdges, false, incomingEdges.getEdge());
                 if (Double.isNaN(existingDirectWeight))
                     throw new IllegalStateException("Weighting should never return NaN values" + ", in:"
-                            + getCoords(incomingEdges, prepareGraph) + ", out:" + getCoords(outgoingEdges, prepareGraph)
+                            + getCoords(incomingEdges, prepareGraph.getBaseGraph()) + ", out:" + getCoords(outgoingEdges, prepareGraph.getBaseGraph())
                             + ", dist:" + outgoingEdges.getDistance());
 
                 if (Double.isInfinite(existingDirectWeight))
@@ -167,8 +167,8 @@ public class CoreNodeContractor {
                     // FOUND witness path, so do not add shortcut
                     continue;
 
-                long time = prepareWeighting.calcMillis(incomingEdges, true, EdgeIterator.NO_EDGE) +
-                        prepareWeighting.calcMillis(outgoingEdges, false, incomingEdges.getEdge());
+                long time = prepareWeighting.calcEdgeMillis(incomingEdges, true, EdgeIterator.NO_EDGE) +
+                        prepareWeighting.calcEdgeMillis(outgoingEdges, false, incomingEdges.getEdge());
                 
                 sch.foundShortcut(uFromNode, wToNode,
                         existingDirectWeight, time,
@@ -197,7 +197,7 @@ public class CoreNodeContractor {
                     if (status == 0)
                         continue;
 
-                    if (sc.weight >= prepareWeighting.calcWeight(iter, false, EdgeIterator.NO_EDGE)) {
+                    if (sc.weight >= prepareWeighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE)) {
                         // special case if a bidirectional shortcut has worse weight and still has to be added as otherwise the opposite direction would be missing
                         // see testShortcutMergeBug
                         if (status == 2)
@@ -209,10 +209,10 @@ public class CoreNodeContractor {
                     if (iter.getEdge() == sc.skippedEdge1 || iter.getEdge() == sc.skippedEdge2) {
                         throw new IllegalStateException("Shortcut cannot update itself! " + iter.getEdge()
                                 + ", skipEdge1:" + sc.skippedEdge1 + ", skipEdge2:" + sc.skippedEdge2
-                                + ", edge " + iter + ":" + getCoords(iter, prepareGraph)
+                                + ", edge " + iter + ":" + getCoords(iter, prepareGraph.getBaseGraph())
                                 + ", sc:" + sc
-                                + ", skippedEdge1: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge1, sc.from), prepareGraph)
-                                + ", skippedEdge2: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge2, sc.to), prepareGraph)
+                                + ", skippedEdge1: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge1, sc.from), prepareGraph.getBaseGraph())
+                                + ", skippedEdge2: " + getCoords(prepareGraph.getEdgeIteratorState(sc.skippedEdge2, sc.to), prepareGraph.getBaseGraph())
                                 + ", neighbors:" + GHUtility.getNeighbors(iter));
                     }
 

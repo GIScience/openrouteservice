@@ -13,12 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 
-public class TollwaysGraphStorage implements GraphExtension {
+public class TollwaysGraphStorage implements Storable<TollwaysGraphStorage> {
 	/* pointer for no entry */
 	protected final int efTollways;
 
@@ -53,7 +50,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 		edges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public TollwaysGraphStorage create(long initBytes) {
 		edges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -122,7 +119,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 		return -1;
 	}
 
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
+	public TollwaysGraphStorage copyTo(TollwaysGraphStorage clonedStorage) {
 		if (!(clonedStorage instanceof TollwaysGraphStorage)) {
 			throw new IllegalStateException("the extended storage to clone must be the same");
 		}

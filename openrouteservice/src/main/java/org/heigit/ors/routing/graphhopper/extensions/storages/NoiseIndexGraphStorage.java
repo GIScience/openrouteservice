@@ -16,12 +16,12 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 
 /**
  * Created by ZWang on 13/06/2017.
  */
-public class NoiseIndexGraphStorage implements GraphExtension {
+public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> {
     /* pointer for no entry */
     private final int efNoiseindex;
 
@@ -63,79 +63,6 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     }
 
     /**
-     * @return true, if and only if, if an additional field at the graphs node storage is required
-     */
-    @Override
-    public boolean isRequireNodeField() {
-        return true;
-    }
-
-    /**
-     * @return true, if and only if, if an additional field at the graphs edge storage is required
-     */
-    @Override
-    public boolean isRequireEdgeField() {
-        return true;
-    }
-
-    /**
-     * @return the default field value which will be set for default when creating nodes
-     */
-    @Override
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    /**
-     * @return the default field value which will be set for default when creating edges
-     */
-    @Override
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    /**
-     * initializes the extended storage by giving the base graph
-     *
-     * @param graph
-     * @param dir
-     */
-    @Override
-    public void init(Graph graph, Directory dir) {
-        if (edgesCount > 0)
-            throw new AssertionError("The ORS storage must be initialized only once.");
-
-        this.orsEdges = dir.find("ext_noiselevel");
-    }
-
-    /**
-     * sets the segment size in all additional data storages
-     *
-     * @param bytes
-     */
-    @Override
-    public void setSegmentSize(int bytes) { orsEdges.setSegmentSize(bytes); }
-
-    /**
-     * creates a copy of this extended storage
-     *
-     * @param clonedStorage
-     */
-    @Override
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof NoiseIndexGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        NoiseIndexGraphStorage clonedTC = (NoiseIndexGraphStorage) clonedStorage;
-
-        orsEdges.copyTo(clonedTC.orsEdges);
-        clonedTC.edgesCount = edgesCount;
-
-        return clonedStorage;
-    }
-
-    /**
      * @return true if successfully loaded from persistent storage.
      */
     @Override
@@ -154,7 +81,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      * @param initBytes
      */
     @Override
-    public GraphExtension create(long initBytes) {
+    public NoiseIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }

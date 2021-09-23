@@ -1,9 +1,9 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.CmdArgs;
 import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.junit.Before;
@@ -22,7 +22,7 @@ public class FastIsochroneFactoryTest {
 
     private FastIsochroneFactory intitFastIsochroneFactory() {
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
-        fastIsochroneFactory.init(new CmdArgs().put(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
+        fastIsochroneFactory.init(new GraphHopperConfig().putObject(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
         return fastIsochroneFactory;
     }
 

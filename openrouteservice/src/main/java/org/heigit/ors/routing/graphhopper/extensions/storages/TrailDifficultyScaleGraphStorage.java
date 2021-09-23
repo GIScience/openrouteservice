@@ -16,9 +16,9 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 
-public class TrailDifficultyScaleGraphStorage implements GraphExtension {
+public class TrailDifficultyScaleGraphStorage implements Storable<TrailDifficultyScaleGraphStorage> {
 	protected final int efDifficultyScale;
 
 	protected DataAccess edges;
@@ -52,7 +52,7 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		edges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public TrailDifficultyScaleGraphStorage create(long initBytes) {
 		edges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -117,37 +117,6 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 			return  (byte)(buffer[0] & 0x0F);
 		else
 			return (byte)((buffer[0] >> 4) & (byte) 0x0F);
-	}
-
-	public boolean isRequireNodeField() {
-		return true;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof TrailDifficultyScaleGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		TrailDifficultyScaleGraphStorage clonedTC = (TrailDifficultyScaleGraphStorage) clonedStorage;
-
-		edges.copyTo(clonedTC.edges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override
