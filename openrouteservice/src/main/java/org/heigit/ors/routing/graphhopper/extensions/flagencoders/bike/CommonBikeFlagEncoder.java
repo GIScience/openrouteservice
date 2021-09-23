@@ -22,6 +22,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
@@ -89,7 +90,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     private IntEncodedValue wayTypeEncoder;
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
     private int avoidSpeedLimit;
-
+    protected boolean conditionalAccess = false;
     // This is the specific bicycle class
     private String classBicycleKey;
 
@@ -110,8 +111,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // MARQ24 MOD END
 
     protected void setProperties(PMap properties) {
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
+        blockFords(properties.getBool("block_fords", true));
+        conditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
     }
 
     // MARQ24 MOD START
@@ -135,7 +136,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         oppositeLanes.add("opposite_lane");
         oppositeLanes.add("opposite_track");
 
-        blockBarriersByDefault(flase);
+        blockBarriersByDefault(false);
         potentialBarriers.add("gate");
         potentialBarriers.add("swing_gate");
 
@@ -262,6 +263,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.BIKE;
+    }
+
+    @Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
@@ -272,7 +278,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(wayTypeEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
-        if (properties.getBool(ConditionalEdges.ACCESS, false)) {
+        if (conditionalAccess) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }

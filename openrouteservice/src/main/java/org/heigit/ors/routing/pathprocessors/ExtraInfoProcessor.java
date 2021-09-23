@@ -110,6 +110,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
 		this(opts, graphHopperStorage, enc);
 		this.countryBordersReader = cbReader;
+		opts.getClass().hashCode();
 	}
 
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {

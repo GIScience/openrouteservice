@@ -2,14 +2,13 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 
 public class OsmIdGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private OsmIdGraphStorage osmIdGraphStorage;
 
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public OsmIdGraphStorage init(GraphHopper graphhopper) throws Exception {
         if (osmIdGraphStorage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 

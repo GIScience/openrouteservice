@@ -15,10 +15,10 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.*;
 
 import java.util.ArrayList;
@@ -225,7 +225,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
             int traversalId = iter.getAdjNode();
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-            double tmpWeight = calcWeight(iter, currEdge, reverse) + currEdge.weight;
+            double tmpWeight = calcEdgeWeight(iter, currEdge, reverse) + currEdge.weight;
             if (Double.isInfinite(tmpWeight))
                 continue;
 
@@ -311,8 +311,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
             if (newWeight < bestPath.getWeight()) {
                 double turnWeight = reverse ?
-                        turnWeighting.calcTurnWeight(entryOther.originalEdge, entryCurrent.adjNode, entryCurrent.originalEdge):
-                        turnWeighting.calcTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge);
+                        weighting.calcTurnWeight(entryOther.originalEdge, entryCurrent.adjNode, entryCurrent.originalEdge):
+                        weighting.calcTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge);
                 if (Double.isInfinite(turnWeight))
                     continue;
 
@@ -321,8 +321,8 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         }
     }
 
-    double calcWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
-        return weighting.calcWeight(iter, reverse, currEdge.originalEdge);
+    double calcEdgeWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
+        return weighting.calcEdgeWeight(iter, reverse, currEdge.originalEdge);
     }
 
     long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {

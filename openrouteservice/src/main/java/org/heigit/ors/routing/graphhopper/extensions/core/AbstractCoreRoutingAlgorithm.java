@@ -16,12 +16,12 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.Path4CH;
 import com.graphhopper.routing.ch.PreparationWeighting;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -45,15 +45,16 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
-    protected TurnWeighting turnWeighting;
+    @Deprecated
+    protected Weighting turnWeighting;
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
     protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
         super(graph, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
 
-        if (weighting instanceof TurnWeighting) {
-            turnWeighting = (TurnWeighting) weighting;
+        // TODO: remove this unnecessary duplication
+        if (weighting.hasTurnCosts()) {
             hasTurnWeighting = true;
         }
 
@@ -61,7 +62,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         initCollections(size);
 
         qGraph = (QueryGraph) graph;
-        chGraph = (CHGraph) qGraph.getMainGraph();
+        chGraph = (CHGraph) qGraph.getBaseGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
