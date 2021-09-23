@@ -17,11 +17,13 @@ import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
 	protected final Graph graph;
@@ -63,8 +65,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	}
 
 	protected boolean accept(EdgeIterator iter, int prevOrNextEdgeId) {
-		//TODO make this depend on whether u turn cost is infinite or not
-		if (iter.getEdge() == prevOrNextEdgeId) {
+		if (MatrixServiceSettings.getUTurnCost() == TurnWeighting.INFINITE_U_TURN_COSTS && iter.getEdge() == prevOrNextEdgeId) {
 			return false;
 		} else {
 			return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);

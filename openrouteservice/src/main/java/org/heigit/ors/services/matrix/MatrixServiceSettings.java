@@ -52,7 +52,7 @@ public class MatrixServiceSettings {
 		if (value != null)
 			attribution = value;
 		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "u_turn_cost");
-		if (value != null)
+		if (value != null && Double.parseDouble(value) != -1.0)
 			uTurnCost = Double.parseDouble(value);
 	}
 
