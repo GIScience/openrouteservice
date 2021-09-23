@@ -515,7 +515,6 @@ public class CoreMatrixTest {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(8);
         restrictedEdges.add(9);
-//        restrictedEdges.add(10);
         restrictedEdges.add(11);
         restrictedEdges.add(12);
 
