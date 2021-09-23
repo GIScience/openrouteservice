@@ -146,18 +146,15 @@ public class MultiTreeMetricsExtractor {
 
 					if (targetEntry != null) {
 						//Only set values to 0 if target and start node are the same
-						if(srcData.getNodeId(j) == targetEntry.getAdjNode()) {
+						sptItem = targetEntry.getItem(srcNode);
+
+						if(srcData.getNodeId(j) == targetEntry.getAdjNode() || sptItem.getParent() != null) {
 							pathTime = 0.0;
 							pathDistance = 0.0;
 							pathWeight = 0.0;
 						}
-
-						sptItem = targetEntry.getItem(srcNode);
-
+						
 						if (sptItem.getParent() != null) {
-							pathTime = 0.0;
-							pathDistance = 0.0;
-							pathWeight = 0.0;
 							while (EdgeIterator.Edge.isValid(sptItem.getEdge())) {
 								edgeMetricsItem = null;
 								if (edgeMetrics != null) {
