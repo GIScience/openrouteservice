@@ -22,11 +22,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
-import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.isochrones.IsochroneRequest;
 import org.json.simple.JSONObject;
 
-@ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
+@ApiModel(value = "Matrix Options", description = "Advanced options for matrix")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequestOptions {
     public static final String PARAM_AVOID_FEATURES = "avoid_features";
@@ -53,7 +51,7 @@ public class MatrixRequestOptions {
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_COUNTRIES, value = "List of countries to exclude from routing with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
+    @ApiModelProperty(name = PARAM_AVOID_COUNTRIES, value = "List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
             "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). " +
             "Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
@@ -70,7 +68,7 @@ public class MatrixRequestOptions {
     @JsonIgnore
     private boolean hasVehicleType = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional routing parameters." +
+    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional matrix parameters." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','valueNot':['driving-car']}}")
     @JsonProperty(PARAM_PROFILE_PARAMS)
     private RequestProfileParams profileParams;

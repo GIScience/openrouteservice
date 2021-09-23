@@ -21,7 +21,7 @@ public class ExpiringSpeedStorageTest {
         assertEquals(Byte.MIN_VALUE, storage.getSpeed(2, true));
         assertEquals(Byte.MIN_VALUE, storage.getSpeed(3, true));
     }
-    
+
     @Test
     public void testSetGetSpeed() {
         ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
