@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
