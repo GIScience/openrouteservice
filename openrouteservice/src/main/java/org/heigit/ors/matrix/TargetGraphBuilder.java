@@ -24,7 +24,7 @@ public class TargetGraphBuilder {
      */
     public TargetGraphResults prepareTargetGraph(int[] targets, CHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
         PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
-        ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter = new ExclusiveDownwardSearchEdgeFilter(chGraph, encoder, true, swap);
+        ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter = new ExclusiveDownwardSearchEdgeFilter(chGraph, encoder, swap);
         EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(encoder));
         SubGraph targetGraph = new SubGraph(graph);
         IntHashSet coreExitPoints = new IntHashSet();

@@ -28,12 +28,9 @@ public class ExclusiveDownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 		accessEnc = encoder.getAccessEnc();
 	}
 
-	public ExclusiveDownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean useCore) {
-		this(g, encoder);
-	}
 
-	public ExclusiveDownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean useCore, boolean swap) {
-		this(g, encoder, useCore);
+	public ExclusiveDownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean swap) {
+		this(g, encoder);
 		this.swap = swap;
 	}
 
