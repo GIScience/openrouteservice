@@ -1,9 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
 import com.graphhopper.routing.EdgeKeys;
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
 import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
