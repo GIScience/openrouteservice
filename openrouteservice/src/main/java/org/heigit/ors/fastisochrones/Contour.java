@@ -12,6 +12,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
@@ -381,7 +382,7 @@ public class Contour {
                         || !edgeFilter.accept(iter))
                     continue;
                 visitedEdges.add(iter.getEdge());
-                splitAndAddLatLon(iter.fetchWayGeometry(3), coordinates, MIN_EDGE_LENGTH, MAX_EDGE_LENGTH);
+                splitAndAddLatLon(iter.fetchWayGeometry(FetchMode.ALL), coordinates, MIN_EDGE_LENGTH, MAX_EDGE_LENGTH);
             }
         }
         //Remove duplicates

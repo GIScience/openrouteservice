@@ -396,7 +396,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 					{
 						boolean detailedShape = (edgeDist > 300);
 						// always use mode=3, since other ones do not provide correct results
-						PointList pl = iter.fetchWayGeometry(3);
+						PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 						int size = pl.getSize();
 						if (size > 0) {
 							double lat0 = pl.getLat(0);
@@ -435,7 +435,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 			} else {
 				if ((minCost < isolineCost && maxCost >= isolineCost))  {
 
-					PointList pl = iter.fetchWayGeometry(3);
+					PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
 					int size = pl.getSize();
 					if (size > 0) {

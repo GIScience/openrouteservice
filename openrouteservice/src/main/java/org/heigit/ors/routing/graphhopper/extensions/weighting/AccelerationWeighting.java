@@ -18,10 +18,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.AngleCalc;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
 
 public class AccelerationWeighting extends FastestWeighting {
 	private final GraphHopperStorage ghStorage;
@@ -73,13 +70,13 @@ public class AccelerationWeighting extends FastestWeighting {
 		PointList prevEdgeGeom;
 		if (reverse)
 		{
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(3);
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(3);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(FetchMode.ALL);
 		}
 		else
 		{
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(3);
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(3);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(FetchMode.ALL);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
 		}
  
 		double turnAngle = getTurnAngle(currEdgeGeom, prevEdgeGeom);
@@ -113,13 +110,13 @@ public class AccelerationWeighting extends FastestWeighting {
 		PointList prevEdgeGeom;
 		if (reverse)
 		{
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(3);
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(3);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(FetchMode.ALL);
 		}
 		else
 		{
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(3);
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(3);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(FetchMode.ALL);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
 		}
 
 		double turnAngle = getTurnAngle(currEdgeGeom, prevEdgeGeom);

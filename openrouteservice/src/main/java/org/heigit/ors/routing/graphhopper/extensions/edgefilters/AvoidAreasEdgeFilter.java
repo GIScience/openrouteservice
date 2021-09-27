@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.*;
 
@@ -66,8 +67,7 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 			return true;
 
 		boolean inEnv = false;
-		//   PointList pl = iter.fetchWayGeometry(2); // does not work
-		PointList pl = iter.fetchWayGeometry(3);
+		PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 		int size = pl.getSize();
 
 		double eMinX = Double.MAX_VALUE;

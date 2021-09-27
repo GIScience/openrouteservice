@@ -590,7 +590,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     }
 
     private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
-        PointList pl = iter.fetchWayGeometry(3);
+        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         int size = pl.getSize();
         if (size > 0) {
             double edgeCost = maxCost - minCost;
@@ -634,7 +634,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private void addBufferedWayGeometry(List<Coordinate> points, Quadtree qtree, double bufferSize, EdgeIteratorState iter) {
         // always use mode=3, since other ones do not provide correct results
-        PointList pl = iter.fetchWayGeometry(3);
+        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         // Always buffer geometry
         pl = expandAndBufferPointList(pl, bufferSize, MIN_EDGE_LENGTH_LIMIT, MAX_EDGE_LENGTH_LIMIT);
         int size = pl.getSize();

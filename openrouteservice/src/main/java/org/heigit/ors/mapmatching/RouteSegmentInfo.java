@@ -14,10 +14,7 @@
 package org.heigit.ors.mapmatching;
 
 import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -112,7 +109,7 @@ public class RouteSegmentInfo {
 			if (Helper.isEmpty(edgeName))
 				continue;
 
-			PointList pl = edge.fetchWayGeometry(3);
+			PointList pl = edge.fetchWayGeometry(FetchMode.ALL);
 			if (pl.getSize() <= 1)
 				continue;
 

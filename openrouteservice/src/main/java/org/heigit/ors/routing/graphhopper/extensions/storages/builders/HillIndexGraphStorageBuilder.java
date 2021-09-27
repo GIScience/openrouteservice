@@ -17,6 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.heigit.ors.routing.util.HillIndexCalculator;
@@ -44,7 +45,7 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		boolean revert = edge.getBaseNode() > edge.getAdjNode();
 
-		PointList points = edge.fetchWayGeometry(3);
+		PointList points = edge.fetchWayGeometry(FetchMode.ALL);
 	
 		byte hillIndex = hillIndexCalc.getHillIndex(points, false);
 		byte reverseHillIndex = hillIndexCalc.getHillIndex(points, true);

@@ -22,10 +22,7 @@ import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.QueryResult;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.Helper;
+import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
@@ -142,7 +139,7 @@ public class PrepareCoreLandmarksTest
                 na.setNode(node, -hIndex / 50.0, wIndex / 50.0);
                 EdgeIterator iter = graph.createEdgeExplorer().setBaseNode(node);
                 while (iter.next()) {
-                    iter.setDistance(iter.fetchWayGeometry(3).calcDistance(distCalc));
+                    iter.setDistance(iter.fetchWayGeometry(FetchMode.ALL).calcDistance(distCalc));
                     restrictedEdges.add(iter.getEdge());
                 }
             }
