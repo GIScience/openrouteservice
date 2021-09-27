@@ -43,8 +43,9 @@ public class AveragedMultiTreeSPEntry extends MultiTreeSPEntry {
 		int numNonInfiniteWeights = 0;
 		for (int i = 0; i < items.length; i++) {
 			MultiTreeSPEntryItem item = items[i];
-			if(item.getWeight() != Double.POSITIVE_INFINITY) {
-				averageWeight += item.getWeight();
+			double itemWeight = item.getWeight();
+			if(itemWeight != Double.POSITIVE_INFINITY) {
+				averageWeight += itemWeight;
 				numNonInfiniteWeights++;
 			}
 
