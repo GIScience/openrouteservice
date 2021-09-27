@@ -10,10 +10,10 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStora
  * Simple SpeedCalculator based on a SpeedStorage.
  * Default speed of Byte.MIN_VALUE results in original graph speed
  */
-public class ExpiringSpeedStorageSpeedCalculator extends AbstractAdjustedSpeedCalculator {
+public class ExpiringSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     private ExpiringSpeedStorage expiringSpeedStorage;
 
-    public ExpiringSpeedStorageSpeedCalculator(SpeedCalculator superSpeedCalculator, ExpiringSpeedStorage expiringSpeedStorage) {
+    public ExpiringSpeedCalculator(SpeedCalculator superSpeedCalculator, ExpiringSpeedStorage expiringSpeedStorage) {
         super(superSpeedCalculator);
         this.expiringSpeedStorage = expiringSpeedStorage;
     }
