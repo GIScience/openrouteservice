@@ -20,6 +20,7 @@ import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -111,7 +112,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         backwardKeys.add("forestry:backward");
         backwardKeys.add("delivery:backward");
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
@@ -322,6 +323,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     @Override
     public int getVersion() {
         return 2;
+    }
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        throw new RuntimeException("Not implemented yet."); // TODO: implement properly
     }
 
     @Override

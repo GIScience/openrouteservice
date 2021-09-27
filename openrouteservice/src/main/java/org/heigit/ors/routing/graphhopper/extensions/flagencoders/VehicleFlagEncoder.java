@@ -70,15 +70,17 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     protected Map<String, Integer> badSurfaceSpeedMap;
     protected Map<String, Integer> defaultSpeedMap;
 
+    private boolean hasConditionalAccess;
+    private boolean hasConditionalSpeed;
     private BooleanEncodedValue conditionalAccessEncoder;
     private BooleanEncodedValue conditionalSpeedEncoder;
     private UnsignedDecimalEncodedValue speedEncoder;
 
     protected void setProperties(PMap properties) {
-        this.properties = properties;
-
-        this.setBlockFords(properties.getBool("block_fords", true));
-        this.setBlockByDefault(properties.getBool("block_barriers", true));
+        hasConditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
+        hasConditionalSpeed = properties.getBool(ConditionalEdges.SPEED, false);
+        this.blockFords(properties.getBool("block_fords", true));
+        this.blockBarriersByDefault(properties.getBool("block_barriers", true));
         speedTwoDirections = properties.getBool("speed_two_directions", true);
         useAcceleration = properties.getBool("use_acceleration", false);
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
@@ -191,9 +193,9 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
-        if (properties.getBool(ConditionalEdges.ACCESS, false))
+        if (hasConditionalAccess)
             registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
-        if (properties.getBool(ConditionalEdges.SPEED, false))
+        if (hasConditionalSpeed)
             registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
 
     }

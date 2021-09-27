@@ -181,6 +181,12 @@ public class CoreLMApproximator implements WeightApproximator {
         return new CoreLMApproximator(graph, maxBaseNodes, lms, activeLandmarks.length, factor, !reverse);
     }
 
+    @Override
+    public double getSlack() {
+        // TODO: implement this cleanly
+        return 0;
+    }
+
     public void setProxyWeight(double proxyDistance){
         proxyWeight = proxyDistance;
     }

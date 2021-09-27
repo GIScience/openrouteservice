@@ -25,8 +25,9 @@ import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.subnetwork.SubnetworkStorage;
 import com.graphhopper.routing.util.*;
-import com.graphhopper.routing.util.spatialrules.SpatialRule;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
+import com.graphhopper.routing.util.spatialrules.SpatialRuleSet;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -105,7 +106,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // allowing arbitrary weighting is too dangerous
         this.lmSelectionWeighting = new ShortestWeighting(encoder) {
             @Override
-            public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+            public double calcEdgeWeight(EdgeIteratorState edge, boolean reverse) {
                 // make accessibility of shortest identical to the provided weighting to avoid problems like shown in testWeightingConsistence
                 CHEdgeIteratorState tmp = (CHEdgeIteratorState) edge;
                 double res;
@@ -120,7 +121,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
                     return count;
                 }
-                else res = weighting.calcWeight(edge, reverse, prevOrNextEdgeId);
+                else res = weighting.calcEdgeWeight(edge, reverse);
                 if (res >= Double.MAX_VALUE)
                     return Double.POSITIVE_INFINITY;
 
@@ -205,7 +206,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
             //TODO use core only maybe? Probably not that important because core.getBounds() ~= baseGraph.getBounds()
 
             BBox bounds = graph.getBounds();
-            double distanceInMeter = Helper.DIST_EARTH.calcDist(bounds.maxLat, bounds.maxLon, bounds.minLat,
+            double distanceInMeter = DistanceCalcEarth.DIST_EARTH.calcDist(bounds.maxLat, bounds.maxLon, bounds.minLat,
                     bounds.minLon) * 7;
             if (distanceInMeter > 50_000 * 7 || /* for tests and convenience we do for now: */ !bounds.isValid())
                 distanceInMeter = 30_000_000;
@@ -314,8 +315,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
         if (!landmarkSuggestions.isEmpty()) {
             NodeAccess na = graph.getNodeAccess();
-            double lat = na.getLatitude(startNode);
-            double lon = na.getLongitude(startNode);
+            double lat = na.getLat(startNode);
+            double lon = na.getLon(startNode);
             LandmarkSuggestion selectedSuggestion = null;
             for (LandmarkSuggestion lmsugg : landmarkSuggestions) {
                 if (lmsugg.getBox().contains(lat, lon)) {
@@ -552,13 +553,13 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         IntHashSet inaccessible = new IntHashSet();
         while (allEdgesIterator.next()) {
             int adjNode = allEdgesIterator.getAdjNode();
-            SpatialRule ruleAdj = ruleLookup.lookupRule(nodeAccess.getLatitude(adjNode),
-                    nodeAccess.getLongitude(adjNode));
+            SpatialRuleSet rulesAdj = ruleLookup.lookupRules(nodeAccess.getLat(adjNode),
+                    nodeAccess.getLon(adjNode));
 
             int baseNode = allEdgesIterator.getBaseNode();
-            SpatialRule ruleBase = ruleLookup.lookupRule(nodeAccess.getLatitude(baseNode),
-                    nodeAccess.getLongitude(baseNode));
-            if (ruleAdj != ruleBase) {
+            SpatialRuleSet rulesBase = ruleLookup.lookupRules(nodeAccess.getLat(baseNode),
+                    nodeAccess.getLon(baseNode));
+            if (rulesAdj != rulesBase) { // TODO: Should != be replaced by !equals()?
                 inaccessible.add(allEdgesIterator.getEdge());
             }
         }
@@ -634,7 +635,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
     }
 
     int calcWeight(EdgeIteratorState edge, boolean reverse) {
-        return (int) (weighting.calcWeight(edge, reverse, EdgeIterator.NO_EDGE) / factor);
+        return (int) (weighting.calcEdgeWeight(edge, reverse, EdgeIterator.NO_EDGE) / factor);
     }
 
     // From all available landmarks pick just a few active ones
@@ -797,7 +798,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         }
 
         private GHPoint createPoint(Graph graph, int nodeId) {
-            return new GHPoint(graph.getNodeAccess().getLatitude(nodeId), graph.getNodeAccess().getLongitude(nodeId));
+            return new GHPoint(graph.getNodeAccess().getLat(nodeId), graph.getNodeAccess().getLon(nodeId));
         }
 
         public void setFilter(EdgeFilter filter) {
@@ -882,8 +883,8 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
 
             if ((double) maxedout.get() / map.size() > 0.1 && LOGGER.isInfoEnabled()) {
                 LOGGER.warn(new StringBuilder().append("landmark ")
-                    .append(lmIdx).append(" (").append(nodeAccess.getLatitude(lmNodeId)).append(",")
-                    .append(nodeAccess.getLongitude(lmNodeId)).append("): ").append("too many weights were maxed out (")
+                    .append(lmIdx).append(" (").append(nodeAccess.getLat(lmNodeId)).append(",")
+                    .append(nodeAccess.getLon(lmNodeId)).append("): ").append("too many weights were maxed out (")
                     .append(maxedout.get()).append("/").append(map.size()).append("). Use a bigger factor than ")
                     .append(lms.factor).append(". For example use the following in the config.properties: weighting=")
                     .append(weighting.getName()).append("|maximum=").append(finalMaxWeight.getValue() * 1.2).toString());

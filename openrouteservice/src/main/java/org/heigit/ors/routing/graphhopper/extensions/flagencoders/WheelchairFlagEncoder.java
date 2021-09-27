@@ -18,6 +18,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
@@ -275,7 +276,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         inaccessibleTracktypes.add("grade4");
         inaccessibleTracktypes.add("grade5");
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
@@ -686,6 +687,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 	public int getVersion() {
 		return 2;
 	}
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        throw new RuntimeException("Not implemented yet."); // TODO: implement properly
+    }
 
     @Override
     public boolean equals(Object obj) {

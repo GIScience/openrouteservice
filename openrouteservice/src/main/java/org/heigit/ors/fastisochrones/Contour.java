@@ -6,7 +6,7 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -363,7 +363,7 @@ public class Contour {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
         List<Coordinate> coordinates = new ArrayList<>(initialSize);
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0));
+        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO: cleanup method chain
 
         EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(edgeFilter);
         EdgeIterator iter;

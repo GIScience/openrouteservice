@@ -68,7 +68,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         absoluteBarriers.add("kissing_gate");
         setSpecificClassBicycle("touring");
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     public double getMeanSpeed() {

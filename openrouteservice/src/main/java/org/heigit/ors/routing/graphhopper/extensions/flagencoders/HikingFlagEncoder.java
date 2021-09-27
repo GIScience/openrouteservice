@@ -15,6 +15,7 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class HikingFlagEncoder extends FootFlagEncoder {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
         this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", false));
+        this.blockFords(properties.getBool("block_fords", false));
     }
 
     private HikingFlagEncoder(int speedBits, double speedFactor) {
@@ -51,12 +52,17 @@ public class HikingFlagEncoder extends FootFlagEncoder {
                 "footway"
         ));
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
     public int getVersion() {
         return 3;
+    }
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        throw new RuntimeException("Not implemented yet."); // TODO: implement properly
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.*;
@@ -85,7 +86,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 			}      
 		}
 
-		DistanceCalc distCalc = Helper.DIST_EARTH;
+		DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
 		try (GraphHopperStorage graphStorage = new GraphHopperStorage(weightings,  new RAMDirectory(), encodingManager, false,  new GraphExtension.NoOpExtension()).create(20)) {
 			for (int idxMain = 0; idxMain < osmNodeIds.size() - 1; idxMain++) {
 				long mainOsmId = osmNodeIds.get(idxMain);

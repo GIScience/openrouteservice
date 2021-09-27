@@ -16,7 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -24,7 +24,7 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
@@ -77,6 +77,8 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_WEIGHT] = (float) vehicleParams.getWeight();
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_LENGTH] = (float) vehicleParams.getLength();
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_AXLE_LOAD] = (float) vehicleParams.getAxleload();
+		} else {
+			this.hasHazmat = false;
 		}
 
 		ArrayList<Integer> idx = new ArrayList<>();

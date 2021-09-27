@@ -20,7 +20,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
 import com.graphhopper.reader.osm.conditional.ConditionalParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
@@ -60,12 +62,12 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
         initSpeedLimitHandler(this.toString());
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void init(DateRangeParser dateRangeParser) {
+        super.init(dateRangeParser);
         ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
         conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
         setConditionalSpeedInspector(conditionalOSMSpeedInspector);
@@ -142,5 +144,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     @Override
     public int getVersion() {
         return 1;
+    }
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        throw new RuntimeException("Not implemented yet"); // TODO: implement properly
     }
 }

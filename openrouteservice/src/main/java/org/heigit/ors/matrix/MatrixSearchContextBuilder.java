@@ -13,11 +13,11 @@
  */
 package org.heigit.ors.matrix;
 
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -34,7 +34,7 @@ public class MatrixSearchContextBuilder {
 	class LocationEntry {
 		private int nodeId;
 		private ResolvedLocation location;
-		private QueryResult queryResult;
+		private Snap snap;
 
 		public int getNodeId() {
 			return nodeId;
@@ -50,14 +50,6 @@ public class MatrixSearchContextBuilder {
 
 		public void setLocation(ResolvedLocation location) {
 			this.location = location;
-		}
-
-		public QueryResult getQueryResult() {
-			return queryResult;
-		}
-
-		public void setQueryResult(QueryResult queryResult) {
-			this.queryResult = queryResult;
 		}
 	}
 
@@ -76,7 +68,7 @@ public class MatrixSearchContextBuilder {
 		checkBounds(graph.getBounds(), sources, destinations);
 
 		QueryGraph queryGraph = new QueryGraph(graph);
-		List<QueryResult> queryResults = new ArrayList<>(sources.length + destinations.length);
+		List<Snap> queryResults = new ArrayList<>(sources.length + destinations.length);
 		
 		resolveLocations(sources, queryResults, maxSearchRadius);
 		resolveLocations(destinations, queryResults, maxSearchRadius);
@@ -136,14 +128,14 @@ public class MatrixSearchContextBuilder {
 		return idsArray;
 	}
 	
-	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius) {
+	private void resolveLocations(Coordinate[] coords, List<Snap> queryResults, double maxSearchRadius) {
 		for (Coordinate p : coords) {
 			LocationEntry ld = locationCache.get(p);
 			if (ld == null) {
-				QueryResult qr = locIndex.findClosest(p.y, p.x, edgeFilter);
+				Snap qr = locIndex.findClosest(p.y, p.x, edgeFilter);
 
 				ld = new LocationEntry();
-				ld.queryResult = qr;
+				ld.snap = qr;
 
 				if (qr.isValid() && qr.getQueryDistance() < maxSearchRadius) {
 					GHPoint3D pt = qr.getSnappedPoint();
@@ -165,7 +157,7 @@ public class MatrixSearchContextBuilder {
 			Coordinate p = coords[i];
 			LocationEntry ld = locationCache.get(p);
 			if (ld != null)
-				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.queryResult.getClosestNode(), ld.location);
+				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.snap.getClosestNode(), ld.location);
 			else
 				throw new Exception("Oops!");
 		}

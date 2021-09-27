@@ -19,9 +19,9 @@ package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
@@ -90,7 +90,7 @@ public class RangeDijkstra extends AbstractIsochroneDijkstra {
                 if (cellNodes.contains(traversalId))
                     visitedIds.add(traversalId);
 
-                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+                double tmpWeight = weighting.calcEdgeWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
 

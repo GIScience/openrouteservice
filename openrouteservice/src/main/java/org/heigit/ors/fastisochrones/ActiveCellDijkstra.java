@@ -19,7 +19,7 @@ package org.heigit.ors.fastisochrones;
 
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
@@ -54,7 +54,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = outEdgeExplorer;
+        EdgeExplorer explorer = this.outEdgeExplorer;
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -67,7 +67,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+                double tmpWeight = weighting.calcEdgeWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
                 SPTEntry nEdge = fromMap.get(traversalId);

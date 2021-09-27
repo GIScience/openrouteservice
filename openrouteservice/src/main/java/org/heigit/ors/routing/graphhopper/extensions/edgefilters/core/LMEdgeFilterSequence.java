@@ -35,7 +35,7 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	public boolean isFilter(PMap pmap){
 		//true if the avoidFeaturespart fits the query
 		boolean avoidFeatures = isAvoidFeature(pmap.getInt("avoid_features", 0));
-		boolean avoidCountries = isAvoidCountry(pmap.get("avoid_countries", ""));
+		boolean avoidCountries = isAvoidCountry(pmap.getString("avoid_countries", ""));
 		return avoidFeatures && avoidCountries;
 
 

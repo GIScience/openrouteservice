@@ -15,7 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -44,7 +46,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         this(properties.getInt("speed_bits", 5),
         		properties.getDouble("speed_factor", 5),
         		properties.getBool("turn_costs", false) ? 3 : 0);
-        setBlockFords(false);
+        blockFords(false);
     }
 
     public EmergencyFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -176,7 +178,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         yesValues.add("yes");
         yesValues.add("1");
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
     
     @Override
@@ -294,7 +296,8 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
             }
 
         } else {
-            double ferrySpeed = getFerrySpeed(way);accessEnc.setBool(false, edgeFlags, true);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
+            accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             setSpeed(false, edgeFlags, ferrySpeed);
             setSpeed(true, edgeFlags, ferrySpeed);
@@ -385,4 +388,9 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 	public int getVersion() {
 		return 2;
 	}
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        throw new RuntimeException("Not implemented yet"); // TODO: implement properly
+    }
 }

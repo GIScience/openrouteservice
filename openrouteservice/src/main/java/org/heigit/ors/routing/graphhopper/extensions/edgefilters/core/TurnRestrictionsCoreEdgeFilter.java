@@ -12,7 +12,7 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
@@ -43,8 +43,8 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
         this.flagEncoder = encoder;
         this.graph = graphHopperStorage.getBaseGraph();
         turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
-        inEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder));
-        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        inEdgeExplorer = graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()));
+        outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {

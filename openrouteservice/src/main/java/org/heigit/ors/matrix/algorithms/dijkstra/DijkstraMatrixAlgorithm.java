@@ -18,7 +18,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
