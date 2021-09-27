@@ -9,6 +9,7 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.ExclusiveDownwardSearchEdgeFilter;
 
 import java.util.PriorityQueue;
 
@@ -23,7 +24,7 @@ public class TargetGraphBuilder {
      */
     public TargetGraphResults prepareTargetGraph(int[] targets, CHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
         PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
-        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder, true, swap);
+        ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter = new ExclusiveDownwardSearchEdgeFilter(chGraph, encoder, true, swap);
         EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(encoder));
         SubGraph targetGraph = new SubGraph(graph);
         IntHashSet coreExitPoints = new IntHashSet();
@@ -51,7 +52,7 @@ public class TargetGraphBuilder {
      * @param adjNode
      * @param iter
      */
-    private void exploreEntry(SubGraph targetGraph, PriorityQueue<Integer> localPrioQueue, DownwardSearchEdgeFilter downwardEdgeFilter, int adjNode, EdgeIterator iter, IntHashSet coreExitPoints) {
+    private void exploreEntry(SubGraph targetGraph, PriorityQueue<Integer> localPrioQueue, ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter, int adjNode, EdgeIterator iter, IntHashSet coreExitPoints) {
         while (iter.next()) {
             if (!downwardEdgeFilter.accept(iter))
                 continue;
