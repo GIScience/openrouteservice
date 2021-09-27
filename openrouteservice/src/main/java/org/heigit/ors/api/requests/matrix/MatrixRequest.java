@@ -108,8 +108,6 @@ public class MatrixRequest {
             example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private MatrixRequestOptions matrixOptions;
-    @JsonIgnore
-    private boolean hasMatrixOptions = false;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
@@ -252,18 +250,9 @@ public class MatrixRequest {
     public boolean hasOptimized() {
         return hasOptimized;
     }
-
-    public boolean hasMatrixOptions() {
-        return hasMatrixOptions;
-    }
-
+    
     public MatrixRequestOptions getMatrixOptions() {
         return matrixOptions;
-    }
-
-    public void setMatrixOptions(MatrixRequestOptions matrixOptions) {
-        this.matrixOptions = matrixOptions;
-        hasMatrixOptions = true;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {
