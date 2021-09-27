@@ -250,7 +250,7 @@ public class MatrixRequest {
     public boolean hasOptimized() {
         return hasOptimized;
     }
-    
+
     public MatrixRequestOptions getMatrixOptions() {
         return matrixOptions;
     }

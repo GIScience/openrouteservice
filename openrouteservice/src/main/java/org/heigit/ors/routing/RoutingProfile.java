@@ -628,7 +628,7 @@ public class RoutingProfile {
         try {
             HintsMap hintsMap = new HintsMap();
             EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(flagEncoder);
-            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.FASTEST : req.getWeightingMethod();
+            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
