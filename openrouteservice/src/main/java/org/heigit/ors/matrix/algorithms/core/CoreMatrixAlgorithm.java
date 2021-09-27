@@ -132,7 +132,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         this.treeEntrySize = srcData.size();
 
-        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, graph, encoder, hasTurnWeighting, swap, coreNodeLevel);
+        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, graph, encoder, swap, coreNodeLevel);
         targetGraph = targetGraphResults.getTargetGraph();
         coreExitPoints.addAll(targetGraphResults.getCoreExitPoints());
 

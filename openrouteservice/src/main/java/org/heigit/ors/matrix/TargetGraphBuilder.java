@@ -21,9 +21,9 @@ public class TargetGraphBuilder {
      *
      * @param targets the targets that form the seed for target graph building
      */
-    public TargetGraphResults prepareTargetGraph(int[] targets, CHGraph chGraph, Graph graph, FlagEncoder encoder, boolean hasTurnWeighting, boolean swap, int coreNodeLevel) {
+    public TargetGraphResults prepareTargetGraph(int[] targets, CHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
         PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
-        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder, true, hasTurnWeighting, swap);
+        DownwardSearchEdgeFilter downwardEdgeFilter = new DownwardSearchEdgeFilter(chGraph, encoder, true, swap);
         EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(encoder));
         SubGraph targetGraph = new SubGraph(graph);
         IntHashSet coreExitPoints = new IntHashSet();
