@@ -28,11 +28,6 @@ public class ExpiringSpeedStorageSpeedCalculator extends AbstractAdjustedSpeedCa
         return modifiedSpeed;
     }
 
-    @Override
-    public boolean isTimeDependent() {
-        return false;
-    }
-
     public void setSpeedStorage(ExpiringSpeedStorage expiringSpeedStorage) {
         this.expiringSpeedStorage = expiringSpeedStorage;
     }
