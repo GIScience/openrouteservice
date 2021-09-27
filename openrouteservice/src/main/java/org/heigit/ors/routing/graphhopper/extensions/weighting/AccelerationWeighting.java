@@ -20,6 +20,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.*;
 
+// TODO: this class seems to be unfinished since years. Can it be removed?
 public class AccelerationWeighting extends FastestWeighting {
 	private final GraphHopperStorage ghStorage;
 	private final AngleCalc angleCalc = new AngleCalc();

@@ -14,7 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.ArrivalDirection;
@@ -81,7 +81,7 @@ class RouteResultBuilder
 
             handleResponseWarnings(result, response);
 
-            PathWrapper path = response.getBest();
+            ResponsePath path = response.getBest();
 
             result.addPointlist(path.getPoints());
 
@@ -121,7 +121,7 @@ class RouteResultBuilder
         RouteResult[] resultSet = new RouteResult[response.getAll().size()];
 
         int pathIndex = 0;
-        for (PathWrapper path : response.getAll()) {
+        for (ResponsePath path : response.getAll()) {
             RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
 
             handleResponseWarnings(result, response);
@@ -186,7 +186,7 @@ class RouteResultBuilder
 
     }
 
-    private RouteSegment createRouteSegment(PathWrapper path, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
+    private RouteSegment createRouteSegment(ResponsePath path, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
         RouteSegment seg = new RouteSegment(path, request.getUnits());
 
         if (request.getIncludeInstructions()) {
@@ -285,7 +285,7 @@ class RouteResultBuilder
         return seg;
     }
 
-    private double calculateDetourFactor(PathWrapper path) {
+    private double calculateDetourFactor(ResponsePath path) {
         PointList pathPoints = path.getPoints();
         double lat0 = pathPoints.getLat(0);
         double lon0 = pathPoints.getLon(0);

@@ -483,7 +483,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     PrepareCore initFromGraph() {
         ghStorage.freeze();
         FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
-        final EdgeFilter allFilter = DefaultEdgeFilter.allEdges(prepareFlagEncoder);
+        final EdgeFilter allFilter = AccessFilter.allEdges(prepareFlagEncoder.getAccessEnc());
 
         // filter by vehicle and level number
         final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {
@@ -500,9 +500,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
         vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
         calcPrioAllExplorer = prepareGraph.createEdgeExplorer(accessWithLevelFilter);
-        restrictionExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        inEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
-        outEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
+        restrictionExplorer = prepareGraph.createEdgeExplorer(AccessFilter.outEdges(prepareFlagEncoder.getAccessEnc()));
+        inEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(AccessFilter.inEdges(prepareFlagEncoder.getAccessEnc()));
+        outEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(AccessFilter.outEdges(prepareFlagEncoder.getAccessEnc()));
 
         // Use an alternative to PriorityQueue as it has some advantages:
         //   1. Gets automatically smaller if less entries are stored => less total RAM used.

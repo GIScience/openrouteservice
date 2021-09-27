@@ -131,7 +131,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         potentialBarriers.add("kissing_gate");
         setSpecificClassBicycle("mtb");
 
-        init();
+        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     public double getMeanSpeed() {

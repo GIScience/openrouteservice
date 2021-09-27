@@ -14,13 +14,13 @@
 package org.heigit.ors.matrix;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -84,7 +84,7 @@ public class PathMetricsExtractor {
 			chGraph = (CHGraph)graph;
 		else if (graph instanceof QueryGraph) {
 			QueryGraph qGraph = (QueryGraph)graph;
-			Graph mainGraph = qGraph.getMainGraph();
+			Graph mainGraph = qGraph.getBaseGraph();
 			if (mainGraph instanceof CHGraph)
 				chGraph = (CHGraph)mainGraph;
 		}
@@ -161,10 +161,10 @@ public class PathMetricsExtractor {
 								edgeDistance = (distUnits == DistanceUnit.METERS) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
 
 							if (calcTime)
-								edgeTime = timeWeighting.calcMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+								edgeTime = timeWeighting.calcEdgeMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
 
 							if (calcWeight)
-								edgeWeight = weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+								edgeWeight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
 						}
 
 						if (edgeMetrics != null) {
@@ -229,9 +229,9 @@ public class PathMetricsExtractor {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
 				edgeDistance = iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime = weighting.calcMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime = weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight = weighting.calcWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight = weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
 		}
 	}
 
@@ -240,9 +240,9 @@ public class PathMetricsExtractor {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
 				edgeDistance += iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime += weighting.calcMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime += weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight += weighting.calcWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight += weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
 			return;
 		}
 

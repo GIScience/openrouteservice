@@ -110,7 +110,7 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 
         // MARQ24 -> till here this will just overwite the default values of the common bike flag encoder...
 
-        this.init();
+        this.init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     public double getMeanSpeed() {

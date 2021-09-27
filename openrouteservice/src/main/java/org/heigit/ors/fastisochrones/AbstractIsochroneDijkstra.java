@@ -20,12 +20,12 @@ package org.heigit.ors.fastisochrones;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 
 import java.util.PriorityQueue;

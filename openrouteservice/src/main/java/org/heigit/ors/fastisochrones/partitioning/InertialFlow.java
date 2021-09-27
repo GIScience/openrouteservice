@@ -3,7 +3,7 @@ package org.heigit.ors.fastisochrones.partitioning;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Graph;
@@ -249,7 +249,7 @@ public class InertialFlow implements Runnable {
         Iterator<IntCursor> iter;
         EdgeIterator edgeIterator;
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(DefaultEdgeFilter.allEdges(flagEncoder));
+        edgeFilterSequence.add(AccessFilter.allEdges(flagEncoder.getAccessEnc()));
         if(edgeFilter != null)
             edgeFilterSequence.add(edgeFilter);
 

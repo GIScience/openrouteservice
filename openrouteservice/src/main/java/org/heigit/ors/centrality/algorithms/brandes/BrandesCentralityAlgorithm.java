@@ -103,7 +103,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         continue;
                     }
 
-                    Double vwDist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                    Double vwDist = dist + weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
 
                     if (seen.containsKey(w) && (Math.abs(vwDist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
@@ -213,7 +213,7 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         continue;
                     }
 
-                    Double vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                    Double vw_dist = dist + weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
 
                     if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));

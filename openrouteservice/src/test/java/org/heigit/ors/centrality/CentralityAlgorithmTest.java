@@ -6,6 +6,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
+import com.graphhopper.util.PMap;
 import junit.framework.TestCase;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
@@ -136,12 +137,12 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.put("weighting", "fastest");
-        hintsMap.put("weighting_method", "fastest");
+        hintsMap.putObject("weighting", "fastest");
+        hintsMap.putObject("weighting_method", "fastest");
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
@@ -176,9 +177,9 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.put("weighting", "fastest");
         hintsMap.put("weighting_method", "fastest");
@@ -218,9 +219,9 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.put("weighting", "fastest");
         hintsMap.put("weighting_method", "fastest");
@@ -258,12 +259,12 @@ public class CentralityAlgorithmTest extends TestCase {
         Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
         String encoderName = "car";
         FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.put("weighting", "fastest");
-        hintsMap.put("weighting_method", "fastest");
+        hintsMap.putObject("weighting", "fastest");
+        hintsMap.putObject("weighting_method", "fastest");
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);

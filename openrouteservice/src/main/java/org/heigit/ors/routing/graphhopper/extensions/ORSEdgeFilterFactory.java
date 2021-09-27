@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -35,7 +35,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
 
         /* Default edge filter which accepts both directions of the specified vehicle */
-        edgeFilters.add(DefaultEdgeFilter.allEdges(flagEncoder));
+        edgeFilters.add(AccessFilter.allEdges(flagEncoder.getAccessEnc()));
 
         try {
             if (opts == null) {

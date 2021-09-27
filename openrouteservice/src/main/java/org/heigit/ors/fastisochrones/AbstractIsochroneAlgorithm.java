@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.fastisochrones;
 
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
@@ -71,7 +71,7 @@ public abstract class AbstractIsochroneAlgorithm {
         this.borderNodeDistanceStorage = borderNodeDistanceStorage;
         this.additionalEdgeFilter = additionalEdgeFilter;
         this.nodeAccess = graph.getNodeAccess();
-        outEdgeExplorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);

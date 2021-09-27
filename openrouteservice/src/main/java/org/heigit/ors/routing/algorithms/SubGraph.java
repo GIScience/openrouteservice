@@ -105,7 +105,7 @@ public class SubGraph {
 		}
 
 		@Override
-		public PointList fetchWayGeometry(int mode) {
+		public PointList fetchWayGeometry(FetchMode mode) {
 			return null;
 		}
 
@@ -134,12 +134,12 @@ public class SubGraph {
 			return currState.setFlags(edgeFlags);
 		}
 
-		@Override
+		// TODO: cn this method be removed? @Override
 		public int getAdditionalField() {
 			return 0;
 		}
 
-		@Override
+		// TODO: can this method be removed? @Override
 		public EdgeIteratorState setAdditionalField(int value) {
 			return null;
 		}
@@ -205,22 +205,22 @@ public class SubGraph {
 		}
 
 		@Override
-		public <T extends Enum> T get(EnumEncodedValue<T> property) {
+		public <T extends Enum<?>> T get(EnumEncodedValue<T> property) {
 			return currState.get(property);
 		}
 
 		@Override
-		public <T extends Enum> EdgeIteratorState set(EnumEncodedValue<T> property, T value) {
+		public <T extends Enum<?>> EdgeIteratorState set(EnumEncodedValue<T> property, T value) {
 			return currState.set(property, value);
 		}
 
 		@Override
-		public <T extends Enum> T getReverse(EnumEncodedValue<T> property) {
+		public <T extends Enum<?>> T getReverse(EnumEncodedValue<T> property) {
 			return currState.getReverse(property);
 		}
 
 		@Override
-		public <T extends Enum> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
+		public <T extends Enum<?>> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
 			return currState.setReverse(property, value);
 		}
 
@@ -282,7 +282,7 @@ public class SubGraph {
 			return this;
 		}
 
-		@Override
+		// TODO: can this method be removed? @Override
 		public CHEdgeIteratorState setFirstAndLastOrigEdges(int firstOrigEdge, int lastOrigEdge) {
 			throw new IllegalStateException("Unsupported operation");
 		}
@@ -295,7 +295,7 @@ public class SubGraph {
 				return false;
 		}
 
-		@Override
+		// TODO: can this method be removed? @Override
 		public int getMergeStatus(int flags) {
 			return 0;
 		}
