@@ -55,6 +55,7 @@ RELEASING:
 - Formatting of tag filtering
 - test config format and filetype to JSON
 - docker `APP_CONFIG` argument to `ORS_CONFIG` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- default minimum `surface-type` for wheelchair to `sett` ([#1059](https://github.com/GIScience/openrouteservice/issues/1059))
 ### Deprecated
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))

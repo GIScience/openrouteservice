@@ -80,8 +80,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `cobblestone:flattened`. " +
-            "CUSTOM_KEYS:{'apiDefault':'cobblestone:flattened','validWhen':{'ref':'profile','value':['wheelchair']}}",
+    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `sett`. " +
+            "CUSTOM_KEYS:{'apiDefault':'sett','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "asphalt")
     @JsonProperty(PARAM_SURFACE_TYPE)
     private String surfaceType;
