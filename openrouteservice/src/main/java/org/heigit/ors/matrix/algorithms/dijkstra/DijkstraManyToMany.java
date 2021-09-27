@@ -167,7 +167,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         if(targetSet.contains(nodeId)) {
             if (!targetMap.containsKey(nodeId)) {
                 AveragedMultiTreeSPEntry newTarget = new AveragedMultiTreeSPEntry(nodeId, EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, false, null, update.getSize());
-                newTarget.setOriginalEdge(EdgeIterator.NO_EDGE);
                 newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
                 targetMap.put(nodeId, newTarget);
             }

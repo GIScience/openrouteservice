@@ -224,7 +224,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             }
 
             AveragedMultiTreeSPEntry newFrom = new AveragedMultiTreeSPEntry(from[i], EdgeIterator.NO_EDGE, 0.0, true, null, from.length);
-            newFrom.setOriginalEdge(EdgeIterator.NO_EDGE);
             newFrom.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
 
             newFrom.getItem(i).setWeight(0.0);
@@ -369,7 +368,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         if(targetSet.contains(nodeId)) {
             if (!targetMap.containsKey(nodeId)) {
                 AveragedMultiTreeSPEntry newTarget = new AveragedMultiTreeSPEntry(nodeId, EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, true, null, update.getSize());
-                newTarget.setOriginalEdge(EdgeIterator.NO_EDGE);
                 newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
                 targetMap.put(nodeId, newTarget);
             }
@@ -528,7 +526,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * @return
      */
     private boolean isInORS(EdgeIteratorState iter, AveragedMultiTreeSPEntry currEdge) {
-        return currEdge.getEdge() == iter.getEdge() || currEdge.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
+        return currEdge.getEdge() == iter.getEdge() || EdgeIteratorStateHelper.getOriginalEdge(iter) != EdgeIterator.NO_EDGE;
     }
 
     private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {

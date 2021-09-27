@@ -22,7 +22,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
 	protected int adjNode;
 	protected int edge;
-	protected int originalEdge;
 	protected boolean visited = false;
 	protected MultiTreeSPEntryItem[] items;
 	private double totalWeight = 0.0;
@@ -59,14 +58,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 	}
 
 	public int getEdge() {return edge;}
-
-	public int getOriginalEdge() {
-		return originalEdge;
-	}
-
-	public void setOriginalEdge(int originalEdge) {
-		this.originalEdge = originalEdge;
-	}
 
 	public boolean isVisited() {
 		return visited;
