@@ -648,12 +648,12 @@ public class RoutingProfile {
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
-            if (weighting instanceof TurnWeighting)
-                ((TurnWeighting)weighting).setInORS(true);
-
-            if(alg instanceof  CoreMatrixAlgorithm)
-                ((CoreMatrixAlgorithm)alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+            if(alg instanceof  CoreMatrixAlgorithm) {
+                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+                if (weighting instanceof TurnWeighting)
+                    ((TurnWeighting)weighting).setInORS(true);
+                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+            }
             else
                 alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
