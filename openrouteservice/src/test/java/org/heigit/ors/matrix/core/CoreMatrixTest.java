@@ -7,7 +7,6 @@ import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.HelperORS;
-import org.heigit.ors.common.Pair;
 import org.heigit.ors.matrix.MatrixLocations;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -23,11 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CoreMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5,5.0D,1);
@@ -80,7 +77,6 @@ public class CoreMatrixTest {
     @Test
     public void testOneToManyAllEdgesInCore() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
-        Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -123,7 +119,6 @@ public class CoreMatrixTest {
     @Test
     public void testManyToManyAllEdgesInCore() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
-        Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -1019,7 +1014,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
         algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try{
@@ -1133,7 +1127,6 @@ public class CoreMatrixTest {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDirectedGraph(createGHStorage());
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
-        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(1);
