@@ -18,7 +18,7 @@ import com.graphhopper.routing.PathTDCore;
 import com.graphhopper.routing.util.AccessEdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
@@ -61,12 +61,12 @@ public class TDCoreALT extends CoreALT {
 
     @Override
     double calcWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
-        return weighting.calcWeight(iter, reverse, currEdge.originalEdge, currEdge.time);
+        return weighting.calcEdgeWeight(iter, reverse, currEdge.originalEdge /* TODO: , currEdge.time*/);
     }
 
     @Override
     long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return currEdge.time + (reverse ? -1 : 1) * weighting.calcMillis(iter, reverse, currEdge.edge, currEdge.time);
+        return currEdge.time + (reverse ? -1 : 1) * weighting.calcEdgeMillis(iter, reverse, currEdge.edge /* TODO: , currEdge.time*/);
     }
 
     @Override

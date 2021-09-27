@@ -15,10 +15,10 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
-import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -27,7 +27,6 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -75,20 +74,20 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         setPreparationThreads(1);
     }
 
-    @Override
-    public void init(CmdArgs args) {
-        setPreparationThreads(args.getInt(CoreLandmark.PREPARE + "threads", getPreparationThreads()));
+    // TODO: @Override
+    public void init(GraphHopperConfig ghConfig) {
+        setPreparationThreads(ghConfig.getInt(CoreLandmark.PREPARE + "threads", getPreparationThreads()));
 
-        landmarkCount = args.getInt(CoreLandmark.COUNT, landmarkCount);
-        activeLandmarkCount = args.getInt(CoreLandmark.ACTIVE_COUNT_DEFAULT, Math.min(4, landmarkCount));
-        logDetails = args.getBool(CoreLandmark.PREPARE + "log_details", false);
-        minNodes = args.getInt(CoreLandmark.PREPARE + "min_network_size", -1);
+        landmarkCount = ghConfig.getInt(CoreLandmark.COUNT, landmarkCount);
+        activeLandmarkCount = ghConfig.getInt(CoreLandmark.ACTIVE_COUNT_DEFAULT, Math.min(4, landmarkCount));
+        logDetails = ghConfig.getBool(CoreLandmark.PREPARE + "log_details", false);
+        minNodes = ghConfig.getInt(CoreLandmark.PREPARE + "min_network_size", -1);
 
-        for (String loc : args.get(CoreLandmark.PREPARE + "suggestions_location", "").split(",")) {
+        for (String loc : ghConfig.getString(CoreLandmark.PREPARE + "suggestions_location", "").split(",")) {
             if (!loc.trim().isEmpty())
                 lmSuggestionsLocations.add(loc.trim());
         }
-        String lmWeightingsStr = args.get(Core.PREPARE + "weightings", "");
+        String lmWeightingsStr = ghConfig.getString(Core.PREPARE + "weightings", "");
         if (!lmWeightingsStr.isEmpty() && !lmWeightingsStr.equalsIgnoreCase("no")) {
             List<String> tmpLMWeightingList = Arrays.asList(lmWeightingsStr.split(","));
             setWeightingsAsStrings(tmpLMWeightingList);
@@ -97,10 +96,10 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         boolean enableThis = !weightingsAsStrings.isEmpty();
         setEnabled(enableThis);
         if (enableThis)
-            setDisablingAllowed(args.getBool(CoreLandmark.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            setDisablingAllowed(ghConfig.getBool(CoreLandmark.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
 
         //Get the landmark sets that should be calculated
-        String coreLMSets = args.get(CoreLandmark.LMSETS, "allow_all");
+        String coreLMSets = ghConfig.getString(CoreLandmark.LMSETS, "allow_all");
         if (!coreLMSets.isEmpty() && !coreLMSets.equalsIgnoreCase("no")) {
             List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
             coreLMOptions.setRestrictionFilters(tmpCoreLMSets);

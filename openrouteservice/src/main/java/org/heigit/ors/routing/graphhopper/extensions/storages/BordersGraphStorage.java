@@ -18,7 +18,7 @@ import com.graphhopper.storage.*;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class BordersGraphStorage implements GraphExtension {
+public class BordersGraphStorage implements Storable<BordersGraphStorage> {
 	public enum Property { TYPE, START, END}
 	/* pointer for no entry */
 	protected static final int NO_ENTRY = -1;
@@ -96,44 +96,12 @@ public class BordersGraphStorage implements GraphExtension {
 	}
 
 	/**
-	 * @return true, if and only if, if an additional field at the graphs node storage is required
-	 */
-	@Override
-	public boolean isRequireNodeField() {
-		return true;
-	}
-
-	/**
-	 * @return true, if and only if, if an additional field at the graphs edge storage is required
-	 */
-	@Override
-	public boolean isRequireEdgeField() {
-		return true;
-	}
-
-	/**
-	 * @return the default field value which will be set for default when creating nodes
-	 */
-	@Override
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	/**
-	 * @return the default field value which will be set for default when creating edges
-	 */
-	@Override
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	/**
 	 * initializes the extended storage by giving the base graph
 	 *
 	 * @param graph
 	 * @param dir
 	 */
-	@Override
+	// TODO: how to deal with @Override
 	public void init(Graph graph, Directory dir) {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
@@ -151,29 +119,16 @@ public class BordersGraphStorage implements GraphExtension {
 		Directory d = new RAMDirectory();
 		this.orsEdges = d.find("");
 	}
-	/**
-	 * sets the segment size in all additional data storages
-	 *
-	 * @param bytes
-	 */
-	@Override
-	public void setSegmentSize(int bytes) { orsEdges.setSegmentSize(bytes); }
 
 	/**
 	 * creates a copy of this extended storage
 	 *
 	 * @param clonedStorage
 	 */
-	@Override
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof BordersGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		BordersGraphStorage clonedTC = (BordersGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
+	// TODO: how to deal with @Override
+	public BordersGraphStorage copyTo(BordersGraphStorage clonedStorage) {
+		orsEdges.copyTo(clonedStorage.orsEdges);
+		clonedStorage.edgesCount = edgesCount;
 
 		return clonedStorage;
 	}
@@ -197,7 +152,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 * @param initBytes
 	 */
 	@Override
-	public GraphExtension create(long initBytes) {
+	public BordersGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}

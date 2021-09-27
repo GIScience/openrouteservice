@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.shapes.GHPoint3D;
 
 public class AccessibilityMap {

@@ -16,13 +16,13 @@ package org.heigit.ors.mapmatching.hmm;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.PathWrapper;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.ResponsePath;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -102,7 +102,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	@Override
 	public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
-		EdgeFilter edgeFilter = this.edgeFilter == null ? DefaultEdgeFilter.allEdges(encoder) : this.edgeFilter;
+		EdgeFilter edgeFilter = this.edgeFilter == null ? AccessFilter.allEdges(encoder.getAccessEnc()) : this.edgeFilter;
 
 		boolean bPreciseMode = false;
 		int nPoints = locations.length;
@@ -260,15 +260,15 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
 				
 						GHRequest req = new GHRequest(xi.y, xi.x, xj.y, xj.x);
-						req.getHints().put("ch.disable", true);
-						req.getHints().put("lm.disable", true);
+						req.getHints().putObject("ch.disable", true);
+						req.getHints().putObject("lm.disable", true);
 						req.setAlgorithm("dijkstrabi"); 
 						
 						try {
 							GHResponse resp = graphHopper.route(req);
 						
 							if (!resp.hasErrors()) {
-								PathWrapper path = resp.getBest();
+								ResponsePath path = resp.getBest();
 								/*
 								double dx = resp.getDistance()
 								double dt = Math.abs(dz - dx)
@@ -334,14 +334,14 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	
 	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
 			List<Integer> roadSegments) {
-		List<QueryResult> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
+		List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 
 		int nMatchPoints = matchPoints.size();
 
 		for (int matchIndex = 0; matchIndex < qResults.size(); matchIndex++) {
-			QueryResult qr = qResults.get(matchIndex);
+			Snap qr = qResults.get(matchIndex);
 
 			double spLat = qr.getSnappedPoint().getLat();
 			double spLon = qr.getSnappedPoint().getLon();

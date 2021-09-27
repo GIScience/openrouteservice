@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -34,8 +34,8 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 	}
 
 	@Override
-	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
+	public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
+		double weight = super.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 

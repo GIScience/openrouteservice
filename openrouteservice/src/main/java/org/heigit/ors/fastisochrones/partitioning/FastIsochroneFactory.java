@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.fastisochrones.partitioning;
 
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.storage.*;
-import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
@@ -47,10 +47,10 @@ public class FastIsochroneFactory {
     private CellStorage cellStorage;
 
 
-    public void init(CmdArgs args) {
-        setMaxThreadCount(args.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
-        setMaxCellNodesNumber(args.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
-        String weightingsStr = args.get(FastIsochrone.PREPARE + "weightings", "");
+    public void init(GraphHopperConfig ghConfig) {
+        setMaxThreadCount(ghConfig.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
+        setMaxCellNodesNumber(ghConfig.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
+        String weightingsStr = ghConfig.getString(FastIsochrone.PREPARE + "weightings", "");
 
         if ("no".equals(weightingsStr)) {
             // default is fastest and we need to clear this explicitely
@@ -62,8 +62,8 @@ public class FastIsochroneFactory {
         boolean enableThis = !fastisochroneProfileStrings.isEmpty();
         setEnabled(enableThis);
         if (enableThis) {
-            setDisablingAllowed(args.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
-            IsochronesServiceSettings.setFastIsochronesActive(args.get(FastIsochrone.PROFILE, ""));
+            setDisablingAllowed(ghConfig.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            IsochronesServiceSettings.setFastIsochronesActive(ghConfig.getString(FastIsochrone.PROFILE, ""));
         }
     }
 

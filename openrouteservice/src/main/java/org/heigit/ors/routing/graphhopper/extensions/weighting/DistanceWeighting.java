@@ -24,7 +24,7 @@ public class DistanceWeighting extends AbstractWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edge, boolean reverse) {
         double speed = ((AbstractFlagEncoder)flagEncoder).getSpeed(reverse, edge.getFlags());
         if (speed == 0)
             return Double.POSITIVE_INFINITY;

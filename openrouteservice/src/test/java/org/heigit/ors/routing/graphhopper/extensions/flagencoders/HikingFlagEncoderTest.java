@@ -69,11 +69,6 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void noTurnRestrictions() {
-        assertFalse(flagEncoder.isTurnRestricted(1));
-    }
-
-    @Test
     public void noTurnCost() {
         assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
     }

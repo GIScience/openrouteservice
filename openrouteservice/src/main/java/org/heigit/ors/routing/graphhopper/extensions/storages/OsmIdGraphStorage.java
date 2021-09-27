@@ -3,7 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.EncodeUtils;
 
-public class OsmIdGraphStorage implements GraphExtension {
+public class OsmIdGraphStorage implements Storable<OsmIdGraphStorage> {
     /* pointer for no entry */
     protected final int efOsmid;
 
@@ -43,7 +43,7 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.setSegmentSize(bytes);
     }
 
-    public GraphExtension create(long initBytes) {
+    public OsmIdGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
@@ -109,37 +109,6 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.getBytes(edgePointer + efOsmid, buffer, 4);
 
         return EncodeUtils.byteArrayToLong(buffer);
-    }
-
-    public boolean isRequireNodeField() {
-        return false;
-    }
-
-    public boolean isRequireEdgeField() {
-        // we require the additional field in the graph to point to the first
-        // entry in the node table
-        return true;
-    }
-
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof OsmIdGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        OsmIdGraphStorage clonedTC = (OsmIdGraphStorage) clonedStorage;
-
-        orsEdges.copyTo(clonedTC.orsEdges);
-        clonedTC.edgesCount = edgesCount;
-
-        return clonedStorage;
     }
 
     @Override

@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.algorithms;
 
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 
 public interface OneToManyRoutingAlgorithm {
 	

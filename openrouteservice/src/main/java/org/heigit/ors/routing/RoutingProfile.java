@@ -16,6 +16,7 @@ package org.heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
@@ -141,7 +142,7 @@ public class RoutingProfile {
     }
 
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
-        CmdArgs args = createGHSettings(osmFile, config);
+        GraphHopperConfig args = createGHSettings(osmFile, config);
 
         int profileId;
         synchronized (lockObj) {
@@ -193,19 +194,8 @@ public class RoutingProfile {
         }
 
         if (LOGGER.isInfoEnabled()) {
-            EncodingManager encodingMgr = gh.getEncodingManager();
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            // MARQ24 MOD START
-            // Same here as for the 'gh.getCapacity()' below - the 'encodingMgr.getUsedBitsForFlags()' method requires
-            // the EncodingManager to be patched - and this is ONLY required for this logging line... which is IMHO
-            // not worth it (and since we are not sharing FlagEncoders for mutiple vehicles this info is anyhow
-            // obsolete
-            LOGGER.info(String.format("[%d] FlagEncoders: %s, bits used [UNKNOWN]/%d.", profileId, encodingMgr.fetchEdgeEncoders().size(), encodingMgr.getBytesForFlags() * 8));
-            // the 'getCapacity()' impl is the root cause of having a copy of the gh 'com.graphhopper.routing.lm.PrepareLandmarks'
-            // class (to make the store) accessible (getLandmarkStorage()) - IMHO this is not worth it!
-            // so gh.getCapacity() will be removed!
-            LOGGER.info(String.format("[%d] Capacity: [UNKNOWN]. (edges - %s, nodes - %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
-            // MARQ24 MOD END
+            LOGGER.info(String.format("[%d] Edges: %s - Nodes: %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
             LOGGER.info("                              ");
@@ -226,24 +216,24 @@ public class RoutingProfile {
         return graph.getCapacity() + GraphStorageUtils.getCapacity(graph.getExtension());
     }
 
-    private static CmdArgs createGHSettings(String sourceFile, RouteProfileConfiguration config) {
-        CmdArgs args = new CmdArgs();
-        args.put("graph.dataaccess", "RAM_STORE");
-        args.put("datareader.file", sourceFile);
-        args.put("graph.location", config.getGraphPath());
-        args.put("graph.bytes_for_flags", config.getEncoderFlagsSize());
+    private static GraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
+        GraphHopperConfig ghConfig = new GraphHopperConfig();
+        ghConfig.putObject("graph.dataaccess", "RAM_STORE");
+        ghConfig.putObject("datareader.file", sourceFile);
+        ghConfig.putObject("graph.location", config.getGraphPath());
+        ghConfig.putObject("graph.bytes_for_flags", config.getEncoderFlagsSize());
 
         if (!config.getInstructions())
-            args.put("instructions", false);
+            ghConfig.putObject("instructions", false);
         if (config.getElevationProvider() != null && config.getElevationCachePath() != null) {
-            args.put("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
-            args.put("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
-            args.put("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
-            args.put("graph.elevation.clear", config.getElevationCacheClear());
+            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
+            ghConfig.putObject("graph.elevation.clear", config.getElevationCacheClear());
             if (config.getInterpolateBridgesAndTunnels())
-                args.put("graph.encoded_values", "road_environment");
+                ghConfig.putObject("graph.encoded_values", "road_environment");
             if (config.getElevationSmoothing())
-                args.put("graph.elevation.smoothing", true);
+                ghConfig.putObject("graph.elevation.smoothing", true);
         }
 
         boolean prepareCH = false;
@@ -251,9 +241,9 @@ public class RoutingProfile {
         boolean prepareCore = false;
         boolean prepareFI= false;
 
-        args.put(KEY_PREPARE_CH_WEIGHTINGS, "no");
-        args.put(KEY_PREPARE_LM_WEIGHTINGS, "no");
-        args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
+        ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, "no");
+        ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, "no");
+        ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
         if (config.getIsochronePreparationOpts() != null) {
             Config fastisochroneOpts = config.getIsochronePreparationOpts();
@@ -261,27 +251,27 @@ public class RoutingProfile {
             if (fastisochroneOpts.hasPath(VAL_ENABLED) || fastisochroneOpts.getBoolean(VAL_ENABLED)) {
                 prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
                 if (!prepareFI)
-                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
+                    ghConfig.putObject(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
                 else
-                    args.put(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
+                    ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
             }
 
             if (prepareFI) {
                 if (fastisochroneOpts.hasPath(KEY_THREADS))
-                    args.put("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
+                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
                 if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS))
-                    args.put(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
+                    ghConfig.putObject(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
                 if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
-                    args.put("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
+                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
             }
         }
 
         if (config.getPreparationOpts() != null) {
             Config opts = config.getPreparationOpts();
             if (opts.hasPath("min_network_size"))
-                args.put("prepare.min_network_size", opts.getInt("min_network_size"));
+                ghConfig.putObject("prepare.min_network_size", opts.getInt("min_network_size"));
             if (opts.hasPath("min_one_way_network_size"))
-                args.put("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
+                ghConfig.putObject("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
 
             if (opts.hasPath("methods")) {
                 if (opts.hasPath(KEY_METHODS_CH)) {
@@ -291,14 +281,14 @@ public class RoutingProfile {
                     if (chOpts.hasPath(VAL_ENABLED) || chOpts.getBoolean(VAL_ENABLED)) {
                         prepareCH = chOpts.getBoolean(VAL_ENABLED);
                         if (!prepareCH)
-                            args.put(KEY_PREPARE_CH_WEIGHTINGS, "no");
+                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, "no");
                     }
 
                     if (prepareCH) {
                         if (chOpts.hasPath(KEY_THREADS))
-                            args.put("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
+                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
                         if (chOpts.hasPath(KEY_WEIGHTINGS))
-                            args.put(KEY_PREPARE_CH_WEIGHTINGS, StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS)));
+                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS)));
                     }
                 }
 
@@ -309,16 +299,16 @@ public class RoutingProfile {
                     if (lmOpts.hasPath(VAL_ENABLED) || lmOpts.getBoolean(VAL_ENABLED)) {
                         prepareLM = lmOpts.getBoolean(VAL_ENABLED);
                         if (!prepareLM)
-                            args.put(KEY_PREPARE_LM_WEIGHTINGS, "no");
+                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, "no");
                     }
 
                     if (prepareLM) {
                         if (lmOpts.hasPath(KEY_THREADS))
-                            args.put("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
+                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
                         if (lmOpts.hasPath(KEY_WEIGHTINGS))
-                            args.put(KEY_PREPARE_LM_WEIGHTINGS, StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS)));
+                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS)));
                         if (lmOpts.hasPath(KEY_LANDMARKS))
-                            args.put("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
+                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
                     }
                 }
 
@@ -329,18 +319,18 @@ public class RoutingProfile {
                     if (coreOpts.hasPath(VAL_ENABLED) || coreOpts.getBoolean(VAL_ENABLED)) {
                         prepareCore = coreOpts.getBoolean(VAL_ENABLED);
                         if (!prepareCore)
-                            args.put(KEY_PREPARE_CORE_WEIGHTINGS, "no");
+                            ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
                     }
 
                     if (prepareCore) {
                         if (coreOpts.hasPath(KEY_THREADS))
-                            args.put("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
+                            ghConfig.putObject("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
                         if (coreOpts.hasPath(KEY_WEIGHTINGS))
-                            args.put(KEY_PREPARE_CORE_WEIGHTINGS, StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS)));
+                            ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS)));
                         if (coreOpts.hasPath(KEY_LMSETS))
-                            args.put("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
+                            ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
                         if (coreOpts.hasPath(KEY_LANDMARKS))
-                            args.put("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
+                            ghConfig.putObject("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
                     }
                 }
             }
@@ -351,28 +341,28 @@ public class RoutingProfile {
             if (opts.hasPath(KEY_METHODS_CH)) {
                 Config chOpts = opts.getConfig(KEY_METHODS_CH);
                 if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.ch.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                    ghConfig.putObject("routing.ch.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
             }
             if (opts.hasPath(KEY_METHODS_CORE)) {
                 Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
                 if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.core.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                    ghConfig.putObject("routing.core.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
 
                 if (coreOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    args.put("routing.corelm.active_landmarks", coreOpts.getInt(KEY_ACTIVE_LANDMARKS));
+                    ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
             if (opts.hasPath(KEY_METHODS_LM)) {
                 Config lmOpts = opts.getConfig(KEY_METHODS_LM);
                 if (lmOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    args.put("routing.lm.disabling_allowed", lmOpts.getBoolean(KEY_DISABLING_ALLOWED));
+                    ghConfig.putObject("routing.lm.disabling_allowed", lmOpts.getBoolean(KEY_DISABLING_ALLOWED));
 
                 if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    args.put("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
+                    ghConfig.putObject("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
         }
 
         if (config.getOptimize() && !prepareCH)
-            args.put("graph.do_sort", true);
+            ghConfig.putObject("graph.do_sort", true);
 
         StringBuilder flagEncoders = new StringBuilder();
         String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
@@ -387,12 +377,12 @@ public class RoutingProfile {
                 flagEncoders.append(",");
         }
 
-        args.put("graph.flag_encoders", flagEncoders.toString().toLowerCase());
+        ghConfig.putObject("graph.flag_encoders", flagEncoders.toString().toLowerCase());
 
-        args.put("index.high_resolution", config.getLocationIndexResolution());
-        args.put("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
+        ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
 
-        return args;
+        return ghConfig;
     }
 
     public ORSGraphHopper getGraphhopper() {
@@ -618,13 +608,13 @@ public class RoutingProfile {
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph;
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
-                hintsMap.setVehicle(encoderName);
+                hintsMap.putObject("vehicle", encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
             Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
@@ -653,7 +643,7 @@ public class RoutingProfile {
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
@@ -662,14 +652,15 @@ public class RoutingProfile {
         List<Integer> excludeNodes = req.getExcludeNodes();
 
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, new LocationIndex.Visitor() {
-            @Override
-            public void onNode(int nodeId) {
-                if (!excludeNodes.contains(nodeId) && bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
-                    nodesInBBox.add(nodeId);
-                }
-            }
-        });
+        // TODO: find out how to do this now
+//        index.query(bbox, new LocationIndex.Visitor() {
+//            @Override
+//            public void onNode(int nodeId) {
+//                if (!excludeNodes.contains(nodeId) && bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
+//                    nodesInBBox.add(nodeId);
+//                }
+//            }
+//        });
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no centrality can be calculated
@@ -837,7 +828,7 @@ public class RoutingProfile {
                 req = new GHRequest(points);
             }
 
-            req.setVehicle(searchCntx.getEncoder().toString());
+            req.putHint("vehicle", searchCntx.getEncoder().toString());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
 
@@ -907,7 +898,7 @@ public class RoutingProfile {
             else
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
-            req.setVehicle(searchCntx.getEncoder().toString());
+            req.putHint("vehicle", searchCntx.getEncoder().toString());
             req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
 
             if (radiuses != null)

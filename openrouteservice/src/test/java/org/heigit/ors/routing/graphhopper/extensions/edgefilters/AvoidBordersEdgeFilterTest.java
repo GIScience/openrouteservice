@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
@@ -56,10 +56,7 @@ public class AvoidBordersEdgeFilterTest {
 
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
-// TODO GH0.10:
-//        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
-//                encoder.setProperties(10, true, true), "test", Helper.createPointList(51,0,51,1));
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
         return ve;
     }

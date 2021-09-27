@@ -17,10 +17,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
-import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
-import com.graphhopper.routing.util.EncodedValueOld;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
@@ -58,6 +57,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
+    protected UnsignedDecimalEncodedValue speedEncoder;
     protected EncodedValueOld relationCodeEncoder;
 
     FootFlagEncoder(int speedBits, double speedFactor) {
@@ -93,10 +93,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
                 "right"
         ));
 
-        setBlockByDefault(false);
-        absoluteBarriers.add("fence"); // ORS TODO: added in GH 0.12; do we want it?
+        absoluteBarriers.add("fence");
         potentialBarriers.add("gate");
-        potentialBarriers.add("cattle_grid"); // ORS TODO: added in GH 0.12; do we want it?
+        potentialBarriers.add("cattle_grid");
 
         safeHighwayTags.addAll(Arrays.asList(
                 "footway",
@@ -138,7 +137,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
-        speedDefault = MEAN_SPEED; // ORS TODO: added in GH 0.12; do we want it?
         init();
     }
 
@@ -157,46 +155,13 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(priorityWayEncoder);
     }
 
-    @Override
-    public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     */
-    @Override
-    public int defineTurnBits(int index, int shift) {
-        return shift;
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     * <p>
-     *
-     * @return <code>false</code>
-     */
-    @Override
-    public boolean isTurnRestricted(long flags) {
-        return false;
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     * <p>
-     *
-     * @return 0
-     */
-    @Override
-    public double getTurnCost(long flag) {
-        return 0;
-    }
-
-    @Override
-    public long getTurnFlags(boolean restricted, double costs) {
-        return 0;
-    }
+    // TODO: never used
+//    @Override
+//    public int defineRelationBits(int index, int shift) {
+//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
+//        return shift + relationCodeEncoder.getBits();
+//        return 0;
+//    }
 
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
@@ -235,7 +200,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return EncodingManager.Access.WAY;
     }
 
-    @Override
+    // TODO: only used in tests, see relationCodeEncoder above
+    //  @Override
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
@@ -255,6 +221,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+        return handleWayTags(edgeFlags, way, access, 0);
+    }
+
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
         if (access.canSkip())
             return edgeFlags;
@@ -269,7 +239,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
         } else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
@@ -277,7 +247,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         int priorityFromRelation = 0;
         if (relationFlags != 0)
-            priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
+              priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
 
         priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         return edgeFlags;
@@ -451,18 +421,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
-    /*
-     * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
-     */
     @Override
     public double getSpeed(boolean reverse, IntsRef edgeFlags) {
-        double speed = super.getSpeed(reverse, edgeFlags);
-        if (speed == getMaxSpeed()) {
-            // We cannot be sure if it was a long or a short trip
-            return SHORT_TRIP_FERRY_SPEED;
-        }
-
-        return speed;
+        return super.getSpeed(reverse, edgeFlags);
     }
 
     @Override

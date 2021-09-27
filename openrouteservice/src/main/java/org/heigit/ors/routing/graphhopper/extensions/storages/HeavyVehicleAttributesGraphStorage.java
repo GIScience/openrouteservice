@@ -16,10 +16,10 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
-public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
+public class HeavyVehicleAttributesGraphStorage implements Storable<HeavyVehicleAttributesGraphStorage> {
 	private static final int  EF_RESTRICTION_BYTES = 2;
 	private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
 
@@ -63,7 +63,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public HeavyVehicleAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -164,37 +164,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 					return true;
 
 		return false;
-	}
-
-	public boolean isRequireNodeField() {
-		return true;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof HeavyVehicleAttributesGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		HeavyVehicleAttributesGraphStorage clonedTC = (HeavyVehicleAttributesGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

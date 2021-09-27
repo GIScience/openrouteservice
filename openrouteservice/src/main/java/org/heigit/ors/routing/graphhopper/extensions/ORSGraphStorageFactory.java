@@ -100,7 +100,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
 		}
 		if (!profiles.isEmpty())
-			return new GraphHopperStorage(profiles, dir, encodingManager, gh.hasElevation(), graphExtension);
+			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);
 
 		else
 			return new GraphHopperStorage(dir, encodingManager, gh.hasElevation(), graphExtension);

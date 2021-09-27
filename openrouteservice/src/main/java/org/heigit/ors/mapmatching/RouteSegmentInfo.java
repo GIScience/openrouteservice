@@ -13,8 +13,11 @@
  */
 package org.heigit.ors.mapmatching;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.util.*;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;

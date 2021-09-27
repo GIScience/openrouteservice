@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
-import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;

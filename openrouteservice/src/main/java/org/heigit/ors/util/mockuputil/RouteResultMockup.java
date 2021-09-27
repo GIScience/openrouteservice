@@ -25,7 +25,7 @@
 
 package org.heigit.ors.util.mockuputil;
 
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.common.DistanceUnit;
@@ -78,18 +78,18 @@ public class RouteResultMockup {
             pointList.add(8.690476425524274, 49.38459562624832);
             pointList.add(8.690506107646703, 49.38539990448134);
             routeResult.addPointsToGeometry(pointList, false, false);
-            PathWrapper pathWrapper = new PathWrapper();
-            pathWrapper.setDistance(0.0);
-            pathWrapper.setInstructions(null);
-            pathWrapper.setTime(0);
-            pathWrapper.setAscend(0.0);
-            pathWrapper.setDescend(0.0);
-            pathWrapper.setDescription(null);
-            pathWrapper.setFare(BigDecimal.ZERO);
-            pathWrapper.setNumChanges(2);
-            pathWrapper.setRouteWeight(0.0);
-            pathWrapper.setPoints(pointList);
-            RouteSegment routeSegment = new RouteSegment(pathWrapper, DistanceUnit.METERS);
+            ResponsePath responsePath = new ResponsePath();
+            responsePath.setDistance(0.0);
+            responsePath.setInstructions(null);
+            responsePath.setTime(0);
+            responsePath.setAscend(0.0);
+            responsePath.setDescend(0.0);
+            responsePath.setDescription(null);
+            responsePath.setFare(BigDecimal.ZERO);
+            responsePath.setNumChanges(2);
+            responsePath.setRouteWeight(0.0);
+            responsePath.setPoints(pointList);
+            RouteSegment routeSegment = new RouteSegment(responsePath, DistanceUnit.METERS);
             // Create first routeStep
             RouteStep routeStep1 = new RouteStep();
             routeStep1.setDistance(0.0);

@@ -3,14 +3,14 @@ package org.heigit.ors.fastisochrones;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.LocationIndex;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
@@ -64,7 +64,7 @@ public class Eccentricity extends AbstractEccentricity {
 
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
-        EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
+        EdgeFilter defaultEdgeFilter = AccessFilter.outEdges(flagEncoder.getAccessEnc());
 
         IntObjectHashMap<IntHashSet> relevantNodesSets = new IntObjectHashMap<>(isochroneNodeStorage.getCellIds().size());
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
@@ -162,7 +162,7 @@ public class Eccentricity extends AbstractEccentricity {
     private void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, EdgeFilter additionalEdgeFilter, int cellId, Weighting weighting, FlagEncoder flagEncoder) {
         int[] cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage).toArray();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
+        EdgeFilter defaultEdgeFilter = AccessFilter.outEdges(flagEncoder.getAccessEnc());
         edgeFilterSequence.add(defaultEdgeFilter);
         edgeFilterSequence.add(additionalEdgeFilter);
         Graph graph = ghStorage.getBaseGraph();

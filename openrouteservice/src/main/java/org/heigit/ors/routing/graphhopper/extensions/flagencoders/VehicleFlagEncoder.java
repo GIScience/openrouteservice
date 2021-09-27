@@ -17,11 +17,10 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.BooleanEncodedValue;
-import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.SimpleBooleanEncodedValue;
-import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
-import com.graphhopper.routing.util.EncodedValueOld;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
+import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
@@ -73,6 +72,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     private BooleanEncodedValue conditionalAccessEncoder;
     private BooleanEncodedValue conditionalSpeedEncoder;
+    private UnsignedDecimalEncodedValue speedEncoder;
 
     protected void setProperties(PMap properties) {
         this.properties = properties;
@@ -198,18 +198,24 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     }
 
-    @Override
-    public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
-    }
+    // TODO: never used
+//    @Override
+//    public int defineRelationBits(int index, int shift) {
+//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
+//        return shift + relationCodeEncoder.getBits();
+//    }
+
+    // TODO: never used
+//    @Override
+//    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
+//        return oldRelationFlags;
+//    }
 
     @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        return oldRelationFlags;
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+        return handleWayTags(edgeFlags,way,access,0);
     }
 
-    @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
         if (access.canSkip())
             return edgeFlags;
@@ -277,7 +283,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             setSpeed(false, edgeFlags, ferrySpeed);

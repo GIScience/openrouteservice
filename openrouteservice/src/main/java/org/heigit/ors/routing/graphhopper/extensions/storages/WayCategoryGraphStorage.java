@@ -16,9 +16,9 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.Storable;
 
-public class WayCategoryGraphStorage implements GraphExtension {
+public class WayCategoryGraphStorage implements Storable<WayCategoryGraphStorage> {
 	/* pointer for no entry */
 	protected final int efWaytype;
 
@@ -48,7 +48,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public WayCategoryGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -103,37 +103,6 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	    	result = result & 0xff;
 		
 		return result;
-	}
-
-	public boolean isRequireNodeField() {
-		return false;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof WayCategoryGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		WayCategoryGraphStorage clonedTC = (WayCategoryGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

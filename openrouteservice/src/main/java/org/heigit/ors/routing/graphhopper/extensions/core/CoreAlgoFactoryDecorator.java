@@ -13,15 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.RoutingAlgorithmFactoryDecorator;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.RoutingProfileCategory;
@@ -72,19 +71,19 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         setCHProfilesAsStrings(Arrays.asList(getDefaultProfile()));
     }
 
-    @Override
-    public void init(CmdArgs args) {
+    // TODO: how to deal with @Override
+    public void init(GraphHopperConfig args) {
         // throw explicit error for deprecated configs
         //TODO need to make the core parameters
-        if (!args.get("prepare.threads", "").isEmpty())
+        if (!args.getString("prepare.threads", "").isEmpty())
             throw new IllegalStateException("Use " + Core.PREPARE + "threads instead of prepare.threads");
-        if (!args.get("prepare.chWeighting", "").isEmpty() || !args.get("prepare.chWeightings", "").isEmpty())
+        if (!args.getString("prepare.chWeighting", "").isEmpty() || !args.getString("prepare.chWeightings", "").isEmpty())
             throw new IllegalStateException("Use " + Core.PREPARE + "weightings and a comma separated list instead of prepare.chWeighting or prepare.chWeightings");
 
         setPreparationThreads(args.getInt(Core.PREPARE + "threads", getPreparationThreads()));
 
         // default is enabled & recommended
-        String coreWeightingsStr = args.get(Core.PREPARE + "weightings", "");
+        String coreWeightingsStr = args.getString(Core.PREPARE + "weightings", "");
 
         if ("no".equals(coreWeightingsStr)) {
             // default is recommended and we need to clear this explicitely
@@ -150,7 +149,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         return this;
     }
 
-    @Override
+    // TODO: how to deal with @Override
     public final boolean isEnabled() {
         return enabled;
     }
@@ -370,7 +369,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
                 if (encodingManager.hasEncoder(encoderName)) {
                     FlagEncoder flagEncoder = encodingManager.getEncoder(encoderName);
                     edgeFilterSequence.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, processContext.getMaximumSpeedLowerBound()));
-                    if (chProfile.isEdgeBased() && flagEncoder.supports(TurnWeighting.class))
+                    if (chProfile.isEdgeBased() && flagEncoder.supportsTurnCosts())
                         edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(flagEncoder, gs));
                     break;
                 }

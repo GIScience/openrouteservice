@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -62,7 +62,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			chGraph = (CHGraph) graph;
 		else if (graph instanceof QueryGraph) {
 			QueryGraph qGraph = (QueryGraph) graph;
-			chGraph = (CHGraph) qGraph.getMainGraph();
+			chGraph = (CHGraph) qGraph.getBaseGraph();
 		}
 
 		setMaxVisitedNodes(Integer.MAX_VALUE);
@@ -231,7 +231,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			
 			upwardEdgeFilter.updateHighestNode(iter);
 			
-			edgeWeight = weighting.calcWeight(iter, false, 0);
+			edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
 			if (!Double.isInfinite(edgeWeight)) {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
@@ -285,7 +285,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
-			edgeWeight = weighting.calcWeight(iter, false, 0);
+			edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
 			if (!Double.isInfinite(edgeWeight)) {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
