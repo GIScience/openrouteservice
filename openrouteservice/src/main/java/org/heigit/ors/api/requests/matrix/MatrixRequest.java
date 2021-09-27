@@ -251,6 +251,10 @@ public class MatrixRequest {
         return hasOptimized;
     }
 
+    public void setMatrixOptions(MatrixRequestOptions matrixOptions) {
+        this.matrixOptions = matrixOptions;
+    }
+
     public MatrixRequestOptions getMatrixOptions() {
         return matrixOptions;
     }
