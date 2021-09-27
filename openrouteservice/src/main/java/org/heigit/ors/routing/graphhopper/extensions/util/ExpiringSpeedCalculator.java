@@ -25,8 +25,4 @@ public class ExpiringSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             return this.superSpeedCalculator.getSpeed(edge, reverse, time);
         return modifiedSpeed;
     }
-
-    public void setSpeedStorage(ExpiringSpeedStorage expiringSpeedStorage) {
-        this.expiringSpeedStorage = expiringSpeedStorage;
-    }
 }
