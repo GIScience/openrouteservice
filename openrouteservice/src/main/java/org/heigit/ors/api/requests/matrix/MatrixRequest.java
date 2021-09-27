@@ -105,7 +105,8 @@ public class MatrixRequest {
 
     @ApiModelProperty(name = PARAM_OPTIONS,
             value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
-            example = "{\"avoid_borders\":\"controlled\"}")
+            example = "{\"avoid_borders\":\"controlled\"}",
+            hidden = true)
     @JsonProperty(PARAM_OPTIONS)
     private MatrixRequestOptions matrixOptions;
 
