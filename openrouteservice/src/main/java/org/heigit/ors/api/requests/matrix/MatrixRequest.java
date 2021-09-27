@@ -255,6 +255,10 @@ public class MatrixRequest {
         return matrixOptions;
     }
 
+    public boolean hasMatrixOptions() {
+        return matrixOptions != null;
+    }
+
     public APIEnums.MatrixResponseType getResponseType() {
         return responseType;
     }

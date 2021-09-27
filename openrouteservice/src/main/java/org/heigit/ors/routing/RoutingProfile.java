@@ -648,12 +648,14 @@ public class RoutingProfile {
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(gh.getGraphHopperStorage().getExtension()), MatrixServiceSettings.getUTurnCost());
-            ((TurnWeighting)turnWeighting).setInORS(true);
+            weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+            if (weighting instanceof TurnWeighting)
+                ((TurnWeighting)weighting).setInORS(true);
+
             if(alg instanceof  CoreMatrixAlgorithm)
-                ((CoreMatrixAlgorithm)alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting, edgeFilter);
+                ((CoreMatrixAlgorithm)alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
             else
-                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, turnWeighting);
+                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
             throw ex;
@@ -1180,6 +1182,17 @@ public class RoutingProfile {
             }
         }
         return result;
+    }
+
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
+        if (!(weighting instanceof TurnWeighting)) {
+            FlagEncoder encoder = weighting.getFlagEncoder();
+            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
+            }
+        }
+
+        return weighting;
     }
 
     public boolean equals(Object o) {
