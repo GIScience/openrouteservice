@@ -8,7 +8,6 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.routing.algorithms.SubGraph;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.ExclusiveDownwardSearchEdgeFilter;
 
 import java.util.PriorityQueue;
@@ -34,10 +33,10 @@ public class TargetGraphBuilder {
         addNodes(targetGraph, localPrioQueue, targets, coreExitPoints);
 
         while (!localPrioQueue.isEmpty()) {
-            int adjNode = localPrioQueue.poll();
-            EdgeIterator iter = edgeExplorer.setBaseNode(adjNode);
-            downwardEdgeFilter.setBaseNode(adjNode);
-            exploreEntry(targetGraph, localPrioQueue, downwardEdgeFilter, adjNode, iter, coreExitPoints);
+            int node = localPrioQueue.poll();
+            EdgeIterator iter = edgeExplorer.setBaseNode(node);
+            downwardEdgeFilter.setBaseNode(node);
+            exploreEntry(targetGraph, localPrioQueue, downwardEdgeFilter, node, iter, coreExitPoints);
         }
         TargetGraphResults targetGraphResults = new TargetGraphResults();
         targetGraphResults.setTargetGraph(targetGraph);
@@ -49,19 +48,18 @@ public class TargetGraphBuilder {
      * Explore the target graph and build coreExitPoints
      * @param localPrioQueue
      * @param downwardEdgeFilter
-     * @param adjNode
+     * @param baseNode
      * @param iter
      */
-    private void exploreEntry(SubGraph targetGraph, PriorityQueue<Integer> localPrioQueue, ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter, int adjNode, EdgeIterator iter, IntHashSet coreExitPoints) {
+    private void exploreEntry(SubGraph targetGraph, PriorityQueue<Integer> localPrioQueue, ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter, int baseNode, EdgeIterator iter, IntHashSet coreExitPoints) {
         while (iter.next()) {
-            if (!downwardEdgeFilter.accept(iter))
+            if (!downwardEdgeFilter.accept(iter) || isCoreNode(baseNode))
                 continue;
-            boolean isNewNode = targetGraph.addEdge(adjNode, iter, true);
-            if (isCoreNode(iter.getAdjNode()) && !isCoreNode(iter.getBaseNode())) {
+            boolean isNewNode = targetGraph.addEdge(baseNode, iter, true);
+            if (isCoreNode(iter.getAdjNode()))
                 coreExitPoints.add(iter.getAdjNode());
-            } else if(isNewNode) {
+            else if(isNewNode)
                 localPrioQueue.add(iter.getAdjNode());
-            }
         }
     }
 
@@ -77,10 +75,10 @@ public class TargetGraphBuilder {
             if (nodeId >= 0) {
                 if (graph != null)
                     graph.addEdge(nodeId, null, true);
-                prioQueue.add(nodeId);
-                if (isCoreNode(nodeId)) {
+                if (isCoreNode(nodeId))
                     coreExitPoints.add(nodeId);
-                }
+                else
+                    prioQueue.add(nodeId);
             }
         }
     }
