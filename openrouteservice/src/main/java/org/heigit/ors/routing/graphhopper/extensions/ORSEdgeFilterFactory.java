@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
 
-    @Override
     public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {
         /* Initialize empty edge filter sequence */
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
