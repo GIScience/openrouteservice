@@ -86,27 +86,8 @@ public class GraphProcessContext {
 	public void processWay(ReaderWay way)  {
 		try {
 			if (arrStorageBuilders != null) {
-				int nStorages = arrStorageBuilders.length;
-				if (nStorages > 0) {
-					if (nStorages == 1) {
-						arrStorageBuilders[0].processWay(way);
-					} else if (nStorages == 2) {
-						arrStorageBuilders[0].processWay(way);
-						arrStorageBuilders[1].processWay(way);
-					} else if (nStorages == 3) {
-						arrStorageBuilders[0].processWay(way);
-						arrStorageBuilders[1].processWay(way);
-						arrStorageBuilders[2].processWay(way);
-					} else if (nStorages == 4) {
-						arrStorageBuilders[0].processWay(way);
-						arrStorageBuilders[1].processWay(way);
-						arrStorageBuilders[2].processWay(way);
-						arrStorageBuilders[3].processWay(way);
-					} else {
-						for (int i = 0; i < nStorages; ++i) {
-							arrStorageBuilders[i].processWay(way);
-						}
-					}
+				for (GraphStorageBuilder builder: arrStorageBuilders) {
+					builder.processWay(way);
 				}
 			}
 		} catch(Exception ex) {
@@ -124,11 +105,8 @@ public class GraphProcessContext {
 	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
 		try {
 			if (arrStorageBuilders != null) {
-				int nStorages = arrStorageBuilders.length;
-				if (nStorages > 0) {
-					for (int i = 0; i < nStorages; ++i) {
-						arrStorageBuilders[i].processWay(way, coords, nodeTags);
-					}
+				for (GraphStorageBuilder builder: arrStorageBuilders) {
+					builder.processWay(way, coords, nodeTags);
 				}
 			}
 		} catch(Exception ex) {
@@ -138,63 +116,28 @@ public class GraphProcessContext {
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		if (arrStorageBuilders != null) {
-			int nStorages = arrStorageBuilders.length;
-			if (nStorages > 0) {
-				if (nStorages == 1) {
-					arrStorageBuilders[0].processEdge(way, edge);
-				} else if (nStorages == 2) {
-					arrStorageBuilders[0].processEdge(way, edge);
-					arrStorageBuilders[1].processEdge(way, edge);
-				} else if (nStorages == 3) {
-					arrStorageBuilders[0].processEdge(way, edge);
-					arrStorageBuilders[1].processEdge(way, edge);
-					arrStorageBuilders[2].processEdge(way, edge);
-				} else if (nStorages == 4) {
-					arrStorageBuilders[0].processEdge(way, edge);
-					arrStorageBuilders[1].processEdge(way, edge);
-					arrStorageBuilders[2].processEdge(way, edge);
-					arrStorageBuilders[3].processEdge(way, edge);
-				} else {
-					for (int i = 0; i < nStorages; ++i) {
-						arrStorageBuilders[i].processEdge(way, edge);
-					}
-				}
+			for (GraphStorageBuilder builder: arrStorageBuilders) {
+				builder.processEdge(way, edge);
 			}
 		}
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
 		if(arrStorageBuilders != null) {
-			int nStorages = arrStorageBuilders.length;
-			for(int i=0; i<nStorages; i++) {
-				arrStorageBuilders[i].processEdge(way, edge, coords);
+			for (GraphStorageBuilder builder: arrStorageBuilders) {
+				builder.processEdge(way, edge, coords);
 			}
 		}
 	}
 
 	public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception {
+		boolean res = false;
 		if (arrGraphBuilders != null) {
-			int nBuilders = arrGraphBuilders.length;
-			if (nBuilders > 0) {
-				boolean res = false;
-				if (nBuilders == 1) {
-					res = arrGraphBuilders[0].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-				} else if (nBuilders == 2) {
-					res = arrGraphBuilders[0].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-					boolean res2 = arrGraphBuilders[1].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-					if (res2)
-						res = res2;
-				} else {
-					for (int i = 0; i < nBuilders; ++i) {
-						boolean res2 = arrGraphBuilders[i].createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-						if (res2)
-							res = res2;
-					}
-				}
-				return res;
+			for (GraphBuilder builder: arrGraphBuilders) {
+				res |= builder.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 			}
 		}
-		return false;
+		return res;
 	}
 
 	public boolean isValidPoint(double x, double y) {
@@ -206,10 +149,8 @@ public class GraphProcessContext {
 
 	public void finish() {
 		if (arrStorageBuilders != null) {
-			int nStorages = arrStorageBuilders.length;
-			if (nStorages > 0) {
-				for (int i = 0; i < nStorages; ++i)
-					arrStorageBuilders[i].finish();
+			for (GraphStorageBuilder builder: arrStorageBuilders) {
+				builder.finish();
 			}
 		}
 	}

@@ -34,8 +34,8 @@ public class FastestSafeWeighting extends FastestWeighting {
 	}
 
 	@Override
-	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
+	public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
+		double weight = super.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 

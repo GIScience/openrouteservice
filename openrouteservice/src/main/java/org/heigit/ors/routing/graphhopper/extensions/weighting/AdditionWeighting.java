@@ -26,12 +26,12 @@ public class AdditionWeighting extends AbstractAdjustedWeighting {
     }
     
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
         double sumOfWeights = 0;
-		for (Weighting w:weightings) {
-			sumOfWeights += w.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+		for (Weighting weighting:weightings) {
+			sumOfWeights += weighting.calcEdgeWeight(edgeState, reverse);
 		}
-    	return superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime) * sumOfWeights;
+    	return superWeighting.calcEdgeWeight(edgeState, reverse, edgeEnterTime) * sumOfWeights;
     }
 
 	@Override

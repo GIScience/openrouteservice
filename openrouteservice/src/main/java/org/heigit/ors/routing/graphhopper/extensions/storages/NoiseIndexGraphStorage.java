@@ -25,7 +25,7 @@ public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> 
     /* pointer for no entry */
     private final int efNoiseindex;
 
-    private DataAccess orsEdges;
+    private DataAccess orsEdges; // TODO: Never assigned, how can this work at all?
     private int edgeEntryBytes;
     private int edgesCount; // number of edges with custom values
 

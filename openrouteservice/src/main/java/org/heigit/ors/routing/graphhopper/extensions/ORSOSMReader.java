@@ -265,14 +265,14 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return getNodeAccess().getLatitude(id);
+			return getNodeAccess().getLat(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
 			if(onlyTower) {
 				return Double.NaN;
 			} else {
-				return pillarInfo.getLatitude(id);
+				return pillarInfo.getLat(id);
 			}
 		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
@@ -293,14 +293,14 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return getNodeAccess().getLongitude(id);
+			return getNodeAccess().getLon(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
 			if(onlyTower) {
 				return Double.NaN;
 			} else {
-				return pillarInfo.getLatitude(id);
+				return pillarInfo.getLat(id);
 			}
 		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
