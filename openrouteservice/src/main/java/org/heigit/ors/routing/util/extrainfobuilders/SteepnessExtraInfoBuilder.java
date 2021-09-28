@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.DistanceCalc3D;
+import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 
@@ -38,7 +39,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
 		super(extraInfo);
-		distCalc = Helper.DIST_3D;
+		distCalc = new DistanceCalc3D();
 	}
 
 	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge) {

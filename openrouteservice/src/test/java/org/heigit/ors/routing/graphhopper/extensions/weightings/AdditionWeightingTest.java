@@ -28,7 +28,7 @@ public class AdditionWeightingTest {
 
         ConstantWeighting[] weightings = {const1, const2, const3};
         AdditionWeighting additionWeighting = new AdditionWeighting(weightings, superWeighting);
-        assertEquals(60, additionWeighting.calcWeight(null, false, 0), 0.0001);
-        assertEquals(100, additionWeighting.calcMillis(null, false, 0), 0.0001);
+        assertEquals(60, additionWeighting.calcEdgeWeight(null, false, 0), 0.0001);
+        assertEquals(100, additionWeighting.calcEdgeMillis(null, false, 0), 0.0001);
     }
 }

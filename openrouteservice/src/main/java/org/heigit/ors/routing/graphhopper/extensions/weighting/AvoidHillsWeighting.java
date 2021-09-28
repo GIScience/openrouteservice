@@ -42,7 +42,7 @@ public class AvoidHillsWeighting extends FastestWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
     	if (gsHillIndex != null) {
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
     		int hillIndex = gsHillIndex.getEdgeValue(edgeState.getEdge(), revert, buffer);

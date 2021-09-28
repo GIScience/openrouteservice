@@ -35,7 +35,7 @@ public class ProfileWeighting {
 	}
 
 	public void addParameter(String name, Object value) {
-		getParameters().put(name, value);
+		getParameters().putObject(name, value);
 	}
 
 	public PMap getParameters()

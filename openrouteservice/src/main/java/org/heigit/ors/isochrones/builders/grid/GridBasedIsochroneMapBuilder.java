@@ -15,7 +15,7 @@ package org.heigit.ors.isochrones.builders.grid;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.storage.MMapDirectory;
-import com.graphhopper.storage.index.Location2IDQuadtree;
+import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -69,8 +69,8 @@ public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
      	//index.setMinResolutionInMeter(200);
 
 		if (gridIndex == null) {
-			gridIndex = new Location2IDQuadtree(gh.getGraphHopperStorage().getCHGraph(), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
-	                setResolution(500).prepareIndex();
+			gridIndex = new LocationIndexTree(gh.getGraphHopperStorage().getBaseGraph(), new MMapDirectory(gh.getGraphHopperLocation() + "grid_loc2idIndex").create()).
+	                setMinResolutionInMeter(500).prepareIndex();
 		}
 		
 		int gridSizeMeters = 500;

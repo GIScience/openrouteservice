@@ -48,7 +48,7 @@ public class QuietWeighting extends FastestWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         if (gsNoiseIndex != null) {
             int noiseLevel = gsNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), buffer);
             return calcNoiseWeightFactor(noiseLevel);
