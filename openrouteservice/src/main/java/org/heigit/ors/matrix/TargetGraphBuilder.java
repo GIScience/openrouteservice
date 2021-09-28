@@ -53,7 +53,7 @@ public class TargetGraphBuilder {
      */
     private void exploreEntry(SubGraph targetGraph, PriorityQueue<Integer> localPrioQueue, ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter, int baseNode, EdgeIterator iter, IntHashSet coreExitPoints) {
         while (iter.next()) {
-            if (!downwardEdgeFilter.accept(iter) || isCoreNode(baseNode))
+            if (!downwardEdgeFilter.accept(iter))
                 continue;
             boolean isNewNode = targetGraph.addEdge(baseNode, iter, true);
             if (isCoreNode(iter.getAdjNode()))
