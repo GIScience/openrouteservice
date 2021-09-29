@@ -86,15 +86,12 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         coreNodeLevel = chGraph.getNodes() + 1;
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
-        CoreDijkstraFilter levelFilter = new CoreMatrixFilter((CHGraph) graph);
-        additionalCoreEdgeFilter = levelFilter;
+        additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
     }
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
         this.init(req, gh, graph, encoder, weighting);
-        CoreDijkstraFilter levelFilter = new CoreMatrixFilter((CHGraph) graph);
-        additionalCoreEdgeFilter = levelFilter;
         if(additionalEdgeFilter != null)
             additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
     }
