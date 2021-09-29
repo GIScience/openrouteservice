@@ -92,7 +92,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
         this.init(req, gh, graph, encoder, weighting);
-        additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
+        if(additionalEdgeFilter != null)
+            additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
     }
 
     public void init(MatrixRequest req, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
