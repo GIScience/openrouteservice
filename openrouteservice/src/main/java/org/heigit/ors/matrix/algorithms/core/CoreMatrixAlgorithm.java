@@ -527,7 +527,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         return currEdgeItem.getEdge() == iter.getEdge() || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
     }
     
-    //TODO integrate into algorithm creation
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
     }
