@@ -392,7 +392,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToMany algorithm = new DijkstraManyToMany(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
-        
+
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);

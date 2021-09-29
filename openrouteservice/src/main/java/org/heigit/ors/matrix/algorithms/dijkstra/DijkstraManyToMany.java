@@ -54,7 +54,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected AveragedMultiTreeSPEntry currEdge;
     private EdgeExplorer targetGraphExplorer;
     private MultiSourceStoppingCriterion stoppingCriterion;
-    //TODO visited nodes
     private int visitedNodes;
     private int treeEntrySize;
 
