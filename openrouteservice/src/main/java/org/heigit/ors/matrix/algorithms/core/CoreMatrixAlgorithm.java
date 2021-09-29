@@ -87,18 +87,26 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         coreNodeLevel = chGraph.getNodes() + 1;
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
-        additionalCoreEdgeFilter = new CoreMatrixFilter((CHGraph) graph);
         initCollections(10);
+        initFilter(null, chGraph);
         setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
     }
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
         this.init(req, gh, graph, encoder, weighting);
-        additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
+        initFilter(additionalEdgeFilter, chGraph);
     }
 
     public void init(MatrixRequest req, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
         this.init(req, null, graph, encoder, weighting, additionalEdgeFilter);
+    }
+
+    private void initFilter(EdgeFilter additionalEdgeFilter, Graph graph) {
+        CoreDijkstraFilter levelFilter = new CoreMatrixFilter((CHGraph) graph);
+        if (additionalEdgeFilter != null)
+            levelFilter.addRestrictionFilter(additionalEdgeFilter);
+
+        this.setEdgeFilter(levelFilter);
     }
 
     protected void initCollections(int size) {
@@ -525,7 +533,11 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         return currEdgeItem.getEdge() == iter.getEdge() || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
     }
-    
+
+    public void setEdgeFilter(CoreDijkstraFilter additionalEdgeFilter) {
+        this.additionalCoreEdgeFilter = additionalEdgeFilter;
+    }
+
     //TODO integrate into algorithm creation
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
