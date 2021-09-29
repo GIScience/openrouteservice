@@ -89,7 +89,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter((CHGraph) graph);
         initCollections(10);
-        setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
+//        setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
     }
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
@@ -525,7 +525,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         return currEdgeItem.getEdge() == iter.getEdge() || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
     }
-    
+
     //TODO integrate into algorithm creation
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
