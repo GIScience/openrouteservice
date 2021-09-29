@@ -37,6 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
+
+import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
+import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
+
 /**
  * A Core and Dijkstra based algorithm that runs a many to many search in the core and downwards.
  * Can only be used as part of the core matrix algorithm.
@@ -288,9 +292,9 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             if (!accept(iter, currEdgeItem.getEdge()))
                 continue;
 
-            configureTurnWeighting(iter, currEdgeItem);
+            configureTurnWeighting(hasTurnWeighting, turnWeighting, iter, currEdgeItem);
             double edgeWeight = weighting.calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
-            resetTurnWeighting();
+            resetTurnWeighting(hasTurnWeighting, turnWeighting);
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
 
@@ -347,8 +351,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                     updateEntryInQueue(entry, false);
                 }
             }
-            if(hasTurnWeighting)
-                turnWeighting.setInORS(true);
         }
     }
 
@@ -373,7 +375,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             double edgeWeight;
-            configureTurnWeighting(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem);
+            configureTurnWeighting(hasTurnWeighting, turnWeighting, ((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem);
             edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), swap, currEdgeItem.getOriginalEdge());
             if(Double.isInfinite(edgeWeight))
                 continue;
@@ -392,7 +394,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting();
+            resetTurnWeighting(hasTurnWeighting, turnWeighting);
         }
         return addToQueue;
     }
@@ -468,29 +470,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         //First check whether all targets found for all sources
         return stoppingCriterion.isFinished(currEdge, prioQueue);
 
-    }
-
-    private void configureTurnWeighting(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
-        if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
-            turnWeighting.setInORS(false);
-    }
-
-    private void resetTurnWeighting() {
-        if(hasTurnWeighting)
-            turnWeighting.setInORS(true);
-    }
-
-    /**
-     * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
-     * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
-     * because the same edge id left and right of a virtual node results in a u turn
-     * @param iter
-     * @param currEdgeItem
-     * @return
-     */
-    private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
-        return currEdgeItem.getEdge() == iter.getEdge()
-                || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
     }
 
     public void setTurnWeighting(TurnWeighting turnWeighting) {

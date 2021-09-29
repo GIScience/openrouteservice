@@ -46,6 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
+import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
+
 /**
  * A Core and Dijkstra based algorithm that calculates the weights from multiple start to multiple goal nodes.
  * Using core and true many to many.
@@ -325,8 +328,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
-            if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
-                turnWeighting.setInORS(false);
+            configureTurnWeighting(hasTurnWeighting, turnWeighting, iter, currEdgeItem);
+
             edgeWeight = weighting.calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if(Double.isInfinite(edgeWeight))
                 continue;
@@ -341,8 +344,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            if(hasTurnWeighting)
-                turnWeighting.setInORS(true);
+            resetTurnWeighting(hasTurnWeighting, turnWeighting);
         }
 
         return addToQueue;
@@ -498,18 +500,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         return true;
     }
 
-    /**
-     * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
-     * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
-     * because the same edge id left and right of a virtual node results in a u turn
-     * @param iter from edge
-     * @param currEdgeItem to edge
-     * @return
-     */
-    private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
-        return currEdgeItem.getEdge() == iter.getEdge() || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
-    }
-    
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
     }
