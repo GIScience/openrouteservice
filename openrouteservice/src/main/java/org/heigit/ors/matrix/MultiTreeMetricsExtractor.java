@@ -98,7 +98,6 @@ public class MultiTreeMetricsExtractor {
 
 	public void setSwap(boolean swap){
 		this.swap = swap;
-//		this.reverseOrder = !swap;
 	}
 
 	public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
