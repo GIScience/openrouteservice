@@ -56,10 +56,11 @@ public class TargetGraphBuilder {
             if (!downwardEdgeFilter.accept(iter))
                 continue;
             boolean isNewNode = targetGraph.addEdge(baseNode, iter, true);
-            if (isCoreNode(iter.getAdjNode()))
-                coreExitPoints.add(iter.getAdjNode());
+            int adjNode = iter.getAdjNode();
+            if (isCoreNode(adjNode))
+                coreExitPoints.add(adjNode);
             else if(isNewNode)
-                localPrioQueue.add(iter.getAdjNode());
+                localPrioQueue.add(adjNode);
         }
     }
 
