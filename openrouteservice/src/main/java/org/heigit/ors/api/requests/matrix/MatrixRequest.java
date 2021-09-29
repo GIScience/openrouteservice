@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
