@@ -13,7 +13,8 @@
  */
 package org.heigit.ors.matrix.algorithms.dijkstra;
 
-import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.EdgeIteratorStateHelper;
@@ -25,7 +26,6 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.algorithms.AbstractManyToManyRoutingAlgorithm;
 import org.heigit.ors.routing.algorithms.SubGraph;
