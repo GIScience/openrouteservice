@@ -392,11 +392,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToMany algorithm = new DijkstraManyToMany(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
-
-        EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(this.additionalCoreEdgeFilter);
-
-        algorithm.setEdgeFilter(edgeFilterSequence);
+        
+        algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
         algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
@@ -449,27 +446,22 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         boolean hasTimes = times != null;
         boolean hasDistances = distances != null;
         boolean hasWeights = weights != null;
-        float[] newTimes = new float[0];
-        float[] newDistances = new float[0];
-        float[] newWeights = new float[0];
-        if(hasTimes)
-            newTimes = new float[times.length];
-        if(hasDistances)
-            newDistances = new float[distances.length];
-        if(hasWeights)
-            newWeights = new float[weights.length];
+        float[] newTimes = new float[hasTimes ? times.length : 0];
+        float[] newDistances = new float[hasDistances ? distances.length : 0];
+        float[] newWeights = new float[hasWeights ? weights.length : 0];
 
         int i = 0;
         int srcSize = srcData.size();
         int dstSize = dstData.size();
         for (int dst = 0; dst < dstSize; dst++){
             for(int src = 0; src < srcSize; src++){
+                int index = dst + src * dstSize;
                 if(hasTimes)
-                    newTimes[dst + src * dstSize] = times[i];
+                    newTimes[index] = times[i];
                 if(hasDistances)
-                    newDistances[dst + src * dstSize] = distances[i];
+                    newDistances[index] = distances[i];
                 if(hasWeights)
-                    newWeights[dst + src * dstSize] = weights[i];
+                    newWeights[index] = weights[i];
                 i++;
             }
         }
