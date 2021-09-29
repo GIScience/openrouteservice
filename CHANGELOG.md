@@ -44,9 +44,10 @@ RELEASING:
 - environment variable `ORS_CONFIG` which will replace the `ORS_APP_CONFIG` one ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - ors config reading priority
     1. System property `ors_conf` > `ors_app_conf`
-    1. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
-    1. File in class path `ors-config.json` > `app.config`
-    1. Error if none of the above is specified.
+    2. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
+    3. File in class path `ors-config.json` > `app.config`
+    4. Error if none of the above is specified.
+- links and info about docker setup to backend documentation
 ### Changed
 - Update tomcat version used by docker setup ([#1022](https://github.com/GIScience/openrouteservice/pull/1022))
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
