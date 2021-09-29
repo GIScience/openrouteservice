@@ -15,8 +15,6 @@ package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.services.ServiceRequest;
 
 public class MatrixRequest extends ServiceRequest {
