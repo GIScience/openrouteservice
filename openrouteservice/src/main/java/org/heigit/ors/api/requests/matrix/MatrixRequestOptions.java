@@ -24,7 +24,7 @@ import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.json.simple.JSONObject;
 
-@ApiModel(value = "Matrix Options", description = "Advanced options for matrix")
+@ApiModel(value = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequestOptions {
     public static final String PARAM_AVOID_FEATURES = "avoid_features";
