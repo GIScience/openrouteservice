@@ -281,9 +281,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                          EdgeExplorer explorer) {
         EdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
         while (iter.next()) {
-            if(hasTurnWeighting && !isInORS(iter, currEdge))
-                turnWeighting.setInORS(false);
-
             AveragedMultiTreeSPEntry entry = bestWeightMap.get(iter.getAdjNode());
 
             if (entry == null) {
@@ -304,8 +301,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     updateTarget(entry);
                 }
             }
-            if(hasTurnWeighting)
-                turnWeighting.setInORS(true);
         }
         if(!targetGraph.containsNode(currEdge.getAdjNode())) currEdge.resetUpdate(false);
     }
@@ -515,14 +510,10 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * Check whether the turnWeighting should be in the inORS mode. If one of the edges is a virtual one, we need the original edge to get the turn restriction.
      * If the two edges are actually virtual edges on the same original edge, we want to disable inORS mode so that they are not regarded as u turn,
      * because the same edge id left and right of a virtual node results in a u turn
-     * @param iter
-     * @param currEdge
+     * @param iter from edge
+     * @param currEdgeItem to edge
      * @return
      */
-    private boolean isInORS(EdgeIteratorState iter, AveragedMultiTreeSPEntry currEdge) {
-        return currEdge.getEdge() == iter.getEdge() || EdgeIteratorStateHelper.getOriginalEdge(iter) != EdgeIterator.NO_EDGE;
-    }
-
     private boolean isInORS(EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         return currEdgeItem.getEdge() == iter.getEdge() || currEdgeItem.getOriginalEdge() != EdgeIteratorStateHelper.getOriginalEdge(iter);
     }
