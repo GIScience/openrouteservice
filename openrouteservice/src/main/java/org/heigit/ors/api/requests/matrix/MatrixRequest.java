@@ -43,6 +43,7 @@ public class MatrixRequest {
     public static final String PARAM_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
+    public static final String PARAM_OPTIONS = "options";
 
     @ApiModelProperty(name = "PARAM_ID", value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "matrix_request")
@@ -100,6 +101,13 @@ public class MatrixRequest {
     private Boolean optimized;
     @JsonIgnore
     private boolean hasOptimized = false;
+
+    @ApiModelProperty(name = PARAM_OPTIONS,
+            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+            example = "{\"avoid_borders\":\"controlled\"}",
+            hidden = true)
+    @JsonProperty(PARAM_OPTIONS)
+    private MatrixRequestOptions matrixOptions;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
@@ -241,6 +249,18 @@ public class MatrixRequest {
 
     public boolean hasOptimized() {
         return hasOptimized;
+    }
+
+    public void setMatrixOptions(MatrixRequestOptions matrixOptions) {
+        this.matrixOptions = matrixOptions;
+    }
+
+    public MatrixRequestOptions getMatrixOptions() {
+        return matrixOptions;
+    }
+
+    public boolean hasMatrixOptions() {
+        return matrixOptions != null;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {
