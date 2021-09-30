@@ -18,6 +18,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 
+//TODO refactor this extension of downwardsearchedgefilter
 public class ExclusiveDownwardSearchEdgeFilter extends DownwardSearchEdgeFilter {
 	private boolean swap = false;
 
