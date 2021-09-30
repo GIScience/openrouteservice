@@ -36,6 +36,8 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
@@ -682,9 +684,28 @@ public class RoutingProfileManager {
      */
     public void updateProfile(String profile, String value) {
         switch (profile) {
+            // profile specific processing
             case "driving-car":
             case "driving-hgv":
-                // profile specific processing
+                try {
+                    ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
+                    RoutingProfile rp = null;
+                    int profileType = RoutingProfileType.getFromString(profile);
+                    rp = getRoutingProfileFromType(rp, profileType);
+                    if(rp == null)
+                        return;
+                    if (!msg.hasDurationMin())
+                        msg.setDurationMin(rp.getConfiguration().getTrafficExpirationMin());
+                    ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);
+                    if(storage == null)
+                        throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
+                    processMessage(msg, storage);
+                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
+                    this.kafkaMessagesProcessed++;
+                } catch (JsonProcessingException e) {
+                    LOGGER.error(e);
+                    this.kafkaMessagesFailed++;
+                }
                 break;
             case "test":
                 try {
@@ -702,5 +723,24 @@ public class RoutingProfileManager {
                 this.kafkaMessagesFailed++;
                 break;
         }
+    }
+
+    private void processMessage(ORSKafkaConsumerMessageSpeedUpdate msg, ExpiringSpeedStorage storage) {
+        try{
+            storage.process(msg);
+        }
+        catch (Exception e) {
+            LOGGER.error(e);
+        }
+    }
+
+    private RoutingProfile getRoutingProfileFromType(RoutingProfile rp, int profileType) {
+        try {
+            rp = routeProfiles.getRouteProfile(profileType);
+        }
+        catch (Exception e) {
+            LOGGER.error(e);
+        }
+        return rp;
     }
 }
