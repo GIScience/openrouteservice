@@ -656,6 +656,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
+	public EdgeFilterFactory getEdgeFilterFactory() {
+		return this.edgeFilterFactory;
+	}
 
 	/**
 	 * Enables or disables core calculation.

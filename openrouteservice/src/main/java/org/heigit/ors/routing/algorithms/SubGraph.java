@@ -69,7 +69,7 @@ public class SubGraph {
 		}
 	}
 
-	class EdgeIteratorLinkIterator implements EdgeIterator, CHEdgeIteratorState {
+	public class EdgeIteratorLinkIterator implements EdgeIterator, CHEdgeIteratorState {
 		private EdgeIteratorState currState;
 		private EdgeIteratorLink link;
 		private boolean firstRun = true;
@@ -77,6 +77,10 @@ public class SubGraph {
 		public EdgeIteratorLinkIterator(EdgeIteratorLink link) {
 			this.link = link;
 			currState = link.state;
+		}
+
+		public EdgeIteratorState getCurrState() {
+			return currState;
 		}
 
 		@Override

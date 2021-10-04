@@ -11,28 +11,31 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
+package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 
-public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
-	protected final BooleanEncodedValue accessEnc;
+//TODO refactor this extension of downwardsearchedgefilter
+public class ExclusiveDownwardSearchEdgeFilter extends DownwardSearchEdgeFilter {
+	private boolean swap = false;
 
-
-	public DownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
+	public ExclusiveDownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		super(g, encoder);
-		accessEnc = encoder.getAccessEnc();
+	}
+
+	public ExclusiveDownwardSearchEdgeFilter(CHGraph g, FlagEncoder encoder, boolean swap) {
+		this(g, encoder);
+		this.swap = swap;
 	}
 
 	@Override
 	public boolean accept(EdgeIteratorState edgeIterState) {
 		int adj = edgeIterState.getAdjNode();
-
-		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.getReverse(accessEnc);
+		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
+			return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
 		else
 			return false;
 	}

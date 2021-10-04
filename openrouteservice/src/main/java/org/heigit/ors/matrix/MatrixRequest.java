@@ -27,6 +27,7 @@ public class MatrixRequest extends ServiceRequest {
 	private boolean resolveLocations = false;
 	private boolean flexibleMode = false;
 	private String algorithm;
+	private MatrixSearchParameters searchParameters;
 
 	public Coordinate[] getSources()
 	{
@@ -109,6 +110,13 @@ public class MatrixRequest extends ServiceRequest {
 
 	public void setAlgorithm(String algorithm) {
 		this.algorithm = algorithm;
+	}
+
+	public void setSearchParameters(MatrixSearchParameters searchParameters) {
+		this.searchParameters = searchParameters;
+	}
+	public MatrixSearchParameters getSearchParameters() {
+		return searchParameters;
 	}
 
 	public boolean isValid(){

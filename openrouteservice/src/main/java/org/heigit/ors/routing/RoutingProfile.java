@@ -19,6 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
@@ -48,6 +49,7 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -55,8 +57,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGr
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.parameters.VehicleParameters;
-import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
@@ -611,16 +611,29 @@ public class RoutingProfile {
                 hintsMap.putObject("vehicle", encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
+            else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
+                graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
+                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+                ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
+                edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+            }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
+
+            // TODO ORS: check
+            // MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-
-            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-
+            if(alg instanceof  CoreMatrixAlgorithm) {
+                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+                if (weighting instanceof TurnWeighting)
+                    ((TurnWeighting)weighting).setInORS(true);
+                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+            }
+            else
+                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
             throw ex;
@@ -1147,6 +1160,17 @@ public class RoutingProfile {
             }
         }
         return result;
+    }
+
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
+        if (!(weighting instanceof TurnWeighting)) {
+            FlagEncoder encoder = weighting.getFlagEncoder();
+            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
+            }
+        }
+
+        return weighting;
     }
 
     public boolean equals(Object o) {
