@@ -1,20 +1,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.weighting.TurnWeighting;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
 public class TurnWeightingHelper {
 
-    public static void configureTurnWeighting(boolean hasTurnWeighting, TurnWeighting turnWeighting, EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
+    public static void configureTurnWeighting(boolean hasTurnWeighting, EdgeIteratorState iter, MultiTreeSPEntryItem currEdgeItem) {
         if(hasTurnWeighting && !isInORS(iter, currEdgeItem))
-            turnWeighting.setInORS(false);
+            GHUtility.setInORS(false);
     }
 
-    public static void resetTurnWeighting(boolean hasTurnWeighting, TurnWeighting turnWeighting) {
+    public static void resetTurnWeighting(boolean hasTurnWeighting) {
         if(hasTurnWeighting)
-            turnWeighting.setInORS(true);
+            GHUtility.setInORS(true);
     }
 
     /**

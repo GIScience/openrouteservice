@@ -101,15 +101,6 @@ public class ORSOSMReader extends OSMReader {
 	}
 
 	@Override
-	protected boolean isInBounds(ReaderNode node) {
-		if (procCntx != null) {
-			return procCntx.isValidPoint(node.getLon(), node.getLat());
-		}
-
-		return super.isInBounds(node);
-	}
-
-	@Override
 	public ReaderNode onProcessNode(ReaderNode node) {
 		// On OSM, nodes are seperate entities which are used to make up ways. So basically, a node is read before a
 		// way and if it has some properties that could affect routing, these properties need to be stored so that they
@@ -413,21 +404,5 @@ public class ORSOSMReader extends OSMReader {
 	protected void finishedReading() {
 		super.finishedReading();
 		procCntx.finish();
-	}
-
-	@Override
-	protected double getElevation(ReaderNode node) {
-		if (getElevationFromPreprocessedData) {
-			double ele = node.getEle();
-			if (Double.isNaN(ele)) {
-				if (!getElevationFromPreprocessedDataErrorLogged) {
-					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
-					getElevationFromPreprocessedDataErrorLogged = true;
-				}
-				ele = 0;
-			}
-			return ele;
-		}
-		return super.getElevation(node);
 	}
 }

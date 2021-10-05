@@ -60,7 +60,7 @@ public class TDCoreALT extends CoreALT {
     }
 
     @Override
-    double calcWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
+    double calcEdgeWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
         return weighting.calcEdgeWeight(iter, reverse, currEdge.originalEdge /* TODO: , currEdge.time*/);
     }
 

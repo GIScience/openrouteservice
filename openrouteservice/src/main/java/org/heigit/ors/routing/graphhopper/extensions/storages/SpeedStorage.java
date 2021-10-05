@@ -25,12 +25,12 @@ public class SpeedStorage implements GraphExtension {
         this.flagEncoder = flagEncoder;
     }
 
-    @Override
+    // TODO: how to deal with @Override
     public void init(Graph graph, Directory directory) {
         this.speedData = directory.find("ext_speeds_" + this.flagEncoder.toString());
     }
 
-    @Override
+    // TODO: how to deal with @Override
     public boolean loadExisting() {
         if (!speedData.loadExisting())
             return false;
@@ -44,7 +44,7 @@ public class SpeedStorage implements GraphExtension {
      * @param edgeCount
      * @return The storage
      */
-    @Override
+    // TODO: how to deal with @Override
     public SpeedStorage create(long edgeCount) {
         speedData.create(BYTE_COUNT * edgeCount);
         for (int i = 0; i < edgeCount; i++) {
@@ -77,12 +77,6 @@ public class SpeedStorage implements GraphExtension {
     }
 
     @Override
-    public void flush() {
-        speedData.setHeader(0, this.edgeCount);
-        speedData.flush();
-    }
-
-    @Override
     public void close() {
         speedData.close();
     }
@@ -101,35 +95,5 @@ public class SpeedStorage implements GraphExtension {
         if (edgeId >= speedData.getCapacity() / BYTE_COUNT) {
             speedData.ensureCapacity(edgeId * BYTE_COUNT);
         }
-    }
-
-    @Override
-    public boolean isRequireNodeField() {
-        return false;
-    }
-
-    @Override
-    public boolean isRequireEdgeField() {
-        return false;
-    }
-
-    @Override
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    @Override
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    @Override
-    public void setSegmentSize(int bytes) {
-        this.speedData.setSegmentSize(bytes);
-    }
-
-    @Override
-    public GraphExtension copyTo(GraphExtension graphExtension) {
-        return null;
     }
 }

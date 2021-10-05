@@ -24,8 +24,8 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class PreferencePriorityWeighting extends FastestWeighting {
-	private static final double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
-	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_VERY_BAD = PriorityCode.VERY_BAD.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DESTINATION.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_PREFER = PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_VERY_NICE = PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST.getValue();
 	private final DecimalEncodedValue priorityEncoder;
@@ -45,7 +45,7 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 1.5;
-		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
+		else if (priority <= THRESHOLD_VERY_BAD)
 			priority /= 1.25;
 		else if (priority == THRESHOLD_PREFER)
 			priority *= 1.5;

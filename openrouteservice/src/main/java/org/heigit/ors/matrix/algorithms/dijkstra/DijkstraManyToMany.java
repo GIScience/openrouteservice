@@ -17,7 +17,8 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TurnWeighting;
@@ -65,7 +66,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     private int coreNodeLevel;
     private int turnRestrictedNodeLevel;
     protected boolean approximate = false;
-    private TurnWeighting turnWeighting = null;
     private boolean swap = false;
 
     public DijkstraManyToMany(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
@@ -118,7 +118,8 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         prepare(from, to);
         addEntriesFromMapToQueue();
 
-        outEdgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        outEdgeExplorer = swap ? graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()))
+                : graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
         this.stoppingCriterion = new MultiSourceStoppingCriterion(targetSet, targetMap,treeEntrySize);
 
         runAlgo();
@@ -134,7 +135,8 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = swap? chGraph.createEdgeExplorer(DefaultEdgeFilter.inEdges(flagEncoder)) : chGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        EdgeExplorer explorer = swap? chGraph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()))
+                : chGraph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
         currEdge = prioQueue.poll();
         if(currEdge == null)
             return;
@@ -292,9 +294,9 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             if (!accept(iter, currEdgeItem.getEdge()))
                 continue;
 
-            configureTurnWeighting(hasTurnWeighting, turnWeighting, iter, currEdgeItem);
-            double edgeWeight = weighting.calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
-            resetTurnWeighting(hasTurnWeighting, turnWeighting);
+            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
+            double edgeWeight = weighting.calcEdgeWeight(iter, swap, currEdgeItem.getOriginalEdge());
+            resetTurnWeighting(hasTurnWeighting);
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
 
@@ -375,8 +377,8 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             double edgeWeight;
-            configureTurnWeighting(hasTurnWeighting, turnWeighting, ((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem);
-            edgeWeight = weighting.calcWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), swap, currEdgeItem.getOriginalEdge());
+            configureTurnWeighting(hasTurnWeighting, ((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), currEdgeItem);
+            edgeWeight = weighting.calcEdgeWeight(((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState(), swap, currEdgeItem.getOriginalEdge());
             if(Double.isInfinite(edgeWeight))
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
@@ -394,7 +396,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting, turnWeighting);
+            resetTurnWeighting(hasTurnWeighting);
         }
         return addToQueue;
     }
@@ -470,10 +472,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         //First check whether all targets found for all sources
         return stoppingCriterion.isFinished(currEdge, prioQueue);
 
-    }
-
-    public void setTurnWeighting(TurnWeighting turnWeighting) {
-        this.turnWeighting = turnWeighting;
     }
 
     public void setTargetGraphExplorer(EdgeExplorer targetGraphExplorer) {

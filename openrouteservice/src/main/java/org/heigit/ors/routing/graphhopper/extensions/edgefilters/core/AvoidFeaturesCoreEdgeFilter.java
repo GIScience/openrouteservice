@@ -15,7 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.CHEdgeIterator;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -40,7 +40,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		if(iter instanceof CHEdgeIterator && ((CHEdgeIterator)iter).isShortcut())
+		if(iter instanceof RoutingCHEdgeIterator && ((RoutingCHEdgeIterator)iter).isShortcut())
 			return true;
 		return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
 	}

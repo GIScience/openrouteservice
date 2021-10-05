@@ -17,8 +17,8 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -326,9 +326,9 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
-            configureTurnWeighting(hasTurnWeighting, turnWeighting, iter, currEdgeItem);
+            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
 
-            edgeWeight = weighting.calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
+            edgeWeight = weighting.calcEdgeWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if(Double.isInfinite(edgeWeight))
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
@@ -342,7 +342,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting, turnWeighting);
+            resetTurnWeighting(hasTurnWeighting);
         }
 
         return addToQueue;
@@ -398,7 +398,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         algorithm.setHasTurnWeighting(this.hasTurnWeighting);
         algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
         algorithm.setVisitedNodes(this.visitedNodes);
-        algorithm.setTurnWeighting(this.turnWeighting);
         algorithm.setTargetGraphExplorer(targetGraph.createExplorer());
         algorithm.setTargetMap(this.targetMap);
         algorithm.setTargetSet(this.targetSet);

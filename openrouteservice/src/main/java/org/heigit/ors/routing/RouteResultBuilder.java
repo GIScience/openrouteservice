@@ -289,8 +289,8 @@ class RouteResultBuilder
         PointList pathPoints = path.getPoints();
         double lat0 = pathPoints.getLat(0);
         double lon0 = pathPoints.getLon(0);
-        double lat1 = pathPoints.getLat(pathPoints.getSize() - 1);
-        double lon1 = pathPoints.getLon(pathPoints.getSize() - 1);
+        double lat1 = pathPoints.getLat(pathPoints.size() - 1);
+        double lon1 = pathPoints.getLon(pathPoints.size() - 1);
         double distanceDirect = distCalc.calcDist(lat0, lon0, lat1, lon1);
         if (distanceDirect == 0) return 0;
         return path.getDistance() / distanceDirect;

@@ -15,19 +15,19 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIteratorState;
 
 public abstract class CHLevelEdgeFilter implements EdgeFilter {
 	protected final FlagEncoder encoder;
-	protected final CHGraph graph;
+	protected final RoutingCHGraph graph;
 	protected final int maxNodes;
 	protected int highestNode = -1;
 	protected int highestNodeLevel = -1;
 	protected int baseNode;
 	protected int baseNodeLevel = -1;
 
-	protected CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
+	protected CHLevelEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
 		graph = g;
 		maxNodes = g.getNodes(); 
 		this.encoder = encoder;

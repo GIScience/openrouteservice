@@ -18,7 +18,7 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
-import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
+import com.graphhopper.routing.weighting.BalancedWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -57,7 +57,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     protected AStarEntry currFrom;
     protected AStarEntry currTo;
 
-    private ConsistentWeightApproximator weightApprox;
+    private BalancedWeightApproximator weightApprox;
 
 
     int fromProxy;
@@ -69,7 +69,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public CoreALT(Graph graph, Weighting weighting) {
         super(graph, weighting);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
-        defaultApprox.setDistanceCalc(Helper.DIST_PLANE);
+        defaultApprox.setDistanceCalc(DistancePlaneProjection.DIST_PLANE);
         setApproximation(defaultApprox);
     }
 
@@ -90,7 +90,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
      * @param approx if true it enables approximate distance calculation from lat,lon values
      */
     public CoreALT setApproximation(WeightApproximator approx) {
-        weightApprox = new ConsistentWeightApproximator(approx);
+        weightApprox = new BalancedWeightApproximator(approx);
         return this;
     }
 

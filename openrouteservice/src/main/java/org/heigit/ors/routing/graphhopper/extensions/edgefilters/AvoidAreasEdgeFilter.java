@@ -68,14 +68,14 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 
 		boolean inEnv = false;
 		PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-		int size = pl.getSize();
+		int size = pl.size();
 
 		double eMinX = Double.MAX_VALUE;
 		double eMinY = Double.MAX_VALUE;
 		double eMaxX = Double.MIN_VALUE;
 		double eMaxY = Double.MIN_VALUE;
 
-		for (int j = 0; j < pl.getSize(); j++)
+		for (int j = 0; j < pl.size(); j++)
 		{
 			double x = pl.getLon(j);
 			double y = pl.getLat(j);

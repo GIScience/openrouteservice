@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.config;
 
-import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
+import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 
 public class MatrixServiceSettings {
 	private static int maximumRoutes = 2500;

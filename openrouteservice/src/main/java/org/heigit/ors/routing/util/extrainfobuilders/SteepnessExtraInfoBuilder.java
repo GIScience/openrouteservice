@@ -51,7 +51,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 	}
 	
 	public void addPoints(PointList geom) {
-		int nPoints = geom.getSize() - 1;
+		int nPoints = geom.size() - 1;
 		if (nPoints == 0)
 			return;		
 		

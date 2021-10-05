@@ -65,11 +65,6 @@ public class ConstantWeighting implements Weighting {
         return "constant(" + weight + ")";
     }
 
-    // TODO: how to deal with @Override
-    public boolean matches(PMap hintsMap) {
-        return false;
-    }
-
     @Override
     public boolean isTimeDependent() {
         return false;

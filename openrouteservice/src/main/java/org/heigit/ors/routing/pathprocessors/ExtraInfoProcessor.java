@@ -380,7 +380,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 			short country1 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.START);
 			short country2 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.END);
 			// This check will correct the countries of an edge if the starting coordinate of the route lies in a different country than the start of the edge.
-			if (country1 != country2 && geom.getSize() > 0) {
+			if (country1 != country2 && geom.size() > 0) {
 				Coordinate coordinate = new Coordinate();
 				coordinate.x = geom.getLon(0);
 				coordinate.y = geom.getLat(0);
