@@ -765,8 +765,8 @@ public class ResultTest extends ServiceTest {
 				.assertThat()
 				.body("any { it.key == 'routes' }", is(true))
 				.body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(28))
-                .body("routes[0].extras.surface.values[18][1]", is(342))
+                .body("routes[0].extras.surface.values.size()", is(38))
+                .body("routes[0].extras.surface.values[18][1]", is(258))
                 .body("routes[0].extras.suitability.values[18][0]", is(521))
                 .body("routes[0].extras.steepness.values[10][1]", is(326))
 
