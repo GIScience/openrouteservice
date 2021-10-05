@@ -38,6 +38,7 @@ import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.util.FileUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +139,7 @@ public class CoreLandmarkStorage implements Storable<LandmarkStorage>{
         // Edge based is not really necessary because when adding turn costs while routing we can still
         // use the node based traversal as this is a smaller weight approximation and will still produce correct results
         this.traversalMode = TraversalMode.NODE_BASED;
-        final String name = AbstractWeighting.weightingToFileName(weighting) + landmarksFilter.getName();
+        final String name = FileUtility.weightingToFileName(weighting) + landmarksFilter.getName();
         this.landmarkWeightDA = dir.find("landmarks_core_" + name);
 
         this.landmarks = landmarks;

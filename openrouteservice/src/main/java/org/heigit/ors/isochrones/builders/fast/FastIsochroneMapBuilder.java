@@ -133,16 +133,15 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilterSequence edgeFilterSequence = getEdgeFilterSequence(edgeFilterFactory);
         Snap res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
-        List<Snap> queryResults = new ArrayList<>(1);
-        queryResults.add(res);
+        List<Snap> snaps = new ArrayList<>(1);
+        snaps.add(res);
         //Needed to get the cell of the start point (preprocessed information, so no info on virtual nodes)
         int nonvirtualClosestNode = res.getClosestNode();
         if (nonvirtualClosestNode == -1)
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
 
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
-        QueryGraph queryGraph = new QueryGraph(graph);
-        queryGraph.lookup(queryResults);
+        QueryGraph queryGraph = QueryGraph.create(graph, snaps);
 
         int from = res.getClosestNode();
 

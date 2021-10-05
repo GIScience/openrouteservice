@@ -14,63 +14,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.ExtendedStorageSequence;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
 
 public class GraphStorageUtils {
 	private GraphStorageUtils() {}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends GraphExtension> T getGraphExtension(GraphStorage graphStorage, Class<T> type) {
-		if (graphStorage instanceof GraphHopperStorage) {
-			GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-			GraphExtension ge = ghs.getExtension();
-
-			if(ge instanceof ExtendedStorageSequence) {
-				ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-				GraphExtension[] exts = ess.getExtensions();
-				for (int i = 0; i < exts.length; i++) {
-					if (type.isInstance(exts[i])) {
-						return (T)exts[i];
-					}
-				}
-			} else  {
-				if (type.isInstance(ge)) {
-					return (T)ge;
-				}
+	public static <T extends GraphExtension> T getGraphExtension(GraphHopperStorage graphStorage, Class<T> type) {
+		ExtendedStorageSequence ess = graphStorage.getExtensions();
+		GraphExtension[] extensions = ess.getExtensions();
+		for (GraphExtension e: extensions) {
+			if (type.isInstance(e)) {
+				return (T)e;
 			}
 		}
 		return null;
-	}
-
-	public static GraphExtension[] getGraphExtensions(GraphStorage graphStorage) {
-		if(graphStorage instanceof GraphHopperStorage) {
-			GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
-			GraphExtension ge = ghs.getExtension();
-			if(ge instanceof  ExtendedStorageSequence) {
-				ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-				return ess.getExtensions();
-			} else {
-				return new GraphExtension[] {ge};
-			}
-		}
-		return new GraphExtension[] {};
-	}
-	
-	public static long getCapacity(GraphExtension ext) {
-		if (!(ext instanceof GraphExtension.NoOpExtension)) {
-			long capacity = 0;
-    		if(ext instanceof ExtendedStorageSequence) {
-				ExtendedStorageSequence ess = (ExtendedStorageSequence)ext;
-				GraphExtension[] exts = ess.getExtensions();
-				for (int i = 0; i < exts.length; i++) {
-					capacity += exts[i].getCapacity();
-				}
-			} else {
-				capacity += ext.getCapacity();
-			}
-    		return capacity;
-    	}
-		return 0;
 	}
 }

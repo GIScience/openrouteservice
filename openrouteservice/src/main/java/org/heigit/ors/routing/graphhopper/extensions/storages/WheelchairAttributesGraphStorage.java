@@ -13,14 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.EncodedValueOld;
 
-public class WheelchairAttributesGraphStorage implements Storable<WheelchairAttributesGraphStorage> {
+public class WheelchairAttributesGraphStorage implements GraphExtension {
 	protected static final int WIDTH_MAX_VALUE = 300;
 	protected static final int KERB_MAX_VALUE = 15;
 	protected static final int INCLINE_MAX_VALUE = 30;
@@ -309,20 +306,7 @@ public class WheelchairAttributesGraphStorage implements Storable<WheelchairAttr
 		return -1;
 	}
 
-	public WheelchairAttributesGraphStorage copyTo(WheelchairAttributesGraphStorage clonedStorage) {
-		if (!(clonedStorage instanceof WheelchairAttributesGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		WheelchairAttributesGraphStorage clonedTC = (WheelchairAttributesGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
-	}
-
-	@Override
+	// TODO: how to deal with @Override
 	public boolean isClosed() {
 		return false;
 	}

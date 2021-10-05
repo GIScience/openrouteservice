@@ -16,6 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.ConsistentWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
@@ -57,6 +58,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     protected AStarEntry currTo;
 
     private ConsistentWeightApproximator weightApprox;
+
 
     int fromProxy;
     int toProxy;

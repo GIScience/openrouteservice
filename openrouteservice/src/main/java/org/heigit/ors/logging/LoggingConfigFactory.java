@@ -16,7 +16,7 @@ import java.io.IOException;
         name="CustomConfigurationFactory",
         category = ConfigurationFactory.CATEGORY
 )
-@Order(50)
+@Order(50) // TODO: check whether this class is in use
 public class LoggingConfigFactory extends ConfigurationFactory{
     protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 

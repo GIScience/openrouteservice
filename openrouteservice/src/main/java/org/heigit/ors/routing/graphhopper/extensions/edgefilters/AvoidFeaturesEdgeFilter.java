@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchParameters;
@@ -33,7 +33,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
 	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
 
-	public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphStorage graphStorage) throws Exception {
+	public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) throws Exception {
 		this.buffer = new byte[10];
 
 		profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
@@ -49,7 +49,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 			tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
 	}
 
-	public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphStorage graphStorage) throws Exception{
+	public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) throws Exception{
 		if(avoidFeatureType == AvoidFeatureFlags.TOLLWAYS)
 			throw new IllegalArgumentException("Invalid constructor for use with feature type: " + AvoidFeatureFlags.TOLLWAYS);
 		this.buffer = new byte[10];

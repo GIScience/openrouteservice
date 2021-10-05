@@ -213,7 +213,7 @@ public class RoutingProfile {
 
     public long getCapacity() {
         GraphHopperStorage graph = mGraphHopper.getGraphHopperStorage();
-        return graph.getCapacity() + GraphStorageUtils.getCapacity(graph.getExtension());
+        return graph.getCapacity() + graph.getExtension().getCapacity();
     }
 
     private static GraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {

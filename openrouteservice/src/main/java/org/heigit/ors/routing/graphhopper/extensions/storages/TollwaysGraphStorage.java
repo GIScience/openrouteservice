@@ -15,7 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.*;
 
-public class TollwaysGraphStorage implements Storable<TollwaysGraphStorage> {
+public class TollwaysGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int efTollways;
 
@@ -126,7 +126,7 @@ public class TollwaysGraphStorage implements Storable<TollwaysGraphStorage> {
 
 		TollwaysGraphStorage clonedTC = (TollwaysGraphStorage) clonedStorage;
 
-		edges.copyTo(clonedTC.edges);
+		// edges.copyTo(clonedTC.edges); // TODO: method does n
 		clonedTC.edgesCount = edgesCount;
 
 		return clonedStorage;

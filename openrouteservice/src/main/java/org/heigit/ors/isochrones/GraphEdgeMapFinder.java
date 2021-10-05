@@ -50,10 +50,9 @@ public class GraphEdgeMapFinder {
 		
 		Coordinate loc = parameters.getLocation();
 		Snap res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
-		List<Snap> queryResults = new ArrayList<>(1);
-		queryResults.add(res);
-		QueryGraph queryGraph = new QueryGraph(graph);
-		queryGraph.lookup(queryResults);
+		List<Snap> snaps = new ArrayList<>(1);
+		snaps.add(res);
+		QueryGraph queryGraph = QueryGraph.create(graph, snaps);
 
        	GHPoint3D snappedPosition = res.getSnappedPoint();
 

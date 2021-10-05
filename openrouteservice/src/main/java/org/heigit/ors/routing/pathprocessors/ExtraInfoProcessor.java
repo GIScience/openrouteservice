@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
@@ -264,7 +265,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 * @param graphHopperStorage the storage containing the warnings
 	 */
 	private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
-		GraphExtension[] extensions = GraphStorageUtils.getGraphExtensions(graphHopperStorage);
+		GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
 		for(GraphExtension ge : extensions) {
 			if (ge instanceof WarningGraphExtension && ((WarningGraphExtension)ge).isUsedForWarning()) {
 				warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));

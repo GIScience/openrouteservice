@@ -17,7 +17,6 @@ import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.*;
 
 // TODO: this class seems to be unfinished since years. Can it be removed?
@@ -26,7 +25,7 @@ public class AccelerationWeighting extends FastestWeighting {
 	private final AngleCalc angleCalc = new AngleCalc();
 	private final long maxEdges;
 
-	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
 		super(encoder, map);
 		ghStorage = (GraphHopperStorage)graphStorage;
 		maxEdges = ghStorage.getEdges();
@@ -56,7 +55,6 @@ public class AccelerationWeighting extends FastestWeighting {
 		return 0.0;	
 	}
 
-	@Override
 	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
 		if (prevOrNextEdgeId == -1 )
 			return 1.0;
@@ -96,7 +94,6 @@ public class AccelerationWeighting extends FastestWeighting {
 		return angle > 50 && angle <= 140;
 	}
 
-	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
 		if (prevOrNextEdgeId == -1 )
 			return 0;

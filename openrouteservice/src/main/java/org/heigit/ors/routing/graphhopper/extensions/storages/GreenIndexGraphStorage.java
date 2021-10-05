@@ -13,12 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 
-public class GreenIndexGraphStorage implements Storable<GreenIndexGraphStorage> {
+public class GreenIndexGraphStorage implements GraphExtension {
     /* pointer for no entry */
     protected static final int NO_ENTRY = -1;
     private static final int EF_GREENINDEX = 0;
@@ -61,7 +58,7 @@ public class GreenIndexGraphStorage implements Storable<GreenIndexGraphStorage> 
     /**
      * @return true if successfully loaded from persistent storage.
      */
-    @Override
+    // TODO how to deal with @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_greenindex'. corrupt file or directory?");
@@ -76,7 +73,7 @@ public class GreenIndexGraphStorage implements Storable<GreenIndexGraphStorage> 
      *
      * @param initBytes
      */
-    @Override
+    // TODO how to deal with @Override
     public GreenIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -87,7 +84,7 @@ public class GreenIndexGraphStorage implements Storable<GreenIndexGraphStorage> 
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
      * loses.
      */
-    @Override
+    // TODO how to deal with @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
         orsEdges.setHeader(1 * 4, edgesCount);
@@ -109,7 +106,7 @@ public class GreenIndexGraphStorage implements Storable<GreenIndexGraphStorage> 
     /**
      * @return the allocated storage size in bytes
      */
-    @Override
+    // TODO how to deal with @Override
     public long getCapacity() {
         return orsEdges.getCapacity();
     }

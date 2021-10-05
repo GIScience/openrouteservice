@@ -18,7 +18,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.ConditionalEdges;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 	private BooleanEncodedValue[] conditionalEncoders;
 	private static String[] names = {ConditionalEdges.ACCESS, ConditionalEdges.SPEED};
 
-	public TimeDependentCoreEdgeFilter(GraphStorage graphStorage) {
+	public TimeDependentCoreEdgeFilter(GraphHopperStorage graphStorage) {
 		EncodingManager encodingManager = graphStorage.getEncodingManager();
 
 		List<BooleanEncodedValue> conditionalEncodersList = new ArrayList<>();

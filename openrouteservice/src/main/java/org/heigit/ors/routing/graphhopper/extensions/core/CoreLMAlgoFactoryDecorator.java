@@ -33,6 +33,7 @@ import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
+import org.heigit.ors.util.FileUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,7 +249,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         for (final PrepareCoreLandmarks plm : preparations) {
             counter++;
             final int tmpCounter = counter;
-            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting());
+            final String name = FileUtility.weightingToFileName(plm.getWeighting());
             completionService.submit(() -> {
                 if (plm.loadExisting())
                     return;

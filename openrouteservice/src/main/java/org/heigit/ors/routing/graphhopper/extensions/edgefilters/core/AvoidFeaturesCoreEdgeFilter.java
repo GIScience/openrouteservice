@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -27,13 +27,13 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 	private int avoidFeatures;
 	private static final String TYPE = "avoid_features";
 
-	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory) {
+	public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory) {
 		buffer = new byte[10];
 		avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
 	}
 
-	public AvoidFeaturesCoreEdgeFilter(GraphStorage graphStorage, int profileCategory, int overrideClass) {
+	public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, int overrideClass) {
 		this(graphStorage, profileCategory);
 		avoidFeatures = overrideClass;
 	}

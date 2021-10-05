@@ -13,19 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 
 /**
  * Created by ZWang on 13/06/2017.
  */
-public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> {
+public class NoiseIndexGraphStorage implements GraphExtension {
     /* pointer for no entry */
     private final int efNoiseindex;
 
-    private DataAccess orsEdges; // TODO: Never assigned, how can this work at all?
+    private DataAccess orsEdges;
     private int edgeEntryBytes;
     private int edgesCount; // number of edges with custom values
 
@@ -65,7 +62,7 @@ public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> 
     /**
      * @return true if successfully loaded from persistent storage.
      */
-    @Override
+    // TODO: how to deal with @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_noiselevel'. corrupt file or directory?");
@@ -80,7 +77,7 @@ public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> 
      *
      * @param initBytes
      */
-    @Override
+    // TODO: how to deal with @Override
     public NoiseIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -91,7 +88,7 @@ public class NoiseIndexGraphStorage implements Storable<NoiseIndexGraphStorage> 
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
      * loses.
      */
-    @Override
+    // TODO how to deal with @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
         orsEdges.setHeader(4, edgesCount);
