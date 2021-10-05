@@ -17,11 +17,13 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.Path4CH;
 import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.querygraph.QueryGraph;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -42,6 +44,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountTo2;
 
     private CoreDijkstraFilter additionalCoreEdgeFilter;
+    protected EdgeExplorer inEdgeExplorer;
+    protected EdgeExplorer outEdgeExplorer;
 
     boolean inCore;
 
@@ -52,6 +56,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
         super(graph, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
+
+        inEdgeExplorer = graph.createEdgeExplorer(AccessFilter.inEdges(weighting.getFlagEncoder().getAccessEnc()));
+        outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
 
         // TODO: remove this unnecessary duplication
         if (weighting.hasTurnCosts()) {

@@ -25,6 +25,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.util.FileUtility;
 
 import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
@@ -56,7 +57,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     public EccentricityStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
         //A map of nodeId to pointer is stored in the first block.
         //The second block stores 2 values for each pointer, full reachability and eccentricity
-        final String name = AbstractWeighting.weightingToFileName(weighting);
+        final String name = FileUtility.weightingToFileName(weighting);
         eccentricities = dir.find("eccentricities_" + name);
         this.weighting = weighting;
         this.isochroneNodeStorage = isochroneNodeStorage;

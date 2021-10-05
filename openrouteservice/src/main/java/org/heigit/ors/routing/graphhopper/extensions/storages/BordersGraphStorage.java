@@ -18,7 +18,7 @@ import com.graphhopper.storage.*;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class BordersGraphStorage implements Storable<BordersGraphStorage> {
+public class BordersGraphStorage implements GraphExtension {
 	public enum Property { TYPE, START, END}
 	/* pointer for no entry */
 	protected static final int NO_ENTRY = -1;
@@ -121,22 +121,9 @@ public class BordersGraphStorage implements Storable<BordersGraphStorage> {
 	}
 
 	/**
-	 * creates a copy of this extended storage
-	 *
-	 * @param clonedStorage
-	 */
-	// TODO: how to deal with @Override
-	public BordersGraphStorage copyTo(BordersGraphStorage clonedStorage) {
-		orsEdges.copyTo(clonedStorage.orsEdges);
-		clonedStorage.edgesCount = edgesCount;
-
-		return clonedStorage;
-	}
-
-	/**
 	 * @return true if successfully loaded from persistent storage.
 	 */
-	@Override
+	// TODO: how to deal with @Override
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
 			throw new IllegalStateException("Unable to load storage 'ext_borders'. corrupt file or directory?");
@@ -151,7 +138,7 @@ public class BordersGraphStorage implements Storable<BordersGraphStorage> {
 	 *
 	 * @param initBytes
 	 */
-	@Override
+	// TODO: how to deal with @Override
 	public BordersGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
@@ -162,7 +149,7 @@ public class BordersGraphStorage implements Storable<BordersGraphStorage> {
 	 * a disc normally has an IO cache so that flush() is (less) probably not save against power
 	 * loses.
 	 */
-	@Override
+	// TODO: how to deal with @Override
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
 		orsEdges.setHeader(1 * 4, edgesCount);
@@ -184,7 +171,7 @@ public class BordersGraphStorage implements Storable<BordersGraphStorage> {
 	/**
 	 * @return the allocated storage size in bytes
 	 */
-	@Override
+	// TODO: how to deal with @Override
 	public long getCapacity() {
 		return orsEdges.getCapacity();
 	}

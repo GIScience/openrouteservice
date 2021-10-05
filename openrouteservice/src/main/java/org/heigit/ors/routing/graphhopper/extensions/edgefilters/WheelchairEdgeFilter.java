@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -27,7 +27,7 @@ public class WheelchairEdgeFilter implements EdgeFilter {
     private WheelchairAttributes attributes;
     private WheelchairParameters params;
 
-    public WheelchairEdgeFilter(WheelchairParameters params, GraphStorage graphStorage) throws Exception {
+    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {
         storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
         if (storage == null)
             throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");

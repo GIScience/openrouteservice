@@ -24,6 +24,7 @@ import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.util.FileUtility;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class CoreNodeContractor {
         this.prepareGraph = prepareGraph;
         this.prepareWeighting = new PreparationWeighting(chProfile.getWeighting());
         this.chProfile = chProfile;
-        originalEdges = dir.find("original_edges_" + AbstractWeighting.weightingToFileName(chProfile.getWeighting()));
+        originalEdges = dir.find("original_edges_" + FileUtility.weightingToFileName(chProfile.getWeighting()));
         originalEdges.create(1000);
     }
 

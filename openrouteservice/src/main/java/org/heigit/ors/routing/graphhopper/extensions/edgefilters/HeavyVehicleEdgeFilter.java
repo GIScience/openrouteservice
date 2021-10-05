@@ -23,8 +23,8 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
@@ -66,7 +66,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private static final int MODE_CLOSEST_EDGE = -2;
 	private static final int MODE_ROUTE = 0;
 
-	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphStorage graphStorage) {
+	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
 		float[] vehicleAttrs = new float[VehicleDimensionRestrictions.COUNT];
 
 		if (vehicleParams!=null) {

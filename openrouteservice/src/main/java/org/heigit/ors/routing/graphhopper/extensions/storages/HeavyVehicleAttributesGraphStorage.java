@@ -13,13 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
-public class HeavyVehicleAttributesGraphStorage implements Storable<HeavyVehicleAttributesGraphStorage> {
+public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	private static final int  EF_RESTRICTION_BYTES = 2;
 	private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
 

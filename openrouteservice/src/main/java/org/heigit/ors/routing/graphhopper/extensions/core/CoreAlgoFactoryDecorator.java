@@ -29,6 +29,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
+import org.heigit.ors.util.FileUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -292,7 +293,7 @@ public class CoreAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecorato
         for (final PrepareCore prepare : getPreparations()) {
             if (LOGGER.isInfoEnabled())
                 LOGGER.info(String.format("%d/%d calling Core prepare.doWork for %s ... (%s)", ++counter, getPreparations().size(), prepare.getWeighting(), Helper.getMemInfo()));
-            final String name = AbstractWeighting.weightingToFileName(prepare.getWeighting());
+            final String name = FileUtility.weightingToFileName(prepare.getWeighting());
             completionService.submit(() -> {
                 // toString is not taken into account so we need to cheat, see http://stackoverflow.com/q/6113746/194609 for other options
                 Thread.currentThread().setName(name);

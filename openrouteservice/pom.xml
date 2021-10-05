@@ -407,13 +407,7 @@
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>3.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>3.0-SNAPSHOT</version>
+            <version>4.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

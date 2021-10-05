@@ -29,6 +29,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.util.FileUtility;
 
 import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
@@ -50,7 +51,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     private final Weighting weighting;
 
     public BorderNodeDistanceStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
-        final String name = AbstractWeighting.weightingToFileName(weighting);
+        final String name = FileUtility.weightingToFileName(weighting);
         this.isochroneNodeStorage = isochroneNodeStorage;
         borderNodes = dir.find("bordernodes_" + name);
         this.weighting = weighting;

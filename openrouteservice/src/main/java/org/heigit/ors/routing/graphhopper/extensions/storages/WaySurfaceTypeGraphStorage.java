@@ -13,13 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
 
-public class WaySurfaceTypeGraphStorage implements Storable<WaySurfaceTypeGraphStorage> {
+public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int efWaytype;
 

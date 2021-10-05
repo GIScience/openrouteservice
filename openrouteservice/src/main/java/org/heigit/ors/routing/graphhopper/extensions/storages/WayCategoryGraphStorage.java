@@ -13,12 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 
-public class WayCategoryGraphStorage implements Storable<WayCategoryGraphStorage> {
+public class WayCategoryGraphStorage implements GraphExtension {
 	/* pointer for no entry */
 	protected final int efWaytype;
 

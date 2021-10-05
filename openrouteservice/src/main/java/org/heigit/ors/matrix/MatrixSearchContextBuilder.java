@@ -67,13 +67,12 @@ public class MatrixSearchContextBuilder {
 
 		checkBounds(graph.getBounds(), sources, destinations);
 
-		QueryGraph queryGraph = new QueryGraph(graph);
-		List<Snap> queryResults = new ArrayList<>(sources.length + destinations.length);
+		List<Snap> snaps = new ArrayList<>(sources.length + destinations.length);
 		
-		resolveLocations(sources, queryResults, maxSearchRadius);
-		resolveLocations(destinations, queryResults, maxSearchRadius);
+		resolveLocations(sources, snaps, maxSearchRadius);
+		resolveLocations(destinations, snaps, maxSearchRadius);
 
-		queryGraph.lookup(queryResults);
+		QueryGraph queryGraph = QueryGraph.create(graph, snaps);
 		
 		MatrixLocations mlSources = createLocations(sources);
 		MatrixLocations mlDestinations = createLocations(destinations);

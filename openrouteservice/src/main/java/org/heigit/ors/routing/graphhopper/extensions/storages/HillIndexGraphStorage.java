@@ -15,12 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import java.util.Map;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.*;
 
-public class HillIndexGraphStorage implements Storable<HillIndexGraphStorage> {
+public class HillIndexGraphStorage implements GraphExtension {
 	private final int efHillIndex;
 
 	private DataAccess orsEdges;

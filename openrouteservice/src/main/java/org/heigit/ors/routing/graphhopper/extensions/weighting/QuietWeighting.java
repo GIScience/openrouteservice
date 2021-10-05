@@ -16,7 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -27,7 +27,7 @@ public class QuietWeighting extends FastestWeighting {
     private final byte[] buffer;
     private double weightingFactor = 1;
 
-    public QuietWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public QuietWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
         buffer = new byte[1];
         gsNoiseIndex = GraphStorageUtils.getGraphExtension(graphStorage, NoiseIndexGraphStorage.class);

@@ -24,7 +24,7 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 /**
  * The graph storage for road access restrictions.
  */
-public class RoadAccessRestrictionsGraphStorage implements Storable<RoadAccessRestrictionsGraphStorage>, WarningGraphExtension {
+public class RoadAccessRestrictionsGraphStorage implements GraphExtension, WarningGraphExtension {
     private static final int NO_ENTRY = -1;
     private final int efRestrictions;
 
