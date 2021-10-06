@@ -23,6 +23,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -49,8 +50,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
-    @Deprecated
-    protected Weighting turnWeighting;
+    @Deprecated  protected Weighting turnWeighting;
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
@@ -69,7 +69,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         initCollections(size);
 
         qGraph = (QueryGraph) graph;
-        chGraph = (CHGraph) qGraph.getBaseGraph();
+        chGraph = (RoutingCHGraph) qGraph.getBaseGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
@@ -78,7 +78,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected PathBidirRef bestPath;
 
     QueryGraph qGraph;
-    CHGraph chGraph;
+    RoutingCHGraph chGraph;
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
 

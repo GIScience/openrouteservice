@@ -27,7 +27,6 @@ public class HikingFlagEncoder extends FootFlagEncoder {
     public HikingFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
-        this.properties = properties;
         this.blockFords(properties.getBool("block_fords", false));
     }
 
@@ -53,11 +52,6 @@ public class HikingFlagEncoder extends FootFlagEncoder {
         ));
 
         init(null); // TODO: Need to pass initialized DateRangeParser?
-    }
-
-    @Override
-    public int getVersion() {
-        return 3;
     }
 
     @Override

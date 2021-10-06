@@ -18,18 +18,17 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
-import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.ch.PreparationWeighting;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToMany;
@@ -38,7 +37,6 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,20 +67,16 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private IntHashSet targetSet;
     private MultiTreeMetricsExtractor pathMetricsExtractor;
     private CoreDijkstraFilter additionalCoreEdgeFilter;
-    private CHGraph chGraph;
+    private RoutingCHGraph chGraph;
     private SubGraph targetGraph;
-    private TurnWeighting turnWeighting;
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
-        if (weighting instanceof TurnWeighting) {
-            hasTurnWeighting = true;
-            turnWeighting = (TurnWeighting) weighting;
-        }
+        hasTurnWeighting = weighting.hasTurnCosts();
         weighting = new PreparationWeighting(weighting);
         super.init(req, gh, graph, encoder, weighting);
         try {
-            chGraph = graph instanceof CHGraph ? (CHGraph) graph : (CHGraph) ((QueryGraph) graph).getMainGraph();
+            chGraph = graph instanceof RoutingCHGraph ? (RoutingCHGraph) graph : (RoutingCHGraph) (graph).getBaseGraph();
         } catch (ClassCastException e) {
             throw new ClassCastException(e.getMessage());
         }
@@ -194,7 +188,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private void runPhaseOutsideCore(MatrixLocations srcData) {
         prepareSourceNodes(srcData.getNodeIds());
         boolean finishedFrom = false;
-        EdgeExplorer upAndCoreExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(this.encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(this.encoder));
+        EdgeExplorer upAndCoreExplorer = swap ? graph.createEdgeExplorer(AccessFilter.inEdges(this.encoder.getAccessEnc()))
+                : graph.createEdgeExplorer(AccessFilter.outEdges(this.encoder.getAccessEnc()));
         while (!finishedFrom && !isMaxVisitedNodesExceeded()) {
             finishedFrom = !fillEdgesOutsideCore(upAndCoreExplorer);
         }

@@ -1,10 +1,10 @@
 package org.heigit.ors.matrix;
 
 import com.carrotsearch.hppc.IntHashSet;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.routing.algorithms.SubGraph;
@@ -14,17 +14,18 @@ import java.util.PriorityQueue;
 
 public class TargetGraphBuilder {
     private int coreNodeLevel;
-    CHGraph chGraph;
+    RoutingCHGraph chGraph;
     /**
      * Phase I: build shortest path tree from all target nodes to the core, only upwards in level.
      * The EdgeFilter in use is a downward search edge filter with reverse access acceptance so that in the last phase of the algorithm, the targetGraph can be explored downwards
      *
      * @param targets the targets that form the seed for target graph building
      */
-    public TargetGraphResults prepareTargetGraph(int[] targets, CHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
+    public TargetGraphResults prepareTargetGraph(int[] targets, RoutingCHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
         PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
         ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter = new ExclusiveDownwardSearchEdgeFilter(chGraph, encoder, swap);
-        EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(encoder));
+        EdgeExplorer edgeExplorer = swap ? graph.createEdgeExplorer(AccessFilter.outEdges(encoder.getAccessEnc()))
+                : graph.createEdgeExplorer(AccessFilter.inEdges(encoder.getAccessEnc()));
         SubGraph targetGraph = new SubGraph(graph);
         IntHashSet coreExitPoints = new IntHashSet();
 

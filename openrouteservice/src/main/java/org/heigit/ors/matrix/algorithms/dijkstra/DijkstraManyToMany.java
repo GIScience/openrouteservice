@@ -25,6 +25,7 @@ import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
@@ -54,7 +55,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     IntObjectMap<AveragedMultiTreeSPEntry> targetMap;
     IntHashSet targetSet;
     protected PriorityQueue<AveragedMultiTreeSPEntry> prioQueue;
-    private CHGraph chGraph;
+    private RoutingCHGraph chGraph;
     private IntHashSet coreExitPoints;
     protected AveragedMultiTreeSPEntry currEdge;
     private EdgeExplorer targetGraphExplorer;
@@ -68,7 +69,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected boolean approximate = false;
     private boolean swap = false;
 
-    public DijkstraManyToMany(Graph graph, CHGraph chGraph, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToMany(Graph graph, RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {
         super(graph, weighting, tMode);
         this.chGraph = chGraph;
         this.coreNodeLevel = chGraph.getNodes() + 1;
@@ -77,7 +78,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         initCollections(size);
     }
 
-    public DijkstraManyToMany(Graph graph, CHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToMany(Graph graph, RoutingCHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
         this(graph, chGraph, weighting, tMode);
         bestWeightMap = existingWeightMap;
         bestWeightMapCore = existingCoreWeightMap;

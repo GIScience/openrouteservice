@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 /**
@@ -26,7 +27,7 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreDijkstraFilter implements EdgeFilter {
-    protected final CHGraph graph;
+    protected final RoutingCHGraph graph;
     protected final int maxNodes;
     protected final int coreNodeLevel;
     protected EdgeFilter restrictions;
@@ -41,7 +42,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
      *
      * @param graph
      */
-    public CoreDijkstraFilter(CHGraph graph) {
+    public CoreDijkstraFilter(RoutingCHGraph graph) {
         this.graph = graph;
         maxNodes = graph.getNodes();
         coreNodeLevel = maxNodes + 1;

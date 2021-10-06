@@ -57,8 +57,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         restrictedValues.add("delivery");
         restrictedValues.add("emergency");
 
-        absoluteBarriers.add("bus_trap");
-        absoluteBarriers.add("sump_buster");
+        blockByDefaultBarriers.add("bus_trap");
+        blockByDefaultBarriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
 
@@ -139,11 +139,6 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     @Override
     public String toString() {
         return FlagEncoderNames.CAR_ORS;
-    }
-
-    @Override
-    public int getVersion() {
-        return 1;
     }
 
     @Override

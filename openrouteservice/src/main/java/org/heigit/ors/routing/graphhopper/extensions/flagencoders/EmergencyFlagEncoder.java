@@ -64,17 +64,17 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         
         hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", KEY_AGRICULTURAL, KEY_FORESTRY, "delivery"));
 
-        potentialBarriers.add("gate");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("kissing_gate");
-        potentialBarriers.add("swing_gate");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("lift_gate");
+        passByDefaultBarriers.add("kissing_gate");
+        passByDefaultBarriers.add("swing_gate");
 
-        absoluteBarriers.add("bollard");
-        absoluteBarriers.add("stile");
-        absoluteBarriers.add("turnstile");
-        absoluteBarriers.add("cycle_barrier");
-        absoluteBarriers.add("motorcycle_barrier");
-        absoluteBarriers.add("block");
+        blockByDefaultBarriers.add("bollard");
+        blockByDefaultBarriers.add("stile");
+        blockByDefaultBarriers.add("turnstile");
+        blockByDefaultBarriers.add("cycle_barrier");
+        blockByDefaultBarriers.add("motorcycle_barrier");
+        blockByDefaultBarriers.add("block");
 
         Map<String, Integer> trackTypeSpeedMap = new HashMap<>();
         trackTypeSpeedMap.put("grade1", 25); // paved
@@ -339,16 +339,16 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 					weightToPrioMap.put(100d,  PriorityCode.UNCHANGED.getValue());
 				else if ("residential".equals(highway) || KEY_SERVICE.equals(highway) || "road".equals(highway) || "unclassified".equals(highway)) {
 					 if (maxSpeed > 0 && maxSpeed <= 30)
-						 weightToPrioMap.put(120d,  PriorityCode.REACH_DEST.getValue());
+						 weightToPrioMap.put(120d,  PriorityCode.REACH_DESTINATION.getValue());
 					 else
-						 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
+						 weightToPrioMap.put(100d,  PriorityCode.VERY_BAD.getValue());
 				}
 				else if ("living_street".equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
+					 weightToPrioMap.put(100d,  PriorityCode.VERY_BAD.getValue());
 				else if (KEY_TRACK.equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.REACH_DEST.getValue());
+					 weightToPrioMap.put(100d,  PriorityCode.REACH_DESTINATION.getValue());
 				else 
-					weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+					weightToPrioMap.put(40d, PriorityCode.VERY_BAD.getValue());
 			}
 			else	
 				weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
@@ -356,7 +356,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 			if (maxSpeed > 0) {
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)
-					weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+					weightToPrioMap.put(110d, PriorityCode.VERY_BAD.getValue());
 				else if (maxSpeed <= 50)
 					weightToPrioMap.put(110d, PriorityCode.UNCHANGED.getValue());
 			}
@@ -383,11 +383,6 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
     {
         return FlagEncoderNames.EMERGENCY;
     }
-
-	@Override
-	public int getVersion() {
-		return 2;
-	}
 
     @Override
     public TransportationMode getTransportationMode() {

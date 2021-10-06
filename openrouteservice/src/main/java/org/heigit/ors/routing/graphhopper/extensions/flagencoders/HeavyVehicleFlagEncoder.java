@@ -275,19 +275,19 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                     case "road":
                     case "unclassified":
                         if (maxSpeed > 0 && maxSpeed <= 30) {
-                            weightToPrioMap.put(120d, PriorityCode.REACH_DEST.getValue());
+                            weightToPrioMap.put(120d, PriorityCode.REACH_DESTINATION.getValue());
                         } else {
-                            weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                            weightToPrioMap.put(100d, PriorityCode.VERY_BAD.getValue());
                         }
                         break;
                     case "living_street":
-                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.VERY_BAD.getValue());
                         break;
                     case VAL_TRACK:
-                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.REACH_DESTINATION.getValue());
                         break;
                     default:
-                        weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        weightToPrioMap.put(40d, PriorityCode.VERY_BAD.getValue());
                         break;
                 }
             } else {
@@ -297,7 +297,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
             if (maxSpeed > 0) {
                 // We assume that the given road segment goes through a settlement.
                 if (maxSpeed <= 40)
-                    weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                    weightToPrioMap.put(110d, PriorityCode.VERY_BAD.getValue());
                 else if (maxSpeed <= 50)
                     weightToPrioMap.put(110d, PriorityCode.UNCHANGED.getValue());
             }
@@ -318,11 +318,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     @Override
     public String toString() {
         return FlagEncoderNames.HEAVYVEHICLE;
-    }
-
-    @Override
-    public int getVersion() {
-        return 2;
     }
 
     @Override

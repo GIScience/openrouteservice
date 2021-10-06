@@ -21,8 +21,8 @@ import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 
@@ -57,12 +57,12 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
 		initCollections(size);
 
-		CHGraph chGraph = null;
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph) graph;
+		RoutingCHGraph chGraph = null;
+		if (graph instanceof RoutingCHGraph)
+			chGraph = (RoutingCHGraph) graph;
 		else if (graph instanceof QueryGraph) {
 			QueryGraph qGraph = (QueryGraph) graph;
-			chGraph = (CHGraph) qGraph.getBaseGraph();
+			chGraph = (RoutingCHGraph) qGraph.getBaseGraph();
 		}
 
 		setMaxVisitedNodes(Integer.MAX_VALUE);

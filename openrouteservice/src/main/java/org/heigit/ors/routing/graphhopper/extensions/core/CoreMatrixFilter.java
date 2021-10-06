@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIteratorState;
 
@@ -30,7 +30,7 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
     /**
      * @param graph
      */
-    public CoreMatrixFilter(CHGraph graph) {
+    public CoreMatrixFilter(RoutingCHGraph graph) {
         super(graph);
     }
 

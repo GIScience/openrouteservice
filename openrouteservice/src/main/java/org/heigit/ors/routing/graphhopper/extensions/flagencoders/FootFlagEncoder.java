@@ -93,9 +93,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
                 "right"
         ));
 
-        absoluteBarriers.add("fence");
-        potentialBarriers.add("gate");
-        potentialBarriers.add("cattle_grid");
+        blockByDefaultBarriers.add("fence");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("cattle_grid");
 
         safeHighwayTags.addAll(Arrays.asList(
                 "footway",
@@ -211,7 +211,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             else
                 code = hikingNetworkToCode.get("lwn");
         } else if (relation.hasTag(OSMTags.Keys.ROUTE, "ferry")) {
-            code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
+            code = VERY_BAD.getValue();
         }
 
         int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
@@ -366,7 +366,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     void assignTunnelPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         if (way.hasTag(OSMTags.Keys.TUNNEL, intendedValues)) {
             if (way.hasTag(OSMTags.Keys.SIDEWALK, noSidewalkValues))
-                weightToPrioMap.put(40d, AVOID_IF_POSSIBLE.getValue());
+                weightToPrioMap.put(40d, VERY_BAD.getValue());
             else
                 weightToPrioMap.put(40d, UNCHANGED.getValue());
         }
@@ -384,7 +384,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         if ((maxSpeed > 50 || avoidHighwayTags.contains(highway))
                 && !way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues)) {
-            weightToPrioMap.put(45d, REACH_DEST.getValue());
+            weightToPrioMap.put(45d, REACH_DESTINATION.getValue());
         }
     }
 
@@ -398,7 +398,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     private void assignAvoidUnlessSidewalkPresentPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
         if (avoidUnlessSidewalkTags.contains(highway) && !way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
-            weightToPrioMap.put(45d, AVOID_AT_ALL_COSTS.getValue());
+            weightToPrioMap.put(45d, REACH_DESTINATION.getValue());
     }
 
     /**
@@ -409,7 +409,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
      */
     private void assignBicycleWayPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         if (way.hasTag(OSMTags.Keys.BICYCLE, "official") || way.hasTag(OSMTags.Keys.BICYCLE, KEY_DESIGNATED))
-            weightToPrioMap.put(44d, AVOID_IF_POSSIBLE.getValue());
+            weightToPrioMap.put(44d, VERY_BAD.getValue());
     }
 
     @Override

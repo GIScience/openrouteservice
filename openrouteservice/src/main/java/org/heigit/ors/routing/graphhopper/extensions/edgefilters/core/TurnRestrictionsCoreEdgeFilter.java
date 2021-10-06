@@ -12,8 +12,11 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
+import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
@@ -30,7 +33,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
  */
 
 public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
-    private final TurnCostExtension turnCostExtension;
+    private final TurnCostProvider turnCostProvider;
     private final FlagEncoder flagEncoder;
     private final EdgeExplorer inEdgeExplorer;
     private final EdgeExplorer outEdgeExplorer;
@@ -42,7 +45,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
         this.flagEncoder = encoder;
         this.graph = graphHopperStorage.getBaseGraph();
-        turnCostExtension = GraphStorageUtils.getGraphExtension(graphHopperStorage, TurnCostExtension.class);
+        turnCostProvider = new DefaultTurnCostProvider(flagEncoder, graphHopperStorage.getTurnCostStorage());
         inEdgeExplorer = graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()));
         outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
     }
@@ -58,10 +61,10 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
         while (edgeIterator.next()) {
             int otherEdge = edgeIterator.getEdge();
-            long turnFlags = (edgeExplorer == inEdgeExplorer) ?
-                    turnCostExtension.getTurnCostFlags(otherEdge, viaNode, queriedEdge) :
-                    turnCostExtension.getTurnCostFlags(queriedEdge, viaNode, otherEdge);
-            if (flagEncoder.isTurnRestricted(turnFlags))
+            Double turnCost = (edgeExplorer == inEdgeExplorer) ?
+                    turnCostProvider.calcTurnWeight(otherEdge, viaNode, queriedEdge) :
+                    turnCostProvider.calcTurnWeight(queriedEdge, viaNode, otherEdge);
+            if (turnCost.equals(Double.POSITIVE_INFINITY))
                 return true;
         }
 

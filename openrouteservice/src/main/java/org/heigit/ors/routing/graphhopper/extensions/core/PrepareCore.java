@@ -43,7 +43,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final PreparationWeighting prepareWeighting;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
-    private final CHGraphImpl prepareGraph;
+    private final RoutingCHGraphImpl prepareGraph;
     private final Random rand = new Random(123);
     private final StopWatch allSW = new StopWatch();
     private final Weighting weighting;

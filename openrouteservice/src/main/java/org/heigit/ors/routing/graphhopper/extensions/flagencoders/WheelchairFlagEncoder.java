@@ -162,31 +162,29 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
-        absoluteBarriers.add("fence");
-        absoluteBarriers.add("wall");
-        absoluteBarriers.add("hedge");
-        absoluteBarriers.add("retaining_wall");
-        absoluteBarriers.add("city_wall");
-        absoluteBarriers.add("ditch");
-        absoluteBarriers.add("hedge_bank");
-        absoluteBarriers.add("guard_rail");
-        absoluteBarriers.add("wire_fence");
-        absoluteBarriers.add("embankment");
-
-        blockBarriersByDefault(false);
+        blockByDefaultBarriers.add("fence");
+        blockByDefaultBarriers.add("wall");
+        blockByDefaultBarriers.add("hedge");
+        blockByDefaultBarriers.add("retaining_wall");
+        blockByDefaultBarriers.add("city_wall");
+        blockByDefaultBarriers.add("ditch");
+        blockByDefaultBarriers.add("hedge_bank");
+        blockByDefaultBarriers.add("guard_rail");
+        blockByDefaultBarriers.add("wire_fence");
+        blockByDefaultBarriers.add("embankment");
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
         // potential barriers do not block, if no further information is available
-        potentialBarriers.add("gate");
-        potentialBarriers.add("bollard");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("cycle_barrier");
-        potentialBarriers.add("entrance");
-        potentialBarriers.add("cattle_grid");
-        potentialBarriers.add("swing_gate");
-        potentialBarriers.add("chain");
-        potentialBarriers.add("bump_gate");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("bollard");
+        passByDefaultBarriers.add("lift_gate");
+        passByDefaultBarriers.add("cycle_barrier");
+        passByDefaultBarriers.add("entrance");
+        passByDefaultBarriers.add("cattle_grid");
+        passByDefaultBarriers.add("swing_gate");
+        passByDefaultBarriers.add("chain");
+        passByDefaultBarriers.add("bump_gate");
 
         // add these to absolute barriers
         inaccessibleBarriers.add("stile");
@@ -462,7 +460,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             code = PriorityCode.PREFER.getValue();
         } 
         else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
+            code = VERY_BAD.getValue();
         }
 
         int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
@@ -668,9 +666,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         int sum = positiveFeatures - negativeFeatures;
 
-        if (sum <= -6) return AVOID_AT_ALL_COSTS.getValue();
-        else if (sum <= -3) return REACH_DEST.getValue();
-        else if (sum <= -1) return AVOID_IF_POSSIBLE.getValue();
+        if (sum <= -6) return EXCLUDE.getValue();
+        else if (sum <= -3) return REACH_DESTINATION.getValue();
+        else if (sum <= -1) return VERY_BAD.getValue();
         else if (sum ==0) return UNCHANGED.getValue();
         else if (sum <= 2) return PREFER.getValue();
         else if (sum <= 5) return VERY_NICE.getValue();
@@ -682,11 +680,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     {
         return FlagEncoderNames.WHEELCHAIR;
     }
-
-	@Override
-	public int getVersion() {
-		return 2;
-	}
 
     @Override
     public TransportationMode getTransportationMode() {

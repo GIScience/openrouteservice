@@ -80,7 +80,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         hasConditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
         hasConditionalSpeed = properties.getBool(ConditionalEdges.SPEED, false);
         this.blockFords(properties.getBool("block_fords", true));
-        this.blockBarriersByDefault(properties.getBool("block_barriers", true));
         speedTwoDirections = properties.getBool("speed_two_directions", true);
         useAcceleration = properties.getBool("use_acceleration", false);
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
@@ -102,17 +101,17 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         intendedValues.add("permissive");
         intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
 
-        potentialBarriers.add("gate");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("kissing_gate");
-        potentialBarriers.add("swing_gate");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("lift_gate");
+        passByDefaultBarriers.add("kissing_gate");
+        passByDefaultBarriers.add("swing_gate");
 
-        absoluteBarriers.add("bollard");
-        absoluteBarriers.add("stile");
-        absoluteBarriers.add("turnstile");
-        absoluteBarriers.add("cycle_barrier");
-        absoluteBarriers.add("motorcycle_barrier");
-        absoluteBarriers.add("block");
+        blockByDefaultBarriers.add("bollard");
+        blockByDefaultBarriers.add("stile");
+        blockByDefaultBarriers.add("turnstile");
+        blockByDefaultBarriers.add("cycle_barrier");
+        blockByDefaultBarriers.add("motorcycle_barrier");
+        blockByDefaultBarriers.add("block");
 
         trackTypeSpeedMap = new HashMap<>();
 

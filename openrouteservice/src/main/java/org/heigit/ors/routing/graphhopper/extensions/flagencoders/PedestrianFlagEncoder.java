@@ -23,7 +23,6 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
     public PedestrianFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
-        this.properties = properties;
         this.blockFords(properties.getBool("block_fords", true));
     }
 
@@ -33,12 +32,6 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
         suitableSacScales.add("hiking");
 
         init(null); // TODO: Need to pass initialized DateRangeParser?
-    }
-
-    @Override
-
-    public int getVersion() {
-        return 4;
     }
 
     @Override
