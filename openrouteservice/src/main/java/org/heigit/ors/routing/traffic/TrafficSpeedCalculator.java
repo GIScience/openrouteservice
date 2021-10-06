@@ -6,6 +6,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -13,12 +14,13 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorag
 import java.time.ZonedDateTime;
 
 public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
-    //protected DecimalEncodedValue avSpeedEnc;
     // time-dependent stuff
     protected TrafficGraphStorage trafficGraphStorage;
     protected int timeZoneOffset;
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
+    private boolean isHGV = false;
+    private double HGVTrafficSpeedLimit = 80.0;
 
     public TrafficSpeedCalculator(SpeedCalculator superSpeedCalculator) {
         super(superSpeedCalculator);
@@ -27,6 +29,8 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     public void init(GraphHopperStorage graphHopperStorage, FlagEncoder flagEncoder) {
         if (flagEncoder instanceof VehicleFlagEncoder)
             setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
+        if (flagEncoder instanceof HeavyVehicleFlagEncoder)
+            isHGV = true;
         setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
     }
 
@@ -49,7 +53,10 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
             if (isVehicle) {
                 trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
-                speed = trafficSpeed;
+                // For heavy vehicles, consider the traffic speeds only up to a predefined speeds
+                if(!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
+                    speed = trafficSpeed;
+                }
             } else {
                 if (speed >= 45.0 && !(trafficSpeed > 1.1 * speed) || trafficSpeed < speed) {
                     speed = trafficSpeed;
