@@ -15,21 +15,13 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.*;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.Path;
-import com.graphhopper.routing.Router;
-import com.graphhopper.routing.RouterConfig;
-import com.graphhopper.routing.WeightingFactory;
+import com.graphhopper.routing.*;
 import com.graphhopper.routing.lm.LandmarkStorage;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.*;
 import com.graphhopper.storage.CHGraph;
-import com.graphhopper.storage.CHProfile;
-import com.graphhopper.storage.ConditionalEdges;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
@@ -188,10 +180,16 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,
 									PathDetailsBuilderFactory pathBuilderFactory, TranslationMap trMap, RouterConfig routerConfig,
-									WeightingFactory weightingFactory, Map<String, CHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
+									WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
 		Router r = new Router(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
 		r.setEdgeFilterFactory(new ORSEdgeFilterFactory());
 		return r;
+	}
+
+	@Override
+	protected WeightingFactory createWeightingFactory() {
+		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
+		return new DefaultWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
 
 	// TODO: This override is unnecessary, because the changes are already applied

@@ -13,7 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.util.*;
+import com.graphhopper.config.Profile;
+import com.graphhopper.routing.WeightingFactory;
+import com.graphhopper.routing.util.ConditionalSpeedCalculator;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -30,6 +35,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
+
+
+	@Override
+	public Weighting createWeighting(Profile profile, PMap hints, boolean disableTurnCosts) {
+		// TODO: This is the new signature, move content from method below...
+		return null;
+	}
+
 	public Weighting createWeighting(PMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
 		TraversalMode tMode = encoder.supportsTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
@@ -50,7 +63,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
-			result = new ShortestWeighting(encoder); 
+			result = new ShortestWeighting(encoder);
 		}
 		else if ("fastest".equalsIgnoreCase(strWeighting)) 
 		{
