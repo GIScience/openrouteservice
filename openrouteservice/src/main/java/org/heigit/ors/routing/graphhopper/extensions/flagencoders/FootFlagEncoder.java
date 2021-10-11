@@ -137,7 +137,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
-        init();
+        init(null); // TODO: need to pass a properly initialized parser?
     }
 
     public double getMeanSpeed() {

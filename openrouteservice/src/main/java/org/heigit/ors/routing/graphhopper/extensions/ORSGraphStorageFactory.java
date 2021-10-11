@@ -17,6 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.NoOpExtension;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		GraphExtension graphExtension = null;
 
 		if (geTurnCosts == null && graphExtensions.isEmpty())
-			graphExtension = new GraphExtension.NoOpExtension();
+			graphExtension = new NoOpExtension();
 		else if (geTurnCosts != null && !graphExtensions.isEmpty()) {
 			ArrayList<GraphExtension> seq = new ArrayList<>();
 			seq.add(geTurnCosts);
@@ -112,7 +113,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			return new ExtendedStorageSequence(seq);
 		}
 		else
-			return graphExtensions.isEmpty() ? new GraphExtension.NoOpExtension() : graphExtensions.get(0);
+			return graphExtensions.isEmpty() ? new NoOpExtension() : graphExtensions.get(0);
 	}
 
 	private boolean hasGraph(GraphHopper gh) {

@@ -13,6 +13,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.storages.NoOpExtension;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -25,7 +26,7 @@ public class AvoidAreasEdgeFilterTest {
     private final GraphHopperStorage _graphStorage;
 
     public AvoidAreasEdgeFilterTest() {
-        _graphStorage = new GraphHopperStorage(new GHDirectory("", DAType.RAM_STORE), encoder, false, new GraphExtension.NoOpExtension());
+        _graphStorage = new GraphHopperStorage(new GHDirectory("", DAType.RAM_STORE), encoder, false);
         _graphStorage.create(3);
 
 

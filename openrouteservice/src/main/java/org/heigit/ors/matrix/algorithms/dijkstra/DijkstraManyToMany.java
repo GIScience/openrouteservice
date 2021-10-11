@@ -19,12 +19,11 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.TraversalMode;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
@@ -49,6 +48,12 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHe
  *
  * @author Hendrik Leuschner
  */
+// TODO: What is the right name for this class? It is called 'Dijkstra' but
+//       uses a chgraph (now Routing CHGraph) which has consequences on
+//       which EdgeIterators may be used, which are then passed to
+//       AbstractManyToManyRoutingAlgorithm.accept(), which should propaply
+//       not depend on CH stuff.
+
 public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<AveragedMultiTreeSPEntry> bestWeightMap;
     IntObjectMap<List<AveragedMultiTreeSPEntry>> bestWeightMapCore;
@@ -136,8 +141,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = swap? chGraph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()))
-                : chGraph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+        RoutingCHEdgeExplorer explorer = swap? chGraph.createInEdgeExplorer() : chGraph.createOutEdgeExplorer();
         currEdge = prioQueue.poll();
         if(currEdge == null)
             return;
@@ -146,7 +150,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             int currNode = currEdge.getAdjNode();
             boolean isCoreNode = isCoreNode(currNode);
             if(isCoreNode) {
-                EdgeIterator iter = explorer.setBaseNode(currNode);
+                RoutingCHEdgeIterator iter = explorer.setBaseNode(currNode);
                 exploreEntry(iter);
             }
             // If we find a core exit node or a node in the subgraph, explore it

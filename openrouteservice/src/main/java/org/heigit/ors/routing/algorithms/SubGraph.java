@@ -15,10 +15,7 @@ package org.heigit.ors.routing.algorithms;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.ev.EnumEncodedValue;
-import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.*;
@@ -89,6 +86,11 @@ public class SubGraph {
 		}
 
 		@Override
+		public int getEdgeKey() {
+			return 0;
+		}
+
+		@Override
 		public int getOrigEdgeFirst() {
 			return currState.getOrigEdgeFirst();
 		}
@@ -138,16 +140,6 @@ public class SubGraph {
 			return currState.setFlags(edgeFlags);
 		}
 
-		// TODO: cn this method be removed? @Override
-		public int getAdditionalField() {
-			return 0;
-		}
-
-		// TODO: can this method be removed? @Override
-		public EdgeIteratorState setAdditionalField(int value) {
-			return null;
-		}
-
 		@Override
 		public boolean get(BooleanEncodedValue property) {
 			return currState.get(property);
@@ -166,6 +158,11 @@ public class SubGraph {
 		@Override
 		public EdgeIteratorState setReverse(BooleanEncodedValue property, boolean value) {
 			return currState.setReverse(property, value);
+		}
+
+		@Override
+		public EdgeIteratorState set(BooleanEncodedValue booleanEncodedValue, boolean b, boolean b1) {
+			return null;
 		}
 
 		@Override
@@ -189,6 +186,11 @@ public class SubGraph {
 		}
 
 		@Override
+		public EdgeIteratorState set(IntEncodedValue intEncodedValue, int i, int i1) {
+			return null;
+		}
+
+		@Override
 		public double get(DecimalEncodedValue property) {
 			return currState.get(property);
 		}
@@ -209,6 +211,11 @@ public class SubGraph {
 		}
 
 		@Override
+		public EdgeIteratorState set(DecimalEncodedValue decimalEncodedValue, double v, double v1) {
+			return null;
+		}
+
+		@Override
 		public <T extends Enum<?>> T get(EnumEncodedValue<T> property) {
 			return currState.get(property);
 		}
@@ -226,6 +233,36 @@ public class SubGraph {
 		@Override
 		public <T extends Enum<?>> EdgeIteratorState setReverse(EnumEncodedValue<T> property, T value) {
 			return currState.setReverse(property, value);
+		}
+
+		@Override
+		public <T extends Enum<?>> EdgeIteratorState set(EnumEncodedValue<T> enumEncodedValue, T t, T t1) {
+			return null;
+		}
+
+		@Override
+		public String get(StringEncodedValue stringEncodedValue) {
+			return null;
+		}
+
+		@Override
+		public EdgeIteratorState set(StringEncodedValue stringEncodedValue, String s) {
+			return null;
+		}
+
+		@Override
+		public String getReverse(StringEncodedValue stringEncodedValue) {
+			return null;
+		}
+
+		@Override
+		public EdgeIteratorState setReverse(StringEncodedValue stringEncodedValue, String s) {
+			return null;
+		}
+
+		@Override
+		public EdgeIteratorState set(StringEncodedValue stringEncodedValue, String s, String s1) {
+			return null;
 		}
 
 		@Override
@@ -286,11 +323,6 @@ public class SubGraph {
 			return this;
 		}
 
-		// TODO: can this method be removed? @Override
-		public CHEdgeIteratorState setFirstAndLastOrigEdges(int firstOrigEdge, int lastOrigEdge) {
-			throw new IllegalStateException("Unsupported operation");
-		}
-
 		@Override
 		public boolean isShortcut() {
 			if (currState instanceof CHEdgeIteratorState)
@@ -299,11 +331,15 @@ public class SubGraph {
 				return false;
 		}
 
-		// TODO: can this method be removed? @Override
-		public int getMergeStatus(int flags) {
-			return 0;
+		@Override
+		public boolean getFwdAccess() {
+			return false;
 		}
 
+		@Override
+		public boolean getBwdAccess() {
+			return false;
+		}
 
 		@Override
 		public double getWeight() {
@@ -345,7 +381,7 @@ public class SubGraph {
 			return true;
 		}
 
-		EdgeIteratorState iterState = null;
+		EdgeIteratorState iterState;
 		if (reverse) {
 			iterState =  baseGraph.getEdgeIteratorState(iter.getEdge(), adjNode);
 			adjNode = iter.getAdjNode();

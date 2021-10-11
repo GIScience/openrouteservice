@@ -22,6 +22,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.storages.NoOpExtension;
 import org.heigit.ors.util.DebugUtility;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +49,7 @@ public class CoreLandmarkStorageTest {
     public void setUp() {
         FlagEncoder encoder = new CarFlagEncoder();
         ghStorage = new GraphHopperStorage(new RAMDirectory(),
-                EncodingManager.create(encoder), false, new GraphExtension.NoOpExtension());
+                EncodingManager.create(encoder), false);
         ghStorage.create(1000);
         dir = new GHDirectory("", DAType.RAM_INT);
     }

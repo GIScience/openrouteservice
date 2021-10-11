@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.coll.GHTreeMapComposed;
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.ch.CHPreparationGraph;
 import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
@@ -43,7 +44,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
     private final PreparationWeighting prepareWeighting;
     private final EdgeFilter restrictionFilter;
     private final GraphHopperStorage ghStorage;
-    private final RoutingCHGraphImpl prepareGraph;
+    private final CHPreparationGraph prepareGraph;
     private final Random rand = new Random(123);
     private final StopWatch allSW = new StopWatch();
     private final Weighting weighting;
@@ -82,7 +83,7 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
 
     public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph, EdgeFilter restrictionFilter) {
         this.ghStorage = ghStorage;
-        this.prepareGraph = (CHGraphImpl) chGraph;
+        this.prepareGraph = (CHPrepGraphImpl) chGraph;
         this.chProfile = chGraph.getCHProfile();
         this.weighting = chProfile.getWeighting();
         this.flagEncoder = weighting.getFlagEncoder();

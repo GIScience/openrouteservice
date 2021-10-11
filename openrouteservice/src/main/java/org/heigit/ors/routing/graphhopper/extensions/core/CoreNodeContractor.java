@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.DijkstraOneToMany;
+import com.graphhopper.routing.ch.CHPreparationGraph;
 import com.graphhopper.routing.ch.PreparationWeighting;
 import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.AccessFilter;
@@ -39,7 +40,7 @@ import java.util.Map;
 
 public class CoreNodeContractor {
     private final GraphHopperStorage ghStorage;
-    private final CHGraph prepareGraph;
+    private final CHPreparationGraph prepareGraph;
     private final PreparationWeighting prepareWeighting;
     private final CHProfile chProfile;
     private final DataAccess originalEdges;
