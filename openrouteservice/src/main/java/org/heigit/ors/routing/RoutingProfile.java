@@ -614,7 +614,7 @@ public class RoutingProfile {
             else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
                 graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
                 RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-                ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
+                PMap additionalHints = (PMap) searchCntx.getProperties();
                 edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
             }
             else
@@ -1163,12 +1163,13 @@ public class RoutingProfile {
     }
 
     public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
-        if (!(weighting instanceof TurnWeighting)) {
-            FlagEncoder encoder = weighting.getFlagEncoder();
-            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
-                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
-            }
-        }
+        // TODO: clarify whether this is still needed, as the weightings know their turn costs now
+//        if (!(weighting instanceof TurnWeighting)) {
+//            FlagEncoder encoder = weighting.getFlagEncoder();
+//            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+//                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
+//            }
+//        }
 
         return weighting;
     }
