@@ -15,7 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.storage.Storable;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.plugins.Plugin;
@@ -23,7 +23,7 @@ import org.heigit.ors.plugins.Plugin;
 import java.util.Map;
 
 public interface GraphStorageBuilder extends Plugin {
-	<T> Storable<T> init(GraphHopper graphhopper) throws Exception;
+	GraphExtension init(GraphHopper graphhopper) throws Exception;
 
 	void processWay(ReaderWay way);
 

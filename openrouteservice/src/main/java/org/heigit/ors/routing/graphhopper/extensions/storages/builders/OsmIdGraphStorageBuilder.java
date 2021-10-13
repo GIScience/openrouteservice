@@ -8,7 +8,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 public class OsmIdGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private OsmIdGraphStorage osmIdGraphStorage;
 
-    public OsmIdGraphStorage init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (osmIdGraphStorage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 

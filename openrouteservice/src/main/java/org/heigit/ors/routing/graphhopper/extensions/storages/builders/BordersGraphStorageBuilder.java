@@ -63,7 +63,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * @throws Exception
      */
     @Override
-    public BordersGraphStorage init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 

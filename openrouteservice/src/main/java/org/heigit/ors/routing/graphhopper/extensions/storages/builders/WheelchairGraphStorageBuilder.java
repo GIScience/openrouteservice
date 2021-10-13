@@ -75,7 +75,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	/**
 	 * Initiate the wheelchair storage builder
 	 *
-	 * @param graphhopper	The graphhopper instance to run against
+	 * @param graphhopper    The graphhopper instance to run against
 	 * @return				The storage that is created from the builder
 	 * @throws Exception	Thrown when the storage has already been initialized
 	 */
