@@ -16,9 +16,7 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -540,7 +538,7 @@ public class RoutingProfileManager {
                 lon1 = points.getLon(nPoints - 3);
                 lat1 = points.getLat(nPoints - 3);
             }
-            return Helper.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
+            return AngleCalc.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
         } else
             return 0;
     }
@@ -576,7 +574,7 @@ public class RoutingProfileManager {
             if (config.getMaximumDistance() > 0
                     || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
-                DistanceCalc distCalc = Helper.DIST_EARTH;
+                DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
 
                 List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
