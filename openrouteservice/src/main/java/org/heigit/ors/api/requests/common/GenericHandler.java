@@ -47,9 +47,11 @@ import java.util.Map;
 public class GenericHandler {
     public static final String KEY_PROFILE = "profile";
     protected Map<String, Integer> errorCodes;
+    protected Map<String, String> paramNames;
 
     public GenericHandler() {
         errorCodes = new HashMap<>();
+        paramNames = new HashMap<>();
     }
 
     protected String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
@@ -68,7 +70,7 @@ public class GenericHandler {
 
     protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(),
+            throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
                     "vehicle_type", vehicleTypeIn.toString(),
                     KEY_PROFILE, RoutingProfileType.getName(profileType));
         }
@@ -78,10 +80,6 @@ public class GenericHandler {
         }
 
         return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
-    }
-
-    private Integer getInvalidParameterValueErrorCode() {
-        return getErrorCode("INVALID_PARAMETER_VALUE");
     }
 
     private Integer getErrorCode(String name) {
@@ -112,7 +110,7 @@ public class GenericHandler {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -123,7 +121,7 @@ public class GenericHandler {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
+            throw new ParameterValueException(getErrorCode("INVALID_JSON_FORMAT"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
@@ -136,7 +134,7 @@ public class GenericHandler {
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
+            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
@@ -148,10 +146,12 @@ public class GenericHandler {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                throw new UnknownParameterValueException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName);
+                // TODO: Importing RouteRequestOptions seems like bad style.
+                //       Maybe something similar to errorCodes could be set up?
+                throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName, KEY_PROFILE, RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, KEY_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }

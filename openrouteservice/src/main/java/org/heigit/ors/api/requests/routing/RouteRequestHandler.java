@@ -35,6 +35,7 @@ import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,14 @@ import java.util.stream.Stream;
 public class RouteRequestHandler extends GenericHandler {
     public RouteRequestHandler() {
         super();
-        this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
+
+        for (Field f: RoutingErrorCodes.class.getFields()) {
+            try {
+                this.errorCodes.put(f.getName(), f.getInt(RoutingErrorCodes.class));
+            } catch (IllegalAccessException e) {
+                continue;
+            }
+        }
     }
 
     public RouteResult[] generateRouteFromRequest(RouteRequest request) throws StatusCodeException {
@@ -231,8 +239,13 @@ public class RouteRequestHandler extends GenericHandler {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
-        if (options.hasAvoidPolygonFeatures())
-            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+
+        if (options.hasAvoidPolygonFeatures()) {
+            Polygon[] avoidAreas;
+            avoidAreas = convertAvoidAreas(options.getAvoidPolygonFeatures());
+            validateAreaLimits(avoidAreas, params.getProfileType());
+            params.setAvoidAreas(avoidAreas);
+        }
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
@@ -311,72 +324,7 @@ public class RouteRequestHandler extends GenericHandler {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    @Override
-    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
-        int flags = 0;
-        for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
-            String avoidFeatureName = avoid.toString();
-            int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
-            if (flag == 0)
-                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
-
-            if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, RouteRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
-
-            flags |= flag;
-        }
-
-        return flags;
-    }
-
-    @Override
-    public int convertRouteProfileType(APIEnums.Profile profile) {
-        return RoutingProfileType.getFromString(profile.toString());
-    }
-
-    @Override
-    protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
-        if (avoidBorders != null) {
-            switch (avoidBorders) {
-                case ALL:
-                    return BordersExtractor.Avoid.ALL;
-                case CONTROLLED:
-                    return BordersExtractor.Avoid.CONTROLLED;
-                default:
-                    return BordersExtractor.Avoid.NONE;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
-        // It seems that arrays in json.simple cannot be converted to strings simply
-        org.json.JSONObject complexJson = new org.json.JSONObject();
-        complexJson.put("type", geoJson.get("type"));
-        List<List<Double[]>> coordinates = (List<List<Double[]>>) geoJson.get("coordinates");
-        complexJson.put("coordinates", coordinates);
-
-        Geometry convertedGeom;
-        try {
-            convertedGeom = GeometryJSON.parse(complexJson);
-        } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-        }
-
-        Polygon[] avoidAreas;
-
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
-        } else if (convertedGeom instanceof MultiPolygon) {
-            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
-            avoidAreas = new Polygon[multiPoly.getNumGeometries()];
-            for (int i = 0; i < multiPoly.getNumGeometries(); i++)
-                avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
-        } else {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-        }
-
+    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
         String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
         String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
         double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
@@ -399,8 +347,6 @@ public class RouteRequestHandler extends GenericHandler {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
             }
         }
-
-        return avoidAreas;
     }
 
     private WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
