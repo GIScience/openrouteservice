@@ -15,7 +15,6 @@ import java.util.List;
 public class CentralityRequestHandler extends GenericHandler {
     public CentralityRequestHandler() {
         super();
-        this.errorCodes.put("UNKNOWN_PARAMETER", CentralityErrorCodes.UNKNOWN_PARAMETER);
     }
 
     public CentralityResult generateCentralityFromRequest(CentralityRequest request) throws StatusCodeException {
