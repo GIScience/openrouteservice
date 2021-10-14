@@ -22,7 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -32,10 +36,14 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.GeomUtility;
+import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -138,6 +146,61 @@ public class GenericHandler {
         }
 
         return avoidAreas;
+    }
+
+    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
+        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+        for (Polygon avoidArea : avoidAreas) {
+            try {
+                if (areaLimit > 0) {
+                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                    if (area > areaLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                    }
+                }
+                if (extentLimit > 0) {
+                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                    if (extent > extentLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                    }
+                }
+            } catch (InternalServerException e) {
+                throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            }
+        }
+    }
+
+    protected int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
+        int[] avoidCountryIds = new int[avoidCountries.length];
+        if (avoidCountries.length > 0) {
+            for (int i = 0; i < avoidCountries.length; i++) {
+                try {
+                    avoidCountryIds[i] = Integer.parseInt(avoidCountries[i]);
+                } catch (NumberFormatException nfe) {
+                    // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
+                    int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                    if (countryId > 0) {
+                        avoidCountryIds[i] = countryId;
+                    } else {
+                        throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
+                    }
+                }
+            }
+        }
+
+        return avoidCountryIds;
+    }
+
+    public DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+
+        if (units == DistanceUnit.UNKNOWN)
+            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequest.PARAM_UNITS, unitsIn.toString());
+
+        return units;
     }
 
     protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {

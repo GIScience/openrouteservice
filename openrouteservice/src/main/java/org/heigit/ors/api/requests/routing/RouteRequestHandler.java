@@ -235,10 +235,10 @@ public class RouteRequestHandler extends GenericHandler {
         return params;
     }
 
+    // TODO: can this be merged with processRequestOptions in MatrixRequestHandler?
     public RouteSearchParameters processRequestOptions(RouteRequestOptions options, RouteSearchParameters params) throws StatusCodeException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
-
 
         if (options.hasAvoidPolygonFeatures()) {
             Polygon[] avoidAreas;
@@ -324,31 +324,6 @@ public class RouteRequestHandler extends GenericHandler {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
-        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
-        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
-        for (Polygon avoidArea : avoidAreas) {
-            try {
-                if (areaLimit > 0) {
-                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
-                    if (area > areaLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
-                    }
-                }
-                if (extentLimit > 0) {
-                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
-                    if (extent > extentLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
-                    }
-                }
-            } catch (InternalServerException e) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-            }
-        }
-    }
-
     private WayPointBearing[] convertBearings(Double[][] bearingsIn, int coordinatesLength) throws ParameterValueException {
         if (bearingsIn == null || bearingsIn.length == 0)
             return new WayPointBearing[0];
@@ -430,15 +405,6 @@ public class RouteRequestHandler extends GenericHandler {
         return instrFormat;
     }
 
-    private DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
-
-        if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
-
-        return units;
-    }
-
     private int convertWeightingMethod(APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
@@ -452,26 +418,5 @@ public class RouteRequestHandler extends GenericHandler {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, RouteRequest.PARAM_OPTIMIZED);
 
         return true;
-    }
-
-    private int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
-        int[] avoidCountryIds = new int[avoidCountries.length];
-        if (avoidCountries.length > 0) {
-            for (int i = 0; i < avoidCountries.length; i++) {
-                try {
-                    avoidCountryIds[i] = Integer.parseInt(avoidCountries[i]);
-                } catch (NumberFormatException nfe) {
-                    // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
-                    int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
-                    if (countryId > 0) {
-                        avoidCountryIds[i] = countryId;
-                    } else {
-                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
-                    }
-                }
-            }
-        }
-
-        return avoidCountryIds;
     }
 }

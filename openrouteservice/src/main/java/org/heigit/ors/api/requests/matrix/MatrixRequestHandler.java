@@ -229,13 +229,6 @@ public class MatrixRequestHandler extends GenericHandler {
         return indexCoordinates;
     }
 
-    protected DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
-        if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_UNITS, unitsIn.toString());
-        return units;
-    }
-
     protected int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
@@ -248,49 +241,5 @@ public class MatrixRequestHandler extends GenericHandler {
         }
     }
 
-    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
-        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
-        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
-        for (Polygon avoidArea : avoidAreas) {
-            try {
-                if (areaLimit > 0) {
-                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
-                    if (area > areaLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
-                    }
-                }
-                if (extentLimit > 0) {
-                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
-                    if (extent > extentLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
-                    }
-                }
-            } catch (InternalServerException e) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
-            }
-        }
-    }
 
-    private int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
-        int[] avoidCountryIds = new int[avoidCountries.length];
-        if (avoidCountries.length > 0) {
-            for (int i = 0; i < avoidCountries.length; i++) {
-                try {
-                    avoidCountryIds[i] = Integer.parseInt(avoidCountries[i]);
-                } catch (NumberFormatException nfe) {
-                    // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
-                    int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
-                    if (countryId > 0) {
-                        avoidCountryIds[i] = countryId;
-                    } else {
-                        throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
-                    }
-                }
-            }
-        }
-
-        return avoidCountryIds;
-    }
 }
