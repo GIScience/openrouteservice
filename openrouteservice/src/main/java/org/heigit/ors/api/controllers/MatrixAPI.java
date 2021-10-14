@@ -95,7 +95,7 @@ public class MatrixAPI {
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = MatrixRequestHandler.generateMatrixFromRequest(originalRequest);
+        MatrixResult matrixResult = new MatrixRequestHandler().generateMatrixFromRequest(originalRequest);
 
         return new JSONMatrixResponse(matrixResult, originalRequest);
     }
