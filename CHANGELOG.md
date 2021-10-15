@@ -60,6 +60,7 @@ RELEASING:
 - default minimum `surface-type` for wheelchair to `sett` ([#1059](https://github.com/GIScience/openrouteservice/issues/1059))
 - Default road surface value is now "paved" rather than "asphalt" ([#711](https://github.com/GIScience/openrouteservice/issues/711))
 - `error_codes.md`-documentation now with rest of backend docs ([#1069](https://github.com/GIScience/openrouteservice/issues/1069))
+- remove duplicated code in `*RequestHandlers` ([#1067](https://github.com/GIScience/openrouteservice/issues/1067))
 ### Deprecated
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
