@@ -128,7 +128,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        potentialBarriers.add("kissing_gate");
+        passByDefaultBarriers.add("kissing_gate");
         setSpecificClassBicycle("mtb");
 
         init(null); // TODO: Need to pass initialized DateRangeParser?
@@ -136,11 +136,6 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    public int getVersion() {
-        return 2;
     }
 
     @Override

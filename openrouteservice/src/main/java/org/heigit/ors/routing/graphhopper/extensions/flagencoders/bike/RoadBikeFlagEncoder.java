@@ -145,7 +145,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setCyclingNetworkPreference("lcn", PriorityCode.UNCHANGED.getValue());
         setCyclingNetworkPreference("mtb", PriorityCode.UNCHANGED.getValue());
 
-        absoluteBarriers.add("kissing_gate");
+        blockByDefaultBarriers.add("kissing_gate");
 
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
@@ -208,11 +208,6 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public int getVersion() {
-        return 2;
-    }
-
-    @Override
     void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
         super.collect(way, wayTypeSpeed, weightToPrioMap);
 
@@ -224,7 +219,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
             if (VAL_GRADE_1.equals(trackType)) {
                 weightToPrioMap.put(110d, PREFER.getValue());
             } else if (trackType == null || trackType.startsWith("grade")) {
-                weightToPrioMap.put(110d, AVOID_AT_ALL_COSTS.getValue());
+                weightToPrioMap.put(110d, EXCLUDE.getValue());
             }
         }
     }
