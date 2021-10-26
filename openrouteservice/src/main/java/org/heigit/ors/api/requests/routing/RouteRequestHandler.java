@@ -16,24 +16,15 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
-import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.heigit.ors.util.DistanceUnitUtil;
-import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
-import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -49,7 +40,7 @@ public class RouteRequestHandler extends GenericHandler {
             try {
                 this.errorCodes.put(f.getName(), f.getInt(RoutingErrorCodes.class));
             } catch (IllegalAccessException e) {
-                continue;
+                return;
             }
         }
     }
