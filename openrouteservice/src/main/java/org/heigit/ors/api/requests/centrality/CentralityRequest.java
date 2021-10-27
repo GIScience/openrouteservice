@@ -16,11 +16,12 @@ public class CentralityRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_BBOX = "bbox";
     public static final String PARAM_EXCLUDENODES = "excludeNodes";
+    public static final String PARAM_MODE = "mode";
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "routing_request")
+            example = "centrality_request")
     @JsonProperty(PARAM_ID)
     private String id;
     @JsonIgnore
@@ -45,6 +46,10 @@ public class CentralityRequest {
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
 
+    @ApiModelProperty(name = PARAM_MODE, value = "Specifies the centrality calculation mode. Currently, node-based and edge-based centrality calculation is supported.", example = "nodes")
+    @JsonProperty(PARAM_MODE)
+    private CentralityRequestEnums.Mode mode = CentralityRequestEnums.Mode.NODES;
+
     @JsonCreator
     public CentralityRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
         this.bbox = bbox;
@@ -63,11 +68,11 @@ public class CentralityRequest {
         this.hasId = true;
     }
 
-    public List<List<Double>> getBoundingBox() {
+    public List<List<Double>> getBbox () {
         return bbox;
     }
 
-    public void setBoundingBox(List<List<Double>> bbox ) {
+    public void setBbox(List<List<Double>> bbox ) {
         this.bbox = bbox;
     }
 
@@ -91,5 +96,12 @@ public class CentralityRequest {
     public void setResponseType(APIEnums.CentralityResponseType responseType) {
         this.responseType = responseType;
     }
+
+    public CentralityRequestEnums.Mode getMode() { return mode; }
+
+    public void setMode(CentralityRequestEnums.Mode mode) {
+        this.mode = mode;
+    }
+
 
 }

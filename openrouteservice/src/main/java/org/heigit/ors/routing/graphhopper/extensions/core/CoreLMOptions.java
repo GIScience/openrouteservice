@@ -40,7 +40,7 @@ public class CoreLMOptions {
     }
 
     /**
-     * Creates all LMSet-Filters from the sets specified in the app.config
+     * Creates all LMSet-Filters from the sets specified in the ors-config.json
      * The filter is an LMEdgeFilterSequence, consisting of at most ONE AvoidFeaturesFilter and ONE AvoidCountriesFilter
      * These can contain multiple avoidfeatures and avoidcountries
      *

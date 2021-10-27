@@ -62,7 +62,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
-import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
@@ -339,8 +339,9 @@ public class ORSGraphHopper extends GraphHopper {
 							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
 
 
-				if(hints.has(RouteRequest.PARAM_MAXIMUM_SPEED)) {
-					weighting = new MaximumSpeedWeighting(encoder, hints, weighting, maximumSpeedLowerBound);
+				if (hints.has(RouteRequest.PARAM_MAXIMUM_SPEED)) {
+					double maximumSpeed = hints.getDouble("maximum_speed", maximumSpeedLowerBound);
+					weighting.setSpeedCalculator(new MaximumSpeedCalculator(weighting.getSpeedCalculator(), maximumSpeed));
 				}
 
 				if (isRequestTimeDependent(hints)) {
@@ -368,6 +369,7 @@ public class ORSGraphHopper extends GraphHopper {
 				}
 
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 					((TurnWeighting)weighting).setInORS(true);
@@ -658,6 +660,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
+	public EdgeFilterFactory getEdgeFilterFactory() {
+		return this.edgeFilterFactory;
+	}
 
 	/**
 	 * Enables or disables core calculation.

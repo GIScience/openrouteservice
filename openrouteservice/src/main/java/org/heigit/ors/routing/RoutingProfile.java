@@ -18,13 +18,11 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.CmdArgs;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.Parameters;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
@@ -34,8 +32,10 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.centrality.CentralityWarning;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
+import org.heigit.ors.common.Pair;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
@@ -48,6 +48,7 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -56,8 +57,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStor
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.parameters.VehicleParameters;
-import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
@@ -88,7 +87,6 @@ public class RoutingProfile {
     private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
-    private static final String VAL_TD_FASTEST = "td_fastest";
     private static final String VAL_RECOMMENDED = "recommended";
     private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
@@ -627,23 +625,35 @@ public class RoutingProfile {
 
         try {
             HintsMap hintsMap = new HintsMap();
+            EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(flagEncoder);
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph = null;
+            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
             if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getWeighting())) {
                 hintsMap.setVehicle(encoderName);
                 graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
             }
+            else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
+                graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
+                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+                ORSPMap additionalHints = (ORSPMap) searchCntx.getProperties();
+                edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+            }
             else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
-            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), DefaultEdgeFilter.allEdges(flagEncoder), req.getResolveLocations());
+            MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-
-            alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-
+            if(alg instanceof  CoreMatrixAlgorithm) {
+                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+                if (weighting instanceof TurnWeighting)
+                    ((TurnWeighting)weighting).setInORS(true);
+                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+            }
+            else
+                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {
             throw ex;
@@ -666,6 +676,7 @@ public class RoutingProfile {
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
@@ -683,16 +694,27 @@ public class RoutingProfile {
             }
         });
 
+        if (nodesInBBox.isEmpty()) {
+            // without nodes, no centrality can be calculated
+            res.setWarning(new CentralityWarning(CentralityWarning.EMPTY_BBOX));
+            return res;
+        }
+
         CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting);
+        alg.init(graph, weighting, explorer);
 
-        HashMap<Integer, Double> betweenness = alg.compute(nodesInBBox);
-
-        // transform node ids to coordinates
+        // transform node ids to coordinates,
         for (int v : nodesInBBox) {
             Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-            res.addCentralityScore(coord, betweenness.get(v));
-            res.addNode(v, coord);
+            res.addLocation(v, coord);
+        }
+
+        if (req.getMode().equals("nodes")) {
+            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
+            res.setNodeCentralityScores(nodeBetweenness);
+        } else {
+            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
+            res.setEdgeCentralityScores(edgeBetweenness);
         }
 
         return res;
@@ -738,16 +760,12 @@ public class RoutingProfile {
         }
 
         /* Heavy vehicle filter */
-        if (profileType == RoutingProfileType.DRIVING_HGV
-            && searchParams.hasParameters(VehicleParameters.class)
-            && ((VehicleParameters)profileParams).hasAttributes()
-        ) {
+        if (profileType == RoutingProfileType.DRIVING_HGV) {
             props.put("edgefilter_hgv", searchParams.getVehicleType());
         }
 
         /* Wheelchair filter */
-        else if (profileType == RoutingProfileType.WHEELCHAIR
-            && searchParams.hasParameters(WheelchairParameters.class)) {
+        else if (profileType == RoutingProfileType.WHEELCHAIR) {
             props.put("edgefilter_wheelchair", "true");
         }
 
@@ -1035,7 +1053,7 @@ public class RoutingProfile {
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
                 weighting = VAL_FASTEST;
-                weightingMethod = hasTimeDependentSpeed ? VAL_TD_FASTEST : VAL_FASTEST;
+                weightingMethod = VAL_FASTEST;
             }
             if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)){
                 weighting = VAL_RECOMMENDED;
@@ -1045,6 +1063,9 @@ public class RoutingProfile {
 
         map.put(KEY_WEIGHTING, weighting);
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
+
+        if (hasTimeDependentSpeed)
+            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
     }
     /**
      * Set the speedup techniques used for calculating the route.
@@ -1159,6 +1180,17 @@ public class RoutingProfile {
             }
         }
         return result;
+    }
+
+    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
+        if (!(weighting instanceof TurnWeighting)) {
+            FlagEncoder encoder = weighting.getFlagEncoder();
+            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
+            }
+        }
+
+        return weighting;
     }
 
     public boolean equals(Object o) {

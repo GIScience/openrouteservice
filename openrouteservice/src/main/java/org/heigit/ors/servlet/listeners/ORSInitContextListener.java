@@ -34,6 +34,7 @@ import javax.servlet.annotation.WebListener;
 public class ORSInitContextListener implements ServletContextListener {
 	private static final Logger LOGGER = Logger.getLogger("org.heigit.ors.logging");
 
+	@Override
 	public void contextInitialized(ServletContextEvent contextEvent)  {
 		Runnable runnable = () -> {
 		    try {
@@ -49,6 +50,7 @@ public class ORSInitContextListener implements ServletContextListener {
 		thread.start();
 	}
 
+	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		try {
 			LOGGER.info("Start shutting down ORS and releasing resources.");
