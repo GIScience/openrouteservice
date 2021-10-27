@@ -16,7 +16,6 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.GenericHandler;
 import org.heigit.ors.common.StatusCode;
@@ -36,6 +35,7 @@ public class RouteRequestHandler extends GenericHandler {
     public RouteRequestHandler() {
         super();
 
+        // TODO: cleanup usage of relection
         for (Field f: RoutingErrorCodes.class.getFields()) {
             try {
                 this.errorCodes.put(f.getName(), f.getInt(RoutingErrorCodes.class));
@@ -231,12 +231,8 @@ public class RouteRequestHandler extends GenericHandler {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
-        if (options.hasAvoidPolygonFeatures()) {
-            Polygon[] avoidAreas;
-            avoidAreas = convertAvoidAreas(options.getAvoidPolygonFeatures());
-            validateAreaLimits(avoidAreas, params.getProfileType());
-            params.setAvoidAreas(avoidAreas);
-        }
+        if (options.hasAvoidPolygonFeatures())
+            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
