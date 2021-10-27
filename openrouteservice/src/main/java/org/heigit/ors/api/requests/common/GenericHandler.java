@@ -395,7 +395,7 @@ public class GenericHandler {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
                 Float greenFactor = weightings.getGreenIndex();
-                if (greenFactor.floatValue() > 1)
+                if (greenFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", greenFactor), "green factor", "1.0");
                 pw.addParameter("factor", greenFactor);
                 params.add(pw);
@@ -404,7 +404,7 @@ public class GenericHandler {
             if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
                 Float quietFactor = weightings.getQuietIndex();
-                if (quietFactor.floatValue() > 1)
+                if (quietFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", quietFactor), "quiet factor", "1.0");
                 pw.addParameter("factor", quietFactor);
                 params.add(pw);

@@ -143,8 +143,8 @@ public class MatrixRequestHandler extends GenericHandler {
 
     public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
         List<String> metricsAsStrings = new ArrayList<>();
-        for (int i=0; i<metrics.length; i++) {
-            metricsAsStrings.add(metrics[i].toString());
+        for (MatrixRequestEnums.Metrics metric : metrics) {
+            metricsAsStrings.add(metric.toString());
         }
 
         String concatMetrics = String.join("|", metricsAsStrings);
