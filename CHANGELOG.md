@@ -49,6 +49,7 @@ RELEASING:
     3. File in class path `ors-config.json` > `app.config`
     4. Error if none of the above is specified.
 - links and info about docker setup to backend documentation
+- `minimum_width` to wheelchair routing options documentation ([#1080](https://github.com/GIScience/openrouteservice/pull/1080))
 ### Changed
 - Update tomcat version used by docker setup ([#1022](https://github.com/GIScience/openrouteservice/pull/1022))
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))

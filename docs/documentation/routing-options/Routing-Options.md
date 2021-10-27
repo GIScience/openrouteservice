@@ -45,13 +45,13 @@ The available parameters are:
 
   - `restrictions` : Specifies restrictions for `driving-hgv`, `wheelchair` or `cycling-*` profiles.
 
-    - for `cycling-*`: 
-        
+    - for `cycling-*`:
+
       |  Parameter | Description                                                                                                                                                                               |
       |:----------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
       | `gradient` | Only for avoided `hills` or specified `steepness_difficulty`. Specifies the maximum route steepness in percent. Values range from `1` to `15`. Routes with a higher gradient are avoided. |
 
-    - for `driving-hgv`: 
+    - for `driving-hgv`:
       *(you have to specify the `vehicle_type` in the options for these parameters)*
 
       |  Parameter | Description                                                                                                                       |
@@ -72,6 +72,7 @@ The available parameters are:
       |   `smoothness_type`   | Specifies the minimum [smoothness](http://wiki.openstreetmap.org/wiki/Key:smoothness) of the route. Default is `"good"`.    |
       | `maximum_sloped_kerb` | Specifies the maximum height of the sloped kerb in meters. Values are `0.03`, `0.06`(default), `0.1` or `any`.              |
       |   `maximum_incline`   | Specifies the maximum incline as a percentage. `3`, `6`(default), `10`, `15` or `any`.                                      |
+      |   `minimum_width`     | Specifies the minimum width of a road in meters.                                                                            |
 
 
 - `avoid_polygons` : Comprises areas to be avoided for the route. Formatted as [geojson polygon](http://geojson.org/geojson-spec.html#id4) or [geojson multipolygon](http://geojson.org/geojson-spec.html#id7).
