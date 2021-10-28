@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
@@ -54,6 +55,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHe
  */
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
+    protected int nodeCount;
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     protected int visitedNodes;
     private int treeEntrySize;
@@ -87,6 +89,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             throw new ClassCastException(e.getMessage());
         }
         coreNodeLevel = chGraph.getNodes() + 1;
+        nodeCount = chGraph.getNodes();
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
@@ -240,7 +243,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
         AveragedMultiTreeSPEntry currFrom = upwardQueue.poll();
 
-        if (isCoreNode(currFrom.getAdjNode())) {
+        if (isCoreNode(chGraph, currFrom.getAdjNode(), nodeCount, coreNodeLevel)) {
             // core entry point, do not relax its edges
             coreEntryPoints.add(currFrom.getAdjNode());
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
@@ -486,10 +489,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         pathMetricsExtractor.setSwap(swap);
         pathMetricsExtractor.calcValues(originalDestTrees, srcData, dstData, times, distances, weights);
-    }
-
-    boolean isCoreNode(int node) {
-        return chGraph.getLevel(node) >= coreNodeLevel;
     }
 
     boolean considerTurnRestrictions() {
