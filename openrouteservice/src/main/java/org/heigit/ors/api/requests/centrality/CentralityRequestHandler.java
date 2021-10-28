@@ -13,11 +13,6 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import java.util.List;
 
 public class CentralityRequestHandler extends GenericHandler {
-    public CentralityRequestHandler() {
-        super();
-        this.errorCodes.put("UNKNOWN_PARAMETER", CentralityErrorCodes.UNKNOWN_PARAMETER);
-    }
-
     public CentralityResult generateCentralityFromRequest(CentralityRequest request) throws StatusCodeException {
         org.heigit.ors.centrality.CentralityRequest centralityRequest = convertCentralityRequest(request);
 
