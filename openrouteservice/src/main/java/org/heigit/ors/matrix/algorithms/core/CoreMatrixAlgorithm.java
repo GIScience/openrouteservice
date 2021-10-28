@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
@@ -242,7 +243,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
         AveragedMultiTreeSPEntry currFrom = upwardQueue.poll();
 
-        if (isCoreNode(currFrom.getAdjNode())) {
+        if (isCoreNode(chGraph, currFrom.getAdjNode(), nodeCount, coreNodeLevel)) {
             // core entry point, do not relax its edges
             coreEntryPoints.add(currFrom.getAdjNode());
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
@@ -488,16 +489,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         }
         pathMetricsExtractor.setSwap(swap);
         pathMetricsExtractor.calcValues(originalDestTrees, srcData, dstData, times, distances, weights);
-    }
-
-    boolean isCoreNode(int node) {
-        if (isVirtualNode(node))
-            return false;
-        return chGraph.getLevel(node) >= coreNodeLevel;
-    }
-
-    boolean isVirtualNode(int node){
-        return node >= nodeCount;
     }
 
     boolean considerTurnRestrictions() {

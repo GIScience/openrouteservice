@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
@@ -143,7 +144,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
 
         while (!(isMaxVisitedNodesExceeded())){
             int currNode = currEdge.getAdjNode();
-            boolean isCoreNode = isCoreNode(currNode);
+            boolean isCoreNode = isCoreNode(chGraph, currNode, nodeCount, coreNodeLevel);
             if(isCoreNode) {
                 EdgeIterator iter = explorer.setBaseNode(currNode);
                 exploreEntry(iter);
@@ -496,16 +497,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         if (approximate)
             return isTurnRestrictedNode(node);
         return true;
-    }
-
-    boolean isCoreNode(int node) {
-        if (isVirtualNode(node))
-            return false;
-        return chGraph.getLevel(node) >= coreNodeLevel;
-    }
-
-    boolean isVirtualNode(int node){
-        return node >= nodeCount;
     }
 
     boolean isTurnRestrictedNode(int node) {

@@ -12,6 +12,8 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.ExclusiveD
 
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
+
 public class TargetGraphBuilder {
     private int coreNodeLevel;
     private int nodeCount;
@@ -60,7 +62,7 @@ public class TargetGraphBuilder {
                 continue;
             boolean isNewNode = targetGraph.addEdge(baseNode, iter, true);
             int adjNode = iter.getAdjNode();
-            if (isCoreNode(adjNode))
+            if (isCoreNode(chGraph, adjNode, nodeCount, coreNodeLevel))
                 coreExitPoints.add(adjNode);
             else if(isNewNode)
                 localPrioQueue.add(adjNode);
@@ -79,7 +81,7 @@ public class TargetGraphBuilder {
             if (nodeId >= 0) {
                 if (graph != null)
                     graph.addEdge(nodeId, null, true);
-                if (isCoreNode(nodeId))
+                if (isCoreNode(chGraph, nodeId, nodeCount, coreNodeLevel))
                     coreExitPoints.add(nodeId);
                 else
                     prioQueue.add(nodeId);
@@ -87,15 +89,6 @@ public class TargetGraphBuilder {
         }
     }
 
-    boolean isCoreNode(int node) {
-        if (isVirtualNode(node))
-            return false;
-        return chGraph.getLevel(node) >= coreNodeLevel;
-    }
-
-    boolean isVirtualNode(int node){
-        return node >= nodeCount;
-    }
 
     public class TargetGraphResults {
         SubGraph targetGraph;
