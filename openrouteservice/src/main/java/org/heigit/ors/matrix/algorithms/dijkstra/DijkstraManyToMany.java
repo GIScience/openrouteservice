@@ -63,6 +63,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
 
     private boolean hasTurnWeighting = false;
     private int coreNodeLevel;
+    private int nodeCount;
     private int turnRestrictedNodeLevel;
     protected boolean approximate = false;
     private TurnWeighting turnWeighting = null;
@@ -72,6 +73,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         super(graph, weighting, tMode);
         this.chGraph = chGraph;
         this.coreNodeLevel = chGraph.getNodes() + 1;
+        this.nodeCount = chGraph.getNodes();
         this.turnRestrictedNodeLevel = this.coreNodeLevel + 1;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
@@ -497,7 +499,13 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     }
 
     boolean isCoreNode(int node) {
+        if (isVirtualNode(node))
+            return false;
         return chGraph.getLevel(node) >= coreNodeLevel;
+    }
+
+    boolean isVirtualNode(int node){
+        return node >= nodeCount;
     }
 
     boolean isTurnRestrictedNode(int node) {

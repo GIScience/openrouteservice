@@ -54,6 +54,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHe
  */
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
+    protected int nodeCount;
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     protected int visitedNodes;
     private int treeEntrySize;
@@ -87,6 +88,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             throw new ClassCastException(e.getMessage());
         }
         coreNodeLevel = chGraph.getNodes() + 1;
+        nodeCount = chGraph.getNodes();
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
@@ -489,7 +491,13 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     }
 
     boolean isCoreNode(int node) {
+        if (isVirtualNode(node))
+            return false;
         return chGraph.getLevel(node) >= coreNodeLevel;
+    }
+
+    boolean isVirtualNode(int node){
+        return node >= nodeCount;
     }
 
     boolean considerTurnRestrictions() {

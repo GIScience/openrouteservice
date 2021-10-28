@@ -14,6 +14,7 @@ import java.util.PriorityQueue;
 
 public class TargetGraphBuilder {
     private int coreNodeLevel;
+    private int nodeCount;
     CHGraph chGraph;
     /**
      * Phase I: build shortest path tree from all target nodes to the core, only upwards in level.
@@ -30,6 +31,8 @@ public class TargetGraphBuilder {
 
         this.coreNodeLevel = coreNodeLevel;
         this.chGraph = chGraph;
+        this.nodeCount = chGraph.getNodes();
+
         addNodes(targetGraph, localPrioQueue, targets, coreExitPoints);
 
         while (!localPrioQueue.isEmpty()) {
@@ -85,7 +88,13 @@ public class TargetGraphBuilder {
     }
 
     boolean isCoreNode(int node) {
+        if (isVirtualNode(node))
+            return false;
         return chGraph.getLevel(node) >= coreNodeLevel;
+    }
+
+    boolean isVirtualNode(int node){
+        return node >= nodeCount;
     }
 
     public class TargetGraphResults {
