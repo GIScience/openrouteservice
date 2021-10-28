@@ -95,7 +95,7 @@ public class CentralityAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 
-        CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
+        CentralityResult result = request.generateCentralityFromRequest();
 
         return new JsonCentralityResponse(result);
     }
