@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- add core matrix algorithm
 - add new workflow to build and publish the docker image ([#1035](https://github.com/GIScience/openrouteservice/pull/1035))
 - optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
 - optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
@@ -44,9 +45,11 @@ RELEASING:
 - environment variable `ORS_CONFIG` which will replace the `ORS_APP_CONFIG` one ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - ors config reading priority
     1. System property `ors_conf` > `ors_app_conf`
-    1. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
-    1. File in class path `ors-config.json` > `app.config`
-    1. Error if none of the above is specified.
+    2. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
+    3. File in class path `ors-config.json` > `app.config`
+    4. Error if none of the above is specified.
+- links and info about docker setup to backend documentation
+- `minimum_width` to wheelchair routing options documentation ([#1080](https://github.com/GIScience/openrouteservice/pull/1080))
 ### Changed
 - Update tomcat version used by docker setup ([#1022](https://github.com/GIScience/openrouteservice/pull/1022))
 - Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
@@ -56,6 +59,9 @@ RELEASING:
 - test config format and filetype to JSON
 - docker `APP_CONFIG` argument to `ORS_CONFIG` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - default minimum `surface-type` for wheelchair to `sett` ([#1059](https://github.com/GIScience/openrouteservice/issues/1059))
+- Default road surface value is now "paved" rather than "asphalt" ([#711](https://github.com/GIScience/openrouteservice/issues/711))
+- `error_codes.md`-documentation now with rest of backend docs ([#1069](https://github.com/GIScience/openrouteservice/issues/1069))
+- remove duplicated code in `*RequestHandlers` ([#1067](https://github.com/GIScience/openrouteservice/issues/1067))
 ### Deprecated
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))

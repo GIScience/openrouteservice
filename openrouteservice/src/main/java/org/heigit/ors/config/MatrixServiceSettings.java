@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.config;
 
+import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
+
 public class MatrixServiceSettings {
 	private static int maximumRoutes = 2500;
 	private static int maximumRoutesFlexible = 25;
@@ -21,6 +23,7 @@ public class MatrixServiceSettings {
 	private static boolean allowResolveLocations = true;
 	private static String attribution = "";
 	private static boolean enabled = true;
+	private static double uTurnCost = INFINITE_U_TURN_COSTS;
 
 	public static final String PARAM_MATRIX = "matrix";
 
@@ -46,6 +49,9 @@ public class MatrixServiceSettings {
 		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "attribution");
 		if (value != null)
 			attribution = value;
+		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "u_turn_cost");
+		if (value != null && Double.parseDouble(value) != -1.0)
+			uTurnCost = Double.parseDouble(value);
 	}
 
 	private MatrixServiceSettings() {}
@@ -73,4 +79,6 @@ public class MatrixServiceSettings {
 	public static String getAttribution() {
 		return attribution;
 	}
+
+	public static double getUTurnCost() { return uTurnCost;}
 }

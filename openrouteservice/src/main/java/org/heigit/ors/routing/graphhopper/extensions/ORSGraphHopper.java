@@ -371,6 +371,7 @@ public class ORSGraphHopper extends GraphHopper {
 				}
 
 				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+
 				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
 				if (weighting instanceof TurnWeighting)
 					((TurnWeighting)weighting).setInORS(true);
@@ -651,6 +652,9 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
+	public EdgeFilterFactory getEdgeFilterFactory() {
+		return this.edgeFilterFactory;
+	}
 
 	/**
 	 * Enables or disables core calculation.

@@ -17,28 +17,39 @@ package org.heigit.ors.api.requests.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.api.requests.common.GenericHandler;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixSearchParameters;
+import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.config.MatrixServiceSettings;
-import org.heigit.ors.util.DistanceUnitUtil;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatrixRequestHandler {
-    private MatrixRequestHandler() throws InternalServerException {
-        throw new InternalServerException("MatrixRequestHandler should not be instantiated empty");
+public class MatrixRequestHandler extends GenericHandler {
+    public MatrixRequestHandler() {
+        super();
+
+        // TODO: cleanup usage of relection
+        for (Field f: MatrixErrorCodes.class.getFields()) {
+            try {
+                this.errorCodes.put(f.getName(), f.getInt(MatrixErrorCodes.class));
+            } catch (IllegalAccessException e) {
+                return;
+            }
+        }
     }
 
-    public static MatrixResult generateMatrixFromRequest(MatrixRequest request) throws StatusCodeException {
+    public MatrixResult generateMatrixFromRequest(MatrixRequest request) throws StatusCodeException {
         org.heigit.ors.matrix.MatrixRequest coreRequest = convertMatrixRequest(request);
 
         try {
@@ -50,7 +61,7 @@ public class MatrixRequestHandler {
         }
     }
 
-    public static org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
+    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(MatrixRequest request) throws StatusCodeException {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
 
         int sources = request.getSources() == null ? request.getLocations().size() : request.getSources().length;
@@ -81,13 +92,59 @@ public class MatrixRequestHandler {
         if (request.hasUnits())
             coreRequest.setUnits(convertUnits(request.getUnits()));
 
+        MatrixSearchParameters params = new MatrixSearchParameters();
+        if(request.hasMatrixOptions())
+            coreRequest.setFlexibleMode(processMatrixRequestOptions(request, params));
+        coreRequest.setSearchParameters(params);
         return coreRequest;
     }
 
-    public static int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
+    private boolean processMatrixRequestOptions(MatrixRequest request, MatrixSearchParameters params) throws StatusCodeException {
+        MatrixRequestOptions routeOptions = request.getMatrixOptions();
+        try {
+            int profileType = convertRouteProfileType(request.getProfile());
+            params.setProfileType(profileType);
+        } catch (Exception e) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+        }
+        boolean flexibleMode = processRequestOptions(routeOptions, params);
+        return flexibleMode;
+    }
+
+    public boolean processRequestOptions(MatrixRequestOptions options, MatrixSearchParameters params) throws StatusCodeException {
+        boolean flexibleMode = false;
+        if (options.hasAvoidBorders()) {
+            params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+            flexibleMode = true;
+        }
+
+        if (options.hasAvoidPolygonFeatures()) {
+            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+            flexibleMode = true;
+        }
+
+        if (options.hasAvoidCountries()) {
+            params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
+            flexibleMode = true;
+        }
+
+        if (options.hasAvoidFeatures()) {
+            params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
+            flexibleMode = true;
+        }
+
+        if (options.hasDynamicSpeeds()) {
+            params.setDynamicSpeeds(options.getDynamicSpeeds());
+            flexibleMode = true;
+        }
+
+        return flexibleMode;
+    }
+
+    public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
         List<String> metricsAsStrings = new ArrayList<>();
-        for (int i=0; i<metrics.length; i++) {
-            metricsAsStrings.add(metrics[i].toString());
+        for (MatrixRequestEnums.Metrics metric : metrics) {
+            metricsAsStrings.add(metric.toString());
         }
 
         String concatMetrics = String.join("|", metricsAsStrings);
@@ -100,7 +157,7 @@ public class MatrixRequestHandler {
         return combined;
     }
 
-    protected static Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
+    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
@@ -118,13 +175,13 @@ public class MatrixRequestHandler {
         }
     }
 
-    protected static Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
+    protected Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
         if (coordinate.size() != 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    protected static Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
+    protected Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
         int length = sourcesIndex.length;
         if (length == 0) return locations;
         if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
@@ -136,7 +193,7 @@ public class MatrixRequestHandler {
         }
     }
 
-    protected static Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
+    protected Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
         int length = destinationsIndex.length;
         if (length == 0) return locations;
         if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
@@ -148,7 +205,7 @@ public class MatrixRequestHandler {
         }
     }
 
-    protected static ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
+    protected ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
         ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
         for (String indexString : index) {
             int indexInteger = Integer.parseInt(indexString);
@@ -157,14 +214,7 @@ public class MatrixRequestHandler {
         return indexCoordinates;
     }
 
-    protected static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
-        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
-        if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_UNITS, unitsIn.toString());
-        return units;
-    }
-
-    protected static int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
+    protected int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {
@@ -175,4 +225,6 @@ public class MatrixRequestHandler {
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
         }
     }
+
+
 }
