@@ -12,9 +12,12 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.ExclusiveD
 
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
+
 public class TargetGraphBuilder {
     private int coreNodeLevel;
     RoutingCHGraph chGraph;
+    private int nodeCount;
     /**
      * Phase I: build shortest path tree from all target nodes to the core, only upwards in level.
      * The EdgeFilter in use is a downward search edge filter with reverse access acceptance so that in the last phase of the algorithm, the targetGraph can be explored downwards
@@ -31,6 +34,8 @@ public class TargetGraphBuilder {
 
         this.coreNodeLevel = coreNodeLevel;
         this.chGraph = chGraph;
+        this.nodeCount = chGraph.getNodes();
+
         addNodes(targetGraph, localPrioQueue, targets, coreExitPoints);
 
         while (!localPrioQueue.isEmpty()) {
@@ -58,7 +63,7 @@ public class TargetGraphBuilder {
                 continue;
             boolean isNewNode = targetGraph.addEdge(baseNode, iter, true);
             int adjNode = iter.getAdjNode();
-            if (isCoreNode(adjNode))
+            if (isCoreNode(chGraph, adjNode, nodeCount, coreNodeLevel))
                 coreExitPoints.add(adjNode);
             else if(isNewNode)
                 localPrioQueue.add(adjNode);
@@ -77,7 +82,7 @@ public class TargetGraphBuilder {
             if (nodeId >= 0) {
                 if (graph != null)
                     graph.addEdge(nodeId, null, true);
-                if (isCoreNode(nodeId))
+                if (isCoreNode(chGraph, nodeId, nodeCount, coreNodeLevel))
                     coreExitPoints.add(nodeId);
                 else
                     prioQueue.add(nodeId);
@@ -85,9 +90,6 @@ public class TargetGraphBuilder {
         }
     }
 
-    boolean isCoreNode(int node) {
-        return chGraph.getLevel(node) >= coreNodeLevel;
-    }
 
     public class TargetGraphResults {
         SubGraph targetGraph;

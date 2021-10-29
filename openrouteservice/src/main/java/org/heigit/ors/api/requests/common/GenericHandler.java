@@ -22,7 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -32,10 +36,14 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.util.GeomUtility;
+import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -47,9 +55,11 @@ import java.util.Map;
 public class GenericHandler {
     public static final String KEY_PROFILE = "profile";
     protected Map<String, Integer> errorCodes;
+    protected Map<String, String> paramNames;
 
     public GenericHandler() {
         errorCodes = new HashMap<>();
+        paramNames = new HashMap<>();
     }
 
     protected String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
@@ -68,7 +78,7 @@ public class GenericHandler {
 
     protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(),
+            throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
                     "vehicle_type", vehicleTypeIn.toString(),
                     KEY_PROFILE, RoutingProfileType.getName(profileType));
         }
@@ -78,10 +88,6 @@ public class GenericHandler {
         }
 
         return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
-    }
-
-    private Integer getInvalidParameterValueErrorCode() {
-        return getErrorCode("INVALID_PARAMETER_VALUE");
     }
 
     private Integer getErrorCode(String name) {
@@ -112,7 +118,13 @@ public class GenericHandler {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+        Polygon[] avoidAreas = convertAvoidAreas(geoJson);
+        validateAreaLimits(avoidAreas, profileType);
+        return avoidAreas;
+    }
+
+    protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
         complexJson.put("type", geoJson.get("type"));
@@ -123,7 +135,7 @@ public class GenericHandler {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
+            throw new ParameterValueException(getErrorCode("INVALID_JSON_FORMAT"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
@@ -136,10 +148,65 @@ public class GenericHandler {
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(getInvalidParameterValueErrorCode(), "avoid_polygons");
+            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
+    }
+
+    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
+        String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
+        String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
+        double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
+        double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
+        for (Polygon avoidArea : avoidAreas) {
+            try {
+                if (areaLimit > 0) {
+                    long area = Math.round(GeomUtility.getArea(avoidArea, true));
+                    if (area > areaLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                    }
+                }
+                if (extentLimit > 0) {
+                    long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
+                    if (extent > extentLimit) {
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                    }
+                }
+            } catch (InternalServerException e) {
+                throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            }
+        }
+    }
+
+    protected int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
+        int[] avoidCountryIds = new int[avoidCountries.length];
+        if (avoidCountries.length > 0) {
+            for (int i = 0; i < avoidCountries.length; i++) {
+                try {
+                    avoidCountryIds[i] = Integer.parseInt(avoidCountries[i]);
+                } catch (NumberFormatException nfe) {
+                    // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
+                    int countryId = CountryBordersReader.getCountryIdByISOCode(avoidCountries[i]);
+                    if (countryId > 0) {
+                        avoidCountryIds[i] = countryId;
+                    } else {
+                        throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
+                    }
+                }
+            }
+        }
+
+        return avoidCountryIds;
+    }
+
+    public DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
+        DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+
+        if (units == DistanceUnit.UNKNOWN)
+            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequest.PARAM_UNITS, unitsIn.toString());
+
+        return units;
     }
 
     protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
@@ -148,10 +215,12 @@ public class GenericHandler {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                throw new UnknownParameterValueException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName);
+                // TODO: Importing RouteRequestOptions seems like bad style.
+                //       Maybe something similar to errorCodes could be set up?
+                throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(getInvalidParameterValueErrorCode(), "avoid_features", avoidFeatureName, KEY_PROFILE, RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, KEY_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -326,7 +395,7 @@ public class GenericHandler {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
                 Float greenFactor = weightings.getGreenIndex();
-                if (greenFactor.floatValue() > 1)
+                if (greenFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", greenFactor), "green factor", "1.0");
                 pw.addParameter("factor", greenFactor);
                 params.add(pw);
@@ -335,7 +404,7 @@ public class GenericHandler {
             if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
                 Float quietFactor = weightings.getQuietIndex();
-                if (quietFactor.floatValue() > 1)
+                if (quietFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", quietFactor), "quiet factor", "1.0");
                 pw.addParameter("factor", quietFactor);
                 params.add(pw);
