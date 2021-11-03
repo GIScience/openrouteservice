@@ -14,19 +14,17 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
-import com.graphhopper.routing.ch.Path4CH;
-import com.graphhopper.routing.ch.PreparationWeighting;
-import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.AccessFilter;
+import com.graphhopper.routing.ch.NodeBasedCHBidirPathExtractor;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
+
+import java.util.function.Supplier;
 
 /**
  * Calculates best path using core routing algorithm.
@@ -45,8 +43,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int visitedCountTo2;
 
     private CoreDijkstraFilter additionalCoreEdgeFilter;
-    protected EdgeExplorer inEdgeExplorer;
-    protected EdgeExplorer outEdgeExplorer;
+    protected RoutingCHEdgeExplorer inEdgeExplorer;
+    protected RoutingCHEdgeExplorer outEdgeExplorer;
 
     boolean inCore;
 
@@ -55,32 +53,36 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean approximate = false;
 
     protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
-        super(graph, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
+        super(graph, weighting, TraversalMode.NODE_BASED);
 
-        inEdgeExplorer = graph.createEdgeExplorer(AccessFilter.inEdges(weighting.getFlagEncoder().getAccessEnc()));
-        outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
+        chGraph = (RoutingCHGraph) graph;
+
+        inEdgeExplorer =  chGraph.createInEdgeExplorer();
+        outEdgeExplorer = chGraph.createOutEdgeExplorer();
 
         // TODO: remove this unnecessary duplication
         if (weighting.hasTurnCosts()) {
             hasTurnWeighting = true;
         }
 
+        pathExtractorSupplier = () -> new NodeBasedCHBidirPathExtractor(chGraph);
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        qGraph = (QueryGraph) graph;
-        chGraph = (RoutingCHGraph) qGraph.getBaseGraph();
         coreNodeLevel = chGraph.getNodes() + 1;
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
 
     protected abstract void initCollections(int size);
-    protected PathBidirRef bestPath;
+    protected SPTEntry bestFwdEntry;
+    protected SPTEntry bestBwdEntry;
+    protected double bestWeight = Double.MAX_VALUE;
 
-    QueryGraph qGraph;
     RoutingCHGraph chGraph;
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
+
+    private Supplier<BidirPathExtractor> pathExtractorSupplier;
 
     public abstract void initFrom(int from, double weight, long time);
 
@@ -125,18 +127,26 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return finishedPhase2();
     }
 
-    protected Path createAndInitPath() {
-        bestPath = new Path4CH(graph, graph.getBaseGraph(), weighting);
-        return bestPath;
-    }
-
     @Override
     protected Path extractPath() {
         if (finished())
-            return bestPath.extract();
+            return createPathExtractor().extract(bestFwdEntry, bestBwdEntry, bestWeight);
 
-        return bestPath;
+        return createEmptyPath();
     }
+
+    public void setPathExtractorSupplier(Supplier<BidirPathExtractor> pathExtractorSupplier) {
+        this.pathExtractorSupplier = pathExtractorSupplier;
+    }
+
+    BidirPathExtractor createPathExtractor() {
+        return pathExtractorSupplier.get();
+    }
+
+    protected Path createEmptyPath() {
+        return new Path(graph.getBaseGraph());
+    }
+
 
     protected void runAlgo() {
         // PHASE 1: run modified CH outside of core to find entry points
@@ -156,7 +166,6 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     @Override
     public Path calcPath(int from, int to, long at) {
         checkAlreadyRun();
-        createAndInitPath();
         initFrom(from, 0, at);
         initTo(to, 0, at);
         runAlgo();
@@ -187,8 +196,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     //TODO: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
-    @Override
-    protected boolean accept(EdgeIteratorState iter, int prevOrNextEdgeId) {
+    protected boolean accept(RoutingCHEdgeIteratorState iter, int prevOrNextEdgeId) {
         if (iter.getEdge() == prevOrNextEdgeId) {
             return false;
         } else {
@@ -203,14 +211,17 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     void updateBestPath(SPTEntry entryCurrent, SPTEntry entryOther, double newWeight, boolean reverse) {
-        bestPath.setSwitchToFrom(reverse);
-        bestPath.setSPTEntry(entryCurrent);
-        bestPath.setWeight(newWeight);
-        bestPath.setSPTEntryTo(entryOther);
+        bestFwdEntry = reverse ? entryOther : entryCurrent;
+        bestBwdEntry = reverse ? entryCurrent : entryOther;
+        bestWeight = newWeight;
     }
 
     boolean isCoreNode(int node) {
-        return !qGraph.isVirtualNode(node) && chGraph.getLevel(node) >= coreNodeLevel;
+        return !isVirtualNode(node) && chGraph.getLevel(node) >= coreNodeLevel;
+    }
+
+    boolean isVirtualNode(int node) {
+        return node >= graph.getNodes();
     }
 
     boolean isTurnRestrictedNode(int node) {
@@ -225,4 +236,23 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return true;
     }
 
+    double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
+    }
+
+    double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+        double edgeWeight = edgeState.getWeight(reverse);
+        double turnCost = getTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), edgeState.getOrigEdge(), reverse);
+        return edgeWeight + turnCost;
+    }
+
+    double getTurnWeight(int edgeA, int viaNode, int edgeB, boolean reverse) {
+        return reverse
+                ? chGraph.getTurnWeight(edgeB, viaNode, edgeA)
+                : chGraph.getTurnWeight(edgeA, viaNode, edgeB);
+    }
+
+    long calcTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return 0;
+    }
 }

@@ -13,14 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.Path;
-import com.graphhopper.routing.PathTDCore;
 import com.graphhopper.routing.util.AccessEdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.util.Parameters;
 
 public class TDCoreALT extends CoreALT {
@@ -31,17 +28,13 @@ public class TDCoreALT extends CoreALT {
         this.reverse = reverse;
     }
 
-    @Override
-    protected Path createAndInitPath() {
-        bestPath = new PathTDCore(graph, graph.getBaseGraph(), weighting);
-        return bestPath;
-    }
-
+    /*TODO
     @Override
     protected void initPhase2() {
         inEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.inEdges(flagEncoder));
         outEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.outEdges(flagEncoder));
     }
+    */
 
     @Override
     public boolean fillEdgesFromCore() {
@@ -60,13 +53,13 @@ public class TDCoreALT extends CoreALT {
     }
 
     @Override
-    double calcEdgeWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
-        return weighting.calcEdgeWeight(iter, reverse, currEdge.originalEdge /* TODO: , currEdge.time*/);
+    double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return calcWeight(iter, reverse, currEdge.originalEdge/*TODO: , currEdge.time*/) + currEdge.getWeightOfVisitedPath();
     }
 
     @Override
-    long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return currEdge.time + (reverse ? -1 : 1) * weighting.calcEdgeMillis(iter, reverse, currEdge.edge /* TODO: , currEdge.time*/);
+    long calcTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return currEdge.time + (reverse ? -1 : 1) * iter.getTime(reverse, currEdge.time);
     }
 
     @Override

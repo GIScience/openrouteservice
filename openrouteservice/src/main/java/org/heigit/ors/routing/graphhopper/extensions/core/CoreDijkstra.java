@@ -15,10 +15,11 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.*;
 
 import java.util.ArrayList;
@@ -190,7 +191,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         if (!toPriorityQueueCore.isEmpty())
             toWeight = Math.min(toPriorityQueueCore.peek().weight, toWeight);
 
-        return fromWeight >= bestPath.getWeight() && toWeight >= bestPath.getWeight();
+        return fromWeight >= bestWeight && toWeight >= bestWeight;
     }
 
     @Override
@@ -214,18 +215,18 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         if (finishedFrom || finishedTo)
             return true;
 
-        return currFrom.weight + currTo.weight >= bestPath.getWeight();
+        return currFrom.weight + currTo.weight >= bestWeight;
     }
 
-    void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap, IntObjectMap<List<SPTEntry>> bestWeightMapCore, EdgeExplorer explorer, boolean reverse) {
-        EdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
+    void fillEdges(SPTEntry currEdge, PriorityQueue<SPTEntry> prioQueue, IntObjectMap<SPTEntry> bestWeightMap, IntObjectMap<List<SPTEntry>> bestWeightMapCore, RoutingCHEdgeExplorer explorer, boolean reverse) {
+        RoutingCHEdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
             if (!accept(iter, currEdge.edge))
                 continue;
 
             int traversalId = iter.getAdjNode();
             // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-            double tmpWeight = calcEdgeWeight(iter, currEdge, reverse) + currEdge.weight;
+            double tmpWeight = calcEdgeWeight(iter, currEdge, reverse);
             if (Double.isInfinite(tmpWeight))
                 continue;
 
@@ -249,7 +250,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 if (ee == null) {
                     ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     // Modification by Maxim Rylov: Assign the original edge id.
-                    ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                    ee.originalEdge = iter.getOrigEdge();
                     entries.add(ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
@@ -269,7 +270,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 if (ee == null) {
                     ee = new SPTEntry(iter.getEdge(), iter.getAdjNode(), tmpWeight);
                     // Modification by Maxim Rylov: Assign the original edge id.
-                    ee.originalEdge = EdgeIteratorStateHelper.getOriginalEdge(iter);
+                    ee.originalEdge = iter.getOrigEdge();
                     bestWeightMap.put(traversalId, ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
@@ -294,7 +295,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
         double newWeight = entryCurrent.weight + entryOther.weight;
 
-        if (newWeight < bestPath.getWeight())
+        if (newWeight < bestWeight)
             updateBestPath(entryCurrent, entryOther, newWeight, reverse);
     }
 
@@ -309,24 +310,14 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
             double newWeight = entryCurrent.weight + entryOther.weight;
 
-            if (newWeight < bestPath.getWeight()) {
-                double turnWeight = reverse ?
-                        weighting.calcTurnWeight(entryOther.originalEdge, entryCurrent.adjNode, entryCurrent.originalEdge):
-                        weighting.calcTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge);
+            if (newWeight < bestWeight) {
+                double turnWeight = getTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge, reverse);
                 if (Double.isInfinite(turnWeight))
                     continue;
 
                 updateBestPath(entryCurrent, entryOther, newWeight, reverse);
             }
         }
-    }
-
-    double calcEdgeWeight(EdgeIterator iter, SPTEntry currEdge, boolean reverse) {
-        return weighting.calcEdgeWeight(iter, reverse, currEdge.originalEdge);
-    }
-
-    long calcTime(EdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return 0;
     }
 
     @Override

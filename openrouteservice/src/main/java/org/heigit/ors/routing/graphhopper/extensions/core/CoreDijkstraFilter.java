@@ -14,10 +14,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.CHGraph;
+import com.graphhopper.storage.CHEdgeFilter;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
-import com.graphhopper.util.EdgeIteratorState;
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
  *
@@ -26,7 +26,7 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Peter Karich
  * @author Andrzej Oles, Hendrik Leuschner
  */
-public class CoreDijkstraFilter implements EdgeFilter {
+public class CoreDijkstraFilter implements CHEdgeFilter {
     protected final RoutingCHGraph graph;
     protected final int maxNodes;
     protected final int coreNodeLevel;
@@ -55,8 +55,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
      * the level of the adjacent node
      */
     @Override
-
-    public boolean accept(EdgeIteratorState edgeIterState) {
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
 
@@ -80,7 +79,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
             // do not follow virtual edges, and stay within core
             if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
-                return restrictions == null || restrictions.accept(edgeIterState);
+                return restrictions == null || restrictions.accept(graph.getBaseGraph().getEdgeIteratorState(edgeIterState.getEdge(), adj));
             else
                 return false;
         }
