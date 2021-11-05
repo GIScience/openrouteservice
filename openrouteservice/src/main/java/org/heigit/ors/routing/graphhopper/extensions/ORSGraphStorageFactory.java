@@ -17,7 +17,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.*;
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.graphhopper.extensions.storages.NoOpExtension;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import java.io.File;
@@ -85,7 +84,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 //			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
 //		}
 		if (((ORSGraphHopper)gh).isCoreEnabled()) {
-			profiles.addAll(((ORSGraphHopper)gh).getCoreFactoryDecorator().getCHProfiles());
+			profiles.addAll(((ORSGraphHopper)gh).getCorePreparationHandler().getCHProfiles());
 		}
 
 		GraphHopperStorage ghs = new GraphHopperStorage(dir, encodingManager, gh.hasElevation());

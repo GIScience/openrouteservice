@@ -42,8 +42,8 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreAlgoFactoryDecorator;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
+import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -74,7 +74,7 @@ public class ORSGraphHopper extends GraphHopper {
 	private int minNetworkSize = 200;
 	private int minOneWayNetworkSize = 0;
 
-	private final CoreAlgoFactoryDecorator coreFactoryDecorator =  new CoreAlgoFactoryDecorator();
+	private final CorePreparationHandler corePreparationHandler =  new CorePreparationHandler();
 	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
@@ -85,7 +85,7 @@ public class ORSGraphHopper extends GraphHopper {
 // TODO: forDesktop and algoDecorators have been removed from GH
 //		forDesktop();
 //		algoDecorators.clear();
-//		algoDecorators.add(coreFactoryDecorator);
+//		algoDecorators.add(corePreparationHandler);
 //		algoDecorators.add(coreLMFactoryDecorator);
 //		algoDecorators.add(getCHFactoryDecorator());
 //		algoDecorators.add(getLMFactoryDecorator());
@@ -102,7 +102,10 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	public GraphHopper init(GraphHopperConfig ghConfig) {
 		GraphHopper ret = super.init(ghConfig);
+
+		corePreparationHandler.init(ghConfig);
 		fastIsochroneFactory.init(ghConfig);
+
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
 		return ret;
@@ -291,13 +294,13 @@ public class ORSGraphHopper extends GraphHopper {
 //				Weighting weighting;
 //				QueryGraph queryGraph;
 //
-//				if (coreFactoryDecorator.isEnabled() && !disableCore) {
+//				if (corePreparationHandler.isEnabled() && !disableCore) {
 //					boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
 //					if (!forceCHHeading && request.hasFavoredHeading(0))
 //						throw new IllegalArgumentException(
 //								"Heading is not (fully) supported for CHGraph. See issue #483");
 //
-//					RoutingAlgorithmFactory coreAlgoFactory = coreFactoryDecorator.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
+//					RoutingAlgorithmFactory coreAlgoFactory = corePreparationHandler.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
 //					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
 //
 //					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
@@ -598,16 +601,23 @@ public class ORSGraphHopper extends GraphHopper {
 	 * Does the preparation and creates the location index
 	 */
 	@Override
-	public void postProcessing() {
-		super.postProcessing();
+	protected void postProcessingHook(boolean closeEarly) {
 
 		GraphHopperStorage gs = getGraphHopperStorage();
 
 		//Create the core
-		if(coreFactoryDecorator.isEnabled())
-			coreFactoryDecorator.createPreparations(gs, processContext);
-		if (!isCorePrepared())
-			prepareCore();
+		if(corePreparationHandler.isEnabled())
+			corePreparationHandler.setProcessContext(processContext).createPreparations(gs);
+		if (isCorePrepared()) {
+			// TODO
+			// check loaded profiles
+//			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
+//				if (!getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
+//					throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+//			}
+		} else {
+			prepareCore(closeEarly);
+		}
 
 		//Create the landmarks in the core
 		if (coreLMFactoryDecorator.isEnabled())
@@ -653,57 +663,69 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
-	public EdgeFilterFactory getEdgeFilterFactory() {
-		return this.edgeFilterFactory;
-	}
+	// TODO: orphan method
+//	public EdgeFilterFactory getEdgeFilterFactory() {
+//		return this.edgeFilterFactory;
+//	}
 
 	/**
 	 * Enables or disables core calculation.
 	 */
 	public GraphHopper setCoreEnabled(boolean enable) {
 		ensureNotLoaded();
-		coreFactoryDecorator.setEnabled(enable);
+		//TODO corePreparationHandler.setEnabled(enable);
 		return this;
 	}
 
 	public final boolean isCoreEnabled() {
-		return coreFactoryDecorator.isEnabled();
+		return corePreparationHandler.isEnabled();
+	}
+// TODO: initialization logic needs to be moved to CorePrepartionHandler.init
+//	public void initCoreAlgoFactoryDecorator() {
+//		if (!coreFactoryDecorator.hasCHProfiles()) {
+//			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+//				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
+//					// ghStorage is null at this point
+//
+//					// extract weighting string and traversal mode
+//					String configStr = "";
+//					if (coreWeightingStr.contains("|")) {
+//						configStr = coreWeightingStr;
+//						coreWeightingStr = coreWeightingStr.split("\\|")[0];
+//					}
+//					PMap config = new PMap(configStr);
+//
+//					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
+//					Profile profile = null; // TODO: initialize correctly
+//					Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr), false);
+//					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
+//				}
+//			}
+//		}
+//	}
+
+	public final CorePreparationHandler getCorePreparationHandler() {
+		return corePreparationHandler;
 	}
 
-	public void initCoreAlgoFactoryDecorator() {
-		if (!coreFactoryDecorator.hasCHProfiles()) {
-			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
-					// ghStorage is null at this point
-
-					// extract weighting string and traversal mode
-					String configStr = "";
-					if (coreWeightingStr.contains("|")) {
-						configStr = coreWeightingStr;
-						coreWeightingStr = coreWeightingStr.split("\\|")[0];
-					}
-					PMap config = new PMap(configStr);
-
-					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-					Profile profile = null; // TODO: initialize correctly
-					Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr), false);
-					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
-				}
-			}
-		}
-	}
-	public final CoreAlgoFactoryDecorator getCoreFactoryDecorator() {
-		return coreFactoryDecorator;
-	}
-
-	protected void prepareCore() {
-		boolean tmpPrepare = coreFactoryDecorator.isEnabled();
-		if (tmpPrepare) {
+	protected void prepareCore(boolean closeEarly) {
+		//TODO
+//		for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
+//			if (!getProfileVersion(profile.getProfile()).isEmpty()
+//					&& !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
+//				throw new IllegalArgumentException("CH preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+//		}
+		if (isCoreEnabled()) {
 			ensureWriteAccess();
-
-			getGraphHopperStorage().freeze();
-			coreFactoryDecorator.prepare(getGraphHopperStorage().getProperties());
-			getGraphHopperStorage().getProperties().put(ORSParameters.Core.PREPARE + "done", true);
+			GraphHopperStorage ghStorage = getGraphHopperStorage();
+			ghStorage.freeze();
+			corePreparationHandler.prepare(ghStorage.getProperties(), closeEarly);
+			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
+			//TODO
+//			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
+//				// potentially overwrite existing keys from LM
+//				setProfileVersion(profile.getProfile(), profilesByName.get(profile.getProfile()).getVersion());
+//			}
 		}
 	}
 
@@ -726,12 +748,13 @@ public class ORSGraphHopper extends GraphHopper {
 		return coreLMFactoryDecorator.isEnabled();
 	}
 
-	public void initCoreLMAlgoFactoryDecorator() {
-		if (!coreLMFactoryDecorator.hasWeightings()) {
-			for (CHProfile profile : coreFactoryDecorator.getCHProfiles())
-				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
-		}
-	}
+// TODO: initialization logic needs to be moved to CoreLMPrepartionHandler.init
+//	public void initCoreLMAlgoFactoryDecorator() {
+//		if (!coreLMFactoryDecorator.hasWeightings()) {
+//			for (CHProfile profile : corePreparationHandler.getCHProfiles())
+//				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
+//		}
+//	}
 
 
 	/**
@@ -770,10 +793,10 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public final boolean isCoreAvailable(String weighting) {
-		CoreAlgoFactoryDecorator cfDecorator = getCoreFactoryDecorator();
-		if (cfDecorator.isEnabled() && cfDecorator.hasCHProfiles()) {
-			for (CHProfile chProfile : cfDecorator.getCHProfiles()) {
-				if (weighting.equals(chProfile.getWeighting().getName()))
+		CorePreparationHandler handler = getCorePreparationHandler();
+		if (handler.isEnabled() && handler.hasCHConfigs()) {
+			for (CHConfig chConfig : handler.getCHConfigs()) {
+				if (weighting.equals(chConfig.getWeighting().getName()))
 					return true;
 			}
 		}
