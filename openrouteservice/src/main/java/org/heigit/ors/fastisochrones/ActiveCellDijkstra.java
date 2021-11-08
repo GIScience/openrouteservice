@@ -54,7 +54,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = this.outEdgeExplorer;
+        EdgeExplorer explorer = graph.createEdgeExplorer(); // TODO: find out how to get outEdgeExplorer instead
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
