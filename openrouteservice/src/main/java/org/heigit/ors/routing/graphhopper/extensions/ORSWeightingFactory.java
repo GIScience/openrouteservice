@@ -36,15 +36,20 @@ import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
 
+	private final GraphHopperStorage graphStorage;
+	private final FlagEncoder encoder;
 
-	@Override
-	public Weighting createWeighting(Profile profile, PMap hints, boolean disableTurnCosts) {
-		// TODO: This is the new signature, move content from method below...
-		return null;
+	public ORSWeightingFactory(GraphHopperStorage ghStorage, FlagEncoder encoder) {
+		this.graphStorage= ghStorage;
+		this.encoder = encoder;
 	}
 
-	public Weighting createWeighting(PMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
+	public Weighting createWeighting(PMap hintsMap, boolean disableTurnCosts) {
+		return createWeighting(null, hintsMap, disableTurnCosts);
+	}
 
+	@Override
+	public Weighting createWeighting(Profile profile, PMap hintsMap, boolean disableTurnCosts) {
 		TraversalMode tMode = encoder.supportsTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
 		if (hintsMap.has(Parameters.Routing.EDGE_BASED))
 			tMode = hintsMap.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
@@ -58,26 +63,26 @@ public class ORSWeightingFactory implements WeightingFactory {
 
 		Weighting result = null;
 
-        if("true".equalsIgnoreCase(hintsMap.getString("isochroneWeighting", "false")))
-            return createIsochroneWeighting(hintsMap, encoder);
+		if("true".equalsIgnoreCase(hintsMap.getString("isochroneWeighting", "false")))
+			return createIsochroneWeighting(hintsMap, encoder);
 
 		if ("shortest".equalsIgnoreCase(strWeighting))
 		{
 			result = new ShortestWeighting(encoder);
 		}
-		else if ("fastest".equalsIgnoreCase(strWeighting)) 
+		else if ("fastest".equalsIgnoreCase(strWeighting))
 		{
 			TurnCostProvider tcp = null; // TODO: setup correctly
 			if (encoder.supports(PriorityWeighting.class) && !encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE))
 				result = new PriorityWeighting(encoder, hintsMap, tcp);
-	         else
-	        	 result = new FastestWeighting(encoder, hintsMap);
+			else
+				result = new FastestWeighting(encoder, hintsMap);
 		}
 		else  if ("priority".equalsIgnoreCase(strWeighting))
 		{
 			result = new PreferencePriorityWeighting(encoder, hintsMap);
-		} 
-		else 
+		}
+		else
 		{
 			if (encoder.supports(PriorityWeighting.class))
 			{
@@ -130,7 +135,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 				if (name != null && !weightingNames.contains(name))
 					weightingNames.add(name);
 			}
-	
+
 			List<Weighting> softWeightings = new ArrayList<>();
 
 			for (String weightingName : weightingNames) {
@@ -163,6 +168,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 		}
 		return result;
 	}
+
 
 	private boolean hasTimeDependentSpeed(PMap hintsMap) {
 		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);

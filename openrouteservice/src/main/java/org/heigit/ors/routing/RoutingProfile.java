@@ -182,7 +182,7 @@ public class RoutingProfile {
             loadCntx.setElevationProvider(gh.getElevationProvider());
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-        gh.setWeightingFactory(new ORSWeightingFactory());
+//        gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
 
@@ -655,7 +655,7 @@ public class RoutingProfile {
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+        Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
         // filter graph for nodes in Bounding Box

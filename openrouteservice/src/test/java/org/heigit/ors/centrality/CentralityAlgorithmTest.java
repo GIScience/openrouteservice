@@ -143,7 +143,7 @@ public class CentralityAlgorithmTest extends TestCase {
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.putObject("weighting", "fastest");
         hintsMap.putObject("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
@@ -183,7 +183,7 @@ public class CentralityAlgorithmTest extends TestCase {
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.put("weighting", "fastest");
         hintsMap.put("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
@@ -225,7 +225,7 @@ public class CentralityAlgorithmTest extends TestCase {
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.put("weighting", "fastest");
         hintsMap.put("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
@@ -265,7 +265,7 @@ public class CentralityAlgorithmTest extends TestCase {
         //the following two lines represent the setWeighting()-Method of RoutingProfile
         hintsMap.putObject("weighting", "fastest");
         hintsMap.putObject("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, graphHopper.getGraphHopperStorage());
+        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 

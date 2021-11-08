@@ -16,6 +16,6 @@ public class IsochroneWeightingFactory {
         } else {
             hintsMap = new PMap("weighting=shortest").putObject("isochroneWeighting", "true");
         }
-        return new ORSWeightingFactory().createWeighting(hintsMap, searchContext.getEncoder(), searchContext.getGraphHopper().getGraphHopperStorage());
+        return new ORSWeightingFactory(searchContext.getGraphHopper().getGraphHopperStorage(), searchContext.getEncoder()).createWeighting(hintsMap, false);
     }
 }
