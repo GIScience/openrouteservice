@@ -462,7 +462,7 @@ public class RoutingProfile {
 
                     RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
 
-                    mGraphHopper = initGraphHopper(ghOld.getDataReaderFile(), config, loadCntx);
+                    mGraphHopper = initGraphHopper(ghOld.getOSMFile(), config, loadCntx);
 
                     loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
