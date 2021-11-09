@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import static org.heigit.ors.matrix.util.GraphUtils.getValidNodeIds;
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
 import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
@@ -51,6 +52,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHe
 /**
  * A Core and Dijkstra based algorithm that calculates the weights from multiple start to multiple goal nodes.
  * Using core and true many to many.
+ *
  * @author Hendrik Leuschner
  */
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
@@ -98,7 +100,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
         this.init(req, gh, graph, encoder, weighting);
-        if(additionalEdgeFilter != null)
+        if (additionalEdgeFilter != null)
             additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
     }
 
@@ -121,20 +123,23 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * Compute a MatrixResult from srcData to dstData with the given metrics
      */
     public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
+        int[] validSrcIds = getValidNodeIds(srcData.getNodeIds());
+        int[] validDstIds = getValidNodeIds(dstData.getNodeIds());
+
         // Search is more efficient for dstData.size > srcData.size, so check if they should be swapped
-        swap = checkSwapSrcDst(srcData, dstData);
-        if(swap){
+        swap = checkSwapSrcDst(validSrcIds, validDstIds);
+        if (swap) {
             MatrixLocations tmp = srcData;
             srcData = dstData;
             dstData = tmp;
         }
-        this.treeEntrySize = srcData.size();
+        this.treeEntrySize = validSrcIds.length;
 
-        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, graph, encoder, swap, coreNodeLevel);
+        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(validDstIds, chGraph, graph, encoder, swap, coreNodeLevel);
         targetGraph = targetGraphResults.getTargetGraph();
         coreExitPoints.addAll(targetGraphResults.getCoreExitPoints());
 
-        targetSet.addAll(dstData.getNodeIds());
+        targetSet.addAll(validDstIds);
 
         float[] times = null;
         float[] distances = null;
@@ -153,7 +158,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
         } else {
             this.additionalCoreEdgeFilter.setInCore(false);
-            runPhaseOutsideCore(srcData);
+            runPhaseOutsideCore(validSrcIds);
 
             this.additionalCoreEdgeFilter.setInCore(true);
             runPhaseInsideCore();
@@ -161,7 +166,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             extractMetrics(srcData, dstData, times, distances, weights);
         }
 
-        if(swap){
+        if (swap) {
             MatrixLocations tmp = srcData;
             srcData = dstData;
             dstData = tmp;
@@ -194,8 +199,8 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * /
      * /
      **/
-    private void runPhaseOutsideCore(MatrixLocations srcData) {
-        prepareSourceNodes(srcData.getNodeIds());
+    private void runPhaseOutsideCore(int[] srcIds) {
+        prepareSourceNodes(srcIds);
         boolean finishedFrom = false;
         EdgeExplorer upAndCoreExplorer = swap ? graph.createEdgeExplorer(DefaultEdgeFilter.inEdges(this.encoder)) : graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(this.encoder));
         while (!finishedFrom && !isMaxVisitedNodesExceeded()) {
@@ -205,6 +210,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     /**
      * Add the source nodes to queue and map
+     *
      * @param from array of source node ids
      */
     private void prepareSourceNodes(int[] from) {
@@ -235,6 +241,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     /**
      * Search from source nodes to core entry points
+     *
      * @return false when queue is empty
      */
     public boolean fillEdgesOutsideCore(EdgeExplorer upAndCoreExplorer) {
@@ -254,8 +261,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 else
                     existingEntryList.add(currFrom);
             }
-        }
-        else
+        } else
             fillEdgesUpward(currFrom, upwardQueue, bestWeightMap, upAndCoreExplorer);
 
 
@@ -276,10 +282,11 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     /**
      * Search all edges adjacent to currEdge for upwards search. Do not search core.
-     * @param currEdge the current Edge
-     * @param prioQueue queue to which to add the new entries
+     *
+     * @param currEdge      the current Edge
+     * @param prioQueue     queue to which to add the new entries
      * @param bestWeightMap map to which to add the new entries
-     * @param explorer used explorer for upward search
+     * @param explorer      used explorer for upward search
      */
     void fillEdgesUpward(AveragedMultiTreeSPEntry currEdge, PriorityQueue<AveragedMultiTreeSPEntry> prioQueue, IntObjectMap<AveragedMultiTreeSPEntry> bestWeightMap,
                          EdgeExplorer explorer) {
@@ -290,7 +297,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             if (entry == null) {
                 entry = new AveragedMultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), Double.POSITIVE_INFINITY, true, null, currEdge.getSize());
                 boolean addToQueue = iterateMultiTree(currEdge, iter, entry);
-                if(addToQueue) {
+                if (addToQueue) {
                     entry.updateWeights();
                     bestWeightMap.put(iter.getAdjNode(), entry);
                     prioQueue.add(entry);
@@ -306,13 +313,14 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 }
             }
         }
-        if(!targetGraph.containsNode(currEdge.getAdjNode())) currEdge.resetUpdate(false);
+        if (!targetGraph.containsNode(currEdge.getAdjNode())) currEdge.resetUpdate(false);
     }
 
     /**
      * Iterate over a MultiTree entry and its subItems to adapt new weights
+     *
      * @param currEdge the current base edge
-     * @param iter the iterator adjacent to currEdge
+     * @param iter     the iterator adjacent to currEdge
      * @param adjEntry the entry from that belongs to iter
      * @return true if there are updates to any of the weights
      */
@@ -332,7 +340,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             configureTurnWeighting(hasTurnWeighting, turnWeighting, iter, currEdgeItem);
 
             edgeWeight = weighting.calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
-            if(Double.isInfinite(edgeWeight))
+            if (Double.isInfinite(edgeWeight))
                 continue;
             double tmpWeight = edgeWeight + entryWeight;
 
@@ -353,11 +361,12 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     /**
      * Update a target entry in the targetMap from an update entry. This is necessary to keep target results and running calculations separate
+     *
      * @param update the new entry whose weights should update a target
      */
     private void updateTarget(AveragedMultiTreeSPEntry update) {
         int nodeId = update.getAdjNode();
-        if(targetSet.contains(nodeId)) {
+        if (targetSet.contains(nodeId)) {
             if (!targetMap.containsKey(nodeId)) {
                 AveragedMultiTreeSPEntry newTarget = new AveragedMultiTreeSPEntry(nodeId, EdgeIterator.NO_EDGE, Double.POSITIVE_INFINITY, true, null, update.getSize());
                 newTarget.setSubItemOriginalEdgeIds(EdgeIterator.NO_EDGE);
@@ -428,21 +437,27 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
      * Search is more efficient for low source count and high destination count than the other way around.
      * If there are more sources than destinations, they get swapped and all calculations are done backwards.
      * The final result gets unswapped to return correct results.
+     *
      * @param srcData original Source data
      * @param dstData original Destination data
      * @return
      */
-    private boolean checkSwapSrcDst(MatrixLocations srcData, MatrixLocations dstData){
-        return(srcData.size() > dstData.size());
+    private boolean checkSwapSrcDst(MatrixLocations srcData, MatrixLocations dstData) {
+        return (srcData.size() > dstData.size());
+    }
+
+    private boolean checkSwapSrcDst(int[] srcData, int[] dstData) {
+        return (srcData.length > dstData.length);
     }
 
     /**
      * Invert the results matrix (represented by flattened array) in case src and dst were swapped
-     * @param srcData the original unswapped source data
-     * @param dstData the original unswapped destination data
-     * @param times the swapped array of results
+     *
+     * @param srcData   the original unswapped source data
+     * @param dstData   the original unswapped destination data
+     * @param times     the swapped array of results
      * @param distances the swapped array of results
-     * @param weights the swapped array of results
+     * @param weights   the swapped array of results
      * @return array of unswapped result arrays [times, distances, weights]
      */
     private float[][] swapResults(MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
@@ -456,14 +471,14 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         int i = 0;
         int srcSize = srcData.size();
         int dstSize = dstData.size();
-        for (int dst = 0; dst < dstSize; dst++){
-            for(int src = 0; src < srcSize; src++){
+        for (int dst = 0; dst < dstSize; dst++) {
+            for (int src = 0; src < srcSize; src++) {
                 int index = dst + src * dstSize;
-                if(hasTimes)
+                if (hasTimes)
                     newTimes[index] = times[i];
-                if(hasDistances)
+                if (hasDistances)
                     newDistances[index] = distances[i];
-                if(hasWeights)
+                if (hasWeights)
                     newWeights[index] = weights[i];
                 i++;
             }
