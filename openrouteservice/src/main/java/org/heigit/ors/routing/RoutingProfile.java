@@ -19,7 +19,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
@@ -415,7 +414,7 @@ public class RoutingProfile {
 
 
     public boolean isCHEnabled() {
-        return mGraphHopper != null && mGraphHopper.isCHEnabled();
+        return mGraphHopper != null && mGraphHopper.getCHPreparationHandler().isEnabled();
     }
 
     public void close() {
@@ -811,7 +810,7 @@ public class RoutingProfile {
             mMapMatcher.setGraphHopper(mGraphHopper);
         }
 
-        mMapMatcher.setSearchRadius(searchRadius);
+        // TODO: find out how to set this: mMapMatcher.setSearchRadius(searchRadius);
         mMapMatcher.setEdgeFilter(edgeFilter);
 
         return mMapMatcher.match(locations, bothDirections);

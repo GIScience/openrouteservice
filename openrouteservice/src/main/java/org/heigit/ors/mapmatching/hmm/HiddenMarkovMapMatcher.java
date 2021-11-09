@@ -22,16 +22,17 @@ import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
-import org.heigit.ors.mapmatching.LocationIndexMatch;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -43,7 +44,7 @@ import java.util.List;
 public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	private final DistanceCalc distCalcEarth = new DistanceCalcEarth(); // DistancePlaneProjection
-	private LocationIndexMatch locationIndex;
+	private LocationIndexTree locationIndex;
 	private FlagEncoder encoder;
 	private final List<MatchPoint> matchPoints = new ArrayList<>(2);
 	private final List<Integer> roadSegments = new ArrayList<>();
@@ -84,20 +85,12 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	}
 
 	@Override
-	public void setSearchRadius(double radius) {
-		searchRadius = radius;
-		if (locationIndex != null)
-			locationIndex.setGpxAccuracy(radius);
-	}
-
-	@Override
 	public void setGraphHopper(GraphHopper gh) {
 		graphHopper = gh;
 
 		encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
 		GraphHopperStorage graph = gh.getGraphHopperStorage();
-		locationIndex = new LocationIndexMatch(graph,
-				(com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int) searchRadius);
+		locationIndex = (LocationIndexTree) gh.getLocationIndex();
 	}
 
 	@Override
@@ -334,7 +327,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	
 	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
 			List<Integer> roadSegments) {
-		List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
+		// TODO: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
+		List<Snap> qResults = Collections.singletonList(locationIndex.findClosest(lat, lon, edgeFilter)); // TODO: this is just a temporary work-around for the previous line
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 
