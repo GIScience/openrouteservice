@@ -18,9 +18,10 @@ import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -61,7 +62,7 @@ public class PathMetricsExtractor {
 
 	private final int metrics;
 	private final Graph graph;
-	private CHGraph chGraph;
+	private RoutingCHGraph chGraph;
 	private final Weighting weighting;
 	private final Weighting timeWeighting;
 	private double edgeDistance;
@@ -80,13 +81,13 @@ public class PathMetricsExtractor {
 		distUnits = units;
 		edgeMetrics = new GHLongObjectHashMap<>();
 
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph)graph;
+		if (graph instanceof RoutingCHGraph)
+			chGraph = (RoutingCHGraph)graph;
 		else if (graph instanceof QueryGraph) {
 			QueryGraph qGraph = (QueryGraph)graph;
 			Graph mainGraph = qGraph.getBaseGraph();
-			if (mainGraph instanceof CHGraph)
-				chGraph = (CHGraph)mainGraph;
+			if (mainGraph instanceof RoutingCHGraph)
+				chGraph = (RoutingCHGraph)mainGraph;
 		}
 	}
 
@@ -133,7 +134,7 @@ public class PathMetricsExtractor {
 
 					if (edgeMetricsItem == null) {
 						if (chGraph != null) {
-							CHEdgeIteratorState iterState = (CHEdgeIteratorState) graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
+							RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
 
 							if (calcWeight || calcTime || UNPACK_DISTANCE) {
 								if (iterState.isShortcut()) {
@@ -153,7 +154,10 @@ public class PathMetricsExtractor {
 							}
 
 							if (!UNPACK_DISTANCE && calcDistance)
-								edgeDistance = (distUnits == DistanceUnit.METERS) ? iterState.getDistance() : DistanceUnitUtil.convert(iterState.getDistance(), DistanceUnit.METERS, distUnits);
+								edgeDistance = (distUnits == DistanceUnit.METERS)
+										? 0 // TODO: find out where to get this from: iterState.getDistance()
+							            : DistanceUnitUtil.convert(0, // TODO: find out where to get this from: iterState.getDistance(),
+										DistanceUnit.METERS, distUnits);
 						} else {
 							EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
 
@@ -215,7 +219,7 @@ public class PathMetricsExtractor {
 		return (long)entry.adjNode + entry.edge;
 	}
 
-	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse) {
+	private void extractEdgeValues(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (iterState.isShortcut()) {
 			edgeDistance = 0.0;
 			edgeTime = 0.0;
@@ -227,22 +231,22 @@ public class PathMetricsExtractor {
 			expandEdge(iterState, reverse);  
 		} else {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance = iterState.getDistance();
+				edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime = weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime = iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight = weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight = iterState.getWeight(reverse);
 		}
 	}
 
-	private void expandEdge(CHEdgeIteratorState iterState, boolean reverse) {
+	private void expandEdge(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (!iterState.isShortcut()) {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance += iterState.getDistance();
+				edgeDistance += 0; // TODO: find out where to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime += weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime += iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight += weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight += iterState.getWeight(reverse);
 			return;
 		}
 
@@ -260,7 +264,7 @@ public class PathMetricsExtractor {
 
 		// getEdgeProps could possibly return an empty edge if the shortcut is available for both directions
 		if (reverseOrder) {
-			CHEdgeIteratorState edgeState = chGraph.getEdgeIteratorState(skippedEdge1, to);
+			RoutingCHEdgeIteratorState edgeState = chGraph.getEdgeIteratorState(skippedEdge1, to);
 			boolean empty = edgeState == null;
 			if (empty)
 				edgeState = chGraph.getEdgeIteratorState(skippedEdge2, to);
@@ -276,7 +280,7 @@ public class PathMetricsExtractor {
 		} 
 		else
 		{
-			CHEdgeIteratorState iter = chGraph.getEdgeIteratorState(skippedEdge1, from);
+			RoutingCHEdgeIteratorState iter = chGraph.getEdgeIteratorState(skippedEdge1, from);
 			boolean empty = iter == null;
 			if (empty)
 				iter = chGraph.getEdgeIteratorState(skippedEdge2, from);

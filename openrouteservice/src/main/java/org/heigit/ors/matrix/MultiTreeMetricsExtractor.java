@@ -61,7 +61,7 @@ public class MultiTreeMetricsExtractor {
 
 	private final int metrics;
 	private final Graph graph;
-	private CHGraph chGraph;
+	private RoutingCHGraph chGraph;
 	private final Weighting weighting;
 	private final Weighting timeWeighting;
 	private double edgeDistance;
@@ -82,17 +82,17 @@ public class MultiTreeMetricsExtractor {
 		distUnits = units;
 		edgeMetrics = new GHLongObjectHashMap<>();
 
-		if (graph instanceof CHGraph)
-			chGraph = (CHGraph) graph;
+		if (graph instanceof RoutingCHGraph)
+			chGraph = (RoutingCHGraph) graph;
 		else if (graph instanceof QueryGraph) {
 			QueryGraph qGraph = (QueryGraph) graph;
 			Graph mainGraph = qGraph.getBaseGraph();
-			if (mainGraph instanceof CHGraph)
-				chGraph = (CHGraph) mainGraph;
+			if (mainGraph instanceof RoutingCHGraph)
+				chGraph = (RoutingCHGraph) mainGraph;
 		}
 
 		assert chGraph != null;
-		maxEdgeId = chGraph.getAllEdges().length();
+		maxEdgeId = chGraph.getEdges();
 	}
 
 	public void setSwap(boolean swap){
@@ -162,7 +162,7 @@ public class MultiTreeMetricsExtractor {
 
 								if (edgeMetricsItem == null) {
 									if (chGraph != null) {
-										CHEdgeIteratorState iterState = (CHEdgeIteratorState) graph
+										RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) graph
 												.getEdgeIteratorState(sptItem.getEdge(), targetEntry.getAdjNode());
 
 										boolean unpackDistance = true;
@@ -188,8 +188,8 @@ public class MultiTreeMetricsExtractor {
 
 										if (!unpackDistance && calcDistance)
 											edgeDistance = (distUnits == DistanceUnit.METERS)
-													? iterState.getDistance()
-													: DistanceUnitUtil.convert(iterState.getDistance(),
+													? 0 // TODO: find out where to get this from: iterState.getDistance()
+													: DistanceUnitUtil.convert(0, // TODO: find out where to get this from: iterState.getDistance(),
 													DistanceUnit.METERS, distUnits);
 									} else {
 										EdgeIteratorState iter = graph.getEdgeIteratorState(sptItem.getEdge(),
@@ -255,7 +255,7 @@ public class MultiTreeMetricsExtractor {
 		return entry.getAdjNode() * maxEdgeId + entry.getItem(sptEntry).getEdge();
 	}
 
-	private void extractEdgeValues(CHEdgeIteratorState iterState, boolean reverse) {
+	private void extractEdgeValues(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (iterState.isShortcut()) {
 			edgeDistance = 0.0;
 			edgeTime = 0.0;
@@ -267,22 +267,22 @@ public class MultiTreeMetricsExtractor {
 			expandEdge(iterState, reverse);
 		} else {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance = iterState.getDistance();
+				edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime = weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime = iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight = weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight = iterState.getWeight(reverse);
 		}
 	}
 
-	private void expandEdge(CHEdgeIteratorState iterState, boolean reverse) {
+	private void expandEdge(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (!iterState.isShortcut()) {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance += iterState.getDistance();
+				edgeDistance += 0; // TODO: find out to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime += weighting.calcEdgeMillis(iterState, reverse, EdgeIterator.NO_EDGE) / 1000.0;
+				edgeTime += iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-				edgeWeight += weighting.calcEdgeWeight(iterState, reverse, EdgeIterator.NO_EDGE);
+				edgeWeight += iterState.getWeight(reverse);
 			return;
 		}
 
@@ -301,7 +301,7 @@ public class MultiTreeMetricsExtractor {
 		// getEdgeProps could possibly return an empty edge if the shortcut is
 		// available for both directions
 		if (reverseOrder) {
-			CHEdgeIteratorState edgeState = chGraph.getEdgeIteratorState(skippedEdge1, to);
+			RoutingCHEdgeIteratorState edgeState = chGraph.getEdgeIteratorState(skippedEdge1, to);
 			boolean empty = edgeState == null;
 			if (empty)
 				edgeState = chGraph.getEdgeIteratorState(skippedEdge2, to);
@@ -315,7 +315,7 @@ public class MultiTreeMetricsExtractor {
 
 			expandEdge(edgeState, true);
 		} else {
-			CHEdgeIteratorState iter = chGraph.getEdgeIteratorState(skippedEdge1, from);
+			RoutingCHEdgeIteratorState iter = chGraph.getEdgeIteratorState(skippedEdge1, from);
 			boolean empty = iter == null;
 			if (empty)
 				iter = chGraph.getEdgeIteratorState(skippedEdge2, from);
