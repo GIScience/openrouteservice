@@ -98,7 +98,6 @@ public class IsochronesRequest {
     private boolean hasRangeUnits = false;
 
     @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
-    @JsonIgnore
     private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_OPTIONS,

@@ -38,7 +38,7 @@ public class MatrixRequestHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
@@ -92,7 +92,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
-        MatrixRequest matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        MatrixRequest matrixRequest = new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
         Assert.assertEquals(1, matrixRequest.getProfileType());
         Assert.assertEquals(3, matrixRequest.getSources().length);
         Assert.assertEquals(3, matrixRequest.getDestinations().length);
@@ -111,7 +111,7 @@ public class MatrixRequestHandlerTest {
         metrics[0] = MatrixRequestEnums.Metrics.DURATION;
         metrics[1] = MatrixRequestEnums.Metrics.DISTANCE;
         springMatrixRequest.setMetrics(metrics);
-        matrixRequest = MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        matrixRequest = new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
 
         Assert.assertEquals(3, matrixRequest.getMetrics());
     }
@@ -122,7 +122,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
@@ -133,7 +133,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
@@ -143,7 +143,7 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test(expected = ParameterValueException.class)
@@ -153,29 +153,29 @@ public class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"foo"});
-        MatrixRequestHandler.convertMatrixRequest(springMatrixRequest);
+        new MatrixRequestHandler().convertMatrixRequest(springMatrixRequest);
     }
 
     @Test
     public void convertMetricsTest() throws ParameterValueException {
-        Assert.assertEquals(1, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION}));
-        Assert.assertEquals(2, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DISTANCE}));
-        Assert.assertEquals(3, MatrixRequestHandler.convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION, MatrixRequestEnums.Metrics.DISTANCE}));
+        Assert.assertEquals(1, new MatrixRequestHandler().convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION}));
+        Assert.assertEquals(2, new MatrixRequestHandler().convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DISTANCE}));
+        Assert.assertEquals(3, new MatrixRequestHandler().convertMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DURATION, MatrixRequestEnums.Metrics.DISTANCE}));
     }
 
     @Test(expected = ParameterValueException.class)
     public void notEnoughLocationsTest() throws ParameterValueException, ServerLimitExceededException {
-        MatrixRequestHandler.convertLocations(minimalLocations, 5);
+        new MatrixRequestHandler().convertLocations(minimalLocations, 5);
     }
 
     @Test(expected = ServerLimitExceededException.class)
     public void maximumExceedingLocationsTest() throws ParameterValueException, ServerLimitExceededException {
-        MatrixRequestHandler.convertLocations(listOfBareCoordinatesList, maximumRoutes);
+        new MatrixRequestHandler().convertLocations(listOfBareCoordinatesList, maximumRoutes);
     }
 
     @Test
     public void convertLocationsTest() throws ParameterValueException, ServerLimitExceededException {
-        Coordinate[] coordinates = MatrixRequestHandler.convertLocations(listOfBareCoordinatesList, 3);
+        Coordinate[] coordinates = new MatrixRequestHandler().convertLocations(listOfBareCoordinatesList, 3);
         Assert.assertEquals(8.681495, coordinates[0].x, 0);
         Assert.assertEquals(49.41461, coordinates[0].y, 0);
         Assert.assertEquals(Double.NaN, coordinates[0].z, 0);
@@ -192,7 +192,7 @@ public class MatrixRequestHandlerTest {
         List<Double> locationsList = new ArrayList<>();
         locationsList.add(8.681495);
         locationsList.add(49.41461);
-        Coordinate coordinates = MatrixRequestHandler.convertSingleLocationCoordinate(locationsList);
+        Coordinate coordinates = new MatrixRequestHandler().convertSingleLocationCoordinate(locationsList);
         Assert.assertEquals(8.681495, coordinates.x, 0);
         Assert.assertEquals(49.41461, coordinates.y, 0);
         Assert.assertEquals(Double.NaN, coordinates.z, 0);
@@ -204,14 +204,14 @@ public class MatrixRequestHandlerTest {
         locationsList.add(8.681495);
         locationsList.add(49.41461);
         locationsList.add(123.0);
-        MatrixRequestHandler.convertSingleLocationCoordinate(locationsList);
+        new MatrixRequestHandler().convertSingleLocationCoordinate(locationsList);
 
     }
 
     @Test
     public void convertSourcesTest() throws ParameterValueException {
         String[] emptySources = new String[0];
-        Coordinate[] convertedSources = MatrixRequestHandler.convertSources(emptySources, this.coordinates);
+        Coordinate[] convertedSources = new MatrixRequestHandler().convertSources(emptySources, this.coordinates);
         Assert.assertEquals(8.681495, convertedSources[0].x, 0);
         Assert.assertEquals(49.41461, convertedSources[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedSources[0].z, 0);
@@ -223,7 +223,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(Double.NaN, convertedSources[2].z, 0);
 
         String[] allSources = new String[]{"all"};
-        convertedSources = MatrixRequestHandler.convertSources(allSources, this.coordinates);
+        convertedSources = new MatrixRequestHandler().convertSources(allSources, this.coordinates);
         Assert.assertEquals(8.681495, convertedSources[0].x, 0);
         Assert.assertEquals(49.41461, convertedSources[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedSources[0].z, 0);
@@ -235,7 +235,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(Double.NaN, convertedSources[2].z, 0);
 
         String[] secondSource = new String[]{"1"};
-        convertedSources = MatrixRequestHandler.convertSources(secondSource, this.coordinates);
+        convertedSources = new MatrixRequestHandler().convertSources(secondSource, this.coordinates);
         Assert.assertEquals(8.686507, convertedSources[0].x, 0);
         Assert.assertEquals(49.41943, convertedSources[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedSources[0].z, 0);
@@ -244,13 +244,13 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void convertWrongSourcesTest() throws ParameterValueException {
         String[] wrongSource = new String[]{"foo"};
-        MatrixRequestHandler.convertSources(wrongSource, this.coordinates);
+        new MatrixRequestHandler().convertSources(wrongSource, this.coordinates);
     }
 
     @Test
     public void convertDestinationsTest() throws ParameterValueException {
         String[] emptyDestinations = new String[0];
-        Coordinate[] convertedDestinations = MatrixRequestHandler.convertDestinations(emptyDestinations, this.coordinates);
+        Coordinate[] convertedDestinations = new MatrixRequestHandler().convertDestinations(emptyDestinations, this.coordinates);
         Assert.assertEquals(8.681495, convertedDestinations[0].x, 0);
         Assert.assertEquals(49.41461, convertedDestinations[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedDestinations[0].z, 0);
@@ -262,7 +262,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(Double.NaN, convertedDestinations[2].z, 0);
 
         String[] allDestinations = new String[]{"all"};
-        convertedDestinations = MatrixRequestHandler.convertDestinations(allDestinations, this.coordinates);
+        convertedDestinations = new MatrixRequestHandler().convertDestinations(allDestinations, this.coordinates);
         Assert.assertEquals(8.681495, convertedDestinations[0].x, 0);
         Assert.assertEquals(49.41461, convertedDestinations[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedDestinations[0].z, 0);
@@ -274,7 +274,7 @@ public class MatrixRequestHandlerTest {
         Assert.assertEquals(Double.NaN, convertedDestinations[2].z, 0);
 
         String[] secondDestination = new String[]{"1"};
-        convertedDestinations = MatrixRequestHandler.convertDestinations(secondDestination, this.coordinates);
+        convertedDestinations = new MatrixRequestHandler().convertDestinations(secondDestination, this.coordinates);
         Assert.assertEquals(8.686507, convertedDestinations[0].x, 0);
         Assert.assertEquals(49.41943, convertedDestinations[0].y, 0);
         Assert.assertEquals(Double.NaN, convertedDestinations[0].z, 0);
@@ -283,12 +283,12 @@ public class MatrixRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void convertWrongDestinationsTest() throws ParameterValueException {
         String[] wrongDestinations = new String[]{"foo"};
-        MatrixRequestHandler.convertDestinations(wrongDestinations, this.coordinates);
+        new MatrixRequestHandler().convertDestinations(wrongDestinations, this.coordinates);
     }
 
     @Test
     public void convertIndexToLocationsTest() throws Exception {
-        ArrayList<Coordinate> coordinate = MatrixRequestHandler.convertIndexToLocations(new String[]{"1"}, this.coordinates);
+        ArrayList<Coordinate> coordinate = new MatrixRequestHandler().convertIndexToLocations(new String[]{"1"}, this.coordinates);
         Assert.assertEquals(8.686507, coordinate.get(0).x, 0);
         Assert.assertEquals(49.41943, coordinate.get(0).y, 0);
         Assert.assertEquals(Double.NaN, coordinate.get(0).z, 0);
@@ -296,32 +296,32 @@ public class MatrixRequestHandlerTest {
 
     @Test(expected = Exception.class)
     public void convertWrongIndexToLocationsTest() throws Exception {
-        MatrixRequestHandler.convertIndexToLocations(new String[]{"foo"}, this.coordinates);
+        new MatrixRequestHandler().convertIndexToLocations(new String[]{"foo"}, this.coordinates);
     }
 
     @Test
     public void convertUnitsTest() throws ParameterValueException {
-        Assert.assertEquals(DistanceUnit.METERS, MatrixRequestHandler.convertUnits(APIEnums.Units.METRES));
-        Assert.assertEquals(DistanceUnit.KILOMETERS, MatrixRequestHandler.convertUnits(APIEnums.Units.KILOMETRES));
-        Assert.assertEquals(DistanceUnit.MILES, MatrixRequestHandler.convertUnits(APIEnums.Units.MILES));
+        Assert.assertEquals(DistanceUnit.METERS, new MatrixRequestHandler().convertUnits(APIEnums.Units.METRES));
+        Assert.assertEquals(DistanceUnit.KILOMETERS, new MatrixRequestHandler().convertUnits(APIEnums.Units.KILOMETRES));
+        Assert.assertEquals(DistanceUnit.MILES, new MatrixRequestHandler().convertUnits(APIEnums.Units.MILES));
     }
 
     @Test
     public void convertToProfileTypeTest() throws ParameterValueException {
-        Assert.assertEquals(1, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.DRIVING_CAR));
-        Assert.assertEquals(2, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.DRIVING_HGV));
-        Assert.assertEquals(10, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_REGULAR));
-        Assert.assertEquals(12, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ROAD));
-        Assert.assertEquals(11, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_MOUNTAIN));
-        Assert.assertEquals(17, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.CYCLING_ELECTRIC));
-        Assert.assertEquals(20, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.FOOT_WALKING));
-        Assert.assertEquals(21, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.FOOT_HIKING));
-        Assert.assertEquals(30, MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.WHEELCHAIR));
+        Assert.assertEquals(1, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.DRIVING_CAR));
+        Assert.assertEquals(2, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.DRIVING_HGV));
+        Assert.assertEquals(10, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.CYCLING_REGULAR));
+        Assert.assertEquals(12, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.CYCLING_ROAD));
+        Assert.assertEquals(11, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.CYCLING_MOUNTAIN));
+        Assert.assertEquals(17, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.CYCLING_ELECTRIC));
+        Assert.assertEquals(20, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.FOOT_WALKING));
+        Assert.assertEquals(21, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.FOOT_HIKING));
+        Assert.assertEquals(30, new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.WHEELCHAIR));
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertToWrongMatrixProfileTypeTest() throws ParameterValueException {
-        MatrixRequestHandler.convertToMatrixProfileType(APIEnums.Profile.forValue("foo"));
+        new MatrixRequestHandler().convertToMatrixProfileType(APIEnums.Profile.forValue("foo"));
     }
 
 }

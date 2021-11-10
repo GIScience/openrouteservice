@@ -370,8 +370,8 @@ public class ORSOSMReader extends OSMReader {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
-	@Override 
+
+	@Override
     protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
     {
 		try
@@ -381,48 +381,46 @@ public class ORSOSMReader extends OSMReader {
 		catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
-		
+
 		return false;
     }
 
     @Override
 	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-		double totalDist = 0d;
-		long nodeId = osmNodeIds.get(0);
-		int first = getNodeMap().get(nodeId);
-		double firstLat = getTmpLatitude(first);
-		double firstLon = getTmpLongitude(first);
-		double currLat = firstLat;
-		double currLon = firstLon;
-		double latSum = currLat;
-		double lonSum = currLon;
-		int sumCount = 1;
-		int len = osmNodeIds.size();
-		for(int i=1; i<len; i++){
-			long nextNodeId = osmNodeIds.get(i);
-			int next = getNodeMap().get(nextNodeId);
-			double nextLat = getTmpLatitude(next);
-			double nextLon = getTmpLongitude(next);
-			if(!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
-				latSum = latSum + nextLat;
-				lonSum = lonSum + nextLon;
-				sumCount++;
-				totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+		super.recordWayDistance(way, osmNodeIds);
 
-				currLat = nextLat;
-				currLon = nextLon;
+		// compute exact way distance for ferries in order to improve travel time estimate, see #1037
+		if (way.hasTag("route", "ferry", "shuttle_train")) {
+			double totalDist = 0d;
+			long nodeId = osmNodeIds.get(0);
+			int first = getNodeMap().get(nodeId);
+			double firstLat = getTmpLatitude(first);
+			double firstLon = getTmpLongitude(first);
+			double currLat = firstLat;
+			double currLon = firstLon;
+			double latSum = currLat;
+			double lonSum = currLon;
+			int sumCount = 1;
+			int len = osmNodeIds.size();
+			for (int i = 1; i < len; i++) {
+				long nextNodeId = osmNodeIds.get(i);
+				int next = getNodeMap().get(nextNodeId);
+				double nextLat = getTmpLatitude(next);
+				double nextLon = getTmpLongitude(next);
+				if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
+					latSum = latSum + nextLat;
+					lonSum = lonSum + nextLon;
+					sumCount++;
+					totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+
+					currLat = nextLat;
+					currLon = nextLon;
+				}
 			}
-		}
-		// make the simple dist & center calculations (who ever rely on it might want to use it!)
-		if (!Double.isNaN(firstLat) && !Double.isNaN(firstLon) && !Double.isNaN(currLat) && !Double.isNaN(currLon)) {
-			double estimatedDist = getDistanceCalc(false).calcDist(firstLat, firstLon, currLat, currLon);
-			// Add artificial tag for the estimated distance and center
-			way.setTag("estimated_distance", estimatedDist);
-			way.setTag("estimated_center", new GHPoint((firstLat + currLat) / 2, (firstLon + currLon) / 2));
-		}
-		if(totalDist > 0) {
-			way.setTag("exact_distance", totalDist);
-			way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+			if (totalDist > 0) {
+				way.setTag("exact_distance", totalDist);
+				way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+			}
 		}
 	}
 
@@ -438,7 +436,7 @@ public class ORSOSMReader extends OSMReader {
 			double ele = node.getEle();
 			if (Double.isNaN(ele)) {
 				if (!getElevationFromPreprocessedDataErrorLogged) {
-					LOGGER.error("elevation_preprocessed set to true in app.config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
 					getElevationFromPreprocessedDataErrorLogged = true;
 				}
 				ele = 0;

@@ -19,7 +19,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 
 /**
- * This class includes in the core all edges with speed more than the one set in the app.config file max_speed.
+ * This class includes in the core all edges with speed more than the one set in the ors-config.json file max_speed.
  *
  * @author Athanasios Kogios
  */

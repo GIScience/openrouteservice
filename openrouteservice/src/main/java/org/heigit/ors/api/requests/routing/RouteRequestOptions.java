@@ -52,7 +52,7 @@ public class RouteRequestOptions {
     private boolean hasAvoidBorders = false;
 
     @ApiModelProperty(name = PARAM_AVOID_COUNTRIES, value = "List of countries to exclude from routing with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
-            "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://github.com/GIScience/openrouteservice-docs#country-list). " +
+            "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). " +
             "Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
             example = "[ 11, 193 ]")

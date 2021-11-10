@@ -5,6 +5,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import java.util.List;
