@@ -283,11 +283,6 @@
             <url>https://repo.heigit.org/artifactory/main</url>
         </repository>
         <repository>
-            <id>central</id>
-            <name>central</name>
-            <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
             <id>osgeo</id>
             <name>OSGeo Release Repository</name>
             <url>https://repo.osgeo.org/repository/release/</url>
@@ -297,13 +292,6 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </repository>
-        <repository>
-            <id>osgeo-snapshot</id>
-            <name>OSGeo Snapshot Repository</name>
-            <url>https://repo.osgeo.org/repository/snapshot/</url>
-            <snapshots><enabled>true</enabled></snapshots>
-            <releases><enabled>false</enabled></releases>
         </repository>
     </repositories>
     <dependencies>
@@ -331,11 +319,6 @@
             <artifactId>jts</artifactId>
             <version>1.13</version>
         </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-swing</artifactId>
-            <version>19.1</version>
-        </dependency>
 
         <dependency>
             <groupId>org.geotools</groupId>
@@ -360,11 +343,19 @@
             <artifactId>gt-geojson</artifactId>
             <version>${geotools.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-swing</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
-            <version>19.1</version>
+            <version>${geotools.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
