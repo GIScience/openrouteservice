@@ -187,8 +187,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             try {
                 TYPE = DataUtilities.createType("my", "geom:MultiLineString");
             } catch (SchemaException e) {
-                LOGGER.error("Error creating MultiLineString Type. This should not happen!");
-                e.printStackTrace();
+                LOGGER.error("Error creating MultiLineString Type. This should not happen!", e);
             }
             File osmFile = null;
             File osmMatchedFile = null;
@@ -232,7 +231,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     SimpleFeature feature = featureBuilder.buildFeature(null);
                     matchedOSMCollection.add(feature);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error adding machedOSMLinks", e);
                 }
             });
             for (IntCursor linkID : matchedHereLinks) {
@@ -244,7 +243,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     SimpleFeature feature = featureBuilder.buildFeature(null);
                     matchedHereCollection.add(feature);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error adding machedHEreLinks", e);
                 }
             }
 
@@ -269,8 +268,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     osmMatchedFile.createNewFile();
                     featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
                 } catch (IOException e) {
-                    LOGGER.error("Error writing matched OSM data to log file.");
-                    e.printStackTrace();
+                    LOGGER.error("Error writing matched OSM data to log file.", e);
                 }
             }
 //            if (allHereCollection.size() > 0) {
@@ -282,8 +280,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     hereMatchedFile.createNewFile();
                     featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
                 } catch (IOException e) {
-                    LOGGER.error("Error writing matched Here data to log file.");
-                    e.printStackTrace();
+                    LOGGER.error("Error writing matched Here data to log file.", e);
                 }
             }
         }
@@ -329,8 +326,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             try {
                 hereTrafficReader.readData();
             } catch (IOException e) {
-                LOGGER.error("Severe error reading " + HereTrafficReader.class.toString());
-                e.printStackTrace();
+                LOGGER.error("Severe error reading " + HereTrafficReader.class, e);
                 return;
             }
             if (hereTrafficReader.isInitialized()) {

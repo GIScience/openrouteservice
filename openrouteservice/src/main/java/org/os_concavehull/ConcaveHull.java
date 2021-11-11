@@ -57,17 +57,7 @@
 
 package org.os_concavehull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 
 //import org.vividsolut.jts.algorithm.ConvexHull;
 //import org.locationtech.jts.densify.Densifier;
@@ -88,8 +78,12 @@ import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
 import com.vividsolutions.jts.triangulate.quadedge.Vertex;
 import com.vividsolutions.jts.operation.union.UnaryUnionOp;
+import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 
 public class ConcaveHull {
+	static final Logger LOGGER = Logger.getLogger(ConcaveHull.class.getName());
+
 	Coordinate hullCoord = null; // a coordinate on the convex hull of the dataset, used as a seed coordinate for various operations
 	LinkedList<Coordinate> hullDT = null; //initial hull of the dataset (closed, first==last), built from JTS DT. It is normally (but not always) the convex hull (due to JTS DT's use of a bounding super triangle)
 	QuadEdgeSubdivision sd = null;
@@ -694,8 +688,8 @@ public class ConcaveHull {
 		Geometry shell = gf.createPolygon(hullCoords);
 		
 		List triCoords = sd.getTriangleCoordinates(false);
-		Collection<Geometry> holeCol = new Vector<Geometry>();
-		for(Object obj:triCoords) {
+		Collection<Geometry> holeCol = new ArrayList<>();
+		for (Object obj:triCoords) {
 			Coordinate[] coords = (Coordinate[])obj;
 			boolean rmvable0 = tcChi.removeable(coords[0], coords[1], coords[2]);
 			boolean rmvable1 = tcChi.removeable(coords[1], coords[2], coords[0]);
@@ -710,8 +704,8 @@ public class ConcaveHull {
 			if(holes!=null && holes.getDimension() > 1) {
 				shell = shell.difference(holes);
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LOGGER.error("Error calculating holes", e);
 		}
 		return shell;
 	}
