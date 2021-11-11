@@ -70,7 +70,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public static final String BUILDER_NAME = "HereTraffic";
 
     private static final Date date = Calendar.getInstance().getTime();
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
 
     private static final String ENABLED = "enabled";
     private static final String PARAM_KEY_STREETS = "streets";
@@ -265,8 +265,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 //            }
             if (matchedOSMCollection.size() > 0) {
                 try {
-                    osmMatchedFile.createNewFile();
-                    featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
+                    if (osmMatchedFile.createNewFile()) {
+                        featureJSON.writeFeatureCollection(matchedOSMCollection, osmMatchedFile);
+                    } else {
+                        LOGGER.error("Error creating log file for matched OSM data.");
+                    }
                 } catch (IOException e) {
                     LOGGER.error("Error writing matched OSM data to log file.", e);
                 }
@@ -277,8 +280,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 //            }
             if (matchedHereCollection.size() > 0) {
                 try {
-                    hereMatchedFile.createNewFile();
-                    featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
+                    if (hereMatchedFile.createNewFile()) {
+                        featureJSON.writeFeatureCollection(matchedHereCollection, hereMatchedFile);
+                    } else {
+                        LOGGER.error("Error creating log file for matched Here data.");
+                    }
                 } catch (IOException e) {
                     LOGGER.error("Error writing matched Here data to log file.", e);
                 }

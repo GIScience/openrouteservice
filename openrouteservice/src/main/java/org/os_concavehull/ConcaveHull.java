@@ -242,6 +242,7 @@ public class ConcaveHull {
 	private static LinkedList<Coordinate> getHull(QuadEdgeSubdivision sd, Coordinate baseCoord) {
 		// 
 		QuadEdge qe = locateVertexInDT(sd, baseCoord);
+		assert qe != null;
 		Vertex baseVer = qe.orig();
 		// find a frame vertex
 		while(!sd.isFrameVertex(qe.dest())){
@@ -251,7 +252,7 @@ public class ConcaveHull {
 		while(sd.isFrameVertex(qe.dest())){
 			qe = qe.oNext();
 		}
-		LinkedList<Coordinate> hull = new LinkedList<Coordinate>();
+		LinkedList<Coordinate> hull = new LinkedList<>();
 		do {
 			Vertex ver = qe.orig();
 			hull.add(ver.getCoordinate());
@@ -726,8 +727,9 @@ public class ConcaveHull {
 			Coordinate e = en.getObj();
 			QuadEdge qe = sd.locate(s, e);
 			if(qe==null) {
-				System.out.println("fail to find edge: "+s.toString() + " -"+e.toString());
+				LOGGER.error("fail to find edge: "+s.toString() + " -"+e.toString());
 			}
+			assert qe != null;
 			QuadEdge lnext = qe.lNext();
 			Vertex verO = lnext.dest();
 			Coordinate o = verO.getCoordinate();
