@@ -27,6 +27,6 @@ public interface MapMatcher {
     void setGraphHopper(GraphHopper gh);
 
     RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
-	
+
     void clear();
 }
