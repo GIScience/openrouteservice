@@ -255,7 +255,7 @@ public class ORSGraphHopper extends GraphHopper {
             else
                 routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
 
-            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorheretraffage());
+            EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
             routingTemplate.setEdgeFilter(edgeFilter);
 
             for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 1); c++) {
