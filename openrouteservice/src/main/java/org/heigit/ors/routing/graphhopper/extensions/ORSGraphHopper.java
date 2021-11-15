@@ -42,7 +42,7 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -75,7 +75,7 @@ public class ORSGraphHopper extends GraphHopper {
 	private int minOneWayNetworkSize = 0;
 
 	private final CorePreparationHandler corePreparationHandler =  new CorePreparationHandler();
-	private final CoreLMAlgoFactoryDecorator coreLMFactoryDecorator = new CoreLMAlgoFactoryDecorator();
+	private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
 	private double maximumSpeedLowerBound;
@@ -620,8 +620,8 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		//Create the landmarks in the core
-		if (coreLMFactoryDecorator.isEnabled())
-			coreLMFactoryDecorator.createPreparations(gs, super.getLocationIndex());
+		if (coreLMPreparationHandler.isEnabled())
+			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
 		if(fastIsochroneFactory.isEnabled()) {
@@ -740,12 +740,12 @@ public class ORSGraphHopper extends GraphHopper {
 	 */
 	public GraphHopper setCoreLMEnabled(boolean enable) {
 		ensureNotLoaded();
-		coreLMFactoryDecorator.setEnabled(enable);
+		//TODO coreLMPreparationHandler.setEnabled(enable);
 		return this;
 	}
 
 	public final boolean isCoreLMEnabled() {
-		return coreLMFactoryDecorator.isEnabled();
+		return coreLMPreparationHandler.isEnabled();
 	}
 
 // TODO: initialization logic needs to be moved to CoreLMPrepartionHandler.init
@@ -761,11 +761,11 @@ public class ORSGraphHopper extends GraphHopper {
 	 * For landmarks it is required to always call this method: either it creates the landmark data or it loads it.
 	 */
 	protected void loadOrPrepareCoreLM() {
-		boolean tmpPrepare = coreLMFactoryDecorator.isEnabled();
+		boolean tmpPrepare = coreLMPreparationHandler.isEnabled();
 		if (tmpPrepare) {
 			ensureWriteAccess();
 			getGraphHopperStorage().freeze();
-			if (coreLMFactoryDecorator.loadOrDoWork(getGraphHopperStorage().getProperties()))
+			if (coreLMPreparationHandler.loadOrDoWork(getGraphHopperStorage().getProperties(), false))
 				getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
 		}
 	}

@@ -18,10 +18,8 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.CHGraphImpl;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.CHEdgeExplorer;
-import com.graphhopper.util.CHEdgeIterator;
+import com.graphhopper.storage.*;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage.CoreEdgeFilter;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -53,35 +51,33 @@ public class TarjansCoreSCCAlgorithm {
     private final GHBitSet ignoreSet;
     private final int[] nodeIndex;
     private final int[] nodeLowLink;
-    private final EdgeFilter edgeFilter;
+    private final CoreEdgeFilter edgeFilter;
     private int index = 1;
-    private final CHGraphImpl core;
+    private final RoutingCHGraph core;
     private final int coreNodeLevel;
 
-    public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, CHGraphImpl core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
+    public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
         this.graph = ghStorage;
         this.core = core;
         this.nodeStack = new IntArrayDeque();
         this.onStack = new GHBitSetImpl(ghStorage.getNodes());
         this.nodeIndex = new int[ghStorage.getNodes()];
         this.nodeLowLink = new int[ghStorage.getNodes()];
-        this.edgeFilter = edgeFilter;
-        coreNodeLevel = core.getNodes() + 1;
+        this.edgeFilter = new CoreEdgeFilter(core);
+        this.coreNodeLevel = core.getNodes();
 
 
         if (ignoreSingleEntries) {
             // Very important case to boost performance - see #520. Exclude single entry components as we don't need them! 
             // But they'll be created a lot for multiple vehicles because many nodes e.g. for foot are not accessible at all for car.
             // We can ignore these single entry components as they are already set 'not accessible'
-            CHEdgeExplorer explorer = core.createEdgeExplorer(edgeFilter);
+            RoutingCHEdgeExplorer explorer = core.createOutEdgeExplorer();
             int nodes = ghStorage.getNodes();
             ignoreSet = new GHBitSetImpl(ghStorage.getCoreNodes());
             for (int start = 0; start < nodes; start++) {
-                if (!ghStorage.isNodeRemoved(start)) {
-                    CHEdgeIterator iter = explorer.setBaseNode(start);
+                    CoreEdgeIterator iter = new CoreEdgeIterator(explorer.setBaseNode(start), this.edgeFilter);
                     if (!iter.next())
                         ignoreSet.add(start);
-                }
             }
         } else {
             ignoreSet = new GHBitSetImpl();
@@ -100,9 +96,7 @@ public class TarjansCoreSCCAlgorithm {
         for (int start = 0; start < nodes; start++) {
             if(core.getLevel(start) < coreNodeLevel)
                 continue;
-            if (nodeIndex[start] == 0
-                    && !ignoreSet.contains(start)
-                    && !graph.isNodeRemoved(start))
+            if (nodeIndex[start] == 0 && !ignoreSet.contains(start))
                 strongConnect(start);
         }
 
@@ -125,7 +119,7 @@ public class TarjansCoreSCCAlgorithm {
         while (!stateStack.isEmpty()) {
             TarjanState state = stateStack.pop();
             final int start = state.start;
-            final CHEdgeIterator iter;
+            final RoutingCHEdgeIterator iter;
 
             if (state.isStart()) {
                 // We're traversing a new node 'start'.  Set the depth index for this node to the smallest unused index.
@@ -135,7 +129,7 @@ public class TarjansCoreSCCAlgorithm {
                 nodeStack.addLast(start);
                 onStack.add(start);
 
-                iter = core.createEdgeExplorer(edgeFilter).setBaseNode(start);
+                iter = new CoreEdgeIterator(core.createOutEdgeExplorer().setBaseNode(start), edgeFilter);
 
             } else {
                 // We're resuming iteration over the next child of 'start', set lowLink as appropriate.
@@ -187,9 +181,9 @@ public class TarjansCoreSCCAlgorithm {
      */
     private static class TarjanState {
         final int start;
-        final CHEdgeIterator iter;
+        final RoutingCHEdgeIterator iter;
 
-        private TarjanState(final int start, final CHEdgeIterator iter) {
+        private TarjanState(final int start, final RoutingCHEdgeIterator iter) {
             this.start = start;
             this.iter = iter;
         }
@@ -198,13 +192,87 @@ public class TarjansCoreSCCAlgorithm {
             return new TarjanState(start, null);
         }
 
-        public static TarjanState resumeState(int start, CHEdgeIterator iter) {
+        public static TarjanState resumeState(int start, RoutingCHEdgeIterator iter) {
             return new TarjanState(start, iter);
         }
 
         // Iterator only present in 'resume' state.
         boolean isStart() {
             return iter == null;
+        }
+    }
+
+    private static class CoreEdgeIterator implements RoutingCHEdgeIterator {
+        private RoutingCHEdgeIterator chIterator;
+        private CoreEdgeFilter coreFilter;
+
+        public CoreEdgeIterator(RoutingCHEdgeIterator chIterator, CoreEdgeFilter coreFilter) {
+            this.chIterator = chIterator;
+            this.coreFilter = coreFilter;
+        }
+
+        @Override
+        public boolean next() {
+            while(chIterator.next()) {
+                if (coreFilter.accept(chIterator))
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public int getEdge() {
+            return chIterator.getEdge();
+        }
+
+        @Override
+        public int getOrigEdge() {
+            return chIterator.getOrigEdge();
+        }
+
+        @Override
+        public int getOrigEdgeFirst() {
+            return chIterator.getOrigEdgeFirst();
+        }
+
+        @Override
+        public int getOrigEdgeLast() {
+            return chIterator.getOrigEdgeLast();
+        }
+
+        @Override
+        public int getBaseNode() {
+            return chIterator.getBaseNode();
+        }
+
+        @Override
+        public int getAdjNode() {
+            return chIterator.getAdjNode();
+        }
+
+        @Override
+        public boolean isShortcut() {
+            return chIterator.isShortcut();
+        }
+
+        @Override
+        public int getSkippedEdge1() {
+            return chIterator.getSkippedEdge1();
+        }
+
+        @Override
+        public int getSkippedEdge2() {
+            return chIterator.getSkippedEdge2();
+        }
+
+        @Override
+        public double getWeight(boolean reverse) {
+            return chIterator.getWeight(reverse);
+        }
+
+        @Override
+        public int getTime(boolean reverse, long time) {
+            return chIterator.getTime(reverse, time);
         }
     }
 }

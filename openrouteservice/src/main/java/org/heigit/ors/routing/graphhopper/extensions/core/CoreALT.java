@@ -227,24 +227,8 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     private void initApproximator() {
-        if (weightApprox.getApproximation() instanceof CoreLMApproximator && weightApprox.getReverseApproximation() instanceof CoreLMApproximator) {
-            CoreLMApproximator forwardApproximator = (CoreLMApproximator) weightApprox.getApproximation();
-            forwardApproximator.setTo(toProxy);
-            // AO: when ConsistentWeight Approximator is used it is not necessary to account for proxy weights as any constant terms cancel out
-
-            boolean activeLandmarksSet = forwardApproximator.initActiveLandmarks(fromProxy);
-
-            CoreLMApproximator reverseApproximator = (CoreLMApproximator) weightApprox.getReverseApproximation();
-            reverseApproximator.setTo(fromProxy);
-
-            // AO: typically the optimal landmarks set for the forward approximator is the same as for the reverse one so there is no need to recompute them
-            if (activeLandmarksSet)
-                reverseApproximator.setActiveLandmarks(forwardApproximator.getActiveLandmarks());
-            else
-                reverseApproximator.initActiveLandmarks(toProxy);
-
-            approximatorOffset = 2.0D * forwardApproximator.getfFactor();
-        }
+        weightApprox.setFromTo(fromProxy, toProxy);
+        approximatorOffset = weightApprox.approximate(toProxy, true) + weightApprox.getSlack();
     }
 
     private void recalculateWeights(PriorityQueue<AStarEntry> queue, boolean reverse) {
