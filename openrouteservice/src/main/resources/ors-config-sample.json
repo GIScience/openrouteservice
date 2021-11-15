@@ -18,7 +18,7 @@
       },
       "isochrones": {
         "enabled": true,
-        "holes_enabled": true,
+        "holes_enabled": false,
         "maximum_range_distance": [
           {
             "profiles": "any",
