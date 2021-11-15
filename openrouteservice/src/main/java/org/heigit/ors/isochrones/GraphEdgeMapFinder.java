@@ -40,17 +40,17 @@ import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class GraphEdgeMapFinder {
-	private  GraphEdgeMapFinder() {}
+    private GraphEdgeMapFinder() {
+    }
 
-	public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
-		GraphHopper gh = searchCntx.getGraphHopper();
-	    FlagEncoder encoder = searchCntx.getEncoder();
-		GraphHopperStorage graph = gh.getGraphHopperStorage();
+    public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
+        GraphHopper gh = searchCntx.getGraphHopper();
+        FlagEncoder encoder = searchCntx.getEncoder();
+        GraphHopperStorage graph = gh.getGraphHopperStorage();
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
@@ -88,18 +88,6 @@ public class GraphEdgeMapFinder {
             fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
             tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
             IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
-//            int sumEntries = 0;
-//            double sumPercentages = 0;
-//            for (Map.Entry<Double, Double> entry : trafficSpeedCalculator.changedSpeedCount.entrySet()) {
-//                sumEntries += entry.getValue();
-//                sumPercentages += (trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue()) / entry.getKey() * entry.getValue();
-////				System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " with number of entries " + entry.getValue());
-//            }
-//            trafficSpeedCalculator.changedSpeedCount.entrySet().stream()
-//                    .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-//                    .forEach(entry -> System.out.println("Speed " + entry.getKey() + " replaced by average traffic: " + trafficSpeedCalculator.changedSpeed.get(entry.getKey()) / entry.getValue() + " over total distance of " + (int) entry.getValue().doubleValue() / 1000 + "km"));
-//            System.out.println("Average traffic speed as percentage of normal speed " + sumPercentages / sumEntries);
-//            System.out.println("Total distance replaced: " + (int) sumEntries / 1000 + "km");
             return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
         } else {
             // IMPORTANT: It only works with TraversalMode.NODE_BASED.
