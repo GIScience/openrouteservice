@@ -611,20 +611,6 @@ public class ORSGraphHopper extends GraphHopper {
                 graphStorageBuilder.postProcess(this);
             }
         }
-//        // TODO RAD
-//        GraphHopperStorage graphHopperStorage = this.getGraphHopperStorage();
-//        for (GraphExtension ge : GraphStorageUtils.getGraphExtensions(graphHopperStorage)) {
-//            if (ge instanceof TrafficGraphStorage) {
-//                int edgeValue = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16077, 12942, 12941);
-//                // 865268782
-//                int edgeValue2 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(16898, 9924, 9923);
-//                // 809152926
-//                int edgeValue3 = ((TrafficGraphStorage) ge).getOrsEdgeTrafficLink(10281, 12941, 7296);
-//                // 1078771638
-//                System.out.println("");
-//            }
-//        }
-//        // TODO RAD
     }
 
     @Override
