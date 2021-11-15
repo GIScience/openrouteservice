@@ -23,7 +23,6 @@ public class TrafficSpeedCalculatorTest {
         encodingManager = EncodingManager.create(carEncoder);
         trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
         trafficSpeedCalculator.setTrafficGraphStorage(new MockTrafficStorage());
-        //trafficSpeedCalculator.setVehicleFlagEncoder(carEncoder);
     }
 
     @Test
