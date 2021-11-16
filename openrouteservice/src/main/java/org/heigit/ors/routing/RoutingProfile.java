@@ -48,7 +48,7 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
-import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
+// TODO: import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -163,7 +163,7 @@ public class RoutingProfile {
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        gh.setEdgeFilterFactory(edgeFilterFactory);
+        // TODO: gh.setEdgeFilterFactory(edgeFilterFactory);
 
         ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
         gh.setPathProcessorFactory(pathProcessorFactory);
@@ -606,17 +606,18 @@ public class RoutingProfile {
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph;
-            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
-                hintsMap.putObject("vehicle", encoderName);
-                graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
-            }
-            else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
-                graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
-                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-                PMap additionalHints = (PMap) searchCntx.getProperties();
-                edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
-            }
-            else
+// TODO:
+//            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
+//                hintsMap.putObject("vehicle", encoderName);
+//                graph = gh.getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
+//            }
+//            else if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)(gh)).isCoreAvailable(weighting.getName())) {
+//                graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
+//                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+//                PMap additionalHints = (PMap) searchCntx.getProperties();
+//                edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+//            }
+//            else
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
 
@@ -625,13 +626,15 @@ public class RoutingProfile {
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-            if(alg instanceof  CoreMatrixAlgorithm) {
-                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
-                if (weighting instanceof TurnWeighting)
-                    ((TurnWeighting)weighting).setInORS(true);
-                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
-            }
-            else
+// TODO:
+//            if(alg instanceof  CoreMatrixAlgorithm) {
+//                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+//                if (weighting instanceof TurnWeighting)
+//                    ((TurnWeighting)weighting).setInORS(true);
+//                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+//            }
+//            else
+                Weighting weighting = null; // TODO: remove this temporary work-around
                 alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
             mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         } catch (StatusCodeException ex) {

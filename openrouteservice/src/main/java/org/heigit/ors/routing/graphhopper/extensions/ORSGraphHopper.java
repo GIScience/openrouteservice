@@ -442,7 +442,10 @@ public class ORSGraphHopper extends GraphHopper {
 
 		GHResponse resp = new GHResponse();
 
-		List<Path> paths = this.calcPaths(req, resp);
+		// TODO: neet to create a router here? Can we maybe remove
+		//  the whole class ORSGraphHopper?
+		// List<Path> paths = this.calcPaths(req, resp);
+		List<Path> paths = new ArrayList<>(); // TODO: this is a temporary work-around for the previous line
 
 		if (!resp.hasErrors()) {
 

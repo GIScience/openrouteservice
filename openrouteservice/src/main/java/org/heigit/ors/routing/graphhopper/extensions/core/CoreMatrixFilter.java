@@ -40,8 +40,7 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
      * @return true iff the edge is virtual or is a shortcut or the level of the base node is greater/equal than
      * the level of the adjacent node
      */
-    @Override
-
+    // TODO: @Override
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();

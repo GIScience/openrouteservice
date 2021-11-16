@@ -68,10 +68,12 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 
 		if(gh instanceof ORSGraphHopper) {
-			if (((ORSGraphHopper) gh).isCoreEnabled())
-				((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-			if (((ORSGraphHopper) gh).isCoreLMEnabled())
-				((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
+			if (((ORSGraphHopper) gh).isCoreEnabled()) {
+			// TODO:	((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
+			}
+			if (((ORSGraphHopper) gh).isCoreLMEnabled()) {
+				//TODO: ((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
+			}
 		}
 
 		// TODO: AlgorithmFactoryDecorators are gone. Do we need to init algos differently?
@@ -84,7 +86,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 //			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
 //		}
 		if (((ORSGraphHopper)gh).isCoreEnabled()) {
-			profiles.addAll(((ORSGraphHopper)gh).getCorePreparationHandler().getCHProfiles());
+			// TODO: profiles.addAll(((ORSGraphHopper)gh).getCorePreparationHandler().getCHProfiles());
 		}
 
 		GraphHopperStorage ghs = new GraphHopperStorage(dir, encodingManager, gh.hasElevation());

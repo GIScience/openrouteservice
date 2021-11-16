@@ -1,3 +1,4 @@
+// TODO: temporarily commented out due to many compilation errors
 package org.heigit.ors.util;
 
 import com.graphhopper.routing.util.EncodingManager;
@@ -17,19 +18,20 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 3, 5, true);
+//        g.edge(0, 8, 1, true);
+//        g.edge(1, 2, 1, true);
+//        g.edge(1, 8, 2, true);
+//        g.edge(2, 3, 2, true);
+//        g.edge(3, 4, 2, true);
+//        g.edge(4, 5, 1, true);
+//        g.edge(4, 6, 1, true);
+//        g.edge(5, 7, 1, true);
+//        g.edge(6, 7, 2, true);
+//        g.edge(7, 8, 3, true);
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -50,19 +52,20 @@ public class ToyGraphCreationUtil {
         //  | / \   /
         //  |/   \ /
         //  1-----8
-        g.edge(0, 1, 1, true); //0
-        g.edge(0, 2, 1, true); //1
-        g.edge(0, 3, 5, true); //2
-        g.edge(0, 8, 1, true); //3
-        g.edge(1, 2, 1, true); //4
-        g.edge(1, 8, 2, true); //5
-        g.edge(2, 3, 2, true); //6
-        g.edge(3, 4, 2, true); //7
-        g.edge(4, 5, 1, true); //8
-        g.edge(4, 6, 1, true); //9
-        g.edge(5, 7, 1, true); //10
-        g.edge(6, 7, 2, true); //11
-        g.edge(7, 8, 3, true); //12
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true); //0
+//        g.edge(0, 2, 1, true); //1
+//        g.edge(0, 3, 5, true); //2
+//        g.edge(0, 8, 1, true); //3
+//        g.edge(1, 2, 1, true); //4
+//        g.edge(1, 8, 2, true); //5
+//        g.edge(2, 3, 2, true); //6
+//        g.edge(3, 4, 2, true); //7
+//        g.edge(4, 5, 1, true); //8
+//        g.edge(4, 6, 1, true); //9
+//        g.edge(5, 7, 1, true); //10
+//        g.edge(6, 7, 2, true); //11
+//        g.edge(7, 8, 3, true); //12
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -84,19 +87,20 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 3, 5, true);
+//        g.edge(0, 8, 1, true);
+//        g.edge(1, 2, 1, true);
+//        g.edge(1, 8, 2, true);
+//        g.edge(2, 3, 2, true);
+//        g.edge(3, 4, 2, true);
+//        g.edge(4, 5, 1, true);
+//        g.edge(4, 6, 1, true);
+//        g.edge(5, 7, 1, true);
+//        g.edge(6, 7, 2, true);
+//        g.edge(7, 8, 3, true);
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -118,20 +122,21 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true);
-        g.edge(3, 4, 2, true);
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(5, 9, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 3, 5, true);
+//        g.edge(0, 8, 1, true);
+//        g.edge(1, 2, 1, true);
+//        g.edge(1, 8, 2, true);
+//        g.edge(2, 3, 2, true);
+//        g.edge(3, 4, 2, true);
+//        g.edge(4, 5, 1, true);
+//        g.edge(4, 6, 1, true);
+//        g.edge(5, 7, 1, true);
+//        g.edge(5, 9, 1, true);
+//        g.edge(6, 7, 2, true);
+//        g.edge(7, 8, 3, true);
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -148,7 +153,7 @@ public class ToyGraphCreationUtil {
 
     public static GraphHopperStorage createSingleEdgeGraph(EncodingManager encodingManager) {
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
+        // TODO: g.edge(0, 1, 1, true);
 
         g.getBaseGraph().getNodeAccess().setNode(0, 0, 0);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -163,13 +168,14 @@ public class ToyGraphCreationUtil {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 4, 3, true);
+//        g.edge(1, 2, 2, true);
+//        g.edge(2, 3, 1, true);
+//        g.edge(4, 3, 2, true);
+//        g.edge(5, 1, 2, true);
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -187,13 +193,14 @@ public class ToyGraphCreationUtil {
         //     /
         //    4--6--3
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(4, 6, 2, true);
-        g.edge(6, 3, 2, true);
-        g.edge(5, 1, 2, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 4, 3, true);
+//        g.edge(1, 2, 2, true);
+//        g.edge(4, 6, 2, true);
+//        g.edge(6, 3, 2, true);
+//        g.edge(5, 1, 2, true);
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -212,13 +219,14 @@ public class ToyGraphCreationUtil {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 4, 3, true);
+//        g.edge(1, 2, 2, true);
+//        g.edge(2, 3, 1, true);
+//        g.edge(4, 3, 2, true);
+//        g.edge(5, 1, 2, true);
 
         return g;
     }
@@ -236,17 +244,18 @@ public class ToyGraphCreationUtil {
         //  |   |
         //  11  10
         GraphHopperStorage g = createGHStorage(encodingManager);
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
-        g.edge(6, 7, 1, true);
-        g.edge(7, 8, 1, true);
-        g.edge(8, 9, 1, true);
-        g.edge(3, 10, 1, true);
-        g.edge(4, 11, 1, true);
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true);
+//        g.edge(0, 2, 1, true);
+//        g.edge(0, 4, 3, true);
+//        g.edge(1, 2, 2, true);
+//        g.edge(4, 3, 2, true);
+//        g.edge(5, 1, 2, true);
+//        g.edge(6, 7, 1, true);
+//        g.edge(7, 8, 1, true);
+//        g.edge(8, 9, 1, true);
+//        g.edge(3, 10, 1, true);
+//        g.edge(4, 11, 1, true);
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -271,12 +280,13 @@ public class ToyGraphCreationUtil {
         //   \   /
         //    \ /
         //     1
-        g.edge(0, 2, 1, true); //0
-        g.edge(0, 3, 3, true); //1
-        g.edge(1, 2, 5, true); //2
-        g.edge(1, 3, 3, true); //3
-        g.edge(2, 4, 1, true); //4
-        g.edge(3, 4, 1, true); //5
+// TODO: find out how to create edges
+//        g.edge(0, 2, 1, true); //0
+//        g.edge(0, 3, 3, true); //1
+//        g.edge(1, 2, 5, true); //2
+//        g.edge(1, 3, 3, true); //3
+//        g.edge(2, 4, 1, true); //4
+//        g.edge(3, 4, 1, true); //5
         return g;
     }
 
@@ -286,16 +296,17 @@ public class ToyGraphCreationUtil {
         //0---1---3  5---6---7
         //       / \/
         //      2  4
-        g.edge(0, 1, 1, true); //0
-        g.edge(1, 3, 1, true); //1
-        g.edge(2, 3, 1, true); //2
-        g.edge(3, 4, 1, true); //3
-        g.edge(3, 8, 5, true); //4
-        g.edge(4, 5, 1, true); //5
-        g.edge(5, 6, 1, true); //6
-        g.edge(5, 9, 5, true); //7
-        g.edge(6, 7, 1, true); //8
-        g.edge(8, 9, 1, true); //9
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, true); //0
+//        g.edge(1, 3, 1, true); //1
+//        g.edge(2, 3, 1, true); //2
+//        g.edge(3, 4, 1, true); //3
+//        g.edge(3, 8, 5, true); //4
+//        g.edge(4, 5, 1, true); //5
+//        g.edge(5, 6, 1, true); //6
+//        g.edge(5, 9, 5, true); //7
+//        g.edge(6, 7, 1, true); //8
+//        g.edge(8, 9, 1, true); //9
         return g;
     }
 
@@ -309,18 +320,19 @@ public class ToyGraphCreationUtil {
         // 6-----7-------8
         // |
         // 9
-        g.edge(0, 2, 1, false); //0
-        g.edge(1, 0, 1, false); //1
-        g.edge(2, 3, 1, false); //2
-        g.edge(3, 4, 1, false); //3
-        g.edge(4, 5, 1, true); //4
-        g.edge(3, 6, 1, true); //5
-        g.edge(7, 8, 1, true); //6
-        g.edge(6, 9, 1, true); //7
-        g.edge(6, 7, 10, true); //8
-        g.edge(8, 1, 1, true); //9
-        g.edge(8, 1, 1, true); //10 Just to put 8, 1 and 0 in core
-        g.edge(1, 0, 1, false); //11  Just to put 8, 1 and 0 in core
+// TODO: find out how to create edges
+//        g.edge(0, 2, 1, false); //0
+//        g.edge(1, 0, 1, false); //1
+//        g.edge(2, 3, 1, false); //2
+//        g.edge(3, 4, 1, false); //3
+//        g.edge(4, 5, 1, true); //4
+//        g.edge(3, 6, 1, true); //5
+//        g.edge(7, 8, 1, true); //6
+//        g.edge(6, 9, 1, true); //7
+//        g.edge(6, 7, 10, true); //8
+//        g.edge(8, 1, 1, true); //9
+//        g.edge(8, 1, 1, true); //10 Just to put 8, 1 and 0 in core
+//        g.edge(1, 0, 1, false); //11  Just to put 8, 1 and 0 in core
         return g;
     }
 
@@ -330,10 +342,11 @@ public class ToyGraphCreationUtil {
         //   1  |
         //    \ |
         //     0
-        g.edge(0, 1, 5, true); //0
-        g.edge(0, 2, 1, true); //1
-        g.edge(1, 2, 1, true); //2
-        g.edge(2, 3, 1, true); //3
+// TODO: find out how to create edges
+//        g.edge(0, 1, 5, true); //0
+//        g.edge(0, 2, 1, true); //1
+//        g.edge(1, 2, 1, true); //2
+//        g.edge(2, 3, 1, true); //3
 
         return g;
     }
@@ -342,10 +355,11 @@ public class ToyGraphCreationUtil {
         // 0----->1<-----2
         // |     / \     |
         // |-<--/   \-->-|
-        g.edge(0, 1, 1, false); //0
-        g.edge(1, 0, 5, false); //1
-        g.edge(1, 2, 6, false); //2
-        g.edge(2, 1, 2, false); //3
+// TODO: find out how to create edges
+//        g.edge(0, 1, 1, false); //0
+//        g.edge(1, 0, 5, false); //1
+//        g.edge(1, 2, 6, false); //2
+//        g.edge(2, 1, 2, false); //3
 
         return g;
     }

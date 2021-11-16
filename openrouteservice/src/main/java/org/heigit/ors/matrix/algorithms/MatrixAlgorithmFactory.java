@@ -15,7 +15,7 @@ package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
 import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
+// TODO: import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
@@ -24,11 +24,12 @@ public class MatrixAlgorithmFactory {
 	private MatrixAlgorithmFactory() {}
 
 	public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
-		if (!req.getFlexibleMode() && gh.isCHEnabled())
+		if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled())
 			return new RPHASTMatrixAlgorithm();
 		if(gh instanceof ORSGraphHopper) {
-			if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)gh).isCoreEnabled())
-				return new CoreMatrixAlgorithm();
+			if(req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper)gh).isCoreEnabled()) {
+			// TODO:	return new CoreMatrixAlgorithm();
+			}
 		}
 		return new DijkstraMatrixAlgorithm();
 	}

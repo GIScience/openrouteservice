@@ -154,7 +154,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             boolean isCoreNode = isCoreNode(chGraph, currNode, nodeCount, coreNodeLevel);
             if(isCoreNode) {
                 RoutingCHEdgeIterator iter = explorer.setBaseNode(currNode);
-                exploreEntry(iter);
+                // TODO: exploreEntry(iter);
             }
             // If we find a core exit node or a node in the subgraph, explore it
             if (coreExitPoints.contains(currNode) || !isCoreNode) {
