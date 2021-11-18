@@ -337,11 +337,6 @@ public class RoutingProfile {
 
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
-            if (opts.hasPath(KEY_METHODS_CH)) {
-                Config chOpts = opts.getConfig(KEY_METHODS_CH);
-                if (chOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    ghConfig.putObject("routing.ch.disabling_allowed", chOpts.getBoolean(KEY_DISABLING_ALLOWED));
-            }
             if (opts.hasPath(KEY_METHODS_CORE)) {
                 Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
                 if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
@@ -352,9 +347,6 @@ public class RoutingProfile {
             }
             if (opts.hasPath(KEY_METHODS_LM)) {
                 Config lmOpts = opts.getConfig(KEY_METHODS_LM);
-                if (lmOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    ghConfig.putObject("routing.lm.disabling_allowed", lmOpts.getBoolean(KEY_DISABLING_ALLOWED));
-
                 if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
                     ghConfig.putObject("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
             }
