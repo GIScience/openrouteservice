@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 public class EncodeUtils {
@@ -48,7 +49,7 @@ public class EncodeUtils {
 		}
 
 		byteToLongBuffer.put(storageBytes);
-		byteToLongBuffer.flip();
+		((Buffer)byteToLongBuffer).flip(); // Changes in Java 9 make the cast to Buffer necessary
 		return byteToLongBuffer.getLong();
 	}
 }
