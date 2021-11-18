@@ -189,13 +189,13 @@ public class RouteRequestHandlerTest {
         Iterator<ProfileWeighting> iter = weightings.getIterator();
         while (iter.hasNext() && (weighting = iter.next()) != null) {
             if (weighting.getName().equals("green")) {
-                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("quiet")) {
-                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("steepness_difficulty")) {
-                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0);
+                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0.0001);
             }
         }
     }
