@@ -17,6 +17,7 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.Profile;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
@@ -357,21 +358,23 @@ public class RoutingProfile {
 
         StringBuilder flagEncoders = new StringBuilder();
         String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
-        Integer[] profiles = config.getProfilesTypes();
+        Integer[] profilesTypes = config.getProfilesTypes();
+        List<Profile> profiles = new ArrayList(profilesTypes.length);
 
-        for (int i = 0; i < profiles.length; i++) {
+        for (int i = 0; i < profilesTypes.length; i++) {
             if (encoderOpts == null)
-                flagEncoders.append(RoutingProfileType.getEncoderName(profiles[i]));
+                flagEncoders.append(RoutingProfileType.getEncoderName(profilesTypes[i]));
             else
-                flagEncoders.append(RoutingProfileType.getEncoderName(profiles[i]) + "|" + encoderOpts[i]);
-            if (i < profiles.length - 1)
+                flagEncoders.append(RoutingProfileType.getEncoderName(profilesTypes[i]) + "|" + encoderOpts[i]);
+            profiles.add(new Profile(RoutingProfileType.getEncoderName(profilesTypes[i])));
+            if (i < profilesTypes.length - 1)
                 flagEncoders.append(",");
         }
 
         ghConfig.putObject("graph.flag_encoders", flagEncoders.toString().toLowerCase());
-
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.setProfiles(profiles);
 
         return ghConfig;
     }
