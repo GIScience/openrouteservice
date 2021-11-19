@@ -116,7 +116,7 @@ public class RouteResultBuilderTest {
     public void TestCreateMergedRouteResultFromBestPaths() throws Exception {
         List<GHResponse> responseList = new ArrayList<>();
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request1);
+        RoutingRequest routingRequest = request1.convertRouteRequest();
 
         List<RouteExtraInfo> extrasList = new ArrayList<>();
 
@@ -185,7 +185,7 @@ public class RouteResultBuilderTest {
         List<Integer> skipSegments = new ArrayList<>();
         skipSegments.add(1);
         modRequest.setSkipSegments(skipSegments);
-        routingRequest = new RouteRequestHandler().convertRouteRequest(modRequest);
+        routingRequest = modRequest.convertRouteRequest();
         responseList = new ArrayList<>();
         responseList.add(constructResponse(modRequest));
         result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});

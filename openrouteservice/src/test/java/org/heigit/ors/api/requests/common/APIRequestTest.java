@@ -27,7 +27,7 @@ public class APIRequestTest {
 
     @Test
     public void convertAPIEnumListToStrings() {
-        String[] strVals = request.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
+        String[] strVals = APIRequest.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
         Assert.assertEquals(2, strVals.length);
         Assert.assertEquals("steepness", strVals[0]);
         Assert.assertEquals("surface", strVals[1]);
@@ -35,36 +35,36 @@ public class APIRequestTest {
 
     @Test
     public void convertAPIEnum() {
-        String strVal = request.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
+        String strVal = APIRequest.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
         Assert.assertEquals("controlled", strVal);
     }
 
     @Test
     public void convertVehicleType() throws IncompatibleParameterException {
-        int type = request.convertVehicleType(APIEnums.VehicleType.HGV, 2);
+        int type = APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 2);
         Assert.assertEquals(2, type);
     }
 
     @Test(expected = IncompatibleParameterException.class)
     public void convertVehicleTypeError() throws IncompatibleParameterException {
-        request.convertVehicleType(APIEnums.VehicleType.HGV, 1);
+        APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 1);
     }
 
     @Test
     public void convertAvoidBorders() {
-        BordersExtractor.Avoid avoid = request.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
+        BordersExtractor.Avoid avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, avoid);
-        avoid = request.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
+        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
         Assert.assertEquals(BordersExtractor.Avoid.ALL, avoid);
-        avoid = request.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
+        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
         Assert.assertEquals(BordersExtractor.Avoid.NONE, avoid);
     }
 
     @Test
     public void convertRouteProfileType() {
-        int type = request.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
+        int type = APIRequest.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
         Assert.assertEquals(1, type);
-        type = request.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
+        type = APIRequest.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
         Assert.assertEquals(20, type);
     }
 
@@ -153,14 +153,14 @@ public class APIRequestTest {
     @Test
     public void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
-        int converted = request.convertFeatureTypes(avoids, 1);
+        int converted = APIRequest.convertFeatureTypes(avoids, 1);
         Assert.assertEquals(24, converted);
     }
 
     @Test(expected = IncompatibleParameterException.class)
     public void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.STEPS};
-        request.convertFeatureTypes(avoids, 1);
+        APIRequest.convertFeatureTypes(avoids, 1);
     }
 
     @Test

@@ -11,16 +11,12 @@ import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
-import org.heigit.ors.routing.AvoidFeatureFlags;
-import org.heigit.ors.routing.ProfileWeighting;
-import org.heigit.ors.routing.RoutingErrorCodes;
-import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
@@ -39,17 +35,16 @@ import java.util.*;
 public class APIRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_PROFILE = "profile";
-    protected Map<String, Integer> errorCodes = new HashMap<>();
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "centrality_request")
     @JsonProperty(PARAM_ID)
-    private String id;
+    protected String id;
     @JsonIgnore
     private boolean hasId = false;
 
     @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
-    private APIEnums.Profile profile;
+    protected APIEnums.Profile profile;
 
     public boolean hasId() {
         return hasId;
@@ -72,7 +67,7 @@ public class APIRequest {
         this.profile = profile;
     }
 
-    protected String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+    protected static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
         String[] attributes = new String[valuesIn.length];
 
         for (int i = 0; i < valuesIn.length; i++) {
@@ -82,13 +77,13 @@ public class APIRequest {
         return attributes;
     }
 
-    protected String convertAPIEnum(Enum valuesIn) {
+    protected static String convertAPIEnum(Enum valuesIn) {
         return valuesIn.toString();
     }
 
-    protected int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
+    protected static int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
         if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"),
+            throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE,
                     "vehicle_type", vehicleTypeIn.toString(),
                     PARAM_PROFILE, RoutingProfileType.getName(profileType));
         }
@@ -100,17 +95,7 @@ public class APIRequest {
         return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
     }
 
-    private Integer getErrorCode(String name) {
-        int errorCode = -1;
-
-        if (errorCodes.containsKey(name)) {
-            errorCode = errorCodes.get(name);
-        }
-
-        return errorCode;
-    }
-
-    protected BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
+    protected static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if (avoidBorders != null) {
             switch (avoidBorders) {
                 case ALL:
@@ -124,7 +109,7 @@ public class APIRequest {
         return null;
     }
 
-    protected int convertRouteProfileType(APIEnums.Profile profile) {
+    protected static int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
@@ -145,7 +130,7 @@ public class APIRequest {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(getErrorCode("INVALID_JSON_FORMAT"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
@@ -158,7 +143,7 @@ public class APIRequest {
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
@@ -174,22 +159,22 @@ public class APIRequest {
                 if (areaLimit > 0) {
                     long area = Math.round(GeomUtility.getArea(avoidArea, true));
                     if (area > areaLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
                     }
                 }
                 if (extentLimit > 0) {
                     long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
                     if (extent > extentLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, getErrorCode("INVALID_PARAMETER_VALUE"), String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
                     }
                 }
             } catch (InternalServerException e) {
-                throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_POLYGONS);
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
             }
         }
     }
 
-    protected int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
+    protected static int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
         int[] avoidCountryIds = new int[avoidCountries.length];
         if (avoidCountries.length > 0) {
             for (int i = 0; i < avoidCountries.length; i++) {
@@ -201,7 +186,7 @@ public class APIRequest {
                     if (countryId > 0) {
                         avoidCountryIds[i] = countryId;
                     } else {
-                        throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
+                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
                     }
                 }
             }
@@ -210,27 +195,25 @@ public class APIRequest {
         return avoidCountryIds;
     }
 
-    public DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
+    public static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
         if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequest.PARAM_UNITS, unitsIn.toString());
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
 
         return units;
     }
 
-    protected int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
+    protected static int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
         for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                // TODO: Importing RouteRequestOptions seems like bad style.
-                //       Maybe something similar to errorCodes could be set up?
-                throw new UnknownParameterValueException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
+                throw new UnknownParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(getErrorCode("INVALID_PARAMETER_VALUE"), RouteRequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, PARAM_PROFILE, RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, PARAM_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -238,7 +221,24 @@ public class APIRequest {
         return flags;
     }
 
-    protected ProfileParameters convertParameters(RouteRequestOptions options, int profileType) throws StatusCodeException {
+    public RouteSearchParameters processRequestOptions(RequestOptions options, RouteSearchParameters params) throws StatusCodeException {
+        if (options.hasAvoidBorders())
+            params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
+
+        if (options.hasAvoidPolygonFeatures())
+            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+
+        if (options.hasAvoidCountries())
+            params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
+
+        if (options.hasAvoidFeatures())
+            params.setAvoidFeatureTypes(convertFeatureTypes(options.getAvoidFeatures(), params.getProfileType()));
+
+        return params;
+    }
+
+
+    protected ProfileParameters convertParameters(RequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
         if (options.getProfileParams().hasSurfaceQualityKnown() || options.getProfileParams().hasAllowUnsuitable()) {
             params = new WheelchairParameters();
@@ -396,7 +396,7 @@ public class APIRequest {
         if (!invalidParams.isEmpty()) {
             // There are some parameters present that shouldn't be there
             String invalidParamsString = StringUtils.join(invalidParams, ", ");
-            throw new IncompatibleParameterException(getErrorCode("UNKNOWN_PARAMETER"), "restrictions", invalidParamsString, PARAM_PROFILE, RoutingProfileType.getName(profile));
+            throw new IncompatibleParameterException(GenericErrorCodes.UNKNOWN_PARAMETER, "restrictions", invalidParamsString, PARAM_PROFILE, RoutingProfileType.getName(profile));
         }
     }
 
