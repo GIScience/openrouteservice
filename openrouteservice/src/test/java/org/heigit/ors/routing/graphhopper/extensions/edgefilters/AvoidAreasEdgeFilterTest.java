@@ -20,7 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class AvoidAreasEdgeFilterTest {
-    private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
+    private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, null));
 
     private final RouteSearchParameters _searchParams;
     private final GraphHopperStorage _graphStorage;
@@ -35,9 +35,9 @@ public class AvoidAreasEdgeFilterTest {
 
     @Test
     public void TestAvoidPolygons() {
-        EdgeIteratorState iter1 = _graphStorage.edge(0, 1, 100, true);
+        EdgeIteratorState iter1 = _graphStorage.edge(0, 1).setDistance(100);
         iter1.setWayGeometry(Helper.createPointList(0, 0, 10, 0));
-        EdgeIteratorState iter2 = _graphStorage.edge(0, 2, 200, true);
+        EdgeIteratorState iter2 = _graphStorage.edge(0, 2).setDistance(200);
 
         iter2.setWayGeometry(Helper.createPointList(0, 0, -10, 0));
 

@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
@@ -31,7 +31,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class BordersExtractorTest {
-    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
+    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, null));
     private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphstorage;
 
@@ -57,7 +57,7 @@ public class BordersExtractorTest {
 // TODO GH0.10:
 //        return new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
 //                encoder.setProperties(10, true, true), "test", Helper.createPointList(51,0,51,1));
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
         return ve;
     }
