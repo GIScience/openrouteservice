@@ -20,9 +20,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
@@ -35,7 +33,7 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
-    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
+    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.PEDESTRIAN_ORS, null));
     private final PedestrianFlagEncoder flagEncoder;
     private final BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
@@ -76,17 +74,20 @@ public class PedestrianFlagEncoderTest {
 
     @Test
     public void noTurnRestrictions() {
-        assertFalse(flagEncoder.isTurnRestricted(1));
+        fail("TODO: find out how to test this.");
+        //assertFalse(flagEncoder.isTurnRestricted(1));
     }
 
     @Test
     public void noTurnCost() {
-        assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
+        fail("TODO: find out how to test this.");
+        //assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
     }
 
     @Test
     public void allwaysNoTurnFlags() {
-        assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
+        fail("TODO: find out how to test this.");
+        //assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class PedestrianFlagEncoderTest {
 
         rel.setTag("route", "ferry");
         // TODO GH0.10: assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(rel, 0));
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(0, rel));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handleRelationTags(0, rel));
     }
 
     @Test
@@ -151,7 +152,7 @@ public class PedestrianFlagEncoderTest {
     public void testDesignatedFootwayPriority() {
         way.setTag("highway", "secondary");
         // TODO GH0.10: assertEquals(299, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
 
         way.setTag("foot", "designated");
         // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
@@ -162,13 +163,13 @@ public class PedestrianFlagEncoderTest {
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
@@ -282,7 +283,7 @@ public class PedestrianFlagEncoderTest {
         way.setTag("tunnel", "yes");
         way.setTag("sidewalk", "no");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.AVOID_IF_POSSIBLE.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer)PriorityCode.VERY_BAD.getValue(), priorityMap.lastEntry().getValue());
 
         way.setTag("sidewalk", "both");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
@@ -296,16 +297,15 @@ public class PedestrianFlagEncoderTest {
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "official");
         // TODO GH0.10: assertEquals(427, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "designated");
         // TODO GH0.10: assertEquals(427, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "permissive");
         // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
-    @Ignore // TODO: What is this test meant to test?
     @Test
     public void testSpeed() {
         // TODO GH0.10: assertEquals(5.0, flagEncoder.getSpeed(683), 0.0);
@@ -316,10 +316,10 @@ public class PedestrianFlagEncoderTest {
     @Test
     public void testSupports() {
         assertTrue(flagEncoder.supports(PriorityWeighting.class));
-        assertFalse(flagEncoder.supports(TurnWeighting.class));
+        fail("TODO: find out how to test this.");
+        //assertFalse(flagEncoder.supports(TurnWeighting.class));
     }
 
-    @Ignore // TODO: What is this test meant to test?
     @Test
     public void getWeighting() {
         fail("TODO: find out how to test this.");

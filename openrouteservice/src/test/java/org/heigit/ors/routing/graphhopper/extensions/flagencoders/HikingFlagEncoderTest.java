@@ -40,7 +40,7 @@ public class HikingFlagEncoderTest {
     public HikingFlagEncoderTest() {
         PMap properties = new PMap();
         ORSDefaultFlagEncoderFactory encoderFactory = new ORSDefaultFlagEncoderFactory();
-        encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS, 4);
+        encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.HIKING_ORS, null));
         flagEncoder = (HikingFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.HIKING_ORS);
     }
 
@@ -70,12 +70,14 @@ public class HikingFlagEncoderTest {
 
     @Test
     public void noTurnCost() {
-        assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
+        fail("TODO: find out how to test this");
+        //assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
     }
 
     @Test
     public void allwaysNoTurnFlags() {
-        assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
+        fail("TODO: find out how to test this");
+        //assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
     }
 
     @Test
@@ -105,7 +107,7 @@ public class HikingFlagEncoderTest {
         assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(0, rel));
 
         rel.getTags().put("route", "ferry");
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(0, rel));
+        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handleRelationTags(0, rel));
 
     }
 
@@ -122,7 +124,7 @@ public class HikingFlagEncoderTest {
     public void testAddPriorityFromRelation() {
         way = generateHikeWay();
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 1));
-        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
     @Test
@@ -165,13 +167,13 @@ public class HikingFlagEncoderTest {
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
