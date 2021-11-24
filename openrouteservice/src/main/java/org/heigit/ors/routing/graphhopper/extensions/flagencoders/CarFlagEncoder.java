@@ -143,6 +143,6 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
 
     @Override
     public TransportationMode getTransportationMode() {
-        throw new RuntimeException("Not implemented yet"); // TODO: implement properly
+        return TransportationMode.CAR;
     }
 }

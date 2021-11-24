@@ -33,7 +33,8 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
-    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.PEDESTRIAN_ORS, null));
+    private PMap properties = new PMap();
+    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.PEDESTRIAN_ORS, properties));
     private final PedestrianFlagEncoder flagEncoder;
     private final BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
