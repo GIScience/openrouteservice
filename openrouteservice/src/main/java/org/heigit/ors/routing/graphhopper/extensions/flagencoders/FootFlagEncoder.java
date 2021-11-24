@@ -137,7 +137,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
-        init(null); // TODO: need to pass a properly initialized parser?
     }
 
     public double getMeanSpeed() {
@@ -156,12 +155,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     // TODO: never used
-//    @Override
-//    public int defineRelationBits(int index, int shift) {
-//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-//        return shift + relationCodeEncoder.getBits();
-//        return 0;
-//    }
+    public int defineRelationBits(int index, int shift) {
+        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
+        return shift + relationCodeEncoder.getBits();
+    }
 
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {

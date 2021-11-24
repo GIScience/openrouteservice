@@ -21,8 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class AvoidAreasEdgeFilterTest {
-    private PMap properties = new PMap();
-    private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
+    private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS);
 
     private final RouteSearchParameters _searchParams;
     private final GraphHopperStorage _graphStorage;

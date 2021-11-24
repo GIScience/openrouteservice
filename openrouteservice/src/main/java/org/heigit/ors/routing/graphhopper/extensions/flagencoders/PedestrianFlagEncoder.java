@@ -30,8 +30,6 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
         super(speedBits, speedFactor);
 
         suitableSacScales.add("hiking");
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override

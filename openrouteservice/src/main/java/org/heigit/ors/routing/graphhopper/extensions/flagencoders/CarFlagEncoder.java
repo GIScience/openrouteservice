@@ -61,8 +61,6 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         blockByDefaultBarriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override

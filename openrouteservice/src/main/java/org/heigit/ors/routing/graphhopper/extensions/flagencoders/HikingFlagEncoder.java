@@ -50,8 +50,6 @@ public class HikingFlagEncoder extends FootFlagEncoder {
                 "path",
                 "footway"
         ));
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
