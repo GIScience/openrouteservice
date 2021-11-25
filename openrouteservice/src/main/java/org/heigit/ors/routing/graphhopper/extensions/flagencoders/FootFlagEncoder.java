@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
+import com.graphhopper.routing.ev.UnsignedIntEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
@@ -59,6 +60,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     protected DecimalEncodedValue priorityWayEncoder;
     protected UnsignedDecimalEncodedValue speedEncoder;
     protected EncodedValueOld relationCodeEncoder;
+    private UnsignedIntEncodedValue relationCodeEnc; // TODO: should this be implemented like priorityWayEncoder?
 
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
@@ -150,8 +152,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         // larger value required - ferries are faster than pedestrians
         speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false);
         registerNewEncodedValue.add(speedEncoder);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 3, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
+        relationCodeEnc = new UnsignedIntEncodedValue(getKey(prefix, "relation_code"), 4, false);
+        registerNewEncodedValue.add(relationCodeEnc);
     }
 
     // TODO: never used
@@ -198,7 +202,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     // TODO: only used in tests, see relationCodeEncoder above
-    //  @Override
+    @Deprecated // TODO: use IntsRef-based version of this method instead
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
@@ -215,6 +219,25 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (oldCode < code)
             return relationCodeEncoder.setValue(0, code);
         return oldRelationFlags;
+    }
+
+    public IntsRef handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
+        int code = 0;
+        if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
+            Integer val = hikingNetworkToCode.get(relation.getTag("network"));
+            if (val != null)
+                code = val;
+            else
+                code = hikingNetworkToCode.get("lwn");
+        } else if (relation.hasTag(OSMTags.Keys.ROUTE, "ferry")) {
+            code = VERY_BAD.getValue();
+        }
+
+        int oldCode = relationCodeEnc.getInt(false, oldRelationRef);
+        if (oldCode < code) {
+            relationCodeEnc.setInt(false, oldRelationRef, code);
+        }
+        return oldRelationRef;
     }
 
     @Override

@@ -161,13 +161,13 @@ public class PedestrianFlagEncoderTest {
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
         // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
-        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
