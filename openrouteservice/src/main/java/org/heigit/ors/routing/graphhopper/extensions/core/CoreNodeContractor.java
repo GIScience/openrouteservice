@@ -33,6 +33,7 @@ class CoreNodeContractor implements NodeContractor {
     // temporary counters used for priority calculation
     private int originalEdgesCount;
     private int shortcutsCount;
+    private boolean finishedContraction;
 
     CoreNodeContractor(CorePreparationGraph prepareGraph, CHStorageBuilder chBuilder, PMap pMap) {
         this.prepareGraph = prepareGraph;
@@ -120,7 +121,7 @@ class CoreNodeContractor implements NodeContractor {
      * these edges and shortcuts will be removed from the prepare graph, so this method offers the last chance to deal
      * with them.
      */
-    private void insertShortcuts(int node) {
+    protected void insertShortcuts(int node) {
         shortcuts.clear();
         insertOutShortcuts(node);
         insertInShortcuts(node);
@@ -144,6 +145,9 @@ class CoreNodeContractor implements NodeContractor {
         while (iter.next()) {
             if (!iter.isShortcut())
                 continue;
+            if (finishedContraction && node > iter.getAdjNode())
+                continue;
+
             shortcuts.add(new Shortcut(iter.getPrepareEdge(), -1, node, iter.getAdjNode(), iter.getSkipped1(),
                     iter.getSkipped2(), PrepareEncoder.getScFwdDir(), iter.getWeight(), iter.getTime()));
         }
@@ -153,6 +157,8 @@ class CoreNodeContractor implements NodeContractor {
         PrepareGraphEdgeIterator iter = inEdgeExplorer.setBaseNode(node);
         while (iter.next()) {
             if (!iter.isShortcut())
+                continue;
+            if (finishedContraction && node > iter.getAdjNode())
                 continue;
 
             int skippedEdge1 = iter.getSkipped2();
@@ -299,7 +305,9 @@ class CoreNodeContractor implements NodeContractor {
         return (int) meanDegree * 100;
     }
 
-
+    public void setFinishedContraction(boolean finishedContraction) {
+        this.finishedContraction = finishedContraction;
+    }
 
     @FunctionalInterface
     private interface PrepareShortcutHandler {

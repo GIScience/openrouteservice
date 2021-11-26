@@ -81,17 +81,11 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     public void postInit(CHPreparationGraph prepareGraph) {
         restrictedNodes = new boolean[nodes];
+        AllEdgesIterator iter = graph.getAllEdges();
 
-        PrepareGraphEdgeExplorer restrictionExplorer = prepareGraph.createOutEdgeExplorer();
-        for (int node = 0; node < nodes; node++) {
-            PrepareGraphEdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);
-            while (edgeIterator.next()) {
-                if (edgeIterator.isShortcut())
-                    throw new IllegalStateException("No shortcuts are expected on an uncontracted graph");
-                if (!restrictionFilter.accept(graph.getEdgeIteratorState(edgeIterator.getPrepareEdge(), edgeIterator.getAdjNode())))
-                    restrictedNodes[node] = restrictedNodes[edgeIterator.getAdjNode()] = true;
-            }
-        }
+        while (iter.next())
+            if (!restrictionFilter.accept(iter))
+                restrictedNodes[iter.getBaseNode()] = restrictedNodes[iter.getAdjNode()] = true;
 
         for (int node = 0; node < nodes; node++)
             if (restrictedNodes[node])
@@ -138,12 +132,18 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     @Override
     protected long getNodesToAvoidContract(int initSize) {
-        return restrictedNodesCount + super.getNodesToAvoidContract(initSize - restrictedNodesCount);
+        return restrictedNodesCount + super.getNodesToAvoidContract(initSize - restrictedNodesCount) + 1;// offset by one in order to avoid contraction of first core node!
     }
 
     @Override
-    public void uncontractedNodesHook() {
+    public void finishContractionHook() {
         chStore.setCoreNodes(sortedNodes.size() + 1);
+
+        // insert shortcuts connected to core nodes
+        CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
+        coreNodeContractor.setFinishedContraction(true);
+        while (!sortedNodes.isEmpty())
+            coreNodeContractor.insertShortcuts(sortedNodes.poll());
     }
 
     @Override
