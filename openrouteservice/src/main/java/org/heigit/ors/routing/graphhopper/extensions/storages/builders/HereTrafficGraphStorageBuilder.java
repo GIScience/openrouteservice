@@ -85,7 +85,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     private TrafficGraphStorage storage;
 
-    //    private ArrayList<String> allOSMEdgeGeometries = new ArrayList<>();
     private IntHashSet matchedHereLinks = new IntHashSet();
     private ArrayList<String> matchedOSMLinks = new ArrayList<>();
 
@@ -164,16 +163,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        // processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) overwrites this function.
-        // If the coords are directly delivered it becomes much faster than querying it from the edge
     }
 
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) {
-//        if (outputLog) {
-//            String lineString = edge.fetchWayGeometry(3).toLineString(false).toString();
-//            allOSMEdgeGeometries.add(lineString);
-//        }
         if (enabled) {
             short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
             storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
