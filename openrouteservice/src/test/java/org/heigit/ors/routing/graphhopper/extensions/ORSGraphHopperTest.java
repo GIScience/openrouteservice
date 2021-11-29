@@ -3,7 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.GHRequest;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
@@ -21,27 +21,27 @@ public class ORSGraphHopperTest {
         Assert.assertTrue(ghResponse.getHints().getBool("skipped_segment", false));
 
         Assert.assertEquals(1, ghResponse.getAll().size());
-        PathWrapper directRouteWrapper = ghResponse.getAll().get(0);
+        ResponsePath responsePath = ghResponse.getAll().get(0);
 
-        Assert.assertEquals(0, directRouteWrapper.getErrors().size());
-        Assert.assertEquals(0, directRouteWrapper.getDescription().size());
-        Assert.assertEquals(309.892f, directRouteWrapper.getDistance(), 3);
-        Assert.assertEquals(0.0, directRouteWrapper.getAscend(), 0);
-        Assert.assertEquals(0.0, directRouteWrapper.getDescend(), 0);
-        Assert.assertEquals(0.0, directRouteWrapper.getRouteWeight(), 0);
-        Assert.assertEquals(0, directRouteWrapper.getTime());
-        Assert.assertEquals("", directRouteWrapper.getDebugInfo());
-        Assert.assertEquals(2, directRouteWrapper.getInstructions().size());
-        Assert.assertEquals(1, directRouteWrapper.getInstructions().get(0).getPoints().size());
-        Assert.assertEquals(0, directRouteWrapper.getNumChanges());
-        Assert.assertEquals(0, directRouteWrapper.getLegs().size());
-        Assert.assertEquals(0, directRouteWrapper.getPathDetails().size());
-        Assert.assertNull(directRouteWrapper.getFare());
-        Assert.assertFalse(directRouteWrapper.isImpossible());
+        Assert.assertEquals(0, responsePath.getErrors().size());
+        Assert.assertEquals(0, responsePath.getDescription().size());
+        Assert.assertEquals(309.892f, responsePath.getDistance(), 3);
+        Assert.assertEquals(0.0, responsePath.getAscend(), 0);
+        Assert.assertEquals(0.0, responsePath.getDescend(), 0);
+        Assert.assertEquals(0.0, responsePath.getRouteWeight(), 0);
+        Assert.assertEquals(0, responsePath.getTime());
+        Assert.assertEquals("", responsePath.getDebugInfo());
+        Assert.assertEquals(2, responsePath.getInstructions().size());
+        Assert.assertEquals(1, responsePath.getInstructions().get(0).getPoints().size());
+        Assert.assertEquals(0, responsePath.getNumChanges());
+        Assert.assertEquals(0, responsePath.getLegs().size());
+        Assert.assertEquals(0, responsePath.getPathDetails().size());
+        Assert.assertNull(responsePath.getFare());
+        Assert.assertFalse(responsePath.isImpossible());
 
-        checkInstructions(directRouteWrapper.getInstructions());
-        checkPointList(directRouteWrapper.getWaypoints());
-        checkPointList(directRouteWrapper.getPoints());
+        checkInstructions(responsePath.getInstructions());
+        checkPointList(responsePath.getWaypoints());
+        checkPointList(responsePath.getPoints());
 
     }
 
@@ -53,7 +53,6 @@ public class ORSGraphHopperTest {
             Assert.assertFalse(points.isEmpty());
             Assert.assertFalse(points.is3D());
             Assert.assertFalse(points.isImmutable());
-            Assert.assertTrue(instruction.getAnnotation().isEmpty());
             Assert.assertEquals(0, instruction.getExtraInfoJSON().size());
 
             if (instruction.getName().equals("free hand route") && instruction.getSign() == Instruction.REACHED_VIA) {
@@ -78,7 +77,7 @@ public class ORSGraphHopperTest {
     private void checkPointList(PointList waypoints) {
         Assert.assertFalse(waypoints.is3D());
         Assert.assertFalse(waypoints.isImmutable());
-        Assert.assertEquals(2, waypoints.getSize());
+        Assert.assertEquals(2, waypoints.size());
         Assert.assertEquals(49.41281601436809, waypoints.getLat(0), 0);
         Assert.assertEquals(49.410163456220076, waypoints.getLat(1), 0);
         Assert.assertEquals(8.686215877532959, waypoints.getLon(0), 0);
