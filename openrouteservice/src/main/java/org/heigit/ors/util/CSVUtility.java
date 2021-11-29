@@ -66,37 +66,6 @@ public class CSVUtility {
         return lines;
     }
 
-    /**
-     * Read data from CSV file using the provided filename, seperator, quote character and whether there is a header
-     *
-     * @param file          CSV file to read from
-     * @param ignoreHeader        Whether to ignore the first row of the CSV
-     * @param customDelimiter        Provide a custom delimiter that seperates columns
-     * @param customQuoteChar        Provide a custom character surrounding quotes
-     * @return              An ArrayList (rows) of ArrayLists (columns values)
-     */
-    public static ArrayList<ArrayList<String>> readFile(String file, boolean ignoreHeader, char customDelimiter, char customQuoteChar) {
-        // Open the CSV file
-        String ln = "";
-
-        ArrayList<ArrayList<String>> lines = new ArrayList<>();
-        boolean headerRead = false;
-        try (BufferedReader br = new BufferedReader(new FileReader(file))){
-            while ((ln = br.readLine()) != null) {
-                if(ignoreHeader && lines.isEmpty() && !headerRead) {
-                    headerRead=true;
-                    continue;
-                }
-
-                lines.add(parseLine(ln,customDelimiter,customQuoteChar));
-            }
-        } catch (IOException ioe) {
-            LOGGER.error("Could not read from file: " + file);
-        }
-
-        return lines;
-    }
-
     private static ArrayList<String> parseLine(String csvLine) {
         return parseLine(csvLine, DEFAULT_SEPARATOR, DEFAULT_QUOTE);
     }
