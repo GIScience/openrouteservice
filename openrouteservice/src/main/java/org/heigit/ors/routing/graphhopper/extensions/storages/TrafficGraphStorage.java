@@ -168,46 +168,13 @@ public class TrafficGraphStorage implements GraphExtension {
 
         priorityValue[0] = (byte) priority;
 
-        // TODO RAD
-        // add entry
-//        int test1 = 0;
-//        int test2 = 0;
-        // TODO RAD
         if (baseNode < adjNode) {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-//            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
-//            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         } else {
-//            int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-//            test1 = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday);
-//            test2 = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
         }
-        // TODO RAD
-//        assert test1 == patternId;
-//        assert test2 == (int) priority;
-//        int test121 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.MONDAY);
-//        int test122 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.TUESDAY);
-//        int test123 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.WEDNESDAY);
-//        int test124 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.THURSDAY);
-//        int test125 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.FRIDAY);
-//        int test126 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SATURDAY);
-//        int test127 = getEdgeIdTrafficPatternLookup(16077, 12942, 12941, TrafficEnums.WeekDay.SUNDAY);
-//        int edgeValue = getEdgeIdTrafficPatternLookup(14277, 5022, 222, TrafficEnums.WeekDay.SUNDAY);
-//
-//        int test121_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
-//        int test122_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.TUESDAY);
-//        int test123_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.WEDNESDAY);
-//        int test124_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.THURSDAY);
-//        int test125_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.FRIDAY);
-//        int test126_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SATURDAY);
-//        int test127_ = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.SUNDAY);
-//        if (test121 == 3808 || test122 == 9712 || test123 == 13544) {
-//            System.out.println("");
-//        }
-        // TODO RAD
     }
 
     /**
