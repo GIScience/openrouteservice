@@ -88,7 +88,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private IntHashSet matchedHereLinks = new IntHashSet();
     private ArrayList<String> matchedOSMLinks = new ArrayList<>();
 
-    public HereTrafficGraphStorageBuilder() throws SchemaException {
+    public HereTrafficGraphStorageBuilder() {
     }
 
     /**
@@ -173,17 +173,13 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    private void writeLogFiles(TrafficData hereTrafficData) {
+    private void writeLogFiles(TrafficData hereTrafficData) throws SchemaException {
         if (outputLog) {
             LOGGER.info("Write log files.");
             SimpleFeatureType TYPE = null;
-            try {
-                TYPE = DataUtilities.createType("my", "geom:MultiLineString");
-            } catch (SchemaException e) {
-                LOGGER.error("Error creating MultiLineString Type. This should not happen!", e);
-            }
-            File osmMatchedFile = null;
-            File hereMatchedFile = null;
+            TYPE = DataUtilities.createType("my", "geom:MultiLineString");
+            File osmMatchedFile;
+            File hereMatchedFile;
             int decimals = 14;
             GeometryJSON gjson = new GeometryJSON(decimals);
             FeatureJSON featureJSON = new FeatureJSON(gjson);
@@ -280,7 +276,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return matchedSegments;
     }
 
-    public void postProcess(ORSGraphHopper graphHopper) {
+    public void postProcess(ORSGraphHopper graphHopper) throws SchemaException {
         HereTrafficReader hereTrafficReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
         if (enabled && !storage.isMatched()) {
             try {

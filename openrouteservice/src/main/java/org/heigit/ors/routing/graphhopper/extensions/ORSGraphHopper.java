@@ -42,6 +42,7 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.geotools.feature.SchemaException;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
@@ -609,8 +610,14 @@ public class ORSGraphHopper extends GraphHopper {
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder)
-                    ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                    try {
+                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                    } catch (SchemaException e) {
+                        LOGGER.error("Error building the here traffic storage.");
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         }
     }
