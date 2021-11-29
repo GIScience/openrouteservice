@@ -58,7 +58,9 @@ public class AvoidBordersEdgeFilterTest {
 
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, 1, 2, 10,
+        // Note: edge key contains additional bit compared to edge id. Therefore, id*2.
+        // TODO: maybe make this more robust?
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id*2, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
         return ve;
     }
