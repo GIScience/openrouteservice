@@ -58,7 +58,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
-    protected UnsignedDecimalEncodedValue speedEncoder;
     protected EncodedValueOld relationCodeEncoder;
     private UnsignedIntEncodedValue relationCodeEnc; // TODO: should this be implemented like priorityWayEncoder?
 
@@ -150,8 +149,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
-        speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false);
-        registerNewEncodedValue.add(speedEncoder);
+        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         relationCodeEnc = new UnsignedIntEncodedValue(getKey(prefix, "relation_code"), 4, false);
@@ -252,9 +250,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (!access.isFerry()) {
             String sacScale = way.getTag(OSMTags.Keys.SAC_SCALE);
             if (sacScale != null && !"hiking".equals(sacScale)) {
-                speedEncoder.setDecimal(false, edgeFlags, SLOW_SPEED);
+                avgSpeedEnc.setDecimal(false, edgeFlags, SLOW_SPEED);
             } else {
-                speedEncoder.setDecimal(false, edgeFlags, MEAN_SPEED);
+                avgSpeedEnc.setDecimal(false, edgeFlags, MEAN_SPEED);
             }
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);

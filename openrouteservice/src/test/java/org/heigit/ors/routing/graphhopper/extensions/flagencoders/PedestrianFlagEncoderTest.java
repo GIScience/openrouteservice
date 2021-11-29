@@ -93,8 +93,8 @@ public class PedestrianFlagEncoderTest {
         ReaderRelation rel = new ReaderRelation(1);
 
         rel.setTag("route", "ferry");
-        // TODO GH0.10: assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(rel, 0));
-        assertEquals(PriorityCode.EXCLUDE.getValue(), flagEncoder.handleRelationTags(0, rel));
+        IntsRef ref = new IntsRef(2);
+        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handleRelationTags(ref, rel));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class PedestrianFlagEncoderTest {
         // TODO GH0.10: assertEquals(635, flagEncoder.handleWayTags(way, 3, 0));
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
                 EncodingManager.Access.FERRY, 0);
-        assertEquals(20, flagEncoder.getSpeed(flags), 0.01); // TODO should use AbstractFlagEncoder.SHORT_TRIP_FERRY_SPEED
+        assertEquals(20, flagEncoder.getSpeed(flags), 0.01);
     }
 
     @Test
