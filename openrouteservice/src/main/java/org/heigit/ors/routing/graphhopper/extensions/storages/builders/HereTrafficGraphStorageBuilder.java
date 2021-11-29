@@ -189,37 +189,19 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             } catch (SchemaException e) {
                 LOGGER.error("Error creating MultiLineString Type. This should not happen!", e);
             }
-            File osmFile = null;
             File osmMatchedFile = null;
             File hereMatchedFile = null;
-            File hereFile = null;
             int decimals = 14;
             GeometryJSON gjson = new GeometryJSON(decimals);
             FeatureJSON featureJSON = new FeatureJSON(gjson);
-//            osmFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_OSM_edges_output.geojson");
             osmMatchedFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_OSM_matched_edges_output.geojson");
             hereMatchedFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_Here_matched_edges_output.geojson");
-//            hereFile = new File(dateFormat.format(date) + "_radius_" + matchingRadius + "_Here_edges_output.geojson");
 
-            DefaultFeatureCollection allOSMCollection = new DefaultFeatureCollection();
             DefaultFeatureCollection matchedOSMCollection = new DefaultFeatureCollection();
-//            DefaultFeatureCollection allHereCollection = new DefaultFeatureCollection();
             DefaultFeatureCollection matchedHereCollection = new DefaultFeatureCollection();
 
             GeometryFactory gf = new GeometryFactory();
             WKTReader reader = new WKTReader(gf);
-
-//            for (String value : allOSMEdgeGeometries) {
-//                try {
-//                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
-//                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(value);
-//                    featureBuilder.add(linestring);
-//                    SimpleFeature feature = featureBuilder.buildFeature(null);
-//                    allOSMCollection.add(feature);
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//            }
 
 
             SimpleFeatureType finalTYPE = TYPE;
@@ -247,22 +229,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 }
             }
 
-//            for (IntObjectCursor<TrafficLink> trafficLink : hereTrafficData.getLinks()) {
-//                try {
-//                    String hereLinkGeometry = trafficLink.value.getLinkGeometry().toString();
-//                    SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
-//                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
-//                    featureBuilder.add(linestring);
-//                    SimpleFeature feature = featureBuilder.buildFeature(null);
-//                    allHereCollection.add(feature);
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            if (allOSMCollection.size() > 0) {
-//                osmFile.createNewFile();
-//                featureJSON.writeFeatureCollection(allOSMCollection, osmFile);
-//            }
             if (matchedOSMCollection.size() > 0) {
                 try {
                     if (osmMatchedFile.createNewFile()) {
@@ -274,10 +240,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     LOGGER.error("Error writing matched OSM data to log file.", e);
                 }
             }
-//            if (allHereCollection.size() > 0) {
-//                hereMatchedFile.createNewFile();
-//                featureJSON.writeFeatureCollection(allHereCollection, hereFile);
-//            }
             if (matchedHereCollection.size() > 0) {
                 try {
                     if (hereMatchedFile.createNewFile()) {
