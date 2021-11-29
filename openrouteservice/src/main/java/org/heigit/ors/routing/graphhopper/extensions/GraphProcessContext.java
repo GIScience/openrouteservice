@@ -38,6 +38,7 @@ public class GraphProcessContext {
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
+	private int trafficArrStorageBuilderLocation = -1;
 	private double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
@@ -128,11 +129,13 @@ public class GraphProcessContext {
 				int nStorages = arrStorageBuilders.length;
 				if (nStorages > 0) {
 					for (int i = 0; i < nStorages; ++i) {
-						if (arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
-							arrStorageBuilders[i].processWay(way, allCoordinates, nodeTags);
-						} else {
-							arrStorageBuilders[i].processWay(way, coords, nodeTags);
+						if (trafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
+							trafficArrStorageBuilderLocation = i;
 						}
+						arrStorageBuilders[i].processWay(way, coords, nodeTags);
+					}
+					if (trafficArrStorageBuilderLocation >= 0){
+						arrStorageBuilders[trafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
 					}
 				}
 			}
