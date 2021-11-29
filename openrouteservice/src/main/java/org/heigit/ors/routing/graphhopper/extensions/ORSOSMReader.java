@@ -235,8 +235,8 @@ public class ORSOSMReader extends OSMReader {
 					try {
 						double lat = getLatitudeOfNode(id, false);
 						double lon = getLongitudeOfNode(id, false);
-						boolean condition = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
-						if (processWholeGeom && condition) {
+						boolean validGeometry = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
+						if (processWholeGeom && validGeometry) {
 							// TODO check why no tower nodes were used before
 							allCoordinates.add(new Coordinate(getTmpLongitude(id), getTmpLatitude(id)));
 						}
@@ -244,7 +244,7 @@ public class ORSOSMReader extends OSMReader {
 						// Check that we have a tower node
 						lat = getLatitudeOfNode(id, true);
 						lon = getLongitudeOfNode(id, true);
-						if (condition) {
+						if (validGeometry) {
 							coords.add(new Coordinate(lon, lat));
 						}
 					} catch (Exception e) {
