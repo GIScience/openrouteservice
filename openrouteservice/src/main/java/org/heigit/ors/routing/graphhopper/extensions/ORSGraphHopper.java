@@ -66,6 +66,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
@@ -608,7 +609,8 @@ public class ORSGraphHopper extends GraphHopper {
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                graphStorageBuilder.postProcess(this);
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder)
+                    ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
             }
         }
     }

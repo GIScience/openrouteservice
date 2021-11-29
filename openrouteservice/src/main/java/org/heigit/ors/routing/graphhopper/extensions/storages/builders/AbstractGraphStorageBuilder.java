@@ -35,6 +35,4 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 	}
 
 	public void finish(){}
-
-    public void postProcess(ORSGraphHopper graphHopper) {}
 }

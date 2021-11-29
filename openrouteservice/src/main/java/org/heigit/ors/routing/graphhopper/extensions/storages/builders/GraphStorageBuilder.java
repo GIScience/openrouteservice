@@ -40,6 +40,4 @@ public interface GraphStorageBuilder extends Plugin {
 	String getName();
 	
 	void finish();
-
-	void postProcess(ORSGraphHopper graphHopper);
 }

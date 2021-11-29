@@ -280,7 +280,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return matchedSegments;
     }
 
-    @Override
     public void postProcess(ORSGraphHopper graphHopper) {
         HereTrafficReader hereTrafficReader = new HereTrafficReader(streetsFile, patterns15MinutesFile, refPatternIdsFile);
         if (enabled && !storage.isMatched()) {
