@@ -192,7 +192,6 @@ public class ORSOSMReader extends OSMReader {
 			// should store the internal node id though rather than the osm node as during the edge processing, we
 			// do not know the osm node id
 
-			// TODO: CHeck this as this only stores tower nodes - is that what we want?
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 
@@ -237,7 +236,6 @@ public class ORSOSMReader extends OSMReader {
 						double lon = getLongitudeOfNode(id, false);
 						boolean validGeometry = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
 						if (processWholeGeom && validGeometry) {
-							// TODO check why no tower nodes were used before
 							allCoordinates.add(new Coordinate(getTmpLongitude(id), getTmpLatitude(id)));
 						}
 						// Add the point to the line
