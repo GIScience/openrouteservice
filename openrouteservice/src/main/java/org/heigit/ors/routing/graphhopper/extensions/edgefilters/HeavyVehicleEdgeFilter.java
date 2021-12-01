@@ -51,7 +51,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	}
 
 	private final int vehicleType;
-	private final boolean hasHazmat;
+	private boolean hasHazmat;
 	private final HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
 	private final float[] restrictionValues;
 	private final double[] retValues;

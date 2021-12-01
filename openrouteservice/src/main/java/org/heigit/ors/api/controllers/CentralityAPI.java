@@ -23,7 +23,6 @@ import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
-import org.heigit.ors.api.requests.centrality.CentralityRequestHandler;
 import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.centrality.CentralityResult;
@@ -98,7 +97,7 @@ public class CentralityAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 
-        CentralityResult result = new CentralityRequestHandler().generateCentralityFromRequest(request);
+        CentralityResult result = request.generateCentralityFromRequest();
 
         return new JsonCentralityResponse(result);
     }
