@@ -28,7 +28,6 @@ import java.util.List;
 public class IsochronesRequestHandlerTest {
     IsochronesRequest request;
 
-    IsochronesRequestHandler handler;
     private RequestProfileParamsRestrictions vehicleParams;
     private RequestProfileParamsRestrictions cyclingParams;
     private RequestProfileParamsRestrictions walkingParams;
@@ -56,7 +55,6 @@ public class IsochronesRequestHandlerTest {
     public void init() throws Exception {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
-        handler = new IsochronesRequestHandler();
         geoJsonPolygon = constructGeoJson();
 
         Double[][] coords = new Double[2][2];
@@ -107,71 +105,71 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void convertSmoothing() throws ParameterValueException {
-        Float smoothing = handler.convertSmoothing(10.234);
+        Float smoothing = request.convertSmoothing(10.234);
         Assert.assertEquals(10.234, smoothing, 0.01);
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSmoothingFailWhenTooHigh() throws ParameterValueException {
-        handler.convertSmoothing(105.0);
+        request.convertSmoothing(105.0);
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSmoothingFailWhenTooLow() throws ParameterValueException {
-        handler.convertSmoothing(-5.0);
+        request.convertSmoothing(-5.0);
     }
 
     @Test
     public void convertLocationType() throws ParameterValueException {
-        String locationType = handler.convertLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
+        String locationType = request.convertLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
         Assert.assertEquals("destination", locationType);
-        locationType = handler.convertLocationType(IsochronesRequestEnums.LocationType.START);
+        locationType = request.convertLocationType(IsochronesRequestEnums.LocationType.START);
         Assert.assertEquals("start", locationType);
     }
 
     @Test
     public void convertRangeType() throws ParameterValueException {
-        TravelRangeType rangeType = handler.convertRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
+        TravelRangeType rangeType = request.convertRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
         Assert.assertEquals(TravelRangeType.DISTANCE, rangeType);
-        rangeType = handler.convertRangeType(IsochronesRequestEnums.RangeType.TIME);
+        rangeType = request.convertRangeType(IsochronesRequestEnums.RangeType.TIME);
         Assert.assertEquals(TravelRangeType.TIME, rangeType);
     }
 
     @Test
     public void convertAreaUnit() throws ParameterValueException {
-        String unit = handler.convertAreaUnit(APIEnums.Units.KILOMETRES);
+        String unit = request.convertAreaUnit(APIEnums.Units.KILOMETRES);
         Assert.assertEquals("km", unit);
-        unit = handler.convertAreaUnit(APIEnums.Units.METRES);
+        unit = request.convertAreaUnit(APIEnums.Units.METRES);
         Assert.assertEquals("m", unit);
-        unit = handler.convertAreaUnit(APIEnums.Units.MILES);
+        unit = request.convertAreaUnit(APIEnums.Units.MILES);
         Assert.assertEquals("mi", unit);
     }
 
     @Test
     public void convertRangeUnit() throws ParameterValueException {
-        String unit = handler.convertRangeUnit(APIEnums.Units.KILOMETRES);
+        String unit = request.convertRangeUnit(APIEnums.Units.KILOMETRES);
         Assert.assertEquals("km", unit);
-        unit = handler.convertRangeUnit(APIEnums.Units.METRES);
+        unit = request.convertRangeUnit(APIEnums.Units.METRES);
         Assert.assertEquals("m", unit);
-        unit = handler.convertRangeUnit(APIEnums.Units.MILES);
+        unit = request.convertRangeUnit(APIEnums.Units.MILES);
         Assert.assertEquals("mi", unit);
     }
 
     @Test
     public void convertSingleCoordinate() throws ParameterValueException {
-        Coordinate coord = handler.convertSingleCoordinate(new Double[]{123.4, 321.0});
+        Coordinate coord = request.convertSingleCoordinate(new Double[]{123.4, 321.0});
         Assert.assertEquals(123.4, coord.x, 0.0001);
         Assert.assertEquals(321.0, coord.y, 0.0001);
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
-        handler.convertSingleCoordinate(new Double[]{123.4});
+        request.convertSingleCoordinate(new Double[]{123.4});
     }
 
     @Test(expected = ParameterValueException.class)
     public void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
-        handler.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
+        request.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
     }
 
     @Test
@@ -181,7 +179,7 @@ public class IsochronesRequestHandlerTest {
         rangeValues.add(20.0);
         double intervalValue = 10;
 
-        handler.setRangeAndIntervals(info, rangeValues, intervalValue);
+        request.setRangeAndIntervals(info, rangeValues, intervalValue);
 
         Assert.assertEquals(10.0, info.getRanges()[0], 0.0f);
         Assert.assertEquals(20.0, info.getRanges()[1], 0.0f);
@@ -190,7 +188,7 @@ public class IsochronesRequestHandlerTest {
         rangeValues = new ArrayList<>();
         rangeValues.add(15.0);
         rangeValues.add(30.0);
-        handler.setRangeAndIntervals(info, rangeValues, intervalValue);
+        request.setRangeAndIntervals(info, rangeValues, intervalValue);
         Assert.assertEquals(15.0, info.getRanges()[0], 0.0f);
         Assert.assertEquals(30.0, info.getRanges()[1], 0.0f);
 
@@ -199,7 +197,7 @@ public class IsochronesRequestHandlerTest {
     @Test
     public void convertAttributes() {
         IsochronesRequestEnums.Attributes[] atts = new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR, IsochronesRequestEnums.Attributes.TOTAL_POPULATION};
-        String[] attStr = handler.convertAttributes(atts);
+        String[] attStr = request.convertAttributes(atts);
         Assert.assertEquals("area", attStr[0]);
         Assert.assertEquals("reachfactor", attStr[1]);
         Assert.assertEquals("total_pop", attStr[2]);
@@ -207,9 +205,9 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void convertCalcMethod() throws ParameterValueException {
-        String calcMethod = handler.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS);
+        String calcMethod = request.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS);
         Assert.assertEquals("concaveballs", calcMethod);
-        calcMethod = handler.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
+        calcMethod = request.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
         Assert.assertEquals("grid", calcMethod);
     }
 
@@ -227,7 +225,7 @@ public class IsochronesRequestHandlerTest {
         range.add(300.0);
         range.add(600.0);
         request.setRange(range);
-        IsochroneRequest isochroneRequest = handler.convertIsochroneRequest(request);
+        IsochroneRequest isochroneRequest = request.convertIsochroneRequest();
         Assert.assertNotNull(isochroneRequest);
         Assert.assertFalse(isochroneRequest.getIncludeIntersections());
         Assert.assertNull(request.getAttributes());
@@ -265,8 +263,7 @@ public class IsochronesRequestHandlerTest {
         range.add(300.0);
         range.add(600.0);
         request.setRange(range);
-        IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
-        TravellerInfo travellerInfo = isochronesRequestHandler.constructTravellerInfo(coordinate, request);
+        TravellerInfo travellerInfo = request.constructTravellerInfo(coordinate);
         Assert.assertEquals(String.valueOf(0), travellerInfo.getId());
         Assert.assertEquals(realCoordinate, travellerInfo.getLocation());
         Assert.assertEquals("start", travellerInfo.getLocationType());
@@ -277,11 +274,10 @@ public class IsochronesRequestHandlerTest {
     @Test
     public void constructRouteSearchParametersTest() throws Exception {
         Double[][] coordinates = {{1.0, 3.0}, {1.0, 3.0}};
-        IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
         IsochronesRequest request = new IsochronesRequest();
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
         request.setLocations(coordinates);
-        RouteSearchParameters routeSearchParameters = isochronesRequestHandler.constructRouteSearchParameters(request);
+        RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
         Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
@@ -299,8 +295,7 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void processIsochronesRequestOptionsTest() throws Exception {
-        IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
-        RouteSearchParameters routeSearchParameters = isochronesRequestHandler.constructRouteSearchParameters(request);
+        RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
 
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
         Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
@@ -333,14 +328,12 @@ public class IsochronesRequestHandlerTest {
 
     @Test
     public void getIsoMapsTest() {
-        IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
-        Assert.assertNull(isochronesRequestHandler.getIsoMaps());
+        Assert.assertNull(request.getIsoMaps());
     }
 
     @Test
     public void getIsochroneRequestTest() {
-        IsochronesRequestHandler isochronesRequestHandler = new IsochronesRequestHandler();
-        Assert.assertNull(isochronesRequestHandler.getIsochroneRequest());
+        Assert.assertNull(request.getIsochroneRequest());
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {
