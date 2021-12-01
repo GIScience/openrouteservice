@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
-import org.heigit.ors.api.requests.isochrones.IsochronesRequestHandler;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
@@ -104,9 +103,8 @@ public class IsochronesAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        IsochronesRequestHandler handler = new IsochronesRequestHandler();
-        handler.generateIsochronesFromRequest(request);
-        IsochroneMapCollection isoMaps = handler.getIsoMaps();
+        request.generateIsochronesFromRequest();
+        IsochroneMapCollection isoMaps = request.getIsoMaps();
         return new GeoJSONIsochronesResponse(request, isoMaps);
     }
 
