@@ -66,6 +66,22 @@ list to include that profile:
 ```
 Now when you restart the container, the hiking profile will also be built. As another example, lets say that rather than the default maximum number of locations in a matrix request (100) you want to do some analysis with a lot more, e.g. 10,000 so that you can do a 100 origin x 100 destination matrix calculation. To do that, you would change the `"maximum_routes": 100` within the `matrix` object to be `"maximum_routes": 10000` and then restart the container. 
 
+## Memory mapping in large builds
+If you are running a large build (e.g. a planet file) then you may need to increase the number of memory mappings. You only need to do this on the host machine as this value is used by the Docker containers running on it aswell. To do this, go into the system configuration file with `sudo nano /etc/sysctl.conf` and add the following line to the bottom of the file:
+
+```sh
+vm.max_map_count=81920
+```
+
+The usual sign that you need to do this change is if you see something similar to the following in your logs:
+
+```sh
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 16384 bytes for committing reserved memory.
+# An error report file with more information is saved as:
+# /ors-core/hs_err_pid128.log
+```
+
 ## Instance infrastructure
 Though having a single container works great for smaller datasets or when the graph data doesn't need updating, in many real world implementations having just the one instance isn't the most suitable solution. If you have one container, then all building and serving of routes happens through that single container, meaning that when you rebuild graphs, you can't make any requests to that instance for things like directions as there are no complete graphs that can be used to generate routes with. If it is important that you have graph updates from new data whilst ensuring that there is a minimal amount of time where users cannot make requests, we would recommend having two instances - one that is permanently active for serving requests, and one that gets fired up to rebuild graphs. 
 

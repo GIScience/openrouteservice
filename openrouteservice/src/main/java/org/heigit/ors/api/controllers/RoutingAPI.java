@@ -24,7 +24,6 @@ import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestHandler;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
@@ -93,7 +92,7 @@ public class RoutingAPI {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GeoJSONRouteResponse(result, request);
     }
@@ -121,7 +120,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new JSONRouteResponse(result, request);
     }
@@ -140,7 +139,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GPXRouteResponse(result, request);
 
@@ -159,7 +158,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GeoJSONRouteResponse(result, request);
     }
