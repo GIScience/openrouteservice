@@ -123,7 +123,7 @@ public class HikingFlagEncoderTest {
         way = generateFerryWay();
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
                 EncodingManager.Access.FERRY, null);
-        assertEquals(5.0, flagEncoder.getSpeed(flags), 0.01);
+        assertEquals(5.0, flagEncoder.getAverageSpeedEnc().getDecimal(false, flags), 0.01);
     }
 
     @Test

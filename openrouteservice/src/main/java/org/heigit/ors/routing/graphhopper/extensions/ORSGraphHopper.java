@@ -549,7 +549,7 @@ public class ORSGraphHopper extends GraphHopper {
         ResponsePath directRoutePathWrapper = constructFreeHandRoutePathWrapper(directRouteGeometry);
         GHResponse directRouteResponse = new GHResponse();
         directRouteResponse.add(directRoutePathWrapper);
-        directRouteResponse.getHints().putObject("skipped_segment", "true");
+        directRouteResponse.getHints().putObject("skipped_segment", true);
         return directRouteResponse;
     }
 
