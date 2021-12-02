@@ -450,7 +450,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
+    public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(KEY_ROUTE, "hiking")
                 || relation.hasTag(KEY_ROUTE, "foot")
@@ -463,13 +463,13 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             code = VERY_BAD.getValue();
         }
 
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
-        if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
-    }
+        double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
+        if (oldCode < code) {
+            priorityRelationEnc.setDecimal(false, oldRelationRef, PriorityCode.getFactor(code));
+        }
+        return code;
 
-    //public long handleWayTags(ReaderWay way, long allowed, long relationFlags )
+    }
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {

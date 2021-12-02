@@ -71,66 +71,42 @@ public class PedestrianFlagEncoderTest {
     }
 
     @Test
-    public void noTurnRestrictions() {
-        fail("TODO: find out how to test this.");
-        //assertFalse(flagEncoder.isTurnRestricted(1));
-    }
-
-    @Test
-    public void noTurnCost() {
-        fail("TODO: find out how to test this.");
-        //assertEquals(0, flagEncoder.getTurnCost(1), 0.0);
-    }
-
-    @Test
-    public void allwaysNoTurnFlags() {
-        fail("TODO: find out how to test this.");
-        //assertEquals(0.0, flagEncoder.getTurnFlags(false, 1.0), 0.0);
-    }
-
-    @Test
     public void handleRelationTags() {
         ReaderRelation rel = new ReaderRelation(1);
 
         rel.setTag("route", "ferry");
         IntsRef ref = new IntsRef(2);
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handleRelationTags(ref, rel));
+        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handleRelationTags(ref, rel));
     }
 
     @Test
     public void testRejectWay() {
-        // TODO GH0.10: assertEquals(0, flagEncoder.handleWayTags(way, 0, 0));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
     @Test
     public void testFerryFlags() {
         way = generateFerryWay();
-        // TODO GH0.10: assertEquals(635, flagEncoder.handleWayTags(way, 3, 0));
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
                 EncodingManager.Access.FERRY, 0);
-        assertEquals(20, flagEncoder.getSpeed(flags), 0.01);
+        assertEquals(15, flagEncoder.getSpeed(flags), 0.01);
     }
 
     @Test
     public void testPlatformFlags() {
         way.setTag("railway", "platform");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
 
         way.setTag("railway", "track");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
     @Test
     public void testPierFlags() {
         way.setTag("man_made", "pier");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
 
         way.setTag("man_made", "not_a_pier");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -138,42 +114,34 @@ public class PedestrianFlagEncoderTest {
     public void testHikingFlags() {
         way = generatePedestrianWay();
         way.setTag("sac_scale", "hiking");
-        // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
 
         way.setTag("highway", "living_street");
-        // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
     public void testDesignatedFootwayPriority() {
         way.setTag("highway", "secondary");
-        // TODO GH0.10: assertEquals(299, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
 
         way.setTag("foot", "designated");
-        // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
-        // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
-        // TODO GH0.10: assertEquals(555, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
-        // TODO GH0.10: assertEquals(171, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
     public void testAcceptWayFerry() {
         way = generateFerryWay();
-        // TODO GH0.10: assertEquals(3, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isFerry());
     }
 
@@ -181,16 +149,12 @@ public class PedestrianFlagEncoderTest {
     public void testAcceptFootway() {
         way = generatePedestrianWay();
         way.setTag("foot", "yes");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("foot", "designated");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("foot", "official");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("foot", "permissive");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
@@ -198,36 +162,26 @@ public class PedestrianFlagEncoderTest {
     public void testRejectRestrictedFootway() {
         way = generatePedestrianWay();
         way.setTag("foot", "no");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("foot", "private");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("foot", "restricted");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("foot", "military");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("foot", "emergency");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
 
         way.removeTag("foot");
         way.setTag("access", "no");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("access", "private");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("access", "restricted");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("access", "military");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("access", "emergency");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -235,26 +189,20 @@ public class PedestrianFlagEncoderTest {
     public void testAcceptSidewalks() {
         way.setTag("highway", "secondary");
         way.setTag("sidewalk", "both");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("sidewalk", "left");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("sidewalk", "right");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
         way.setTag("sidewalk", "yes");
-        // TODO GH0.10: assertEquals(1, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
     @Test
     public void testRejectMotorways() {
         way.setTag("highway", "motorway");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.setTag("highway", "motorway_link");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -262,7 +210,6 @@ public class PedestrianFlagEncoderTest {
     public void testRejectMotorRoad() {
         way = generatePedestrianWay();
         way.setTag("motorroad", "yes");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -270,7 +217,6 @@ public class PedestrianFlagEncoderTest {
     public void testDefaultFords() {
         way = generatePedestrianWay();
         way.setTag("ford", "yes");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -303,35 +249,4 @@ public class PedestrianFlagEncoderTest {
         // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
-
-    @Test
-    public void testSpeed() {
-        // TODO GH0.10: assertEquals(5.0, flagEncoder.getSpeed(683), 0.0);
-        // TODO GH0.10: assertEquals(20.0, flagEncoder.getSpeed(635), 0.0);
-        fail("TODO: find out how to test this.");
-    }
-
-    @Test
-    public void testSupports() {
-        assertTrue(flagEncoder.supports(PriorityWeighting.class));
-        fail("TODO: find out how to test this.");
-        //assertFalse(flagEncoder.supports(TurnWeighting.class));
-    }
-
-    @Test
-    public void getWeighting() {
-        fail("TODO: find out how to test this.");
-// TODO GH0.10:
-//        assertEquals(0.714, flagEncoder.getDouble(683, FlagEncoderKeys.PRIORITY_KEY), 0.001);
-//        boolean throwsError = false;
-//        try {
-//            // Only priority weighting allowed
-//            flagEncoder.getDouble(683, 1);
-//        } catch (UnsupportedOperationException e) {
-//            throwsError = true;
-//        }
-//
-//        assertTrue(throwsError);
-    }
-
 }

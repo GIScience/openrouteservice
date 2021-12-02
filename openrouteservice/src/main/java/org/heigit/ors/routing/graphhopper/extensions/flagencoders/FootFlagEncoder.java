@@ -58,9 +58,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
+    protected DecimalEncodedValue priorityRelationEnc;
     protected EncodedValueOld relationCodeEncoder;
-    private UnsignedIntEncodedValue relationCodeEnc; // TODO: should this be implemented like priorityWayEncoder?
-
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
         restrictions.addAll(Arrays.asList("foot", "access"));
@@ -152,14 +151,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
-        relationCodeEnc = new UnsignedIntEncodedValue(getKey(prefix, "relation_code"), 4, false);
-        registerNewEncodedValue.add(relationCodeEnc);
-    }
-
-    // TODO: never used
-    public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
+        priorityRelationEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "relation_code"), 4, PriorityCode.getFactor(1), false);
+        registerNewEncodedValue.add(priorityRelationEnc);
     }
 
     @Override
@@ -199,7 +192,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return EncodingManager.Access.WAY;
     }
 
-    // TODO: only used in tests, see relationCodeEncoder above
+    // TODO: only used in tests, see relationCodeEncoder above; keep until overrides are cleand up
     @Deprecated // TODO: use IntsRef-based version of this method instead
     public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
         int code = 0;
@@ -219,7 +212,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return oldRelationFlags;
     }
 
-    public IntsRef handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
+    public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
             Integer val = hikingNetworkToCode.get(relation.getTag("network"));
@@ -231,11 +224,11 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             code = VERY_BAD.getValue();
         }
 
-        int oldCode = relationCodeEnc.getInt(false, oldRelationRef);
+        double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
         if (oldCode < code) {
-            relationCodeEnc.setInt(false, oldRelationRef, code);
+            priorityRelationEnc.setDecimal(false, oldRelationRef, PriorityCode.getFactor(code));
         }
-        return oldRelationRef;
+        return code;
     }
 
     @Override
