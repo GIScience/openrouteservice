@@ -30,7 +30,6 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.EncodedValueOld;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 
 import java.util.*;
@@ -83,9 +82,9 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     private final Map<String, SpeedValue> highwaySpeeds = new HashMap<>();
     // convert network tag of bicycle routes into a way route code
     private final Map<String, Integer> bikeNetworkToCode = new HashMap<>();
-    protected EncodedValueOld relationCodeEncoder;
     protected boolean speedTwoDirections;
     DecimalEncodedValue priorityWayEncoder;
+    DecimalEncodedValue priorityRelationEnc;
     BooleanEncodedValue unpavedEncoder;
     private IntEncodedValue wayTypeEncoder;
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
@@ -370,7 +369,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     // TODO: how to handle @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
+    public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(KEY_ROUTE, KEY_BICYCLE)) {
             Integer val = bikeNetworkToCode.get(relation.getTag("network"));
@@ -383,11 +382,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             code = VERY_BAD.getValue();
         }
 
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
+        int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
         if (oldCode < code) {
-            return relationCodeEncoder.setValue(0, code);
+             priorityRelationEnc.setDecimal(false, oldRelationFlags, PriorityCode.getFactor(code));
         }
-        return oldRelationFlags;
+        return code;
     }
 
     /**
@@ -409,8 +408,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         return speed;
     }
 
-    // TODO: how to handle @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
         if (access.canSkip()) {
             return edgeFlags;
         }
@@ -419,7 +417,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, relationFlags > UNCHANGED.getValue());
+            handleBikeRelated(edgeFlags, way, priorityRelationEnc.getDecimal(false, relationFlags) > UNCHANGED.getValue());
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
@@ -431,8 +429,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             handleSpeed(edgeFlags, way, ferrySpeed);
         }
         int priorityFromRelation = 0;
-        if (relationFlags != 0) {
-            priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
+        if (relationFlags != null) {
+            priorityFromRelation = (int) priorityRelationEnc.getDecimal(false,relationFlags);
         }
 
         priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, wayTypeSpeed, priorityFromRelation)));

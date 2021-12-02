@@ -47,8 +47,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_RESIDENTIAL = "residential";
     protected SpeedLimitHandler speedLimitHandler;
 
-    protected EncodedValueOld relationCodeEncoder;
-
     private double accelerationModifier = 0.0;
 
     protected boolean speedTwoDirections = false;

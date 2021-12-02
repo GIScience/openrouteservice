@@ -122,7 +122,7 @@ public class HikingFlagEncoderTest {
     public void testFerrySpeed() {
         way = generateFerryWay();
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
-                EncodingManager.Access.FERRY, 0);
+                EncodingManager.Access.FERRY, null);
         assertEquals(5.0, flagEncoder.getSpeed(flags), 0.01);
     }
 
@@ -139,7 +139,7 @@ public class HikingFlagEncoderTest {
     public void testDifficultHikingFlags() {
         way = generateHikeWay();
         way.setTag("sac_scale", "alpine_hiking");
-        IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way, EncodingManager.Access.WAY, 0);
+        IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way, EncodingManager.Access.WAY, null);
         assertEquals(FootFlagEncoder.SLOW_SPEED, flagEncoder.getSpeed(false, flags), 0.01);
     }
 

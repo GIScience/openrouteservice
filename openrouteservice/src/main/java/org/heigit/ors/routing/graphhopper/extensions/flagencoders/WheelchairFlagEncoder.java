@@ -472,7 +472,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
 
         if (access.canSkip())
             return edgeFlags;
@@ -540,8 +540,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             accessEnc.setBool(true, edgeFlags, true);
             
             int priorityFromRelation = 0;
-            if (relationFlags != 0)
-                priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
+            if (relationFlags != null)
+                priorityFromRelation = (int) priorityRelationEnc.getDecimal(false, relationFlags);
 
             priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         } 

@@ -19,6 +19,8 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
@@ -155,16 +157,15 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        oldRelationFlags = super.handleRelationTags(oldRelationFlags, relation);
-        int code = 0;
+    public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
+        int code = super.handleRelationTags(oldRelationFlags, relation);
         if (relation.hasTag("route", "mtb"))
             code = PREFER.getValue();
 
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
+        int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
         if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
+             priorityRelationEnc.setDecimal(false, oldRelationFlags, PriorityCode.getFactor(code));
+        return code;
     }
 
     @Override

@@ -88,7 +88,7 @@ public class PedestrianFlagEncoderTest {
     public void testFerryFlags() {
         way = generateFerryWay();
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
-                EncodingManager.Access.FERRY, 0);
+                EncodingManager.Access.FERRY, null);
         assertEquals(15, flagEncoder.getSpeed(flags), 0.01);
     }
 

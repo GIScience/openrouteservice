@@ -59,7 +59,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
     protected DecimalEncodedValue priorityRelationEnc;
-    protected EncodedValueOld relationCodeEncoder;
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
         restrictions.addAll(Arrays.asList("foot", "access"));
@@ -192,26 +191,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return EncodingManager.Access.WAY;
     }
 
-    // TODO: only used in tests, see relationCodeEncoder above; keep until overrides are cleand up
-    @Deprecated // TODO: use IntsRef-based version of this method instead
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
-            Integer val = hikingNetworkToCode.get(relation.getTag("network"));
-            if (val != null)
-                code = val;
-            else
-                code = hikingNetworkToCode.get("lwn");
-        } else if (relation.hasTag(OSMTags.Keys.ROUTE, "ferry")) {
-            code = VERY_BAD.getValue();
-        }
-
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
-        if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
-    }
-
     public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
@@ -233,10 +212,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
-        return handleWayTags(edgeFlags, way, access, 0);
+        return handleWayTags(edgeFlags, way, access, null);
     }
 
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
         if (access.canSkip())
             return edgeFlags;
 
@@ -257,8 +236,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         int priorityFromRelation = 0;
-        if (relationFlags != 0)
-              priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
+        if (relationFlags != null)
+              priorityFromRelation = (int) priorityRelationEnc.getDecimal(false, relationFlags);
 
         priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
         return edgeFlags;
