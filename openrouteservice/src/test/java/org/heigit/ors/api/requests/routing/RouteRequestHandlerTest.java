@@ -245,11 +245,8 @@ public class RouteRequestHandlerTest {
 
         WayPointBearing[] bearings = routingRequest.getSearchParameters().getBearings();
         Assert.assertEquals(10.0, bearings[0].getValue(), 0);
-        Assert.assertEquals(10.0, bearings[0].getDeviation(), 0);
         Assert.assertEquals(260.0, bearings[1].getValue(), 0);
-        Assert.assertEquals(90.0, bearings[1].getDeviation(), 0);
         Assert.assertEquals(45.0, bearings[2].getValue(), 0);
-        Assert.assertEquals(30.0, bearings[2].getDeviation(), 0);
     }
 
     @Test

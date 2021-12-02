@@ -197,19 +197,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     }
 
-    // TODO: never used
-//    @Override
-//    public int defineRelationBits(int index, int shift) {
-//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-//        return shift + relationCodeEncoder.getBits();
-//    }
-
-    // TODO: never used
-//    @Override
-//    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-//        return oldRelationFlags;
-//    }
-
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
         return handleWayTags(edgeFlags,way,access,0);

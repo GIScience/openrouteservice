@@ -428,7 +428,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 		}
 		
 		if (avgSpeedInfoBuilder != null) {
-		    double speed = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags());
+		    double speed = encoder.getAverageSpeedEnc().getDecimal(false, edge.getFlags());
 		    avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed* avgSpeedInfo.getFactor()), geom, dist);
 		}
 		
@@ -444,7 +444,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 				priority = edge.get(encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY)));
 				priorityIndex = (int) Math.round(3 + priority * PriorityCode.BEST.getValue()); // normalize values between 3 and 10
 			} else {
-				priority = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags()) / encoder.getMaxSpeed();
+				priority = encoder.getAverageSpeedEnc().getDecimal(false, edge.getFlags()) / encoder.getMaxSpeed();
 				if (priority < 0.3)
 					priority = 0.3;
 				priorityIndex = (int) Math.round(priority * 10);

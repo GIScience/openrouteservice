@@ -140,7 +140,7 @@ public class HikingFlagEncoderTest {
         way = generateHikeWay();
         way.setTag("sac_scale", "alpine_hiking");
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way, EncodingManager.Access.WAY, null);
-        assertEquals(FootFlagEncoder.SLOW_SPEED, flagEncoder.getSpeed(false, flags), 0.01);
+        assertEquals(FootFlagEncoder.SLOW_SPEED, flagEncoder.getAverageSpeedEnc().getDecimal(false, flags), 0.01);
     }
 
     @Test

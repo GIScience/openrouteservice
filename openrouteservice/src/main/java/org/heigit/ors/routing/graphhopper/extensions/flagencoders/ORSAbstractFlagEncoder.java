@@ -29,7 +29,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     public IntsRef handleWayTags(IntsRef var1, ReaderWay var2, EncodingManager.Access var3) {
         // TODO: override in subclass
         return null;
-    };
+    }
 
     public abstract double getMeanSpeed();
 

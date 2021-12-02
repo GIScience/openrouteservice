@@ -277,13 +277,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
     }
 
-    // TODO: never used
-//    @Override
-//    public int defineRelationBits(int index, int shift) {
-//        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-//        return shift + relationCodeEncoder.getBits();
-//    }
-
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         String highwayValue = way.getTag(KEY_HIGHWAY);
@@ -570,18 +563,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             }
         }
     }
-
-    // TODO: never used
-//    @Override
-//    public InstructionAnnotation getAnnotation(IntsRef edgeFlags, Translation tr) {
-//        int paveType = 0; // paved
-//        if (unpavedEncoder.getBool(false, edgeFlags)) {
-//            paveType = 1; // unpaved
-//        }
-//        int wayType = wayTypeEncoder.getInt(false, edgeFlags);
-//        String wayName = getWayName(paveType, wayType, tr);
-//        return new InstructionAnnotation(0, wayName);
-//    }
 
     String getWayName(int pavementType, int wayType, Translation tr) {
         String pavementName = "";

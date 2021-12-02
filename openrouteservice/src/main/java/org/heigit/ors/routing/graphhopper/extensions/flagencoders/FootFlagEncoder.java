@@ -412,11 +412,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public double getSpeed(boolean reverse, IntsRef edgeFlags) {
-        return super.getSpeed(reverse, edgeFlags);
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (obj == null)
             return false;
