@@ -126,7 +126,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 
 		TollwaysGraphStorage clonedTC = (TollwaysGraphStorage) clonedStorage;
 
-		// edges.copyTo(clonedTC.edges); // TODO: method does n
+		// edges.copyTo(clonedTC.edges); // TODO: method does not exist any more
 		clonedTC.edgesCount = edgesCount;
 
 		return clonedStorage;

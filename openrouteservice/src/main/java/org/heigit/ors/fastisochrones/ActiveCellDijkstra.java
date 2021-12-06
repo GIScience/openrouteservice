@@ -17,6 +17,7 @@
  */
 package org.heigit.ors.fastisochrones;
 
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
@@ -55,6 +56,7 @@ public class ActiveCellDijkstra extends AbstractIsochroneDijkstra {
 
     protected void runAlgo() {
         EdgeExplorer explorer = graph.createEdgeExplorer(); // TODO: find out how to get outEdgeExplorer instead
+        // TODO: other places use this approach, but we have no encoder here: EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(encoder.getAccessEnc());
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())

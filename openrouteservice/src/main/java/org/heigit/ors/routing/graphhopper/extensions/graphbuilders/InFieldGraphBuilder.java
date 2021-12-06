@@ -101,7 +101,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId);
 				double lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);
 				double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);
-				//graphStorage.edge(idxMain, idxNeighbor, distance, true); // TODO: not available any more
+				graphStorage.edge(idxMain, idxNeighbor).setDistance(distance);
 				// iterate through remaining nodes,
 				// but not through the direct neighbors
 				for (int idxPartner = idxMain + 2; idxPartner < osmNodeIds.size() - 1; idxPartner++) {
@@ -125,7 +125,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 						idx2intId.put(idxMain, internalMainId);
 						idx2intId.put(idxPartner, internalPartnerId);
 						// add edge to local graph
-						//graphStorage.edge(idxMain, idxPartner, distance, true); // TODO: not available any more
+						graphStorage.edge(idxMain, idxPartner).setDistance(distance);
 					}
 				}
 			}
