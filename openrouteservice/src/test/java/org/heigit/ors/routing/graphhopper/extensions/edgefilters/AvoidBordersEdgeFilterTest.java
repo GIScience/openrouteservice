@@ -19,6 +19,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.RouteSearchParameters;
@@ -58,9 +59,8 @@ public class AvoidBordersEdgeFilterTest {
 
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
-        // Note: edge key contains additional bit compared to edge id. Therefore, id*2.
-        // TODO: maybe make this more robust?
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id*2, 1, 2, 10,
+        int edgeKey = GHUtility.createEdgeKey(id, false);
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
         return ve;
     }
