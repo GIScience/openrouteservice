@@ -66,7 +66,6 @@ public class PedestrianFlagEncoderTest {
         way = generatePedestrianWay();
         way.setTag("sac_scale", "alpine_hiking");
 
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
@@ -237,16 +236,12 @@ public class PedestrianFlagEncoderTest {
     @Test
     public void testBicyclePathPriority(){
         way.setTag("highway", "path");
-        // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "official");
-        // TODO GH0.10: assertEquals(427, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "designated");
-        // TODO GH0.10: assertEquals(427, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "permissive");
-        // TODO GH0.10: assertEquals(683, flagEncoder.handleWayTags(way, 1, 0));
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
 }
