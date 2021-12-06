@@ -1,9 +1,9 @@
-// TODO: temporarily commented out due to many compilation errors
 package org.heigit.ors.util;
 
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.GHUtility;
 
 public class ToyGraphCreationUtil {
     private static GraphHopperStorage createGHStorage(EncodingManager encodingManager) {
@@ -18,20 +18,21 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 3, 5, true);
-//        g.edge(0, 8, 1, true);
-//        g.edge(1, 2, 1, true);
-//        g.edge(1, 8, 2, true);
-//        g.edge(2, 3, 2, true);
-//        g.edge(3, 4, 2, true);
-//        g.edge(4, 5, 1, true);
-//        g.edge(4, 6, 1, true);
-//        g.edge(5, 7, 1, true);
-//        g.edge(6, 7, 2, true);
-//        g.edge(7, 8, 3, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+                g.edge(0,1).setDistance(1),
+                g.edge(0,2).setDistance(1),
+                g.edge(0, 3).setDistance(5),
+                g.edge(0, 8).setDistance(1),
+                g.edge(1, 2).setDistance(1),
+                g.edge(1, 8).setDistance(2),
+                g.edge(2, 3).setDistance(2),
+                g.edge(3, 4).setDistance(2),
+                g.edge(4, 5).setDistance(1),
+                g.edge(4, 6).setDistance(1),
+                g.edge(5, 7).setDistance(1),
+                g.edge(6, 7).setDistance(2),
+                g.edge(7, 8).setDistance(3)
+        );
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -45,6 +46,7 @@ public class ToyGraphCreationUtil {
         return g;
     }
 
+    // TODO: not used. Can this method be removed?
     public static GraphHopperStorage createMediumGraph(GraphHopperStorage g) {
         //    3---4--5
         //   /\   |  |
@@ -52,7 +54,7 @@ public class ToyGraphCreationUtil {
         //  | / \   /
         //  |/   \ /
         //  1-----8
-// TODO: find out how to create edges
+// TODO: create edges as above
 //        g.edge(0, 1, 1, true); //0
 //        g.edge(0, 2, 1, true); //1
 //        g.edge(0, 3, 5, true); //2
@@ -87,20 +89,21 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 3, 5, true);
-//        g.edge(0, 8, 1, true);
-//        g.edge(1, 2, 1, true);
-//        g.edge(1, 8, 2, true);
-//        g.edge(2, 3, 2, true);
-//        g.edge(3, 4, 2, true);
-//        g.edge(4, 5, 1, true);
-//        g.edge(4, 6, 1, true);
-//        g.edge(5, 7, 1, true);
-//        g.edge(6, 7, 2, true);
-//        g.edge(7, 8, 3, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 3).setDistance(5),
+            g.edge(0, 8).setDistance(1),
+            g.edge(1, 2).setDistance(1),
+            g.edge(1, 8).setDistance(2),
+            g.edge(2, 3).setDistance(2),
+            g.edge(3, 4).setDistance(2),
+            g.edge(4, 5).setDistance(1),
+            g.edge(4, 6).setDistance(1),
+            g.edge(5, 7).setDistance(1),
+            g.edge(6, 7).setDistance(2),
+            g.edge(7, 8).setDistance(3)
+        );
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -122,21 +125,22 @@ public class ToyGraphCreationUtil {
         //  |/   \ /
         //  1-----8
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 3, 5, true);
-//        g.edge(0, 8, 1, true);
-//        g.edge(1, 2, 1, true);
-//        g.edge(1, 8, 2, true);
-//        g.edge(2, 3, 2, true);
-//        g.edge(3, 4, 2, true);
-//        g.edge(4, 5, 1, true);
-//        g.edge(4, 6, 1, true);
-//        g.edge(5, 7, 1, true);
-//        g.edge(5, 9, 1, true);
-//        g.edge(6, 7, 2, true);
-//        g.edge(7, 8, 3, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 3).setDistance(5),
+            g.edge(0, 8).setDistance(1),
+            g.edge(1, 2).setDistance(1),
+            g.edge(1, 8).setDistance(2),
+            g.edge(2, 3).setDistance(2),
+            g.edge(3, 4).setDistance(2),
+            g.edge(4, 5).setDistance(1),
+            g.edge(4, 6).setDistance(1),
+            g.edge(5, 7).setDistance(1),
+            g.edge(5, 9).setDistance(1),
+            g.edge(6, 7).setDistance(2),
+            g.edge(7, 8).setDistance(3)
+        );
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -153,7 +157,7 @@ public class ToyGraphCreationUtil {
 
     public static GraphHopperStorage createSingleEdgeGraph(EncodingManager encodingManager) {
         GraphHopperStorage g = createGHStorage(encodingManager);
-        // TODO: g.edge(0, 1, 1, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"), g.edge(0, 1).setDistance(1));
 
         g.getBaseGraph().getNodeAccess().setNode(0, 0, 0);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
@@ -168,14 +172,15 @@ public class ToyGraphCreationUtil {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 4, 3, true);
-//        g.edge(1, 2, 2, true);
-//        g.edge(2, 3, 1, true);
-//        g.edge(4, 3, 2, true);
-//        g.edge(5, 1, 2, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 4).setDistance(3),
+            g.edge(1, 2).setDistance(2),
+            g.edge(2, 3).setDistance(1),
+            g.edge(4, 3).setDistance(2),
+            g.edge(5, 1).setDistance(2)
+        );
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -193,14 +198,15 @@ public class ToyGraphCreationUtil {
         //     /
         //    4--6--3
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 4, 3, true);
-//        g.edge(1, 2, 2, true);
-//        g.edge(4, 6, 2, true);
-//        g.edge(6, 3, 2, true);
-//        g.edge(5, 1, 2, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 4).setDistance(3),
+            g.edge(1, 2).setDistance(2),
+            g.edge(4, 6).setDistance(2),
+            g.edge(6, 3).setDistance(2),
+            g.edge(5, 1).setDistance(2)
+        );
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -219,15 +225,15 @@ public class ToyGraphCreationUtil {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 4, 3, true);
-//        g.edge(1, 2, 2, true);
-//        g.edge(2, 3, 1, true);
-//        g.edge(4, 3, 2, true);
-//        g.edge(5, 1, 2, true);
-
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 4).setDistance(3),
+            g.edge(1, 2).setDistance(2),
+            g.edge(2, 3).setDistance(1),
+            g.edge(4, 3).setDistance(2),
+            g.edge(5, 1).setDistance(2)
+        );
         return g;
     }
 
@@ -244,18 +250,19 @@ public class ToyGraphCreationUtil {
         //  |   |
         //  11  10
         GraphHopperStorage g = createGHStorage(encodingManager);
-// TODO: find out how to create edges
-//        g.edge(0, 1, 1, true);
-//        g.edge(0, 2, 1, true);
-//        g.edge(0, 4, 3, true);
-//        g.edge(1, 2, 2, true);
-//        g.edge(4, 3, 2, true);
-//        g.edge(5, 1, 2, true);
-//        g.edge(6, 7, 1, true);
-//        g.edge(7, 8, 1, true);
-//        g.edge(8, 9, 1, true);
-//        g.edge(3, 10, 1, true);
-//        g.edge(4, 11, 1, true);
+        GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
+            g.edge(0, 1).setDistance(1),
+            g.edge(0, 2).setDistance(1),
+            g.edge(0, 4).setDistance(3),
+            g.edge(1, 2).setDistance(2),
+            g.edge(4, 3).setDistance(2),
+            g.edge(5, 1).setDistance(2),
+            g.edge(6, 7).setDistance(1),
+            g.edge(7, 8).setDistance(1),
+            g.edge(8, 9).setDistance(1),
+            g.edge(3, 10).setDistance(1),
+            g.edge(4, 11).setDistance(1)
+        );
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
@@ -280,7 +287,7 @@ public class ToyGraphCreationUtil {
         //   \   /
         //    \ /
         //     1
-// TODO: find out how to create edges
+// TODO: create edges
 //        g.edge(0, 2, 1, true); //0
 //        g.edge(0, 3, 3, true); //1
 //        g.edge(1, 2, 5, true); //2
@@ -296,7 +303,7 @@ public class ToyGraphCreationUtil {
         //0---1---3  5---6---7
         //       / \/
         //      2  4
-// TODO: find out how to create edges
+// TODO: create edges
 //        g.edge(0, 1, 1, true); //0
 //        g.edge(1, 3, 1, true); //1
 //        g.edge(2, 3, 1, true); //2
@@ -320,7 +327,7 @@ public class ToyGraphCreationUtil {
         // 6-----7-------8
         // |
         // 9
-// TODO: find out how to create edges
+// TODO: create edges
 //        g.edge(0, 2, 1, false); //0
 //        g.edge(1, 0, 1, false); //1
 //        g.edge(2, 3, 1, false); //2
@@ -342,7 +349,7 @@ public class ToyGraphCreationUtil {
         //   1  |
         //    \ |
         //     0
-// TODO: find out how to create edges
+// TODO: create edges
 //        g.edge(0, 1, 5, true); //0
 //        g.edge(0, 2, 1, true); //1
 //        g.edge(1, 2, 1, true); //2
@@ -355,7 +362,7 @@ public class ToyGraphCreationUtil {
         // 0----->1<-----2
         // |     / \     |
         // |-<--/   \-->-|
-// TODO: find out how to create edges
+// TODO: create edges
 //        g.edge(0, 1, 1, false); //0
 //        g.edge(1, 0, 5, false); //1
 //        g.edge(1, 2, 6, false); //2
