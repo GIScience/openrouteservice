@@ -139,8 +139,8 @@ public class RoutingProfileManager {
             if (RoutingServiceSettings.getEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...", RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
-                LOGGER.info("                              ");
+                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
+                        RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
                     prepareGraphs(graphProps);
@@ -166,7 +166,7 @@ public class RoutingProfileManager {
                         }
                     }
 
-                    LOGGER.info("               ");
+                    LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
 
                     int nCompletedTasks = 0;
                     while (nCompletedTasks < nTotalTasks) {

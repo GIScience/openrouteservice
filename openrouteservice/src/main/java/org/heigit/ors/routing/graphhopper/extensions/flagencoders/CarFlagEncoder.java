@@ -42,7 +42,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     private static final int MEAN_SPEED = 100;
 
     public CarFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speed_bits", 5),
+        this((int) properties.getInt("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
 

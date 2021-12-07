@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.graphhopper.routing.util.EncodingManager.getKey;
+
 public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_ESTIMATED_DISTANCE = "estimated_distance";
     public static final String KEY_HIGHWAY = "highway";
@@ -72,7 +74,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     private boolean hasConditionalSpeed;
     private BooleanEncodedValue conditionalAccessEncoder;
     private BooleanEncodedValue conditionalSpeedEncoder;
-    private UnsignedDecimalEncodedValue speedEncoder;
 
     protected void setProperties(PMap properties) {
         hasConditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
@@ -188,8 +189,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        speedEncoder = new UnsignedDecimalEncodedValue(EncodingManager.getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
-        registerNewEncodedValue.add(speedEncoder);
+        avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
+        registerNewEncodedValue.add(avgSpeedEnc);
         if (hasConditionalAccess)
             registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
         if (hasConditionalSpeed)
@@ -280,8 +281,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             for (String restriction : restrictions) {
                 if (way.hasTag(restriction, "destination")) {
                     // This is problematic as Speed != Time
-                    speedEncoder.setDecimal(false, edgeFlags, destinationSpeed);
-                    speedEncoder.setDecimal(true, edgeFlags, destinationSpeed);
+                    avgSpeedEnc.setDecimal(false, edgeFlags, destinationSpeed);
+                    avgSpeedEnc.setDecimal(true, edgeFlags, destinationSpeed);
                 }
             }
         }
@@ -298,7 +299,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             else if (speed > this.getMaxSpeed())
                 speed = this.getMaxSpeed();
 
-            this.speedEncoder.setDecimal(reverse, edgeFlags, speed);
+            this.avgSpeedEnc.setDecimal(reverse, edgeFlags, speed);
         } else {
             throw new IllegalArgumentException("Speed cannot be negative or NaN: " + speed + ", flags:" + BitUtil.LITTLE.toBitString(edgeFlags));
         }

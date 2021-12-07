@@ -98,7 +98,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
     // conditions...
-    private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
+    private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder; // TODO: design: parent class should not need to know of child
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
     private UnsignedDecimalEncodedValue speedEncoder;
     // MARQ24 MOD END
