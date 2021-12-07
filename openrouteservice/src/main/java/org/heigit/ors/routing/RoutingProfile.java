@@ -17,8 +17,9 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.CHProfile;
+import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -52,7 +53,6 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 // TODO: import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -96,7 +96,7 @@ public class RoutingProfile {
     private static final String KEY_PREPARE_CORE_WEIGHTINGS = "prepare.core.weightings";
     private static final String KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS = "prepare.fastisochrone.weightings";
     private static final String KEY_METHODS_CH = "methods.ch";
-    private static final String VAL_ENABLED = "enabled";
+    private static final String KEY_ENABLED = "enabled";
     private static final String KEY_THREADS = "threads";
     private static final String KEY_WEIGHTINGS = "weightings";
     private static final String KEY_LMSETS = "lmsets";
@@ -241,15 +241,13 @@ public class RoutingProfile {
         boolean prepareCore = false;
         boolean prepareFI= false;
 
-        ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, "no");
-        ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, "no");
         ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
         if (config.getIsochronePreparationOpts() != null) {
             Config fastisochroneOpts = config.getIsochronePreparationOpts();
             prepareFI = true;
-            if (fastisochroneOpts.hasPath(VAL_ENABLED) || fastisochroneOpts.getBoolean(VAL_ENABLED)) {
-                prepareFI = fastisochroneOpts.getBoolean(VAL_ENABLED);
+            if (fastisochroneOpts.hasPath(KEY_ENABLED) || fastisochroneOpts.getBoolean(KEY_ENABLED)) {
+                prepareFI = fastisochroneOpts.getBoolean(KEY_ENABLED);
                 if (!prepareFI)
                     ghConfig.putObject(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
                 else
@@ -278,17 +276,15 @@ public class RoutingProfile {
                     prepareCH = true;
                     Config chOpts = opts.getConfig(KEY_METHODS_CH);
 
-                    if (chOpts.hasPath(VAL_ENABLED) || chOpts.getBoolean(VAL_ENABLED)) {
-                        prepareCH = chOpts.getBoolean(VAL_ENABLED);
-                        if (!prepareCH)
-                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, "no");
+                    if (chOpts.hasPath(KEY_ENABLED) || chOpts.getBoolean(KEY_ENABLED)) {
+                        prepareCH = chOpts.getBoolean(KEY_ENABLED);
                     }
 
                     if (prepareCH) {
-                        if (chOpts.hasPath(KEY_THREADS))
-                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
-                        if (chOpts.hasPath(KEY_WEIGHTINGS))
-                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS)));
+//                        if (chOpts.hasPath(KEY_THREADS))
+//                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
+//                        if (chOpts.hasPath(KEY_WEIGHTINGS))
+//                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS)));
                     }
                 }
 
@@ -296,19 +292,17 @@ public class RoutingProfile {
                     prepareLM = true;
                     Config lmOpts = opts.getConfig(KEY_METHODS_LM);
 
-                    if (lmOpts.hasPath(VAL_ENABLED) || lmOpts.getBoolean(VAL_ENABLED)) {
-                        prepareLM = lmOpts.getBoolean(VAL_ENABLED);
-                        if (!prepareLM)
-                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, "no");
+                    if (lmOpts.hasPath(KEY_ENABLED) || lmOpts.getBoolean(KEY_ENABLED)) {
+                        prepareLM = lmOpts.getBoolean(KEY_ENABLED);
                     }
 
                     if (prepareLM) {
-                        if (lmOpts.hasPath(KEY_THREADS))
-                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
-                        if (lmOpts.hasPath(KEY_WEIGHTINGS))
-                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS)));
-                        if (lmOpts.hasPath(KEY_LANDMARKS))
-                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
+//                        if (lmOpts.hasPath(KEY_THREADS))
+//                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
+//                        if (lmOpts.hasPath(KEY_WEIGHTINGS))
+//                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS)));
+//                        if (lmOpts.hasPath(KEY_LANDMARKS))
+//                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
                     }
                 }
 
@@ -316,8 +310,8 @@ public class RoutingProfile {
                     prepareCore = true;
                     Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
 
-                    if (coreOpts.hasPath(VAL_ENABLED) || coreOpts.getBoolean(VAL_ENABLED)) {
-                        prepareCore = coreOpts.getBoolean(VAL_ENABLED);
+                    if (coreOpts.hasPath(KEY_ENABLED) || coreOpts.getBoolean(KEY_ENABLED)) {
+                        prepareCore = coreOpts.getBoolean(KEY_ENABLED);
                         if (!prepareCore)
                             ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
                     }
@@ -360,13 +354,24 @@ public class RoutingProfile {
         String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
         Integer[] profilesTypes = config.getProfilesTypes();
         List<Profile> profiles = new ArrayList(profilesTypes.length);
+        List<CHProfile> chProfiles = new ArrayList<>();
+        List<LMProfile> lmProfiles = new ArrayList<>();
 
+        // TODO: evaluate what multiple "profiles" are for and refactor
         for (int i = 0; i < profilesTypes.length; i++) {
+            String profileName = RoutingProfileType.getEncoderName(profilesTypes[i]);
+            String vehicle = RoutingProfileType.getEncoderName(profilesTypes[i]);
             if (encoderOpts == null)
-                flagEncoders.append(RoutingProfileType.getEncoderName(profilesTypes[i]));
+                flagEncoders.append(profileName);
             else
-                flagEncoders.append(RoutingProfileType.getEncoderName(profilesTypes[i]) + "|" + encoderOpts[i]);
-            profiles.add(new Profile(RoutingProfileType.getEncoderName(profilesTypes[i])));
+                 flagEncoders.append(profileName + "|" + encoderOpts[i]);
+            profiles.add(new Profile(profileName).setVehicle(vehicle));
+            if (prepareCH) {
+                chProfiles.add(new CHProfile(profileName));
+            }
+            if (prepareLM) {
+                lmProfiles.add(new LMProfile(profileName));
+            }
             if (i < profilesTypes.length - 1)
                 flagEncoders.append(",");
         }
@@ -375,6 +380,8 @@ public class RoutingProfile {
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
         ghConfig.setProfiles(profiles);
+        ghConfig.setCHProfiles(chProfiles);
+        ghConfig.setLMProfiles(lmProfiles);
 
         return ghConfig;
     }
