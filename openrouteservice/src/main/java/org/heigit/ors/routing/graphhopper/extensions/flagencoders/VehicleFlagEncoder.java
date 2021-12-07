@@ -236,7 +236,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             boolean isRoundabout = way.hasTag("junction", "roundabout");
 
             if (isRoundabout) { // Runge
-                roundaboutEnc.setBool(true, edgeFlags, true);
+                roundaboutEnc.setBool(false, edgeFlags, true);
                 //http://www.sidrasolutions.com/Documents/OArndt_Speed%20Control%20at%20Roundabouts_23rdARRBConf.pdf
                 if (way.hasTag(KEY_HIGHWAY, "mini_roundabout"))
                     speed = speed < 25 ? speed : 25;

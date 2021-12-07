@@ -415,7 +415,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
             if (isRoundabout) {
-                roundaboutEnc.setBool(true, edgeFlags, true);
+                roundaboutEnc.setBool(false, edgeFlags, true);
             }
         } else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);

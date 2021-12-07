@@ -280,7 +280,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");
             if (isRoundabout)
-                roundaboutEnc.setBool(true, edgeFlags, true);
+                roundaboutEnc.setBool(false, edgeFlags, true);
 
             setSpeed(false, edgeFlags, speed);
             setSpeed(true, edgeFlags, speed);
