@@ -29,15 +29,13 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 	private final WayCategoryGraphStorage storage;
 	private TollwayExtractor tollwayExtractor;
 	private final int avoidFeatureType;
-	private int profileCategory;
 
 	private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
 
 	public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) throws Exception {
 		this.buffer = new byte[10];
 
-		profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
-
+		int profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
 		this.avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(profileCategory);
 
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);

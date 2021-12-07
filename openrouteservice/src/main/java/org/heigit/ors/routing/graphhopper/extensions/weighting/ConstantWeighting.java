@@ -4,7 +4,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 
 public class ConstantWeighting implements Weighting {
     private final double weight;

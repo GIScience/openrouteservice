@@ -18,7 +18,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class AdditionWeighting extends AbstractAdjustedWeighting {
-	private Weighting[] weightings;
+	private final Weighting[] weightings;
 
     public AdditionWeighting(Weighting[] weightings, Weighting superWeighting) {
         super(superWeighting);

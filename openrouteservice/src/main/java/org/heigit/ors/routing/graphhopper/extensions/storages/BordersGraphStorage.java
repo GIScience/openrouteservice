@@ -152,7 +152,7 @@ public class BordersGraphStorage implements GraphExtension {
 	// TODO: how to deal with @Override
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
-		orsEdges.setHeader(1 * 4, edgesCount);
+		orsEdges.setHeader(4, edgesCount);
 		orsEdges.flush();
 	}
 

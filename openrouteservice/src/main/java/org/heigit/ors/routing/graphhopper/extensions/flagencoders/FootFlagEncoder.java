@@ -20,7 +20,6 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
-import com.graphhopper.routing.ev.UnsignedIntEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
@@ -226,14 +225,12 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             } else {
                 avgSpeedEnc.setDecimal(false, edgeFlags, MEAN_SPEED);
             }
-            accessEnc.setBool(false, edgeFlags, true);
-            accessEnc.setBool(true, edgeFlags, true);
         } else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
-            accessEnc.setBool(false, edgeFlags, true);
-            accessEnc.setBool(true, edgeFlags, true);
         }
+        accessEnc.setBool(false, edgeFlags, true);
+        accessEnc.setBool(true, edgeFlags, true);
 
         int priorityFromRelation = 0;
         if (relationFlags != null)

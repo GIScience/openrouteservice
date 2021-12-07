@@ -233,22 +233,18 @@ public class AppConfig {
 				ConfigValue paramValue = config.getValue(rootPath + "." + key);
 				switch(paramValue.valueType()) {
 					case NUMBER:
+					case LIST:
+					case BOOLEAN:
 						value = paramValue.unwrapped();
 						break;
 					case OBJECT:
 						value = getServiceParametersMap(serviceName, paramName + "." + key, quotedStrings);
-						break;
-					case LIST:
-						value = paramValue.unwrapped();
 						break;
 					case STRING:
 						if (quotedStrings)
 							value = paramValue.render();
 						else
 							value = StringUtility.trim(paramValue.render(), '"');
-						break;
-					case BOOLEAN:
-						value = paramValue.unwrapped();
 						break;
 					default:
 						break;

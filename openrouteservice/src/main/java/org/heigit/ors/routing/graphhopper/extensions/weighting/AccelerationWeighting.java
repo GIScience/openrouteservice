@@ -27,7 +27,7 @@ public class AccelerationWeighting extends FastestWeighting {
 
 	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
 		super(encoder, map);
-		ghStorage = (GraphHopperStorage)graphStorage;
+		ghStorage = graphStorage;
 		maxEdges = ghStorage.getEdges();
 	}
 

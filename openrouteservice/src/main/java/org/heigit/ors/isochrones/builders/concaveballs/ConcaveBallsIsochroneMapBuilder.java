@@ -155,8 +155,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 				sw.start();
 			}
 
-			double maxRadius = 0;
-			double meanRadius = 0;
+			double maxRadius;
+			double meanRadius;
 			if (isochroneType == TravelRangeType.DISTANCE) {
 				maxRadius = isoValue;
 				meanRadius = isoValue;

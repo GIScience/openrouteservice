@@ -32,5 +32,7 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 		this.parameters = parameters;
 	}
 	
-	public void finish(){}
+	public void finish(){
+		// Do nothing by default
+	}
 }

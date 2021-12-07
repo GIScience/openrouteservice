@@ -361,7 +361,7 @@ public class RouteSearchParameters {
                 }
 
                 if (jRestrictions.has("surface_quality_known")) {
-                    wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
+                    wheelchairParams.setSurfaceQualityKnown(jRestrictions.getBoolean("surface_quality_known"));
                 }
 
                 profileParams = wheelchairParams;

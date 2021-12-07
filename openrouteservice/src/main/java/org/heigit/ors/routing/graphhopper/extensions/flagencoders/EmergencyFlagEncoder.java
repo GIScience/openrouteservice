@@ -15,7 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
@@ -262,7 +261,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         // check access restrictions
         // Amandus
         if (way.hasTag("lanes:psv") || way.hasTag("lanes:bus") || way.hasTag("lanes:taxi") || way.hasTag("busway, lane") || way.hasTag("busway:left, lane") || way.hasTag("busway:right, lane"))
-            return EncodingManager.Access.WAY;
+            return EncodingManager.Access.WAY; // TODO: this result is equal to the final return; can the if be removed?
 
         return EncodingManager.Access.WAY;
     }

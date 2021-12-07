@@ -394,9 +394,7 @@ class RouteResultBuilder
 		}
 
 		switch (instr.getSign()){
-			case Instruction.CONTINUE_ON_STREET:
-				return InstructionType.CONTINUE;
-			case Instruction.TURN_LEFT:
+            case Instruction.TURN_LEFT:
 				return InstructionType.TURN_LEFT;
 			case Instruction.TURN_RIGHT:
 				return InstructionType.TURN_RIGHT;
@@ -418,7 +416,8 @@ class RouteResultBuilder
 				return InstructionType.KEEP_LEFT;
 			case Instruction.KEEP_RIGHT:
 				return InstructionType.KEEP_RIGHT;
-			default:
+            case Instruction.CONTINUE_ON_STREET:
+            default:
 				return InstructionType.CONTINUE;
 		}
 	}

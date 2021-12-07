@@ -161,7 +161,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         runPhase2();
     }
 
-    protected void initPhase2() {};
+    protected void initPhase2() {}
 
     @Override
     public Path calcPath(int from, int to, long at) {

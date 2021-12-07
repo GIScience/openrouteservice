@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import java.util.Arrays;
-
 /**
  * Shortest Path Tree with multiple fields for containing multiple source information.
  * The weight is the average of all non-infinite entries for order in priority queue.

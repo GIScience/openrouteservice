@@ -164,7 +164,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		if (attrs.hasValues()) {
 			long encodedValue = 0;
 			// set first bit to 1 to mark that we have wheelchair specific attributes for this edge
-			encodedValue |= (1L << 0);
+			encodedValue |= (1L);
 			if (attrs.getSurfaceType() > 0)
 				encodedValue = surfaceEncoder.setValue(encodedValue, attrs.getSurfaceType());
 

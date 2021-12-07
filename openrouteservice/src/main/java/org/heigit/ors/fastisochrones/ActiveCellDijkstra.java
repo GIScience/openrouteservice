@@ -17,7 +17,6 @@
  */
 package org.heigit.ors.fastisochrones;
 
-import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;

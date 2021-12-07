@@ -90,7 +90,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
 
     public void flush() {
         edges.setHeader(0, edgeEntryBytes);
-        edges.setHeader(1 * 4, edgesCount);
+        edges.setHeader(4, edgesCount);
         edges.flush();
     }
 

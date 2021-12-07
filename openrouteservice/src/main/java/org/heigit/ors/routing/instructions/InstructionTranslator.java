@@ -24,7 +24,6 @@ public class InstructionTranslator {
 	private static final String STR_EXIT_NUMBER = "{exit_number}";
 	private static final String STR_DIRECTION = "{direction}";
 
-	private final LanguageResources resources;
 	private final String[] directions;
 	private final String actionDepartDefault;
 	private final String actionDepartName;
@@ -42,55 +41,53 @@ public class InstructionTranslator {
 	private final String[] turnManeuvers;
 
 	InstructionTranslator(LanguageResources resources) throws Exception {
-		this.resources = resources;
-
 		directions = new String[8];
-		directions[0] = this.resources.getTranslation("instructions.directions.north");
-		directions[1] = this.resources.getTranslation("instructions.directions.northeast");
-		directions[2] = this.resources.getTranslation("instructions.directions.east");
-		directions[3] = this.resources.getTranslation("instructions.directions.southeast");
-		directions[4] = this.resources.getTranslation("instructions.directions.south");
-		directions[5] = this.resources.getTranslation("instructions.directions.southwest");
-		directions[6] = this.resources.getTranslation("instructions.directions.west");
-		directions[7] = this.resources.getTranslation("instructions.directions.northwest");
+		directions[0] = resources.getTranslation("instructions.directions.north");
+		directions[1] = resources.getTranslation("instructions.directions.northeast");
+		directions[2] = resources.getTranslation("instructions.directions.east");
+		directions[3] = resources.getTranslation("instructions.directions.southeast");
+		directions[4] = resources.getTranslation("instructions.directions.south");
+		directions[5] = resources.getTranslation("instructions.directions.southwest");
+		directions[6] = resources.getTranslation("instructions.directions.west");
+		directions[7] = resources.getTranslation("instructions.directions.northwest");
 
 		turnManeuvers = new String[10];
-		turnManeuvers[0] = this.resources.getTranslation("instructions.turn_maneuvers.left");
-		turnManeuvers[1] = this.resources.getTranslation("instructions.turn_maneuvers.right");
-		turnManeuvers[2] = this.resources.getTranslation("instructions.turn_maneuvers.sharp_left");
-		turnManeuvers[3] = this.resources.getTranslation("instructions.turn_maneuvers.sharp_right");
-		turnManeuvers[4] = this.resources.getTranslation("instructions.turn_maneuvers.slight_left");
-		turnManeuvers[5] = this.resources.getTranslation("instructions.turn_maneuvers.slight_right");
-		turnManeuvers[6] = this.resources.getTranslation("instructions.turn_maneuvers.straight");
-		turnManeuvers[7] = this.resources.getTranslation("instructions.turn_maneuvers.uturn");
-		turnManeuvers[8] = this.resources.getTranslation("instructions.turn_maneuvers.left");
-		turnManeuvers[9] = this.resources.getTranslation("instructions.turn_maneuvers.right");
+		turnManeuvers[0] = resources.getTranslation("instructions.turn_maneuvers.left");
+		turnManeuvers[1] = resources.getTranslation("instructions.turn_maneuvers.right");
+		turnManeuvers[2] = resources.getTranslation("instructions.turn_maneuvers.sharp_left");
+		turnManeuvers[3] = resources.getTranslation("instructions.turn_maneuvers.sharp_right");
+		turnManeuvers[4] = resources.getTranslation("instructions.turn_maneuvers.slight_left");
+		turnManeuvers[5] = resources.getTranslation("instructions.turn_maneuvers.slight_right");
+		turnManeuvers[6] = resources.getTranslation("instructions.turn_maneuvers.straight");
+		turnManeuvers[7] = resources.getTranslation("instructions.turn_maneuvers.uturn");
+		turnManeuvers[8] = resources.getTranslation("instructions.turn_maneuvers.left");
+		turnManeuvers[9] = resources.getTranslation("instructions.turn_maneuvers.right");
 
 		numerals = new String[11];
 		for (int i = 1; i<=10; i++)
-			numerals[i] = this.resources.getTranslation("instructions.numerals." + i);
+			numerals[i] = resources.getTranslation("instructions.numerals." + i);
 
-		actionDepartDefault = this.resources.getTranslation("instructions.actions.depart.default.default");
-		actionDepartName = this.resources.getTranslation("instructions.actions.depart.default.name");
-		actionContinueDefault = this.resources.getTranslation("instructions.actions.continue.default.default");
-		actionContinueName = this.resources.getTranslation("instructions.actions.continue.default.name");
-		actionKeepDefault = this.resources.getTranslation("instructions.actions.keep.default.default");
-		actionKeepName = this.resources.getTranslation("instructions.actions.keep.default.name");
-		actionTurnDefault = this.resources.getTranslation("instructions.actions.turn.default.default");
-		actionTurnName = this.resources.getTranslation("instructions.actions.turn.default.name");
-		actionRoundaboutDefault = this.resources.getTranslation("instructions.actions.roundabout.default.exit.default");
-		actionRoundaboutName = this.resources.getTranslation("instructions.actions.roundabout.default.exit.name");
+		actionDepartDefault = resources.getTranslation("instructions.actions.depart.default.default");
+		actionDepartName = resources.getTranslation("instructions.actions.depart.default.name");
+		actionContinueDefault = resources.getTranslation("instructions.actions.continue.default.default");
+		actionContinueName = resources.getTranslation("instructions.actions.continue.default.name");
+		actionKeepDefault = resources.getTranslation("instructions.actions.keep.default.default");
+		actionKeepName = resources.getTranslation("instructions.actions.keep.default.name");
+		actionTurnDefault = resources.getTranslation("instructions.actions.turn.default.default");
+		actionTurnName = resources.getTranslation("instructions.actions.turn.default.name");
+		actionRoundaboutDefault = resources.getTranslation("instructions.actions.roundabout.default.exit.default");
+		actionRoundaboutName = resources.getTranslation("instructions.actions.roundabout.default.exit.name");
 		
 		actionArriveDefault = new String[4];
 		actionArriveName = new String[4];
-		actionArriveDefault[0] = this.resources.getTranslation("instructions.actions.arrive.default.default");
-		actionArriveDefault[1] = this.resources.getTranslation("instructions.actions.arrive.left.default");
-		actionArriveDefault[2] = this.resources.getTranslation("instructions.actions.arrive.right.default");
-		actionArriveDefault[3] = this.resources.getTranslation("instructions.actions.arrive.straight.default");
-		actionArriveName[0] = this.resources.getTranslation("instructions.actions.arrive.default.name");
-		actionArriveName[1] = this.resources.getTranslation("instructions.actions.arrive.left.name");
-		actionArriveName[2] = this.resources.getTranslation("instructions.actions.arrive.right.name");
-		actionArriveName[3] = this.resources.getTranslation("instructions.actions.arrive.straight.name");
+		actionArriveDefault[0] = resources.getTranslation("instructions.actions.arrive.default.default");
+		actionArriveDefault[1] = resources.getTranslation("instructions.actions.arrive.left.default");
+		actionArriveDefault[2] = resources.getTranslation("instructions.actions.arrive.right.default");
+		actionArriveDefault[3] = resources.getTranslation("instructions.actions.arrive.straight.default");
+		actionArriveName[0] = resources.getTranslation("instructions.actions.arrive.default.name");
+		actionArriveName[1] = resources.getTranslation("instructions.actions.arrive.left.name");
+		actionArriveName[2] = resources.getTranslation("instructions.actions.arrive.right.name");
+		actionArriveName[3] = resources.getTranslation("instructions.actions.arrive.straight.name");
 	}
 
 	public String getContinue(InstructionType type, String wayName) {

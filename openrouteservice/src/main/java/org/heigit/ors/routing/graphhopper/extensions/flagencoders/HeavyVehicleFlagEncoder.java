@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;

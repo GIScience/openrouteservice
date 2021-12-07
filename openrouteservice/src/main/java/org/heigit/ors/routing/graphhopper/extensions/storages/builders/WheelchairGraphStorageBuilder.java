@@ -823,8 +823,4 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		return "Wheelchair";
 	}
 
-	@Override
-	public void finish() {
-		// do nothing
-	}
 }

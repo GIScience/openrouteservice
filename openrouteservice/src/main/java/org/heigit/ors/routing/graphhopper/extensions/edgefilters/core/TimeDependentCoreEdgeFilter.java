@@ -36,7 +36,7 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 
 		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
 			for (String name : names) {
-				String encoderName = encodingManager.getKey(encoder, name);
+				String encoderName = EncodingManager.getKey(encoder, name);
 				if (encodingManager.hasEncodedValue(encoderName)) {
 					conditionalEncodersList.add(encodingManager.getBooleanEncodedValue(encoderName));
 				}
@@ -49,7 +49,7 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 	public static boolean hasConditionals(EncodingManager encodingManager) {
 		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders())
 			for (String name : names) {
-				String encoderName = encodingManager.getKey(encoder, name);
+				String encoderName = EncodingManager.getKey(encoder, name);
 				if (encodingManager.hasEncodedValue(encoderName)) {
 					return true;
 				}

@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
 import com.graphhopper.routing.util.PriorityCode;
@@ -111,7 +110,6 @@ public class ExtraInfoProcessor implements PathProcessor {
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
 		this(opts, graphHopperStorage, enc);
 		this.countryBordersReader = cbReader;
-		opts.getClass().hashCode();
 	}
 
 	ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
@@ -120,7 +118,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 		List<String> skippedExtras = new ArrayList<>();
 
 		try {
-			PMap params = (PMap)opts;
+			PMap params = opts;
 			if (params == null) {
 				params = new PMap();
 			}

@@ -57,7 +57,7 @@ public class RoutingProfileManager {
 
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
-    private static RoutingProfileManager mInstance;
+    private static RoutingProfileManager instance;
     private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
     private long kafkaMessagesProcessed = 0;
@@ -65,11 +65,11 @@ public class RoutingProfileManager {
     public static final boolean KAFKA_DEBUG = false;
 
     public static synchronized RoutingProfileManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new RoutingProfileManager();
-            mInstance.initialize(null);
+        if (instance == null) {
+            instance = new RoutingProfileManager();
+            instance.initialize(null);
         }
-        return mInstance;
+        return instance;
     }
 
     public void prepareGraphs(String graphProps) {
@@ -101,7 +101,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            LOGGER.info("               ");
+            LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
 
             int nCompletedTasks = 0;
             while (nCompletedTasks < nTotalTasks) {
@@ -299,7 +299,7 @@ public class RoutingProfileManager {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor) obj;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
                         }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
@@ -353,12 +353,12 @@ public class RoutingProfileManager {
             if (bearings != null) {
                 bearings[0] = null;
                 if (prevResp != null && req.getContinueStraight()) {
-                    bearings[0] = new WayPointBearing(getHeadingDirection(prevResp), Double.NaN);
+                    bearings[0] = new WayPointBearing(getHeadingDirection(prevResp));
                 }
 
                 if (searchParams.getBearings() != null) {
                     bearings[0] = searchParams.getBearings()[i - 1];
-                    bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN, Double.NaN) : searchParams.getBearings()[i];
+                    bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN) : searchParams.getBearings()[i];
                 }
             }
 
@@ -406,7 +406,7 @@ public class RoutingProfileManager {
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
                                     pointRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
-                                    message.append(String.format("Could not find routable point within the maximum possible radius of specified coordinate %d: %s.",
+                                    message.append(String.format("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.",
                                             pointRadius,
                                             pointReference,
                                             FormatUtility.formatCoordinate(pointCoordinate)));
@@ -446,7 +446,7 @@ public class RoutingProfileManager {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
                         extraInfoProcessorIndex++;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                         }
                     }
                 }
@@ -456,7 +456,7 @@ public class RoutingProfileManager {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor) o;
                             if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                             }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);

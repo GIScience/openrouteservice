@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.util.EdgeIteratorState;

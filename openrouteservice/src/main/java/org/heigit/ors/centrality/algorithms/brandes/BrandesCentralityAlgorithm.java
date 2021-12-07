@@ -247,8 +247,6 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                     // Let's check whether all nodes we enter are in the bbox:
                     if (nodesInBBox.contains(v) && nodesInBBox.contains(w)) {
                         edgeBetweenness.merge(new Pair<>(v, w), sigma.get(v) * coefficient, Double::sum);
-                    } else {
-
                     }
                 }
             }

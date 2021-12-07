@@ -229,7 +229,7 @@ public class CountryBordersReader {
                 // Also need the id of the country and its hierarchy id
                 String id = obj.getJSONObject(KEY_PROPERTIES).getString(nameField);
 
-                Long hId = -1l;
+                Long hId = -1L;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
                 if(obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))

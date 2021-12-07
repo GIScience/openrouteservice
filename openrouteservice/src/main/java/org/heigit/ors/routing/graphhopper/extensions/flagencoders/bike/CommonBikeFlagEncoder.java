@@ -569,7 +569,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         if (pavementType == 1)
             pavementName = tr.tr(KEY_UNPAVED);
 
-        String wayTypeName = "";
+        String wayTypeName;
         switch (wayType) {
             default:
             case 0:
