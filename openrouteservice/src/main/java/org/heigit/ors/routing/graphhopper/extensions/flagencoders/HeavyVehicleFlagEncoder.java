@@ -41,8 +41,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     protected final HashSet<String> backwardKeys = new HashSet<>(5);
     protected final List<String> hgvAccess = new ArrayList<>(5);
 
-    protected int maxTrackGradeLevel = 1;
-
     private static final int MEAN_SPEED = 70;
 
     // Encoder for storing whether the edge is on a preferred way
@@ -63,7 +61,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
 
         setProperties(properties);
 
-        maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
+        maxTrackGradeLevel = properties.getInt("maximum_grade_level", 1);
     }
 
     public HeavyVehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -110,14 +108,12 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         backwardKeys.add("agricultural:backward");
         backwardKeys.add("forestry:backward");
         backwardKeys.add("delivery:backward");
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
     }
 
