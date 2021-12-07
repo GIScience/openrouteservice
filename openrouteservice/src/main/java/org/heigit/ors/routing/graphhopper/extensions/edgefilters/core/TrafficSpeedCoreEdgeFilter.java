@@ -39,5 +39,9 @@ public class TrafficSpeedCoreEdgeFilter implements EdgeFilter {
 
         return !trafficGraphStorage.hasTrafficSpeed(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode());
     }
+
+    public static boolean hasTrafficGraphStorage(GraphHopperStorage graphHopperStorage) {
+        return GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class) != null;
+    }
 }
 
