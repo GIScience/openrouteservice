@@ -7,22 +7,22 @@ import com.graphhopper.util.EdgeIteratorState;
 
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 
 
 public class TrafficEdgeFilter implements EdgeFilter {
     private int hereFunctionalClass;
-    private TrafficGraphStorage trafficGraphStorage;
+    private HereTrafficGraphStorage hereTrafficGraphStorage;
 
     public TrafficEdgeFilter(GraphStorage graphStorage) {
-        this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class);
+        this.hereTrafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, HereTrafficGraphStorage.class);
     }
 
 
     @Override
     public boolean accept(EdgeIteratorState edgeIteratorState) {
         int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeIteratorState);
-        short osmWayTypeValue = (short) this.trafficGraphStorage.getOrsRoadProperties(edgeId, TrafficGraphStorage.Property.ROAD_TYPE);
+        short osmWayTypeValue = (short) this.hereTrafficGraphStorage.getOrsRoadProperties(edgeId, HereTrafficGraphStorage.Property.ROAD_TYPE);
         return osmWayTypeValue == hereFunctionalClass;
     }
 

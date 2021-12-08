@@ -26,7 +26,7 @@ import java.util.TimeZone;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class TrafficGraphStorage implements GraphExtension {
+public class HereTrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
 
@@ -77,7 +77,7 @@ public class TrafficGraphStorage implements GraphExtension {
     private byte[] speedValue;
     private byte[] priorityValue;
 
-    public TrafficGraphStorage() {
+    public HereTrafficGraphStorage() {
         int edgeEntryIndex = 0;
         edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
         edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;
@@ -91,33 +91,33 @@ public class TrafficGraphStorage implements GraphExtension {
     public static byte getWayTypeFromString(String highway) {
         switch (highway.toLowerCase()) {
             case "motorway":
-                return TrafficGraphStorage.MOTORWAY;
+                return HereTrafficGraphStorage.MOTORWAY;
             case "motorway_link":
-                return TrafficGraphStorage.MOTORWAY_LINK;
+                return HereTrafficGraphStorage.MOTORWAY_LINK;
             case "motorroad":
-                return TrafficGraphStorage.MOTORROAD;
+                return HereTrafficGraphStorage.MOTORROAD;
             case "trunk":
-                return TrafficGraphStorage.TRUNK;
+                return HereTrafficGraphStorage.TRUNK;
             case "trunk_link":
-                return TrafficGraphStorage.TRUNK_LINK;
+                return HereTrafficGraphStorage.TRUNK_LINK;
             case "primary":
-                return TrafficGraphStorage.PRIMARY;
+                return HereTrafficGraphStorage.PRIMARY;
             case "primary_link":
-                return TrafficGraphStorage.PRIMARY_LINK;
+                return HereTrafficGraphStorage.PRIMARY_LINK;
             case "secondary":
-                return TrafficGraphStorage.SECONDARY;
+                return HereTrafficGraphStorage.SECONDARY;
             case "secondary_link":
-                return TrafficGraphStorage.SECONDARY_LINK;
+                return HereTrafficGraphStorage.SECONDARY_LINK;
             case "tertiary":
-                return TrafficGraphStorage.TERTIARY;
+                return HereTrafficGraphStorage.TERTIARY;
             case "tertiary_link":
-                return TrafficGraphStorage.TERTIARY_LINK;
+                return HereTrafficGraphStorage.TERTIARY_LINK;
             case "residential":
-                return TrafficGraphStorage.RESIDENTIAL;
+                return HereTrafficGraphStorage.RESIDENTIAL;
             case "unclassified":
-                return TrafficGraphStorage.UNCLASSIFIED;
+                return HereTrafficGraphStorage.UNCLASSIFIED;
             default:
-                return TrafficGraphStorage.IGNORE;
+                return HereTrafficGraphStorage.IGNORE;
         }
     }
 
@@ -486,11 +486,11 @@ public class TrafficGraphStorage implements GraphExtension {
      */
     @Override
     public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof TrafficGraphStorage)) {
+        if (!(clonedStorage instanceof HereTrafficGraphStorage)) {
             throw new IllegalStateException("the extended storage to clone must be the same");
         }
 
-        TrafficGraphStorage clonedTC = (TrafficGraphStorage) clonedStorage;
+        HereTrafficGraphStorage clonedTC = (HereTrafficGraphStorage) clonedStorage;
 
         orsEdgesProperties.copyTo(clonedTC.orsEdgesProperties);
         orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);

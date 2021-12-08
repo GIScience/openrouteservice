@@ -42,7 +42,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficData;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficPattern;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
@@ -83,7 +83,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     String patterns15MinutesFile = "";
     String refPatternIdsFile = "";
 
-    private TrafficGraphStorage storage;
+    private HereTrafficGraphStorage storage;
 
     private IntHashSet matchedHereLinks = new IntHashSet();
     private ArrayList<String> matchedOSMLinks = new ArrayList<>();
@@ -135,7 +135,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
                 LOGGER.info("The Here matching radius is not set. The default is applied!");
             }
-            storage = new TrafficGraphStorage();
+            storage = new HereTrafficGraphStorage();
         } else {
             LOGGER.info("Traffic not enabled.");
         }
@@ -147,7 +147,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public void processWay(ReaderWay way) {
 
         // Reset the trafficWayType
-        trafficWayType = TrafficGraphStorage.IGNORE;
+        trafficWayType = HereTrafficGraphStorage.IGNORE;
 
         boolean hasHighway = way.hasTag("highway");
         Iterator<Map.Entry<String, Object>> it = way.getProperties();
@@ -156,7 +156,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             String key = pairs.getKey();
             String value = pairs.getValue().toString();
             if (hasHighway && key.equals("highway")) {
-                trafficWayType = TrafficGraphStorage.getWayTypeFromString(value);
+                trafficWayType = HereTrafficGraphStorage.getWayTypeFromString(value);
             }
         }
     }
@@ -169,7 +169,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public void processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) {
         if (enabled) {
             short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
-            storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
+            storage.setOrsRoadProperties(edge.getEdge(), HereTrafficGraphStorage.Property.ROAD_TYPE, converted);
         }
     }
 

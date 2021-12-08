@@ -26,7 +26,7 @@ import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
@@ -231,9 +231,9 @@ public class ORSWeightingFactory implements WeightingFactory {
     }
 
     private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, String time) {
-        TrafficGraphStorage trafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, TrafficGraphStorage.class);
+        HereTrafficGraphStorage hereTrafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, HereTrafficGraphStorage.class);
 
-        if (trafficGraphStorage != null) {
+        if (hereTrafficGraphStorage != null) {
             RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
 
             if (!time.isEmpty()) {

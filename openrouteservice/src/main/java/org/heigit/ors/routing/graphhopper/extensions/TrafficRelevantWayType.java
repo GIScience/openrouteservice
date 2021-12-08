@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 
 public class TrafficRelevantWayType {
     public static final byte CLASS1 = 1; // motorway | motorroad. Definitely needed. Map matching works quite good.
@@ -37,25 +37,25 @@ public class TrafficRelevantWayType {
     }
 
     public static byte getHereTrafficClassFromOSMRoadType(short roadType) {
-        if (roadType == TrafficGraphStorage.MOTORWAY || roadType == TrafficGraphStorage.MOTORROAD) {
+        if (roadType == HereTrafficGraphStorage.MOTORWAY || roadType == HereTrafficGraphStorage.MOTORROAD) {
             return TrafficRelevantWayType.CLASS1;
-        } else if (roadType == TrafficGraphStorage.PRIMARY || roadType == TrafficGraphStorage.TRUNK) {
+        } else if (roadType == HereTrafficGraphStorage.PRIMARY || roadType == HereTrafficGraphStorage.TRUNK) {
             return TrafficRelevantWayType.CLASS2;
-        } else if (roadType == TrafficGraphStorage.SECONDARY) {
+        } else if (roadType == HereTrafficGraphStorage.SECONDARY) {
             return TrafficRelevantWayType.CLASS3;
-        } else if (roadType == TrafficGraphStorage.TERTIARY) {
+        } else if (roadType == HereTrafficGraphStorage.TERTIARY) {
             return TrafficRelevantWayType.CLASS4;
 //        } else if (roadType == TrafficGraphStorage.UNCLASSIFIED) {
 //            return TrafficRelevantWayType.UNCLASSIFIED;
 //        } else if (roadType == TrafficGraphStorage.RESIDENTIAL) {
 //            return TrafficRelevantWayType.CLASS5;
-        } else if (roadType == TrafficGraphStorage.MOTORWAY_LINK) {
+        } else if (roadType == HereTrafficGraphStorage.MOTORWAY_LINK) {
             return TrafficRelevantWayType.CLASS1LINK;
-        } else if (roadType == TrafficGraphStorage.PRIMARY_LINK || roadType == TrafficGraphStorage.TRUNK_LINK) {
+        } else if (roadType == HereTrafficGraphStorage.PRIMARY_LINK || roadType == HereTrafficGraphStorage.TRUNK_LINK) {
             return TrafficRelevantWayType.CLASS2LINK;
-        } else if (roadType == TrafficGraphStorage.SECONDARY_LINK) {
+        } else if (roadType == HereTrafficGraphStorage.SECONDARY_LINK) {
             return TrafficRelevantWayType.CLASS3LINK;
-        } else if (roadType == TrafficGraphStorage.TERTIARY_LINK) {
+        } else if (roadType == HereTrafficGraphStorage.TERTIARY_LINK) {
             return TrafficRelevantWayType.CLASS4LINK;
         } else {
             return TrafficRelevantWayType.UNWANTED;
