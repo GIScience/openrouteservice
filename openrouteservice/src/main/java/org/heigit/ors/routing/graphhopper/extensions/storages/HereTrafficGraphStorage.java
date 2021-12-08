@@ -18,7 +18,7 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficEnums;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -148,7 +148,7 @@ public class HereTrafficGraphStorage implements GraphExtension {
      * @param patternId Id of the traffic pattern.
      * @param weekday   Enum value for the weekday the traffic pattern Id refers to.
      **/
-    public void setEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, int patternId, TrafficEnums.WeekDay weekday, double priority) {
+    public void setEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, int patternId, HereTrafficEnums.WeekDay weekday, double priority) {
         priority = priority > 255 ? 255 : priority;
         patternId = patternId > 65535 ? 0 : patternId;
 
@@ -266,7 +266,7 @@ public class HereTrafficGraphStorage implements GraphExtension {
      * @param adjNode  Value of the adjacent Node of the edge.
      * @param weekday  Enum of Weekday to get the pattern for.
      **/
-    public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, TrafficEnums.WeekDay weekday) {
+    public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, HereTrafficEnums.WeekDay weekday) {
         if (invalidEdgeId(edgeId))
             return 0;
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
@@ -359,7 +359,7 @@ public class HereTrafficGraphStorage implements GraphExtension {
         int calendarWeekDay = calendarDate.get(Calendar.DAY_OF_WEEK);
         int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
         int minute = calendarDate.get(Calendar.MINUTE);
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
+        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, HereTrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
         if (patternId > 0)
             return getTrafficSpeed(patternId, hour, minute);
         return -1;
@@ -381,7 +381,7 @@ public class HereTrafficGraphStorage implements GraphExtension {
 
     public boolean hasTrafficSpeed(int edgeId, int baseNode, int adjNode) {
         // Traffic patters are stored for all weekdays so it should be enough to check only for one of them
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
+        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, HereTrafficEnums.WeekDay.MONDAY);
         // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
         return patternId > 0;
     }
@@ -600,7 +600,7 @@ public class HereTrafficGraphStorage implements GraphExtension {
             for (int directionOffset : directionOffsets) {
                 int weeklyMaxSpeed = 0;
 
-                for (TrafficEnums.WeekDay weekDay : TrafficEnums.WeekDay.values()) {
+                for (HereTrafficEnums.WeekDay weekDay : HereTrafficEnums.WeekDay.values()) {
                     int patternId = Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_TRAFFIC + directionOffset + weekDay.getByteLocation()));
                     if (patternId == 0)
                         break;

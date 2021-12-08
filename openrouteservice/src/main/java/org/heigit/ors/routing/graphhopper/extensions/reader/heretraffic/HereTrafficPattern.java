@@ -1,11 +1,11 @@
-package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
+package org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic;
 
-public class TrafficPattern {
+public class HereTrafficPattern {
     private int patternId;
-    private TrafficEnums.PatternResolution resolution;
+    private HereTrafficEnums.PatternResolution resolution;
     private short[] values;
 
-    public TrafficPattern(int patternId, TrafficEnums.PatternResolution resolution, short[] values) {
+    public HereTrafficPattern(int patternId, HereTrafficEnums.PatternResolution resolution, short[] values) {
         this.patternId = patternId;
         this.resolution = resolution;
 

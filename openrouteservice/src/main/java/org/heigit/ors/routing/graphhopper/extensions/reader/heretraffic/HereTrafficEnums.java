@@ -1,6 +1,6 @@
-package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
+package org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic;
 
-public class TrafficEnums {
+public class HereTrafficEnums {
     public enum PatternResolution {
         MINUTES_15(15);
 

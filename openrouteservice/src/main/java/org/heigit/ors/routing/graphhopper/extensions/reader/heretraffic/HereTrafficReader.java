@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
+package org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -46,7 +46,7 @@ public class HereTrafficReader {
     private String patternsReferenceFile;
     private String patternsFile;
 
-    private final TrafficData hereTrafficData = new TrafficData();
+    private final HereTrafficData hereTrafficData = new HereTrafficData();
 
     private static HereTrafficReader currentInstance;
 
@@ -84,10 +84,10 @@ public class HereTrafficReader {
             createHereGeometries(rawGeometries);
             LOGGER.info("Here link geometries pre-processed");
 
-            HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> referencePatterns = readRefPatterns();
+            HashMap<Integer, EnumMap<HereTrafficEnums.TravelDirection, Integer[]>> referencePatterns = readRefPatterns();
             LOGGER.info("Here reference patterns pre-processed");
 
-            Map<Integer, TrafficPattern> patterns = readPatterns();
+            Map<Integer, HereTrafficPattern> patterns = readPatterns();
             LOGGER.info("Here patterns pre-processed");
 
 
@@ -107,28 +107,28 @@ public class HereTrafficReader {
         return this.isInitialized;
     }
 
-    private void generatePatterns(HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> referencePatterns, Map<Integer, TrafficPattern> patterns) {
-        for (Map.Entry<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> linkIdEntry : referencePatterns.entrySet()) {
+    private void generatePatterns(HashMap<Integer, EnumMap<HereTrafficEnums.TravelDirection, Integer[]>> referencePatterns, Map<Integer, HereTrafficPattern> patterns) {
+        for (Map.Entry<Integer, EnumMap<HereTrafficEnums.TravelDirection, Integer[]>> linkIdEntry : referencePatterns.entrySet()) {
             Integer linkId = linkIdEntry.getKey();
             if (hereTrafficData.hasLink(linkId)) {
-                TrafficLink link = hereTrafficData.getLink(linkId);
-                EnumMap<TrafficEnums.TravelDirection, Integer[]> travelDirectionPatterns = referencePatterns.get(linkId);
-                if (travelDirectionPatterns.containsKey(TrafficEnums.TravelDirection.TO)) {
-                    Integer[] travelPatternReferences = travelDirectionPatterns.get(TrafficEnums.TravelDirection.TO);
+                HereTrafficLink link = hereTrafficData.getLink(linkId);
+                EnumMap<HereTrafficEnums.TravelDirection, Integer[]> travelDirectionPatterns = referencePatterns.get(linkId);
+                if (travelDirectionPatterns.containsKey(HereTrafficEnums.TravelDirection.TO)) {
+                    Integer[] travelPatternReferences = travelDirectionPatterns.get(HereTrafficEnums.TravelDirection.TO);
                     for (int i = 0; i < travelPatternReferences.length; i++) {
                         Integer patternReference = travelPatternReferences[i];
                         if (patterns.containsKey(patternReference)) {
                             hereTrafficData.setPattern(patterns.get(patternReference));
-                            link.setTrafficPatternId(TrafficEnums.TravelDirection.TO, TrafficEnums.WeekDay.values()[i], patternReference);
+                            link.setTrafficPatternId(HereTrafficEnums.TravelDirection.TO, HereTrafficEnums.WeekDay.values()[i], patternReference);
                         }
                     }
-                } else if (travelDirectionPatterns.containsKey(TrafficEnums.TravelDirection.FROM)) {
-                    Integer[] travelPatternReferences = travelDirectionPatterns.get(TrafficEnums.TravelDirection.FROM);
+                } else if (travelDirectionPatterns.containsKey(HereTrafficEnums.TravelDirection.FROM)) {
+                    Integer[] travelPatternReferences = travelDirectionPatterns.get(HereTrafficEnums.TravelDirection.FROM);
                     for (int i = 0; i < travelPatternReferences.length; i++) {
                         Integer patternReference = travelPatternReferences[i];
                         if (patterns.containsKey(patternReference)) {
                             hereTrafficData.setPattern(patterns.get(patternReference));
-                            link.setTrafficPatternId(TrafficEnums.TravelDirection.FROM, TrafficEnums.WeekDay.values()[i], patternReference);
+                            link.setTrafficPatternId(HereTrafficEnums.TravelDirection.FROM, HereTrafficEnums.WeekDay.values()[i], patternReference);
                         }
                     }
                 }
@@ -138,13 +138,13 @@ public class HereTrafficReader {
         }
     }
 
-    private HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> readRefPatterns() {
+    private HashMap<Integer, EnumMap<HereTrafficEnums.TravelDirection, Integer[]>> readRefPatterns() {
         ArrayList<ArrayList<String>> rawPatternReferenceList = CSVUtility.readFile(patternsReferenceFile);
-        HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> processedPatternReferenceList = new HashMap<>();
+        HashMap<Integer, EnumMap<HereTrafficEnums.TravelDirection, Integer[]>> processedPatternReferenceList = new HashMap<>();
         for (ArrayList<String> rawPatternReference : rawPatternReferenceList) {
-            EnumMap<TrafficEnums.TravelDirection, Integer[]> patternMap = new EnumMap<>(TrafficEnums.TravelDirection.class);
+            EnumMap<HereTrafficEnums.TravelDirection, Integer[]> patternMap = new EnumMap<>(HereTrafficEnums.TravelDirection.class);
             Integer linkId = Integer.parseInt(rawPatternReference.get(0));
-            TrafficEnums.TravelDirection travelDirection = TrafficEnums.TravelDirection.forValue(rawPatternReference.get(1));
+            HereTrafficEnums.TravelDirection travelDirection = HereTrafficEnums.TravelDirection.forValue(rawPatternReference.get(1));
             if (travelDirection == null || rawPatternReference.size() != 9) {
                 // Skip this entry as its not a complete week pattern.
                 continue;
@@ -159,16 +159,16 @@ public class HereTrafficReader {
         return processedPatternReferenceList;
     }
 
-    private Map<Integer, TrafficPattern> readPatterns() {
+    private Map<Integer, HereTrafficPattern> readPatterns() {
         ArrayList<ArrayList<String>> patterns = CSVUtility.readFile(patternsFile);
-        Map<Integer, TrafficPattern> hereTrafficPatterns = new HashMap<>();
+        Map<Integer, HereTrafficPattern> hereTrafficPatterns = new HashMap<>();
         for (ArrayList<String> pattern : patterns) {
             int patternID = Integer.parseInt(pattern.get(0));
             short[] patternValues = new short[pattern.size() - 1];
             for (int i = 1; i < pattern.size(); i++) {
                 patternValues[i - 1] = Short.parseShort(pattern.get(i));
             }
-            TrafficPattern hereTrafficPattern = new TrafficPattern(patternID, TrafficEnums.PatternResolution.MINUTES_15, patternValues);
+            HereTrafficPattern hereTrafficPattern = new HereTrafficPattern(patternID, HereTrafficEnums.PatternResolution.MINUTES_15, patternValues);
             hereTrafficPatterns.put(patternID, hereTrafficPattern);
         }
         return hereTrafficPatterns;
@@ -223,7 +223,7 @@ public class HereTrafficReader {
                 if (defaultGeometry.getNumGeometries() == 1) {
                     String geometryString = defaultGeometry.getGeometryN(0).toText();
                     try {
-                        hereTrafficData.setLink(new TrafficLink(linkId, reader.read(geometryString), properties, distCalc));
+                        hereTrafficData.setLink(new HereTrafficLink(linkId, reader.read(geometryString), properties, distCalc));
                     } catch (ParseException e) {
                         LOGGER.info("Couldn't parse here geometry for Link_ID: " + linkId);
                     }
@@ -239,7 +239,7 @@ public class HereTrafficReader {
         LOGGER.info(linkCounter + " Here links found");
     }
 
-    public TrafficData getHereTrafficData() {
+    public HereTrafficData getHereTrafficData() {
         return hereTrafficData;
     }
 
