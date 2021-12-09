@@ -815,7 +815,7 @@ public class RoutingProfile {
             mMapMatcher.setGraphHopper(mGraphHopper);
         }
 
-        // TODO: find out how to set this: mMapMatcher.setSearchRadius(searchRadius);
+        mMapMatcher.setSearchRadius(searchRadius);
         mMapMatcher.setEdgeFilter(edgeFilter);
 
         return mMapMatcher.match(locations, bothDirections);

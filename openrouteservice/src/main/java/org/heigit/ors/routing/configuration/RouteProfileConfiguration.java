@@ -111,10 +111,10 @@ public class RouteProfileConfiguration {
 		ArrayList<Integer> list = new ArrayList<>();
 		
 		String[] elements = profiles.split("\\s*,\\s*");
-		
-		for (int i = 0; i< elements.length; i++) {
-			int profileType = RoutingProfileType.getFromString(elements[i]);
-			
+
+		for (String element : elements) {
+			int profileType = RoutingProfileType.getFromString(element);
+
 			if (profileType != RoutingProfileType.UNKNOWN) {
 				list.add(profileType);
 			}
