@@ -53,11 +53,6 @@ public class HikingFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.FOOT;
-    }
-
-    @Override
     public String toString() {
         return FlagEncoderNames.HIKING_ORS;
     }

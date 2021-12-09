@@ -273,8 +273,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         problematicTracktypes.add("grade3");
         inaccessibleTracktypes.add("grade4");
         inaccessibleTracktypes.add("grade5");
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     @Override
@@ -679,11 +677,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public String toString()
     {
         return FlagEncoderNames.WHEELCHAIR;
-    }
-
-    @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.OTHER;
     }
 
     @Override

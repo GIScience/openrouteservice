@@ -33,11 +33,6 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public TransportationMode getTransportationMode() {
-        return TransportationMode.FOOT;
-    }
-
-    @Override
     public String toString() {
         return FlagEncoderNames.PEDESTRIAN_ORS;
     }

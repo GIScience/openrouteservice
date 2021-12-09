@@ -200,7 +200,6 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
         LOGGER.info("NextGen RoadBike FlagEncoder is active...");
         // MARQ24 MOD END
-        this.init(null); // TODO: Need to pass initialized DateRangeParser?
     }
 
     public double getMeanSpeed() {

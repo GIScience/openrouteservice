@@ -263,8 +263,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
-        registerNewEncodedValue.add(speedEncoder);
+        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false);
         registerNewEncodedValue.add(unpavedEncoder);
         wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false);

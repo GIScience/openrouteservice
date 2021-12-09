@@ -22,6 +22,7 @@ import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
@@ -406,6 +407,11 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         return PriorityWeighting.class.isAssignableFrom(feature);
+    }
+
+    @Override
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.FOOT;
     }
 
     @Override
