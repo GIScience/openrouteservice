@@ -137,7 +137,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             }
             storage = new HereTrafficGraphStorage();
         } else {
-            LOGGER.info("Traffic not enabled.");
+            LOGGER.info("Here traffic not enabled.");
         }
 
         return storage;
