@@ -77,7 +77,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private static final String PARAM_KEY_PATTERNS_15MINUTES = "pattern_15min";
     private static final String PARAM_KEY_REFERENCE_PATTERN = "ref_pattern";
     private static final String MATCHING_RADIUS = "radius";
-    private static boolean enabled = true;
+    private static boolean enabled = false;
     private static int matchingRadius = 200;
     String streetsFile = "";
     String patterns15MinutesFile = "";
@@ -299,7 +299,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 throw new MissingResourceException("Here traffic is not build, enabled but the Here data sets couldn't be initialized. Make sure the config contains the path variables and they're correct.", this.getClass().toString(), "streets || pattern_15min || ref_pattern");
             }
         } else if (!enabled) {
-            LOGGER.debug("Traffic not enabled or already matched. Skipping match making.");
+            LOGGER.debug("Here traffic not enabled or already matched. Skipping match making.");
         } else {
             LOGGER.info("Traffic data already matched. Skipping match making.");
         }
