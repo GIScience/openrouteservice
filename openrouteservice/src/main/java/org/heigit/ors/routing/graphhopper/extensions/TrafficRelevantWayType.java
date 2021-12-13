@@ -37,25 +37,25 @@ public class TrafficRelevantWayType {
     }
 
     public static byte getHereTrafficClassFromOSMRoadType(short roadType) {
-        if (roadType == TrafficGraphStorage.MOTORWAY || roadType == TrafficGraphStorage.MOTORROAD) {
+        if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY.value || roadType == TrafficGraphStorage.RoadTypes.MOTORROAD.value) {
             return TrafficRelevantWayType.CLASS1;
-        } else if (roadType == TrafficGraphStorage.PRIMARY || roadType == TrafficGraphStorage.TRUNK) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK.value) {
             return TrafficRelevantWayType.CLASS2;
-        } else if (roadType == TrafficGraphStorage.SECONDARY) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY.value) {
             return TrafficRelevantWayType.CLASS3;
-        } else if (roadType == TrafficGraphStorage.TERTIARY) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY.value) {
             return TrafficRelevantWayType.CLASS4;
-//        } else if (roadType == TrafficGraphStorage.UNCLASSIFIED) {
+//        } else if (roadType == TrafficGraphStorage.RoadTypes.UNCLASSIFIED.value) {
 //            return TrafficRelevantWayType.UNCLASSIFIED;
-//        } else if (roadType == TrafficGraphStorage.RESIDENTIAL) {
+//        } else if (roadType == TrafficGraphStorage.RoadTypes.RESIDENTIAL.value) {
 //            return TrafficRelevantWayType.CLASS5;
-        } else if (roadType == TrafficGraphStorage.MOTORWAY_LINK) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY_LINK.value) {
             return TrafficRelevantWayType.CLASS1LINK;
-        } else if (roadType == TrafficGraphStorage.PRIMARY_LINK || roadType == TrafficGraphStorage.TRUNK_LINK) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY_LINK.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK_LINK.value) {
             return TrafficRelevantWayType.CLASS2LINK;
-        } else if (roadType == TrafficGraphStorage.SECONDARY_LINK) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY_LINK.value) {
             return TrafficRelevantWayType.CLASS3LINK;
-        } else if (roadType == TrafficGraphStorage.TERTIARY_LINK) {
+        } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY_LINK.value) {
             return TrafficRelevantWayType.CLASS4LINK;
         } else {
             return TrafficRelevantWayType.UNWANTED;

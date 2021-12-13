@@ -30,6 +30,30 @@ public class TrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
 
+    // road types
+    public enum RoadTypes {
+        IGNORE(0),
+        MOTORWAY(1),
+        MOTORWAY_LINK(2),
+        MOTORROAD(3),
+        TRUNK(4),
+        TRUNK_LINK(5),
+        PRIMARY(6),
+        PRIMARY_LINK(7),
+        SECONDARY(8),
+        SECONDARY_LINK(9),
+        TERTIARY(10),
+        TERTIARY_LINK(11),
+        RESIDENTIAL(12),
+        UNCLASSIFIED(13);
+
+        public final byte value;
+
+        RoadTypes(int value) {
+            this.value = (byte) value;
+        }
+    }
+
     /* pointer for road type */
     private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
     private static final int LOCATION_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
@@ -41,22 +65,6 @@ public class TrafficGraphStorage implements GraphExtension {
     private static final int BACKWARD_OFFSET = 16;
     private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + BACKWARD_OFFSET;         // byte location of the to traffic link id
     private static final int LOCATION_BACKWARD_TRAFFIC = LOCATION_TRAFFIC + BACKWARD_OFFSET;         // byte location of the to traffic link id
-
-    // road types
-    public static final byte IGNORE = 0; // For unimportant edges that are below relevant street types (residential etc.)
-    public static final byte MOTORWAY = 1;
-    public static final byte MOTORWAY_LINK = 2;
-    public static final byte MOTORROAD = 3;
-    public static final byte TRUNK = 4;
-    public static final byte TRUNK_LINK = 5;
-    public static final byte PRIMARY = 6;
-    public static final byte PRIMARY_LINK = 7;
-    public static final byte SECONDARY = 8;
-    public static final byte SECONDARY_LINK = 9;
-    public static final byte TERTIARY = 10;
-    public static final byte TERTIARY_LINK = 11;
-    public static final byte RESIDENTIAL = 12; // Really really seldom this is needed!
-    public static final byte UNCLASSIFIED = 13;
 
     public static final int PROPERTY_BYTE_COUNT = 1;
     public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority + fwd/bwd maxspeed = 2 * 7 * 2 + 2 + 2 = 32
@@ -91,33 +99,33 @@ public class TrafficGraphStorage implements GraphExtension {
     public static byte getWayTypeFromString(String highway) {
         switch (highway.toLowerCase()) {
             case "motorway":
-                return TrafficGraphStorage.MOTORWAY;
+                return RoadTypes.MOTORWAY.value;
             case "motorway_link":
-                return TrafficGraphStorage.MOTORWAY_LINK;
+                return RoadTypes.MOTORWAY_LINK.value;
             case "motorroad":
-                return TrafficGraphStorage.MOTORROAD;
+                return RoadTypes.MOTORROAD.value;
             case "trunk":
-                return TrafficGraphStorage.TRUNK;
+                return RoadTypes.TRUNK.value;
             case "trunk_link":
-                return TrafficGraphStorage.TRUNK_LINK;
+                return RoadTypes.TRUNK_LINK.value;
             case "primary":
-                return TrafficGraphStorage.PRIMARY;
+                return RoadTypes.PRIMARY.value;
             case "primary_link":
-                return TrafficGraphStorage.PRIMARY_LINK;
+                return RoadTypes.PRIMARY_LINK.value;
             case "secondary":
-                return TrafficGraphStorage.SECONDARY;
+                return RoadTypes.SECONDARY.value;
             case "secondary_link":
-                return TrafficGraphStorage.SECONDARY_LINK;
+                return RoadTypes.SECONDARY_LINK.value;
             case "tertiary":
-                return TrafficGraphStorage.TERTIARY;
+                return RoadTypes.TERTIARY.value;
             case "tertiary_link":
-                return TrafficGraphStorage.TERTIARY_LINK;
+                return RoadTypes.TERTIARY_LINK.value;
             case "residential":
-                return TrafficGraphStorage.RESIDENTIAL;
+                return RoadTypes.RESIDENTIAL.value;
             case "unclassified":
-                return TrafficGraphStorage.UNCLASSIFIED;
+                return RoadTypes.UNCLASSIFIED.value;
             default:
-                return TrafficGraphStorage.IGNORE;
+                return RoadTypes.IGNORE.value;
         }
     }
 
@@ -226,7 +234,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * Store maximum speed value encountered in a daily traffic pattern
      *
-     * @param patternId  Id of the traffic pattern.
+     * @param patternId     Id of the traffic pattern.
      * @param maxSpeedValue Speed value in mph or kph.
      **/
     private void setMaxTrafficSpeed(int patternId, short maxSpeedValue) {
@@ -323,7 +331,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
     /**
      * Maximum speed value encountered in a daily traffic pattern
-     *
      **/
     private int getMaxTrafficSpeed(int patternId) {
         byte[] value = new byte[1];
@@ -347,9 +354,9 @@ public class TrafficGraphStorage implements GraphExtension {
      * ## TODO's ##
      * - enhance internal time encoding and harmonize it in the whole ORS backend when more traffic data comes in.
      *
-     * @param edgeId      Internal ID of the edge to get values for.
-     * @param baseNode    The baseNode of the edge to define the direction.
-     * @param adjNode    The adjNode of the edge to define the direction.
+     * @param edgeId           Internal ID of the edge to get values for.
+     * @param baseNode         The baseNode of the edge to define the direction.
+     * @param adjNode          The adjNode of the edge to define the direction.
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
@@ -367,7 +374,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
     /**
      * Maximum traffic speed value across the whole week
-     *
      **/
     public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
         if (invalidEdgeId(edgeId))
@@ -592,7 +598,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * This method finds as stores for each edge the maximum forward and backward traffic speed across the whole week.
      */
     public void setMaxTrafficSpeeds() {
-        int [] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
+        int[] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
 
         for (int edgeId = 0; edgeId <= maxEdgeId; edgeId++) {
             long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;

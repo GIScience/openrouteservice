@@ -147,7 +147,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     public void processWay(ReaderWay way) {
 
         // Reset the trafficWayType
-        trafficWayType = TrafficGraphStorage.IGNORE;
+        trafficWayType = TrafficGraphStorage.RoadTypes.IGNORE.value;
 
         boolean hasHighway = way.hasTag("highway");
         Iterator<Map.Entry<String, Object>> it = way.getProperties();
