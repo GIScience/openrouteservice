@@ -102,19 +102,22 @@ public class TrafficSpeedCalculatorTest {
 
         @Override
         public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
-            if (edgeId == 1)
-                return 10;
-            if (edgeId == 2)
-                return 38;
-            if (edgeId == 3)
-                return 50;
-            if (edgeId == 4)
-                return 60;
-            if (edgeId == 5)
-                return 90;
-            if (edgeId == 6)
-                return 65;
-            return -1;
+            switch (edgeId) {
+                case 1:
+                    return 10;
+                case 2:
+                    return 38;
+                case 3:
+                    return 50;
+                case 4:
+                    return 60;
+                case 5:
+                    return 90;
+                case 6:
+                    return 65;
+                default:
+                    return -1;
+            }
         }
     }
 }
