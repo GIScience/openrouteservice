@@ -71,24 +71,7 @@ public class GraphEdgeMapFinder {
         Weighting weighting = createWeighting(parameters, encoder);
 
         if (parameters.isTimeDependent()) {
-            //Time-dependent means traffic dependent for isochrones (for now)
-            TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(weighting.getSpeedCalculator());
-            trafficSpeedCalculator.init(graph, encoder);
-            weighting.setSpeedCalculator(trafficSpeedCalculator);
-            if (HelperORS.getTurnCostExtensions(graph.getExtension()) != null)
-                weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
-            TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
-                    TraversalMode.NODE_BASED);
-            tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
-            //Time is defined to be in UTC + 1 because original implementation was for German traffic data
-            //If changed, this needs to be adapted in the traffic storage, too
-            ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
-            trafficSpeedCalculator.setZonedDateTime(zdt);
-            int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;
-            fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
-            tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
-            IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
-            return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
+            return calculateTimeDependentAccessibilityMap(parameters, encoder, graph, edgeFilter, queryGraph, snappedPosition, fromId, weighting);
         } else {
             // IMPORTANT: It only works with TraversalMode.NODE_BASED.
             DijkstraCostCondition dijkstraAlg = new DijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
@@ -99,6 +82,40 @@ public class GraphEdgeMapFinder {
             IntObjectMap<SPTEntry> edgeMap = dijkstraAlg.getMap();
             return new AccessibilityMap(edgeMap, dijkstraAlg.getCurrentEdge(), snappedPosition);
         }
+    }
+
+    /**
+     * Calculate all nodes that are within the reach of the maximum range and return a map of them.
+     *
+     * @param parameters      IsochroneSearchParameters
+     * @param encoder         FlagEncoder
+     * @param graph           GraphHopperStorage
+     * @param edgeFilter      The EdgeFilter to be used for finding the nodes
+     * @param queryGraph      Graph containing all normal nodes and virtual node of the queried location
+     * @param snappedPosition Position the query has been snapped to on the querygraph
+     * @param fromId          origin of query
+     * @param weighting       weighting to be used
+     * @return accessibility map containing all reachable nodes
+     */
+    private static AccessibilityMap calculateTimeDependentAccessibilityMap(IsochroneSearchParameters parameters, FlagEncoder encoder, GraphHopperStorage graph, EdgeFilter edgeFilter, QueryGraph queryGraph, GHPoint3D snappedPosition, int fromId, Weighting weighting) {
+        //Time-dependent means traffic dependent for isochrones (for now)
+        TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(weighting.getSpeedCalculator());
+        trafficSpeedCalculator.init(graph, encoder);
+        weighting.setSpeedCalculator(trafficSpeedCalculator);
+        if (HelperORS.getTurnCostExtensions(graph.getExtension()) != null)
+            weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
+        TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
+                TraversalMode.NODE_BASED);
+        tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
+        //Time is defined to be in UTC + 1 because original implementation was for German traffic data
+        //If changed, this needs to be adapted in the traffic storage, too
+        ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
+        trafficSpeedCalculator.setZonedDateTime(zdt);
+        int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;
+        fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
+        tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
+        IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
+        return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
     }
 
     private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder) {
