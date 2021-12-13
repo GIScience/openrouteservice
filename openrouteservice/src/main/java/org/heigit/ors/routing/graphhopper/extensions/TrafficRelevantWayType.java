@@ -16,49 +16,52 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
 public class TrafficRelevantWayType {
-    public static final byte CLASS1 = 1; // motorway | motorroad. Definitely needed. Map matching works quite good.
-    public static final byte CLASS2 = 2; // motorway | trunk | primary. Definitely needed. Map matching works quite good.
-    public static final byte CLASS3 = 3; // primary | secondary. Definitely needed. Map matching works quite good.
-    public static final byte CLASS4 = 4; // secondary | tertiary. Definitely needed. Map matching works quite good.
-    public static final byte UNCLASSIFIED = 5;
-    public static final byte CLASS5 = 6; // residential | living_street | service... Rarely needed! Streets Here doesn't provide traffic data for anyways.
-    public static final byte CLASS1LINK = 7;
-    public static final byte CLASS2LINK = 8;
-    public static final byte CLASS3LINK = 9;
-    public static final byte CLASS4LINK = 10;
-    public static final byte UNWANTED = 0; // Not needed! Streets Here doesn't provide traffic data for anyways.
-    // Class 1 = motorway | motorroad
-    // Class 2 = motorway | trunk | primary
-    // Class 3 = primary | secondary
-    // Class 4 = secondary | tertiary
-    // Class 5 = residential | living_street | service | ...
+    public enum RelevantWayTypes {
+        CLASS1(1), // motorway | motorroad. Definitely needed. Map matching works quite good.
+        CLASS2(2), // motorway | trunk | primary. Definitely needed. Map matching works quite good.
+        CLASS3(3), // primary | secondary. Definitely needed. Map matching works quite good.
+        CLASS4(4), // secondary | tertiary. Definitely needed. Map matching works quite good.
+        UNCLASSIFIED(5),
+        CLASS5(6),  // residential | living_street | service... Rarely needed! Streets Here doesn't provide traffic data for anyways.
+        CLASS1LINK(7),
+        CLASS2LINK(8),
+        CLASS3LINK(9),
+        CLASS4LINK(10),
+        UNWANTED(0); // Not needed! Streets Here doesn't provide traffic data for anyways.
+
+        public final byte value;
+
+        RelevantWayTypes(int value) {
+            this.value = (byte) value;
+        }
+    }
 
     private TrafficRelevantWayType() {
     }
 
     public static byte getHereTrafficClassFromOSMRoadType(short roadType) {
         if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY.value || roadType == TrafficGraphStorage.RoadTypes.MOTORROAD.value) {
-            return TrafficRelevantWayType.CLASS1;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS1.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK.value) {
-            return TrafficRelevantWayType.CLASS2;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS2.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY.value) {
-            return TrafficRelevantWayType.CLASS3;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS3.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY.value) {
-            return TrafficRelevantWayType.CLASS4;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS4.value;
 //        } else if (roadType == TrafficGraphStorage.RoadTypes.UNCLASSIFIED.value) {
-//            return TrafficRelevantWayType.UNCLASSIFIED;
+//            return TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value;
 //        } else if (roadType == TrafficGraphStorage.RoadTypes.RESIDENTIAL.value) {
-//            return TrafficRelevantWayType.CLASS5;
+//            return TrafficRelevantWayType.RelevantWayTypes.CLASS5.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY_LINK.value) {
-            return TrafficRelevantWayType.CLASS1LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY_LINK.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK_LINK.value) {
-            return TrafficRelevantWayType.CLASS2LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS2LINK.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY_LINK.value) {
-            return TrafficRelevantWayType.CLASS3LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS3LINK.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY_LINK.value) {
-            return TrafficRelevantWayType.CLASS4LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value;
         } else {
-            return TrafficRelevantWayType.UNWANTED;
+            return TrafficRelevantWayType.RelevantWayTypes.UNWANTED.value;
         }
     }
 }

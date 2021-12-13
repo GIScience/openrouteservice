@@ -35,22 +35,22 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void lowerFunctionalClass() {
-        if (hereFunctionalClass < TrafficRelevantWayType.CLASS4) {
+        if (hereFunctionalClass < TrafficRelevantWayType.RelevantWayTypes.CLASS1.value) {
             // We don't want to decrease the functional class lower than 4.
             this.hereFunctionalClass += 1;
-        } else if (hereFunctionalClass >= TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass < TrafficRelevantWayType.CLASS4LINK) {
+        } else if (hereFunctionalClass >= TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value && hereFunctionalClass < TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value) {
             this.hereFunctionalClass += 1;
         }
     }
 
     public void higherFunctionalClass() {
-        if (hereFunctionalClass > TrafficRelevantWayType.CLASS1 && hereFunctionalClass <= TrafficRelevantWayType.CLASS4) {
+        if (hereFunctionalClass > TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && hereFunctionalClass <= TrafficRelevantWayType.RelevantWayTypes.CLASS1.value) {
             // We don't want to increase the functional class higher than CLASS1 and not lower than CLASS4 to not collide with non-links.
             this.hereFunctionalClass -= 1;
-        } else if (hereFunctionalClass == TrafficRelevantWayType.CLASS5) {
+        } else if (hereFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS5.value) {
             // Go directly to class 4. Skip unclassified when upgrading.
             this.hereFunctionalClass -= 2;
-        } else if (hereFunctionalClass > TrafficRelevantWayType.CLASS1LINK && hereFunctionalClass <= TrafficRelevantWayType.CLASS4LINK) {
+        } else if (hereFunctionalClass > TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value && hereFunctionalClass <= TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value) {
             this.hereFunctionalClass -= 1;
         }
     }

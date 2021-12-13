@@ -62,7 +62,7 @@ import java.util.MissingResourceException;
 
 public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
-    private int trafficWayType = TrafficRelevantWayType.UNWANTED;
+    private int trafficWayType = TrafficRelevantWayType.RelevantWayTypes.UNWANTED.value;
 
     private static final String PARAM_KEY_OUTPUT_LOG = "output_log";
     private static boolean outputLog = false;

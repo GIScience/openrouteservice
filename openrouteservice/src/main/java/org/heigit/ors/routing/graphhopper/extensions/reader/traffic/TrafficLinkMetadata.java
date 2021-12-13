@@ -74,13 +74,13 @@ public class TrafficLinkMetadata {
         if (this.ramp == TrafficEnums.NoYesEnum.NO) {
             return this.functionalClass.getFunctionalClass();
         } else if (this.functionalClass == TrafficEnums.FunctionalClass.CLASS1) {
-            return TrafficRelevantWayType.CLASS1LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value;
         } else if (this.functionalClass == TrafficEnums.FunctionalClass.CLASS2) {
-            return TrafficRelevantWayType.CLASS2LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS2LINK.value;
         } else if (this.functionalClass == TrafficEnums.FunctionalClass.CLASS3) {
-            return TrafficRelevantWayType.CLASS3LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS3LINK.value;
         } else if (this.functionalClass == TrafficEnums.FunctionalClass.CLASS4) {
-            return TrafficRelevantWayType.CLASS4LINK;
+            return TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value;
         }
         return 0;
     }

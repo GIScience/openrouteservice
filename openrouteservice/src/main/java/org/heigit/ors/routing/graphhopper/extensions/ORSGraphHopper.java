@@ -905,7 +905,7 @@ public class ORSGraphHopper extends GraphHopper {
         RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
         match = validateRouteSegment(originalTrafficLinkLength, match);
 
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.CLASS1 && originalFunctionalClass != TrafficRelevantWayType.CLASS1LINK)) {
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
             // Test a higher functional class based from the original class
 //            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
             trafficEdgeFilter.higherFunctionalClass();
@@ -913,7 +913,7 @@ public class ORSGraphHopper extends GraphHopper {
             match = mMapMatcher.match(locations, bothDirections);
             match = validateRouteSegment(originalTrafficLinkLength, match);
         }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.UNCLASSIFIED && originalFunctionalClass != TrafficRelevantWayType.CLASS4LINK)) {
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
             // Try matching in the next lower functional class.
             trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
             trafficEdgeFilter.lowerFunctionalClass();
@@ -921,16 +921,16 @@ public class ORSGraphHopper extends GraphHopper {
             match = mMapMatcher.match(locations, bothDirections);
             match = validateRouteSegment(originalTrafficLinkLength, match);
         }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.UNCLASSIFIED && originalFunctionalClass != TrafficRelevantWayType.CLASS4LINK)) {
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
             // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.UNCLASSIFIED);
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
             mMapMatcher.setEdgeFilter(trafficEdgeFilter);
             match = mMapMatcher.match(locations, bothDirections);
             match = validateRouteSegment(originalTrafficLinkLength, match);
         }
-        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.UNCLASSIFIED || originalFunctionalClass == TrafficRelevantWayType.CLASS4LINK || originalFunctionalClass == TrafficRelevantWayType.CLASS4)) {
+        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
             // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.CLASS5);
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
             mMapMatcher.setEdgeFilter(trafficEdgeFilter);
             match = mMapMatcher.match(locations, bothDirections);
             match = validateRouteSegment(originalTrafficLinkLength, match);
