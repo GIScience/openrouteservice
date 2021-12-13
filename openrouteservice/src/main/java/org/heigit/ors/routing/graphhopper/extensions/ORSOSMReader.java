@@ -26,11 +26,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 
 import java.io.InvalidObjectException;
 import java.util.*;
@@ -422,11 +418,21 @@ public class ORSOSMReader extends OSMReader {
 		}
 	}
 
-	@Override
-	protected void finishedReading() {
-		super.finishedReading();
-		procCntx.finish();
-	}
+    @Override
+    protected void finishedReading() {
+        // OsmIdGraphStorage initialisieren mit size osmNodeIdToInternalNodeMap
+        // osmNodeIdToInternalNodeMap speichern und cleanen
+        if (procCntx.getStorageBuilders() != null) {
+            for (GraphStorageBuilder graphStorageBuilder : procCntx.getStorageBuilders()) {
+                if (graphStorageBuilder instanceof UberTrafficGraphStorageBuilder && ((UberTrafficGraphStorageBuilder) graphStorageBuilder).isEnabled()) {
+                    ((UberTrafficGraphStorageBuilder) graphStorageBuilder).setOsmNode2InternalMapping(getNodeMap());
+					break;
+                }
+            }
+        }
+        super.finishedReading();
+        procCntx.finish();
+    }
 
 	@Override
 	protected double getElevation(ReaderNode node) {

@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -25,7 +25,9 @@ import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -38,7 +40,9 @@ public class GraphProcessContext {
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
-	private int trafficArrStorageBuilderLocation = -1;
+	private int hereTrafficArrStorageBuilderLocation = -1;
+	private int uberTrafficArrStorageBuilderLocation = -1;
+    private String graphStorageLocation;
 	private double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
@@ -59,6 +63,7 @@ public class GraphProcessContext {
 
 	public void init(GraphHopper gh) {
 		if (graphBuilders != null && !graphBuilders.isEmpty()) {
+            this.graphStorageLocation = gh.getGraphHopperLocation();
 			for(GraphBuilder builder : graphBuilders) {
 				try {
 					builder.init(gh);
@@ -84,6 +89,23 @@ public class GraphProcessContext {
 	{
 		return storageBuilders;
 	}
+
+
+    /**
+     * Return the first found storage object by class name. If not found return null.
+     *
+     * @param className Name of the storage class to find.
+     * @return Returns the first found storage class or null.
+     */
+    public GraphStorageBuilder getStorageBuildersByClassName(String className) {
+        for (GraphStorageBuilder graphStorageBuilder :
+                storageBuilders) {
+            if (graphStorageBuilder.getName().equals(className)) {
+                return graphStorageBuilder;
+            }
+        }
+        return null;
+    }
 
 	public void processWay(ReaderWay way)  {
 		try {
@@ -129,13 +151,18 @@ public class GraphProcessContext {
 				int nStorages = arrStorageBuilders.length;
 				if (nStorages > 0) {
 					for (int i = 0; i < nStorages; ++i) {
-						if (trafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
-							trafficArrStorageBuilderLocation = i;
+						if (uberTrafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(UberTrafficGraphStorageBuilder.BUILDER_NAME)){
+							uberTrafficArrStorageBuilderLocation = i;
+						} else if (hereTrafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
+							hereTrafficArrStorageBuilderLocation = i;
 						}
 						arrStorageBuilders[i].processWay(way, coords, nodeTags);
 					}
-					if (trafficArrStorageBuilderLocation >= 0){
-						arrStorageBuilders[trafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
+
+					if (uberTrafficArrStorageBuilderLocation >= 0){
+						arrStorageBuilders[uberTrafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
+					} else if (hereTrafficArrStorageBuilderLocation >= 0){
+						arrStorageBuilders[hereTrafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
 					}
 				}
 			}

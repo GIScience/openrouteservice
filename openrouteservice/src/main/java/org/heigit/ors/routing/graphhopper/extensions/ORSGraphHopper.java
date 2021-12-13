@@ -68,6 +68,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
@@ -614,7 +615,14 @@ public class ORSGraphHopper extends GraphHopper {
                     try {
                         ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
                     } catch (SchemaException e) {
-                        LOGGER.error("Error building the here traffic storage.");
+                        LOGGER.error("Error building the Here traffic storage.");
+                        throw new RuntimeException(e);
+                    }
+                } else if (graphStorageBuilder instanceof UberTrafficGraphStorageBuilder) {
+                    try {
+                        ((UberTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                    } catch (SchemaException e) {
+                        LOGGER.error("Error building the Uber traffic storage.");
                         throw new RuntimeException(e);
                     }
                 }
