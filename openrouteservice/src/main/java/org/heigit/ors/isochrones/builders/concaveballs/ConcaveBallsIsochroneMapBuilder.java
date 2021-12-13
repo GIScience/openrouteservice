@@ -34,26 +34,22 @@ import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
-import org.os_concavehull.ConcaveHull;
-import org.os_concavehull.TriCheckerChi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
     private static final boolean BUFFERED_OUTPUT = true;
-    private static final boolean holes_enabled = IsochronesServiceSettings.getHolesEnabled();
     private static DistanceCalc dcFast = new DistancePlaneProjection();
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
-    private static double triCheckerChiThreshold = 0.015;
     private Envelope searchEnv = new Envelope();
     private GeometryFactory geometryFactory;
     private PointItemVisitor visitor = null;
@@ -251,57 +247,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             sw = new StopWatch();
             sw.start();
         }
-        if (holes_enabled) {
-            ConcaveHull ch = new ConcaveHull(points, geometryFactory);
-            Geometry concaveHullWithHoles = ch.getConcaveHullWithHolesChi(new TriCheckerChi(triCheckerChiThreshold));
-            if (concaveHullWithHoles instanceof GeometryCollection) {
-                GeometryCollection geomColl = (GeometryCollection) concaveHullWithHoles;
-                if (geomColl.isEmpty())
-                    return;
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                sw.stop();
-                LOGGER.debug("Build holes concave hull " + sw.getSeconds());
-
-                sw = new StopWatch();
-                sw.start();
-            }
-
-            if (concaveHullWithHoles instanceof MultiPolygon) {
-                MultiPolygon multiPolygon = (MultiPolygon) concaveHullWithHoles;
-                int numHoles = 0;
-                for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-                    Polygon poly = (Polygon) multiPolygon.getGeometryN(i);
-                    for (int j = 0; j < poly.getNumInteriorRing(); j++)
-                        numHoles++;
-                }
-                LinearRing[] holes = new LinearRing[numHoles];
-                for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-                    Polygon poly = (Polygon) multiPolygon.getGeometryN(i);
-                    for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-                        LinearRing hole = (LinearRing) poly.getInteriorRingN(j);
-                        if (polyShell.covers(hole))
-                            holes[j] = (LinearRing) poly.getInteriorRingN(j);
-                    }
-                }
-                LinearRing[] cleanedHoles = Arrays.stream(holes).filter(Objects::nonNull).toArray(LinearRing[]::new);
-                Polygon newPoly = new Polygon((LinearRing) polyShell.getExteriorRing(), cleanedHoles, geometryFactory);
-                isochroneMap.addIsochrone(new Isochrone(newPoly, isoValue, meanRadius));
-            } else {
-                Polygon poly = (Polygon) concaveHullWithHoles;
-                LinearRing[] holes = new LinearRing[poly.getNumInteriorRing()];
-                for (int j = 0; j < poly.getNumInteriorRing(); j++) {
-                    LinearRing hole = (LinearRing) poly.getInteriorRingN(j);
-                    if (polyShell.covers(hole))
-                        holes[j] = (LinearRing) poly.getInteriorRingN(j);
-                }
-                LinearRing[] cleanedHoles = Arrays.stream(holes).filter(Objects::nonNull).toArray(LinearRing[]::new);
-                Polygon newPoly = new Polygon((LinearRing) polyShell.getExteriorRing(), cleanedHoles, geometryFactory);
-                isochroneMap.addIsochrone(new Isochrone(newPoly, isoValue, meanRadius));
-            }
-        } else
-            isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
+        isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
 
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
@@ -617,7 +563,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (dist > minlim && dist < maxlim) {
             int n = (int) Math.ceil(dist / minlim);
             for (int i = 1; i < n; i++) {
-                if(is3D)
+                if (is3D)
                     pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
                 else
                     pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n);
