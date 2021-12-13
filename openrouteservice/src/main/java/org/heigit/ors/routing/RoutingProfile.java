@@ -195,10 +195,9 @@ public class RoutingProfile {
 
         if (LOGGER.isInfoEnabled()) {
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            LOGGER.info(String.format("[%d] Edges: %s - Nodes: %s)", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
+            LOGGER.info(String.format("[%d] Edges: %s - Nodes: %s.", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
-            LOGGER.info("                              ");
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file.
