@@ -72,7 +72,8 @@ RELEASING:
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
 - Improve travel time estimation for ferry routes ([#1037](https://github.com/GIScience/openrouteservice/issues/1037))
 - Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
-
+- updated log4j version to 2.15.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+- 
 ## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
