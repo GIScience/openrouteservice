@@ -77,14 +77,15 @@
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
+            <type>pom</type>
             <scope>test</scope>
         </dependency>
         <dependency>
