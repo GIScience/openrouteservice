@@ -34,6 +34,10 @@ RELEASING:
  -->
 
 ## [Unreleased]
+## [6.6.2] - 2021-12-15
+### Fixed
+- updated log4j version to 2.16.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+
 ## [6.6.1] - 2021-07-05
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
@@ -68,6 +72,10 @@ RELEASING:
 - Prioritize graph build date over data date in routing request ([#925](https://github.com/GIScience/openrouteservice/issues/925))
 - Correct package declaration of BoundingBoxFactoryTest ([#933](https://github.com/GIScience/openrouteservice/issues/933))
 - Some corrections to Hungarian language support (thanks to [debyos](https://github.com/debyos))
+
+## [6.4.4] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.4.3] - 2021-04-28
 ### Changed
@@ -106,6 +114,10 @@ RELEASING:
 - Fixed missing segment distance and duration ([#695](https://github.com/GIScience/openrouteservice/issues/695))
 - Fixed no response when asking for isochrone intersections ([#675](https://github.com/GIScience/openrouteservice/issues/675))
 - Fixed continue_straight option with no bearing on CH-enabled profiles
+
+## [6.3.7] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.3.6] - 2021-02-02
 ### Fixed
@@ -148,6 +160,10 @@ RELEASING:
 ### Fixed
 - Fixed handling of invalid extra info requests ([#795](https://github.com/GIScience/openrouteservice/issues/795))
 
+## [6.2.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
+
 ## [6.2.1] - 2020-08-13
 ### Added
 - Check whether routing points are within different countries before routing and break if they are and all borders should be avoided
@@ -171,6 +187,14 @@ RELEASING:
 - Upgrade to Java 11
 ### Deprecated
 - Use recommended weighting instead of fastest ([#763](https://github.com/GIScience/openrouteservice/issues/763))
+
+## [6.1.3] - 2021-09-03
+### Changed
+- removed unused dependency
+
+## [6.1.2] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.1.1] - 2020-06-02
 ### Added
@@ -214,6 +238,14 @@ RELEASING:
 - Make Docker setup more flexible wrt customizations ([#627](https://github.com/GIScience/openrouteservice/issues/627))
 - Updated GraphHopper to newer version (0.13)
 - Give more details to green and quiet routing API descriptions ([#632](https://github.com/GIScience/openrouteservice/issues/632))
+
+## [6.0.2] - 2021-09-03
+### Changed
+- removed unused dependency
+
+## [6.0.1] - 2021-08-30
+### Changed
+- URL for repo.heigit.org to HTTPS
 
 ## [6.0.0] - 2019-12-03
 ### Added
@@ -456,14 +488,17 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...HEAD
+[6.6.2]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...v6.6.2
 [6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
-[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.5.0
+[6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.4...v6.5.0
+[6.4.4]: https://github.com/GIScience/openrouteservice/compare/v6.4.3...v6.4.4
 [6.4.3]: https://github.com/GIScience/openrouteservice/compare/v6.4.2...v6.4.3
 [6.4.2]: https://github.com/GIScience/openrouteservice/compare/v6.4.1...v6.4.2
 [6.4.1]: https://github.com/GIScience/openrouteservice/compare/v6.4.0...v6.4.1
-[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.4.0
+[6.4.0]: https://github.com/GIScience/openrouteservice/compare/v6.3.7...v6.4.0
+[6.3.7]: https://github.com/GIScience/openrouteservice/compare/v6.3.6...v6.3.7
 [6.3.6]: https://github.com/GIScience/openrouteservice/compare/v6.3.5...v6.3.6
 [6.3.5]: https://github.com/GIScience/openrouteservice/compare/v6.3.4...v6.3.5
 [6.3.4]: https://github.com/GIScience/openrouteservice/compare/v6.3.3...v6.3.4
