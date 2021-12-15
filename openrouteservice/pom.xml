@@ -83,6 +83,7 @@
                     <include>resources/services/routing/speed_limits/*.*</include>
                     <include>META-INF/services/*.*</include>
                     <include>app.config*</include>
+                    <include>ors-config*.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -91,7 +92,7 @@
             <testResource>
                 <directory>../openrouteservice-api-tests/conf</directory>
                 <includes>
-                    <include>app.config.test</include>
+                    <include>ors-config-test.json</include>
                 </includes>
                 <filtering>true</filtering>
             </testResource>
@@ -316,12 +317,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>1.19</version><!-- upgrading to 1.20 causes graph preparation to hang up -->
-        </dependency>
-
-        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
             <version>1.13</version>
@@ -400,19 +395,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.15-3</version>
+            <version>v0.13.19</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.15-3</version>
+            <version>v0.13.19</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.15-3</version>
+            <version>v0.13.19</version>
         </dependency>
 
         <!-- remove the comment to enable debugging
@@ -507,6 +502,20 @@
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-actuator</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-logging</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>io.micrometer</groupId>
+          <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>

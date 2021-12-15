@@ -61,6 +61,8 @@ public class RouteProfileConfiguration {
 
 	private double maximumSpeedLowerBound = 80;
 
+	private int trafficExpirationMin = 15;
+
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
 		graphBuilders = new HashMap<>();
@@ -101,6 +103,8 @@ public class RouteProfileConfiguration {
 		extent = rpc.extent;
 
 		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
+
+		trafficExpirationMin = rpc.trafficExpirationMin;
 	}
 
 	public Integer[] getProfilesTypes() {
@@ -397,5 +401,13 @@ public class RouteProfileConfiguration {
 
 	public double getMaximumSpeedLowerBound(){
 		return maximumSpeedLowerBound;
+	}
+
+	public void setTrafficExpirationMin(int trafficExpirationMin) {
+		this.trafficExpirationMin = trafficExpirationMin;
+	}
+
+	public int getTrafficExpirationMin() {
+		return this.trafficExpirationMin;
 	}
 }

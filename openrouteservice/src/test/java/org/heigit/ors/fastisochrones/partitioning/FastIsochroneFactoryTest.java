@@ -4,7 +4,7 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
-import org.heigit.ors.fastisochrones.ToyGraphCreationUtil;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class FastIsochroneFactoryTest {
 
     @Before
     public void setUp() {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
     }
 
     private FastIsochroneFactory intitFastIsochroneFactory() {

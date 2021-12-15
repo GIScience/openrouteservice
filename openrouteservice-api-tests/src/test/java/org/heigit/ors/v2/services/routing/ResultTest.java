@@ -14,12 +14,12 @@
 package org.heigit.ors.v2.services.routing;
 
 import io.restassured.response.Response;
-import junit.framework.Assert;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -124,7 +124,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
 
         JSONArray attributes = new JSONArray();
@@ -174,32 +174,29 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
         Assert.assertTrue(doc_length > 0);
         boolean gpxRte = false;
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
-            switch (item) {
-                case "rte":
-                    gpxRte = true;
-                    NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
-                    int rteSize = rteChildren.getLength();
-                    Assert.assertEquals(76, rteSize);
-                    Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()));
-                    Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()));
-                    Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()));
-                    Assert.assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()));
-                    Assert.assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue())); // The last item (-1) is the extension pack
-                    Assert.assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue())); // The last item (-1) is the extension pack
-                    Node extensions = rteChildren.item(rteSize - 1);
-                    String item1 = extensions.getChildNodes().item(0).getTextContent();
-                    Assert.assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()));
-                    Assert.assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()));
-                    Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()));
-                    Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()));
-                    Assert.assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()));
-                    break;
+            if ("rte".equals(item)) {
+                gpxRte = true;
+                NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
+                int rteSize = rteChildren.getLength();
+                Assert.assertEquals(76, rteSize);
+                Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                Assert.assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                Assert.assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue()), 0); // The last item (-1) is the extension pack
+                Assert.assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue()), 0); // The last item (-1) is the extension pack
+                Node extensions = rteChildren.item(rteSize - 1);
+                Assert.assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()), 0);
+                Assert.assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()), 0);
+                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()), 0);
+                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()), 0);
+                Assert.assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()), 0);
             }
         }
         Assert.assertTrue(gpxRte);
@@ -221,7 +218,7 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals(doc.getDocumentElement().getTagName(), "gpx");
+        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
         Assert.assertTrue(doc_length > 0);
         boolean gpxMetadata = false;
@@ -322,10 +319,8 @@ public class ResultTest extends ServiceTest {
                                 boolean metadataExtensionsSystemMessage = false;
                                 for (int k = 0; k < metadataExtensionsLength; k++) {
                                     Node extensionsElement = metadataItem.getChildNodes().item(k);
-                                    switch (extensionsElement.getNodeName()) {
-                                        case "system-message":
-                                            metadataExtensionsSystemMessage = true;
-                                            break;
+                                    if ("system-message".equals(extensionsElement.getNodeName())) {
+                                        metadataExtensionsSystemMessage = true;
                                     }
                                 }
                                 Assert.assertTrue(metadataExtensionsSystemMessage);
@@ -645,7 +640,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testGeoJsonExport() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -683,7 +678,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testIdInSummary() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
+        body.put("coordinates", getParameter("coordinatesShort"));
         body.put("id", "request123");
 
         given()
@@ -719,9 +714,47 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testCompleteMetadata() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("id", "request123");
+
+        given()
+                .header("Accept", "application/geo+json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("any {it.key == 'metadata'}", is(true))
+                .body("metadata.containsKey('id')", is(true))
+                .body("metadata.id", is("request123"))
+                .body("metadata.containsKey('attribution')", is(true))
+                .body("metadata.service", is("routing"))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.query.containsKey('coordinates')", is(true))
+                .body("metadata.query.coordinates.size()", is(2))
+                .body("metadata.query.coordinates[0][0]", is(8.678613f))
+                .body("metadata.query.coordinates[0][1]", is(49.411721f))
+                .body("metadata.query.coordinates[1][0]", is(8.687782f))
+                .body("metadata.query.coordinates[1][1]", is(49.424597f))
+                .body("metadata.query.profile", is("driving-car"))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.engine.containsKey('version')", is(true))
+                .body("metadata.engine.containsKey('build_date')", is(true))
+                .body("metadata.engine.containsKey('graph_date')", is(true))
+                .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
     public void expectSegmentsToMatchCoordinates() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
 
@@ -743,7 +776,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSummary() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -770,7 +803,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSegmentDistances() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -798,7 +831,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testEncodedPolyline() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -822,7 +855,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testWaypoints() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -844,7 +877,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testBbox() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -866,7 +899,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testManeuver() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -895,7 +928,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtras() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -921,7 +954,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtrasDetails() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", getParameter("extra_info"));
@@ -938,8 +971,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(28))
-                .body("routes[0].extras.surface.values[18][1]", is(342))
+                .body("routes[0].extras.surface.values.size()", is(38))
+                .body("routes[0].extras.surface.values[18][1]", is(258))
                 .body("routes[0].extras.suitability.values[18][0]", is(521))
                 .body("routes[0].extras.steepness.values[10][1]", is(326))
                 .statusCode(200);
@@ -950,7 +983,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testExtrasConsistency() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("surface|suitability|steepness"));
@@ -963,7 +996,7 @@ public class ResultTest extends ServiceTest {
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}");
 
-        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertEquals(200, response.getStatusCode());
 
         checkExtraConsistency(response);
     }
@@ -1413,7 +1446,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testContinueStraightNoBearings() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", (JSONArray) getParameter("coordinatesLong"));
+        body.put("coordinates", getParameter("coordinatesLong"));
         body.put("continue_straight", true);
 
         given()
@@ -1501,17 +1534,16 @@ public class ResultTest extends ServiceTest {
             JSONArray jValues = jExtraValues.getJSONArray(0);
             int fromValue = jValues.getInt(0);
             int toValue = jValues.getInt(1);
-            Assert.assertEquals(fromValue < toValue, true);
+            Assert.assertTrue(fromValue < toValue);
 
             for (int j = 1; j < jExtraValues.length(); j++) {
                 jValues = jExtraValues.getJSONArray(j);
                 int fromValue1 = jValues.getInt(0);
                 int toValue1 = jValues.getInt(1);
 
-                Assert.assertEquals(fromValue1 < toValue1, true);
-                Assert.assertEquals(fromValue1 == toValue, true);
+                Assert.assertTrue(fromValue1 < toValue1);
+                Assert.assertEquals(fromValue1, toValue);
 
-                fromValue = fromValue1;
                 toValue = toValue1;
             }
 
@@ -1526,10 +1558,51 @@ public class ResultTest extends ServiceTest {
                 amount += jSummaryValues.getDouble("amount");
             }
 
-            Assert.assertEquals(Math.abs(routeDistance - distance) < 0.5, true);
-
-            Assert.assertEquals(Math.abs(amount - 100.0) < 0.1, true);
+            Assert.assertEquals(routeDistance, distance, 0.5);
+            Assert.assertEquals(100, amount, 0.1);
         }
+    }
+
+    @Test
+    public void testVehicleType() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.71189,49.41165|8.71128,49.40971"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        JSONObject options = new JSONObject();
+        options.put("vehicle_type", "hgv");
+        body.put("options", options);
+
+        // Test that buses are not allowed on Neue Schlossstraße (https://www.openstreetmap.org/way/150549948)
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(605.3f))
+                .statusCode(200);
+
+        options.put("vehicle_type", "bus");
+        body.put("options", options);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1039.9f))
+                .statusCode(200);
     }
 
     @Test
@@ -1944,8 +2017,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(591.7f))
-                .body("routes[0].summary.duration", is(498.7f))
+                .body("routes[0].summary.distance", is(284.0f))
+                .body("routes[0].summary.duration", is(231.5f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1979,7 +2052,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", false);
 
         JSONObject restrictions = new JSONObject();
-        restrictions.put("maximum_sloped_kerb", 0.1);
+        restrictions.put("maximum_sloped_kerb", 0.31);
         JSONObject params = new JSONObject();
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
@@ -2018,8 +2091,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(146.7f))
-                .body("routes[0].summary.duration", is(126.1f))
+                .body("routes[0].summary.distance", is(105.8f))
+                .body("routes[0].summary.duration", is(90.7f))
                 .statusCode(200);
     }
 
@@ -2048,14 +2121,15 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(333.7f))
-                .body("routes[0].summary.duration", is(240.3f))
+                .body("routes[0].summary.distance", is(359.0f))
+                .body("routes[0].summary.duration", is(264.0f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
-        restrictions.put("surface_type", "paved");
+        restrictions.put("surface_type", "cobblestone:flattened");
         params = new JSONObject();
         params.put("restrictions", restrictions);
+        params.put("allow_unsuitable", true);
         options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);
@@ -2070,8 +2144,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(336.0f))
-                .body("routes[0].summary.duration", is(302.4f))
+                .body("routes[0].summary.distance", is(380.0f))
+                .body("routes[0].summary.duration", is(342.0f))
                 .statusCode(200);
     }
 
@@ -2100,8 +2174,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(748.4f))
-                .body("routes[0].summary.duration", is(593.3f))
+                .body("routes[0].summary.distance", is(473.7f))
+                .body("routes[0].summary.duration", is(379.0f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -2124,6 +2198,90 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(172.1f))
                 .body("routes[0].summary.duration", is(129.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testWheelchairSurfaceQualityKnown() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(749.1f))
+                .body("routes[0].summary.duration", is(559.9f))
+                .statusCode(200);
+
+        JSONObject params = new JSONObject();
+        params.put("surface_quality_known", true);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2215.7f))
+                .body("routes[0].summary.duration", is(1656.7f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testWheelchairAllowUnsuitable() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", constructCoords("8.668277,49.377836|8.664753,49.376104"));
+        body.put("preference", "shortest");
+        body.put("instructions", true);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(566.4f))
+                .body("routes[0].summary.duration", is(456.7f))
+                .statusCode(200);
+
+        JSONObject params = new JSONObject();
+        params.put("allow_unsuitable", true);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(382.1f))
+                .body("routes[0].summary.duration", is(326.0f))
                 .statusCode(200);
     }
 
@@ -2974,9 +3132,9 @@ public class ResultTest extends ServiceTest {
             .body("routes[1].summary.distance", is( 6435.1f))
             .body("routes[1].summary.duration", is(801.5f))
             .body("routes[0].way_points[-1]", is(223))
-            .body("routes[0].extras.surface.values[0][1]", is(223))
+            .body("routes[0].extras.surface.values[0][1]", is(3))
             .body("routes[1].way_points[-1]", is(202))
-            .body("routes[1].extras.surface.values[6][1]", is(202))
+            .body("routes[1].extras.surface.values[4][1]", is(202))
             .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]}}");

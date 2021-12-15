@@ -72,6 +72,7 @@ public class MultiTreeMetricsExtractor {
 	private boolean reverseOrder = true;
 	private GHLongObjectHashMap<MetricsItem> edgeMetrics;
 	private long maxEdgeId;
+	private boolean swap;
 
 	public MultiTreeMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting,
 			DistanceUnit units) {
@@ -95,6 +96,10 @@ public class MultiTreeMetricsExtractor {
 		maxEdgeId = chGraph.getAllEdges().length();
 	}
 
+	public void setSwap(boolean swap){
+		this.swap = swap;
+	}
+
 	public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
 		int i = sourceIndex * dstData.size();
 		int[] targetNodes = dstData.getNodeIds();
@@ -111,7 +116,7 @@ public class MultiTreeMetricsExtractor {
 	}
 
 	public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData, MatrixLocations dstData, float[] times,
-			float[] distances, float[] weights) throws Exception {
+						   float[] distances, float[] weights) throws Exception {
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set");
 
@@ -139,12 +144,15 @@ public class MultiTreeMetricsExtractor {
 					MultiTreeSPEntry targetEntry = targets[i];
 
 					if (targetEntry != null) {
-						pathTime = 0.0;
-						pathDistance = 0.0;
-						pathWeight = 0.0;
-
+						//Only set values to 0 if target and start node are the same
 						sptItem = targetEntry.getItem(srcNode);
 
+						if(srcData.getNodeId(j) == targetEntry.getAdjNode() || sptItem.getParent() != null) {
+							pathTime = 0.0;
+							pathDistance = 0.0;
+							pathWeight = 0.0;
+						}
+						
 						if (sptItem.getParent() != null) {
 							while (EdgeIterator.Edge.isValid(sptItem.getEdge())) {
 								edgeMetricsItem = null;
@@ -161,16 +169,16 @@ public class MultiTreeMetricsExtractor {
 										boolean unpackDistance = true;
 										if (calcWeight || calcTime || unpackDistance) {
 											if (iterState.isShortcut()) {
-												if (chGraph.getLevel(iterState.getBaseNode()) > chGraph
+												if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
 														.getLevel(iterState.getAdjNode())) {
 													reverseOrder = true;
-													extractEdgeValues(iterState, false);
+													extractEdgeValues(iterState, swap);
 												} else {
 													reverseOrder = false;
-													extractEdgeValues(iterState, true);
+													extractEdgeValues(iterState, !swap);
 												}
 											} else {
-												extractEdgeValues(iterState, false);
+												extractEdgeValues(iterState, swap);
 											}
 
 											if (unpackDistance)
@@ -183,7 +191,7 @@ public class MultiTreeMetricsExtractor {
 											edgeDistance = (distUnits == DistanceUnit.METERS)
 													? iterState.getDistance()
 													: DistanceUnitUtil.convert(iterState.getDistance(),
-															DistanceUnit.METERS, distUnits);
+													DistanceUnit.METERS, distUnits);
 									} else {
 										EdgeIteratorState iter = graph.getEdgeIteratorState(sptItem.getEdge(),
 												targetEntry.getAdjNode());
@@ -220,7 +228,6 @@ public class MultiTreeMetricsExtractor {
 									if (calcWeight)
 										pathWeight += edgeMetricsItem.weight;
 								}
-
 								targetEntry = sptItem.getParent();
 
 								if (targetEntry == null)
