@@ -48,10 +48,6 @@ public class TrafficRelevantWayType {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS3.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS4.value;
-//        } else if (roadType == TrafficGraphStorage.RoadTypes.UNCLASSIFIED.value) {
-//            return TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value;
-//        } else if (roadType == TrafficGraphStorage.RoadTypes.RESIDENTIAL.value) {
-//            return TrafficRelevantWayType.RelevantWayTypes.CLASS5.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY_LINK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value;
         } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY_LINK.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK_LINK.value) {
