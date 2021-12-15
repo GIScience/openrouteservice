@@ -34,6 +34,10 @@ RELEASING:
  -->
 
 ## [Unreleased]
+## [6.6.3] - 2021-12-15
+### Fixed
+- switch to GH fork version v0.13.15-3 to address updated log4j version
+
 ## [6.6.2] - 2021-12-15
 ### Fixed
 - updated log4j version to 2.16.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
@@ -488,7 +492,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...HEAD
+[6.6.3]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...v6.6.3
 [6.6.2]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...v6.6.2
 [6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
