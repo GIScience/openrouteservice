@@ -26,12 +26,12 @@ import com.graphhopper.util.EdgeIteratorState;
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreDijkstraFilter implements EdgeFilter {
-    private final CHGraph graph;
-    private final int maxNodes;
-    private final int coreNodeLevel;
-    EdgeFilter restrictions;
+    protected final CHGraph graph;
+    protected final int maxNodes;
+    protected final int coreNodeLevel;
+    protected EdgeFilter restrictions;
 
-    boolean inCore = false;
+    protected boolean inCore = false;
 
     public void setInCore(boolean inCore) {
         this.inCore = inCore;
@@ -54,7 +54,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
      * the level of the adjacent node
      */
     @Override
-    
+
     public boolean accept(EdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
@@ -79,13 +79,13 @@ public class CoreDijkstraFilter implements EdgeFilter {
             // do not follow virtual edges, and stay within core
             if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
-                return restrictions.accept(edgeIterState);
+                return restrictions == null || restrictions.accept(edgeIterState);
             else
                 return false;
         }
     }
 
-    private boolean isCoreNode(int node) {
+    protected boolean isCoreNode(int node) {
         return graph.getLevel(node) >= coreNodeLevel;
     }
 

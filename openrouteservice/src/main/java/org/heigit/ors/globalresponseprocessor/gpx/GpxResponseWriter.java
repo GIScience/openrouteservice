@@ -63,7 +63,8 @@ public class GpxResponseWriter {
 
     /**
      * toGPX can be used to convert a  {@link RoutingRequest} and {@link RouteResult} to a gpx.
-     * Specific values should be set in the App.config. If not, the process continues with empty values and a log4j error message.
+     * Specific values should be set in the ors-config.json.
+     * If not, the process continues with empty values and a log4j error message.
      *
      * @param rreq         The {@link RoutingRequest} object holds route specific information like language...
      * @param routeResults The function needs a {@link RouteResult} as input.

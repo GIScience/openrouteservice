@@ -24,7 +24,6 @@ import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestHandler;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
@@ -81,7 +80,7 @@ public class RoutingAPI {
             "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.", value = "Directions Service (GET)", httpMethod = "GET")
     @ApiResponses(
             @ApiResponse(code = 200,
-                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
                     response = GeoJSONRouteResponse.class)
     )
     public GeoJSONRouteResponse getSimpleGeoJsonRoute(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -90,7 +89,7 @@ public class RoutingAPI {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GeoJSONRouteResponse(result, request);
     }
@@ -99,7 +98,7 @@ public class RoutingAPI {
     @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as JSON", value = "Directions Service (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
     @ApiResponses(
             @ApiResponse(code = 200,
-                    message = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    message = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
                     response = JSONRouteResponse.class)
     )
     public JSONRouteResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -118,7 +117,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new JSONRouteResponse(result, request);
     }
@@ -137,7 +136,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GPXRouteResponse(result, request);
 
@@ -147,7 +146,7 @@ public class RoutingAPI {
     @ApiOperation(notes = "Returns a route between two or more locations for a selected profile and its settings as GeoJSON", value = "Directions Service GeoJSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
     @ApiResponses(value = {
             @ApiResponse(code = 200,
-                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://github.com/GIScience/openrouteservice-docs).",
+                    message = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
                     response = GeoJSONRouteResponse.class)
     })
     public GeoJSONRouteResponse getGeoJsonRoute(
@@ -156,7 +155,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        RouteResult[] result = new RouteRequestHandler().generateRouteFromRequest(request);
+        RouteResult[] result = request.generateRouteFromRequest();
 
         return new GeoJSONRouteResponse(result, request);
     }
