@@ -11,6 +11,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEnc
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
@@ -54,7 +55,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             if (isVehicle) {
                 trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
                 // For heavy vehicles, consider the traffic speeds only up to a predefined speeds
-                if(!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
+                if (!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
                     speed = trafficSpeed;
                 }
             } else {
@@ -78,6 +79,10 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
 
     public void setZonedDateTime(ZonedDateTime zdt) {
         this.timeZoneOffset = zdt.getOffset().getTotalSeconds() / 3600;
+    }
+
+    public ZoneId getZoneId() {
+        return trafficGraphStorage.getZoneId();
     }
 
     @Override

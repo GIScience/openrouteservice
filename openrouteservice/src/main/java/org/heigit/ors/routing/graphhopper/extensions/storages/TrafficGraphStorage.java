@@ -20,6 +20,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -74,6 +75,8 @@ public class TrafficGraphStorage implements GraphExtension {
     private DataAccess orsEdgesProperties; // RAMDataAccess
     private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
     private DataAccess orsSpeedPatternLookup; // RAMDataAccess
+
+    private ZoneId zoneId = ZoneId.of("Europe/Berlin");
 
     private int edgePropertyEntryBytes;
     private int edgeLinkLookupEntryBytes;
@@ -621,4 +624,11 @@ public class TrafficGraphStorage implements GraphExtension {
         }
     }
 
+    public void setZoneId(ZoneId zoneId) {
+        this.zoneId = zoneId;
+    }
+
+    public ZoneId getZoneId() {
+        return this.zoneId;
+    }
 }

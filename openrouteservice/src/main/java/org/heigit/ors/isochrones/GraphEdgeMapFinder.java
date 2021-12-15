@@ -38,7 +38,6 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +108,7 @@ public class GraphEdgeMapFinder {
         tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
         //Time is defined to be in UTC + 1 because original implementation was for German traffic data
         //If changed, this needs to be adapted in the traffic storage, too
-        ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(ZoneId.of("Europe/Berlin"));
+        ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(trafficSpeedCalculator.getZoneId());
         trafficSpeedCalculator.setZonedDateTime(zdt);
         int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;
         fromId = parameters.getReverseDirection() ? Integer.MIN_VALUE : fromId;
