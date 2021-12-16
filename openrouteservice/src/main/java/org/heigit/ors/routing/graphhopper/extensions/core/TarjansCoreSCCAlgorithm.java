@@ -45,25 +45,24 @@ import java.util.List;
 public class TarjansCoreSCCAlgorithm {
     private final ArrayList<IntArrayList> components = new ArrayList<>();
     // TODO use just the Graph interface here
-    private final GraphHopperStorage graph;
     private final IntArrayDeque nodeStack;
     private final GHBitSet onStack;
     private final GHBitSet ignoreSet;
     private final int[] nodeIndex;
     private final int[] nodeLowLink;
-    private final CoreEdgeFilter edgeFilter;
+    private final CHEdgeFilter edgeFilter;
     private int index = 1;
     private final RoutingCHGraph core;
     private final int coreNodeLevel;
 
     public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
-        this.graph = ghStorage;
         this.core = core;
         this.nodeStack = new IntArrayDeque();
         this.onStack = new GHBitSetImpl(ghStorage.getNodes());
         this.nodeIndex = new int[ghStorage.getNodes()];
         this.nodeLowLink = new int[ghStorage.getNodes()];
-        this.edgeFilter = new CoreEdgeFilter(core);
+        CoreEdgeFilter coreEdgeFilter = new CoreEdgeFilter(core, edgeFilter);
+        this.edgeFilter = edge -> coreEdgeFilter.accept(edge) && Double.isFinite(edge.getWeight(false));
         this.coreNodeLevel = core.getNodes();
 
 
@@ -204,9 +203,9 @@ public class TarjansCoreSCCAlgorithm {
 
     private static class CoreEdgeIterator implements RoutingCHEdgeIterator {
         private RoutingCHEdgeIterator chIterator;
-        private CoreEdgeFilter coreFilter;
+        private CHEdgeFilter coreFilter;
 
-        public CoreEdgeIterator(RoutingCHEdgeIterator chIterator, CoreEdgeFilter coreFilter) {
+        public CoreEdgeIterator(RoutingCHEdgeIterator chIterator, CHEdgeFilter coreFilter) {
             this.chIterator = chIterator;
             this.coreFilter = coreFilter;
         }
