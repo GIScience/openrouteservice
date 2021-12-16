@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -44,6 +45,12 @@ public class CorePreparationHandler extends CHPreparationHandler {
         super();
         PREPARE = Core.PREPARE;
         DISABLE = Core.DISABLE;
+    }
+
+    public void init(GraphHopperConfig ghConfig) {
+        // TODO: this needs to check if core is enabled and create appropriate CHProfiles
+//        setCHProfiles(ghConfig.getCHProfiles());
+        pMap = ghConfig.asPMap();
     }
 
     @Override
