@@ -31,7 +31,6 @@ import com.graphhopper.routing.util.AreaIndex;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
@@ -73,29 +72,6 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     }
 
     @Override
-    public Weighting createLmSelectionWeighting() {
-        return new CoreLmSelectionWeighting();
-    }
-
-    class CoreLmSelectionWeighting extends LmSelectionWeighting {
-        public CoreLmSelectionWeighting() {
-            super();
-        }
-
-        //FIXME: we need to account for shrotcuts here!
-        @Override
-        public double calcEdgeWeight(EdgeIteratorState edge, boolean reverse) {
-            // make accessibility of shortest identical to the provided weighting to avoid problems like shown in testWeightingConsistence
-            double res = getWeighting().calcEdgeWeight(edge, reverse);
-            if (res >= Double.MAX_VALUE)
-                return Double.POSITIVE_INFINITY;
-
-            // returning the time or distance leads to strange landmark positions (ferries -> slow&very long) and BFS is more what we want
-            return 1;
-        }
-    }
-
-    @Override
     public String getLandmarksFileName() {
         return "landmarks_core_" + lmConfig.getName() + landmarksFilter.getName();
     }
@@ -112,7 +88,6 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         List<int[]> landmarkIDs = getLandmarkIDs();
         AreaIndex<SplitArea> areaIndex = getAreaIndex();
         boolean logDetails = isLogDetails();
-        Weighting weighting = getWeighting();
         double factor = getFactor();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
         int coreNodes = core.getCoreNodes();
@@ -288,6 +263,11 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         return new CoreLandmarkExplorer(core, weighting, accessFilter, reverse);
     }
 
+    @Override
+    public LandmarkExplorer getLandmarkSelector(EdgeFilter accessFilter) {
+        return new CoreLandmarkSelector(core, getLmSelectionWeighting(), accessFilter, false);
+    }
+
     /**
      * This class is used to calculate landmark location (equally distributed).
      * It derives from DijkstraBidirectionRef, but is only used as forward or backward search.
@@ -401,5 +381,47 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                         + ". For example use maximum_lm_weight: " + finalMaxWeight.getValue() * 1.2 + " in your LM profile definition");
             }
         }
+    }
+
+    private class CoreLandmarkSelector extends CoreLandmarkExplorer {
+
+        public CoreLandmarkSelector(RoutingCHGraph g, Weighting weighting, EdgeFilter accessFilter, boolean reverse) {
+            super(g, weighting, accessFilter, reverse);
+        }
+
+        // need to adapt this method
+        @Override
+        protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+            if (edgeState.isShortcut()) {
+                if (edgeState.getWeight(false) >= Double.MAX_VALUE)
+                    return Double.POSITIVE_INFINITY;
+                return expandEdge(edgeState);
+            }
+            else
+                return super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+        }
+
+        private int expandEdge(RoutingCHEdgeIteratorState mainEdgeState) {
+            if (!mainEdgeState.isShortcut())
+                return 1;
+
+            int skippedEdge1 = mainEdgeState.getSkippedEdge1();
+            int skippedEdge2 = mainEdgeState.getSkippedEdge2();
+            int from = mainEdgeState.getBaseNode();
+            int to = mainEdgeState.getAdjNode();
+
+            RoutingCHEdgeIteratorState iter1, iter2;
+            iter1 = core.getEdgeIteratorState(skippedEdge1, from);
+            if (iter1 == null) {
+                iter1 = core.getEdgeIteratorState(skippedEdge2, from);
+                iter2 = core.getEdgeIteratorState(skippedEdge1, to);
+            }
+            else {
+                iter2 = core.getEdgeIteratorState(skippedEdge2, to);
+            }
+
+            return expandEdge(iter1) + expandEdge(iter2);
+        }
+
     }
 }
