@@ -899,8 +899,9 @@ public class RoutingProfile {
                 req.getHints().merge(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
-                if (requiresTimeDependentWeighting(searchParams, searchCntx))
+                boolean timeDependentSpeedOrAccess = hasTimeDependentSpeedOrAccess(searchParams, searchCntx);
+                setWeighting(req.getHints(), weightingMethod, profileType, timeDependentSpeedOrAccess);
+                if (timeDependentSpeedOrAccess)
                     flexibleMode = KEY_FLEX_PREPROCESSED;
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
@@ -997,7 +998,7 @@ public class RoutingProfile {
      * @param profileType      Necessary for HGV
      * @return Weighting as int
      */
-    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
+    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeedorAccess) {
         //Defaults
         String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
@@ -1020,8 +1021,8 @@ public class RoutingProfile {
         map.put(KEY_WEIGHTING, weighting);
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
 
-        if (hasTimeDependentSpeed)
-            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
+        if (hasTimeDependentSpeedorAccess)
+            map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
     }
 
     /**
@@ -1049,16 +1050,7 @@ public class RoutingProfile {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
     }
 
-    boolean hasTimeDependentSpeed(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
-        if (!searchParams.isTimeDependent())
-            return false;
-
-        FlagEncoder flagEncoder = searchCntx.getEncoder();
-        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
-                || mGraphHopper.isTrafficEnabled();
-    }
-
-    boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+    boolean hasTimeDependentSpeedOrAccess(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
         if (!searchParams.isTimeDependent())
             return false;
 

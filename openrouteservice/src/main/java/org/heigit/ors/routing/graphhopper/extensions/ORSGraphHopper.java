@@ -353,7 +353,7 @@ public class ORSGraphHopper extends GraphHopper {
                 if (isRequestTimeDependent(hints)) {
                     weighting = createTimeDependentAccessWeighting(weighting);
 
-                    if (hints.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false))
+                    if (hints.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, false))
                         algoStr = TD_ASTAR;
 
                     DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());

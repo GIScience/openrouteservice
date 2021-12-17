@@ -171,7 +171,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 	}
 
 	private boolean hasTimeDependentSpeed(HintsMap hintsMap) {
-		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
+		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, false);
 	}
 
 	private boolean hasConditionalSpeed(FlagEncoder encoder, GraphHopperStorage graphStorage) {
