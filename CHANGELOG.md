@@ -62,6 +62,7 @@ RELEASING:
 - Default road surface value is now "paved" rather than "asphalt" ([#711](https://github.com/GIScience/openrouteservice/issues/711))
 - `error_codes.md`-documentation now with rest of backend docs ([#1069](https://github.com/GIScience/openrouteservice/issues/1069))
 - remove duplicated code in `*RequestHandlers` ([#1067](https://github.com/GIScience/openrouteservice/issues/1067))
+- extended list of `places`-request and -response categories
 ### Deprecated
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
@@ -71,6 +72,15 @@ RELEASING:
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
 - Improve travel time estimation for ferry routes ([#1037](https://github.com/GIScience/openrouteservice/issues/1037))
 - Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
+- updated log4j version to 2.15.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+
+## [6.6.3] - 2021-12-15
+### Fixed
+- switch to GH fork version v0.13.15-3 to address updated log4j version
+
+## [6.6.2] - 2021-12-15
+### Fixed
+- updated log4j version to 2.16.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
 
 ## [6.6.1] - 2021-07-05
 ### Fixed
@@ -523,7 +533,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...HEAD
+[6.6.3]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...v6.6.3
+[6.6.2]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...v6.6.2
 [6.6.1]: https://github.com/GIScience/openrouteservice/compare/v6.6.0...v6.6.1
 [6.6.0]: https://github.com/GIScience/openrouteservice/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/GIScience/openrouteservice/compare/v6.4.4...v6.5.0

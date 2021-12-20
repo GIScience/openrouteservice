@@ -1,10 +1,10 @@
 ---
 parent: Documentation
 nav_order: 10
-title: Places Response
+title: Places Request and Response
 ---
 
-# Places Response
+# Places Request and Response
 
 The following tables contain the related names for the ``category_group_ids`` and the subordinate ``category_ids``.
 
@@ -219,7 +219,7 @@ Categories listed by group
 | brewing_supplies  | 432   | copyshop         | 452   | general             | 472   | marketplace           | 493   | security      | 513   | wine            | 533   |
 | business_machines | 433   | cosmetics        | 453   | gift                | 473   | medical_supply        | 494   | shoes         | 514   |                 |       |
 | butcher           | 434   | dairy            | 454   | greengrocer         | 474   | mobile_phone          | 495   | spices        | 515   |                 |       |
-| caf?              | 435   | deli             | 455   | grocery             | 475   | model                 | 496   | sports        | 516   |                 |       |
+| cafe              | 435   | deli             | 455   | grocery             | 475   | model                 | 496   | sports        | 516   |                 |       |
 | camera            | 436   | department_store | 456   | interior_decoration | 476   | motorcycle            | 497   | stationery    | 517   |                 |       |
 | candles           | 437   | doityourself     | 457   | hairdresser_supply  | 477   | music                 | 498   | supermarket   | 518   |                 |       |
 | car               | 438   | electrical       | 458   | hardware            | 478   | musical_instrument    | 499   | swimming_pool | 519   |                 |       |
@@ -251,10 +251,12 @@ Categories listed by group
 | bicycle_rental         | 584   |   | ev_charging        | 594   |   | station          | 604   |
 | bicycle_repair_station | 585   |   | ferry_terminal     | 595   |   | tram_stop        | 605   |
 | boat_sharing           | 586   |   | fuel               | 596   |   | taxi             | 606   |
-| bus_station            | 587   |   | halt               | 597   |   |                  |       |
-| bus_stop               | 588   |   | helipad            | 598   |   |                  |       |
-| car_rental             | 589   |   | heliport           | 599   |   |                  |       |
-| car_repair             | 590   |   | motorcycle_parking | 600   |   |                  |       |
+| bus_station            | 587   |   | halt               | 597   |   | platform         | 607   |
+| bus_stop               | 588   |   | helipad            | 598   |   | stop_position    | 608   |
+| car_rental             | 589   |   | heliport           | 599   |   | stop_area        | 609   |
+| car_repair             | 590   |   | motorcycle_parking | 600   |   | station          | 610   |
+
+Note, that `station` appears once as a railway station (604) and once as a general public transport station (610).
 
 ### tourism : 620
 

@@ -19,20 +19,38 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.ParameterOutOfRangeException;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.isochrones.*;
+import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
+import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
 
 
 @ApiModel(value = "IsochronesRequest", description = "The JSON body request sent to the isochrones service which defines options and parameters regarding the isochrones to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class IsochronesRequest {
-    public static final String PARAM_ID = "id";
-    public static final String PARAM_PROFILE = "profile";
+public class IsochronesRequest extends APIRequest {
     public static final String PARAM_LOCATIONS = "locations";
     public static final String PARAM_LOCATION_TYPE = "location_type";
     public static final String PARAM_OPTIONS = "options";
@@ -46,14 +64,6 @@ public class IsochronesRequest {
     public static final String PARAM_SMOOTHING = "smoothing";
     public static final String PARAM_TIME = "time";
 
-
-    @ApiModelProperty(name = PARAM_ID,
-            value = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "isochrones_request")
-    @JsonProperty(PARAM_ID)
-    private String id;
-    @JsonIgnore
-    private boolean hasId = false;
 
     @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
@@ -96,9 +106,6 @@ public class IsochronesRequest {
     private APIEnums.Units rangeUnit;
     @JsonIgnore
     private boolean hasRangeUnits = false;
-
-    @ApiModelProperty(name = PARAM_PROFILE, hidden = true, required = true)
-    private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_OPTIONS,
             value = "Additional options for the isochrones request",
@@ -166,22 +173,27 @@ public class IsochronesRequest {
     @JsonIgnore
     private boolean hasTime = false;
 
+    private IsochroneMapCollection isoMaps;
+    private IsochroneRequest isochroneRequest;
+
     @JsonCreator
     public IsochronesRequest() {
-        // nothing to do
     }
 
-    public String getId() {
-        return id;
+    static String[] convertAttributes(IsochronesRequestEnums.Attributes[] attributes) {
+        return convertAPIEnumListToStrings(attributes);
     }
 
-    public void setId(String id) {
-        this.id = id;
-        this.hasId = true;
-    }
-
-    public boolean hasId() {
-        return hasId;
+    protected static int convertToIsochronesProfileType(APIEnums.Profile profile) throws ParameterValueException {
+        try {
+            int profileFromString = RoutingProfileType.getFromString(profile.toString());
+            if (profileFromString == 0) {
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+            }
+            return profileFromString;
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "profile");
+        }
     }
 
     public APIEnums.Units getAreaUnit() {
@@ -283,14 +295,6 @@ public class IsochronesRequest {
         return hasLocationType;
     }
 
-    public APIEnums.Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(APIEnums.Profile profile) {
-        this.profile = profile;
-    }
-
     public RouteRequestOptions getIsochronesOptions() {
         return isochronesOptions;
     }
@@ -352,6 +356,278 @@ public class IsochronesRequest {
         hasTime = true;
     }
 
-    public boolean hasTime() { return hasTime; }
+    public boolean hasTime() {
+        return hasTime;
+    }
 
+    public void generateIsochronesFromRequest() throws Exception {
+        this.isochroneRequest = this.convertIsochroneRequest();
+        // request object is built, now check if ors config allows all settings
+        List<TravellerInfo> travellers = this.isochroneRequest.getTravellers();
+
+        // TODO where should we put the validation code?
+        validateAgainstConfig(this.isochroneRequest, travellers);
+
+        if (!travellers.isEmpty()) {
+            isoMaps = new IsochroneMapCollection();
+
+            for (int i = 0; i < travellers.size(); ++i) {
+                IsochroneSearchParameters searchParams = this.isochroneRequest.getSearchParameters(i);
+                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
+                isoMaps.add(isochroneMap);
+            }
+
+        }
+    }
+
+    Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
+        float f = (float) smoothingValue.doubleValue();
+
+        if (smoothingValue < 0 || smoothingValue > 100)
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_SMOOTHING, smoothingValue.toString());
+
+        return f;
+    }
+
+    String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
+        IsochronesRequestEnums.LocationType value;
+
+        switch (locationType) {
+            case DESTINATION:
+                value = IsochronesRequestEnums.LocationType.DESTINATION;
+                break;
+            case START:
+                value = IsochronesRequestEnums.LocationType.START;
+                break;
+            default:
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
+        }
+
+        return value.toString();
+    }
+
+    TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
+        TravelRangeType travelRangeType;
+
+        switch (rangeType) {
+            case DISTANCE:
+                travelRangeType = TravelRangeType.DISTANCE;
+                break;
+            case TIME:
+                travelRangeType = TravelRangeType.TIME;
+                break;
+            default:
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
+        }
+
+        return travelRangeType;
+
+    }
+
+    String convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+
+        DistanceUnit convertedAreaUnit;
+        try {
+            convertedAreaUnit = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+            if (convertedAreaUnit == DistanceUnit.UNKNOWN)
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_AREA_UNITS, unitsIn.toString());
+
+            return DistanceUnitUtil.toString(convertedAreaUnit);
+
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_AREA_UNITS, unitsIn.toString());
+        }
+    }
+
+    String convertRangeUnit(APIEnums.Units unitsIn) throws ParameterValueException {
+
+        DistanceUnit units;
+        try {
+            units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
+            if (units == DistanceUnit.UNKNOWN)
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_UNITS, unitsIn.toString());
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_UNITS, unitsIn.toString());
+        }
+        return DistanceUnitUtil.toString(units);
+
+    }
+
+    Coordinate convertSingleCoordinate(Double[] coordinate) throws ParameterValueException {
+        Coordinate realCoordinate;
+        if (coordinate.length != 2) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATIONS);
+        }
+        try {
+            realCoordinate = new Coordinate(coordinate[0], coordinate[1]);
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATIONS);
+        }
+        return realCoordinate;
+    }
+
+    IsochroneRequest convertIsochroneRequest() throws Exception {
+        IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
+
+
+        for (int i = 0; i < locations.length; i++) {
+            Double[] location = locations[i];
+            TravellerInfo travellerInfo = this.constructTravellerInfo(location);
+            travellerInfo.setId(Integer.toString(i));
+            try {
+                convertedIsochroneRequest.addTraveller(travellerInfo);
+            } catch (Exception ex) {
+                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, IsochronesRequest.PARAM_INTERVAL);
+            }
+        }
+        if (this.hasId())
+            convertedIsochroneRequest.setId(this.getId());
+        if (this.hasRangeUnits())
+            convertedIsochroneRequest.setUnits(convertRangeUnit(rangeUnit));
+        if (this.hasAreaUnits())
+            convertedIsochroneRequest.setAreaUnits(convertAreaUnit(areaUnit));
+        if (this.hasAttributes())
+            convertedIsochroneRequest.setAttributes(convertAttributes(attributes));
+        if (this.hasSmoothing())
+            convertedIsochroneRequest.setSmoothingFactor(convertSmoothing(smoothing));
+        if (this.hasIntersections())
+            convertedIsochroneRequest.setIncludeIntersections(intersections);
+        if (this.hasOptions())
+            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(CONCAVE_BALLS));
+        else
+            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(FASTISOCHRONE));
+        return convertedIsochroneRequest;
+
+    }
+
+    TravellerInfo constructTravellerInfo(Double[] coordinate) throws Exception {
+        TravellerInfo travellerInfo = new TravellerInfo();
+
+        RouteSearchParameters routeSearchParameters = this.constructRouteSearchParameters();
+        travellerInfo.setRouteSearchParameters(routeSearchParameters);
+        if (this.hasRangeType())
+            travellerInfo.setRangeType(convertRangeType(rangeType));
+        if (this.hasLocationType())
+            travellerInfo.setLocationType(convertLocationType(locationType));
+        travellerInfo.setLocation(convertSingleCoordinate(coordinate));
+        travellerInfo.getRanges();
+        //range + interval
+        if (range == null) {
+            throw new ParameterValueException(IsochronesErrorCodes.MISSING_PARAMETER, IsochronesRequest.PARAM_RANGE);
+        }
+        List<Double> rangeValues = range;
+        Double intervalValue = interval;
+        setRangeAndIntervals(travellerInfo, rangeValues, intervalValue);
+        return travellerInfo;
+    }
+
+    RouteSearchParameters constructRouteSearchParameters() throws Exception {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        int profileType;
+        try {
+            profileType = convertToIsochronesProfileType(this.getProfile());
+        } catch (Exception e) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+        }
+
+        if (profileType == RoutingProfileType.UNKNOWN)
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+        routeSearchParameters.setProfileType(profileType);
+
+        if (this.hasOptions()) {
+            routeSearchParameters = this.processIsochronesRequestOptions(routeSearchParameters);
+        }
+        if (this.hasTime()) {
+            routeSearchParameters.setDeparture(this.getTime());
+            routeSearchParameters.setArrival(this.getTime());
+        }
+        routeSearchParameters.setConsiderTurnRestrictions(false);
+        return routeSearchParameters;
+    }
+
+    RouteSearchParameters processIsochronesRequestOptions(RouteSearchParameters parameters) throws StatusCodeException {
+        RouteRequestOptions options = isochronesOptions;
+        parameters = this.processRequestOptions(options, parameters);
+        if (options.hasProfileParams())
+            parameters.setProfileParams(convertParameters(options, parameters.getProfileType()));
+        return parameters;
+    }
+
+    void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
+
+        if (!IsochronesServiceSettings.getAllowComputeArea() && isochroneRequest.hasAttribute("area"))
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
+
+        if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
+            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
+
+        for (TravellerInfo traveller : travellers) {
+            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());
+            double maxRange = traveller.getMaximumRange();
+            if (maxRange > maxAllowedRange)
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
+
+            int maxIntervals = IsochronesServiceSettings.getMaximumIntervals();
+            if (maxIntervals > 0 && maxIntervals < traveller.getRanges().length) {
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM, IsochronesRequest.PARAM_INTERVAL, "Resulting number of " + traveller.getRanges().length + " isochrones exceeds maximum value of " + maxIntervals + ".");
+            }
+        }
+
+    }
+
+    void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues, Double intervalValue) throws ParameterValueException, ParameterOutOfRangeException {
+        double rangeValue = -1;
+        if (rangeValues.size() == 1) {
+            try {
+                rangeValue = rangeValues.get(0);
+                travellerInfo.setRanges(new double[]{rangeValue});
+            } catch (NumberFormatException ex) {
+                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "range");
+            }
+        } else {
+            double[] ranges = new double[rangeValues.size()];
+            double maxRange = Double.MIN_VALUE;
+            for (int i = 0; i < ranges.length; i++) {
+                double dv = rangeValues.get(i);
+                if (dv > maxRange)
+                    maxRange = dv;
+                ranges[i] = dv;
+            }
+            Arrays.sort(ranges);
+            travellerInfo.setRanges(ranges);
+        }
+        // interval, only use if one range is defined
+
+        if (rangeValues.size() == 1 && rangeValue != -1 && intervalValue != null) {
+            if (intervalValue > rangeValue) {
+                throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_INTERVAL, Double.toString(intervalValue), Double.toString(rangeValue));
+            }
+            travellerInfo.setRanges(rangeValue, intervalValue);
+        }
+    }
+
+    String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
+        try {
+            switch (bareCalcMethod) {
+                case CONCAVE_BALLS:
+                    return "concaveballs";
+                case GRID:
+                    return "grid";
+                case FASTISOCHRONE:
+                    return "fastisochrone";
+                default:
+                    return "none";
+            }
+        } catch (Exception ex) {
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
+        }
+    }
+
+    public IsochroneMapCollection getIsoMaps() {
+        return isoMaps;
+    }
+
+    public IsochroneRequest getIsochroneRequest() {
+        return isochroneRequest;
+    }
 }
