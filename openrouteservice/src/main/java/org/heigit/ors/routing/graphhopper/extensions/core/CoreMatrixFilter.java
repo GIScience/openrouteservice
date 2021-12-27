@@ -13,13 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
-import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -35,13 +35,12 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
     }
 
     /**
-     *
      * @param edgeIterState iterator pointing to a given edge
      * @return true iff the edge is virtual or is a shortcut or the level of the base node is greater/equal than
      * the level of the adjacent node
      */
     // TODO: @Override
-    public boolean accept(EdgeIteratorState edgeIterState) {
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
 
@@ -54,8 +53,8 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
                 return true;
             else
                 return graph.getLevel(base) <= graph.getLevel(adj);
-        }
-        else {
+        } else {
+            //This is the difference to the superclass CoreDijkstraFilter: Accept virtual edges, as there are more than 2 virtual nodes in the graph in a matrix request.
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
@@ -65,7 +64,7 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
             // do not follow virtual edges, and stay within core
             if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
-                return restrictions == null || restrictions.accept(edgeIterState);
+                return restrictions == null || restrictions.accept(graph.getBaseGraph().getEdgeIteratorState(edgeIterState.getEdge(), adj));
             else
                 return false;
         }
