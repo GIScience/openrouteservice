@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.lessThan;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
@@ -404,17 +403,14 @@ public class ResultTest extends ServiceTest {
 
     @Test
     public void testSmoothingFactor() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_2000"));
         body.put("smoothing", "10");
         body.put("range_type", "distance");
 
-        // Updated in the GH 0.12 update from size = 52 as there is a difference in the order that edges are returned and
-        // so neighbourhood search results in slightly different results
 
-        given()
+        int lowSmoothingCoordinatesSize = given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("cyclingProfile"))
@@ -424,8 +420,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(51))
-                .statusCode(200);
+                .extract().jsonPath().getInt("features[0].geometry.coordinates[0].size()");
 
         body.put("smoothing", "100");
 
@@ -439,7 +434,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(19))
+                .body("features[0].geometry.coordinates[0].size()", lessThan(lowSmoothingCoordinatesSize))
                 .statusCode(200);
     }
 
