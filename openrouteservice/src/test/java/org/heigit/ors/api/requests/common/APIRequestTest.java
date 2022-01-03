@@ -17,17 +17,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GenericHandlerTest {
-    GenericHandler handler;
+public class APIRequestTest {
+    APIRequest request;
 
     @Before
     public void setUp() throws Exception {
-        handler = new GenericHandler();
+        request = new APIRequest();
     }
 
     @Test
     public void convertAPIEnumListToStrings() {
-        String[] strVals = handler.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
+        String[] strVals = APIRequest.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
         Assert.assertEquals(2, strVals.length);
         Assert.assertEquals("steepness", strVals[0]);
         Assert.assertEquals("surface", strVals[1]);
@@ -35,36 +35,36 @@ public class GenericHandlerTest {
 
     @Test
     public void convertAPIEnum() {
-        String strVal = handler.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
+        String strVal = APIRequest.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
         Assert.assertEquals("controlled", strVal);
     }
 
     @Test
     public void convertVehicleType() throws IncompatibleParameterException {
-        int type = handler.convertVehicleType(APIEnums.VehicleType.HGV, 2);
+        int type = APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 2);
         Assert.assertEquals(2, type);
     }
 
     @Test(expected = IncompatibleParameterException.class)
     public void convertVehicleTypeError() throws IncompatibleParameterException {
-        handler.convertVehicleType(APIEnums.VehicleType.HGV, 1);
+        APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 1);
     }
 
     @Test
     public void convertAvoidBorders() {
-        BordersExtractor.Avoid avoid = handler.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
+        BordersExtractor.Avoid avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, avoid);
-        avoid = handler.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
+        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
         Assert.assertEquals(BordersExtractor.Avoid.ALL, avoid);
-        avoid = handler.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
+        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
         Assert.assertEquals(BordersExtractor.Avoid.NONE, avoid);
     }
 
     @Test
     public void convertRouteProfileType() {
-        int type = handler.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
+        int type = APIRequest.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
         Assert.assertEquals(1, type);
-        type = handler.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
+        type = APIRequest.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
         Assert.assertEquals(20, type);
     }
 
@@ -79,7 +79,7 @@ public class GenericHandlerTest {
         coords.add(0, poly);
         geomJSON.put("coordinates", coords);
 
-        Polygon[] avoidAreas = handler.convertAvoidAreas(geomJSON);
+        Polygon[] avoidAreas = request.convertAvoidAreas(geomJSON);
         Assert.assertEquals(1, avoidAreas.length);
         Assert.assertEquals(4, avoidAreas[0].getCoordinates().length);
         Assert.assertEquals(1, avoidAreas[0].getCoordinates()[0].x, 0.0);
@@ -98,7 +98,7 @@ public class GenericHandlerTest {
 
         geomJSONMulti.put("coordinates", coords);
 
-        avoidAreas = handler.convertAvoidAreas(geomJSONMulti);
+        avoidAreas = request.convertAvoidAreas(geomJSONMulti);
 
         Assert.assertEquals(2, avoidAreas.length);
     }
@@ -111,7 +111,7 @@ public class GenericHandlerTest {
         JSONArray poly = generateGeoJSONPolyCoords();
 
         geomJSON.put("coordinates", poly);
-        handler.convertAvoidAreas(geomJSON);
+        request.convertAvoidAreas(geomJSON);
     }
 
     @Test(expected = ParameterValueException.class)
@@ -122,7 +122,7 @@ public class GenericHandlerTest {
         JSONArray poly = generateGeoJSONPolyCoords();
 
         geomJSON.put("coooooooooooordinates", poly);
-        handler.convertAvoidAreas(geomJSON);
+        request.convertAvoidAreas(geomJSON);
     }
 
     private JSONArray generateGeoJSONPolyCoords() {
@@ -153,14 +153,14 @@ public class GenericHandlerTest {
     @Test
     public void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
-        int converted = handler.convertFeatureTypes(avoids, 1);
+        int converted = APIRequest.convertFeatureTypes(avoids, 1);
         Assert.assertEquals(24, converted);
     }
 
     @Test(expected = IncompatibleParameterException.class)
     public void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.STEPS};
-        handler.convertFeatureTypes(avoids, 1);
+        APIRequest.convertFeatureTypes(avoids, 1);
     }
 
     @Test
@@ -173,7 +173,7 @@ public class GenericHandlerTest {
         opts.setVehicleType(APIEnums.VehicleType.HGV);
         opts.setProfileParams(params);
 
-        ProfileParameters generatedParams = handler.convertParameters(opts, 2);
+        ProfileParameters generatedParams = request.convertParameters(opts, 2);
 
         Assert.assertEquals(10.0f, ((VehicleParameters)generatedParams).getHeight(), 0.0);
     }
@@ -182,7 +182,7 @@ public class GenericHandlerTest {
     public void convertSpecificProfileParameters() {
         RequestProfileParamsRestrictions restrictions = new RequestProfileParamsRestrictions();
         restrictions.setHeight(10.0f);
-        ProfileParameters params = handler.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
+        ProfileParameters params = request.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
         Assert.assertTrue(params instanceof VehicleParameters);
         Assert.assertEquals(10.0f, ((VehicleParameters)params).getHeight(), 0.0);
     }
