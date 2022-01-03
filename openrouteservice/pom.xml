@@ -51,7 +51,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <geotools.version>19.1</geotools.version>
         <slf4j.version>1.7.32</slf4j.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.1</log4j.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -347,6 +347,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-swing</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j</artifactId>
             <type>pom</type>
@@ -377,7 +389,11 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+            <version>0.5.5</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -395,19 +411,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.19</version>
+            <version>v0.13.20</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.19</version>
+            <version>v0.13.20</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.19</version>
+            <version>v0.13.20</version>
         </dependency>
 
         <!-- remove the comment to enable debugging
