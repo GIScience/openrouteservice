@@ -34,6 +34,46 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- add core matrix algorithm
+- add new workflow to build and publish the docker image ([#1035](https://github.com/GIScience/openrouteservice/pull/1035))
+- optional `encoder_options` for wheelchair routing: speed factors for ways classified as problematic/preferred ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- optional routing API parameters `allow_unsuitable` / `surface_quality_known` for wheelchair profile ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Docs folder aggregating documentation from openrouteservice-docs, wiki, README.md and docker-subfolder
+- `ors-config.json` as default ors config option, which will replace `app.config` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- system property `ors_config` which will replace the `ors_app_config` property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- environment variable `ORS_CONFIG` which will replace the `ORS_APP_CONFIG` one ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- ors config reading priority
+    1. System property `ors_conf` > `ors_app_conf`
+    2. Environment variable pointing to file in class path `ORS_CONF` > `ORS_APP_CONF`
+    3. File in class path `ors-config.json` > `app.config`
+    4. Error if none of the above is specified.
+- links and info about docker setup to backend documentation
+- `minimum_width` to wheelchair routing options documentation ([#1080](https://github.com/GIScience/openrouteservice/pull/1080))
+### Changed
+- Update tomcat version used by docker setup ([#1022](https://github.com/GIScience/openrouteservice/pull/1022))
+- Refactored `smoothness-type`-parameter into Enum ([#1007](https://github.com/GIScience/openrouteservice/issues/1007))
+- Improved wheelchair routing ([#980](https://github.com/GIScience/openrouteservice/pull/980))
+- Error message when point is not found even though `radius:-1` is specified ([#979](https://github.com/GIScience/openrouteservice/issues/979))
+- Formatting of tag filtering
+- test config format and filetype to JSON
+- docker `APP_CONFIG` argument to `ORS_CONFIG` ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- default minimum `surface-type` for wheelchair to `sett` ([#1059](https://github.com/GIScience/openrouteservice/issues/1059))
+- Default road surface value is now "paved" rather than "asphalt" ([#711](https://github.com/GIScience/openrouteservice/issues/711))
+- `error_codes.md`-documentation now with rest of backend docs ([#1069](https://github.com/GIScience/openrouteservice/issues/1069))
+- remove duplicated code in `*RequestHandlers` ([#1067](https://github.com/GIScience/openrouteservice/issues/1067))
+- extended list of `places`-request and -response categories
+### Deprecated
+- `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+- `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
+### Fixed
+- Errors in travel speed explanation
+- Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
+- Improve travel time estimation for ferry routes ([#1037](https://github.com/GIScience/openrouteservice/issues/1037))
+- Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
+- updated log4j version to 2.15.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+
 ## [6.6.4] - 2022-01-03
 ### Fixed
 - update log4j to version 2.17.1
@@ -51,6 +91,7 @@ RELEASING:
 ### Fixed
 - made ORSKafkaConsumerInitContextListener non-blocking
 - Initialize edge centrality scores only for edges fully within bbox
+- References to old documentation now point to rendered version of new docs
 
 ## [6.6.0] - 2021-06-08
 ### Added

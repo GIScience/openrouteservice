@@ -17,6 +17,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
@@ -44,17 +45,55 @@ public class AppConfig {
 	}
 
 	public AppConfig() {
+		// root Logger is not configured properly at this point as AppConfig gets called the first time to read the
+		// path for the Logging configuration file.
+		// Adjusting level to INFO and reset after LOGGER usage
+		// TODO: adjust the log pattern to default spring pattern.
+		//  did not work so far. It was not possible to load the default configuration from DEFAULT_LOGGING.json, add an
+		//  Appender, or change the layout of the current default sysOut appender of the root Logger.
+		Level entryLogLevel = LOGGER.getLevel();
+		LOGGER.setLevel(Level.INFO);
+
 		try {
-			File file;
-			if (System.getProperty("ors_app_config") != null) {
-				file = new FileSystemResource(System.getProperty("ors_app_config")).getFile();
-			} else {
-				String appConfigName = "app.config";
-				if (System.getenv("ORS_APP_CONFIG") != null)
-					appConfigName = System.getenv("ORS_APP_CONFIG");
-				file = new ClassPathResource(appConfigName).getFile();
+			File configFile;
+			if (System.getProperty("ors_config") != null) {
+				configFile = new FileSystemResource(System.getProperty("ors_config")).getFile();
+				LOGGER.info("System property 'ors_config' used as configuration path");
 			}
-			config = ConfigFactory.parseFile(file);
+			else if (System.getProperty("ors_app_config") != null) {
+				configFile = new FileSystemResource(System.getProperty("ors_app_config")).getFile();
+				LOGGER.info("System property 'ors_app_config' used as configuration path");
+				LOGGER.warn("DEPRECATION NOTICE: The system property 'ors_app_config' will be not be supported in the" +
+						" future");
+				LOGGER.warn("Use 'ors_config' instead");
+			} else if (System.getenv("ORS_CONFIG") != null) {
+				configFile = new ClassPathResource(System.getenv("ORS_CONFIG")).getFile();
+				LOGGER.info("Environment variable 'ORS_CONFIG' used as configuration path");
+			} else if (System.getenv("ORS_APP_CONFIG") != null) {
+				configFile = new ClassPathResource(System.getenv("ORS_APP_CONFIG")).getFile();
+				LOGGER.info("Environment variable 'ORS_APP_CONFIG' used as configuration path");
+				LOGGER.warn("DEPRECATION NOTICE: The Environment variable 'ORS_APP_CONFIG' will be not be supported" +
+						" in the future");
+				LOGGER.warn("Use 'ORS_CONFIG' instead");
+			} else if (new ClassPathResource("ors-config.json").isFile()) {
+				configFile = new ClassPathResource("ors-config.json").getFile();
+				LOGGER.info("Default path of 'ors-config.json' used for configuration");
+				if (new ClassPathResource("app.config").isFile()) {
+					LOGGER.warn("DEPRECATION NOTICE: You seem to have an unused 'app.config' file, which won't be " +
+							"supported in the future");
+				}
+			} else if (new ClassPathResource("app.config").isFile()) {
+				configFile = new ClassPathResource("app.config").getFile();
+				LOGGER.info("Deprecated path of 'app.config' used");
+				LOGGER.warn("DEPRECATION NOTICE: The used 'app.config' configuration path will not be supported in the " +
+						"future.");
+				LOGGER.warn("Use 'ors-config.json' instead.");
+			} else {
+				throw new IOException("No valid configuration file found in 'openrouteservice/src/main/resources'. " +
+						"Did you copy ors-config-sample.json to ors-config.json?");
+			}
+			LOGGER.info("Loading configuration from " + configFile);
+			config = ConfigFactory.parseFile(configFile);
 		} catch (IOException ioe) {
 			LOGGER.error(ioe);
 		}
@@ -69,6 +108,8 @@ public class AppConfig {
 				LOGGER.error(e);
 			}
 		}
+
+		LOGGER.setLevel(entryLogLevel);
 	}
 
 	public static AppConfig getGlobal() {
@@ -134,6 +175,16 @@ public class AppConfig {
 			// IGNORE
 		}
 		return false;
+	}
+
+	public double getDouble(String path) {
+		try {
+			ConfigObject configObj = config.getObject("ors");
+			return configObj.toConfig().getDouble(path);
+		} catch(Exception e) {
+			// IGNORE
+		}
+		return Double.NaN;
 	}
 
 	public List<? extends ConfigObject> getObjectList(String paramName) {

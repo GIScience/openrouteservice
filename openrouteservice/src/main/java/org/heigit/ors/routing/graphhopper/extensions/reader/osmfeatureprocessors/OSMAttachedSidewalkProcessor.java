@@ -13,7 +13,7 @@ public class OSMAttachedSidewalkProcessor {
 
     protected enum Side { LEFT, RIGHT, BOTH, NONE }
 
-    protected boolean hasSidewalkInfo(ReaderWay way) {
+    public boolean hasSidewalkInfo(ReaderWay way) {
         return identifySidesWhereSidewalkIsPresent(way) != Side.NONE;
     }
 

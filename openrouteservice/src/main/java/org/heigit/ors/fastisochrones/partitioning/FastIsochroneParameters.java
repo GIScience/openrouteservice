@@ -1,7 +1,8 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
 /**
- * Parameters for fast isochrone algorithm preprocessing and query processing. Some defaults can be changed via app.config
+ * Parameters for fast isochrone algorithm preprocessing and query processing.
+ * Some defaults can be changed via ors-config.json
  *
  * @author Hendrik Leuschner
  */
