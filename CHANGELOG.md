@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
 - add new workflow to build and publish the docker image ([#1035](https://github.com/GIScience/openrouteservice/pull/1035))
@@ -74,7 +76,6 @@ RELEASING:
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
 - Improve travel time estimation for ferry routes ([#1037](https://github.com/GIScience/openrouteservice/issues/1037))
 - Resolving of HGV vehicle type-specific access restrictions does not require vehicle parameters to be set ([#1006](https://github.com/GIScience/openrouteservice/issues/1006))
-- updated log4j version to 2.15.0 which addresses [CVE-2021-44228](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
 
 ## [6.6.4] - 2022-01-03
 ### Fixed
@@ -540,7 +541,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...HEAD
+[6.7.0]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...v6.7.0
 [6.6.4]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...v6.6.4
 [6.6.3]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...v6.6.3
 [6.6.2]: https://github.com/GIScience/openrouteservice/compare/v6.6.1...v6.6.2
