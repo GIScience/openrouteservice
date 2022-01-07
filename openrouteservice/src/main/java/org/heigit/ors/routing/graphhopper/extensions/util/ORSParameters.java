@@ -31,7 +31,7 @@ public class ORSParameters {
     public static final class Weighting {
         private Weighting() {}
 
-        public static final String TIME_DEPENDENT_SPEED = "time_dependent_speed";
+        public static final String TIME_DEPENDENT_SPEED_OR_ACCESS = "time_dependent_speed_or_access";
     }
 
 

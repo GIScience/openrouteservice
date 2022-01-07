@@ -24,6 +24,7 @@ import org.heigit.ors.plugins.PluginManager;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class GraphProcessContext {
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
+	private int trafficArrStorageBuilderLocation = -1;
 	private final double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
@@ -102,11 +104,20 @@ public class GraphProcessContext {
 	 * @param coords	Coordinates of the linestring
 	 * @param nodeTags  Tags for nodes found on the way
 	 */
-	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags, Coordinate[] allCoordinates) {
 		try {
 			if (arrStorageBuilders != null) {
-				for (GraphStorageBuilder builder: arrStorageBuilders) {
-					builder.processWay(way, coords, nodeTags);
+				int nStorages = arrStorageBuilders.length;
+				if (nStorages > 0) {
+					for (int i = 0; i < nStorages; ++i) {
+						if (trafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
+							trafficArrStorageBuilderLocation = i;
+						}
+						arrStorageBuilders[i].processWay(way, coords, nodeTags);
+					}
+					if (trafficArrStorageBuilderLocation >= 0){
+						arrStorageBuilders[trafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
+					}
 				}
 			}
 		} catch(Exception ex) {

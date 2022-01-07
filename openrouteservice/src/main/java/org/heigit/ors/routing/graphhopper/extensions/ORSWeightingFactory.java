@@ -25,11 +25,18 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
+import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,8 +106,12 @@ public class ORSWeightingFactory implements WeightingFactory {
 				result = new FastestWeighting(encoder, hintsMap);
 		}
 
-		if (hasTimeDependentSpeed(hintsMap) && hasConditionalSpeed(encoder, graphStorage)) {
-			result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+		if (hasTimeDependentSpeed(hintsMap)) {
+			if (hasConditionalSpeed(encoder, graphStorage))
+				result.setSpeedCalculator(new ConditionalSpeedCalculator(result.getSpeedCalculator(), graphStorage, encoder));
+
+			String time = hintsMap.getString(hintsMap.has(RouteRequest.PARAM_DEPARTURE) ? RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
+			addTrafficSpeedCalculator(result, graphStorage, time);
 		}
 
 		//FIXME: turn cost weighting should probably be enabled only at query time as in GH
@@ -171,7 +182,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 
 
 	private boolean hasTimeDependentSpeed(PMap hintsMap) {
-		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, false);
+		return hintsMap.getBool(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, false);
 	}
 
 	private boolean hasConditionalSpeed(FlagEncoder encoder, GraphHopperStorage graphStorage) {
@@ -220,4 +231,25 @@ public class ORSWeightingFactory implements WeightingFactory {
 		
 		return res;
 	}
+
+	public static void addTrafficSpeedCalculator(List<Weighting> weightings, GraphHopperStorage ghStorage) {
+        for (Weighting weighting : weightings)
+            addTrafficSpeedCalculator(weighting, ghStorage, "");
+    }
+
+    private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, String time) {
+        TrafficGraphStorage trafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, TrafficGraphStorage.class);
+
+        if (trafficGraphStorage != null) {
+            RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
+
+            if (!time.isEmpty()) {
+                //Use fixed time zone because original implementation was for German traffic data
+                ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
+                routingTrafficSpeedCalculator.setZonedDateTime(zdt);
+            }
+
+            weighting.setSpeedCalculator(routingTrafficSpeedCalculator);
+        }
+    }
 }

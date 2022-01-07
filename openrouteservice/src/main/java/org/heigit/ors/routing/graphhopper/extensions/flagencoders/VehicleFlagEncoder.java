@@ -519,7 +519,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
      * @param maximumSpeedInKmph	The maximum speed that a vehicle can travel along this segment (usually the speed limit)
      * @return
      */
-    double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
+    public double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
         // We only want to perform the adjustment if the road is a slower speed - main roads shouldnt be affected as much due to less junctions and changes in direction
         if(maximumSpeedInKmph < ACCELERATION_SPEED_CUTOFF_MAX) {
             if (distance <= 0) {
