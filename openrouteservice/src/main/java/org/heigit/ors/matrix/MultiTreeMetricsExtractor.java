@@ -47,7 +47,8 @@ public class MultiTreeMetricsExtractor {
     public MultiTreeMetricsExtractor(int metrics, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting,
                                      DistanceUnit units) {
         this.metrics = metrics;
-        this.graph = chGraph;
+        //TODO is this choice of graph correct
+        this.graph = chGraph.getBaseGraph();
         this.weighting = weighting;
         timeWeighting = new FastestWeighting(encoder);
         distUnits = units;
@@ -133,7 +134,7 @@ public class MultiTreeMetricsExtractor {
 
                                 if (edgeMetricsItem == null) {
                                     if (chGraph != null) {
-                                        RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) graph
+                                        RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) chGraph
                                                 .getEdgeIteratorState(sptItem.getEdge(), targetEntry.getAdjNode());
 
                                         boolean unpackDistance = true;
@@ -157,6 +158,7 @@ public class MultiTreeMetricsExtractor {
                                                         distUnits);
                                         }
 
+                                        //TODO seems to be never used? Remove? unpackDistance always true
                                         if (!unpackDistance && calcDistance)
                                             edgeDistance = (distUnits == DistanceUnit.METERS)
                                                     ? 0 // TODO: find out where to get this from: iterState.getDistance()
@@ -237,23 +239,40 @@ public class MultiTreeMetricsExtractor {
 
             expandEdge(iterState, reverse);
         } else {
+            EdgeIteratorState baseIterator = graph.getBaseGraph().getEdgeIteratorState(iterState.getOrigEdge(), iterState.getAdjNode());
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
+//                edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
+//                edgeTime = iterState.getTime(reverse, 0) / 1000.0;
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
+//                edgeWeight = iterState.getWeight(reverse);
+
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-                edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
+                edgeDistance = baseIterator.getDistance();
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-                edgeTime = iterState.getTime(reverse, 0) / 1000.0;
+                edgeTime = weighting.calcEdgeMillis(baseIterator, reverse, EdgeIterator.NO_EDGE) / 1000.0;
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-                edgeWeight = iterState.getWeight(reverse);
+                edgeWeight = weighting.calcEdgeWeight(baseIterator, reverse, EdgeIterator.NO_EDGE);
         }
     }
 
     private void expandEdge(RoutingCHEdgeIteratorState iterState, boolean reverse) {
         if (!iterState.isShortcut()) {
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
+//                edgeDistance += 0; // TODO: find out to get this from: iterState.getDistance();
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
+//                edgeTime += iterState.getTime(reverse, 0) / 1000.0;
+//            if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
+//                edgeWeight += iterState.getWeight(reverse);
+
+            EdgeIteratorState baseIterator = graph.getBaseGraph().getEdgeIteratorState(iterState.getOrigEdge(), iterState.getAdjNode());
+
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-                edgeDistance += 0; // TODO: find out to get this from: iterState.getDistance();
+                edgeDistance = baseIterator.getDistance();
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-                edgeTime += iterState.getTime(reverse, 0) / 1000.0;
+                edgeTime = weighting.calcEdgeMillis(baseIterator, reverse, EdgeIterator.NO_EDGE) / 1000.0;
             if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
-                edgeWeight += iterState.getWeight(reverse);
+                edgeWeight = weighting.calcEdgeWeight(baseIterator, reverse, EdgeIterator.NO_EDGE);
             return;
         }
 

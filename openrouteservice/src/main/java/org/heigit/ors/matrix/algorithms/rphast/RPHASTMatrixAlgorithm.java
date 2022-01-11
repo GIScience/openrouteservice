@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
@@ -28,13 +28,16 @@ import java.util.List;
 
 public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
     private MultiTreeMetricsExtractor pathMetricsExtractor;
+    private RoutingCHGraph chGraph;
 
-    @Override
-    public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
-        super.init(req, gh, graph, encoder, weighting);
+    //    @Override
+    public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
+        //TODO check if base graph necessary. Probably not.
+        super.init(req, gh, chGraph.getBaseGraph(), encoder, weighting);
+        this.chGraph = chGraph;
 
         // TODO: prepareCH = graphHopper.getCHFactoryDecorator().getPreparations().get(0);
-        pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting,
+        pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, weighting,
                 req.getUnits());
     }
 
@@ -62,7 +65,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 //			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(graph, prepareCH.getPrepareWeighting(),
 //					TraversalMode.NODE_BASED);
 // work-around:
-            RPHASTAlgorithm algorithm = new RPHASTAlgorithm(graph, null,
+            RPHASTAlgorithm algorithm = new RPHASTAlgorithm(chGraph, null,
                     TraversalMode.NODE_BASED);
 
             int[] srcIds = getValidNodeIds(srcData.getNodeIds());

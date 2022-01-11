@@ -22,7 +22,10 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.matrix.*;
@@ -66,7 +69,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private IntHashSet targetSet;
     private MultiTreeMetricsExtractor pathMetricsExtractor;
     private CoreDijkstraFilter additionalCoreEdgeFilter;
-    private RoutingCHGraph chGraph;
+    //    private RoutingCHGraph chGraph;
     private SubGraph targetGraph;
 
     //TODO
@@ -94,14 +97,14 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
     }
 
-    public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
-        this.init(req, gh, graph, encoder, weighting);
+    public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
+        this.init(req, gh, chGraph, encoder, weighting);
         if (additionalEdgeFilter != null)
             additionalCoreEdgeFilter.addRestrictionFilter(additionalEdgeFilter);
     }
 
-    public void init(MatrixRequest req, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
-        this.init(req, null, graph, encoder, weighting, additionalEdgeFilter);
+    public void init(MatrixRequest req, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
+        this.init(req, null, chGraph, encoder, weighting, additionalEdgeFilter);
     }
 
     protected void initCollections(int size) {
@@ -128,7 +131,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         }
         this.treeEntrySize = srcData.size();
 
-        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, graph, encoder, swap, coreNodeLevel);
+        TargetGraphBuilder.TargetGraphResults targetGraphResults = new TargetGraphBuilder().prepareTargetGraph(dstData.getNodeIds(), chGraph, encoder, swap, coreNodeLevel);
         targetGraph = targetGraphResults.getTargetGraph();
         coreExitPoints.addAll(targetGraphResults.getCoreExitPoints());
 
@@ -398,7 +401,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
      */
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
-        DijkstraManyToMany algorithm = new DijkstraManyToMany(graph, chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
+        DijkstraManyToMany algorithm = new DijkstraManyToMany(chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
 
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);

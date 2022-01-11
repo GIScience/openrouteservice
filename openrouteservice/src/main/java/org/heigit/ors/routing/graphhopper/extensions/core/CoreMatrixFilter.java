@@ -15,7 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
 
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
@@ -49,7 +48,7 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
             else
                 return graph.getLevel(base) <= graph.getLevel(adj);
@@ -58,7 +57,7 @@ public class CoreMatrixFilter extends CoreDijkstraFilter {
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
 
             // do not follow virtual edges, and stay within core

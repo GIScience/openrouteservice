@@ -2,7 +2,6 @@ package org.heigit.ors.matrix;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHGraph;
@@ -24,7 +23,7 @@ public class TargetGraphBuilder {
      *
      * @param targets the targets that form the seed for target graph building
      */
-    public TargetGraphResults prepareTargetGraph(int[] targets, RoutingCHGraph chGraph, Graph graph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
+    public TargetGraphResults prepareTargetGraph(int[] targets, RoutingCHGraph chGraph, FlagEncoder encoder, boolean swap, int coreNodeLevel) {
         PriorityQueue<Integer> localPrioQueue = new PriorityQueue<>(100);
         ExclusiveDownwardSearchEdgeFilter downwardEdgeFilter = new ExclusiveDownwardSearchEdgeFilter(chGraph, encoder, swap);
         RoutingCHEdgeExplorer edgeExplorer = swap ? chGraph.createOutEdgeExplorer()

@@ -20,7 +20,10 @@ import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.algorithms.AbstractManyToManyRoutingAlgorithm;
@@ -65,19 +68,19 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     private int turnRestrictedNodeLevel;
     private boolean swap = false;
 
-    public DijkstraManyToMany(Graph graph, RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {
+    public DijkstraManyToMany(RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {
 //        super(graph, weighting, tMode);
         super(chGraph, weighting, tMode);
         this.chGraph = chGraph;
         this.coreNodeLevel = chGraph.getNodes() + 1;
         this.nodeCount = chGraph.getNodes();
         this.turnRestrictedNodeLevel = this.coreNodeLevel + 1;
-        int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
+        int size = Math.min(Math.max(200, chGraph.getNodes() / 10), 2000);
         initCollections(size);
     }
 
-    public DijkstraManyToMany(Graph graph, RoutingCHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
-        this(graph, chGraph, weighting, tMode);
+    public DijkstraManyToMany(RoutingCHGraph chGraph, IntObjectMap<AveragedMultiTreeSPEntry> existingWeightMap, IntObjectMap<List<AveragedMultiTreeSPEntry>> existingCoreWeightMap, Weighting weighting, TraversalMode tMode) {
+        this(chGraph, weighting, tMode);
         bestWeightMap = existingWeightMap;
         bestWeightMapCore = existingCoreWeightMap;
     }

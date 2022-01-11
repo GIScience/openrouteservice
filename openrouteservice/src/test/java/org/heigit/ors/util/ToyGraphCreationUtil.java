@@ -12,13 +12,17 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createMediumGraph(EncodingManager encodingManager) {
+        return createMediumGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createMediumGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7
         //  | / \   /
         //  |/   \ /
         //  1-----8
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -48,13 +52,17 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createMediumGraph2(EncodingManager encodingManager) {
+        return createMediumGraph2(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createMediumGraph2(GraphHopperStorage g, EncodingManager encodingManager) {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7
         //  | / \   /
         //  |/   \ /
         //  1-----8
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -84,13 +92,17 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createMediumGraphWithAdditionalEdge(EncodingManager encodingManager) {
+        return createMediumGraphWithAdditionalEdge(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createMediumGraphWithAdditionalEdge(GraphHopperStorage g, EncodingManager encodingManager) {
         //    3---4--5--9
         //   /\   |  |
         //  2--0  6--7
         //  | / \   /
         //  |/   \ /
         //  1-----8
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -122,7 +134,11 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createSingleEdgeGraph(EncodingManager encodingManager) {
-        GraphHopperStorage g = createGHStorage(encodingManager);
+        return createSingleEdgeGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createSingleEdgeGraph(GraphHopperStorage g, EncodingManager encodingManager) {
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"), g.edge(0, 1).setDistance(1));
 
         g.getBaseGraph().getNodeAccess().setNode(0, 0, 0);
@@ -132,12 +148,16 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createSimpleGraph(EncodingManager encodingManager) {
+        return createSimpleGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createSimpleGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         // 5--1---2
         //     \ /|
         //      0 |
         //     /  |
         //    4---3
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -158,12 +178,16 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createSimpleGraph2(EncodingManager encodingManager) {
+        return createSimpleGraph2(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createSimpleGraph2(GraphHopperStorage g, EncodingManager encodingManager) {
         // 5--1---2
         //     \ /
         //      0
         //     /
         //    4--6--3
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -185,12 +209,16 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createSimpleGraphWithoutLatLon(EncodingManager encodingManager) {
+        return createSimpleGraphWithoutLatLon(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createSimpleGraphWithoutLatLon(GraphHopperStorage g, EncodingManager encodingManager) {
         // 5--1---2
         //     \ /|
         //      0 |
         //     /  |
         //    4---3
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -204,6 +232,10 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createDisconnectedGraph(EncodingManager encodingManager) {
+        return createDisconnectedGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createDisconnectedGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         //   5--1---2
         //       \ /
         //        0
@@ -215,7 +247,7 @@ public class ToyGraphCreationUtil {
         //  4---3
         //  |   |
         //  11  10
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -247,13 +279,17 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createDiamondGraph(EncodingManager encodingManager) {
+        return createDiamondGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createDiamondGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         //     4
         //   /   \
         //  2--0--3
         //   \   /
         //    \ /
         //     1
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 2).setDistance(1), // 0
                 g.edge(0, 3).setDistance(3), // 1
@@ -266,12 +302,16 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createUpDownGraph(EncodingManager encodingManager) {
+        return createUpDownGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createUpDownGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         //      8------9
         //       \    /
         //0---1---3  5---6---7
         //       / \/
         //      2  4
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1), // 0
                 g.edge(1, 3).setDistance(1), // 1
@@ -298,6 +338,10 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createTwoWayGraph(EncodingManager encodingManager) {
+        return createTwoWayGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createTwoWayGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         // 0<----------<-1
         // |             |
         // 2             |
@@ -307,7 +351,7 @@ public class ToyGraphCreationUtil {
         // 6-----7-------8
         // |
         // 9
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         FlagEncoder carEncoder = encodingManager.getEncoder("car");
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 2).setDistance(1).setReverse(carEncoder.getAccessEnc(), false), //0
@@ -340,12 +384,16 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createUpdatedGraph(EncodingManager encodingManager) {
+        return createUpdatedGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createUpdatedGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         //     2---3
         //    / \
         //   1  |
         //    \ |
         //     0
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(5), //0
                 g.edge(0, 2).setDistance(1), //1
@@ -362,10 +410,14 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createDirectedGraph(EncodingManager encodingManager) {
+        return createDirectedGraph(createGHStorage(encodingManager), encodingManager);
+    }
+
+    public static GraphHopperStorage createDirectedGraph(GraphHopperStorage g, EncodingManager encodingManager) {
         // 0----->1<-----2
         // |     / \     |
         // |-<--/   \-->-|
-        GraphHopperStorage g = createGHStorage(encodingManager);
+//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1), //0
                 g.edge(1, 0).setDistance(5), //1

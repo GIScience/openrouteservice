@@ -112,7 +112,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testOneToManyAllEdgesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -139,8 +139,7 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -153,7 +152,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyAllEdgesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -182,7 +181,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -200,7 +199,7 @@ public class CoreMatrixTest {
      * All start and goal nodes are in core
      */
     public void testOneToManySomeEdgesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -221,7 +220,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -237,7 +236,7 @@ public class CoreMatrixTest {
      * All start and goal nodes are in core
      */
     public void testManyToManySomeEdgesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -259,7 +258,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -277,7 +276,7 @@ public class CoreMatrixTest {
      * Not all start and goal nodes are in core
      */
     public void testOneToManySomeNodesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -298,7 +297,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -314,7 +313,7 @@ public class CoreMatrixTest {
      * Not all start and goal nodes are in core
      */
     public void testManyToManySomeNodesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -335,7 +334,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -353,7 +352,7 @@ public class CoreMatrixTest {
      * Not all start and goal nodes are in core
      */
     public void testOneToManyNoNodesInCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -374,7 +373,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -392,7 +391,7 @@ public class CoreMatrixTest {
      * There is no core
      */
     public void testOneToManyNoCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -409,7 +408,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -427,7 +426,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testConnectionOutsideCoreFromHighestNode() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -444,7 +443,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -460,7 +459,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testConnectionOutsideCoreFromLowestNode() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -477,7 +476,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -493,7 +492,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testConnectionOutsideCoreManyToMany() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -511,7 +510,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -529,7 +528,7 @@ public class CoreMatrixTest {
      * There is no core
      */
     public void testAllToAll() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -564,7 +563,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -591,7 +590,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testStartAndTargetSameNodeOutsideCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -607,7 +606,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -622,7 +621,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testStartAndTargetManyToManySameNodeOutsideCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -640,7 +639,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -658,7 +657,7 @@ public class CoreMatrixTest {
      * The connection is found already outside the core
      */
     public void testStartAndTargetSameNodeInsideCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -674,7 +673,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -686,7 +685,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testStartAndTargetManyToManySameNodeInsideCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -704,7 +703,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -719,7 +718,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testStartAndTargetManyToManySameNodeAllNodesInsideCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -737,7 +736,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -755,7 +754,7 @@ public class CoreMatrixTest {
      * All start and goal nodes are in core. Tests a special case in a diamond shaped graph where only the correct stopping criterion will find all shortest paths
      */
     public void testStoppingCriterion() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDiamondGraph(encodingManager);
+        ToyGraphCreationUtil.createDiamondGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -777,7 +776,7 @@ public class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -790,12 +789,12 @@ public class CoreMatrixTest {
 
     @Test
     public void testOneToOneTurnRestrictions() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
-        addRestrictedTurn(graphHopperStorage, 1, 2, 6);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        addRestrictedTurn(g, 1, 2, 6);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graphHopperStorage));
+        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, g));
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(11);
@@ -811,7 +810,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -823,12 +822,12 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToOneTurnRestrictions() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
-        addRestrictedTurn(graphHopperStorage, 1, 2, 6);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        addRestrictedTurn(g, 1, 2, 6);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graphHopperStorage));
+        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, g));
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(11);
@@ -845,7 +844,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -858,12 +857,12 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyTurnRestrictions() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
-        addRestrictedTurn(graphHopperStorage, 1, 2, 6);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        addRestrictedTurn(g, 1, 2, 6);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graphHopperStorage));
+        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, g));
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(11);
@@ -881,7 +880,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -896,14 +895,14 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyMultipleTurnRestrictions() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
-        addRestrictedTurn(graphHopperStorage, 1, 2, 6);
-        addRestrictedTurn(graphHopperStorage, 4, 2, 6);
-        addRestrictedTurn(graphHopperStorage, 12, 7, 10);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        addRestrictedTurn(g, 1, 2, 6);
+        addRestrictedTurn(g, 4, 2, 6);
+        addRestrictedTurn(g, 12, 7, 10);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graphHopperStorage));
+        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, g));
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(11);
@@ -921,7 +920,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -936,7 +935,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testOneToManyRestrictedEdges() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -959,7 +958,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, restrictedEdges);
-        algorithm.init(matrixRequest, g, carEncoder, weighting, restrictedEdges);
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -973,7 +972,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyRestrictedEdges() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -997,7 +996,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, restrictedEdges);
-        algorithm.init(matrixRequest, g, carEncoder, weighting, restrictedEdges);
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -1014,7 +1013,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testOneToOneLevelProblemCase() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createUpDownGraph(encodingManager);
+        ToyGraphCreationUtil.createUpDownGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -1032,7 +1031,7 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -1045,12 +1044,12 @@ public class CoreMatrixTest {
 
     @Test
     public void testDownwardPassFasterUTurn() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createTwoWayGraph(encodingManager);
-        addRestrictedTurn(graphHopperStorage, 2, 3, 3);
+        ToyGraphCreationUtil.createTwoWayGraph(g, encodingManager);
+        addRestrictedTurn(g, 2, 3, 3);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graphHopperStorage));
+        edgeFilterSequence.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, g));
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(10);
         restrictedEdges.add(11);
@@ -1068,7 +1067,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -1083,7 +1082,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testUpdateWeight() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createUpdatedGraph(encodingManager);
+        ToyGraphCreationUtil.createUpdatedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -1099,7 +1098,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -1111,7 +1110,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testSwapStartsGoalsNoCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDirectedGraph(encodingManager);
+        ToyGraphCreationUtil.createDirectedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -1128,7 +1127,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
@@ -1141,7 +1140,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testSwapStartsGoalsCore() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createDirectedGraph(encodingManager);
+        ToyGraphCreationUtil.createDirectedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -1163,7 +1162,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
             result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
