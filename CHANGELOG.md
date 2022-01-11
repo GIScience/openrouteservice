@@ -35,6 +35,10 @@ RELEASING:
 
 ## [Unreleased]
 
+### Added
+- backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
+- python code on decoding polylines including elevation data
+
 ## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
