@@ -20,9 +20,9 @@ import java.io.InvalidObjectException;
 
 public class CountryBordersPolygon {
     private static final Logger LOGGER = Logger.getLogger(CountryBordersPolygon.class);
-    private String name;
-    private MultiPolygon boundary;
-    private Geometry boundaryLine;
+    private final String name;
+    private final MultiPolygon boundary;
+    private final Geometry boundaryLine;
     private double area = 0;
     private double minLat = 180f;
     private double minLon = 180f;

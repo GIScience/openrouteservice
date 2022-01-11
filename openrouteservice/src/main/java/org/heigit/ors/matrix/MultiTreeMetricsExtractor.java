@@ -60,18 +60,18 @@ public class MultiTreeMetricsExtractor {
 		}
 	}
 
-	private int metrics;
-	private Graph graph;
+	private final int metrics;
+	private final Graph graph;
 	private CHGraph chGraph;
-	private Weighting weighting;
-	private Weighting timeWeighting;
+	private final Weighting weighting;
+	private final Weighting timeWeighting;
 	private double edgeDistance;
 	private double edgeWeight;
 	private double edgeTime;
-	private DistanceUnit distUnits;
+	private final DistanceUnit distUnits;
 	private boolean reverseOrder = true;
-	private GHLongObjectHashMap<MetricsItem> edgeMetrics;
-	private long maxEdgeId;
+	private final GHLongObjectHashMap<MetricsItem> edgeMetrics;
+	private final long maxEdgeId;
 	private boolean swap;
 
 	public MultiTreeMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting,
@@ -152,7 +152,7 @@ public class MultiTreeMetricsExtractor {
 							pathDistance = 0.0;
 							pathWeight = 0.0;
 						}
-						
+
 						if (sptItem.getParent() != null) {
 							while (EdgeIterator.Edge.isValid(sptItem.getEdge())) {
 								edgeMetricsItem = null;

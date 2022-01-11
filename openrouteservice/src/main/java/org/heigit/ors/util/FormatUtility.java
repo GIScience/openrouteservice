@@ -56,4 +56,8 @@ public class FormatUtility {
 	public static double roundToDecimalsForUnits(double d, DistanceUnit unit) {
 		return roundToDecimals(d, getUnitDecimals(unit));
 	}
+
+	public static void unload(){
+		nfCoordRound.remove();
+	}
 }

@@ -12,7 +12,6 @@ public class CentralityResult {
     private Map<Pair<Integer, Integer>, Double> edgeCentralityScores;
     private CentralityWarning warning;
 
-
     public CentralityResult() {
         this.locations = new HashMap<>();
         this.nodeCentralityScores = null;

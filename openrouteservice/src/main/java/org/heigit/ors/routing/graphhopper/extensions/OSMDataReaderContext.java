@@ -24,7 +24,7 @@ import java.util.Collection;
 
 public class OSMDataReaderContext implements DataReaderContext {
 
-	private OSMReader osmReader;
+	private final OSMReader osmReader;
 	
 	public OSMDataReaderContext(OSMReader osmReader) {
 		this.osmReader = osmReader;

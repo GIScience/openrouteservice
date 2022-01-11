@@ -42,7 +42,7 @@ public class JSONLocation {
     @ApiModelProperty(value = "Distance between the `source/destination` Location and the used point on the routing graph.", example = "1.2")
     @JsonProperty(value = "snapped_distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
-    private Double snappedDistance;
+    private final Double snappedDistance;
 
     JSONLocation(ResolvedLocation location, boolean includeResolveLocations) {
         this.snappedDistance = location.getSnappedDistance();

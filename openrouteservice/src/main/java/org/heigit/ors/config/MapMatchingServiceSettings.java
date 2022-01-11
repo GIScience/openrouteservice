@@ -11,9 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.services.mapmatching;
-
-import org.heigit.ors.config.AppConfig;
+package org.heigit.ors.config;
 
 public class MapMatchingServiceSettings {
 	private static boolean enabled  = true;

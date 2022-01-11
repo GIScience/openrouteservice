@@ -23,9 +23,9 @@ import java.io.Serializable;
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
 	private Envelope env; 
-	private Polygon[] polys;
+	private final Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
-	private GeometryFactory geomFactory = new GeometryFactory();
+	private final GeometryFactory geomFactory = new GeometryFactory();
 	
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.

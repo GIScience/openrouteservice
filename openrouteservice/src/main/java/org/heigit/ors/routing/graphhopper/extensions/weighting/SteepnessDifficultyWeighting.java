@@ -75,6 +75,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
 	@Override
 	public int hashCode() {
 		// TODO: Clarify whether hashCode should depend on difficulty level.
-		return ("SteepnessDifficultyWeighting" + toString()).hashCode();
+		return ("SteepnessDifficultyWeighting" + this).hashCode();
 	}
 }

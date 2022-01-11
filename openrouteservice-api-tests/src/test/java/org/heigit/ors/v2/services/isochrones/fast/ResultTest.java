@@ -13,10 +13,10 @@
  */
 package org.heigit.ors.v2.services.isochrones.fast;
 
-import org.heigit.ors.services.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
+import org.heigit.ors.v2.services.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;

@@ -26,20 +26,20 @@ import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class GraphProcessContext {
 	private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
 
-	private Envelope bbox;
+	private final Envelope bbox;
 	private List<GraphBuilder> graphBuilders;
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
 	private GraphStorageBuilder[] arrStorageBuilders;
 	private int trafficArrStorageBuilderLocation = -1;
-	private double maximumSpeedLowerBound;
+	private final double maximumSpeedLowerBound;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
 		bbox = config.getExtent();
@@ -123,7 +123,7 @@ public class GraphProcessContext {
 	 * @param coords	Coordinates of the linestring
 	 * @param nodeTags  Tags for nodes found on the way
 	 */
-	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags, Coordinate[] allCoordinates) {
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags, Coordinate[] allCoordinates) {
 		try {
 			if (arrStorageBuilders != null) {
 				int nStorages = arrStorageBuilders.length;

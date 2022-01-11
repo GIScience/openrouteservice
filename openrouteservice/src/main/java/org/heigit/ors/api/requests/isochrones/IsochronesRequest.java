@@ -37,7 +37,7 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.time.LocalDateTime;

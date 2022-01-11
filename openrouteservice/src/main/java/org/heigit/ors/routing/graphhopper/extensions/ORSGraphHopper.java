@@ -543,8 +543,8 @@ public class ORSGraphHopper extends GraphHopper {
 //					}
 //				}
         }
-        if (!isRouteable)
-            throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.<String, Object>emptyMap());
+		if (!isRouteable)
+			throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.emptyMap());
 
     }
 
@@ -602,24 +602,6 @@ public class ORSGraphHopper extends GraphHopper {
         end.y = request.getPoints().get(1).getLon();
         Coordinate[] coords = new Coordinate[]{start, end};
         return new GeometryFactory().createLineString(coords);
-    }
-
-    @Override
-    public void matchTraffic() {
-        // Do the graph extension post processing
-        // Reserved for processes that need a fully initiated graph e.g. for match making
-        if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
-            for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
-                    try {
-                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
-                    } catch (SchemaException e) {
-                        LOGGER.error("Error building the here traffic storage.");
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
     }
 
     @Override

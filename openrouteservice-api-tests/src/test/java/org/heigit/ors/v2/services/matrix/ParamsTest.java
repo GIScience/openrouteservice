@@ -16,7 +16,6 @@ package org.heigit.ors.v2.services.matrix;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
-import org.heigit.ors.v2.services.serviceSettings.MatrixServiceSettings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public class ParamsTest extends ServiceTest {
         addParameter("locationsFaulty", coordsFaulty);
 
         // Fake array to test maximum exceedings
-        JSONArray maximumLocations = fakeLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1);
+        JSONArray maximumLocations = fakeLocations(101);
         addParameter("maximumLocations", maximumLocations);
         JSONArray minimalLocations = fakeLocations(1);
         addParameter("minimalLocations", minimalLocations);
@@ -704,13 +703,25 @@ public class ParamsTest extends ServiceTest {
 
     @Test
     public void pointOutOfBoundsTest() {
+        JSONArray coords = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(9.0);
+        coord1.put(48.7);
+        coords.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(9.0);
+        coord2.put(49.1);
+        coords.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("locations", coords);
         given()
-                .param("profile", "driving-car")
-                .param("locations", "9.0,48.7|9.0,49.1")
-                .param("sources", "all")
-                .param("destinations", "all")
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
                 .when()
-                .get(getEndPointName())
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
                 .body("error.code", is(MatrixErrorCodes.POINT_NOT_FOUND))

@@ -23,39 +23,39 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class BordersGraphStorageBuilderTest {
-    private BordersGraphStorageBuilder _builder;
+    private final BordersGraphStorageBuilder _builder;
 
-    private CountryBordersReader _cbr;
+    private final CountryBordersReader _cbr;
 
-    private Coordinate[] coords1 = new Coordinate[] {
+    private final Coordinate[] coords1 = new Coordinate[] {
             new Coordinate(0,0),
             new Coordinate(1,0),
             new Coordinate(1,1),
             new Coordinate(0,1),
             new Coordinate(0,0)
     };
-    private Coordinate[] coords2 = new Coordinate[] {
+    private final Coordinate[] coords2 = new Coordinate[] {
             new Coordinate(1,0),
             new Coordinate(1,1),
             new Coordinate(2,1),
             new Coordinate(2,0),
             new Coordinate(1,0)
     };
-    private Coordinate[] coords3 = new Coordinate[] {
+    private final Coordinate[] coords3 = new Coordinate[] {
             new Coordinate(2,0),
             new Coordinate(3,0),
             new Coordinate(3,1),
             new Coordinate(2,1),
             new Coordinate(2,0)
     };
-    private Coordinate[] coordsO1 = new Coordinate[] {
+    private final Coordinate[] coordsO1 = new Coordinate[] {
             new Coordinate(100,100),
             new Coordinate(100,102),
             new Coordinate(102,102),
             new Coordinate(102,100),
             new Coordinate(100,100)
     };
-    private Coordinate[] coordsO2 = new Coordinate[] {
+    private final Coordinate[] coordsO2 = new Coordinate[] {
             new Coordinate(101,101),
             new Coordinate(103,101),
             new Coordinate(103,103),
@@ -63,7 +63,7 @@ public class BordersGraphStorageBuilderTest {
             new Coordinate(101,101)
     };
 
-    private GeometryFactory gf = new GeometryFactory();
+    private final GeometryFactory gf = new GeometryFactory();
 
     public BordersGraphStorageBuilderTest() {
         _builder= new BordersGraphStorageBuilder();

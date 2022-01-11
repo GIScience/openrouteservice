@@ -17,7 +17,6 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.TurnCostExtension;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -34,18 +33,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ORSWeightingFactory implements WeightingFactory {
-	private Map<Object, TurnCostExtension> turnCostExtensionMap;
-
-	public ORSWeightingFactory()
-	{
-		turnCostExtensionMap = new HashMap<>();
-	}
-
 	public Weighting createWeighting(HintsMap hintsMap, FlagEncoder encoder, GraphHopperStorage graphStorage) {
 
 		TraversalMode tMode = encoder.supports(TurnWeighting.class) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
@@ -203,10 +194,6 @@ public class ORSWeightingFactory implements WeightingFactory {
         return result;
     }
 
-	private boolean isFootBasedFlagEncoder(FlagEncoder encoder){
-		return encoder instanceof FootFlagEncoder;
-	}
-
 	private PMap getWeightingProps(String weightingName, Map<String, String> map)
 	{
 		PMap res = new PMap();
@@ -219,7 +206,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 			String name = kv.getKey();
 		    int p = name.indexOf(prefix);
 		    if (p >= 0)
-		    	res.put(name.substring(p + n + 1, name.length()), kv.getValue());
+		    	res.put(name.substring(p + n + 1), kv.getValue());
 		}
 		
 		return res;

@@ -29,7 +29,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 	private static final Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
 
-	private List<GraphStorageBuilder> graphStorageBuilders;
+	private final List<GraphStorageBuilder> graphStorageBuilders;
 
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
 		this.graphStorageBuilders = graphStorageBuilders;

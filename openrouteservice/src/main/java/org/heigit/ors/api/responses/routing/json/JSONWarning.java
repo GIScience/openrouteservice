@@ -24,11 +24,11 @@ import io.swagger.annotations.ApiModelProperty;
 public class JSONWarning {
     @ApiModelProperty(value = "Identification code for the warning", example = "1")
     @JsonProperty
-    private Integer code;
+    private final Integer code;
 
     @ApiModelProperty( value = "The message associated with the warning", example = "This route may go over restricted roads")
     @JsonProperty
-    private String message;
+    private final String message;
 
     public JSONWarning(int code, String message) {
         this.code = code;

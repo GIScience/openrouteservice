@@ -35,8 +35,8 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 	private IntObjectMap<MultiTreeSPEntry> bestWeightMapFrom;
 	private MultiTreeSPEntry currFrom;
 	private PriorityQueue<MultiTreeSPEntry> prioQueue;
-	private UpwardSearchEdgeFilter upwardEdgeFilter;
-	private DownwardSearchEdgeFilter downwardEdgeFilter;
+	private final UpwardSearchEdgeFilter upwardEdgeFilter;
+	private final DownwardSearchEdgeFilter downwardEdgeFilter;
 	private SubGraph targetGraph;
 	private boolean finishedFrom;
 	private boolean finishedTo;
