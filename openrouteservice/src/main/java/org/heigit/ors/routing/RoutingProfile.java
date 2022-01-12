@@ -53,6 +53,7 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 // TODO: import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -357,22 +358,32 @@ public class RoutingProfile {
         List<LMProfile> lmProfiles = new ArrayList<>();
 
         // TODO: evaluate what multiple "profiles" are for and refactor
+        //       A: multiple profiles were used to share the graph  for several
+        //       bike profiles. We don't use this feature now but it might be
+        //       desireable in the future. However, this behavior is standard
+        //       in original GH through an already existing mechanism.
         for (int i = 0; i < profilesTypes.length; i++) {
-            String profileName = RoutingProfileType.getEncoderName(profilesTypes[i]);
             String vehicle = RoutingProfileType.getEncoderName(profilesTypes[i]);
             if (encoderOpts == null)
-                flagEncoders.append(profileName);
+                flagEncoders.append(vehicle);
             else
-                 flagEncoders.append(profileName + "|" + encoderOpts[i]);
-            profiles.add(new Profile(profileName).setVehicle(vehicle));
-            if (prepareCH) {
-                chProfiles.add(new CHProfile(profileName));
-            }
-            if (prepareLM) {
-                lmProfiles.add(new LMProfile(profileName));
-            }
+                flagEncoders.append(vehicle + "|" + encoderOpts[i]);
             if (i < profilesTypes.length - 1)
                 flagEncoders.append(",");
+
+            // TODO: make this list of weightings configurable for each vehicle as in GH
+            String[] weightings = {VAL_FASTEST, VAL_SHORTEST};
+            for (String weighting: weightings) {
+                String profileName = vehicle + "_" + weighting;
+
+                profiles.add(new Profile(profileName).setVehicle(vehicle).setWeighting(weighting));
+                if (prepareCH) {
+                    chProfiles.add(new CHProfile(profileName));
+                }
+                if (prepareLM) {
+                    lmProfiles.add(new LMProfile(profileName));
+                }
+            }
         }
 
         ghConfig.putObject("graph.flag_encoders", flagEncoders.toString().toLowerCase());
@@ -710,7 +721,7 @@ public class RoutingProfile {
         int profileType = searchParams.getProfileType();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
 
-        if ("UNKNOWN".equals(encoderName))
+        if (FlagEncoderNames.UNKNOWN.equals(encoderName))
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
 
         if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {
@@ -721,10 +732,7 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
         ProfileParameters profileParams = searchParams.getProfileParameters();
 
-        /*
-         * PARAMETERS FOR PathProcessorFactory
-         * ======================================================================================================
-         */
+        // PARAMETERS FOR PathProcessorFactory
 
         props.putObject("routing_extra_info", searchParams.getExtraInfo());
         props.putObject("routing_suppress_warnings", searchParams.getSuppressWarnings());
@@ -732,10 +740,7 @@ public class RoutingProfile {
         props.putObject("routing_profile_type", profileType);
         props.putObject("routing_profile_params", profileParams);
 
-        /*
-        * PARAMETERS FOR EdgeFilterFactory
-        * ======================================================================================================
-        */
+        // PARAMETERS FOR EdgeFilterFactory
 
         /* Avoid areas */
         if (searchParams.hasAvoidAreas()) {
@@ -780,7 +785,8 @@ public class RoutingProfile {
             }
         }
 
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder);
+        String profileName = encoderName + "_" + WeightingMethod.getName(searchParams.getWeightingMethod());
+        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName);
         searchCntx.setProperties(props);
 
         return searchCntx;
@@ -844,7 +850,7 @@ public class RoutingProfile {
                 req = new GHRequest(points);
             }
 
-            req.putHint("vehicle", searchCntx.getEncoder().toString());
+            req.setProfile(searchCntx.profileName());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
 
@@ -914,13 +920,14 @@ public class RoutingProfile {
             else
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
-            req.putHint("vehicle", searchCntx.getEncoder().toString());
+            req.setProfile(searchCntx.profileName());
             req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
 
             if (radiuses != null)
                 req.setMaxSearchDistance(radiuses);
 
             PMap props = searchCntx.getProperties();
+
             req.setAdditionalHints(props);
 
             if (props != null && !props.isEmpty())
@@ -1044,7 +1051,7 @@ public class RoutingProfile {
             }
         }
 
-        map.putObject(KEY_WEIGHTING, weighting);
+        // TODO: not permitted with GH-4.0; remove this line if it works: map.putObject(KEY_WEIGHTING, weighting);
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
@@ -1060,7 +1067,7 @@ public class RoutingProfile {
      * @param useALT Should ALT be enabled
      */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
-        String weighting = req.getHints().getString("weighting", "");
+        String weighting = req.getHints().getString("weighting", ""); // TODO: need to get this from profile
 
         //Priority: CH->Core->ALT
         useCH = useCH && mGraphHopper.isCHAvailable(weighting);

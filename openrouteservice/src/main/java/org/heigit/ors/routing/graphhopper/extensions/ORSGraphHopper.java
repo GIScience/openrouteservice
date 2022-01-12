@@ -30,6 +30,7 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import kafka.server.QuotaType;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
@@ -434,9 +435,9 @@ public class ORSGraphHopper extends GraphHopper {
 		for (int i = 0; i < latitudes.length; i++)
 			req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
-		//req.setVehicle(vehicle); // TODO: setVehicle removed from GH
+		//req.setVehicle(vehicle); // TODO: removed, use Profile instead
 		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("weighting", "fastest");
+		req.getHints().putObject("weighting", "fastest"); // TODO: not permitted, use profile instead
 		// TODO add limit of maximum visited nodes
 
 
@@ -645,7 +646,7 @@ public class ORSGraphHopper extends GraphHopper {
 			}
 			//No fast isochrones without partition
 			if (isPartitionPrepared()) {
-				/* Initialize edge filter sequence for fast isochrones*/
+				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
 				List<CHProfile> chProfiles = new ArrayList<>();
 				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
