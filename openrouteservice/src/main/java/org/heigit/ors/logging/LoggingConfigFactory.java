@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.config.json.JsonConfiguration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Plugin(
@@ -31,8 +32,10 @@ public class LoggingConfigFactory extends ConfigurationFactory{
                 ClassPathResource rs = new ClassPathResource("logs/" + settingsFileName);
                 try {
                     source = new ConfigurationSource(rs.getInputStream());
+                } catch (FileNotFoundException fnfe) {
+                    LOGGER.error("LOG SETTINGS FILE " + rs.getPath() + " DOES NOT EXIST!");
                 } catch (IOException ioe) {
-                    LOGGER.error("LOGGING FILE DOES NOT EXIST!");
+                    LOGGER.error("LOG SETTINGS FILE " + rs.getPath() + " CANNOT BE OPENED!");
                 }
             }
 

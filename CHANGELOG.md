@@ -35,6 +35,9 @@ RELEASING:
 
 ## [Unreleased]
 
+### Fixed
+- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
+
 ## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
