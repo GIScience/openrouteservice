@@ -357,8 +357,7 @@ public class RoutingProfile {
         List<CHProfile> chProfiles = new ArrayList<>();
         List<LMProfile> lmProfiles = new ArrayList<>();
 
-        // TODO: evaluate what multiple "profiles" are for and refactor
-        //       A: multiple profiles were used to share the graph  for several
+        // TODO: Multiple profiles were used to share the graph  for several
         //       bike profiles. We don't use this feature now but it might be
         //       desireable in the future. However, this behavior is standard
         //       in original GH through an already existing mechanism.
@@ -372,7 +371,7 @@ public class RoutingProfile {
                 flagEncoders.append(",");
 
             // TODO: make this list of weightings configurable for each vehicle as in GH
-            String[] weightings = {VAL_FASTEST, VAL_SHORTEST};
+            String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
             for (String weighting: weightings) {
                 String profileName = vehicle + "_" + weighting;
 
@@ -618,6 +617,7 @@ public class RoutingProfile {
             int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
             setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
             Graph graph;
+
 // TODO:
 //            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
 //                hintsMap.putObject("vehicle", encoderName);
@@ -633,7 +633,7 @@ public class RoutingProfile {
                 graph = gh.getGraphHopperStorage().getBaseGraph();
 
 
-            // TODO ORS: check
+            // TODO ORS: check whether right edge filter is used
             // MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
             MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
             MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
@@ -1067,7 +1067,7 @@ public class RoutingProfile {
      * @param useALT Should ALT be enabled
      */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT){
-        String weighting = req.getHints().getString("weighting", ""); // TODO: need to get this from profile
+        String weighting = mGraphHopper.getProfile(req.getProfile()).getWeighting();
 
         //Priority: CH->Core->ALT
         useCH = useCH && mGraphHopper.isCHAvailable(weighting);

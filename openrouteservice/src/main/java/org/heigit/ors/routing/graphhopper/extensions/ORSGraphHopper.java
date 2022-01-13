@@ -30,7 +30,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import kafka.server.QuotaType;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
@@ -192,7 +191,7 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	protected WeightingFactory createWeightingFactory() {
 		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
-		return new DefaultWeightingFactory(getGraphHopperStorage(), getEncodingManager());
+		return new OrsWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
 
 	// TODO: This override is unnecessary, because the changes are already applied
