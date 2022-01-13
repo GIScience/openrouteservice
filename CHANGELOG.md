@@ -35,6 +35,9 @@ RELEASING:
 
 ## [Unreleased]
 
+### Fixed
+- Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
+
 ## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
