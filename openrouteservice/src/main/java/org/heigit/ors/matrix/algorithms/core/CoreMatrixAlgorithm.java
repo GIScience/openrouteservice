@@ -89,7 +89,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
 //            throw new ClassCastException(e.getMessage());
 //        }
         hasTurnWeighting = preparedWeighting.hasTurnCosts();
-        coreNodeLevel = chGraph.getNodes() + 1;
+        coreNodeLevel = chGraph.getNodes();
         nodeCount = chGraph.getNodes();
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, preparedWeighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);

@@ -18,9 +18,10 @@ import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.CHEdgeIteratorState;
+
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -34,22 +35,20 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
 
     protected boolean inCore = false;
 
-    public void setInCore(boolean inCore) {
-        this.inCore = inCore;
-    }
-
     /**
-     *
      * @param graph
      */
     public CoreDijkstraFilter(RoutingCHGraph graph) {
         this.graph = graph;
         maxNodes = graph.getNodes();
-        coreNodeLevel = maxNodes + 1;
+        coreNodeLevel = maxNodes;
+    }
+
+    public void setInCore(boolean inCore) {
+        this.inCore = inCore;
     }
 
     /**
-     *
      * @param edgeIterState iterator pointing to a given edge
      * @return true iff the edge is virtual or is a shortcut or the level of the base node is greater/equal than
      * the level of the adjacent node
@@ -68,8 +67,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
                 return true;
             else
                 return graph.getLevel(base) <= graph.getLevel(adj);
-        }
-        else {
+        } else {
             if (adj >= maxNodes)
                 return false;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
@@ -89,7 +87,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
         return graph.getLevel(node) >= coreNodeLevel;
     }
 
-    public void addRestrictionFilter (EdgeFilter restrictions) {
+    public void addRestrictionFilter(EdgeFilter restrictions) {
         this.restrictions = restrictions;
     }
 }

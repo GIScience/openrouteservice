@@ -7,6 +7,7 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -24,7 +25,6 @@ import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.graphhopper.util.GHUtility.getEdge;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -32,8 +32,8 @@ public class CoreMatrixTest {
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final Weighting weighting = new ShortestWeighting(carEncoder);
-    private final CHConfig chConfig = new CHConfig("c", weighting, false, CHConfig.TYPE_CORE);
+    private Weighting weighting = new ShortestWeighting(carEncoder);
+    private final CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
     private GraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
 
@@ -42,12 +42,26 @@ public class CoreMatrixTest {
     }
 
     private void setTurnCost(GraphHopperStorage g, double cost, int from, int via, int to) {
-        g.getTurnCostStorage().set(((EncodedValueLookup) g.getEncodingManager()).getDecimalEncodedValue(TurnCost.key(carEncoder.toString())), getEdge(g, from, via).getEdge(), via, getEdge(g, via, to).getEdge(), cost);
+        g.getTurnCostStorage().set(
+                ((EncodedValueLookup) g.getEncodingManager()).getDecimalEncodedValue(TurnCost.key(carEncoder.toString())),
+                from,
+                via,
+                to,
+                cost);
     }
 
     @Before
     public void setUp() {
-        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).withTurnCosts(true).create();
+        routingCHGraph = g.getRoutingCHGraph();
+    }
+
+    public void setUpTurnRestrictions() {
+        //TODO first we take the turncoststorage from g, and then we use that to initialize g? makes no sense
+        g = new GraphBuilder(encodingManager).withTurnCosts(true).build();
+        Weighting TRWeighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
+        CHConfig TRChConfig = new CHConfig("c", TRWeighting, true, CHConfig.TYPE_CORE);
+        g.addCHGraph(TRChConfig).create(1000);
         routingCHGraph = g.getRoutingCHGraph();
     }
 
@@ -789,6 +803,8 @@ public class CoreMatrixTest {
 
     @Test
     public void testOneToOneTurnRestrictions() {
+        setUpTurnRestrictions();
+
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
 
@@ -810,6 +826,7 @@ public class CoreMatrixTest {
 
 //        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
 //        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
+        weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -972,6 +989,8 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyRestrictedEdges() {
+        setUpTurnRestrictions();
+
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();

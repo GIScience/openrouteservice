@@ -134,26 +134,23 @@ public class MultiTreeMetricsExtractor {
 
                                 if (edgeMetricsItem == null) {
                                     if (chGraph != null) {
-                                        RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) chGraph
-                                                .getEdgeIteratorState(sptItem.getEdge(), targetEntry.getAdjNode());
+                                        RoutingCHEdgeIteratorState iterState = chGraph.getEdgeIteratorState(sptItem.getEdge(), targetEntry.getAdjNode());
 
-                                        if (calcWeight || calcTime) {
-                                            if (iterState.isShortcut()) {
-                                                if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
-                                                        .getLevel(iterState.getAdjNode())) {
-                                                    reverseOrder = true;
-                                                    extractEdgeValues(iterState, swap);
-                                                } else {
-                                                    reverseOrder = false;
-                                                    extractEdgeValues(iterState, !swap);
-                                                }
-                                            } else {
+                                        if (iterState.isShortcut()) {
+                                            if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
+                                                    .getLevel(iterState.getAdjNode())) {
+                                                reverseOrder = true;
                                                 extractEdgeValues(iterState, swap);
+                                            } else {
+                                                reverseOrder = false;
+                                                extractEdgeValues(iterState, !swap);
                                             }
-
-                                            edgeDistance = (distUnits == DistanceUnit.METERS) ? edgeDistance
-                                                    : DistanceUnitUtil.convert(edgeDistance, DistanceUnit.METERS, distUnits);
+                                        } else {
+                                            extractEdgeValues(iterState, swap);
                                         }
+
+                                        edgeDistance = (distUnits == DistanceUnit.METERS) ? edgeDistance
+                                                : DistanceUnitUtil.convert(edgeDistance, DistanceUnit.METERS, distUnits);
                                     } else {
                                         EdgeIteratorState iter = graph.getEdgeIteratorState(sptItem.getEdge(),
                                                 targetEntry.getAdjNode());

@@ -52,7 +52,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     protected IntObjectMap<AveragedMultiTreeSPEntry> bestWeightMap;
     protected PriorityQueue<AveragedMultiTreeSPEntry> prioQueue;
     protected AveragedMultiTreeSPEntry currEdge;
-    protected boolean approximate = false;
     IntObjectMap<List<AveragedMultiTreeSPEntry>> bestWeightMapCore;
     IntObjectMap<AveragedMultiTreeSPEntry> targetMap;
     IntHashSet targetSet;
@@ -65,16 +64,13 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     private boolean hasTurnWeighting = false;
     private int coreNodeLevel;
     private int nodeCount;
-    private int turnRestrictedNodeLevel;
     private boolean swap = false;
 
     public DijkstraManyToMany(RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {
-//        super(graph, weighting, tMode);
         super(chGraph, weighting, tMode);
         this.chGraph = chGraph;
-        this.coreNodeLevel = chGraph.getNodes() + 1;
+        this.coreNodeLevel = chGraph.getNodes();
         this.nodeCount = chGraph.getNodes();
-        this.turnRestrictedNodeLevel = this.coreNodeLevel + 1;
         int size = Math.min(Math.max(200, chGraph.getNodes() / 10), 2000);
         initCollections(size);
     }
@@ -499,13 +495,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     boolean considerTurnRestrictions(int node) {
         if (!hasTurnWeighting)
             return false;
-        if (approximate)
-            return isTurnRestrictedNode(node);
         return true;
-    }
-
-    boolean isTurnRestrictedNode(int node) {
-        return chGraph.getLevel(node) == turnRestrictedNodeLevel;
     }
 
     public void setHasTurnWeighting(boolean hasTurnWeighting) {

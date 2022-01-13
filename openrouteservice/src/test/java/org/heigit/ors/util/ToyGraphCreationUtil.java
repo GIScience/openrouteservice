@@ -24,19 +24,19 @@ public class ToyGraphCreationUtil {
         //  1-----8
 //        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
-                g.edge(0, 1).setDistance(1),
-                g.edge(0, 2).setDistance(1),
-                g.edge(0, 3).setDistance(5),
-                g.edge(0, 8).setDistance(1),
-                g.edge(1, 2).setDistance(1),
-                g.edge(1, 8).setDistance(2),
-                g.edge(2, 3).setDistance(2),
-                g.edge(3, 4).setDistance(2),
-                g.edge(4, 5).setDistance(1),
-                g.edge(4, 6).setDistance(1),
-                g.edge(5, 7).setDistance(1),
-                g.edge(6, 7).setDistance(2),
-                g.edge(7, 8).setDistance(3)
+                g.edge(0, 1).setDistance(1), //0
+                g.edge(0, 2).setDistance(1), //1
+                g.edge(0, 3).setDistance(5), //2
+                g.edge(0, 8).setDistance(1), //3
+                g.edge(1, 2).setDistance(1), //4
+                g.edge(1, 8).setDistance(2), //5
+                g.edge(2, 3).setDistance(2), //6
+                g.edge(3, 4).setDistance(2), //7
+                g.edge(4, 5).setDistance(1), //8
+                g.edge(4, 6).setDistance(1), //9
+                g.edge(5, 7).setDistance(1), //10
+                g.edge(6, 7).setDistance(2), //11
+                g.edge(7, 8).setDistance(3) //12
         );
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
@@ -397,8 +397,8 @@ public class ToyGraphCreationUtil {
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(5), //0
                 g.edge(0, 2).setDistance(1), //1
-                g.edge(2, 2).setDistance(1), //2
-                g.edge(3, 3).setDistance(1) //3
+                g.edge(1, 2).setDistance(1), //2
+                g.edge(2, 3).setDistance(1) //3
         );
 // TODO: create edges
 //        g.edge(0, 1, 5, true); //0
