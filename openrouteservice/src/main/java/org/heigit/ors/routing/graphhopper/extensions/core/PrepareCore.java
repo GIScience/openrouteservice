@@ -161,7 +161,6 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
         // insert shortcuts connected to core nodes
         CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
-        coreNodeContractor.setFinishedContraction(true);
         while (!sortedNodes.isEmpty())
             coreNodeContractor.insertShortcuts(sortedNodes.poll());
         for (int node = 0; node < nodes; node++)
