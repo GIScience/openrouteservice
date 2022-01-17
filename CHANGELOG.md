@@ -39,6 +39,9 @@ RELEASING:
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
 
+### Fixed
+- internal properties of `IsochronesRequest` model not ignored for swagger file generation 
+
 ## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
