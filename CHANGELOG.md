@@ -34,7 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
-
+### Fixed
+- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 ### Added
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
