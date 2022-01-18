@@ -173,7 +173,9 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasTime = false;
 
+    @JsonIgnore
     private IsochroneMapCollection isoMaps;
+    @JsonIgnore
     private IsochroneRequest isochroneRequest;
 
     @JsonCreator
