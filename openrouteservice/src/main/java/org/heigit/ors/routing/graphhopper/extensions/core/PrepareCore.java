@@ -13,6 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntContainer;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.graphhopper.coll.MinHeapWithUpdate;
 import com.graphhopper.routing.ch.*;
 import com.graphhopper.routing.util.*;
@@ -37,9 +41,14 @@ public class PrepareCore extends PrepareContractionHierarchies {
     private final EdgeFilter restrictionFilter;
     private boolean [] restrictedNodes;
     private int restrictedNodesCount = 0;
-    private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
 
     private static int nodesContractedPercentage = 99;
+
+    IntPredicate isCoreNode = new IntPredicate() {
+        public boolean apply(int node) {
+            return restrictedNodes[node];
+        }
+    };
 
     public PrepareCore(GraphHopperStorage ghStorage, CHConfig chConfig, EdgeFilter restrictionFilter) {
         super(ghStorage, chConfig);
@@ -131,26 +140,31 @@ public class PrepareCore extends PrepareContractionHierarchies {
     }
 
     @Override
-    protected long getNodesToAvoidContract(int initSize) {
-        return restrictedNodesCount + super.getNodesToAvoidContract(initSize - restrictedNodesCount) + 1;// offset by one in order to avoid contraction of first core node!
+    protected boolean doNotContract(int node) {
+        return super.doNotContract(node) || restrictedNodes[node];
+    }
+
+    protected IntContainer contractNode(int node, int level) {
+        IntContainer neighbors = super.contractNode(node, level);
+
+        if (neighbors instanceof IntArrayList)
+            ((IntArrayList) neighbors).removeAll(isCoreNode);
+        else
+            throw(new IllegalStateException("Not an isntance of IntArrayList"));
+
+        return neighbors;
     }
 
     @Override
     public void finishContractionHook() {
-        chStore.setCoreNodes(sortedNodes.size() + 1);
+        chStore.setCoreNodes(sortedNodes.size() + restrictedNodesCount);
 
         // insert shortcuts connected to core nodes
         CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
-        coreNodeContractor.setFinishedContraction(true);
         while (!sortedNodes.isEmpty())
             coreNodeContractor.insertShortcuts(sortedNodes.poll());
-    }
-
-    @Override
-    public float calculatePriority(int node) {
-        if (restrictedNodes[node])
-            return RESTRICTION_PRIORITY;
-        else
-            return super.calculatePriority(node);
+        for (int node = 0; node < nodes; node++)
+            if (restrictedNodes[node])
+                coreNodeContractor.insertShortcuts(node);
     }
 }

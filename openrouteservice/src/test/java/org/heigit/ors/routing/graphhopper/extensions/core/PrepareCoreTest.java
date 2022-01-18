@@ -197,6 +197,7 @@ public class PrepareCoreTest {
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
         shortcuts.add(new Shortcut(0, 3, 5));
+        shortcuts.add(new Shortcut(1, 3, 6));
         shortcuts.add(new Shortcut(2, 3, 6));
         assertShortcuts(shortcuts);
 
@@ -214,7 +215,6 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(1, 3, 3));
         shortcuts.add(new Shortcut(0, 3, 2));
         shortcuts.add(new Shortcut(3, 4, 5));
         assertShortcuts(shortcuts);
@@ -234,7 +234,6 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(1, 3, 3));
         shortcuts.add(new Shortcut(0, 3, 2));
         assertShortcuts(shortcuts);
 
@@ -287,12 +286,13 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(2, 4, 4));
         shortcuts.add(new Shortcut(7, 4, 2));
         shortcuts.add(new Shortcut(4, 8, 5));
         shortcuts.add(new Shortcut(4, 0, 5));
         shortcuts.add(new Shortcut(4, 1, 5));
         shortcuts.add(new Shortcut(0, 1, 2));
+        shortcuts.add(new Shortcut(3, 1, 3));
+        shortcuts.add(new Shortcut(3, 0, 3));
         assertShortcuts(shortcuts);
 
         Integer[] core = {0, 1};
@@ -356,7 +356,6 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(1,3, 3));
         shortcuts.add(new Shortcut(0,3, 3));
         shortcuts.add(new Shortcut(4,7, 2));
         shortcuts.add(new Shortcut(3,8, 4));
