@@ -191,7 +191,7 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	protected WeightingFactory createWeightingFactory() {
 		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
-		return new OrsWeightingFactory(getGraphHopperStorage(), getEncodingManager());
+		return new OrsWeightingFactoryGh4(getGraphHopperStorage(), getEncodingManager());
 	}
 
 	// TODO: This override is unnecessary, because the changes are already applied

@@ -10,8 +10,18 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 
-public class OrsWeightingFactory extends DefaultWeightingFactory {
-    public OrsWeightingFactory(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
+/**
+ * This class is a preliminary adaptation of ORSWeightingFactory to the new
+ * interface of GH's WeightingFactory. ORSWeightingFactory was copy-pasted
+ * and modified from GH's DefaultWeightingFactory. OrsWeightingFactoryGh4
+ * is meant to handle these extensions to DefaultWeightingFactory across the
+ * two code bases more cleanly. The modifications in ORSWeightingFactory
+ * should be transferred into OrsWeightingFactoryGh4 on need, in order
+ * to figure out, which parts of ORSWeightingFactory are still needed and which
+ * ones are remnants of unmaintained features.
+ */
+public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
+    public OrsWeightingFactoryGh4(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
         super(ghStorage, encodingManager);
     }
 
