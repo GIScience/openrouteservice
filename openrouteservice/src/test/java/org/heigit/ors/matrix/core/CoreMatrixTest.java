@@ -56,8 +56,10 @@ public class CoreMatrixTest {
         routingCHGraph = g.getRoutingCHGraph();
     }
 
+    /**
+     * Run before any turn restricted tests to set up the storage and weighting.
+     */
     public void setUpTurnRestrictions() {
-        //TODO first we take the turncoststorage from g, and then we use that to initialize g? makes no sense
         g = new GraphBuilder(encodingManager).withTurnCosts(true).build();
         Weighting TRWeighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
         CHConfig TRChConfig = new CHConfig("c", TRWeighting, true, CHConfig.TYPE_CORE);
@@ -839,6 +841,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToOneTurnRestrictions() {
+        setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
 
@@ -874,6 +877,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyTurnRestrictions() {
+        setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
 
@@ -912,6 +916,7 @@ public class CoreMatrixTest {
 
     @Test
     public void testManyToManyMultipleTurnRestrictions() {
+        setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
         addRestrictedTurn(g, 4, 2, 6);
