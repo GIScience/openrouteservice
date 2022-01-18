@@ -90,11 +90,15 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     public void postInit(CHPreparationGraph prepareGraph) {
         restrictedNodes = new boolean[nodes];
-        AllEdgesIterator iter = graph.getAllEdges();
+        EdgeExplorer restrictionExplorer;
+        restrictionExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES);
 
-        while (iter.next())
-            if (!restrictionFilter.accept(iter))
-                restrictedNodes[iter.getBaseNode()] = restrictedNodes[iter.getAdjNode()] = true;
+        for (int node = 0; node < nodes; node++) {
+            EdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);
+            while (edgeIterator.next())
+                if (!restrictionFilter.accept(edgeIterator))
+                    restrictedNodes[node] = restrictedNodes[edgeIterator.getAdjNode()] = true;
+        }
 
         for (int node = 0; node < nodes; node++)
             if (restrictedNodes[node])
