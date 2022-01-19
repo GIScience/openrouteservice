@@ -436,6 +436,22 @@ public class PrepareCoreTest {
         assertCore(new HashSet<>(Arrays.asList(core)));
     }
 
+    // Test whole graph is core
+    @Test
+    public void testSimpleAllCore() {
+        createSimpleGraph();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        for (int i=0; i < g.getEdges(); i++)
+            restrictedEdges.add(i);
+        contractGraph(restrictedEdges);
+
+        assertShortcuts(new HashSet<>());
+
+        Integer[] core = {0, 1, 2, 3, 4, 5};
+        assertCore(new HashSet<>(Arrays.asList(core)));
+    }
+
     /**
      * Test whether only the core nodes have maximum level
      * @param coreNodes
