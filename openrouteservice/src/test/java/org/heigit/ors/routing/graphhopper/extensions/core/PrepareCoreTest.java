@@ -20,7 +20,6 @@ import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.GHUtility;
-import org.heigit.ors.common.Pair;
 import org.heigit.ors.util.DebugUtility;
 import org.junit.Before;
 import org.junit.Test;
@@ -415,6 +414,25 @@ public class PrepareCoreTest {
         assertShortcuts(shortcuts);
 
         Integer[] core = {6, 7, 12, 15};
+        assertCore(new HashSet<>(Arrays.asList(core)));
+    }
+
+    // Test directed restriction
+    @Test
+    public void testSimpleRestrictedReverse() {
+        createSimpleGraph();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(2, true);
+
+        contractGraph(restrictedEdges);
+
+        HashSet<Shortcut> shortcuts = new HashSet<>();
+        shortcuts.add(new Shortcut(2, 4, 3));
+        shortcuts.add(new Shortcut(0, 4, 4));
+        assertShortcuts(shortcuts);
+
+        Integer[] core = {0, 4};
         assertCore(new HashSet<>(Arrays.asList(core)));
     }
 
