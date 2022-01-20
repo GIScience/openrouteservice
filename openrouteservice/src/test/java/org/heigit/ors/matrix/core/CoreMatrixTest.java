@@ -79,9 +79,6 @@ public class CoreMatrixTest {
         if (nodeOrdering != null)
             prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
 
-        // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
-        //prepare.setParams(new PMap(CONTRACTED_NODES+"=100"));
-
         prepare.doWork();
 
         if (DebugUtility.isDebug()) {
@@ -99,32 +96,6 @@ public class CoreMatrixTest {
         }
     }
 
-//    private CHGraph contractGraph(GraphHopperStorage g, EdgeFilter restrictedEdges) {
-//        CHGraph lg = g.getCHGraph(new CHProfile(weighting, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
-//        PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
-//
-//        // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
-//        prepare.setPeriodicUpdates(20);
-//        prepare.setLazyUpdates(10);
-//        prepare.setNeighborUpdates(20);
-//        prepare.setContractedNodes(100);
-//
-//        prepare.doWork();
-//
-//        if (DebugUtility.isDebug()) {
-//            for (int i = 0; i < lg.getNodes(); i++)
-//                System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
-//            AllCHEdgesIterator iter = lg.getAllEdges();
-//            while (iter.next()) {
-//                System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
-//                if (iter.isShortcut())
-//                    System.out.print(" (shortcut)");
-//                System.out.println(" [weight: " + (new PreparationWeighting(weighting)).calcWeight(iter, false, -1) +"]");
-//            }
-//        }
-//
-//        return lg;
-//    }
 
     @Test
     public void testOneToManyAllEdgesInCore() {
@@ -826,8 +797,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -862,8 +831,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -899,8 +866,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -940,8 +905,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -978,8 +941,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, restrictedEdges);
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
         MatrixResult result = null;
         try {
@@ -1018,8 +979,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, restrictedEdges);
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
         MatrixResult result = null;
         try {
@@ -1089,8 +1048,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -1120,8 +1077,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -1149,8 +1104,6 @@ public class CoreMatrixTest {
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
@@ -1183,9 +1136,7 @@ public class CoreMatrixTest {
 
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
-//        Weighting turnWeighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graphHopperStorage.getExtension()), 0);
-//        algorithm.init(matrixRequest, g, carEncoder, turnWeighting, new CoreTestEdgeFilter());
+        
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {

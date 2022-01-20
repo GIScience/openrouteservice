@@ -69,25 +69,17 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private IntHashSet targetSet;
     private MultiTreeMetricsExtractor pathMetricsExtractor;
     private CoreDijkstraFilter additionalCoreEdgeFilter;
-    //    private RoutingCHGraph chGraph;
     private SubGraph targetGraph;
 
     //TODO
-    // 1. Check whether graph is always instanceof RoutingCHGraph
-    // 2. Make sure the iterators are always CHIterators (should be?) and not normal iterators
     // 3. getOriginalEdge not working
     // 4. Check why all the edge calc weight stuff needs to be here in the algorithm and not in the weighting or iterator
+    // 5. TurnWeightingHelper needs to be checked. Is it still necessary?
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
         Weighting preparedWeighting = chGraph.getWeighting();
         super.init(req, gh, chGraph, encoder, preparedWeighting);
-        //TODO check if necessary
-//        try {
-//            chGraph = graph instanceof RoutingCHGraph ? (RoutingCHGraph) graph : (RoutingCHGraph) (graph).getBaseGraph();
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(e.getMessage());
-//        }
         hasTurnWeighting = preparedWeighting.hasTurnCosts();
         coreNodeLevel = chGraph.getNodes();
         nodeCount = chGraph.getNodes();
@@ -336,7 +328,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
             }
             configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
 
-//            edgeWeight = weighting.calcEdgeWeight(iter, swap, currEdgeItem.getOriginalEdge());
             edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if (Double.isInfinite(edgeWeight))
                 continue;

@@ -296,7 +296,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
-//            double edgeWeight = weighting.calcEdgeWeight(iter, swap, currEdgeItem.getOriginalEdge());
             double edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             resetTurnWeighting(hasTurnWeighting);
             if (edgeWeight == Double.POSITIVE_INFINITY)
