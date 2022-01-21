@@ -173,6 +173,7 @@ public class MatrixRequest extends APIRequest {
         return metrics;
     }
 
+    @JsonIgnore
     public Set<String> getMetricsStrings() {
         Set<String> ret = new HashSet<>();
         if (metrics != null) {
