@@ -16,6 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.carrotsearch.hppc.LongArrayList;
 import com.carrotsearch.hppc.LongIntHashMap;
+import com.carrotsearch.hppc.LongObjectHashMap;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.LongIntMap;
 import com.graphhopper.reader.ReaderWay;
@@ -38,29 +39,24 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.ubertraffic.UberTraf
 import org.heigit.ors.routing.graphhopper.extensions.reader.ubertraffic.UberTrafficReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.UberTrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.LineString;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
+public class UberTrafficGraphStorageBuilder extends TrafficGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(UberTrafficGraphStorageBuilder.class.getName());
 
     private static final String PARAM_KEY_OUTPUT_LOG = "output_log";
     private static boolean outputLog = false;
 
     public static final String BUILDER_NAME = "UberTraffic";
-
-    private static final Date date = Calendar.getInstance().getTime();
-    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
 
     private static final String ENABLED = "enabled";
     private static final String PARAM_KEY_UBER_MOVEMENT = "movement_data";
@@ -78,6 +74,8 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private int hitCounterMinOne = 0;
     private int totalORSEdges = 0;
 
+    // TODO move them to the abstract class
+    private HashSet<Long> matchedTrafficEdges = new HashSet<>();
     private ArrayList<String> matchedOSMEdges = new ArrayList<>();
     private ArrayList<String> partiallyMatchedOSMEdges = new ArrayList<>();
     private ArrayList<String> missedOSMEdges = new ArrayList<>();
@@ -124,10 +122,6 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return storage;
     }
 
-    public UberTrafficData getUberTrafficData() {
-        return uberTrafficData;
-    }
-
     @Override
     public void processWay(ReaderWay way) {
         // Reset the trafficWayType
@@ -143,45 +137,67 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             totalORSEdges++;
             // Translate all the original edge ids to the new way ids
             //String geojson = createGeojsonFromEdge(edge);
-            LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
-
             long wayId = way.getId();
-            if (wayId == 272966279){
-                System.out.println();
-            }
-            // TODO find a way to map the edges
-
             int edgeId = edge.getEdge();
             LongArrayList wayNodes = way.getNodes();
             int edgeBaseNode = edge.getBaseNode();
             int edgeAdjacentNode = edge.getAdjNode();
             UberTrafficPattern pattern = this.uberTrafficData.getPattern(wayId);
             if (pattern != null) {
-                long[] allPatternIds = pattern.getAllNodeIds();
-                int localHitCounter = 0;
-                int localMissCounter = 0;
-                for (long patternId : allPatternIds) {
-                    if (patternId == 0) {
-                        continue;
-                    }
-                    if (wayNodes.contains(patternId)) {
-                        localHitCounter++;
-                    } else {
-                        localMissCounter++;
-                    }
-                }
-                if (localHitCounter > 2) {
+                // Not needed as long as the uber traffic data is not ordered in patterns!
+                //int newUberEdgeId = pattern.getNewUberEdgeId();
+                Set<Long> duplicates = countDuplicates(wayNodes.toArray(), pattern.getAllNodeIds());
+                if (duplicates.size() >= 2) {
                     this.hitCounterMinTwo++;
-                    addOSMGeometryForLogging(lineString.toString());
-                } else if (localHitCounter > 0) {
+                    matchedTrafficEdges.add(wayId);
+                    // Yeah. Lucky Edge ;).
+                    for (int i = 0; i < wayNodes.size(); i++) {
+                        long startNode = wayNodes.get(i);
+                        LongObjectHashMap<byte[]> patternsByOsmId = pattern.getPatternsByOsmId(startNode);
+                        if (patternsByOsmId == null || patternsByOsmId.isEmpty()) {
+                            continue;
+                        }
+                        for (int j = 0; j < wayNodes.size(); j++) {
+                            long endNode = wayNodes.get(j);
+                            byte[] schedules = patternsByOsmId.get(endNode);
+                            if (schedules == null) {
+                                continue;
+                            }
+                            int validSpeedValues = 24 - countValuesInByteArray(schedules, 0);
+                            if (schedules.length <= 0) {
+                                continue;
+                            }
+
+                            int priority = Math.abs(i - j) + validSpeedValues;
+
+                            if (j > i) {
+                                // Traffic in Direction of the edge.
+                                //
+                                this.storage.setEdgeIdTrafficPatternLookup(edgeId, edgeBaseNode, edgeAdjacentNode, schedules, priority);
+                            } else {
+                                // Traffic with opposite direction.
+                                this.storage.setEdgeIdTrafficPatternLookup(edgeId, edgeAdjacentNode, edgeBaseNode, schedules, priority);
+                            }
+                        }
+
+                    }
+                    if (outputLog) {
+                        LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+                        matchedOSMEdges.add(lineString.toString());
+                    }
+                } else if (duplicates.size() > 0) {
                     this.hitCounterMinOne++;
-                    addPartiallyMatchedOSMGeometryForLogging(lineString.toString());
+                    if (outputLog) {
+                        LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+                        addPartiallyMatchedOSMGeometryForLogging(lineString.toString());
+                    }
                 } else {
                     this.missCounter++;
-                    addMissedOSMGeometryForLogging(lineString.toString());
+                    if (outputLog) {
+                        LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+                        addMissedOSMGeometryForLogging(lineString.toString());
+                    }
                 }
-            } else {
-                this.missCounter++;
             }
         }
     }
@@ -196,68 +212,78 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return BUILDER_NAME;
     }
 
+    private Set<Long> countDuplicates(long[] array1, long[] array2) {
+        List<Long> array1List = Arrays.stream(array1).boxed().collect(Collectors.toList());
+        List<Long> array2List = Arrays.stream(array2).boxed().collect(Collectors.toList());
+        Set<Long> intersection = new HashSet<Long>(array1List);
+        intersection.retainAll(array2List);
+        return intersection;
+    }
+
     public void setOsmNode2InternalMapping(LongIntMap nodeMap) {
         long[] uniqueOriginalOsmIds = this.uberTrafficData.getUniqueOriginalOsmNodeIds();
-        int missedCounter = 0;
         if (uniqueOriginalOsmIds.length > 0) {
             for (long osmId : uniqueOriginalOsmIds) {
                 int internalMapping = nodeMap.get(osmId);
                 if (internalMapping > 0 || internalMapping < -1) {
                     this.osmNodeId2InternalIdMapping.put(osmId, internalMapping);
-                } else {
-                    missedCounter++;
                 }
             }
         }
-        LOGGER.debug("Found Uber nodes: " + this.osmNodeId2InternalIdMapping.size() + " | Missed Uber nodes: " + missedCounter);
     }
 
-    private String createGeojsonFromEdge(EdgeIteratorState edge) {
-        int decimals = 14;
-        SimpleFeatureType TYPE = null;
-        try {
-            TYPE = DataUtilities.createType("my", "geom:MultiLineString");
-        } catch (SchemaException e) {
-            e.printStackTrace();
+    /**
+     * Returns the number of times a value occurs in a given array.
+     */
+    public static int countValuesInByteArray(byte[] byteArray, int val) {
+        int count = 0;
+        for (byte b : byteArray) {
+            if (b == val) {
+                count++;
+            }
         }
-        SimpleFeatureType finalTYPE = TYPE;
-        GeometryFactory gf = new GeometryFactory();
-        WKTReader reader = new WKTReader(gf);
-
-        GeometryJSON gjson = new GeometryJSON(decimals);
-        FeatureJSON featureJSON = new FeatureJSON(gjson);
-        Writer stringWriter = new StringWriter();
-        DefaultFeatureCollection geojsonCollection = new DefaultFeatureCollection();
-
-        try {
-            assert finalTYPE != null;
-            SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(finalTYPE);
-            LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
-            com.vividsolutions.jts.geom.Geometry linestring = reader.read(lineString.toString());
-            featureBuilder.add(linestring);
-            SimpleFeature feature = featureBuilder.buildFeature(null);
-            geojsonCollection.add(feature);
-        } catch (ParseException e) {
-            LOGGER.error("Error adding machedOSMLinks", e);
-        }
-
-        try {
-            featureJSON.writeFeatureCollection(geojsonCollection, stringWriter);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            stringWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new JSONObject(stringWriter.toString()).toString();
-
-
+        return count;
     }
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public void postProcess(ORSGraphHopper graphHopper) throws SchemaException {
+        // TODO Match the uber traffic data that only had one edge node match with the osm data.
+        if (!enabled) {
+            LOGGER.debug("Uber traffic not enabled.");
+        } else if (storage.isMatched()) {
+            LOGGER.info("Uber traffic data already matched. Skipping post processing.");
+        } else if (!storage.isMatched() && storage.getEdgesCount() > 0) {
+            LOGGER.info("Assign max speeds to Uber data.");
+            storage.setMaxTrafficSpeeds();
+            storage.setMatched();
+            storage.flush();
+            LOGGER.info("Flush and lock storage.");
+            writeLogFile();
+            LOGGER.info("========== Successfully processed Uber data ==========");
+            LOGGER.info("> Total Processed ORS Edges: " + this.totalORSEdges);
+            LOGGER.info("> Total Processed Uber Edges: " + this.uberTrafficData.getPatterns().size());
+            LOGGER.info("> ORS Edges with traffic data: " + this.hitCounterMinTwo);
+            LOGGER.info("> ORS Edges with (potentially) matched traffic data: " + this.hitCounterMinOne);
+            //LOGGER.info("> ORS Edges without traffic data: " + this.missCounter);
+            LOGGER.info("> % of ORS Edges having Uber data: " + ((double) hitCounterMinTwo / (double) totalORSEdges) * 100);
+            LOGGER.info("> % of Uber Edges matched: " + (100 - ((double) (hitCounterMinOne + missCounter) / (double) this.uberTrafficData.getPatterns().size()) * 100));
+            LOGGER.info("> % of Uber Edges missed: " + ((double) (hitCounterMinOne + missCounter) / (double) this.uberTrafficData.getPatterns().size()) * 100);
+            LOGGER.info("======================================================");
+        } else {
+            throw new MissingResourceException("Here traffic is not build, enabled but the Here data sets couldn't be initialized. Make sure the config contains the path variables and they're correct.", this.getClass().toString(), "movement_data");
+        }
+
+    }
+
+    public void addPartiallyMatchedOSMGeometryForLogging(String osmGeometry) {
+        partiallyMatchedOSMEdges.add(osmGeometry);
+    }
+
+    private void addMissedOSMGeometryForLogging(String osmGeometry) {
+        missedOSMEdges.add(osmGeometry);
     }
 
     private void writeLogFile() throws SchemaException {
@@ -270,6 +296,8 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         int decimals = 14;
         GeometryJSON gjson = new GeometryJSON(decimals);
         FeatureJSON featureJSON = new FeatureJSON(gjson);
+        Date date = Calendar.getInstance().getTime();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_hh:mm");
         osmMatchedFile = new File(dateFormat.format(date) + "Uber_OSM_matched_edges_output.geojson");
         osmPartiallyMatchedFile = new File(dateFormat.format(date) + "Uber_OSM_partially_matched_edges_output.geojson");
         missedEdgesFile = new File(dateFormat.format(date) + "Uber_OSM_missed_edges_output.geojson");
@@ -351,31 +379,7 @@ public class UberTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    public void postProcess(ORSGraphHopper graphHopper) throws SchemaException {
-        // Schaut nur eine Richtung an. Gibt eine Edge zurück
-        //graphHopper.getGraphHopperStorage().createEdgeExplorer().setBaseNode();
-        // Bei mehreren Edges
-        //weightings.add(new FastestWeighting(footEncoder));
-        //new Dijkstra(prepareGraph,prepareWeighting, TraversalMode.NODE_BASED);
-        LOGGER.debug("Total Uber edges: " + this.uberTrafficData.getPatterns().size());
-        LOGGER.debug("Total ORS edges: " + this.totalORSEdges);
-        LOGGER.debug("ORS Edges with Uber match: " + this.hitCounterMinTwo);
-        LOGGER.debug("ORS Edges with partial Uber match: " + this.hitCounterMinOne);
-        LOGGER.debug("ORS Edges with no Uber match: " + this.missCounter);
-        //writeLogFile();
-        System.out.println();
+    @Override
+    public void finish() {
     }
-
-    public void addOSMGeometryForLogging(String osmGeometry) {
-        matchedOSMEdges.add(osmGeometry);
-    }
-
-    public void addPartiallyMatchedOSMGeometryForLogging(String osmGeometry) {
-        partiallyMatchedOSMEdges.add(osmGeometry);
-    }
-
-    private void addMissedOSMGeometryForLogging(String osmGeometry) {
-        missedOSMEdges.add(osmGeometry);
-    }
-
 }

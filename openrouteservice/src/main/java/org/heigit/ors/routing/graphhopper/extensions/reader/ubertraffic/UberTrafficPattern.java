@@ -2,34 +2,53 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.ubertraffic;
 
 import com.carrotsearch.hppc.LongHashSet;
 import com.carrotsearch.hppc.LongObjectHashMap;
-import com.carrotsearch.hppc.cursors.LongObjectCursor;
-
-import java.util.HashSet;
 
 public class UberTrafficPattern {
     private final long osmWayId;
+    private final int newUberEdgeId;
     private final UberTrafficEnums.PatternResolution resolution;
 
-    private final LongObjectHashMap<LongObjectHashMap<Float[]>> patternsByOsmId;
+    private final LongObjectHashMap<LongObjectHashMap<byte[]>> patternsByOsmId;
 
-    public UberTrafficPattern(long osmWayId, UberTrafficEnums.PatternResolution patternResolution) {
+    public UberTrafficPattern(long osmWayId, int osmWayIdNew, UberTrafficEnums.PatternResolution patternResolution) {
         this.osmWayId = osmWayId;
+        this.newUberEdgeId = osmWayIdNew;
         this.resolution = patternResolution;
         this.patternsByOsmId = new LongObjectHashMap<>();
     }
 
-    public void addPattern(long osmStartNodeId, long osmEndNodeId, int hour_of_day, float speed_kph_mean) {
-        LongObjectHashMap<Float[]> patterns = this.patternsByOsmId.get(osmStartNodeId);
+    public void addPatternByOsmId(long osmStartNodeId, long osmEndNodeId, int hour_of_day, byte speed_kph_mean) {
+        LongObjectHashMap<byte[]> patterns = this.patternsByOsmId.get(osmStartNodeId);
         if (patterns == null) {
             patterns = new LongObjectHashMap<>();
         }
-        Float[] hourly_speeds = patterns.get(osmEndNodeId);
+        byte[] hourly_speeds = patterns.get(osmEndNodeId);
         if (hourly_speeds == null) {
-            hourly_speeds = new Float[24];
+            hourly_speeds = new byte[24];
         }
         hourly_speeds[hour_of_day] = speed_kph_mean;
         patterns.put(osmEndNodeId, hourly_speeds);
         this.patternsByOsmId.put(osmStartNodeId, patterns);
+    }
+
+    public LongObjectHashMap<byte[]> getPatternsByOsmId(long osmStartNodeId) {
+        LongObjectHashMap<byte[]> patterns = this.patternsByOsmId.get(osmStartNodeId);
+        if (patterns == null) {
+            return new LongObjectHashMap<>();
+        }
+        return patterns;
+    }
+
+    public long getOsmWayId() {
+        return this.osmWayId;
+    }
+
+    /**
+     * To avoid storing large long IDs for the edges a new Id is generated and returned for every new edge in the Uber Data set.
+     * @return New and lower edgeID for smaller storages.
+     */
+    public int getNewUberEdgeId() {
+        return this.newUberEdgeId;
     }
 
     public long[] getAllNodeIds() {
