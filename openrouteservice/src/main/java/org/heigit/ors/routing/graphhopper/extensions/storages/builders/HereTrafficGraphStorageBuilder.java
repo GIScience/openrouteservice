@@ -60,7 +60,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 
-public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
+public class HereTrafficGraphStorageBuilder extends TrafficGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
     private int trafficWayType = TrafficRelevantWayType.UNWANTED;
 

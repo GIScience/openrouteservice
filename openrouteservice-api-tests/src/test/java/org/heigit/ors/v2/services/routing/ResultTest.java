@@ -3533,6 +3533,89 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testTrafficSpeed() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.689993);
+        coord1.put(49.399208);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.692824);
+        coord2.put(49.406562);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Tag "maxspeed:conditional = 30 @ (22:00-06:00)" along Rohrbacher Strasse
+        // Test that the speed limit is not taken into account if no time is specified
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(97.9f))
+                .statusCode(200);
+
+        // Test that the speed limit does not apply throughout the day
+        body.put("arrival", "2021-01-31T22:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(97.9f))
+                .statusCode(200);
+
+        // Test that the speed limit applies at night
+        body.remove("arrival");
+        body.put("departure", "2021-01-31T22:00");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(119.9f))
+                .statusCode(200);
+
+        // Test that the speed limit applies for shortest weighting as well
+        body.put("preference", "shortest");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(850.2f))
+                .body("routes[0].summary.duration", is(119.9f))
+                .statusCode(200);
+    }
+
+
+    @Test
     public void expectZoneMaxpeed() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();

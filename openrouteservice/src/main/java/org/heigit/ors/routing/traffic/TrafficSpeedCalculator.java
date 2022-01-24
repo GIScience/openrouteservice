@@ -9,13 +9,13 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
 import java.time.ZonedDateTime;
 
 public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     // time-dependent stuff
-    protected HereTrafficGraphStorage hereTrafficGraphStorage;
+    protected TrafficGraphStorage trafficGraphStorage;
     protected int timeZoneOffset;
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
@@ -31,7 +31,9 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
         if (flagEncoder instanceof HeavyVehicleFlagEncoder)
             isHGV = true;
-        setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, HereTrafficGraphStorage.class));
+        if (GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class) != null) {
+            setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
+        }
     }
 
     @Override
@@ -42,19 +44,19 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         double trafficSpeed;
         if (time == -1)
             trafficSpeed = reverse ?
-                    hereTrafficGraphStorage.getMaxSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode())
-                    : hereTrafficGraphStorage.getMaxSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode());
+                    trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode())
+                    : trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode());
         else
             trafficSpeed = reverse ?
-                    hereTrafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
-                    : hereTrafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
+                    trafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
+                    : trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
 
         if (trafficSpeed > 0) {
             //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
             if (isVehicle) {
                 trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
                 // For heavy vehicles, consider the traffic speeds only up to a predefined speeds
-                if(!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
+                if (!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
                     speed = trafficSpeed;
                 }
             } else {
@@ -72,8 +74,8 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         isVehicle = true;
     }
 
-    public void setTrafficGraphStorage(HereTrafficGraphStorage hereTrafficGraphStorage) {
-        this.hereTrafficGraphStorage = hereTrafficGraphStorage;
+    public void setTrafficGraphStorage(TrafficGraphStorage trafficGraphStorage) {
+        this.trafficGraphStorage = trafficGraphStorage;
     }
 
     public void setZonedDateTime(ZonedDateTime zdt) {

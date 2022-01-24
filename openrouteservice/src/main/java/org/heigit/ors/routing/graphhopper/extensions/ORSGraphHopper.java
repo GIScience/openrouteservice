@@ -65,10 +65,9 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.TrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
@@ -611,18 +610,11 @@ public class ORSGraphHopper extends GraphHopper {
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                if (graphStorageBuilder instanceof TrafficGraphStorageBuilder) {
                     try {
-                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                        ((TrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
                     } catch (SchemaException e) {
-                        LOGGER.error("Error building the Here traffic storage.");
-                        throw new RuntimeException(e);
-                    }
-                } else if (graphStorageBuilder instanceof UberTrafficGraphStorageBuilder) {
-                    try {
-                        ((UberTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
-                    } catch (SchemaException e) {
-                        LOGGER.error("Error building the Uber traffic storage.");
+                        LOGGER.error("Error building the traffic storage.");
                         throw new RuntimeException(e);
                     }
                 }
@@ -972,6 +964,6 @@ public class ORSGraphHopper extends GraphHopper {
     }
 
     public boolean isTrafficEnabled() {
-        return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), HereTrafficGraphStorage.class) != null;
+        return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;
     }
 }

@@ -24,10 +24,8 @@ import org.heigit.ors.plugins.PluginManager;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.TrafficGraphStorageBuilder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,13 +33,12 @@ import java.util.logging.Logger;
 public class GraphProcessContext {
 	private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
 
-	private Envelope bbox;
-	private List<GraphBuilder> graphBuilders;
-	private GraphBuilder[] arrGraphBuilders;
-	private List<GraphStorageBuilder> storageBuilders;
-	private GraphStorageBuilder[] arrStorageBuilders;
-	private int hereTrafficArrStorageBuilderLocation = -1;
-	private int uberTrafficArrStorageBuilderLocation = -1;
+    private Envelope bbox;
+    private List<GraphBuilder> graphBuilders;
+    private GraphBuilder[] arrGraphBuilders;
+    private List<GraphStorageBuilder> storageBuilders;
+    private GraphStorageBuilder[] arrStorageBuilders;
+    private int trafficArrStorageBuilderLocation = -1;
     private String graphStorageLocation;
 	private double maximumSpeedLowerBound;
 
@@ -138,38 +135,34 @@ public class GraphProcessContext {
 		}
 	}
 
-	/**
-	 * Pass the way read along with its geometry (a LineString) to the graph storage builders.
-	 *
-	 * @param way		The OSM data for the way (including tags)
-	 * @param coords	Coordinates of the linestring
-	 * @param nodeTags  Tags for nodes found on the way
-	 */
-	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags, Coordinate[] allCoordinates) {
-		try {
-			if (arrStorageBuilders != null) {
-				int nStorages = arrStorageBuilders.length;
-				if (nStorages > 0) {
-					for (int i = 0; i < nStorages; ++i) {
-						if (uberTrafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(UberTrafficGraphStorageBuilder.BUILDER_NAME)){
-							uberTrafficArrStorageBuilderLocation = i;
-						} else if (hereTrafficArrStorageBuilderLocation == -1  && arrStorageBuilders[i].getName().equals(HereTrafficGraphStorageBuilder.BUILDER_NAME)){
-							hereTrafficArrStorageBuilderLocation = i;
-						}
-						arrStorageBuilders[i].processWay(way, coords, nodeTags);
-					}
+    /**
+     * Pass the way read along with its geometry (a LineString) to the graph storage builders.
+     *
+     * @param way      The OSM data for the way (including tags)
+     * @param coords   Coordinates of the linestring
+     * @param nodeTags Tags for nodes found on the way
+     */
+    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags, Coordinate[] allCoordinates) {
+        try {
+            if (arrStorageBuilders != null) {
+                int nStorages = arrStorageBuilders.length;
+                if (nStorages > 0) {
+                    for (int i = 0; i < nStorages; ++i) {
+                        if (trafficArrStorageBuilderLocation == -1 && arrStorageBuilders[i] instanceof TrafficGraphStorageBuilder) {
+                            trafficArrStorageBuilderLocation = i;
+                        }
+                        arrStorageBuilders[i].processWay(way, coords, nodeTags);
+                    }
 
-					if (uberTrafficArrStorageBuilderLocation >= 0){
-						arrStorageBuilders[uberTrafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
-					} else if (hereTrafficArrStorageBuilderLocation >= 0){
-						arrStorageBuilders[hereTrafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
-					}
-				}
-			}
-		} catch(Exception ex) {
-			LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
-		}
-	}
+                    if (trafficArrStorageBuilderLocation >= 0) {
+                        arrStorageBuilders[trafficArrStorageBuilderLocation].processWay(way, allCoordinates, nodeTags);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOGGER.warning(ex.getMessage() + ". Way id = " + way.getId());
+        }
+    }
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
 		if (arrStorageBuilders != null) {

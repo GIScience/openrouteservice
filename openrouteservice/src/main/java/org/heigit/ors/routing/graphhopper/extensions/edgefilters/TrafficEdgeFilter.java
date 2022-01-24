@@ -8,22 +8,30 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.UberTrafficGraphStorage;
 
 
 public class TrafficEdgeFilter implements EdgeFilter {
     private int hereFunctionalClass;
-    private HereTrafficGraphStorage hereTrafficGraphStorage;
+    private TrafficGraphStorage trafficGraphStorage;
 
     public TrafficEdgeFilter(GraphStorage graphStorage) {
-        this.hereTrafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, HereTrafficGraphStorage.class);
+        if (GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class) != null) {
+            this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class);
+        }
     }
 
 
     @Override
     public boolean accept(EdgeIteratorState edgeIteratorState) {
         int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edgeIteratorState);
-        short osmWayTypeValue = (short) this.hereTrafficGraphStorage.getOrsRoadProperties(edgeId, HereTrafficGraphStorage.Property.ROAD_TYPE);
-        return osmWayTypeValue == hereFunctionalClass;
+        // TODO rework this. Uber also needs to avoidance for checking all irrelevant small streets when match making!
+        if (this.trafficGraphStorage instanceof HereTrafficGraphStorage) {
+            short osmWayTypeValue = (short) this.trafficGraphStorage.getOrsRoadProperties(edgeId, HereTrafficGraphStorage.Property.ROAD_TYPE);
+            return osmWayTypeValue == hereFunctionalClass;
+        }
+        return true;
     }
 
     public void setHereFunctionalClass(int hereFunctionalClass) {
