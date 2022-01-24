@@ -9,7 +9,6 @@ import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.UberTrafficGraphStorage;
 
 
 public class TrafficEdgeFilter implements EdgeFilter {

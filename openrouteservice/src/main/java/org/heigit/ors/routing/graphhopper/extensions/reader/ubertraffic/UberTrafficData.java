@@ -13,16 +13,6 @@ public class UberTrafficData {
         this.patternsByOsmId = new LongObjectHashMap<>();
     }
 
-
-    /**
-     * @param osm_id Return true weather the uber data contains traffic information for the given osm_way_id.
-     * @return boolean True if found else False.
-     */
-
-    public boolean hasOsmId(Long osm_id) {
-        return patternsByOsmId.containsKey(osm_id);
-    }
-
     public UberTrafficPattern getPattern(Long osm_way_id) {
         return patternsByOsmId.get(osm_way_id);
     }
@@ -37,7 +27,7 @@ public class UberTrafficData {
 
     public long[] getUniqueOriginalOsmNodeIds() {
         LongHashSet longCursors = new LongHashSet();
-        for (LongObjectCursor<UberTrafficPattern> patternObject: this.patternsByOsmId) {
+        for (LongObjectCursor<UberTrafficPattern> patternObject : this.patternsByOsmId) {
             longCursors.addAll(patternObject.value.getAllNodeIds());
         }
         longCursors.removeAll(0);

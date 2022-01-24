@@ -39,18 +39,6 @@ public class UberTrafficPattern {
         return patterns;
     }
 
-    public long getOsmWayId() {
-        return this.osmWayId;
-    }
-
-    /**
-     * To avoid storing large long IDs for the edges a new Id is generated and returned for every new edge in the Uber Data set.
-     * @return New and lower edgeID for smaller storages.
-     */
-    public int getNewUberEdgeId() {
-        return this.newUberEdgeId;
-    }
-
     public long[] getAllNodeIds() {
         LongHashSet ids = new LongHashSet();
         for (long startKey : this.patternsByOsmId.keys) {
