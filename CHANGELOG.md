@@ -40,7 +40,8 @@ RELEASING:
 ### Fixed
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
-- internal properties of `IsochronesRequest` model not ignored for swagger file generation 
+- internal properties of `IsochronesRequest` model not ignored for swagger file generation
+- remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
 
 ## [6.7.0] - 2022-01-04
 ### Added
