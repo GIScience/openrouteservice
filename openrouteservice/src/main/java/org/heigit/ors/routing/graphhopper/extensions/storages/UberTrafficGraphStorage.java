@@ -13,8 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
-import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficEnums;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.RAMDirectory;
+import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -22,117 +27,37 @@ import java.util.TimeZone;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class UberTrafficGraphStorage implements GraphExtension {
+public class UberTrafficGraphStorage extends TrafficGraphStorage {
 
     public enum Property {ROAD_TYPE}
 
+    static final Logger LOGGER = Logger.getLogger(UberTrafficGraphStorageBuilder.class.getName());
+
     /* pointer for road type */
-    private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
-    private static final int LOCATION_TRAFFIC_PRIORITY = 0;         // byte location of the from traffic link id
-    private static final int LOCATION_TRAFFIC = 1;         // byte location of the traffic link id
-    private static final int LOCATION_TRAFFIC_MAXSPEED = 15; // byte location of the weekly maximum traffic speed
+    private static final int LOCATION_TRAFFIC_PRIORITY = 0;         // byte location of the from UBER traffic data
+    private static final int LOCATION_TRAFFIC_START = 1;         // byte start location of the traffic data
     private static final int FORWARD_OFFSET = 0;
+    public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 24; // The pattern value is transferred to mph to allow byte storage. 1 byte * 24 hours
     private static final int LOCATION_FORWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + FORWARD_OFFSET;         // byte location of the from traffic link id
-    private static final int LOCATION_FORWARD_TRAFFIC = LOCATION_TRAFFIC + FORWARD_OFFSET;         // byte location of the from traffic link id
-    private static final int BACKWARD_OFFSET = 16;
+    private static final int LOCATION_FORWARD_TRAFFIC = LOCATION_TRAFFIC_START + FORWARD_OFFSET;         // byte location of the from traffic link id
+    private static final int LOCATION_FORWARD_TRAFFIC_MAXSPEED = DAILY_TRAFFIC_PATTERNS_BYTE_COUNT + LOCATION_FORWARD_TRAFFIC; // byte location of the daily maximum traffic speed
+    private static final int BACKWARD_OFFSET = 26;
     private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + BACKWARD_OFFSET;         // byte location of the to traffic link id
-    private static final int LOCATION_BACKWARD_TRAFFIC = LOCATION_TRAFFIC + BACKWARD_OFFSET;         // byte location of the to traffic link id
+    private static final int LOCATION_BACKWARD_TRAFFIC = LOCATION_TRAFFIC_START + BACKWARD_OFFSET;         // byte location of the to traffic link id
+    private static final int LOCATION_BACKWARD_TRAFFIC_MAXSPEED = DAILY_TRAFFIC_PATTERNS_BYTE_COUNT + LOCATION_BACKWARD_TRAFFIC; // byte location of the daily maximum traffic speed
 
-    // road types
-    public static final byte IGNORE = 0; // For unimportant edges that are below relevant street types (residential etc.)
-    public static final byte MOTORWAY = 1;
-    public static final byte MOTORWAY_LINK = 2;
-    public static final byte MOTORROAD = 3;
-    public static final byte TRUNK = 4;
-    public static final byte TRUNK_LINK = 5;
-    public static final byte PRIMARY = 6;
-    public static final byte PRIMARY_LINK = 7;
-    public static final byte SECONDARY = 8;
-    public static final byte SECONDARY_LINK = 9;
-    public static final byte TERTIARY = 10;
-    public static final byte TERTIARY_LINK = 11;
-    public static final byte RESIDENTIAL = 12; // Really really seldom this is needed!
-    public static final byte UNCLASSIFIED = 13;
 
-    public static final int PROPERTY_BYTE_COUNT = 1;
-    public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority + fwd/bwd maxspeed = 2 * 7 * 2 + 2 + 2 = 32
-    public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 96; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
-    public static final int MAX_DAILY_TRAFFIC_SPEED_BYTE_COUNT = 1; // Maximum over daily traffic pattern values
+    private DataAccess orsEdgesTrafficLookup; // RAMDataAccess
 
-    private DataAccess orsEdgesProperties; // RAMDataAccess
-    private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
-    private DataAccess orsSpeedPatternLookup; // RAMDataAccess
-
-    private int edgePropertyEntryBytes;
-    private int edgeLinkLookupEntryBytes;
-    private int patternEntryBytes;
+    private int uberEdgeLookupEntryBytes;
     private int edgesCount; // number of edges with custom values
-    private int maxEdgeId = 0; // highest edge id for which traffic data is available
-    private int patternCount; // number of traffic patterns
-    private byte[] propertyValue;
-    private byte[] speedValue;
-    private byte[] priorityValue;
+    private int maxEdgeId; // highest edge id for which traffic data is available
 
     public UberTrafficGraphStorage() {
         int edgeEntryIndex = 0;
-        edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
-        edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;
-        patternEntryBytes = edgeEntryIndex + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT + MAX_DAILY_TRAFFIC_SPEED_BYTE_COUNT;
-        propertyValue = new byte[1];
-        speedValue = new byte[1];
-        priorityValue = new byte[1];
+        uberEdgeLookupEntryBytes = edgeEntryIndex + LOCATION_BACKWARD_TRAFFIC_MAXSPEED;
         edgesCount = 0;
-    }
-
-    public static byte getWayTypeFromString(String highway) {
-        switch (highway.toLowerCase()) {
-            case "motorway":
-                return UberTrafficGraphStorage.MOTORWAY;
-            case "motorway_link":
-                return UberTrafficGraphStorage.MOTORWAY_LINK;
-            case "motorroad":
-                return UberTrafficGraphStorage.MOTORROAD;
-            case "trunk":
-                return UberTrafficGraphStorage.TRUNK;
-            case "trunk_link":
-                return UberTrafficGraphStorage.TRUNK_LINK;
-            case "primary":
-                return UberTrafficGraphStorage.PRIMARY;
-            case "primary_link":
-                return UberTrafficGraphStorage.PRIMARY_LINK;
-            case "secondary":
-                return UberTrafficGraphStorage.SECONDARY;
-            case "secondary_link":
-                return UberTrafficGraphStorage.SECONDARY_LINK;
-            case "tertiary":
-                return UberTrafficGraphStorage.TERTIARY;
-            case "tertiary_link":
-                return UberTrafficGraphStorage.TERTIARY_LINK;
-            case "residential":
-                return UberTrafficGraphStorage.RESIDENTIAL;
-            case "unclassified":
-                return UberTrafficGraphStorage.UNCLASSIFIED;
-            default:
-                return UberTrafficGraphStorage.IGNORE;
-        }
-    }
-
-    /**
-     * Set values to the edge based on custom properties<br/><br/>
-     * <p>
-     * This method takes the internal ID of the edge and adds the desired value e.g. the way type.
-     *
-     * @param edgeId Internal ID of the graph edge.
-     * @param prop   Property indicating the location to store the value at.
-     * @param value  Value containing the information that should be places on the index of the prop variable.
-     **/
-    public void setOrsRoadProperties(int edgeId, Property prop, short value) {
-        edgesCount++;
-        ensureEdgesPropertyIndex(edgeId);
-        long edgePointer = (long) edgeId * edgePropertyEntryBytes;
-        if (prop == Property.ROAD_TYPE)
-            propertyValue[0] = (byte) value;
-        orsEdgesProperties.setBytes(edgePointer + LOCATION_ROAD_TYPE, propertyValue, 1);
+        maxEdgeId = 0;
     }
 
     /**
@@ -140,64 +65,50 @@ public class UberTrafficGraphStorage implements GraphExtension {
      * <p>
      * This method takes the ID of the traffic edge and adds the weekday specific pattern Id to the lookup.
      *
-     * @param baseNode  Bade id to matchc the pattern on.
-     * @param patternId Id of the traffic pattern.
-     * @param weekday   Enum value for the weekday the traffic pattern Id refers to.
+     * @param edgeId   Id of the edge to store traffic data for.
+     * @param baseNode Bade id to matchc the pattern on.
+     * @param adjNode
+     * @param patterns
      **/
-    public void setEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, int patternId, HereTrafficEnums.WeekDay weekday, double priority) {
-        priority = priority > 255 ? 255 : priority;
-        patternId = patternId > 65535 ? 0 : patternId;
+    public void setEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, byte[] patterns, int priority) {
+        if (priority > 254) {
+            System.out.println();
+        }
+        priority = priority > 254 ? 255 : priority;
 
         if (edgeId > maxEdgeId)
             maxEdgeId = edgeId;
-        ensureEdgesTrafficLinkLookupIndex(edgeId);
+        ensureEdgesTrafficLinkLookupIndex(maxEdgeId);
 
-        int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
-
-        if (patternId <= 0)
+        if (patterns.length <= 0)
             return;
 
-        if (getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday) > 0 && lastPriority > priority)
-            return;
+        int lastPriority = getEdgeIdSpeedValuePriority(edgeId, baseNode, adjNode);
 
-        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-
-        priorityValue[0] = (byte) priority;
-
-        if (baseNode < adjNode) {
-            orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
-            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-        } else {
-            orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityValue, 1);
-            orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
-        }
-    }
-
-    /**
-     * Store the traffic pattern for each 15 minutes for 24 hours.</-><br/><br/>
-     * <p>
-     * This method takes the pattern Id and adds the speed value to the right quarter to the right hour.
-     *
-     * @param patternId     Id of the traffic pattern.
-     * @param patternValues Speed values in mph or kph.
-     **/
-    public void setTrafficPatterns(int patternId, short[] patternValues) {
-        patternCount++;
-        ensureSpeedPatternLookupIndex(patternId);
-        // add entry
-        int minuteCounter = 0;
-        short maxValue = 0;
-        for (int i = 0; i < patternValues.length; i++) {
-            if (minuteCounter > 3) {
-                minuteCounter = 0;
+        for (int i = 0; i < patterns.length; i++) {
+            // Priority is used to decide the following cases:
+            // 1. No prior value was assigned -> The new value is assigned.
+            // 2. A prior value was assigned -> The value will be reassigned if the new priority is higher and the value not 0.
+            short speedValue = patterns[i];
+            int currentSpeed = getTrafficSpeed(edgeId, baseNode, adjNode, i);
+            if (currentSpeed <= 0) {
+                setTrafficSpeed(edgeId, baseNode, adjNode, speedValue, i, (byte) priority);
+            } else if (priority > lastPriority) {
+                int testSpeed = getTrafficSpeed(46, 10389, 10381, 0);
+                assert testSpeed == 59 || testSpeed == 0;
+                setTrafficSpeed(edgeId, baseNode, adjNode, speedValue, i, (byte) priority);
             }
-            short patternValue = patternValues[i];
-            if (patternValue > maxValue)
-                maxValue = patternValue;
-            setTrafficSpeed(patternId, patternValue, i / 4, (minuteCounter * 15));
-            minuteCounter++;
+//            int testSpeed = getTrafficSpeed(46, 10389, 10381, 0);
+//            if (edgeId == 46 && baseNode == 10389 && adjNode == 10381) {
+//                LOGGER.debug("Speed for: EdgeID 46,  BaseNode 10389, AdjNode 10381, Hour 0" + testSpeed);
+//            }
+//            if (testSpeed != 59 && testSpeed != 58 && testSpeed != 50) {
+//                System.out.println();
+//            }
         }
-        setMaxTrafficSpeed(patternId, maxValue);
+
+        // Keep record of edges count with traffic data.
+        edgesCount++;
     }
 
     /**
@@ -205,71 +116,43 @@ public class UberTrafficGraphStorage implements GraphExtension {
      * <p>
      * This method takes the pattern Id and adds the speed value to the right quarter to the right hour.
      *
-     * @param patternId  Id of the traffic pattern.
+     * @param edgeId     Id of the traffic pattern.
+     * @param baseNode
+     * @param adjNode
      * @param speedValue Speed value in mph or kph.
      * @param hour       Hour to add the speed value to.
-     * @param minute     Minute to add the speed value to. This is equalized into 15 minutes steps!
+     * @param priority
      **/
-    private void setTrafficSpeed(int patternId, short speedValue, int hour, int minute) {
-        int minutePointer = generateMinutePointer(minute);
-        long patternPointer = (long) patternId * patternEntryBytes;
-        ensureSpeedPatternLookupIndex(patternId);
+    private void setTrafficSpeed(int edgeId, int baseNode, int adjNode, short speedValue, int hour, byte priority) {
+        long edgePointer = (long) edgeId * uberEdgeLookupEntryBytes;
+        //edgePointer = 1;
+        ensureEdgesTrafficLinkLookupIndex(edgeId);
         speedValue = speedValue > 255 ? 255 : speedValue;
-        this.speedValue[0] = (byte) speedValue;
-        orsSpeedPatternLookup.setBytes(patternPointer + ((hour * 4) + minutePointer), this.speedValue, 1);
+        if (baseNode < adjNode) {
+            orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC + hour, new byte[]{(byte) speedValue}, 1);
+            orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, new byte[]{priority}, 1);
+        } else {
+            orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC + hour, new byte[]{(byte) speedValue}, 1);
+            orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, new byte[]{priority}, 1);
+        }
     }
 
     /**
      * Store maximum speed value encountered in a daily traffic pattern
-     *
-     * @param patternId  Id of the traffic pattern.
-     * @param maxSpeedValue Speed value in mph or kph.
      **/
-    private void setMaxTrafficSpeed(int patternId, short maxSpeedValue) {
-        long patternPointer = (long) patternId * patternEntryBytes;
-        ensureSpeedPatternLookupIndex(patternId);
-        maxSpeedValue = maxSpeedValue > 255 ? 255 : maxSpeedValue;
-        this.speedValue[0] = (byte) maxSpeedValue;
-        orsSpeedPatternLookup.setBytes(patternPointer + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT, this.speedValue, 1);
-    }
-
-    /**
-     * Get the specified custom value of the edge that was assigned to it in the setValueEdge method<br/><br/>
-     * <p>
-     * The method takes an identifier to the edge and then gets the requested value for the edge from the storage
-     *
-     * @param edgeId Internal ID of the edge to get values for
-     * @param prop   The property of the edge to get (TYPE - border type (0,1,2), START - the ID of the country
-     *               the edge starts in, END - the ID of the country the edge ends in.
-     * @return The value of the requested property
-     */
-    public int getOrsRoadProperties(int edgeId, Property prop) {
-        byte[] propertyValue = new byte[1];
-        long edgePointer = (long) edgeId * edgePropertyEntryBytes;
-        if (prop == Property.ROAD_TYPE) {
-            orsEdgesProperties.getBytes(edgePointer + LOCATION_ROAD_TYPE, propertyValue, 1);
+    private void setMaxTrafficSpeed(int edgeId, int baseNode, int adjNode, short speedValue) {
+        long patternPointer = (long) edgeId * uberEdgeLookupEntryBytes;
+        //patternPointer = 1;
+        ensureEdgesTrafficLinkLookupIndex(edgeId);
+        speedValue = speedValue > 255 ? 255 : speedValue;
+        int lastMaxTrafficSpeed = getMaxTrafficSpeed(edgeId, baseNode, adjNode);
+        if (lastMaxTrafficSpeed < speedValue) {
+            if (baseNode < adjNode) {
+                orsEdgesTrafficLookup.setBytes(patternPointer + LOCATION_FORWARD_TRAFFIC_MAXSPEED, new byte[]{(byte) speedValue}, 1);
+            } else {
+                orsEdgesTrafficLookup.setBytes(patternPointer + LOCATION_BACKWARD_TRAFFIC_MAXSPEED, new byte[]{(byte) speedValue}, 1);
+            }
         }
-        return Byte.toUnsignedInt(propertyValue[0]);
-    }
-
-    /**
-     * Receive the matched edgeID <-> linkID matches for both directions.</-><br/><br/>
-     * <p>
-     * This method returns the linkID matched on the internal edge ID in both directions if present.
-     *
-     * @param edgeId   Internal ID of the graph edge.
-     * @param baseNode Value of the base Node of the edge.
-     * @param adjNode  Value of the adjacent Node of the edge.
-     * @param weekday  Enum of Weekday to get the pattern for.
-     **/
-    public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, HereTrafficEnums.WeekDay weekday) {
-        if (invalidEdgeId(edgeId))
-            return 0;
-        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-        if (baseNode < adjNode)
-            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation()));
-        else
-            return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation()));
     }
 
     private boolean invalidEdgeId(int edgeId) {
@@ -290,13 +173,13 @@ public class UberTrafficGraphStorage implements GraphExtension {
      * @param baseNode Value of the base Node of the edge.
      * @param adjNode  Value of the adjacent Node of the edge.
      **/
-    public int getEdgeIdTrafficPatternPriority(int edgeId, int baseNode, int adjNode) {
-        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
+    public int getEdgeIdSpeedValuePriority(int edgeId, int baseNode, int adjNode) {
+        long edgePointer = (long) edgeId * uberEdgeLookupEntryBytes;
         byte[] priority = new byte[1];
         if (baseNode < adjNode)
-            orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priority, 1);
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priority, 1);
         else
-            orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priority, 1);
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priority, 1);
         return Byte.toUnsignedInt(priority[0]);
     }
 
@@ -309,22 +192,30 @@ public class UberTrafficGraphStorage implements GraphExtension {
      * @param hour      Hour to get the patterns for.
      * @param minute    Minute to get the patterns for.
      **/
-    public int getTrafficSpeed(int patternId, int hour, int minute) {
+    public int getTrafficSpeed(int edgeId, int baseNode, int adjNode, int hour) {
         byte[] values = new byte[1];
-        int minutePointer = generateMinutePointer(minute);
-        long patternPointer = (long) patternId * patternEntryBytes;
-        orsSpeedPatternLookup.getBytes(patternPointer + ((hour * 4) + minutePointer), values, 1);
-        return Byte.toUnsignedInt(values[0]);
+        long edgePointer = (long) edgeId * uberEdgeLookupEntryBytes;
+        //edgePointer = 1;
+        if (baseNode < adjNode) {
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC + hour, values, 1);
+        } else {
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC + hour, values, 1);
+        }
+        return Byte.toUnsignedInt(values[0]) <= 0 ? -1 : Byte.toUnsignedInt(values[0]);
     }
 
     /**
      * Maximum speed value encountered in a daily traffic pattern
-     *
      **/
-    private int getMaxTrafficSpeed(int patternId) {
+    private int getMaxTrafficSpeed(int edgeId, int baseNode, int adjNode) {
+        long patternPointer = (long) edgeId * uberEdgeLookupEntryBytes;
+        ensureEdgesTrafficLinkLookupIndex(edgeId);
         byte[] value = new byte[1];
-        long patternPointer = (long) patternId * patternEntryBytes;
-        orsSpeedPatternLookup.getBytes(patternPointer + DAILY_TRAFFIC_PATTERNS_BYTE_COUNT, value, 1);
+        if (baseNode < adjNode) {
+            orsEdgesTrafficLookup.getBytes(patternPointer + LOCATION_FORWARD_TRAFFIC_MAXSPEED, value, 1);
+        } else {
+            orsEdgesTrafficLookup.getBytes(patternPointer + LOCATION_BACKWARD_TRAFFIC_MAXSPEED, value, 1);
+        }
         return Byte.toUnsignedInt(value[0]);
     }
 
@@ -343,63 +234,70 @@ public class UberTrafficGraphStorage implements GraphExtension {
      * ## TODO's ##
      * - enhance internal time encoding and harmonize it in the whole ORS backend when more traffic data comes in.
      *
-     * @param edgeId      Internal ID of the edge to get values for.
-     * @param baseNode    The baseNode of the edge to define the direction.
-     * @param adjNode    The adjNode of the edge to define the direction.
+     * @param edgeId           Internal ID of the edge to get values for.
+     * @param baseNode         The baseNode of the edge to define the direction.
+     * @param adjNode          The adjNode of the edge to define the direction.
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
     public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
+        if (invalidEdgeId(edgeId))
+            return -1;
         Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+" + timeZoneOffset));
         calendarDate.setTimeInMillis(unixMilliSeconds);
         int calendarWeekDay = calendarDate.get(Calendar.DAY_OF_WEEK);
         int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
-        int minute = calendarDate.get(Calendar.MINUTE);
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, HereTrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
-        if (patternId > 0)
-            return getTrafficSpeed(patternId, hour, minute);
+        try {
+//            int testSpeed = getTrafficSpeed(46, 10389, 10381, 0);
+//            if (edgeId == 46 && baseNode == 10389 && adjNode == 10381) {
+//                LOGGER.debug("Speed for: EdgeID 46,  BaseNode 10389, AdjNode 10381, Hour 0" + testSpeed);
+//            }
+//            if (testSpeed != 59 && testSpeed != 58 && testSpeed != 50) {
+//                System.out.println();
+//            }
+            return getTrafficSpeed(edgeId, baseNode, adjNode, hour);
+        } catch (Exception err) {
+            LOGGER.error("Error getting speeds for edgeId" + edgeId + "baseNode: " + baseNode + "adjNode: " + adjNode + "hour: " + hour + " Error: " + err);
+        }
         return -1;
     }
 
     /**
-     * Maximum traffic speed value across the whole week
-     *
+     * Maximum traffic speed value across the whole day
      **/
     public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
         if (invalidEdgeId(edgeId))
             return 0;
         byte[] value = new byte[1];
-        long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-        int directionOffset = (baseNode < adjNode) ? FORWARD_OFFSET : BACKWARD_OFFSET;
-        orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, value, 1);
+        // TODO revise
+        long edgePointer = (long) edgeId * uberEdgeLookupEntryBytes;
+        int directionOffset = (baseNode < adjNode) ? LOCATION_FORWARD_TRAFFIC_MAXSPEED : LOCATION_BACKWARD_TRAFFIC_MAXSPEED;
+        orsEdgesTrafficLookup.getBytes(edgePointer + directionOffset, value, 1);
         return Byte.toUnsignedInt(value[0]);
     }
 
     public boolean hasTrafficSpeed(int edgeId, int baseNode, int adjNode) {
         // Traffic patters are stored for all weekdays so it should be enough to check only for one of them
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, HereTrafficEnums.WeekDay.MONDAY);
-        // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
-        return patternId > 0;
-    }
-
-    private void ensureEdgesPropertyIndex(int edgeId) {
-        orsEdgesProperties.ensureCapacity(((long) edgeId + 1) * edgePropertyEntryBytes);
+//        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, HereTrafficEnums.WeekDay.MONDAY);
+//        // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
+//        return patternId > 0;
+        return true;
     }
 
     public void ensureEdgesTrafficLinkLookupIndex(int edgeId) {
-        orsEdgesTrafficLinkLookup.ensureCapacity(((long) edgeId + 1) * edgeLinkLookupEntryBytes);
-    }
-
-    private void ensureSpeedPatternLookupIndex(int patternId) {
-        orsSpeedPatternLookup.ensureCapacity(((long) patternId + 1) * patternEntryBytes);
+        orsEdgesTrafficLookup.ensureCapacity(((long) edgeId + 1) * uberEdgeLookupEntryBytes);
     }
 
     public boolean isMatched() {
-        return orsEdgesTrafficLinkLookup.getHeader(8) == 1;
+        return orsEdgesTrafficLookup.getHeader(0) == 1;
     }
 
     public void setMatched() {
-        orsEdgesTrafficLinkLookup.setHeader(8, 1);
+        orsEdgesTrafficLookup.setHeader(0, 1);
+    }
+
+    public int getEdgesCount() {
+        return edgesCount;
     }
 
     /**
@@ -445,9 +343,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdgesProperties = dir.find("ext_uber_traffic_edge_properties");
-        this.orsEdgesTrafficLinkLookup = dir.find("ext_uber_traffic_edges_traffic_lookup");
-        this.orsSpeedPatternLookup = dir.find("ext_uber_traffic_pattern_lookup");
+        this.orsEdgesTrafficLookup = dir.find("ext_uber_traffic_edges_lookup");
     }
 
     /**
@@ -458,9 +354,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
         Directory d = new RAMDirectory();
-        this.orsEdgesProperties = d.find("");
-        this.orsEdgesTrafficLinkLookup = d.find("");
-        this.orsSpeedPatternLookup = d.find("");
+        this.orsEdgesTrafficLookup = d.find("");
     }
 
     /**
@@ -470,9 +364,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public void setSegmentSize(int bytes) {
-        orsEdgesProperties.setSegmentSize(bytes);
-        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsSpeedPatternLookup.setSegmentSize(bytes);
+        orsEdgesTrafficLookup.setSegmentSize(bytes);
     }
 
     /**
@@ -488,9 +380,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
 
         UberTrafficGraphStorage clonedTC = (UberTrafficGraphStorage) clonedStorage;
 
-        orsEdgesProperties.copyTo(clonedTC.orsEdgesProperties);
-        orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);
-        orsSpeedPatternLookup.copyTo(clonedTC.orsSpeedPatternLookup);
+        orsEdgesTrafficLookup.copyTo(clonedTC.orsEdgesTrafficLookup);
         clonedTC.edgesCount = edgesCount;
         clonedTC.maxEdgeId = maxEdgeId;
 
@@ -502,17 +392,11 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public boolean loadExisting() {
-        if (!orsEdgesProperties.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'ext_traffic'. corrupt file or directory?");
-        if (!orsEdgesTrafficLinkLookup.loadExisting())
+        if (!orsEdgesTrafficLookup.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_traffic_edges_traffic_lookup'. corrupt file or directory?");
-        if (!orsSpeedPatternLookup.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'ext_traffic_pattern_lookup'. corrupt file or directory?");
-        edgePropertyEntryBytes = orsEdgesProperties.getHeader(0);
-        edgeLinkLookupEntryBytes = orsEdgesTrafficLinkLookup.getHeader(0);
-        patternEntryBytes = orsSpeedPatternLookup.getHeader(0);
-        edgesCount = orsEdgesProperties.getHeader(4);
-        maxEdgeId = orsEdgesTrafficLinkLookup.getHeader(4);
+        uberEdgeLookupEntryBytes = orsEdgesTrafficLookup.getHeader(5);
+        maxEdgeId = orsEdgesTrafficLookup.getHeader(9);
+        edgesCount = orsEdgesTrafficLookup.getHeader(13);
         return true;
     }
 
@@ -523,9 +407,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public GraphExtension create(long initBytes) {
-        orsEdgesProperties.create(initBytes * edgePropertyEntryBytes);
-        orsEdgesTrafficLinkLookup.create(initBytes * edgeLinkLookupEntryBytes);
-        orsSpeedPatternLookup.create(initBytes * patternEntryBytes);
+        orsEdgesTrafficLookup.create(initBytes * uberEdgeLookupEntryBytes);
         return this;
     }
 
@@ -536,15 +418,10 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public void flush() {
-        orsEdgesProperties.setHeader(0, edgePropertyEntryBytes);
-        orsEdgesTrafficLinkLookup.setHeader(0, edgeLinkLookupEntryBytes);
-        orsSpeedPatternLookup.setHeader(0, patternEntryBytes);
-        orsEdgesProperties.setHeader(4, edgesCount);
-        orsEdgesTrafficLinkLookup.setHeader(4, maxEdgeId);
-        orsSpeedPatternLookup.setHeader(4, patternCount);
-        orsEdgesProperties.flush();
-        orsEdgesTrafficLinkLookup.flush();
-        orsSpeedPatternLookup.flush();
+        orsEdgesTrafficLookup.setHeader(5, uberEdgeLookupEntryBytes);
+        orsEdgesTrafficLookup.setHeader(9, maxEdgeId);
+        orsEdgesTrafficLookup.setHeader(13, edgesCount);
+        orsEdgesTrafficLookup.flush();
     }
 
     /**
@@ -553,9 +430,7 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public void close() {
-        orsEdgesProperties.close();
-        orsEdgesTrafficLinkLookup.close();
-        orsSpeedPatternLookup.close();
+        orsEdgesTrafficLookup.close();
     }
 
     @Override
@@ -568,47 +443,41 @@ public class UberTrafficGraphStorage implements GraphExtension {
      */
     @Override
     public long getCapacity() {
-        return orsEdgesProperties.getCapacity() + orsEdgesTrafficLinkLookup.getCapacity() + orsSpeedPatternLookup.getCapacity();
-    }
-
-
-    private int generateMinutePointer(int minute) {
-        if (minute < 15) {
-            return 0;
-        } else if (minute < 30) {
-            return 1;
-        } else if (minute < 45) {
-            return 2;
-        } else {
-            return 3;
-        }
+        return orsEdgesTrafficLookup.getCapacity();
     }
 
     /**
      * This method finds as stores for each edge the maximum forward and backward traffic speed across the whole week.
      */
     public void setMaxTrafficSpeeds() {
-        int [] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
-
         for (int edgeId = 0; edgeId <= maxEdgeId; edgeId++) {
-            long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-
-            for (int directionOffset : directionOffsets) {
-                int weeklyMaxSpeed = 0;
-
-                for (HereTrafficEnums.WeekDay weekDay : HereTrafficEnums.WeekDay.values()) {
-                    int patternId = Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_TRAFFIC + directionOffset + weekDay.getByteLocation()));
-                    if (patternId == 0)
-                        break;
-                    int dailyMaxSpeed = getMaxTrafficSpeed(patternId);
-                    if (dailyMaxSpeed > weeklyMaxSpeed)
-                        weeklyMaxSpeed = dailyMaxSpeed;
+            long edgePointer = (long) edgeId * uberEdgeLookupEntryBytes;
+            byte[] priorityForward = new byte[1];
+            byte[] priorityBackward = new byte[1];
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityForward, 1);
+            orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityBackward, 1);
+            byte[] speedValue = new byte[1];
+            byte[] currentMaxValue = new byte[1];
+            if (priorityForward[0] > 0) {
+                orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_MAXSPEED, currentMaxValue, 1);
+                for (int i = 0; i < DAILY_TRAFFIC_PATTERNS_BYTE_COUNT; i++) {
+                    orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC + i, speedValue, 1);
+                    if (currentMaxValue[0] < speedValue[0]) {
+                        currentMaxValue[0] = speedValue[0];
+                        orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC + i, currentMaxValue, 1);
+                    }
                 }
-
-                this.speedValue[0] = (byte) weeklyMaxSpeed;
-                orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, this.speedValue, 1);
+            }
+            if (priorityBackward[0] > 0) {
+                orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_MAXSPEED, currentMaxValue, 1);
+                for (int i = 0; i < DAILY_TRAFFIC_PATTERNS_BYTE_COUNT; i++) {
+                    orsEdgesTrafficLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC + i, speedValue, 1);
+                    if (currentMaxValue[0] < speedValue[0]) {
+                        currentMaxValue[0] = speedValue[0];
+                        orsEdgesTrafficLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC + i, currentMaxValue, 1);
+                    }
+                }
             }
         }
     }
-
 }
