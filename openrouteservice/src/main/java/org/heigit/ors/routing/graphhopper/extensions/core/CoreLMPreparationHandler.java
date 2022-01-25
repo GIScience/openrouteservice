@@ -71,8 +71,9 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                     throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
                             "Couldn't find " + lmConfig.getName() + " in " + getMaximumWeights());
 
+                CoreLMConfig coreLMConfig = new CoreLMConfig(lmConfig.getName(), lmConfig.getWeighting(), edgeFilterSequence);
                 PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                        lmConfig, getLandmarks(), coreNodeIdMap, edgeFilterSequence).
+                        coreLMConfig, getLandmarks(), coreNodeIdMap).
                         setLandmarkSuggestions(lmSuggestions).
                         setMaximumWeight(maximumWeight).
                         setLogDetails(getLogDetails());

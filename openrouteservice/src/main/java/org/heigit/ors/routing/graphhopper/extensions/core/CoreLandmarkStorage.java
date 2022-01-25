@@ -23,7 +23,6 @@ import com.graphhopper.routing.DijkstraBidirectionCHNoSOD;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
-import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.SplitArea;
 import com.graphhopper.routing.subnetwork.SubnetworkStorage;
@@ -51,29 +50,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CoreLandmarkStorage extends LandmarkStorage {
     private RoutingCHGraphImpl core;
-    private LMEdgeFilterSequence landmarksFilter;
+    private final LMEdgeFilterSequence landmarksFilter;
     private Map<Integer, Integer> coreNodeIdMap;
     private final GraphHopperStorage graph;
-    private final LMConfig lmConfig;
+    private final CoreLMConfig lmConfig;
 
-    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, final LMConfig lmConfig, int landmarks) {
+    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
         super(graph, dir, lmConfig, landmarks);
         this.graph = graph;
         this.lmConfig = lmConfig;
         core = graph.getCoreGraph(lmConfig.getWeighting());
+        this.landmarksFilter = lmConfig.getEdgeFilter();
     }
 
     public void setCoreNodeIdMap (Map<Integer, Integer> coreNodeIdMap) {
         this.coreNodeIdMap = coreNodeIdMap;
     }
 
-    public void setLandmarksFilter (LMEdgeFilterSequence landmarksFilter) {
-        this.landmarksFilter = landmarksFilter;
-    }
-
     @Override
     public String getLandmarksFileName() {
-        return "landmarks_core_" + lmConfig.getName() + landmarksFilter.getName();
+        return "landmarks_core_";
     }
     /**
      * This method calculates the landmarks and initial weightings to & from them.
@@ -108,7 +104,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         byte[] subnetworks = new byte[coreNodes];
         Arrays.fill(subnetworks, (byte) UNSET_SUBNETWORK);
 
-        String snKey = Subnetwork.key(lmConfig.getName());
+        String snKey = Subnetwork.key(lmConfig.getSuperName());
         // TODO We could use EdgeBasedTarjanSCC instead of node-based TarjanSCC here to get the small networks directly,
         //  instead of using the subnetworkEnc from PrepareRoutingSubnetworks.
         if (!graph.getEncodingManager().hasEncodedValue(snKey))
@@ -260,12 +256,12 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     @Override
     public LandmarkExplorer getLandmarkExplorer(EdgeFilter accessFilter, Weighting weighting, boolean reverse) {
-        return new CoreLandmarkExplorer(core, weighting, accessFilter, reverse);
+        return new CoreLandmarkExplorer(core, accessFilter, reverse);
     }
 
     @Override
     public LandmarkExplorer getLandmarkSelector(EdgeFilter accessFilter) {
-        return new CoreLandmarkSelector(core, getLmSelectionWeighting(), accessFilter, false);
+        return new CoreLandmarkSelector(core, accessFilter, false);
     }
 
     /**
@@ -275,11 +271,9 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     private class CoreLandmarkExplorer extends DijkstraBidirectionCHNoSOD implements LandmarkExplorer {
         private final boolean reverse;
         private SPTEntry lastEntry;
-        Weighting weighting;
 
-        public CoreLandmarkExplorer(RoutingCHGraph g, Weighting weighting, EdgeFilter accessFilter, boolean reverse) {
-            super(g); //super(g, weighting, tMode);
-            this.weighting = weighting;
+        public CoreLandmarkExplorer(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
+            super(g);
             this.levelEdgeFilter = new CoreEdgeFilter(g, accessFilter);
             this.reverse = reverse;
             // set one of the bi directions as already finished
@@ -385,20 +379,17 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     private class CoreLandmarkSelector extends CoreLandmarkExplorer {
 
-        public CoreLandmarkSelector(RoutingCHGraph g, Weighting weighting, EdgeFilter accessFilter, boolean reverse) {
-            super(g, weighting, accessFilter, reverse);
+        public CoreLandmarkSelector(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
+            super(g, accessFilter, reverse);
         }
 
         // need to adapt this method
         @Override
         protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-            if (edgeState.isShortcut()) {
-                if (edgeState.getWeight(false) >= Double.MAX_VALUE)
-                    return Double.POSITIVE_INFINITY;
-                return expandEdge(edgeState);
-            }
-            else
-                return super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+            if (super.calcWeight(edgeState, reverse, prevOrNextEdgeId) >= Double.MAX_VALUE)
+                return Double.POSITIVE_INFINITY;
+
+            return edgeState.isShortcut() ? expandEdge(edgeState) : 1;
         }
 
         private int expandEdge(RoutingCHEdgeIteratorState mainEdgeState) {

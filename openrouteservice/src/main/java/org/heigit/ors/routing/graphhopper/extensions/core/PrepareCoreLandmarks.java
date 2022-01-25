@@ -37,17 +37,17 @@ import java.util.Map;
 public class PrepareCoreLandmarks extends PrepareLandmarks {
     private final LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap, LMEdgeFilterSequence landmarksFilter) {
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, CoreLMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap) {
         super(dir, graph, lmConfig, landmarks);
-        this.landmarksFilter = landmarksFilter;
+        this.landmarksFilter = lmConfig.getEdgeFilter();
         CoreLandmarkStorage coreLandmarkStorage = (CoreLandmarkStorage) getLandmarkStorage();
         coreLandmarkStorage.setCoreNodeIdMap(coreNodeIdMap);
-        coreLandmarkStorage.setLandmarksFilter(landmarksFilter);
     }
 
     @Override
     public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
-        return new CoreLandmarkStorage(dir, graph, lmConfig, landmarks);
+        CoreLMConfig coreLMConfig = new CoreLMConfig(lmConfig.getName(), lmConfig.getWeighting(), landmarksFilter);
+        return new CoreLandmarkStorage(dir, graph, coreLMConfig, landmarks);
     }
 
     public boolean matchesFilter(PMap pmap){
