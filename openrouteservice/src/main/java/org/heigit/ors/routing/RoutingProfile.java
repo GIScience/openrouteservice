@@ -56,6 +56,7 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -138,27 +139,6 @@ public class RoutingProfile {
             if (optsExecute.hasPath("methods.astar.epsilon"))
                 astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
         }
-    }
-
-    cd0ca9e(Intermediate commit)
-            throws Exception {
-        RouteSegmentInfo[] rsi;
-
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            throw ex;
-        }
-
-        return rsi;
     }
 
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
