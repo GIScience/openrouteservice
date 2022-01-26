@@ -15,25 +15,26 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.EdgeIteratorState;
 
 public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
-	protected final BooleanEncodedValue accessEnc;
+    protected final BooleanEncodedValue accessEnc;
 
 
-	public DownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
-		super(g, encoder);
-		accessEnc = encoder.getAccessEnc();
-	}
+    public DownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
+        super(g, encoder);
+        accessEnc = encoder.getAccessEnc();
+    }
 
-	@Override
-	public boolean accept(EdgeIteratorState edgeIterState) {
-		int adj = edgeIterState.getAdjNode();
+    @Override
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
+        int adj = edgeIterState.getAdjNode();
 
-		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-			return edgeIterState.getReverse(accessEnc);
-		else
-			return false;
-	}
+        if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
+            return isAccessible(edgeIterState, true);
+//            return edgeIterState.getReverse(accessEnc);
+        else
+            return false;
+    }
 }

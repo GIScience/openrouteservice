@@ -14,24 +14,21 @@
 package org.heigit.ors.matrix.algorithms;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
-import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
-public class MatrixAlgorithmFactory {
-    private MatrixAlgorithmFactory() {
-    }
+public abstract class AbstractContractedMatrixAlgorithm implements ContractedMatrixAlgorithm {
+    protected GraphHopper graphHopper;
+    protected RoutingCHGraph chGraph;
+    protected FlagEncoder encoder;
+    protected Weighting weighting;
 
-    public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
-        if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled())
-            return new RPHASTMatrixAlgorithm();
-        if (gh instanceof ORSGraphHopper) {
-            if (req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper) gh).isCoreEnabled()) {
-                return new CoreMatrixAlgorithm();
-            }
-        }
-        return new DijkstraMatrixAlgorithm();
+    public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
+        graphHopper = gh;
+        this.chGraph = chGraph;
+        this.encoder = encoder;
+        this.weighting = weighting;
     }
 }

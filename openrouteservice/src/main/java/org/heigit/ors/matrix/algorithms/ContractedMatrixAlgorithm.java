@@ -11,29 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
+package org.heigit.ors.matrix.algorithms;
 
-import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHGraph;
+import org.heigit.ors.matrix.MatrixRequest;
 
-public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
-    BooleanEncodedValue accessEnc;
-
-    public UpwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
-        super(g, encoder);
-        this.accessEnc = encoder.getAccessEnc();
-    }
-
-    @Override
-    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
-        int adj = edgeIterState.getAdjNode();
-
-        if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-            return isAccessible(edgeIterState, false);
-//			return edgeIterState.get(accessEnc);
-        else
-            return false;
-    }
+public interface ContractedMatrixAlgorithm extends MatrixAlgorithm {
+    void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph graph, FlagEncoder encoder, Weighting weighting);
 }

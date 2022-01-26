@@ -24,7 +24,9 @@ import org.heigit.ors.util.DebugUtility;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -121,7 +123,7 @@ public class PrepareCoreTest {
 
         PrepareCore prepare = new PrepareCore(g, chConfig, restrictedEdges);
 
-        if (nodeOrdering!=null)
+        if (nodeOrdering != null)
             prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
@@ -269,7 +271,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testMediumUnrestricted(){
+    public void testMediumUnrestricted() {
         createMediumGraph();
         contractGraph(new CoreTestEdgeFilter());
 
@@ -284,7 +286,7 @@ public class PrepareCoreTest {
 
     // With a single restriction on 0-1
     @Test
-    public void testMediumRestricted1(){
+    public void testMediumRestricted1() {
         createMediumGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -292,14 +294,13 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(0, 1, 2));
-        shortcuts.add(new Shortcut(1, 0, 2));
-        shortcuts.add(new Shortcut(3, 0, 3));
-        shortcuts.add(new Shortcut(3, 1, 3));
+        shortcuts.add(new Shortcut(7, 4, 2));
+        shortcuts.add(new Shortcut(4, 8, 5));
         shortcuts.add(new Shortcut(4, 0, 5));
         shortcuts.add(new Shortcut(4, 1, 5));
-        shortcuts.add(new Shortcut(4, 8, 5));
-        shortcuts.add(new Shortcut(7, 4, 2));
+        shortcuts.add(new Shortcut(0, 1, 2));
+        shortcuts.add(new Shortcut(3, 1, 3));
+        shortcuts.add(new Shortcut(3, 0, 3));
         assertShortcuts(shortcuts);
 
         Integer[] core = {0, 1};
@@ -368,11 +369,11 @@ public class PrepareCoreTest {
         contractGraph(restrictedEdges);
 
         HashSet<Shortcut> shortcuts = new HashSet<>();
-        shortcuts.add(new Shortcut(0,3, 3));
-        shortcuts.add(new Shortcut(3,8, 4));
-        shortcuts.add(new Shortcut(4,7, 2));
-        shortcuts.add(new Shortcut(7,4, 2));
-        shortcuts.add(new Shortcut(8,3, 4));
+        shortcuts.add(new Shortcut(0, 3, 3));
+        shortcuts.add(new Shortcut(3, 8, 4));
+        shortcuts.add(new Shortcut(4, 7, 2));
+        shortcuts.add(new Shortcut(7, 4, 2));
+        shortcuts.add(new Shortcut(8, 3, 4));
         assertShortcuts(shortcuts);
 
         Integer[] core = {3, 4, 7, 8};
@@ -462,7 +463,7 @@ public class PrepareCoreTest {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        for (int i=0; i < g.getEdges(); i++)
+        for (int i = 0; i < g.getEdges(); i++)
             restrictedEdges.add(i);
         contractGraph(restrictedEdges);
 
@@ -474,6 +475,7 @@ public class PrepareCoreTest {
 
     /**
      * Test whether only the core nodes have maximum level
+     *
      * @param coreNodes
      */
     private void assertCore(Set<Integer> coreNodes) {
@@ -488,9 +490,10 @@ public class PrepareCoreTest {
             }
         }
     }
-    
+
     /**
      * Test whether all the expected shortcuts are built and they are no additional shortcuts
+     *
      * @param shortcutsExpected map with edge ids as key and as a value a pair of the nodes of the corresponding edge
      */
     private void assertShortcuts(Set<Shortcut> shortcutsExpected) {
@@ -510,7 +513,7 @@ public class PrepareCoreTest {
         assertEquals(shortcutsExpected.size(), shortcutsFound.size());
         assertTrue(shortcutsExpected.containsAll(shortcutsFound));
     }
-    
+
     @Test
     public void testHelperShortcut() {
         // node order does matter
@@ -518,7 +521,7 @@ public class PrepareCoreTest {
         // shortcuts must have equal weight
         assertNotEquals(new Shortcut(1, 2, 3.0), new Shortcut(1, 2, 3.5));
     }
-    
+
     private class Shortcut {
         int first;
         int second;
