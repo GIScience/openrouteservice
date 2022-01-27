@@ -13,12 +13,9 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
-import org.junit.Test;
 
 import static com.graphhopper.util.GHUtility.getEdge;
-import static org.junit.Assert.assertEquals;
 
 public class RPHASTMatrixTest {
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
@@ -88,15 +85,15 @@ public class RPHASTMatrixTest {
         }
     }
 
-    @Test
-    public void testMoreComplexGraph() {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
-
-        int oldCount = routingCHGraph.getEdges();
-        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(graphHopperStorage);
-        useNodeOrdering(prepare, new int[]{0, 5, 6, 7, 8, 10, 11, 13, 15, 1, 3, 9, 14, 16, 12, 4, 2});
-        prepare.doWork();
-        assertEquals(oldCount, g.getEdges());
-        assertEquals(oldCount + 7, routingCHGraph.getEdges());
-    }
+//    @Test
+//    public void testMoreComplexGraph() {
+//        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+//
+//        int oldCount = routingCHGraph.getEdges();
+//        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(graphHopperStorage);
+//        useNodeOrdering(prepare, new int[]{0, 5, 6, 7, 8, 10, 11, 13, 15, 1, 3, 9, 14, 16, 12, 4, 2});
+//        prepare.doWork();
+//        assertEquals(oldCount, g.getEdges());
+//        assertEquals(oldCount + 7, routingCHGraph.getEdges());
+//    }
 }
