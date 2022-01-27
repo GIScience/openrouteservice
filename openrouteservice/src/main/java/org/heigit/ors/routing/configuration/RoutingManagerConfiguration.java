@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.configuration;
 
@@ -80,7 +80,7 @@ public class RoutingManagerConfiguration  {
 		List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
 		List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
 		Map<String,Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
-		if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in app.config
+		if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in ors-config.json
 			defaultFastIsochroneParams = new HashMap<>();
 			defaultFastIsochroneParams.put("enabled", false);
 		}
@@ -116,7 +116,7 @@ public class RoutingManagerConfiguration  {
 				for(Map.Entry<String, Object> defParamItem : defaultParams.entrySet()) {
 					if (!profileParams.containsKey(defParamItem.getKey()))
 						profileParams.put(defParamItem.getKey(), defParamItem.getValue());
-				}				
+				}
 			}
 
 			if (profileParams != null) {
@@ -161,7 +161,7 @@ public class RoutingManagerConfiguration  {
 						}
 						break;
 					case "ext_storages":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						Map<String, Object> storageList = (Map<String, Object>)paramItem.getValue();
 
 						for(Map.Entry<String, Object> storageEntry : storageList.entrySet()) {
@@ -177,7 +177,7 @@ public class RoutingManagerConfiguration  {
 						}
 						break;
 					case "graph_processors":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						Map<String, Object> storageList2 = (Map<String, Object>)paramItem.getValue();
 
 						for(Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
@@ -211,7 +211,7 @@ public class RoutingManagerConfiguration  {
 						profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					case "extent":
-						@SuppressWarnings("unchecked") 
+						@SuppressWarnings("unchecked")
 						List<Double> bbox = (List<Double>)paramItem.getValue();
 
 						if (bbox.size() != 4)
@@ -229,6 +229,9 @@ public class RoutingManagerConfiguration  {
 						break;
 					case "maximum_speed_lower_bound":
 						profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
+						break;
+					case "traffic_expiration_min":
+						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
 						break;
 					default:
 					}

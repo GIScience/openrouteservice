@@ -19,13 +19,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
+import org.heigit.ors.api.requests.common.APIRequest;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixMetricsType;
+import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.MatrixSearchParameters;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,9 +47,7 @@ import java.util.Set;
 
 @ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class MatrixRequest {
-    public static final String PARAM_ID = "id";
-    public static final String PARAM_PROFILE = "profile";
+public class MatrixRequest extends APIRequest {
     public static final String PARAM_LOCATIONS = "locations";
     public static final String PARAM_SOURCES = "sources";
     public static final String PARAM_DESTINATIONS = "destinations";
@@ -44,21 +55,13 @@ public class MatrixRequest {
     public static final String PARAM_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
-    public static final String PARAM_AVOID_AREAS = "avoid_areas";
-
-    @ApiModelProperty(name = "PARAM_ID", value = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "matrix_request")
-    @JsonProperty(PARAM_ID)
-    private String id;
+    public static final String PARAM_OPTIONS = "options";
 
     @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates.",
             example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
     private List<List<Double>> locations;
-
-    @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
-    private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_SOURCES, value = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations " +
             "CUSTOM_KEYS:{'apiDefault':['all']}")
@@ -103,14 +106,12 @@ public class MatrixRequest {
     @JsonIgnore
     private boolean hasOptimized = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_AREAS,
-            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples)." +
-                    "Currently, only avoid_areas are supported.",
-            example = "{\"avoid_areas\": geojson_data}")
-    @JsonProperty(PARAM_AVOID_AREAS)
-    private RouteRequestOptions routeOptions;
-    @JsonIgnore
-    private boolean hasRouteOptions = false;
+    @ApiModelProperty(name = PARAM_OPTIONS,
+            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+            example = "{\"avoid_borders\":\"controlled\"}",
+            hidden = true)
+    @JsonProperty(PARAM_OPTIONS)
+    private MatrixRequestOptions matrixOptions;
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
@@ -135,26 +136,6 @@ public class MatrixRequest {
             coordPairList.add(coordPair[1]);
             this.locations.add(coordPairList);
         }
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public boolean hasId() {
-        return this.id != null;
-    }
-
-    public APIEnums.Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(APIEnums.Profile profile) {
-        this.profile = profile;
     }
 
     public List<List<Double>> getLocations() {
@@ -205,7 +186,6 @@ public class MatrixRequest {
         return ret;
     }
 
-
     public void setMetrics(MatrixRequestEnums.Metrics[] metrics) {
         this.metrics = metrics;
         hasMetrics = true;
@@ -254,17 +234,16 @@ public class MatrixRequest {
         return hasOptimized;
     }
 
-    public RouteRequestOptions getRouteOptions() {
-        return routeOptions;
+    public void setMatrixOptions(MatrixRequestOptions matrixOptions) {
+        this.matrixOptions = matrixOptions;
     }
 
-    public boolean hasRouteOptions() {
-        return hasRouteOptions;
+    public MatrixRequestOptions getMatrixOptions() {
+        return matrixOptions;
     }
 
-    public void setRouteOptions(RouteRequestOptions routeOptions) {
-        this.routeOptions = routeOptions;
-        hasRouteOptions = true;
+    public boolean hasMatrixOptions() {
+        return matrixOptions != null;
     }
 
     public APIEnums.MatrixResponseType getResponseType() {
@@ -273,6 +252,174 @@ public class MatrixRequest {
 
     public void setResponseType(APIEnums.MatrixResponseType responseType) {
         this.responseType = responseType;
+    }
+
+    public MatrixResult generateMatrixFromRequest() throws StatusCodeException {
+        org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest();
+
+        try {
+            return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
+        } catch (StatusCodeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
+        }
+    }
+
+    public Polygon[] convertAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+        Polygon[] avoidAreas = super.convertAndValidateAvoidAreas(geoJson, profileType);
+        return avoidAreas;
+    }
+
+    public MatrixSearchParameters processRequestOptions(MatrixRequestOptions options, MatrixSearchParameters params) throws StatusCodeException {
+        if (options.hasAvoidPolygonFeatures())
+            params.setAvoidAreas(convertAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+        return params;
+    }
+
+    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest() throws StatusCodeException {
+        org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
+
+        int numberOfSources = sources == null ? locations.size() : sources.length;
+        int numberODestinations = destinations == null ? locations.size() : destinations.length;
+        Coordinate[] locations = convertLocations(this.locations, numberOfSources * numberODestinations);
+
+        coreRequest.setProfileType(convertToMatrixProfileType(profile));
+
+        if (this.hasMetrics())
+            coreRequest.setMetrics(convertMetrics(metrics));
+
+        if (this.hasDestinations())
+            coreRequest.setDestinations(convertDestinations(destinations, locations));
+        else {
+            coreRequest.setDestinations(convertDestinations(new String[]{"all"}, locations));
+        }
+        if (this.hasSources())
+            coreRequest.setSources(convertSources(sources, locations));
+        else {
+            coreRequest.setSources(convertSources(new String[]{"all"}, locations));
+        }
+        if (this.hasId())
+            coreRequest.setId(id);
+        if (this.hasOptimized())
+            coreRequest.setFlexibleMode(!optimized);
+        if (this.hasResolveLocations())
+            coreRequest.setResolveLocations(resolveLocations);
+        if (this.hasUnits())
+            coreRequest.setUnits(convertUnits(units));
+
+        MatrixSearchParameters params = new MatrixSearchParameters();
+        if(this.hasMatrixOptions()) {
+            params = processRequestOptions(getMatrixOptions(), params);
+            coreRequest.setFlexibleMode(this.processMatrixRequestOptions(params));
+        }
+        coreRequest.setSearchParameters(params);
+        return coreRequest;
+    }
+
+    private boolean processMatrixRequestOptions(MatrixSearchParameters params) throws StatusCodeException {
+        try {
+            int profileType = convertRouteProfileType(profile);
+            params.setProfileType(profileType);
+        } catch (Exception e) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+        }
+        processRequestOptions(matrixOptions, params);
+
+        if (matrixOptions.hasDynamicSpeeds()) {
+            params.setDynamicSpeeds(matrixOptions.getDynamicSpeeds());
+        }
+
+        return isFlexibleMode(matrixOptions);
+    }
+    public static boolean isFlexibleMode(MatrixRequestOptions opt){
+        return  opt.hasAvoidBorders() || opt.hasAvoidPolygonFeatures() || opt.hasAvoidCountries() || opt.hasAvoidFeatures() || opt.hasDynamicSpeeds();
+    }
+
+
+    public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
+        List<String> metricsAsStrings = new ArrayList<>();
+        for (MatrixRequestEnums.Metrics metric : metrics) {
+            metricsAsStrings.add(metric.toString());
+        }
+
+        String concatMetrics = String.join("|", metricsAsStrings);
+
+        int combined = MatrixMetricsType.getFromString(concatMetrics);
+
+        if (combined == MatrixMetricsType.UNKNOWN)
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_METRICS);
+
+        return combined;
+    }
+
+    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
+        if (locations == null || locations.size() < 2)
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+        int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
+        if (numberOfRoutes > maximumNumberOfRoutes)
+            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + maximumNumberOfRoutes + " routes are allowed.");
+        ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
+
+        for (List<Double> coordinate : locations) {
+            locationCoordinates.add(convertSingleLocationCoordinate(coordinate));
+        }
+        try {
+            return locationCoordinates.toArray(new Coordinate[locations.size()]);
+        } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+        }
+    }
+
+    protected Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
+        if (coordinate.size() != 2)
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+        return new Coordinate(coordinate.get(0), coordinate.get(1));
+    }
+
+    protected Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
+        int length = sourcesIndex.length;
+        if (length == 0) return locations;
+        if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
+        try {
+            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(sourcesIndex, locations);
+            return indexCoordinateArray.toArray(new Coordinate[0]);
+        } catch (Exception ex) {
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_SOURCES);
+        }
+    }
+
+    protected Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
+        int length = destinationsIndex.length;
+        if (length == 0) return locations;
+        if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
+        try {
+            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(destinationsIndex, locations);
+            return indexCoordinateArray.toArray(new Coordinate[0]);
+        } catch (Exception ex) {
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_DESTINATIONS);
+        }
+    }
+
+    protected ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
+        ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
+        for (String indexString : index) {
+            int indexInteger = Integer.parseInt(indexString);
+            indexCoordinates.add(locations[indexInteger]);
+        }
+        return indexCoordinates;
+    }
+
+    protected int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
+        try {
+            int profileFromString = RoutingProfileType.getFromString(profile.toString());
+            if (profileFromString == 0) {
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+            }
+            return profileFromString;
+        } catch (Exception e) {
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+        }
     }
 }
 

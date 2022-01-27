@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.MissingParameterException;
@@ -34,6 +35,7 @@ import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.util.ArraysUtility;
@@ -53,6 +55,7 @@ public class JsonMatrixRequestParser {
     public static final String KEY_UNITS = "units";
     public static final String KEY_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String KEY_OPTIMIZED = "optimized";
+    public static final String KEY_OPTIONS = "options";
     public static final String VAL_FALSE = "false";
 
     private JsonMatrixRequestParser() {}
@@ -190,6 +193,18 @@ public class JsonMatrixRequestParser {
             }
         }
 
+
+        MatrixSearchParameters params = new MatrixSearchParameters();
+        params.setProfileType(req.getProfileType());
+        if (json.has(KEY_OPTIONS)) {
+            JSONObject jOptions = json.optJSONObject(KEY_OPTIONS);
+            params.setOptions(jOptions.toString());
+            if (params.hasAvoidAreas()) {
+                req.setFlexibleMode(true);
+            }
+        }
+        req.setSearchParameters(params);
+
         value = json.optString("id");
         if (!Helper.isEmpty(value))
             req.setId(value);
@@ -283,6 +298,17 @@ public class JsonMatrixRequestParser {
                 throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, KEY_OPTIMIZED);
             }
         }
+
+        MatrixSearchParameters params = new MatrixSearchParameters();
+        params.setProfileType(req.getProfileType());
+        value = request.getParameter(KEY_OPTIONS);
+        if (!Helper.isEmpty(value)) {
+            params.setOptions(value);
+            if (params.hasAvoidAreas()) {
+                req.setFlexibleMode(true);
+            }
+        }
+        req.setSearchParameters(params);
 
         value = request.getParameter("id");
         if (!Helper.isEmpty(value))

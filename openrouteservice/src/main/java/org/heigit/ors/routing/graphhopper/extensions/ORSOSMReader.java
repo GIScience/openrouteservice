@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -28,6 +28,7 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder;
 
@@ -47,6 +48,7 @@ public class ORSOSMReader extends OSMReader {
 
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
+	private boolean processWholeGeom = false;
 	private boolean detachSidewalksFromRoad = false;
 
 	private boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
@@ -70,6 +72,11 @@ public class ORSOSMReader extends OSMReader {
 		for(GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
 			if ( b instanceof BordersGraphStorageBuilder) {
 				this.processGeom = true;
+			}
+
+			if (b instanceof HereTrafficGraphStorageBuilder) {
+				this.processGeom = true;
+				this.processWholeGeom = true;
 			}
 
 			if ( b instanceof WheelchairGraphStorageBuilder) {
@@ -178,13 +185,13 @@ public class ORSOSMReader extends OSMReader {
 
 		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
+		ArrayList<Coordinate> allCoordinates = new ArrayList<>();
 
 		if(processNodeTags) {
 			// If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
 			// should store the internal node id though rather than the osm node as during the edge processing, we
 			// do not know the osm node id
 
-			// TODO: CHeck this as this only stores tower nodes - is that what we want?
 			LongArrayList osmNodeIds = way.getNodes();
 			int size = osmNodeIds.size();
 
@@ -225,11 +232,17 @@ public class ORSOSMReader extends OSMReader {
 				for (int i=0; i<osmNodeIds.size(); i++) {
 					int id = getNodeMap().get(osmNodeIds.get(i));
 					try {
-						double lat = getLatitudeOfNode(id, true);
-						double lon = getLongitudeOfNode(id, true);
+						double lat = getLatitudeOfNode(id, false);
+						double lon = getLongitudeOfNode(id, false);
+						boolean validGeometry = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
+						if (processWholeGeom && validGeometry) {
+							allCoordinates.add(new Coordinate(getTmpLongitude(id), getTmpLatitude(id)));
+						}
 						// Add the point to the line
 						// Check that we have a tower node
-						if (!(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon))) {
+						lat = getLatitudeOfNode(id, true);
+						lon = getLongitudeOfNode(id, true);
+						if (validGeometry) {
 							coords.add(new Coordinate(lon, lat));
 						}
 					} catch (Exception e) {
@@ -242,7 +255,7 @@ public class ORSOSMReader extends OSMReader {
 
 		if(tags.size() > 0 || coords.size() > 1) {
 			// Use an overloaded method that allows the passing of parameters from this reader
-			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags);
+			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags, allCoordinates.toArray(new Coordinate[allCoordinates.size()]));
 		} else {
 			procCntx.processWay(way);
 		}
@@ -255,8 +268,8 @@ public class ORSOSMReader extends OSMReader {
 	 * Find the latitude of the node with the given ID. It checks to see what type of node it is and then finds the
 	 * latitude from the correct storage location.
 	 *
-	 * @param id		Internal ID of the OSM node
-	 * @return
+	 * @param id		Internal ID of the OSM node.
+	 * @return			Return the latitude as double.
 	 */
 	private double getLatitudeOfNode(int id, boolean onlyTower) {
 		// for speed, we only want to handle the geometry of tower nodes (those at junctions)
@@ -285,7 +298,7 @@ public class ORSOSMReader extends OSMReader {
 	 * longitude from the correct storage location.
 	 *
 	 * @param id		Internal ID of the OSM node
-	 * @return
+	 * @return			Return the longitude as double
 	 */
 	private double getLongitudeOfNode(int id, boolean onlyTower) {
 		if (id == EMPTY_NODE)
@@ -355,8 +368,8 @@ public class ORSOSMReader extends OSMReader {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
-	
-	@Override 
+
+	@Override
     protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges)
     {
 		try
@@ -366,48 +379,46 @@ public class ORSOSMReader extends OSMReader {
 		catch (Exception ex) {
 			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
-		
+
 		return false;
     }
 
     @Override
 	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-		double totalDist = 0d;
-		long nodeId = osmNodeIds.get(0);
-		int first = getNodeMap().get(nodeId);
-		double firstLat = getTmpLatitude(first);
-		double firstLon = getTmpLongitude(first);
-		double currLat = firstLat;
-		double currLon = firstLon;
-		double latSum = currLat;
-		double lonSum = currLon;
-		int sumCount = 1;
-		int len = osmNodeIds.size();
-		for(int i=1; i<len; i++){
-			long nextNodeId = osmNodeIds.get(i);
-			int next = getNodeMap().get(nextNodeId);
-			double nextLat = getTmpLatitude(next);
-			double nextLon = getTmpLongitude(next);
-			if(!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
-				latSum = latSum + nextLat;
-				lonSum = lonSum + nextLon;
-				sumCount++;
-				totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+		super.recordWayDistance(way, osmNodeIds);
 
-				currLat = nextLat;
-				currLon = nextLon;
+		// compute exact way distance for ferries in order to improve travel time estimate, see #1037
+		if (way.hasTag("route", "ferry", "shuttle_train")) {
+			double totalDist = 0d;
+			long nodeId = osmNodeIds.get(0);
+			int first = getNodeMap().get(nodeId);
+			double firstLat = getTmpLatitude(first);
+			double firstLon = getTmpLongitude(first);
+			double currLat = firstLat;
+			double currLon = firstLon;
+			double latSum = currLat;
+			double lonSum = currLon;
+			int sumCount = 1;
+			int len = osmNodeIds.size();
+			for (int i = 1; i < len; i++) {
+				long nextNodeId = osmNodeIds.get(i);
+				int next = getNodeMap().get(nextNodeId);
+				double nextLat = getTmpLatitude(next);
+				double nextLon = getTmpLongitude(next);
+				if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
+					latSum = latSum + nextLat;
+					lonSum = lonSum + nextLon;
+					sumCount++;
+					totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+
+					currLat = nextLat;
+					currLon = nextLon;
+				}
 			}
-		}
-		// make the simple dist & center calculations (who ever rely on it might want to use it!)
-		if (!Double.isNaN(firstLat) && !Double.isNaN(firstLon) && !Double.isNaN(currLat) && !Double.isNaN(currLon)) {
-			double estimatedDist = getDistanceCalc(false).calcDist(firstLat, firstLon, currLat, currLon);
-			// Add artificial tag for the estimated distance and center
-			way.setTag("estimated_distance", estimatedDist);
-			way.setTag("estimated_center", new GHPoint((firstLat + currLat) / 2, (firstLon + currLon) / 2));
-		}
-		if(totalDist > 0) {
-			way.setTag("exact_distance", totalDist);
-			way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+			if (totalDist > 0) {
+				way.setTag("exact_distance", totalDist);
+				way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+			}
 		}
 	}
 
@@ -423,7 +434,7 @@ public class ORSOSMReader extends OSMReader {
 			double ele = node.getEle();
 			if (Double.isNaN(ele)) {
 				if (!getElevationFromPreprocessedDataErrorLogged) {
-					LOGGER.error("elevation_preprocessed set to true in app.config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
 					getElevationFromPreprocessedDataErrorLogged = true;
 				}
 				ele = 0;

@@ -23,7 +23,6 @@ import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
-import org.heigit.ors.api.requests.matrix.MatrixRequestHandler;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
@@ -95,7 +94,7 @@ public class MatrixAPI {
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws Exception {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = new MatrixRequestHandler().generateMatrixFromRequest(originalRequest);
+        MatrixResult matrixResult = originalRequest.generateMatrixFromRequest();
 
         return new JSONMatrixResponse(matrixResult, originalRequest);
     }

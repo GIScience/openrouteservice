@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.api.requests.common.APIEnums;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +80,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `cobblestone:flattened`. " +
-            "CUSTOM_KEYS:{'apiDefault':'cobblestone:flattened','validWhen':{'ref':'profile','value':['wheelchair']}}",
+    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `sett`. " +
+            "CUSTOM_KEYS:{'apiDefault':'sett','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "asphalt")
     @JsonProperty(PARAM_SURFACE_TYPE)
     private String surfaceType;
@@ -99,7 +100,7 @@ public class RequestProfileParamsRestrictions {
             "CUSTOM_KEYS:{'apiDefault':'good','validWhen':{'ref':'profile','value':['wheelchair']}}",
             example = "best")
     @JsonProperty(value = PARAM_SMOOTHNESS_TYPE)
-    private String smoothnessType;
+    private APIEnums.SmoothnessTypes smoothnessType;
     @JsonIgnore
     private boolean hasSmoothnessType = false;
 
@@ -195,11 +196,11 @@ public class RequestProfileParamsRestrictions {
         hasTrackType = true;
     }
 
-    public String getSmoothnessType() {
+    public APIEnums.SmoothnessTypes getSmoothnessType() {
         return smoothnessType;
     }
 
-    public void setSmoothnessType(String smoothnessType) {
+    public void setSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {
         this.smoothnessType = smoothnessType;
         hasSmoothnessType = true;
     }
@@ -310,7 +311,6 @@ public class RequestProfileParamsRestrictions {
             setRestrictions.add(PARAM_MAX_INCLINE);
         if(hasMinWidth)
             setRestrictions.add(PARAM_MIN_WIDTH);
-
         return setRestrictions;
     }
 }

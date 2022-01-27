@@ -41,10 +41,10 @@ public class CSVUtility {
      * Read data from CSV file using the provided filename, seperator, quote character and whether there is a header
      *
      * @param file          CSV file to read from
-     * @param header        Whether to ignore the first row of the CSV
+     * @param ignoreHeader        Whether to ignore the first row of the CSV
      * @return              An ArrayList (rows) of ArrayLists (columns values)
      */
-    public static ArrayList<ArrayList<String>> readFile(String file, boolean header) {
+    public static ArrayList<ArrayList<String>> readFile(String file, boolean ignoreHeader) {
         // Open the CSV file
         String ln = "";
 
@@ -52,7 +52,7 @@ public class CSVUtility {
         boolean headerRead = false;
         try (BufferedReader br = new BufferedReader(new FileReader(file))){
             while ((ln = br.readLine()) != null) {
-                if(header && lines.isEmpty() && !headerRead) {
+                if(ignoreHeader && lines.isEmpty() && !headerRead) {
                     headerRead=true;
                     continue;
                 }

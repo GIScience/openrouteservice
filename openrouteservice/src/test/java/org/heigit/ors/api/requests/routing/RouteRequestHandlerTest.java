@@ -70,7 +70,7 @@ public class RouteRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
-        System.setProperty("ors_app_config", "target/test-classes/app.config.test");
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});
@@ -132,7 +132,7 @@ public class RouteRequestHandlerTest {
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
-        wheelchairParams.setSmoothnessType("good");
+        wheelchairParams.setSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD);
         wheelchairParams.setSurfaceType("asphalt");
 
         RequestProfileParams params = new RequestProfileParams();
@@ -143,6 +143,8 @@ public class RouteRequestHandlerTest {
         weightings.setSteepnessDifficulty(3);
 
         params.setWeightings(weightings);
+        params.setSurfaceQualityKnown(true);
+        params.setAllowUnsuitable(true);
 
         options.setProfileParams(params);
         request.setRouteOptions(options);
@@ -152,7 +154,7 @@ public class RouteRequestHandlerTest {
     public void convertRouteRequestTest() throws Exception {
         RoutingRequest routingRequest;
 
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        routingRequest = request.convertRouteRequest();
 
         Assert.assertEquals(3, routingRequest.getCoordinates().length);
 
@@ -205,7 +207,7 @@ public class RouteRequestHandlerTest {
         request.getRouteOptions().setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
         RoutingRequest routingRequest;
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        routingRequest = request.convertRouteRequest();
 
         VehicleParameters params = (VehicleParameters) routingRequest.getSearchParameters().getProfileParameters();
         Assert.assertEquals(30.0, params.getWeight(), 0);
@@ -223,21 +225,23 @@ public class RouteRequestHandlerTest {
 
         RoutingRequest routingRequest;
 
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        routingRequest = request.convertRouteRequest();
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
-        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType("good"), params.getSmoothnessType());
+        Assert.assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD), params.getSmoothnessType());
         Assert.assertEquals(3.0f, params.getMaximumIncline(), 0);
         Assert.assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         Assert.assertEquals(2.0f, params.getMinimumWidth(), 0);
         Assert.assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
+        Assert.assertEquals(true, params.isRequireSurfaceQualityKnown());
+        Assert.assertEquals(true, params.allowUnsuitable());
     }
 
     @Test
     public void testBearings() throws StatusCodeException {
         request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        RoutingRequest routingRequest = request.convertRouteRequest();
 
         WayPointBearing[] bearings = routingRequest.getSearchParameters().getBearings();
         Assert.assertEquals(10.0, bearings[0].getValue(), 0);
@@ -253,7 +257,7 @@ public class RouteRequestHandlerTest {
         request.setBearings(new Double[][] {{120.0, 90.0}, { , }, {90.0, 30.0}});
         RoutingRequest routingRequest;
 
-        routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        routingRequest = request.convertRouteRequest();
 
         Assert.assertEquals(3, routingRequest.getSearchParameters().getBearings().length);
     }
@@ -261,35 +265,35 @@ public class RouteRequestHandlerTest {
     @Test(expected = ParameterValueException.class)
     public void invalidBearingLength() throws Exception {
         request.setBearings(new Double[][] {{123.0,123.0}});
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test
     public void testRadius() throws StatusCodeException {
         request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        RoutingRequest routingRequest = request.convertRouteRequest();
         Assert.assertTrue(Arrays.equals(new double[] { 50.0, 20.0, 100.0 }, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test(expected = ParameterValueException.class)
     public void invalidRadiusLength() throws Exception {
         request.setMaximumSearchRadii(new Double[] {10.0, 20.0});
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test
     public void testSingleRadius() throws Exception {
         request.setMaximumSearchRadii(new Double[]{50d});
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        RoutingRequest routingRequest = request.convertRouteRequest();
         Assert.assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test(expected = ParameterValueException.class)
     public void onlySetOptimizationToFalse() throws Exception {
         request.setUseContractionHierarchies(true);
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test
@@ -302,12 +306,12 @@ public class RouteRequestHandlerTest {
             request.setRouteOptions(opts);
             if (profile != APIEnums.Profile.DRIVING_HGV) {
                 try {
-                    new RouteRequestHandler().convertRouteRequest(request);
+                    request.convertRouteRequest();
                 } catch (Exception e) {
                     Assert.assertTrue(e instanceof IncompatibleParameterException);
                 }
             } else {
-                new RouteRequestHandler().convertRouteRequest(request);
+                request.convertRouteRequest();
             }
         }
     }
@@ -320,7 +324,7 @@ public class RouteRequestHandlerTest {
         skipSegments.add(1, 2);
         request.setSkipSegments(skipSegments);
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        RoutingRequest routingRequest = request.convertRouteRequest();
 
         Assert.assertEquals(2, routingRequest.getSkipSegments().size());
         Assert.assertEquals(Integer.valueOf(1), routingRequest.getSkipSegments().get(0));
@@ -335,14 +339,14 @@ public class RouteRequestHandlerTest {
         skip_segments.add(0, 2);
         skip_segments.add(0, 2);
         request.setSkipSegments(skip_segments);
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test(expected = EmptyElementException.class)
     public void emptySkipSegments() throws StatusCodeException {
         List<Integer> skip_segments = new ArrayList<>();
         request.setSkipSegments(skip_segments);
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test(expected = ParameterOutOfRangeException.class)
@@ -350,7 +354,7 @@ public class RouteRequestHandlerTest {
         List<Integer> skip_segments = new ArrayList<>();
         skip_segments.add(0, 99);
         request.setSkipSegments(skip_segments);
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test(expected = ParameterValueException.class)
@@ -358,7 +362,7 @@ public class RouteRequestHandlerTest {
         List<Integer> skip_segments = new ArrayList<>();
         skip_segments.add(0, -99);
         request.setSkipSegments(skip_segments);
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test
@@ -375,7 +379,7 @@ public class RouteRequestHandlerTest {
         ar.setWeightFactor(1.8);
         arRequest.setAlternativeRoutes(ar);
 
-        RoutingRequest routingRequest = new RouteRequestHandler().convertRouteRequest(arRequest);
+        RoutingRequest routingRequest = arRequest.convertRouteRequest();
         Assert.assertEquals(3, routingRequest.getSearchParameters().getAlternativeRoutesCount());
         Assert.assertEquals(0.9, routingRequest.getSearchParameters().getAlternativeRoutesShareFactor(), 0);
         Assert.assertEquals(1.8, routingRequest.getSearchParameters().getAlternativeRoutesWeightFactor(), 0);
@@ -393,7 +397,7 @@ public class RouteRequestHandlerTest {
         options.setRoundTripOptions(rtOptions);
         request.setRouteOptions(options);
 
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test(expected = ParameterValueException.class)
@@ -402,7 +406,7 @@ public class RouteRequestHandlerTest {
         coordinates.add(new ArrayList<>(Arrays.asList(12.1234, 34.3456)));
         request.setCoordinates(coordinates);
 
-        new RouteRequestHandler().convertRouteRequest(request);
+        request.convertRouteRequest();
     }
 
     @Test
@@ -417,7 +421,7 @@ public class RouteRequestHandlerTest {
         options.setRoundTripOptions(rtOptions);
         request.setRouteOptions(options);
 
-        RoutingRequest generatedRoutingRequest = new RouteRequestHandler().convertRouteRequest(request);
+        RoutingRequest generatedRoutingRequest = request.convertRouteRequest();
         Assert.assertEquals(1, generatedRoutingRequest.getCoordinates().length);
     }
 

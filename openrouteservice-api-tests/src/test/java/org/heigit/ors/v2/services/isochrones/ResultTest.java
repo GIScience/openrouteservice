@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.lessThan;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
@@ -404,17 +403,14 @@ public class ResultTest extends ServiceTest {
 
     @Test
     public void testSmoothingFactor() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_2000"));
         body.put("smoothing", "10");
         body.put("range_type", "distance");
 
-        // Updated in the GH 0.12 update from size = 52 as there is a difference in the order that edges are returned and
-        // so neighbourhood search results in slightly different results
 
-        given()
+        int lowSmoothingCoordinatesSize = given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("cyclingProfile"))
@@ -424,8 +420,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(51))
-                .statusCode(200);
+                .extract().jsonPath().getInt("features[0].geometry.coordinates[0].size()");
 
         body.put("smoothing", "100");
 
@@ -439,12 +434,12 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(19))
+                .body("features[0].geometry.coordinates[0].size()", lessThan(lowSmoothingCoordinatesSize))
                 .statusCode(200);
     }
 
     @Test
-    public void testIdInSummary() {
+    public void testCompleteMetadata() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -462,6 +457,24 @@ public class ResultTest extends ServiceTest {
                 .body("any {it.key == 'metadata'}", is(true))
                 .body("metadata.containsKey('id')", is(true))
                 .body("metadata.id", is("request123"))
+                .body("metadata.containsKey('attribution')", is(true))
+                .body("metadata.service", is("isochrones"))
+                .body("metadata.containsKey('timestamp')", is(true))
+                .body("metadata.containsKey('query')", is(true))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.query.containsKey('locations')", is(true))
+                .body("metadata.query.locations.size()", is(1))
+                .body("metadata.query.locations[0][0]", is(8.684177f))
+                .body("metadata.query.locations[0][1]", is(49.423034f))
+                .body("metadata.query.containsKey('range')", is(true))
+                .body("metadata.query.range.size()", is(1))
+                .body("metadata.query.range[0]", is(400.0f))
+                .body("metadata.query.profile", is("cycling-regular"))
+                .body("metadata.query.id", is("request123"))
+                .body("metadata.engine.containsKey('version')", is(true))
+                .body("metadata.engine.containsKey('build_date')", is(true))
+                .body("metadata.engine.containsKey('graph_date')", is(true))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 }

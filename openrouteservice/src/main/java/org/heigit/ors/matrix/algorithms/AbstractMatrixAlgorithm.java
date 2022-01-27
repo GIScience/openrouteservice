@@ -26,7 +26,7 @@ public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
   protected FlagEncoder encoder;
   protected Weighting weighting;
   protected EdgeFilter filter;
-  
+
   public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter filter)
   {
 	  graphHopper = gh;
