@@ -17,7 +17,6 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
 
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
@@ -63,7 +62,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
             else
                 return graph.getLevel(base) <= graph.getLevel(adj);
@@ -71,7 +70,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
             if (adj >= maxNodes)
                 return false;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
 
             // do not follow virtual edges, and stay within core

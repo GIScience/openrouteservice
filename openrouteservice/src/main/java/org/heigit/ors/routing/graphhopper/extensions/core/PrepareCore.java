@@ -138,8 +138,8 @@ public class PrepareCore extends PrepareContractionHierarchies {
             // use reverse iterator because restrictionFilter.accept in RestrictedEdgesWeighting cannot be queried in reverse direction
             EdgeIteratorState iterReverse = graph.getEdgeIteratorStateForKey(GHUtility.reverseEdgeKey(iter.getEdgeKey()));
             double weightBwd = weighting.calcEdgeWeightWithAccess(iterReverse, false);
-            int timeFwd = (int) weighting.calcEdgeMillis(iter, false);
-            int timeBwd = (int) weighting.calcEdgeMillis(iter, true);
+            int timeFwd = Double.isFinite(weightFwd) ? (int) weighting.calcEdgeMillis(iter, false) : Integer.MAX_VALUE;
+            int timeBwd = Double.isFinite(weightBwd) ? (int) weighting.calcEdgeMillis(iter, true) : Integer.MAX_VALUE;
             prepareGraph.addEdge(iter.getBaseNode(), iter.getAdjNode(), iter.getEdge(), weightFwd, weightBwd, timeFwd, timeBwd);
         }
         prepareGraph.prepareForContraction();

@@ -17,11 +17,8 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.NodeBasedCHBidirPathExtractor;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.*;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.storage.RoutingCHEdgeExplorer;
-import com.graphhopper.storage.RoutingCHEdgeIteratorState;
-import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
 
 import java.util.function.Supplier;
@@ -55,7 +52,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
         super(graph, weighting, TraversalMode.NODE_BASED);
 
-        chGraph = (RoutingCHGraph) graph;
+        //TODO: come up with a better solution
+        chGraph = ((GraphHopperStorage) graph).getRoutingCHGraph();
 
         inEdgeExplorer =  chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
