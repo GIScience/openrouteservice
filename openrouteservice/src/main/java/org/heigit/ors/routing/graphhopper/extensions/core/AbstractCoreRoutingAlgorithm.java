@@ -49,11 +49,10 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
-    protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
-        super(graph, weighting, TraversalMode.NODE_BASED);
+    protected AbstractCoreRoutingAlgorithm(RoutingCHGraph graph, Weighting weighting) {
+        super(graph.getBaseGraph(), weighting, TraversalMode.NODE_BASED);
 
-        //TODO: come up with a better solution
-        chGraph = ((GraphHopperStorage) graph).getRoutingCHGraph();
+        chGraph = graph;
 
         inEdgeExplorer =  chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
@@ -67,7 +66,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        coreNodeLevel = chGraph.getNodes() + 1;
+        coreNodeLevel = chGraph.getNodes();
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
 

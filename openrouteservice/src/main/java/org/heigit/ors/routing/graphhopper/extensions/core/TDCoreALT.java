@@ -13,17 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.util.AccessEdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.Parameters;
 
 public class TDCoreALT extends CoreALT {
     private boolean reverse;
 
-    public TDCoreALT(Graph graph, Weighting weighting, boolean reverse) {
+    public TDCoreALT(RoutingCHGraph graph, Weighting weighting, boolean reverse) {
         super(graph, weighting);
         this.reverse = reverse;
     }

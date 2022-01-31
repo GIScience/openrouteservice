@@ -16,10 +16,10 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
     SPTEntry currFrom;
     SPTEntry currTo;
 
-    public CoreDijkstra(Graph graph, Weighting weighting) {
+    public CoreDijkstra(RoutingCHGraph graph, Weighting weighting) {
         super(graph, weighting);
     }
 

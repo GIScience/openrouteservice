@@ -19,10 +19,10 @@ import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.BalancedWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     double approximatorOffset;
 
 
-    public CoreALT(Graph graph, Weighting weighting) {
+    public CoreALT(RoutingCHGraph graph, Weighting weighting) {
         super(graph, weighting);
         BeelineWeightApproximator defaultApprox = new BeelineWeightApproximator(nodeAccess, weighting);
         defaultApprox.setDistanceCalc(DistancePlaneProjection.DIST_PLANE);

@@ -18,10 +18,13 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 
 import com.graphhopper.routing.weighting.Weighting;
@@ -103,12 +106,6 @@ public class CoreDijkstraTest {
         return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
     }
 
-    private void prepareCH(GraphHopperStorage graphHopperStorage, CHConfig chConfig) {
-        graphHopperStorage.freeze();
-        PrepareContractionHierarchies pch = PrepareContractionHierarchies.fromGraphHopperStorage(graphHopperStorage, chConfig);
-        pch.doWork();
-    }
-
     private void prepareCore(GraphHopperStorage graphHopperStorage, CHConfig chConfig, CoreTestEdgeFilter restrictedEdges) {
         graphHopperStorage.freeze();
         PrepareCore prepare = new PrepareCore(graphHopperStorage, chConfig, restrictedEdges);
@@ -123,8 +120,11 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, new CoreTestEdgeFilter());
 
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(ghStorage.getRoutingCHGraph());
-        Path p1 = new CoreDijkstra(ghStorage, weighting).setEdgeFilter(coreFilter).calcPath(0, 3);
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        Path p1 = algo.calcPath(0, 3);
 
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.30, p1.getDistance(), 1e-2);
@@ -143,8 +143,11 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(ghStorage.getRoutingCHGraph());
-        Path p1 = new CoreDijkstra(ghStorage, weighting).setEdgeFilter(coreFilter).calcPath(0, 3);
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        Path p1 = algo.calcPath(0, 3);
 
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.30, p1.getDistance(), 1e-2);
@@ -162,8 +165,11 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(ghStorage.getRoutingCHGraph());
-        Path p1 = new CoreDijkstra(ghStorage, weighting).setEdgeFilter(coreFilter).calcPath(0, 3);
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2};
         assertCore(new HashSet<>(Arrays.asList(core)));
@@ -184,8 +190,11 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(ghStorage.getRoutingCHGraph());
-        Path p1 = new CoreDijkstra(ghStorage, weighting).setEdgeFilter(coreFilter).calcPath(0, 3);
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2, 5};
         assertCore(new HashSet<>(Arrays.asList(core)));
@@ -211,40 +220,77 @@ public class CoreDijkstraTest {
             }
         }
     }
-/*
+
     @Test
-    public void testBaseGraphMultipleVehicles() {
+    public void testTwoProfiles() {
         EncodingManager em = EncodingManager.create("foot,car");
         FlagEncoder footEncoder = em.getEncoder("foot");
         FlagEncoder carEncoder = em.getEncoder("car");
         FastestWeighting footWeighting = new FastestWeighting(footEncoder);
         FastestWeighting carWeighting = new FastestWeighting(carEncoder);
 
-        CHConfig footConfig = CHConfig.nodeBased("p_foot", footWeighting);
-        CHConfig carConfig = CHConfig.nodeBased("p_car", carWeighting);
+        CHConfig footConfig = new CHConfig("p_foot", footWeighting, false, CHConfig.TYPE_CORE);
+        CHConfig carConfig = new CHConfig("p_car", carWeighting, false, CHConfig.TYPE_CORE);
         GraphHopperStorage g = new GraphBuilder(em).setCHConfigs(footConfig, carConfig).create();
-        RoutingAlgorithmTest.initFootVsCar(carEncoder, footEncoder, g);
+        initFootVsCar(carEncoder, footEncoder, g);
 
-        // do CH preparation for car
-        prepareCH(g, carConfig);
-
-        // use contracted graph for car
+        //car
+        prepareCore(g, carConfig, new CoreTestEdgeFilter());
         RoutingCHGraph chGraph = g.getRoutingCHGraph(carConfig.getName());
-        Path p1 = createCHAlgo(chGraph, true).calcPath(0, 7);
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        Path p1 = algo.calcPath(0, 7);
+
         assertEquals(IntArrayList.from(0, 4, 6, 7), p1.calcNodes());
-        assertEquals(15000, p1.getDistance(), 1e-6, p1.toString());
+        assertEquals(p1.toString(), 15000, p1.getDistance(), 1e-6);
+        assertEquals(p1.toString(), 2700 * 1000, p1.getTime());
 
-        // use base graph for solving normal Dijkstra via car
-        Path p2 = new RoutingAlgorithmFactorySimple().createAlgo(g, carWeighting, new AlgorithmOptions()).calcPath(0, 7);
-        assertEquals(IntArrayList.from(0, 4, 6, 7), p2.calcNodes());
-        assertEquals(15000, p2.getDistance(), 1e-6, p2.toString());
-        assertEquals(2700 * 1000, p2.getTime(), p2.toString());
+        //foot
+        prepareCore(g, footConfig, new CoreTestEdgeFilter());
+        chGraph = g.getRoutingCHGraph(footConfig.getName());
+        coreFilter = new CoreDijkstraFilter(chGraph);
+        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
 
-        // use base graph for solving normal Dijkstra via foot
-        Path p4 = new RoutingAlgorithmFactorySimple().createAlgo(g, footWeighting, new AlgorithmOptions()).calcPath(0, 7);
-        assertEquals(17000, p4.getDistance(), 1e-6, p4.toString());
-        assertEquals(12240 * 1000, p4.getTime(), p4.toString());
-        assertEquals(IntArrayList.from(0, 4, 5, 7), p4.calcNodes());
+        Path p2 = algo.calcPath(0, 7);
+        assertEquals(p2.toString(), 17000, p2.getDistance(), 1e-6);
+        assertEquals(p2.toString(), 12240 * 1000, p2.getTime());
+        assertEquals(IntArrayList.from(0, 4, 5, 7), p2.calcNodes());
     }
-*/
+
+    static void initFootVsCar(FlagEncoder carEncoder, FlagEncoder footEncoder, Graph graph) {
+        EdgeIteratorState edge = graph.edge(0, 1).setDistance(7000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(10, true, false, carEncoder, edge);
+        edge = graph.edge(0, 4).setDistance(5000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(20, true, false, carEncoder, edge);
+
+        GHUtility.setSpeed(10, true, true, carEncoder, graph.edge(1, 4).setDistance(7000));
+        GHUtility.setSpeed(10, true, true, carEncoder, graph.edge(1, 5).setDistance(7000));
+        edge = graph.edge(1, 2).setDistance(20000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(10, true, true, carEncoder, edge);
+
+        GHUtility.setSpeed(10, true, false, carEncoder, graph.edge(5, 2).setDistance(5000));
+        edge = graph.edge(2, 3).setDistance(5000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(10, true, false, carEncoder, edge);
+
+        GHUtility.setSpeed(20, true, false, carEncoder, graph.edge(5, 3).setDistance(11000));
+        edge = graph.edge(3, 7).setDistance(7000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(10, true, false, carEncoder, edge);
+
+        GHUtility.setSpeed(20, true, false, carEncoder, graph.edge(4, 6).setDistance(5000));
+        edge = graph.edge(5, 4).setDistance(7000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(10, true, false, carEncoder, edge);
+
+        GHUtility.setSpeed(10, true, false, carEncoder, graph.edge(5, 6).setDistance(7000));
+        edge = graph.edge(7, 5).setDistance(5000);
+        GHUtility.setSpeed(5, true, true, footEncoder, edge);
+        GHUtility.setSpeed(20, true, false, carEncoder, edge);
+
+        GHUtility.setSpeed(20, true, true, carEncoder, graph.edge(6, 7).setDistance(5000));
+    }
 }
