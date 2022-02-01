@@ -21,9 +21,13 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.RoutingAlgorithm;
-import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.TurnCost;
+import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 
@@ -32,6 +36,9 @@ import com.graphhopper.storage.*;
 
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -106,7 +113,7 @@ public class CoreDijkstraTest {
         return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
     }
 
-    private void prepareCore(GraphHopperStorage graphHopperStorage, CHConfig chConfig, CoreTestEdgeFilter restrictedEdges) {
+    private void prepareCore(GraphHopperStorage graphHopperStorage, CHConfig chConfig, EdgeFilter restrictedEdges) {
         graphHopperStorage.freeze();
         PrepareCore prepare = new PrepareCore(graphHopperStorage, chConfig, restrictedEdges);
         prepare.doWork();
@@ -172,7 +179,7 @@ public class CoreDijkstraTest {
         Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2};
-        assertCore(new HashSet<>(Arrays.asList(core)));
+        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.30, p1.getDistance(), 1e-2);
         assertEquals(p1.toString(), 144829, p1.getTime());
@@ -197,7 +204,7 @@ public class CoreDijkstraTest {
         Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2, 5};
-        assertCore(new HashSet<>(Arrays.asList(core)));
+        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.30, p1.getDistance(), 1e-2);
         assertEquals(p1.toString(), 144829, p1.getTime());
@@ -208,7 +215,7 @@ public class CoreDijkstraTest {
      *
      * @param coreNodes
      */
-    private void assertCore(Set<Integer> coreNodes) {
+    private void assertCore(GraphHopperStorage ghStorage, Set<Integer> coreNodes) {
         int nodes = ghStorage.getRoutingCHGraph().getNodes();
         int maxLevel = nodes;
         for (int node = 0; node < nodes; node++) {
@@ -292,5 +299,41 @@ public class CoreDijkstraTest {
         GHUtility.setSpeed(20, true, false, carEncoder, edge);
 
         GHUtility.setSpeed(20, true, true, carEncoder, graph.edge(6, 7).setDistance(5000));
+    }
+
+    @Test
+    public void testOneToOneTurnRestrictions() {
+        CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
+        EncodingManager encodingManager = EncodingManager.create(carEncoder);
+        GraphHopperStorage ghStorage = new GraphBuilder(encodingManager).build();
+        Weighting weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, ghStorage.getTurnCostStorage()));
+        CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
+        ghStorage.addCHGraph(chConfig).create(1000);
+
+        ToyGraphCreationUtil.createMediumGraph(ghStorage, encodingManager);
+        setTurnCost(ghStorage, Double.POSITIVE_INFINITY, 1, 2, 6);
+
+        EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
+        coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, ghStorage));
+        prepareCore(ghStorage, chConfig, coreEdgeFilter);
+
+        Integer[] core = {0, 2, 3};
+        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
+
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+
+        Path p = algo.calcPath(0, 3);
+        assertEquals(p.toString(), 4, p.getDistance(), 1e-6);
+    }
+
+    private void setTurnCost(GraphHopperStorage g, double cost, int from, int via, int to) {
+        g.getTurnCostStorage().set(
+                ((EncodedValueLookup) g.getEncodingManager()).getDecimalEncodedValue(TurnCost.key(carEncoder.toString())),
+                from,
+                via,
+                to,
+                cost);
     }
 }

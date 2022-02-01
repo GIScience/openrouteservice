@@ -50,7 +50,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean approximate = false;
 
     protected AbstractCoreRoutingAlgorithm(RoutingCHGraph graph, Weighting weighting) {
-        super(graph.getBaseGraph(), weighting, TraversalMode.NODE_BASED);
+        super(graph.getBaseGraph(), weighting, weighting.hasTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED);
 
         chGraph = graph;
 
