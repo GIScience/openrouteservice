@@ -23,6 +23,7 @@ import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
+import org.heigit.ors.api.responses.centrality.geojson.GeoJsonCentralityResponse;
 import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.centrality.CentralityResult;
@@ -100,6 +101,22 @@ public class CentralityAPI {
         CentralityResult result = request.generateCentralityFromRequest();
 
         return new JsonCentralityResponse(result);
+    }
+
+    @PostMapping(value = "/{profile}/geojson", produces = {"application/geo+json;charset=UTF-8"})
+    @ApiOperation(notes = "Returns points and centrality values within a given bounding box for a selected profile and its settings as GeoJSON", value = "Centrality Service GeoJSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/geo+json")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "GeoJSON Response", response = GeoJsonCentralityResponse.class)
+    })
+    public GeoJsonCentralityResponse getGeoJsonCentrality(
+            @ApiParam(value = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
+        request.setProfile(profile);
+        request.setResponseType(APIEnums.CentralityResponseType.JSON);
+
+        CentralityResult result = request.generateCentralityFromRequest();
+
+        return new GeoJsonCentralityResponse(result, request);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

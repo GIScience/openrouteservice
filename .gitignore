@@ -38,3 +38,11 @@ nohup.out
 build/
 logs/
 cgiar_cache/
+
+# Ignore data files
+*.osm
+*.bz2
+*.pbf
+
+# Ignore built graphs
+*graphs_*
