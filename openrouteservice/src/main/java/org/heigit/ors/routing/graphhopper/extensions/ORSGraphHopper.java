@@ -644,7 +644,7 @@ public class ORSGraphHopper extends GraphHopper {
 				fastIsochroneFactory.getIsochroneNodeStorage().loadExisting();
 			}
 			//No fast isochrones without partition
-			if (isPartitionPrepared()) {
+			if (false && isPartitionPrepared()) { //TODO: enable only once the other TODO below is addressed
 				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
 				List<CHProfile> chProfiles = new ArrayList<>();
