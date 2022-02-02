@@ -337,9 +337,9 @@ class RouteResultBuilder
 		RouteStepManeuver maneuver = new RouteStepManeuver();
         maneuver.setBearingBefore(0);
         maneuver.setBearingAfter(0);
-		//if (nextSegPoints == null) {
-          //  return maneuver;
-		//}
+		if (nextSegPoints == null) {
+            return maneuver;
+		}
         if (instrType == InstructionType.DEPART) {
             double lon0 = segPoints.getLon(0);
             double lat0 = segPoints.getLat(0);
