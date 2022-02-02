@@ -36,29 +36,19 @@ public class GeoJsonCentralityResponse extends CentralityResponse {
     public GeoJsonCentralityResponse(CentralityResult result, CentralityRequest request) throws StatusCodeException {
         super(result);
 
-        this.centralityNodes = new ArrayList<>();
+        this.nodeList = new ArrayList<GeoJsonCentralityNode>();
 
         for(Map.Entry<Integer, Coordinate > location: result.getLocations().entrySet()) {
             Integer id = location.getKey();
             Coordinate coord = location.getValue();
             Double score = result.getNodeCentralityScores().get(id);
 
-            this.centralityNodes.add(new GeoJsonCentralityNode(id, coord, score));
-            responseInformation.setGraphDate(result.getGraphDate());
+            this.nodeList.add(new GeoJsonCentralityNode(coord, score));
         }
 
-        List<BBox> bboxes = new ArrayList<>();
-        for(RouteResult result : routeResults) {
-            bboxes.add(result.getSummary().getBBox());
-        }
-
-        BBox bounding = GeomUtility.ge(bboxes.toArray(new BBox[bboxes.size()]));
-
-        bbox = BoundingBox request.getBbox();
+        this.bbox = (BoundingBox) request.getBbox();
     }
 
     @JsonProperty("features")
-    public List getPoints() {
-        return centralityResults;
-    }
+    public List nodeList;
 }
