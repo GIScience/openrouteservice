@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
+import org.heigit.ors.api.requests.centrality.CentralityRequest;
 import org.heigit.ors.api.responses.centrality.CentralityResponse;
 import org.heigit.ors.api.responses.routing.json.JSONWarning;
 import org.heigit.ors.centrality.CentralityResult;
@@ -30,30 +31,30 @@ public class JsonCentralityResponse extends CentralityResponse {
     @JsonProperty("warning")
     public JSONWarning warning;
 
-    public JsonCentralityResponse(CentralityResult centralityResult) {
-        super(centralityResult);
+    public JsonCentralityResponse(CentralityRequest request, CentralityResult result) {
+        super(request);
 
         this.locations = new ArrayList<>();
-        for (Map.Entry<Integer, Coordinate> location : centralityResult.getLocations().entrySet()) {
+        for (Map.Entry<Integer, Coordinate> location : result.getLocations().entrySet()) {
             this.locations.add(new JsonCentralityLocation(location));
         }
 
-        if (centralityResult.hasNodeCentralityScores()) {
+        if (result.hasNodeCentralityScores()) {
             this.nodeScores = new ArrayList<>();
-            for (Map.Entry<Integer, Double> nodeScore : centralityResult.getNodeCentralityScores().entrySet()) {
+            for (Map.Entry<Integer, Double> nodeScore : result.getNodeCentralityScores().entrySet()) {
                 this.nodeScores.add(new JsonNodeScore(nodeScore));
             }
         }
 
-        if (centralityResult.hasEdgeCentralityScores()) {
+        if (result.hasEdgeCentralityScores()) {
             this.edgeScores = new ArrayList<>();
-            for (Map.Entry<Pair<Integer, Integer>, Double> edgeScore : centralityResult.getEdgeCentralityScores().entrySet()) {
+            for (Map.Entry<Pair<Integer, Integer>, Double> edgeScore : result.getEdgeCentralityScores().entrySet()) {
                 this.edgeScores.add(new JsonEdgeScore(edgeScore));
             }
         }
 
-        if (centralityResult.hasWarning()) {
-            CentralityWarning warning = centralityResult.getWarning();
+        if (result.hasWarning()) {
+            CentralityWarning warning = result.getWarning();
             this.warning = new JSONWarning(warning.getWarningCode(), warning.getWarningMessage());
         }
     }

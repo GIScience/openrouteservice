@@ -21,13 +21,13 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.responses.centrality.geojson.GeoJsonCentralityResponse;
 import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
-import org.heigit.ors.exceptions.*;
-import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.exceptions.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -100,7 +100,7 @@ public class CentralityAPI {
 
         CentralityResult result = request.generateCentralityFromRequest();
 
-        return new JsonCentralityResponse(result);
+        return new JsonCentralityResponse(request, result);
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = {"application/geo+json;charset=UTF-8"})
@@ -116,7 +116,7 @@ public class CentralityAPI {
 
         CentralityResult result = request.generateCentralityFromRequest();
 
-        return new GeoJsonCentralityResponse(result, request);
+        return new GeoJsonCentralityResponse(request, result);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
