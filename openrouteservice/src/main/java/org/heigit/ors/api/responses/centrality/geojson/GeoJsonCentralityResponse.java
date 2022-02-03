@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
 import org.heigit.ors.api.responses.centrality.CentralityResponse;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.common.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class GeoJsonCentralityResponse extends CentralityResponse {
     public GeoJsonCentralityResponse(CentralityRequest request, CentralityResult result) {
         super(request);
 
-        this.nodeList = new ArrayList<GeoJsonCentralityNode>();
+        this.featureList = new ArrayList<>();
 
         if (result.hasNodeCentralityScores()) {
             for (Map.Entry<Integer, Coordinate> location : result.getLocations().entrySet()) {
@@ -41,16 +42,24 @@ public class GeoJsonCentralityResponse extends CentralityResponse {
                 Coordinate coord = location.getValue();
                 Double score = result.getNodeCentralityScores().get(id);
 
-                this.nodeList.add(new GeoJsonCentralityNode(coord, score));
+                this.featureList.add(new GeoJsonCentralityNode(coord, score));
             }
         }
 
         if (result.hasEdgeCentralityScores()) {
-            //TODO!
+            Map<Integer, Coordinate> locations = result.getLocations();
+            for (Map.Entry<Pair<Integer, Integer>, Double> edgeScore : result.getEdgeCentralityScores().entrySet()) {
+                Coordinate from = locations.get(edgeScore.getKey().first);
+                Coordinate to = locations.get(edgeScore.getKey().second);
+                Double score = edgeScore.getValue();
+
+                this.featureList.add(new GeoJsonCentralityEdge(from, to, score));
+            }
         }
 
     }
 
     @JsonProperty("features")
-    public List nodeList;
+    public List featureList;
+
 }
