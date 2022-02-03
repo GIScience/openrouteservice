@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class GeoJsonCentralityResponse extends CentralityResponse {
     @JsonProperty("type")
-    public static final String type = "FeatureCollection";
+    public final String type = "FeatureCollection";
 
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

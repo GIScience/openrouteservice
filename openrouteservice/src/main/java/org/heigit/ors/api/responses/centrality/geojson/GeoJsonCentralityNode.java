@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
 
 public class GeoJsonCentralityNode {
     @JsonProperty("type")
-    public static final String type = "Feature";
+    public final String type = "Feature";
 
     @JsonProperty("properties")
     private JSONObject properties;
