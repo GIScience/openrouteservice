@@ -56,6 +56,7 @@ public class JsonMatrixRequestParser {
     public static final String KEY_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String KEY_OPTIMIZED = "optimized";
     public static final String KEY_OPTIONS = "options";
+    public static final String KEY_AVOID_AREAS = "avoid_areas";
     public static final String VAL_FALSE = "false";
 
     private JsonMatrixRequestParser() {}
@@ -200,6 +201,15 @@ public class JsonMatrixRequestParser {
             JSONObject jOptions = json.optJSONObject(KEY_OPTIONS);
             params.setOptions(jOptions.toString());
             if (params.hasAvoidAreas()) {
+                req.setFlexibleMode(true);
+            }
+        } else if (json.has(KEY_AVOID_AREAS)) {
+            JSONObject jAvoidAreas = json.optJSONObject(KEY_AVOID_AREAS);
+            final String KEY_AVOID_POLYGONS = "avoid_polygons";
+            if (jAvoidAreas.has(KEY_AVOID_POLYGONS)) {
+                String[] names = {KEY_AVOID_POLYGONS};
+                JSONObject jObj = new JSONObject(jAvoidAreas, names);
+                params.setOptions(jObj.toString());
                 req.setFlexibleMode(true);
             }
         }
