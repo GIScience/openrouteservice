@@ -19,8 +19,8 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ToyGraphCreationUtil;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -33,21 +33,102 @@ public class AlgorithmComparisonTest {
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
-    private Directory dir;
-
-    GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).withTurnCosts(true).create();
-    }
-
-    @BeforeClass
-    public static void setupConfiguration() {
-        // This should be done globally
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
-    }
+    private static Directory dir;
 
     @Before
     public void setUp() {
+        // This should be done globally only once
+        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
         dir = new GHDirectory("", DAType.RAM_INT);
+    }
+
+    @After
+    public void cleanUp() {
+        dir.clear();
+    }
+
+    //    @Test
+    public void compareManyToManyAllEdges_CoreMatrix_CoreALT2() throws Exception {
+        compareManyToManyAllEdges_CoreMatrix_CoreALT();
+    }
+
+    @Test
+    public void compareManyToManyAllEdges_CoreMatrix_CoreALT() throws Exception {
+        GraphHopperStorage sampleGraph = createSampleGraph();
+
+        MatrixLocations sources = locations(1, 0);
+        MatrixLocations destinations = locations(4, 5);
+
+        float[] matrixDistances = computeDistancesFromMatrixAlgorithm(sampleGraph, sources, destinations);
+        float[] coreDistances = computeDistancesFromCoreAlgorithm(sampleGraph, sources, destinations);
+
+
+        assertEquals("number of distances", coreDistances.length, matrixDistances.length);
+        for (int i = 0; i < coreDistances.length; i++) {
+            assertEquals(coreDistances[i], matrixDistances[i], 0);
+        }
+    }
+
+    private GraphHopperStorage createSampleGraph() {
+        return ToyGraphCreationUtil.createMediumGraph(createGHStorage());
+    }
+
+    private GraphHopperStorage createGHStorage() {
+        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).withTurnCosts(true).create();
+    }
+
+    private float[] computeDistancesFromCoreAlgorithm(GraphHopperStorage sampleGraph, MatrixLocations sources, MatrixLocations destinations) {
+        float[] coreDistances = new float[sources.size() * destinations.size()];
+        int index = 0;
+        for (int sourceId : sources.getNodeIds()) {
+            for (int destinationId : destinations.getNodeIds()) {
+                CoreALT coreAlgorithm = createCoreAlgorithm(sampleGraph);
+                Path path = coreAlgorithm.calcPath(sourceId, destinationId);
+                coreDistances[index] = (float) path.getWeight();
+                index += 1;
+            }
+        }
+        return coreDistances;
+    }
+
+    private CoreALT createCoreAlgorithm(GraphHopperStorage sampleGraph) {
+        QueryGraph queryGraph = new QueryGraph(sampleGraph.getCHGraph());
+        queryGraph.lookup(Collections.emptyList());
+        CoreALT coreAlgorithm = new CoreALT(queryGraph, weighting);
+        CoreDijkstraFilter levelFilter = new CoreDijkstraFilter(sampleGraph.getCHGraph());
+        coreAlgorithm.setEdgeFilter(levelFilter);
+        return coreAlgorithm;
+    }
+
+    private float[] computeDistancesFromMatrixAlgorithm(GraphHopperStorage sampleGraph, MatrixLocations sources, MatrixLocations destinations) throws Exception {
+        CoreMatrixAlgorithm matrixAlgorithm = createAndPrepareMatrixAlgorithm(sampleGraph);
+        MatrixResult result = matrixAlgorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
+        return result.getTable(MatrixMetricsType.DISTANCE);
+    }
+
+    private MatrixLocations locations(int... nodeIds) {
+        MatrixLocations sources = new MatrixLocations(nodeIds.length);
+        for (int i = 0; i < nodeIds.length; i++) {
+            sources.setData(i, nodeIds[i], null);
+        }
+        return sources;
+    }
+
+    private CoreMatrixAlgorithm createAndPrepareMatrixAlgorithm(GraphHopperStorage sampleGraph) {
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        AllEdgesIterator allEdges = sampleGraph.getAllEdges();
+        while (allEdges.next()) {
+            restrictedEdges.add(allEdges.getEdge());
+        }
+        CHGraph contractedGraph = contractGraph(sampleGraph, restrictedEdges);
+
+        CoreMatrixAlgorithm matrixAlgorithm = new CoreMatrixAlgorithm();
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        matrixAlgorithm.init(matrixRequest, contractedGraph, carEncoder, weighting, new CoreTestEdgeFilter());
+        return matrixAlgorithm;
     }
 
     private CHGraph contractGraph(GraphHopperStorage g, EdgeFilter restrictedEdges) {
@@ -75,61 +156,6 @@ public class AlgorithmComparisonTest {
         }
 
         return lg;
-    }
-
-    @Test
-    public void compareManyToManyAllEdges_CoreMatrix_CoreALT() throws Exception {
-        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(createGHStorage());
-
-        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
-
-        QueryGraph queryGraph = new QueryGraph(graphHopperStorage.getCHGraph());
-        queryGraph.lookup(Collections.emptyList());
-
-        CoreALT coreALT = new CoreALT(queryGraph, weighting);
-
-        // append any restriction filters after node level filter
-        CoreDijkstraFilter levelFilter = new CoreDijkstraFilter(graphHopperStorage.getCHGraph());
-        coreALT.setEdgeFilter(levelFilter);
-
-        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        restrictedEdges.add(0);
-        restrictedEdges.add(1);
-        restrictedEdges.add(2);
-        restrictedEdges.add(3);
-        restrictedEdges.add(4);
-        restrictedEdges.add(5);
-        restrictedEdges.add(6);
-        restrictedEdges.add(7);
-        restrictedEdges.add(8);
-        restrictedEdges.add(9);
-        restrictedEdges.add(10);
-        restrictedEdges.add(11);
-        restrictedEdges.add(12);
-        CHGraph g = contractGraph(graphHopperStorage, restrictedEdges);
-        MatrixLocations sources = new MatrixLocations(2);
-        sources.setData(0, 1, null);
-        sources.setData(1, 0, null);
-        MatrixLocations destinations = new MatrixLocations(2);
-        destinations.setData(0, 4, null);
-        destinations.setData(1, 5, null);
-
-        MatrixRequest matrixRequest = new MatrixRequest();
-        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
-
-        algorithm.init(matrixRequest, g, carEncoder, weighting, new CoreTestEdgeFilter());
-        MatrixResult result = algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
-
-        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
-        assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
-        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
-        assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
-
-        //CoreALT
-        Path path = coreALT.calcPath(1, 4);
-        assertEquals(path.getWeight(), result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
-
     }
 
 
