@@ -56,8 +56,9 @@ public class AlgorithmComparisonTest {
     public void compareManyToManyAllEdges_CoreMatrix_CoreALT() throws Exception {
         GraphHopperStorage sampleGraph = createSampleGraph();
 
-        MatrixLocations sources = locations(1, 0);
-        MatrixLocations destinations = locations(4, 5);
+//        MatrixLocations sources = locations(1, 0);
+        MatrixLocations sources = locations(2, 3);
+        MatrixLocations destinations = locations(4, 5, 6);
 
         float[] matrixDistances = computeDistancesFromMatrixAlgorithm(sampleGraph, sources, destinations);
         float[] coreDistances = computeDistancesFromCoreAlgorithm(sampleGraph, sources, destinations);
