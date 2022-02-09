@@ -12,7 +12,7 @@ import org.heigit.ors.util.*;
 
 import static net.jqwik.api.Arbitraries.*;
 
-class GHAlgorithmDomain extends DomainContextBase {
+public class GHAlgorithmDomain extends DomainContextBase {
 
 	final static CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5.0D, 1);
 	final static EncodingManager encodingManager = EncodingManager.create(carEncoder);
@@ -56,7 +56,8 @@ class GHAlgorithmDomain extends DomainContextBase {
 		return locations;
 	}
 
-	class MatrixLocationsFormat implements SampleReportingFormat {
+	// TODO: With jqwik 1.6.4 entry in META-INF/services/net.jqwik.api.SampleReportingFormat can be removed
+	public static class MatrixLocationsFormat implements SampleReportingFormat {
 
 		@Override
 		public boolean appliesTo(Object o) {
@@ -66,7 +67,7 @@ class GHAlgorithmDomain extends DomainContextBase {
 		@Override
 		public Object report(Object o) {
 			MatrixLocations matrixLocations = (MatrixLocations) o;
-			return ((MatrixLocations) o).getLocations();
+			return matrixLocations.getNodeIds();
 		}
 	}
 }

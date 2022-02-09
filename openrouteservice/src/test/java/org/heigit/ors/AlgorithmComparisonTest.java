@@ -36,9 +36,9 @@ class AlgorithmComparisonTest {
 		dir.clear();
 	}
 
-	@Property(tries = 5)
+	@Property(tries = 100)
 	@Report(Reporting.GENERATED)
-	void compareManyToManyAllEdges_CoreMatrix_and_CoreALT(
+	void compare_ManyToManyAllEdges_CoreMatrix_and_CoreALT(
 			@ForAll Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
 	) throws Exception {
 
