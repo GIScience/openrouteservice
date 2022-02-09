@@ -28,7 +28,7 @@ public class GHAlgorithmDomain extends DomainContextBase {
 	}
 
 	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph() {
-		return Arbitraries.fromGenerator(new GraphGenerator(100));
+		return Arbitraries.fromGenerator(new GraphGenerator(500));
 	}
 
 	private Set<Integer> getAllNodes(GraphHopperStorage graph) {
