@@ -9,19 +9,18 @@ import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
 import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
+import net.jqwik.api.domains.*;
 import net.jqwik.api.lifecycle.*;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.util.*;
 
-import static net.jqwik.api.Arbitraries.*;
+import static org.heigit.ors.GHAlgorithmDomain.*;
 import static org.junit.Assert.*;
 
+@Domain(GHAlgorithmDomain.class)
 class AlgorithmComparisonTest {
-	private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5.0D, 1);
-	private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-	private final Weighting weighting = new ShortestWeighting(carEncoder);
 	private final TraversalMode tMode = TraversalMode.NODE_BASED;
 	private static Directory dir;
 
@@ -40,7 +39,7 @@ class AlgorithmComparisonTest {
 	@Property(tries = 5)
 	@Report(Reporting.GENERATED)
 	void compareManyToManyAllEdges_CoreMatrix_and_CoreALT(
-			@ForAll("matrixScenarios") Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
+			@ForAll Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
 	) throws Exception {
 
 		GraphHopperStorage sampleGraph = scenario.get1();
@@ -57,36 +56,6 @@ class AlgorithmComparisonTest {
 		for (int i = 0; i < coreDistances.length; i++) {
 			assertEquals(coreDistances[i], matrixDistances[i], 0);
 		}
-	}
-
-	@Provide
-	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios() {
-		Arbitrary<GraphHopperStorage> graphs = just(createSampleGraph());
-		return graphs.flatMap(graph -> {
-			Set<Integer> nodes = getAllNodes(graph);
-			Arbitrary<MatrixLocations> sources = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
-			Arbitrary<MatrixLocations> destinations = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
-			return Combinators.combine(sources, destinations).as((s, d) -> Tuple.of(graph, s, d));
-		});
-	}
-
-	private Set<Integer> getAllNodes(GraphHopperStorage graph) {
-		Set<Integer> nodes = new HashSet<>();
-		AllEdgesIterator allEdges = graph.getAllEdges();
-		while (allEdges.next()) {
-			nodes.add(allEdges.getBaseNode());
-			nodes.add(allEdges.getAdjNode());
-		}
-
-		return nodes;
-	}
-
-	private GraphHopperStorage createSampleGraph() {
-		return ToyGraphCreationUtil.createMediumGraph(createGHStorage());
-	}
-
-	private GraphHopperStorage createGHStorage() {
-		return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).withTurnCosts(true).create();
 	}
 
 	private float[] computeDistancesFromCoreAlgorithm(
@@ -124,23 +93,6 @@ class AlgorithmComparisonTest {
 		CoreMatrixAlgorithm matrixAlgorithm = createAndPrepareMatrixAlgorithm(sampleGraph);
 		MatrixResult result = matrixAlgorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE);
 		return result.getTable(MatrixMetricsType.DISTANCE);
-	}
-
-	private MatrixLocations locations(int... nodeIds) {
-		MatrixLocations sources = new MatrixLocations(nodeIds.length);
-		for (int i = 0; i < nodeIds.length; i++) {
-			sources.setData(i, nodeIds[i], null);
-		}
-		return sources;
-	}
-
-	private MatrixLocations locations(Collection<Integer> nodeIds) {
-		List<Integer> nodes = new ArrayList<>(nodeIds);
-		MatrixLocations locations = new MatrixLocations(nodes.size());
-		for (int i = 0; i < nodes.size(); i++) {
-			locations.setData(i, nodes.get(i), null);
-		}
-		return locations;
 	}
 
 	private CoreMatrixAlgorithm createAndPrepareMatrixAlgorithm(GraphHopperStorage sampleGraph) {
