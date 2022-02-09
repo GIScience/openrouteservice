@@ -52,9 +52,14 @@ class AlgorithmComparisonTest {
 //		System.out.println(Arrays.toString(matrixDistances));
 //		System.out.println(Arrays.toString(coreDistances));
 
+		assertDistancesAreEqual(matrixDistances, coreDistances);
+	}
+
+	private void assertDistancesAreEqual(float[] matrixDistances, float[] coreDistances) {
 		assertEquals("number of distances", coreDistances.length, matrixDistances.length);
 		for (int i = 0; i < coreDistances.length; i++) {
-			assertEquals(coreDistances[i], matrixDistances[i], 0);
+			String errorMessage = String.format("coreDistance[%s] != matrixDistance[%s]", i, i);
+			assertEquals(errorMessage, coreDistances[i], matrixDistances[i], 0);
 		}
 	}
 
@@ -70,6 +75,10 @@ class AlgorithmComparisonTest {
 				CoreALT coreAlgorithm = createCoreAlgorithm(sampleGraph);
 				Path path = coreAlgorithm.calcPath(sourceId, destinationId);
 				coreDistances[index] = (float) path.getWeight();
+				// Matrix algorithm returns -1.0 instead of Infinity
+				if (Float.isInfinite(coreDistances[index])) {
+					coreDistances[index] = -1.0f;
+				}
 				index += 1;
 			}
 		}
