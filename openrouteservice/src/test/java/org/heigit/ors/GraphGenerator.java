@@ -12,18 +12,14 @@ import static org.heigit.ors.GHAlgorithmDomain.*;
  * Simple graph generator for up to maxSize nodes and up to (nodes * (nodes-1))/2 edges
  *
  * <ul>
+ * <li>The number of nodes is between 2 and MAX_NODES</li>
  * <li>All edges are bidirectional</li>
- * <li>Distances are between 0 and 10</li>
+ * <li>Distances are between 0 and MAX_DISTANCE</li>
  * </ul>
  */
 class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private final static int MAX_DISTANCE = 10;
-
-	private final int maxSize;
-
-	public GraphGenerator(int maxSize) {
-		this.maxSize = maxSize;
-	}
+	private final static int MAX_NODES = 100;
 
 	@Override
 	public Shrinkable<GraphHopperStorage> next(Random random) {
@@ -33,7 +29,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private GraphHopperStorage createSampleGraph(Random random) {
 		GraphHopperStorage storage = createGHStorage();
 
-		int nodes = random.nextInt(maxSize - 1) + 2;
+		int nodes = random.nextInt(MAX_NODES - 1) + 2;
 		int bound = computeMaxEdges(nodes);
 		int edges = random.nextInt(bound) + 1;
 

@@ -28,7 +28,7 @@ public class GHAlgorithmDomain extends DomainContextBase {
 	}
 
 	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph() {
-		return Arbitraries.fromGenerator(new GraphGenerator(500));
+		return Arbitraries.fromGenerator(new GraphGenerator());
 	}
 
 	private Set<Integer> getAllNodes(GraphHopperStorage graph) {
@@ -50,8 +50,7 @@ public class GHAlgorithmDomain extends DomainContextBase {
 		return locations;
 	}
 
-	// TODO: With jqwik 1.6.4 entry in META-INF/services/net.jqwik.api.SampleReportingFormat can be removed
-	public static class MatrixLocationsFormat implements SampleReportingFormat {
+	static class MatrixLocationsFormat implements SampleReportingFormat {
 
 		@Override
 		public boolean appliesTo(Object o) {
@@ -65,8 +64,7 @@ public class GHAlgorithmDomain extends DomainContextBase {
 		}
 	}
 
-	// TODO: With jqwik 1.6.4 entry in META-INF/services/net.jqwik.api.SampleReportingFormat can be removed
-	public static class GraphFormat implements SampleReportingFormat {
+	static class GraphFormat implements SampleReportingFormat {
 
 		@Override
 		public boolean appliesTo(Object o) {

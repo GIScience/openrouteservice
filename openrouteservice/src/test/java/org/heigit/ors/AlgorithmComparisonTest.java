@@ -37,8 +37,8 @@ class AlgorithmComparisonTest {
 	}
 
 	@Property(tries = 100)
-	// @Report(Reporting.GENERATED)
-	void compare_ManyToManyAllEdges_CoreMatrix_and_CoreALT(
+	@Report(Reporting.GENERATED)
+	void compare_distance_computation_between_CoreMatrix_and_CoreALT(
 			@ForAll Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
 	) throws Exception {
 
@@ -46,7 +46,7 @@ class AlgorithmComparisonTest {
 		MatrixLocations sources = scenario.get2();
 		MatrixLocations destinations = scenario.get3();
 
-		float[] matrixDistances = computeDistancesFromMatrixAlgorithm(sampleGraph, sources, destinations);
+		float[] matrixDistances = computeDistancesFromCoreMatrixAlgorithm(sampleGraph, sources, destinations);
 		float[] coreDistances = computeDistancesFromCoreAlgorithm(sampleGraph, sources, destinations);
 
 		// System.out.println(Arrays.toString(matrixDistances));
@@ -94,7 +94,7 @@ class AlgorithmComparisonTest {
 		return coreAlgorithm;
 	}
 
-	private float[] computeDistancesFromMatrixAlgorithm(
+	private float[] computeDistancesFromCoreMatrixAlgorithm(
 			GraphHopperStorage sampleGraph,
 			MatrixLocations sources,
 			MatrixLocations destinations
