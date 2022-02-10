@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.matrix;
 
+import java.util.*;
+
 public class MatrixLocations {
 	private final int[] nodeIds;
 	private final ResolvedLocation[] locations;
@@ -55,5 +57,26 @@ public class MatrixLocations {
 	public boolean hasValidNodes()
 	{
 		return hasValidNodes;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		MatrixLocations that = (MatrixLocations) o;
+
+		if (hasValidNodes != that.hasValidNodes) return false;
+		if (!Arrays.equals(nodeIds, that.nodeIds)) return false;
+		// Probably incorrect - comparing Object[] arrays with Arrays.equals
+		return Arrays.equals(locations, that.locations);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Arrays.hashCode(nodeIds);
+		result = 31 * result + Arrays.hashCode(locations);
+		result = 31 * result + (hasValidNodes ? 1 : 0);
+		return result;
 	}
 }

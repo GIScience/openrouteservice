@@ -19,7 +19,7 @@ import static org.heigit.ors.GHAlgorithmDomain.*;
  */
 class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private final static int MAX_DISTANCE = 10;
-	private final static int MAX_NODES = 100;
+	private final static int MAX_NODES = 500;
 
 	@Override
 	public Shrinkable<GraphHopperStorage> next(Random random) {
