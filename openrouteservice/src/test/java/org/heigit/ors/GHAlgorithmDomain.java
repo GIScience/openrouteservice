@@ -72,9 +72,19 @@ public class GHAlgorithmDomain extends DomainContextBase {
 		}
 
 		@Override
+		public Optional<String> label(Object value) {
+			return Optional.of("Graph");
+		}
+
+		@Override
 		public Object report(Object o) {
 			GraphHopperStorage graph = (GraphHopperStorage) o;
-			return String.format("Graph[nodes=%s, edges=%s]", graph.getNodes(), graph.getEdges());
+			SortedMap<String, Object> attributes = new TreeMap<>();
+			attributes.put("seed", GraphGenerator.getSeed(graph));
+			attributes.put("nodes", graph.getNodes());
+			attributes.put("edges", graph.getEdges());
+			return attributes;
+			// return String.format("Graph[nodes=%s, edges=%s]", graph.getNodes(), graph.getEdges());
 		}
 	}
 }

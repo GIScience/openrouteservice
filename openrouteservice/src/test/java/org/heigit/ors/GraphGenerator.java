@@ -19,17 +19,44 @@ import static org.heigit.ors.GHAlgorithmDomain.*;
  */
 class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private final static int MAX_DISTANCE = 10;
-	private final static int MAX_NODES = 500;
+	private final static int DEFAULT_MAX_NODES = 500;
+	private final int maxNodes;
+
+	private static Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();
+
+	private static void rememberRandom(GraphHopperStorage storage, long randomSeed) {
+		randomSeeds.put(storage, randomSeed);
+	}
+
+	static long getSeed(GraphHopperStorage storage) {
+		return randomSeeds.get(storage);
+	}
+
+	static void clearRandomSeeds() {
+		randomSeeds.clear();
+	}
+
+	GraphGenerator() {
+		this(DEFAULT_MAX_NODES);
+	}
+
+	public GraphGenerator(int maxNodes) {
+		this.maxNodes = maxNodes;
+	}
 
 	@Override
 	public Shrinkable<GraphHopperStorage> next(Random random) {
-		return Shrinkable.unshrinkable(createSampleGraph(random));
+		long randomSeed = random.nextLong();
+		GraphHopperStorage sampleGraph = create(randomSeed);
+		rememberRandom(sampleGraph, randomSeed);
+		return Shrinkable.unshrinkable(sampleGraph);
 	}
 
-	private GraphHopperStorage createSampleGraph(Random random) {
+	public GraphHopperStorage create(long randomSeed) {
 		GraphHopperStorage storage = createGHStorage();
+		Random random = new Random(randomSeed);
 
-		int nodes = random.nextInt(MAX_NODES - 1) + 2;
+		int nodes = random.nextInt(maxNodes - 1) + 2;
 		int bound = computeMaxEdges(nodes);
 		int edges = random.nextInt(bound) + 1;
 
@@ -38,6 +65,11 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		for (int i = 0; i < edges; i++) {
 			int from = random.nextInt(nodes);
 			int to = random.nextInt(nodes);
+
+			// Exclude edges to itself
+			if (from == to) {
+				continue;
+			}
 
 			// Exclude reverse direction
 			if (!setOfEdges.contains(Tuple.of(to, from))) {
@@ -60,7 +92,11 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	}
 
 	private GraphHopperStorage createGHStorage() {
-		return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).withTurnCosts(true).create();
+		return new GraphBuilder(encodingManager)
+			.setCHProfiles(new ArrayList<>())
+			.setCoreGraph(weighting)
+			.withTurnCosts(true)
+			.create();
 	}
 
 }
