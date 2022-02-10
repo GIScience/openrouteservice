@@ -249,8 +249,9 @@ public class RouteSearchParametersTest {
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
-        routeSearchParameters.setVehicleType(HeavyVehicleAttributes.HGV);
-        Assert.assertTrue("heavy vehicle", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        Assert.assertFalse("default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        routeSearchParameters.setVehicleType(HeavyVehicleAttributes.BUS);
+        Assert.assertTrue("non-default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
