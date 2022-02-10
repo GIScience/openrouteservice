@@ -1,0 +1,13 @@
+graph g {
+    1 [color = red];
+    12 [color = red];
+    2 -- 1 [label = 10.0];
+    3 -- 8 [label = 6.0];
+    1 -- 7 [label = 4.0];
+    8 -- 14 [label = 7.0];
+    6 -- 15 [label = 0.0];
+    1 -- 11 [label = 4.0];
+    6 -- 16 [label = 1.0];
+    0 -- 12 [label = 2.0];
+    14 -- 12 [label = 10.0];
+}
