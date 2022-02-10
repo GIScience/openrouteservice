@@ -52,15 +52,34 @@ class AlgorithmComparisonTest {
 		// System.out.println(Arrays.toString(matrixDistances));
 		// System.out.println(Arrays.toString(coreDistances));
 
-		assertDistancesAreEqual(matrixDistances, coreDistances);
+		assertDistancesAreEqual(matrixDistances, coreDistances, sources, destinations);
 	}
 
-	private void assertDistancesAreEqual(float[] matrixDistances, float[] coreDistances) {
+	private void assertDistancesAreEqual(
+		float[] matrixDistances,
+		float[] coreDistances,
+		MatrixLocations sources,
+		MatrixLocations destinations
+	) {
+		Map<Integer, String> edgesByIndex = buildEdgesIndex(sources, destinations);
 		assertEquals("number of distances", coreDistances.length, matrixDistances.length);
 		for (int i = 0; i < coreDistances.length; i++) {
-			String errorMessage = String.format("coreDistance[%s] != matrixDistance[%s]", i, i);
+			String edge = edgesByIndex.get(i);
+			String errorMessage = String.format("Length mismatch for edge %s: ", edge);
 			assertEquals(errorMessage, coreDistances[i], matrixDistances[i], 0);
 		}
+	}
+
+	private Map<Integer, String> buildEdgesIndex(MatrixLocations sources, MatrixLocations destinations) {
+		Map<Integer, String> edgesByIndex = new HashMap<>();
+		int index = 0;
+		for (int sourceId : sources.getNodeIds()) {
+			for (int destinationId : destinations.getNodeIds()) {
+				edgesByIndex.put(index, String.format("%s->%s", sourceId, destinationId));
+				index += 1;
+			}
+		}
+		return edgesByIndex;
 	}
 
 	private float[] computeDistancesFromCoreALTAlgorithm(
