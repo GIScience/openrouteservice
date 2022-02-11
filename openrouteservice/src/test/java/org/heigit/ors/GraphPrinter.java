@@ -33,11 +33,16 @@ public class GraphPrinter {
 
 	public static void main(String[] args) throws IOException {
 		// This example produces a comparison mismatch
-		GraphGenerator graphGenerator = new GraphGenerator(1000);
-		GraphHopperStorage graph = graphGenerator.create(-3578893867983239119L);
+		GraphGenerator graphGenerator = new GraphGenerator(2000);
+		GraphHopperStorage graph = graphGenerator.create(612342264752893324L);
+		String dotFile = toDotFile(graph, 512, 1286);
 
-		String dotFile = toDotFile(graph, 1, 256);
+		// Random random = new Random();
+		// GraphGenerator graphGenerator = new GraphGenerator(50);
+		// GraphHopperStorage graph = graphGenerator.create(random.nextLong());
+		// String dotFile = toDotFile(graph);
 
+		System.out.printf("Generated graph: [nodes: %s, edges: %s]%n", graph.getNodes(), graph.getEdges());
 		FileWriter fileWriter = new FileWriter("graph.dot");
 		PrintWriter printWriter = new PrintWriter(fileWriter);
 		printWriter.print(dotFile);
