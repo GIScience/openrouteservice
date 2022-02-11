@@ -100,7 +100,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // conditions...
     private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder; // TODO: design: parent class should not need to know of child
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
-    private UnsignedDecimalEncodedValue speedEncoder;
     // MARQ24 MOD END
 
     // MARQ24 MOD START
@@ -268,7 +267,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(unpavedEncoder);
         wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false);
         registerNewEncodedValue.add(wayTypeEncoder);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         if (conditionalAccess) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
@@ -400,16 +399,19 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         return speed;
     }
 
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
         if (access.canSkip()) {
             return edgeFlags;
         }
+
+        IntsRef relationFlags = null;//FIXME: proper transfer the new logic from GH 4.0
 
         double wayTypeSpeed = getSpeed(way);
         if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, priorityRelationEnc.getDecimal(false, relationFlags) > UNCHANGED.getValue());
+            handleBikeRelated(edgeFlags, way, false);//FIXME handleBikeRelated(edgeFlags, way, priorityRelationEnc.getDecimal(false, relationFlags) > UNCHANGED.getValue());
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
@@ -781,7 +783,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     private void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
-        speedEncoder.setDecimal(false, edgeFlags, speed);
+        avgSpeedEnc.setDecimal(false, edgeFlags, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
                 || way.hasTag(KEY_ONEWAY_BICYCLE, oneways)
