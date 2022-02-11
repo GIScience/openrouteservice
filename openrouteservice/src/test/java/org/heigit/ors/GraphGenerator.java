@@ -12,13 +12,16 @@ import static org.heigit.ors.GHAlgorithmDomain.*;
  * Simple graph generator for up to maxSize nodes and up to (nodes * (nodes-1))/2 edges
  *
  * <ul>
- * <li>The number of nodes is between 2 and MAX_NODES</li>
+ * <li>The number of nodes is between 2 and maxNodes (default 500)</li>
+ * <li>The average number of edges per node is <= AVERAGE_EDGES_PER_NODE</li>
  * <li>All edges are bidirectional</li>
  * <li>Distances are between 0 and MAX_DISTANCE</li>
  * </ul>
  */
 class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private final static int MAX_DISTANCE = 10;
+	private final static int AVERAGE_EDGES_PER_NODE = 6;
+
 	private final static int DEFAULT_MAX_NODES = 500;
 	private final int maxNodes;
 
@@ -57,8 +60,9 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		Random random = new Random(randomSeed);
 
 		int nodes = random.nextInt(maxNodes - 1) + 2;
-		int bound = computeMaxEdges(nodes);
-		int edges = random.nextInt(bound) + 1;
+
+		// Every edge connects two nodes:
+		int edges = nodes * (AVERAGE_EDGES_PER_NODE / 2);
 
 		Set<Tuple2<Integer, Integer>> setOfEdges = new HashSet<>();
 
@@ -83,12 +87,6 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		}
 
 		return storage;
-	}
-
-	int computeMaxEdges(int numberOfNodes) {
-		// As it is bidirectional graph
-		// there can be at-most v*(v-1)/2 number of edges
-		return (numberOfNodes * (numberOfNodes - 1)) / 2;
 	}
 
 	private GraphHopperStorage createGHStorage() {

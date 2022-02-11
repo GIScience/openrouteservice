@@ -32,9 +32,11 @@ public class GraphPrinter {
 	// `dot -Tgif graph.dot > graph.gif`
 
 	public static void main(String[] args) throws IOException {
-		GraphGenerator graphGenerator = new GraphGenerator(500);
-		GraphHopperStorage graph = graphGenerator.create(3118031568360980938L);
-		String dotFile = toDotFile(graph, 0, 9);
+		// This example produces a comparison mismatch
+		GraphGenerator graphGenerator = new GraphGenerator(1000);
+		GraphHopperStorage graph = graphGenerator.create(-3578893867983239119L);
+
+		String dotFile = toDotFile(graph, 1, 256);
 
 		FileWriter fileWriter = new FileWriter("graph.dot");
 		PrintWriter printWriter = new PrintWriter(fileWriter);

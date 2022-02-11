@@ -9,6 +9,7 @@ import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
 import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
+import net.jqwik.api.constraints.*;
 import net.jqwik.api.domains.*;
 import net.jqwik.api.lifecycle.*;
 import org.heigit.ors.matrix.*;
@@ -37,9 +38,9 @@ class AlgorithmComparisonTest {
 	}
 
 	@Property(tries = 100)
-	// @Report(Reporting.GENERATED)
+	//@Report(Reporting.GENERATED)
 	void compare_distance_computation_between_CoreMatrix_and_CoreALT(
-			@ForAll Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
+			@ForAll @Size(max = 1000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
 	) throws Exception {
 
 		GraphHopperStorage sampleGraph = scenario.get1();

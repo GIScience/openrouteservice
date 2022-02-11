@@ -7,7 +7,10 @@ import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
 import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
+import net.jqwik.api.constraints.*;
 import net.jqwik.api.domains.*;
+import net.jqwik.api.providers.*;
+
 import org.heigit.ors.matrix.*;
 
 public class GHAlgorithmDomain extends DomainContextBase {
@@ -17,8 +20,10 @@ public class GHAlgorithmDomain extends DomainContextBase {
 	final static Weighting weighting = new ShortestWeighting(carEncoder);
 
 	@Provide
-	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios() {
-		Arbitrary<GraphHopperStorage> graphs = connectedBidirectionalGraph();
+	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios(TypeUsage typeUsage) {
+		Optional<Size> annotation = typeUsage.findAnnotation(Size.class);
+		int maxNodes = annotation.map(size -> effectiveMaxSize(size)).orElse(500);
+		Arbitrary<GraphHopperStorage> graphs = connectedBidirectionalGraph(maxNodes);
 		return graphs.flatMap(graph -> {
 			Set<Integer> nodes = getAllNodes(graph);
 			Arbitrary<MatrixLocations> sources = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
@@ -27,8 +32,15 @@ public class GHAlgorithmDomain extends DomainContextBase {
 		});
 	}
 
-	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph() {
-		return Arbitraries.fromGenerator(new GraphGenerator());
+	private int effectiveMaxSize(Size size) {
+		if (size.max() != 0) {
+			return Math.max(size.max(), size.min());
+		}
+		return size.value();
+	}
+
+	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph(int maxNodes) {
+		return Arbitraries.fromGenerator(new GraphGenerator(maxNodes));
 	}
 
 	private Set<Integer> getAllNodes(GraphHopperStorage graph) {
