@@ -42,6 +42,7 @@ RELEASING:
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
 - internal properties of `IsochronesRequest` model not ignored for swagger file generation
 - remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
+- set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
 
 ## [6.7.0] - 2022-01-04
 ### Added

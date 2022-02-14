@@ -26,19 +26,23 @@ public class GraphStorageUtils {
 		if (graphStorage instanceof GraphHopperStorage) {
 			GraphHopperStorage ghs = (GraphHopperStorage) graphStorage;
 			GraphExtension ge = ghs.getExtension();
+			return getGraphExtension(ge, type);
+		}
+		return null;
+	}
 
-			if(ge instanceof ExtendedStorageSequence) {
-				ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
-				GraphExtension[] exts = ess.getExtensions();
-				for (int i = 0; i < exts.length; i++) {
-					if (type.isInstance(exts[i])) {
-						return (T)exts[i];
-					}
+	public static <T extends GraphExtension> T getGraphExtension(GraphExtension ge, Class<T> type) {
+		if (ge instanceof ExtendedStorageSequence) {
+			ExtendedStorageSequence ess = (ExtendedStorageSequence)ge;
+			GraphExtension[] exts = ess.getExtensions();
+			for (int i = 0; i < exts.length; i++) {
+				if (type.isInstance(exts[i])) {
+					return (T)exts[i];
 				}
-			} else  {
-				if (type.isInstance(ge)) {
-					return (T)ge;
-				}
+			}
+		} else {
+			if (type.isInstance(ge)) {
+				return (T)ge;
 			}
 		}
 		return null;
