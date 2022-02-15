@@ -343,7 +343,8 @@ public class ORSOSMReader extends OSMReader {
 
 			procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
 		} catch (Exception ex) {
-			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
+			//TODO ORS: re-enable warnings once external storages are fixed
+			//LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
 
@@ -355,7 +356,8 @@ public class ORSOSMReader extends OSMReader {
 			return procCntx.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 		}
 		catch (Exception ex) {
-			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
+			//TODO ORS: re-enable warnings once external storages are fixed
+			//LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 
 		return false;

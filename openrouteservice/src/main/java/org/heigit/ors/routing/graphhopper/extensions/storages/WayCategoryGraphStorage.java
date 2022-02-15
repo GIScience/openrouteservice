@@ -92,6 +92,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	}
 
 	public int getEdgeValue(int edgeId, byte[] buffer) {
+		if (orsEdges==null) return 0;//TODO ORS: circumvent error duriong fastisochrone landmarks preparation; remove this line once ext storages are fixed!
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 		orsEdges.getBytes(edgePointer + efWaytype, buffer, 1);
 		

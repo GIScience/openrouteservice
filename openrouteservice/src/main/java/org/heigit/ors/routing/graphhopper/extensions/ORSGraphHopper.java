@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.*;
 import com.graphhopper.config.Profile;
+import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.util.*;
@@ -132,11 +133,10 @@ public class ORSGraphHopper extends GraphHopper {
 		super.cleanUp();
 	}
 
-	// TODO: DataReader is gone, maybe override GraphHopper.importOSM instead?
-//	@Override
-//	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-//		return initDataReader(new ORSOSMReader(tmpGraph, processContext));
-//	}
+	@Override
+	protected  OSMReader createOSMReader() {
+		return new ORSOSMReader(getGraphHopperStorage(), processContext);
+	}
 
 	@Override
 	public GraphHopper importOrLoad() {
