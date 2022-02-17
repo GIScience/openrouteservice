@@ -9,7 +9,6 @@ import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
 import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
-import net.jqwik.api.constraints.*;
 import net.jqwik.api.domains.*;
 import net.jqwik.api.lifecycle.*;
 import org.heigit.ors.matrix.*;
@@ -106,7 +105,7 @@ class AlgorithmComparisonTest {
 	}
 
 	private CoreALT createCoreAlgorithm(GraphHopperStorage sampleGraph) {
-		return Algorithms.coreALT(sampleGraph, weighting);
+		return Algorithms.coreALT(sampleGraph, SHORTEST_WEIGHTING_FOR_CARS);
 	}
 
 	private float[] computeDistancesFromCoreMatrixAlgorithm(
@@ -132,12 +131,12 @@ class AlgorithmComparisonTest {
 		MatrixRequest matrixRequest = new MatrixRequest();
 		matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
-		matrixAlgorithm.init(matrixRequest, contractedGraph, carEncoder, weighting, new CoreTestEdgeFilter());
+		matrixAlgorithm.init(matrixRequest, contractedGraph, carEncoder, SHORTEST_WEIGHTING_FOR_CARS, new CoreTestEdgeFilter());
 		return matrixAlgorithm;
 	}
 
 	private CHGraph contractGraph(GraphHopperStorage g, EdgeFilter restrictedEdges) {
-		CHGraph lg = g.getCHGraph(new CHProfile(weighting, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
+		CHGraph lg = g.getCHGraph(new CHProfile(SHORTEST_WEIGHTING_FOR_CARS, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
 		PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
 
 		// set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
@@ -156,7 +155,7 @@ class AlgorithmComparisonTest {
 				System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
 				if (iter.isShortcut())
 					System.out.print(" (shortcut)");
-				System.out.println(" [weight: " + (new PreparationWeighting(weighting)).calcWeight(iter, false, -1) + "]");
+				System.out.println(" [weight: " + (new PreparationWeighting(SHORTEST_WEIGHTING_FOR_CARS)).calcWeight(iter, false, -1) + "]");
 			}
 		}
 

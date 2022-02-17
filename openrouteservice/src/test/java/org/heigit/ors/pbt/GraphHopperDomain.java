@@ -6,7 +6,6 @@ import java.util.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
-import org.apiguardian.api.*;
 import org.heigit.ors.matrix.*;
 
 import net.jqwik.api.*;
@@ -14,33 +13,56 @@ import net.jqwik.api.Tuple.*;
 import net.jqwik.api.domains.*;
 import net.jqwik.api.providers.*;
 
-import static org.apiguardian.api.API.Status.*;
-
 public class GraphHopperDomain extends DomainContextBase {
 
 	final static CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5.0D, 1);
 	final static EncodingManager encodingManager = EncodingManager.create(carEncoder);
-	final static Weighting weighting = new ShortestWeighting(carEncoder);
+	final static Weighting SHORTEST_WEIGHTING_FOR_CARS = new ShortestWeighting(carEncoder);
 
 	@Target({ElementType.ANNOTATION_TYPE, ElementType.PARAMETER, ElementType.TYPE_USE})
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
-	@API(status = MAINTAINED, since = "1.0")
 	public @interface MaxNodes {
 		int value();
 	}
 
+	public static final int DEFAULT_MAX_NODES = 500;
+
 	@Provide
 	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios(TypeUsage typeUsage) {
-		Optional<MaxNodes> annotation = typeUsage.findAnnotation(MaxNodes.class);
-		int maxNodes = annotation.map(MaxNodes::value).orElse(500);
-		Arbitrary<GraphHopperStorage> graphs = connectedBidirectionalGraph(maxNodes);
+		// Guard against jqwik bug which considers different tuple types to be compatible
+		if (!typeUsage.isOfType(Tuple3.class)) {
+			return null;
+		}
+		Arbitrary<GraphHopperStorage> graphs = graphs(typeUsage);
 		return graphs.flatMap(graph -> {
 			Set<Integer> nodes = getAllNodes(graph);
 			Arbitrary<MatrixLocations> sources = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
 			Arbitrary<MatrixLocations> destinations = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
 			return Combinators.combine(sources, destinations).as((s, d) -> Tuple.of(graph, s, d));
 		});
+	}
+
+	@Provide
+	Arbitrary<Tuple2<GraphHopperStorage, Tuple2<Integer, Integer>>> routingScenarios(TypeUsage typeUsage) {
+		// Guard against jqwik bug which considers different tuple types to be compatible
+		if (!typeUsage.isOfType(Tuple2.class)) {
+			return null;
+		}
+		Arbitrary<GraphHopperStorage> graphs = graphs(typeUsage);
+		return graphs.flatMap(graph -> {
+			Set<Integer> nodes = getAllNodes(graph);
+			Arbitrary<Tuple2<Integer, Integer>> pairsOfNodes = Arbitraries.of(nodes).tuple2().filter(t -> !t.get1().equals(t.get2()));
+			return pairsOfNodes.map(pair -> Tuple.of(graph, pair));
+		});
+	}
+
+
+	@Provide
+	Arbitrary<GraphHopperStorage> graphs(TypeUsage typeUsage) {
+		Optional<MaxNodes> annotation = typeUsage.findAnnotation(MaxNodes.class);
+		int maxNodes = annotation.map(MaxNodes::value).orElse(DEFAULT_MAX_NODES);
+		return connectedBidirectionalGraph(maxNodes);
 	}
 
 	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph(int maxNodes) {
@@ -97,7 +119,23 @@ public class GraphHopperDomain extends DomainContextBase {
 			Map<String, Object> attributes = new HashMap<>();
 			attributes.put("seed", GraphGenerator.getSeed(graph));
 			attributes.put("nodes", graph.getNodes());
-			attributes.put("edges", graph.getEdges());
+			int edgesCount = graph.getEdges();
+			if (edgesCount < 20) {
+				Map<Integer, String> edges = new HashMap<>();
+				AllEdgesIterator edgesIterator = graph.getAllEdges();
+				while (edgesIterator.next()) {
+					String edgeString = String.format(
+						"%s->%s: %s",
+						edgesIterator.getBaseNode(),
+						edgesIterator.getAdjNode(),
+						edgesIterator.getDistance()
+					);
+					edges.put(edgesIterator.getEdge(), edgeString);
+				}
+				attributes.put("edges", edges);
+			} else {
+				attributes.put("edges count", edgesCount);
+			}
 			return attributes;
 		}
 	}

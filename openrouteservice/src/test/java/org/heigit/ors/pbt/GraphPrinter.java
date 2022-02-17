@@ -33,9 +33,9 @@ public class GraphPrinter {
 
 	public static void main(String[] args) throws IOException {
 		// This example produces a comparison mismatch
-		GraphGenerator graphGenerator = new GraphGenerator(2000);
-		GraphHopperStorage graph = graphGenerator.create(-5937692498643895538L);
-		String dotFile = toDotFile(graph, 0, 10);
+		GraphGenerator graphGenerator = new GraphGenerator(10000);
+		GraphHopperStorage graph = graphGenerator.create(-9073945837965657492L);
+		String dotFile = toDotFile(graph, 0, 1);
 
 		// Random random = new Random();
 		// GraphGenerator graphGenerator = new GraphGenerator(50);

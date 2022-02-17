@@ -51,12 +51,12 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		return Shrinkable.unshrinkable(sampleGraph);
 	}
 
+	// TODO: Make sure graph is fully connected
 	public GraphHopperStorage create(long randomSeed) {
 		GraphHopperStorage storage = createGHStorage();
 		Random random = new Random(randomSeed);
 
 		int nodes = random.nextInt(maxNodes - 1) + 2;
-
 
 		Set<Tuple2<Integer, Integer>> setOfEdges = new HashSet<>();
 
@@ -77,6 +77,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 			double distance = random.nextInt(MAX_DISTANCE + 1);
 			storage.edge(edge.get1(), edge.get2(), distance, true);
 		}
+		storage.freeze();
 
 		return storage;
 	}
@@ -117,7 +118,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	private GraphHopperStorage createGHStorage() {
 		return new GraphBuilder(encodingManager)
 			.setCHProfiles(new ArrayList<>())
-			.setCoreGraph(weighting)
+			.setCoreGraph(SHORTEST_WEIGHTING_FOR_CARS)
 			.withTurnCosts(true)
 			.create();
 	}
