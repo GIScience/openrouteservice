@@ -40,12 +40,12 @@ class AlgorithmComparisonTest {
 	@Property(tries = 100)
 	//@Report(Reporting.GENERATED)
 	void compare_distance_computation_between_CoreMatrix_and_CoreALT(
-			@ForAll @MaxNodes(2000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
+			@ForAll @MaxNodes(2000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> matrixScenario
 	) throws Exception {
 
-		GraphHopperStorage sampleGraph = scenario.get1();
-		MatrixLocations sources = scenario.get2();
-		MatrixLocations destinations = scenario.get3();
+		GraphHopperStorage sampleGraph = matrixScenario.get1();
+		MatrixLocations sources = matrixScenario.get2();
+		MatrixLocations destinations = matrixScenario.get3();
 
 		float[] matrixDistances = computeDistancesFromCoreMatrixAlgorithm(sampleGraph, sources, destinations);
 		float[] coreDistances = computeDistancesFromCoreALTAlgorithm(sampleGraph, sources, destinations);
@@ -106,12 +106,7 @@ class AlgorithmComparisonTest {
 	}
 
 	private CoreALT createCoreAlgorithm(GraphHopperStorage sampleGraph) {
-		QueryGraph queryGraph = new QueryGraph(sampleGraph.getCHGraph());
-		queryGraph.lookup(Collections.emptyList());
-		CoreALT coreAlgorithm = new CoreALT(queryGraph, weighting);
-		CoreDijkstraFilter levelFilter = new CoreDijkstraFilter(sampleGraph.getCHGraph());
-		coreAlgorithm.setEdgeFilter(levelFilter);
-		return coreAlgorithm;
+		return Algorithms.coreALT(sampleGraph, weighting);
 	}
 
 	private float[] computeDistancesFromCoreMatrixAlgorithm(
