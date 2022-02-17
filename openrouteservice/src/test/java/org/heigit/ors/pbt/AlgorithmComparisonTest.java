@@ -53,6 +53,9 @@ class AlgorithmComparisonTest {
 		// System.out.println(Arrays.toString(coreDistances));
 
 		assertDistancesAreEqual(matrixDistances, coreDistances, sources, destinations);
+
+		// Prevents shrinking :-(
+		// sampleGraph.close();
 	}
 
 	private void assertDistancesAreEqual(
