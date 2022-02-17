@@ -75,8 +75,7 @@ public class GraphHopperDomain extends DomainContextBase {
 
 		@Override
 		public Object report(Object o) {
-			MatrixLocations matrixLocations = (MatrixLocations) o;
-			return matrixLocations.getNodeIds();
+			return ((MatrixLocations) o).getNodeIds();
 		}
 	}
 
@@ -95,12 +94,11 @@ public class GraphHopperDomain extends DomainContextBase {
 		@Override
 		public Object report(Object o) {
 			GraphHopperStorage graph = (GraphHopperStorage) o;
-			SortedMap<String, Object> attributes = new TreeMap<>();
+			Map<String, Object> attributes = new HashMap<>();
 			attributes.put("seed", GraphGenerator.getSeed(graph));
 			attributes.put("nodes", graph.getNodes());
 			attributes.put("edges", graph.getEdges());
 			return attributes;
-			// return String.format("Graph[nodes=%s, edges=%s]", graph.getNodes(), graph.getEdges());
 		}
 	}
 }
