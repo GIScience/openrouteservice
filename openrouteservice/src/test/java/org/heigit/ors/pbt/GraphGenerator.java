@@ -25,6 +25,14 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 
 	private final int maxNodes;
 
+	static GraphHopperStorage createGHStorage() {
+		return new GraphBuilder(encodingManager)
+			.setCHProfiles(new ArrayList<>())
+			.setCoreGraph(SHORTEST_WEIGHTING_FOR_CARS)
+			.withTurnCosts(true)
+			.create();
+	}
+
 	private static Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();
 
 	private static void rememberRandom(GraphHopperStorage storage, long randomSeed) {
@@ -50,8 +58,8 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		rememberRandom(sampleGraph, randomSeed);
 		return Shrinkable.unshrinkable(sampleGraph);
 	}
-
 	// TODO: Make sure graph is fully connected
+
 	public GraphHopperStorage create(long randomSeed) {
 		GraphHopperStorage storage = createGHStorage();
 		Random random = new Random(randomSeed);
@@ -88,8 +96,8 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		Tuple2<Integer, Integer> coordinates = Tuple.of(x, y);
 		return coordinates;
 	}
-
 	// Find neighbours in an approximated square raster
+
 	private Set<Integer> findNeighbours(
 		int numberOfNodes,
 		int node,
@@ -113,14 +121,6 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		}
 
 		return neighbours;
-	}
-
-	private GraphHopperStorage createGHStorage() {
-		return new GraphBuilder(encodingManager)
-			.setCHProfiles(new ArrayList<>())
-			.setCoreGraph(SHORTEST_WEIGHTING_FOR_CARS)
-			.withTurnCosts(true)
-			.create();
 	}
 
 }
