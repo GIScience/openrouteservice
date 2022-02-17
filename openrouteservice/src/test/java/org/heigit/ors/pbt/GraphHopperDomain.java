@@ -1,17 +1,20 @@
 package org.heigit.ors.pbt;
 
+import java.lang.annotation.*;
 import java.util.*;
 
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.*;
+import org.apiguardian.api.*;
+import org.heigit.ors.matrix.*;
+
 import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
-import net.jqwik.api.constraints.*;
 import net.jqwik.api.domains.*;
 import net.jqwik.api.providers.*;
 
-import org.heigit.ors.matrix.*;
+import static org.apiguardian.api.API.Status.*;
 
 public class GraphHopperDomain extends DomainContextBase {
 
@@ -19,10 +22,18 @@ public class GraphHopperDomain extends DomainContextBase {
 	final static EncodingManager encodingManager = EncodingManager.create(carEncoder);
 	final static Weighting weighting = new ShortestWeighting(carEncoder);
 
+	@Target({ElementType.ANNOTATION_TYPE, ElementType.PARAMETER, ElementType.TYPE_USE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@API(status = MAINTAINED, since = "1.0")
+	public @interface MaxNodes {
+		int value();
+	}
+
 	@Provide
 	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios(TypeUsage typeUsage) {
-		Optional<Size> annotation = typeUsage.findAnnotation(Size.class);
-		int maxNodes = annotation.map(size -> effectiveMaxSize(size)).orElse(500);
+		Optional<MaxNodes> annotation = typeUsage.findAnnotation(MaxNodes.class);
+		int maxNodes = annotation.map(MaxNodes::value).orElse(500);
 		Arbitrary<GraphHopperStorage> graphs = connectedBidirectionalGraph(maxNodes);
 		return graphs.flatMap(graph -> {
 			Set<Integer> nodes = getAllNodes(graph);
@@ -30,13 +41,6 @@ public class GraphHopperDomain extends DomainContextBase {
 			Arbitrary<MatrixLocations> destinations = Arbitraries.of(nodes).set().ofMinSize(1).map(this::locations);
 			return Combinators.combine(sources, destinations).as((s, d) -> Tuple.of(graph, s, d));
 		});
-	}
-
-	private int effectiveMaxSize(Size size) {
-		if (size.max() != 0) {
-			return Math.max(size.max(), size.min());
-		}
-		return size.value();
 	}
 
 	private Arbitrary<GraphHopperStorage> connectedBidirectionalGraph(int maxNodes) {

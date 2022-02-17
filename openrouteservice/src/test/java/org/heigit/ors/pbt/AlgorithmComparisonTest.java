@@ -40,7 +40,7 @@ class AlgorithmComparisonTest {
 	@Property(tries = 100)
 	//@Report(Reporting.GENERATED)
 	void compare_distance_computation_between_CoreMatrix_and_CoreALT(
-			@ForAll @Size(max = 2000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
+			@ForAll @MaxNodes(2000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> scenario
 	) throws Exception {
 
 		GraphHopperStorage sampleGraph = scenario.get1();
