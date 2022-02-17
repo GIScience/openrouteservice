@@ -54,12 +54,18 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 	@Override
 	public Shrinkable<GraphHopperStorage> next(Random random) {
 		long randomSeed = random.nextLong();
-		GraphHopperStorage sampleGraph = create(randomSeed);
-		rememberRandom(sampleGraph, randomSeed);
-		return Shrinkable.unshrinkable(sampleGraph);
+		// Regenerating a graph on each request is necessary because the underlying
+		// graph storage will be closed after each try.
+		// TODO: this code uses an internal jqwik API Shrinkable.supplyUnshrinkable
+		// This will be unnecessary if graph generation is done using arbitrary combination
+		return Shrinkable.supplyUnshrinkable(() -> {
+			GraphHopperStorage sampleGraph = create(randomSeed);
+			rememberRandom(sampleGraph, randomSeed);
+			return sampleGraph;
+		});
 	}
-	// TODO: Make sure graph is fully connected
 
+	// TODO: Make sure graph is fully connected
 	public GraphHopperStorage create(long randomSeed) {
 		GraphHopperStorage storage = createGHStorage();
 		Random random = new Random(randomSeed);
@@ -96,8 +102,10 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		Tuple2<Integer, Integer> coordinates = Tuple.of(x, y);
 		return coordinates;
 	}
-	// Find neighbours in an approximated square raster
 
+	/**
+	 * Find neighbours in an approximated square raster
+	 */
 	private Set<Integer> findNeighbours(
 		int numberOfNodes,
 		int node,

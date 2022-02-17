@@ -36,8 +36,8 @@ class AlgorithmComparisonTest {
 		dir.clear();
 	}
 
-	@Property(tries = 100)
-	//@Report(Reporting.GENERATED)
+	@Property(tries = 100) //, seed="7382662923941489490") // reproduces a failure
+	// @Report(Reporting.GENERATED)
 	void compare_distance_computation_between_CoreMatrix_and_CoreALT(
 			@ForAll @MaxNodes(2000) Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations> matrixScenario
 	) throws Exception {
@@ -46,16 +46,17 @@ class AlgorithmComparisonTest {
 		MatrixLocations sources = matrixScenario.get2();
 		MatrixLocations destinations = matrixScenario.get3();
 
-		float[] matrixDistances = computeDistancesFromCoreMatrixAlgorithm(sampleGraph, sources, destinations);
-		float[] coreDistances = computeDistancesFromCoreALTAlgorithm(sampleGraph, sources, destinations);
+		try {
+			float[] matrixDistances = computeDistancesFromCoreMatrixAlgorithm(sampleGraph, sources, destinations);
+			float[] coreDistances = computeDistancesFromCoreALTAlgorithm(sampleGraph, sources, destinations);
 
-		// System.out.println(Arrays.toString(matrixDistances));
-		// System.out.println(Arrays.toString(coreDistances));
+			// System.out.println(Arrays.toString(matrixDistances));
+			// System.out.println(Arrays.toString(coreDistances));
 
-		assertDistancesAreEqual(matrixDistances, coreDistances, sources, destinations);
-
-		// Prevents shrinking :-(
-		// sampleGraph.close();
+			assertDistancesAreEqual(matrixDistances, coreDistances, sources, destinations);
+		} finally {
+			sampleGraph.close();
+		}
 	}
 
 	private void assertDistancesAreEqual(
