@@ -1,4 +1,4 @@
-package org.heigit.ors;
+package org.heigit.ors.pbt;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ import net.jqwik.api.providers.*;
 
 import org.heigit.ors.matrix.*;
 
-public class GHAlgorithmDomain extends DomainContextBase {
+public class GraphHopperDomain extends DomainContextBase {
 
 	final static CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5.0D, 1);
 	final static EncodingManager encodingManager = EncodingManager.create(carEncoder);

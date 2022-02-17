@@ -1,4 +1,4 @@
-package org.heigit.ors;
+package org.heigit.ors.pbt;
 
 import java.util.*;
 
@@ -7,7 +7,7 @@ import net.jqwik.api.*;
 import net.jqwik.api.Tuple.*;
 
 import static java.lang.Math.*;
-import static org.heigit.ors.GHAlgorithmDomain.*;
+import static org.heigit.ors.pbt.GraphHopperDomain.*;
 
 /**
  * Simple graph generator for up to maxSize nodes and up to (nodes * (nodes-1))/2 edges

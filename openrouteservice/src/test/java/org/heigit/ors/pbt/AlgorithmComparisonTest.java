@@ -1,4 +1,4 @@
-package org.heigit.ors;
+package org.heigit.ors.pbt;
 
 import java.util.*;
 
@@ -17,10 +17,10 @@ import org.heigit.ors.matrix.algorithms.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.util.*;
 
-import static org.heigit.ors.GHAlgorithmDomain.*;
+import static org.heigit.ors.pbt.GraphHopperDomain.*;
 import static org.junit.Assert.*;
 
-@Domain(GHAlgorithmDomain.class)
+@Domain(GraphHopperDomain.class)
 class AlgorithmComparisonTest {
 	private final TraversalMode tMode = TraversalMode.NODE_BASED;
 	private static Directory dir;

@@ -1,4 +1,4 @@
-package org.heigit.ors;
+package org.heigit.ors.pbt;
 
 import java.io.*;
 
@@ -34,8 +34,8 @@ public class GraphPrinter {
 	public static void main(String[] args) throws IOException {
 		// This example produces a comparison mismatch
 		GraphGenerator graphGenerator = new GraphGenerator(2000);
-		GraphHopperStorage graph = graphGenerator.create(612342264752893324L);
-		String dotFile = toDotFile(graph, 512, 1286);
+		GraphHopperStorage graph = graphGenerator.create(-4904013681432882990L);
+		String dotFile = toDotFile(graph, 0, 233);
 
 		// Random random = new Random();
 		// GraphGenerator graphGenerator = new GraphGenerator(50);
