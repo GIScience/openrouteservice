@@ -30,10 +30,6 @@ public class GraphHopperDomain extends DomainContextBase {
 
 	@Provide
 	Arbitrary<Tuple3<GraphHopperStorage, MatrixLocations, MatrixLocations>> matrixScenarios(TypeUsage typeUsage) {
-		// Guard against jqwik bug which considers different tuple types to be compatible
-		if (!typeUsage.isOfType(Tuple3.class)) {
-			return null;
-		}
 		Arbitrary<GraphHopperStorage> graphs = graphs(typeUsage);
 		return graphs.flatMap(graph -> {
 			Set<Integer> nodes = getAllNodes(graph);
@@ -45,10 +41,6 @@ public class GraphHopperDomain extends DomainContextBase {
 
 	@Provide
 	Arbitrary<Tuple2<GraphHopperStorage, Tuple2<Integer, Integer>>> routingScenarios(TypeUsage typeUsage) {
-		// Guard against jqwik bug which considers different tuple types to be compatible
-		if (!typeUsage.isOfType(Tuple2.class)) {
-			return null;
-		}
 		Arbitrary<GraphHopperStorage> graphs = graphs(typeUsage);
 		return graphs.flatMap(graph -> {
 			Set<Integer> nodes = getAllNodes(graph);
