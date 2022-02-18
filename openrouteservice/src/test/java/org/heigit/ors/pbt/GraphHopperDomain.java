@@ -112,6 +112,7 @@ public class GraphHopperDomain extends DomainContextBase {
 			attributes.put("seed", GraphGenerator.getSeed(graph));
 			attributes.put("nodes", graph.getNodes());
 			int edgesCount = graph.getEdges();
+			attributes.put("edges count", edgesCount);
 			if (edgesCount < 20) {
 				Map<Integer, String> edges = new HashMap<>();
 				AllEdgesIterator edgesIterator = graph.getAllEdges();
@@ -125,8 +126,6 @@ public class GraphHopperDomain extends DomainContextBase {
 					edges.put(edgesIterator.getEdge(), edgeString);
 				}
 				attributes.put("edges", edges);
-			} else {
-				attributes.put("edges count", edgesCount);
 			}
 			return attributes;
 		}

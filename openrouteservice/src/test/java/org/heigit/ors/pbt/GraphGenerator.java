@@ -35,16 +35,12 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 
 	private static Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();
 
-	private static void rememberRandom(GraphHopperStorage storage, long randomSeed) {
+	private static void rememberSeed(GraphHopperStorage storage, long randomSeed) {
 		randomSeeds.put(storage, randomSeed);
 	}
 
 	static long getSeed(GraphHopperStorage storage) {
 		return randomSeeds.get(storage);
-	}
-
-	static void clearRandomSeeds() {
-		randomSeeds.clear();
 	}
 
 	public GraphGenerator(int maxNodes) {
@@ -60,7 +56,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
 		// This will be unnecessary if graph generation is done using arbitrary combination
 		return Shrinkable.supplyUnshrinkable(() -> {
 			GraphHopperStorage sampleGraph = create(randomSeed);
-			rememberRandom(sampleGraph, randomSeed);
+			rememberSeed(sampleGraph, randomSeed);
 			return sampleGraph;
 		});
 	}

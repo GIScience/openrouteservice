@@ -15,9 +15,9 @@ import net.jqwik.api.lifecycle.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Domain(GraphHopperDomain.class)
-class CoreALTProperties {
+class CoreALT_Properties {
 
-	private Set<GraphHopperStorage> graphs = new HashSet<>();
+	private final Set<GraphHopperStorage> graphs = new HashSet<>();
 
 	private GraphHopperStorage closeAfterTry(GraphHopperStorage graph) {
 		graphs.add(graph);
