@@ -367,7 +367,7 @@ public class RoutingProfile {
             // TODO: make this list of weightings configurable for each vehicle as in GH
             String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
             for (String weighting : weightings) {
-                String profileName = vehicle + "_" + weighting;
+                String profileName = makeProfileName(vehicle, weighting);
 
                 profiles.add(new Profile(profileName).setVehicle(vehicle).setWeighting(weighting));
                 if (prepareCH) {
@@ -387,6 +387,10 @@ public class RoutingProfile {
         ghConfig.setLMProfiles(lmProfiles);
 
         return ghConfig;
+    }
+
+    private static String makeProfileName(String vehicleName, String weightingName) {
+        return vehicleName + "_" + weightingName;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
@@ -608,6 +612,9 @@ public class RoutingProfile {
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
 
+        String weightingName = WeightingMethod.getName(req.getWeightingMethod());
+        String profileName = makeProfileName(encoderName, weightingName);
+
         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
         return null;
         // NEW CODE
@@ -619,7 +626,7 @@ public class RoutingProfile {
 //            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
 //                hintsMap.putObject("vehicle", encoderName);
 //
-//                //TODO encodername is probably not the correct name
+//                //TODO encodername is probably not the correct name use profileName instead
 //                RoutingCHGraph graph = gh.getGraphHopperStorage().getRoutingCHGraph(gh.getProfile(encoderName).getName());
 //                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
 //                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
