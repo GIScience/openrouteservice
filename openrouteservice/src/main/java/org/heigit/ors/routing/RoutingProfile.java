@@ -42,6 +42,7 @@ import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
@@ -50,10 +51,10 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
-import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
@@ -397,6 +398,15 @@ public class RoutingProfile {
         return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isPedestrian(profileType);
     }
 
+    private boolean hasCHProfile(String profileName) {
+        boolean hasCHProfile = false;
+        for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
+            if (profileName.equals(chProfile.getProfile()))
+                hasCHProfile = true;
+        }
+        return hasCHProfile;
+    }
+
     public long getCapacity() {
         GraphHopperStorage graph = mGraphHopper.getGraphHopperStorage();
         return graph.getCapacity(); // TODO: how to deal with + graph.getExtension().getCapacity();
@@ -611,32 +621,22 @@ public class RoutingProfile {
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-
-        String weightingName = WeightingMethod.getName(req.getWeightingMethod());
+        PMap hintsMap = new PMap();
+        int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
+        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
+        String weightingName = hintsMap.getString("weighting", "");
         String profileName = makeProfileName(encoderName, weightingName);
 
+        //TODO probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
-        return null;
-        // NEW CODE
-//        try {
-//            PMap hintsMap = new PMap();
-//            int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
-//            setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-//            // CH
-//            if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
-//                hintsMap.putObject("vehicle", encoderName);
-//
-//                //TODO encodername is probably not the correct name use profileName instead
-//                RoutingCHGraph graph = gh.getGraphHopperStorage().getRoutingCHGraph(gh.getProfile(encoderName).getName());
-//                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-//                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-//                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-//                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-//                return mtxResult;
-//            }
-//            // Core
+        try {
+            boolean hasCHProfile = hasCHProfile(profileName);
+            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile) {
+                return computeRPHASTMatrix(req, gh, flagEncoder, profileName);
+            }
+            // Core
 //            else if (req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper) (gh)).isCoreAvailable(weighting.getName())) {
-//                //TODO how to get graph
+            //TODO how to get graph
 //                RoutingCHGraph graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
 //                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
 //                PMap additionalHints = (PMap) searchCntx.getProperties();
@@ -651,65 +651,32 @@ public class RoutingProfile {
 //                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
 //                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
 //                return mtxResult;
+//                return null;
 //            }
-//            // ALT
-//            else {
+            // ALT
+            else {
 //                Graph graph = gh.getGraphHopperStorage().getBaseGraph();
 //                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
 //                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 //                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
 //                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
 //                return mtxResult;
-//            }
+                return null;
+            }
+        } catch (Exception ex) {
+            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
+        }
+    }
 
-        // OLD CODE
-//            try {
-//                PMap hintsMap = new PMap();
-//                int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
-//                setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-//                Graph graph;
-//                // CH
-//                if (!req.getFlexibleMode() && gh.getCHFactoryDecorator().isEnabled() && gh.getCHFactoryDecorator().getCHProfileStrings().contains(hintsMap.getString("weighting", ""))) {
-//                    hintsMap.putObject("vehicle", encoderName);
-//
-//                    //TODO encodername is probably not the correct name
-//                    graph = gh.getGraphHopperStorage().getRoutingCHGraph(gh.getProfile(encoderName).getName());
-////                graph = gh.getGraphHopperStorage().getRoutingCHGraph(gh.getCHPreparationHandler().getPreparation(/*something something request */).getCHConfig().getName());
-////                graph = gh.getGraphHopperStorage().getRoutingCHGraph(((PrepareContractionHierarchies) gh.getAlgorithmFactory(hintsMap)).getCHProfile());
-//                }
-//                // Core
-//                else if (req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper) (gh)).isCoreAvailable(weighting.getName())) {
-//                    graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
-//                    RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-//                    PMap additionalHints = (PMap) searchCntx.getProperties();
-//                    edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
-//                }
-//                // ALT
-//                else
-//                    graph = gh.getGraphHopperStorage().getBaseGraph();
-//
-//
-//                // TODO ORS: check
-//                // MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-//                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-//                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-//
-//                if (alg instanceof CoreMatrixAlgorithm) {
-//                    weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
-//                    if (weighting instanceof TurnWeighting)
-//                        ((TurnWeighting) weighting).setInORS(true);
-//                    ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
-//                } else
-////                Weighting weighting = null; // TODO: remove this temporary work-around
-//                    alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-//                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-//            } catch (StatusCodeException ex) {
-//                throw ex;
-//        } catch (Exception ex) {
-//            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
-//        }
-
-//        return mtxResult;
+    private MatrixResult computeRPHASTMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, String profileName) throws Exception {
+        MatrixResult mtxResult;
+        RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
+        algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
+        mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        return mtxResult;
     }
 
     public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
@@ -880,7 +847,8 @@ public class RoutingProfile {
         return mMapMatcher.match(locations, bothDirections);
     }
 
-    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
+    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
+            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
 
         waitForUpdateCompletion();
@@ -949,7 +917,8 @@ public class RoutingProfile {
         return resp;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings, double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
+    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
+                                   double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
             throws Exception {
 
         GHResponse resp;
@@ -1106,6 +1075,7 @@ public class RoutingProfile {
         }
 
         // TODO: not permitted with GH-4.0; remove this line if it works: map.putObject(KEY_WEIGHTING, weighting);
+        map.putObject(KEY_WEIGHTING, weighting);
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
