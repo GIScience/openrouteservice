@@ -46,7 +46,10 @@ public class PrepareCoreLandmarks extends PrepareLandmarks {
 
     @Override
     public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
-        CoreLMConfig coreLMConfig = new CoreLMConfig(lmConfig.getName(), lmConfig.getWeighting(), landmarksFilter);
+        if (!(lmConfig instanceof CoreLMConfig))
+            throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+        CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
+
         return new CoreLandmarkStorage(dir, graph, coreLMConfig, landmarks);
     }
 

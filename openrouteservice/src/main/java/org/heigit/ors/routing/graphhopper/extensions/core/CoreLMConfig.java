@@ -7,9 +7,13 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilt
 public class CoreLMConfig extends LMConfig {
     LMEdgeFilterSequence edgeFilter;
 
-    public CoreLMConfig(String profileName, Weighting weighting, LMEdgeFilterSequence edgeFilter) {
+    public CoreLMConfig(String profileName, Weighting weighting) {
         super(profileName, weighting);
+    }
+
+    public CoreLMConfig setEdgeFilter(LMEdgeFilterSequence edgeFilter) {
         this.edgeFilter = edgeFilter;
+        return this;
     }
 
     public LMEdgeFilterSequence getEdgeFilter() {

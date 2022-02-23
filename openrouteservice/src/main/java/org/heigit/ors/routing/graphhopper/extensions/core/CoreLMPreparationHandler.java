@@ -63,17 +63,21 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
         coreLMOptions.createRestrictionFilters(ghStorage);
 
         for (LMConfig lmConfig : getLMConfigs()) {
-            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, lmConfig.getWeighting());
+            if (!(lmConfig instanceof CoreLMConfig))
+                throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+
+            CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
+            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, coreLMConfig.getWeighting());
+
+            String lmConfigName = coreLMConfig.getSuperName();
+            Double maximumWeight = getMaximumWeights().get(lmConfigName);
+            if (maximumWeight == null)
+                throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
+                        "Couldn't find " + lmConfigName  + " in " + getMaximumWeights());
 
             for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
-                Double maximumWeight = getMaximumWeights().get(lmConfig.getName());
-                if (maximumWeight == null)
-                    throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
-                            "Couldn't find " + lmConfig.getName() + " in " + getMaximumWeights());
-
-                CoreLMConfig coreLMConfig = new CoreLMConfig(lmConfig.getName(), lmConfig.getWeighting(), edgeFilterSequence);
                 PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                        coreLMConfig, getLandmarks(), coreNodeIdMap).
+                        coreLMConfig.setEdgeFilter(edgeFilterSequence), getLandmarks(), coreNodeIdMap).
                         setLandmarkSuggestions(lmSuggestions).
                         setMaximumWeight(maximumWeight).
                         setLogDetails(getLogDetails());

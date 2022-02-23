@@ -105,6 +105,7 @@ public class ORSGraphHopper extends GraphHopper {
 		GraphHopper ret = super.init(ghConfig);
 
 		corePreparationHandler.init(ghConfig);
+		//FIXME: coreLMPreparationHandler.init(ghConfig);
 		fastIsochroneFactory.init(ghConfig);
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
