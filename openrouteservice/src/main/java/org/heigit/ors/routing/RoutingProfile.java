@@ -24,10 +24,7 @@ import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.Parameters;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
@@ -700,15 +697,21 @@ public class RoutingProfile {
         List<Integer> excludeNodes = req.getExcludeNodes();
 
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        // TODO: find out how to do this now
-//        index.query(bbox, new LocationIndex.Visitor() {
-//            @Override
-//            public void onNode(int nodeId) {
-//                if (!excludeNodes.contains(nodeId) && bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
-//                    nodesInBBox.add(nodeId);
-//                }
-//            }
-//        });
+        index.query(bbox, edgeId -> {
+            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
+            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
+            int baseNode = edge.getBaseNode();
+            int adjNode = edge.getAdjNode();
+
+            //we only add nodes once, if they are not excluded and in our bbox.
+            if (!nodesInBBox.contains(baseNode) && !excludeNodes.contains(baseNode) && bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
+                nodesInBBox.add(baseNode);
+            }
+            if (!nodesInBBox.contains(adjNode) && !excludeNodes.contains(adjNode) && bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
+                nodesInBBox.add(adjNode);
+            }
+
+        });
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no centrality can be calculated
