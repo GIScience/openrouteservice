@@ -84,7 +84,6 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         List<int[]> landmarkIDs = getLandmarkIDs();
         AreaIndex<SplitArea> areaIndex = getAreaIndex();
         boolean logDetails = isLogDetails();
-        double factor = getFactor();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
         int coreNodes = core.getCoreNodes();
 
@@ -148,6 +147,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             setMaximumWeight(maxWeight);
             additionalInfo = ", maxWeight:" + maxWeight + " from quick estimation";
         }
+        double factor = getFactor();
 
         if (logDetails)
             LOGGER.info("init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
@@ -157,7 +157,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             nodes += subnetworkIds.size();
             if (subnetworkIds.size() < minimumNodes)
                 continue;
-            if (getFactor() <= 0)
+            if (factor <= 0)
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
                         + graphComponents.size() + ", minimumNodes:" + minimumNodes + ", current size:" + subnetworkIds.size());
 

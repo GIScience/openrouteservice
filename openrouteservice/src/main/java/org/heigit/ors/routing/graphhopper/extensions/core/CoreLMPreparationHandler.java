@@ -67,7 +67,8 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                 throw(new IllegalStateException("Expected instance of CoreLMConfig"));
 
             CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
-            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, coreLMConfig.getWeighting());
+            RoutingCHGraph core = ghStorage.getCoreGraph(coreLMConfig.getWeighting());
+            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
 
             String lmConfigName = coreLMConfig.getSuperName();
             Double maximumWeight = getMaximumWeights().get(lmConfigName);
@@ -92,10 +93,9 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
      * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
      * Otherwise we would have to store a lot of empty info
      */
-    public Map<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
-        RoutingCHGraph core = graph.getCoreGraph(weighting);
+    public static HashMap<Integer, Integer> createCoreNodeIdMap(RoutingCHGraph core) {
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
-        int maxNode = graph.getNodes();
+        int maxNode = core.getNodes();
         int coreNodeLevel = maxNode;
         int index = 0;
         for (int i = 0; i < maxNode; i++){

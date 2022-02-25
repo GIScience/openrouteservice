@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.ch.NodeOrderingProvider;
 import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -114,11 +115,20 @@ public class PrepareCoreTest {
         addEdge(14, 16, 1);
     }
 
-    private void contractGraph(CoreTestEdgeFilter restrictedEdges) {
+    private void contractGraph(EdgeFilter restrictedEdges) {
         contractGraph(restrictedEdges, null);
     }
 
-    private void contractGraph(CoreTestEdgeFilter restrictedEdges, int[] nodeOrdering) {
+    private void contractGraph(EdgeFilter restrictedEdges, int[] nodeOrdering) {
+        contractGraph(g, chConfig, restrictedEdges, nodeOrdering);
+    }
+
+    public static void contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges) {
+        contractGraph(g, chConfig, restrictedEdges, null);
+    }
+
+    public static void contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges, int[] nodeOrdering) {
+        RoutingCHGraph routingCHGraph = g.getRoutingCHGraph();
         g.freeze();
 
         PrepareCore prepare = new PrepareCore(g, chConfig, restrictedEdges);
