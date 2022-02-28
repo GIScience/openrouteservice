@@ -91,6 +91,14 @@ public class GreenIndexGraphStorage implements GraphExtension {
         orsEdges.flush();
     }
 
+    @Override
+    public void init(Graph graph, Directory dir) {
+        if (edgesCount > 0)
+            throw new AssertionError("The ORS storage must be initialized only once.");
+
+        this.orsEdges = dir.find("ext_greenindex");
+    }
+
     /**
      * This method makes sure that the underlying used resources are released. WARNING: it does NOT
      * flush on close!
@@ -101,13 +109,5 @@ public class GreenIndexGraphStorage implements GraphExtension {
     @Override
     public boolean isClosed() {
         return false;
-    }
-
-    /**
-     * @return the allocated storage size in bytes
-     */
-    // TODO how to deal with @Override
-    public long getCapacity() {
-        return orsEdges.getCapacity();
     }
 }

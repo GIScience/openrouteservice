@@ -95,6 +95,14 @@ public class NoiseIndexGraphStorage implements GraphExtension {
         orsEdges.flush();
     }
 
+    @Override
+    public void init(Graph graph, Directory dir) {
+        if (edgesCount > 0)
+            throw new AssertionError("The ORS storage must be initialized only once.");
+
+        this.orsEdges = dir.find("ext_noiselevel");
+    }
+
     /**
      * This method makes sure that the underlying used resources are released. WARNING: it does NOT
      * flush on close!
@@ -105,13 +113,5 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     @Override
     public boolean isClosed() {
         return false;
-    }
-
-    /**
-     * @return the allocated storage size in bytes
-     */
-    @Override
-    public long getCapacity() {
-        return orsEdges.getCapacity();
     }
 }

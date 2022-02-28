@@ -90,7 +90,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 		}
 
 		GraphHopperStorage ghs = new GraphHopperStorage(dir, encodingManager, gh.hasElevation());
-		ghs.setExtendedStorages(new ExtendedStorageSequence(graphExtensions));
+		ExtendedStorageSequence extendedStorages = new ExtendedStorageSequence(graphExtensions);
+		extendedStorages.init(ghs.getBaseGraph(), dir);
+		ghs.setExtendedStorages(extendedStorages);
 		return ghs;
 	}
 

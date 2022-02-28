@@ -87,8 +87,8 @@ public class SpeedStorage implements GraphExtension {
     }
 
     @Override
-    public long getCapacity() {
-        return speedData.getCapacity();
+    public void flush() {
+        speedData.flush();
     }
 
     protected void checkEdgeInBounds(int edgeId) {

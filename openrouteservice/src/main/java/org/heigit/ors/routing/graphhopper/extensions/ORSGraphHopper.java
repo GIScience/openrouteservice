@@ -186,6 +186,7 @@ public class ORSGraphHopper extends GraphHopper {
 									WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
 		Router r = new Router(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
 		r.setEdgeFilterFactory(new ORSEdgeFilterFactory());
+		r.setPathProcessorFactory(pathProcessorFactory);
 		return r;
 	}
 

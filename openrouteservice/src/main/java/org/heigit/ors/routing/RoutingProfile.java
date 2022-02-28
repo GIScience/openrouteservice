@@ -977,6 +977,7 @@ public class RoutingProfile {
             else
                 req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
 
+            req.setEncoderName(searchCntx.getEncoder().toString());
             req.setProfile(searchCntx.profileName());
             req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
 

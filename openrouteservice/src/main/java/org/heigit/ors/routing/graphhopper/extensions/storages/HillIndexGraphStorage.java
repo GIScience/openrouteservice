@@ -47,10 +47,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_hillindex");
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
-
 	public HillIndexGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
@@ -64,10 +60,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 	public void close() {
 		orsEdges.close();
-	}
-
-	public long getCapacity() {
-		return orsEdges.getCapacity();
 	}
 
 	public int entries() {
