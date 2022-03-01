@@ -32,7 +32,7 @@ import java.util.PriorityQueue;
 public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     private final UpwardSearchEdgeFilter upwardEdgeFilter;
     private final DownwardSearchEdgeFilter downwardEdgeFilter;
-    private IntObjectMap<MultiTreeSPEntry> bestWeightMapFrom;
+    private IntObjectMap<MultiTreeSPEntry> bestWeightMap;
     private MultiTreeSPEntry currFrom;
     private PriorityQueue<MultiTreeSPEntry> prioQueue;
     private SubGraph targetGraph;
@@ -54,28 +54,16 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
         initCollections(size);
-
-//        RoutingCHGraph chGraph = null;
-//        if (graph instanceof RoutingCHGraph)
-//            chGraph = (RoutingCHGraph) graph;
-//        else if (graph instanceof QueryRoutingCHGraph) {
-//            QueryRoutingCHGraph qGraph = (QueryRoutingCHGraph) graph;
-//            chGraph = (QueryRoutingCHGraph) qGraph.getBaseGraph();
-//        }
-
         setMaxVisitedNodes(Integer.MAX_VALUE);
         FlagEncoder encoder = weighting.getFlagEncoder();
 
         upwardEdgeFilter = new UpwardSearchEdgeFilter(graph, encoder);
         downwardEdgeFilter = new DownwardSearchEdgeFilter(graph, encoder);
-
-//        inEdgeExplorer = graph.createEdgeExplorer();
-//        outEdgeExplorer = graph.createEdgeExplorer();
     }
 
     protected void initCollections(int size) {
         prioQueue = new PriorityQueue<>(size);
-        bestWeightMapFrom = new GHIntObjectHashMap<>(size);
+        bestWeightMap = new GHIntObjectHashMap<>(size);
     }
 
     @Override
@@ -83,7 +71,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         finishedFrom = false;
         finishedTo = false;
         prioQueue.clear();
-        bestWeightMapFrom.clear();
+        bestWeightMap.clear();
     }
 
     @Override
@@ -98,16 +86,17 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         addNodes(targetGraph, localPrioQueue, targets);
 
         while (!localPrioQueue.isEmpty()) {
-            int adjNode = localPrioQueue.poll();
-            RoutingCHEdgeIterator iter = outEdgeExplorer.setBaseNode(adjNode);
-            downwardEdgeFilter.setBaseNode(adjNode);
+            int node = localPrioQueue.poll();
+            RoutingCHEdgeIterator iter = inEdgeExplorer.setBaseNode(node);
+            downwardEdgeFilter.setBaseNode(node);
 
             while (iter.next()) {
                 if (!downwardEdgeFilter.accept(iter))
                     continue;
 
-                if (targetGraph.addEdge(adjNode, iter, true))
+                if (targetGraph.addEdge(node, iter, true))
                     localPrioQueue.add(iter.getAdjNode());
+
             }
         }
     }
@@ -145,7 +134,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             return false;
 
         currFrom = prioQueue.poll();
-        fillEdgesUpward(currFrom, prioQueue, bestWeightMapFrom, outEdgeExplorer);
+        fillEdgesUpward(currFrom, prioQueue, bestWeightMap, outEdgeExplorer);
         visitedCountFrom++;
 
         return true;
@@ -156,7 +145,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             return false;
 
         MultiTreeSPEntry currTo = prioQueue.poll();
-        fillEdgesDownward(currTo, prioQueue, bestWeightMapFrom, outEdgeExplorer);
+        fillEdgesDownward(currTo, prioQueue, bestWeightMap, outEdgeExplorer);
         visitedCountTo++;
 
         return true;
@@ -169,7 +158,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             //If two queried points are on the same node, this case can occur
-            MultiTreeSPEntry existing = bestWeightMapFrom.get(from[i]);
+            MultiTreeSPEntry existing = bestWeightMap.get(from[i]);
             if (existing != null) {
                 existing.getItem(i).setWeight(0.0);
                 continue;
@@ -181,16 +170,17 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             prioQueue.add(currFrom);
 
             if (!traversalMode.isEdgeBased())
-                bestWeightMapFrom.put(from[i], currFrom);
+                bestWeightMap.put(from[i], currFrom);
             else
                 throw new IllegalStateException("Edge-based behavior not supported");
         }
 
-//        outEdgeExplorer = graph.createEdgeExplorer();
         outEdgeExplorer = graph.createOutEdgeExplorer();
         runUpwardSearch();
+        if (!upwardEdgeFilter.isHighestNodeFound())
+            throw new IllegalStateException("First RPHAST phase was not successful.");
 
-        currFrom = bestWeightMapFrom.get(upwardEdgeFilter.getHighestNode());
+        currFrom = bestWeightMap.get(upwardEdgeFilter.getHighestNode());
         currFrom.setVisited(true);
         currFrom.resetUpdate(true);
         prioQueue.clear();
@@ -198,7 +188,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
         for (int i = 0; i < from.length; i++) {
             int sourceNode = from[i];
-            MultiTreeSPEntry mspTree = bestWeightMapFrom.get(sourceNode);
+            MultiTreeSPEntry mspTree = bestWeightMap.get(sourceNode);
             mspTree.getItem(i).setUpdate(true);
             prioQueue.add(mspTree);
         }
@@ -209,7 +199,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         MultiTreeSPEntry[] targets = new MultiTreeSPEntry[to.length];
 
         for (int i = 0; i < to.length; ++i)
-            targets[i] = bestWeightMapFrom.get(to[i]);
+            targets[i] = bestWeightMap.get(to[i]);
 
         return targets;
     }
@@ -275,7 +265,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     }
 
     private void fillEdgesDownward(MultiTreeSPEntry currEdge, PriorityQueue<MultiTreeSPEntry> prioQueue,
-                                   IntObjectMap<MultiTreeSPEntry> shortestWeightMap, RoutingCHEdgeExplorer explorer) {
+                                   IntObjectMap<MultiTreeSPEntry> bestWeightMap, RoutingCHEdgeExplorer explorer) {
 
         RoutingCHEdgeIterator iter = explorer.setBaseNode(currEdge.getAdjNode());
 
@@ -286,13 +276,13 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 //            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
             edgeWeight = iter.getWeight(false);
             if (!Double.isInfinite(edgeWeight)) {
-                MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
+                MultiTreeSPEntry ee = bestWeightMap.get(iter.getAdjNode());
 
                 if (ee == null) {
                     ee = new MultiTreeSPEntry(iter.getAdjNode(), iter.getEdge(), edgeWeight, true, currEdge, currEdge.getSize());
                     ee.setVisited(true);
 
-                    shortestWeightMap.put(iter.getAdjNode(), ee);
+                    bestWeightMap.put(iter.getAdjNode(), ee);
                     prioQueue.add(ee);
                 } else {
                     addToQueue = false;

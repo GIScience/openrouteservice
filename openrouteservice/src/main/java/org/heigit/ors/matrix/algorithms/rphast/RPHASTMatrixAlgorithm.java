@@ -61,10 +61,6 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
             for (int srcIndex = 0; srcIndex < srcData.size(); srcIndex++)
                 pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
         } else {
-// TODO: orig code
-//			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(graph, prepareCH.getPrepareWeighting(),
-//					TraversalMode.NODE_BASED);
-// work-around:
             RPHASTAlgorithm algorithm = new RPHASTAlgorithm(chGraph, chGraph.getWeighting(), TraversalMode.NODE_BASED);
 
             int[] srcIds = getValidNodeIds(srcData.getNodeIds());
