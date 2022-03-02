@@ -42,6 +42,7 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import org.geotools.feature.SchemaException;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
@@ -68,6 +69,8 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
@@ -605,6 +608,24 @@ public class ORSGraphHopper extends GraphHopper {
         end.y = request.getPoints().get(1).getLon();
         Coordinate[] coords = new Coordinate[]{start, end};
         return new GeometryFactory().createLineString(coords);
+    }
+
+    @Override
+    public void matchTraffic() {
+        // Do the graph extension post processing
+        // Reserved for processes that need a fully initiated graph e.g. for match making
+        if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
+            for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                    try {
+                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                    } catch (SchemaException e) {
+                        LOGGER.error("Error building the here traffic storage.");
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
     }
 
     @Override
