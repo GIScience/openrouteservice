@@ -137,8 +137,7 @@ public class MultiTreeMetricsExtractor {
                                         RoutingCHEdgeIteratorState iterState = chGraph.getEdgeIteratorState(sptItem.getEdge(), targetEntry.getAdjNode());
 
                                         if (iterState.isShortcut()) {
-                                            if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph
-                                                    .getLevel(iterState.getAdjNode())) {
+                                            if (chGraph.getLevel(iterState.getBaseNode()) >= chGraph.getLevel(iterState.getAdjNode())) {
                                                 reverseOrder = true;
                                                 extractEdgeValues(iterState, swap);
                                             } else {
@@ -277,19 +276,19 @@ public class MultiTreeMetricsExtractor {
 
             expandEdge(edgeState, true);
         } else {
-            RoutingCHEdgeIteratorState iter = chGraph.getEdgeIteratorState(skippedEdge1, from);
-            boolean empty = iter == null;
+            RoutingCHEdgeIteratorState edgeState = chGraph.getEdgeIteratorState(skippedEdge1, from);
+            boolean empty = edgeState == null;
             if (empty)
-                iter = chGraph.getEdgeIteratorState(skippedEdge2, from);
+                edgeState = chGraph.getEdgeIteratorState(skippedEdge2, from);
 
-            expandEdge(iter, true);
+            expandEdge(edgeState, true);
 
             if (empty)
-                iter = chGraph.getEdgeIteratorState(skippedEdge1, to);
+                edgeState = chGraph.getEdgeIteratorState(skippedEdge1, to);
             else
-                iter = chGraph.getEdgeIteratorState(skippedEdge2, to);
+                edgeState = chGraph.getEdgeIteratorState(skippedEdge2, to);
 
-            expandEdge(iter, false);
+            expandEdge(edgeState, false);
         }
     }
 

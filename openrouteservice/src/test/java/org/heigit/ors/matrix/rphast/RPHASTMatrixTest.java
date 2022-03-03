@@ -2,74 +2,44 @@ package org.heigit.ors.matrix.rphast;
 
 import com.graphhopper.routing.ch.NodeOrderingProvider;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
-import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
+import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
+import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.util.DebugUtility;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
+import org.junit.Test;
 
-import static com.graphhopper.util.GHUtility.getEdge;
+import static org.junit.Assert.assertEquals;
 
 public class RPHASTMatrixTest {
-    private final TraversalMode tMode = TraversalMode.NODE_BASED;
-    private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
+    private final CarFlagEncoder carEncoder = new CarFlagEncoder().setSpeedTwoDirections(true);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
-    private final CHConfig chConfig = new CHConfig("c", weighting, false, CHConfig.TYPE_CORE);
+    private final CHConfig chConfig = CHConfig.nodeBased("c", weighting);
     private GraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
 
-    private void addRestrictedTurn(GraphHopperStorage g, int from, int via, int to) {
-        setTurnCost(g, Double.POSITIVE_INFINITY, from, via, to);
-    }
-
-    private void setTurnCost(GraphHopperStorage g, double cost, int from, int via, int to) {
-        g.getTurnCostStorage().set(((EncodedValueLookup) g.getEncodingManager()).getDecimalEncodedValue(TurnCost.key(carEncoder.toString())), getEdge(g, from, via).getEdge(), via, getEdge(g, via, to).getEdge(), cost);
-    }
-
     @Before
     public void setUp() {
-        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+        g = createGHStorage();
         routingCHGraph = g.getRoutingCHGraph();
     }
 
-    private PrepareContractionHierarchies createPrepareContractionHierarchies(GraphHopperStorage g) {
-        return createPrepareContractionHierarchies(g, chConfig);
+    private GraphHopperStorage createGHStorage() {
+        return createGHStorage(chConfig);
     }
 
-    private PrepareContractionHierarchies createPrepareContractionHierarchies(GraphHopperStorage g, CHConfig p) {
-        g.freeze();
-        return PrepareContractionHierarchies.fromGraphHopperStorage(g, p);
+    private GraphHopperStorage createGHStorage(CHConfig c) {
+        return new GraphBuilder(encodingManager).setCHConfigs(c).create();
     }
 
-    private void useNodeOrdering(PrepareContractionHierarchies prepare, int[] nodeOrdering) {
-        prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
-    }
-
-    private void contractGraph(EdgeFilter restrictedEdges) {
-        contractGraph(restrictedEdges, null);
-    }
-
-    private void contractGraph(EdgeFilter restrictedEdges, int[] nodeOrdering) {
-        g.freeze();
-
-        PrepareCore prepare = new PrepareCore(g, chConfig, restrictedEdges);
-
-        if (nodeOrdering != null)
-            prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
-
-        // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
-        //prepare.setParams(new PMap(CONTRACTED_NODES+"=100"));
-
-        prepare.doWork();
-
+    private void printGraph() {
         if (DebugUtility.isDebug()) {
             for (int i = 0; i < routingCHGraph.getNodes(); i++)
                 System.out.println("nodeId " + i + " level: " + routingCHGraph.getLevel(i));
@@ -85,15 +55,103 @@ public class RPHASTMatrixTest {
         }
     }
 
-//    @Test
-//    public void testMoreComplexGraph() {
-//        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
-//
-//        int oldCount = routingCHGraph.getEdges();
-//        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(graphHopperStorage);
-//        useNodeOrdering(prepare, new int[]{0, 5, 6, 7, 8, 10, 11, 13, 15, 1, 3, 9, 14, 16, 12, 4, 2});
-//        prepare.doWork();
-//        assertEquals(oldCount, g.getEdges());
-//        assertEquals(oldCount + 7, routingCHGraph.getEdges());
-//    }
+    @Test
+    public void testAddShortcuts() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        printGraph();
+        assertEquals(16, routingCHGraph.getEdges());
+    }
+
+    @Test
+    public void testOneToOne() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting,
+                TraversalMode.NODE_BASED);
+        int[] srcIds = new int[]{1};
+        int[] dstIds = new int[]{5};
+        algorithm.prepare(srcIds, dstIds);
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+        assertEquals(6.0, destTrees[0].getItem(0).getWeight(), 1e-6);
+    }
+
+    @Test
+    public void testOneToMany() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting,
+                TraversalMode.NODE_BASED);
+        int[] srcIds = new int[]{1};
+        int[] dstIds = new int[]{4, 5, 6, 7};
+        algorithm.prepare(srcIds, dstIds);
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+        assertEquals(5.0, destTrees[0].getItem(0).getWeight(), 1e-6);
+        assertEquals(6.0, destTrees[1].getItem(0).getWeight(), 1e-6);
+        assertEquals(6.0, destTrees[2].getItem(0).getWeight(), 1e-6);
+        assertEquals(5.0, destTrees[3].getItem(0).getWeight(), 1e-6);
+    }
+
+    @Test
+    public void testManyToOne() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting,
+                TraversalMode.NODE_BASED);
+        int[] srcIds = new int[]{4, 5, 6, 7};
+        int[] dstIds = new int[]{1};
+        algorithm.prepare(srcIds, dstIds);
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+        assertEquals(5.0, destTrees[0].getItem(0).getWeight(), 1e-6);
+        assertEquals(6.0, destTrees[0].getItem(1).getWeight(), 1e-6);
+        assertEquals(6.0, destTrees[0].getItem(2).getWeight(), 1e-6);
+        assertEquals(5.0, destTrees[0].getItem(3).getWeight(), 1e-6);
+    }
+
+    @Test
+    public void testManyToMany() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting,
+                TraversalMode.NODE_BASED);
+        int[] srcIds = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+        int[] dstIds = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+        algorithm.prepare(srcIds, dstIds);
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+        float[] expected = new float[]{
+                0.0f, 1.0f, 1.0f, 3.0f, 5.0f, 5.0f, 6.0f, 4.0f, 1.0f,
+                1.0f, 0.0f, 1.0f, 3.0f, 5.0f, 6.0f, 6.0f, 5.0f, 2.0f,
+                1.0f, 1.0f, 0.0f, 2.0f, 4.0f, 5.0f, 5.0f, 5.0f, 2.0f,
+                3.0f, 3.0f, 2.0f, 0.0f, 2.0f, 3.0f, 3.0f, 4.0f, 4.0f,
+                5.0f, 5.0f, 4.0f, 2.0f, 0.0f, 1.0f, 1.0f, 2.0f, 5.0f,
+                5.0f, 6.0f, 5.0f, 3.0f, 1.0f, 0.0f, 2.0f, 1.0f, 4.0f,
+                6.0f, 6.0f, 5.0f, 3.0f, 1.0f, 2.0f, 0.0f, 2.0f, 5.0f,
+                4.0f, 5.0f, 5.0f, 4.0f, 2.0f, 1.0f, 2.0f, 0.0f, 3.0f,
+                1.0f, 2.0f, 2.0f, 4.0f, 5.0f, 4.0f, 5.0f, 3.0f, 0.0f
+        };
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                assertEquals(expected[i * 9 + j], destTrees[j].getItem(i).getWeight(), 1e-6);
+            }
+        }
+    }
+
+
+    private PrepareContractionHierarchies createPrepareContractionHierarchies(GraphHopperStorage g) {
+        return createPrepareContractionHierarchies(g, chConfig);
+    }
+
+    private PrepareContractionHierarchies createPrepareContractionHierarchies(GraphHopperStorage g, CHConfig p) {
+        g.freeze();
+        return PrepareContractionHierarchies.fromGraphHopperStorage(g, p);
+    }
+
+    private void useNodeOrdering(PrepareContractionHierarchies prepare, int[] nodeOrdering) {
+        prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
+    }
 }

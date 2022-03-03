@@ -6,7 +6,6 @@ import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -29,7 +28,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class CoreMatrixTest {
-    private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private Weighting weighting = new ShortestWeighting(carEncoder);
@@ -1136,7 +1134,7 @@ public class CoreMatrixTest {
 
         MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-        
+
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
         try {
