@@ -1032,6 +1032,7 @@ public class RoutingProfile {
 
             if (searchParams.hasMaximumSpeed()) {
                 req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
+                req.getHints().putObject("maximum_speed_lower_bound", config.getMaximumSpeedLowerBound());
             }
 
             if (directedSegment) {

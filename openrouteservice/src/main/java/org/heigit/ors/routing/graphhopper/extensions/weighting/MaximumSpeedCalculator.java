@@ -18,10 +18,10 @@ import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Speed calculator to limit the speed during routing according to the maximum speed set by user.
- *
+ * @deprecated Use {@link OrsMaximumSpeedCalculator} instead
  * @author Andrzej Oles
  */
-
+@Deprecated
 public class MaximumSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     private final double userMaxSpeed;
 
