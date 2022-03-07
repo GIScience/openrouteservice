@@ -86,13 +86,10 @@ public class RoutingProfile {
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_RECOMMENDED = "recommended";
-    private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
     private static final String KEY_LM_DISABLE = "lm.disable";
     private static final String KEY_CORE_DISABLE = "core.disable";
-    private static final String KEY_PREPARE_CH_WEIGHTINGS = "prepare.ch.weightings";
-    private static final String KEY_PREPARE_LM_WEIGHTINGS = "prepare.lm.weightings";
     private static final String KEY_PREPARE_CORE_WEIGHTINGS = "prepare.core.weightings";
     private static final String KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS = "prepare.fastisochrone.weightings";
     private static final String KEY_METHODS_CH = "methods.ch";
@@ -1061,26 +1058,21 @@ public class RoutingProfile {
      */
     private void setWeighting(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
         //Defaults
-        String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
 
         if (requestWeighting == WeightingMethod.SHORTEST)
-            weighting = weightingMethod = VAL_SHORTEST;
+            weightingMethod = VAL_SHORTEST;
 
         //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
-                weighting = VAL_FASTEST;
                 weightingMethod = VAL_FASTEST;
             }
             if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)) {
-                weighting = VAL_RECOMMENDED;
                 weightingMethod = VAL_RECOMMENDED;
             }
         }
 
-        // TODO: not permitted with GH-4.0; remove this line if it works: map.putObject(KEY_WEIGHTING, weighting);
-        map.putObject(KEY_WEIGHTING, weighting);
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
