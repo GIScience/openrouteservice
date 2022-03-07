@@ -49,8 +49,7 @@ import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
-import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
@@ -404,6 +403,15 @@ public class RoutingProfile {
         return hasCHProfile;
     }
 
+    private boolean hasCoreProfile(String profileName) {
+        boolean hasCoreProfile = false;
+        for (CHProfile chProfile : getGraphhopper().getCorePreparationHandler().getCHProfiles()) {
+            if (profileName.equals(chProfile.getProfile()))
+                hasCoreProfile = true;
+        }
+        return hasCoreProfile;
+    }
+
     public long getCapacity() {
         GraphHopperStorage graph = mGraphHopper.getGraphHopperStorage();
         return graph.getCapacity(); // TODO: how to deal with + graph.getExtension().getCapacity();
@@ -612,67 +620,108 @@ public class RoutingProfile {
         return result;
     }
 
+    /**
+     * Compute a NxM matrix from a request using any of the three available approaches.
+     * For performance reasons, RPHAST is preferred over CoreMatrix, which is preferred over DijkstraMatrix, depending on request conditions.
+     *
+     * @param req The MatrixRequest object containing details which define which approach should be used.
+     * @return A MatrixResult object, possibly with both time and distance values for all combinations of N and M input locations
+     * @throws Exception
+     */
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        MatrixResult mtxResult;
-
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();
         int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        String weightingName = hintsMap.getString("weighting", "");
-        String profileName = makeProfileName(encoderName, weightingName);
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""));
 
         //TODO probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
-        MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
         try {
-            boolean hasCHProfile = hasCHProfile(profileName);
-            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile) {
+            // RPHAST
+            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile(profileName)) {
                 return computeRPHASTMatrix(req, gh, flagEncoder, profileName);
             }
             // Core
-//            else if (req.getSearchParameters().getDynamicSpeeds() && ((ORSGraphHopper) (gh)).isCoreAvailable(weighting.getName())) {
-            //TODO how to get graph
-//                RoutingCHGraph graph = gh.getGraphHopperStorage().getCoreGraph(weighting);
-//                RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-//                PMap additionalHints = (PMap) searchCntx.getProperties();
-//                EdgeFilter edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
-//
-//                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-//                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-//
-//                weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
-//                if (weighting instanceof TurnWeighting)
-//                    ((TurnWeighting) weighting).setInORS(true);
-//                ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
-//                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-//                return mtxResult;
-//                return null;
-//            }
-            // ALT
+            //TODO check whether hasCoreProfile is equivalent to isCoreAvailable
+            else if (req.getSearchParameters().getDynamicSpeeds() && hasCoreProfile(profileName)) { //&& ((ORSGraphHopper) (gh)).isCoreAvailable(weightingName)) {
+                return computeCoreMatrix();
+            }
+            // Dijkstra
             else {
-//                Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-//                MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-//                MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-//                alg.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-//                mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-//                return mtxResult;
-                return null;
+                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, profileName);
             }
         } catch (Exception ex) {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }
     }
 
+    /**
+     * Compute a matrix based on a contraction hierarchies graph using the RPHAST algorithm. This is fast, but inflexible.
+     *
+     * @param req
+     * @param gh
+     * @param flagEncoder
+     * @param profileName
+     * @return
+     * @throws Exception
+     */
     private MatrixResult computeRPHASTMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, String profileName) throws Exception {
-        MatrixResult mtxResult;
         RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+
         RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
-        mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        MatrixResult mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        return mtxResult;
+    }
+
+    /**
+     * Compute a matrix based on a core contracted graph, which is slower than RPHAST, but offers all the flexibility of the core
+     *
+     * @return
+     */
+    private MatrixResult computeCoreMatrix() {
+//        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
+//        RoutingCHGraph graph = this.mGraphHopper.getGraphHopperStorage().getCoreGraph(weighting);
+//        RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+//        PMap additionalHints = (PMap) searchCntx.getProperties();
+//        EdgeFilter edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
+//
+//        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
+//        MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+//
+//        weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
+//        if (weighting instanceof TurnWeighting)
+//            ((TurnWeighting) weighting).setInORS(true);
+//        ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
+//        mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+//        return mtxResult;
+        return null;
+    }
+
+    /**
+     * Compute a matrix based on the normal graph. Slow, but highly flexible in terms of request parameters.
+     *
+     * @param req
+     * @param gh
+     * @param flagEncoder
+     * @param hintsMap
+     * @param profileName
+     * @return
+     * @throws Exception
+     */
+    private MatrixResult computeDijkstraMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
+        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
+        Weighting weighting = new OrsWeightingFactoryGh4(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+
+        DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
+        algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
+        MatrixResult mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
         return mtxResult;
     }
 
@@ -837,8 +886,7 @@ public class RoutingProfile {
         return rsi;
     }
 
-    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations,
-                                                          double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
+    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations, double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
         if (mMapMatcher == null) {
             mMapMatcher = new HiddenMarkovMapMatcher();
             mMapMatcher.setGraphHopper(mGraphHopper);
