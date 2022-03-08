@@ -1128,7 +1128,7 @@ public class RoutingProfile {
         }
 
         // TODO: not permitted with GH-4.0; remove this line if it works: map.putObject(KEY_WEIGHTING, weighting);
-        map.putObject(KEY_WEIGHTING, weighting);
+//        map.putObject(KEY_WEIGHTING, weighting);
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
