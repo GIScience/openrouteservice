@@ -668,11 +668,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
-	// TODO: orphan method
-//	public EdgeFilterFactory getEdgeFilterFactory() {
-//		return this.edgeFilterFactory;
-//	}
-
 	/**
 	 * Enables or disables core calculation.
 	 */

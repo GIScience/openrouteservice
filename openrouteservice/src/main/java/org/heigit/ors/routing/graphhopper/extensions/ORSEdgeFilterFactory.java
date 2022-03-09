@@ -48,12 +48,12 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     
             /* Heavy vehicle filter */
             if (opts.has("edgefilter_hgv")) {
-                edgeFilters.add(new HeavyVehicleEdgeFilter(opts.getInt("edgefilter_hgv", 0), opts.getObject("routing_profile_opts", new VehicleParameters()), gs));
+                edgeFilters.add(new HeavyVehicleEdgeFilter(opts.getInt("edgefilter_hgv", 0), opts.getObject("routing_profile_params", new VehicleParameters()), gs));
             }
 
             /* Wheelchair filter */
             else if (opts.has("edgefilter_wheelchair")) {
-                edgeFilters.add(new WheelchairEdgeFilter(opts.getObject("routing_profile_opts", new WheelchairParameters()), gs));
+                edgeFilters.add(new WheelchairEdgeFilter(opts.getObject("routing_profile_params", new WheelchairParameters()), gs));
             }
     
             /* Avoid features */
