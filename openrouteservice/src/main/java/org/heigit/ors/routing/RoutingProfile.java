@@ -634,6 +634,7 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();
         int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
+        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
         String profileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""));
 
@@ -735,7 +736,7 @@ public class RoutingProfile {
 
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
-        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
+        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
         Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
@@ -938,7 +939,7 @@ public class RoutingProfile {
                 req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType))
-                setWeighting(req.getHints(), weightingMethod, profileType, false);
+                setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
@@ -1009,7 +1010,7 @@ public class RoutingProfile {
                 req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeighting(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+                setWeightingMethod(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
                 if (requiresTimeDependentWeighting(searchParams, searchCntx))
                     flexibleMode = KEY_FLEX_PREPROCESSED;
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
@@ -1100,8 +1101,37 @@ public class RoutingProfile {
     }
 
     /**
+     * Set the weightingMethod for the request based on input weighting.
+     *
+     * @param map              Hints map for setting up the request
+     * @param requestWeighting Originally requested weighting
+     * @param profileType      Necessary for HGV
+     */
+    private void setWeightingMethod(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
+        //Defaults
+        String weightingMethod = VAL_RECOMMENDED;
+
+        if (requestWeighting == WeightingMethod.SHORTEST)
+            weightingMethod = VAL_SHORTEST;
+
+        //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
+        if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
+            if (profileType == RoutingProfileType.DRIVING_CAR) {
+                weightingMethod = VAL_FASTEST;
+            }
+            if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)) {
+                weightingMethod = VAL_RECOMMENDED;
+            }
+        }
+
+        map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
+
+        if (hasTimeDependentSpeed)
+            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
+    }
+
+    /**
      * Set the weighting for the request based on input weighting.
-     * Also set the weighting_method.
      *
      * @param map              Hints map for setting up the request
      * @param requestWeighting Originally requested weighting
@@ -1110,26 +1140,21 @@ public class RoutingProfile {
     private void setWeighting(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
         //Defaults
         String weighting = VAL_RECOMMENDED;
-        String weightingMethod = VAL_RECOMMENDED;
 
         if (requestWeighting == WeightingMethod.SHORTEST)
-            weighting = weightingMethod = VAL_SHORTEST;
+            weighting = VAL_SHORTEST;
 
         //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
         if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
             if (profileType == RoutingProfileType.DRIVING_CAR) {
                 weighting = VAL_FASTEST;
-                weightingMethod = VAL_FASTEST;
             }
             if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)) {
                 weighting = VAL_RECOMMENDED;
-                weightingMethod = VAL_RECOMMENDED;
             }
         }
 
-        // TODO: not permitted with GH-4.0; remove this line if it works: map.putObject(KEY_WEIGHTING, weighting);
-//        map.putObject(KEY_WEIGHTING, weighting);
-        map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
+        map.putObject(KEY_WEIGHTING, weighting);
 
         if (hasTimeDependentSpeed)
             map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
