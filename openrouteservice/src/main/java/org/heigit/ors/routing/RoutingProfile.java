@@ -85,13 +85,10 @@ public class RoutingProfile {
     private static final String VAL_SHORTEST = "shortest";
     private static final String VAL_FASTEST = "fastest";
     private static final String VAL_RECOMMENDED = "recommended";
-    private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     private static final String KEY_CH_DISABLE = "ch.disable";
     private static final String KEY_LM_DISABLE = "lm.disable";
     private static final String KEY_CORE_DISABLE = "core.disable";
-    private static final String KEY_PREPARE_CH_WEIGHTINGS = "prepare.ch.weightings";
-    private static final String KEY_PREPARE_LM_WEIGHTINGS = "prepare.lm.weightings";
     private static final String KEY_PREPARE_CORE_WEIGHTINGS = "prepare.core.weightings";
     private static final String KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS = "prepare.fastisochrone.weightings";
     private static final String KEY_METHODS_CH = "methods.ch";

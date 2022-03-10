@@ -629,7 +629,7 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
-		if(fastIsochroneFactory.isEnabled()) {
+		if(false && fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
 			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
 			try {
 				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
@@ -646,7 +646,7 @@ public class ORSGraphHopper extends GraphHopper {
 				fastIsochroneFactory.getIsochroneNodeStorage().loadExisting();
 			}
 			//No fast isochrones without partition
-			if (false && isPartitionPrepared()) { //TODO: enable only once the other TODO below is addressed
+			if (isPartitionPrepared()) {
 				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
 				List<CHProfile> chProfiles = new ArrayList<>();
@@ -667,11 +667,6 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 	}
-
-	// TODO: orphan method
-//	public EdgeFilterFactory getEdgeFilterFactory() {
-//		return this.edgeFilterFactory;
-//	}
 
 	/**
 	 * Enables or disables core calculation.
