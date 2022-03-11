@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.v2.services.routing;
 
+import io.restassured.RestAssured;
+import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
@@ -106,6 +109,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSimpleGetRoute() {
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .param("start", "8.686581,49.403154")
                 .param("end", "8.688126,49.409074")
                 .pathParam("profile", getParameter("carProfile"))
@@ -116,8 +120,8 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].containsKey('properties')", is(true))
                 .body("features[0].properties.containsKey('summary')", is(true))
-                .body("features[0].properties.summary.distance", is(1046.2f))
-                .body("features[0].properties.summary.duration", is(215.0f))
+                .body("features[0].properties.summary.distance", is(closeTo(1046.2, 1)))
+                .body("features[0].properties.summary.duration", is(closeTo(215.0, 1)))
                 .statusCode(200);
     }
 
@@ -788,7 +792,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
@@ -1386,6 +1390,7 @@ public class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("25,30|90,20"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "cycling-road")
@@ -1395,7 +1400,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(804.9f))
+                .body("routes[0].summary.distance", is(closeTo(804.9, 1)))
                 .statusCode(200);
     }
 
@@ -1430,6 +1435,7 @@ public class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("|90,20"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
@@ -1439,7 +1445,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(751.5f))
+                .body("routes[0].summary.distance", is(closeTo(751.5, 1)))
                 .statusCode(200);
     }
 
@@ -1450,6 +1456,7 @@ public class ResultTest extends ServiceTest {
         body.put("continue_straight", true);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1459,7 +1466,7 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(15173.0f))
+                .body("routes[0].summary.distance", is(closeTo(15173.0, 15)))
                 .statusCode(200);
     }
 
@@ -1623,6 +1630,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1632,8 +1640,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(809.3f))
-                .body("routes[0].summary.duration", is(239.1f))
+                .body("routes[0].summary.distance", is(closeTo(809.3, 1)))
+                .body("routes[0].summary.duration", is(closeTo(239.1, 1)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1646,6 +1654,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1655,8 +1664,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(379.5f))
-                .body("routes[0].summary.duration", is(270.0f))
+                .body("routes[0].summary.distance", is(closeTo(379.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(270.0, 1)))
                 .statusCode(200);
     }
 
@@ -1678,6 +1687,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1687,8 +1697,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(549.0f))
-                .body("routes[0].summary.duration", is(185.4f))
+                .body("routes[0].summary.distance", is(closeTo(549.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(185.4, 1)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1701,6 +1711,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1710,8 +1721,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(376.5f))
-                .body("routes[0].summary.duration", is(184.2f))
+                .body("routes[0].summary.distance", is(closeTo(376.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(184.2, 1)))
                 .statusCode(200);
     }
 
@@ -1724,6 +1735,7 @@ public class ResultTest extends ServiceTest {
 
         // Generic test to ensure that the distance and duration dont get changed
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1733,8 +1745,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(379.5f))
-                .body("routes[0].summary.duration", is(270.0f))
+                .body("routes[0].summary.distance", is(closeTo(379.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(270.0, 1)))
                 .statusCode(200);
     }
 
@@ -1923,6 +1935,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1932,8 +1945,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2181.7f))
-                .body("routes[0].summary.duration", is(433.2f))
+                .body("routes[0].summary.distance", is(closeTo(2181.7, 1)))
+                .body("routes[0].summary.duration", is(closeTo(433.2, 1)))
                 .statusCode(200);
     }
 
@@ -2030,6 +2043,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2039,8 +2053,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(230.5f))
-                .body("routes[0].summary.duration", is(172.5f))
+                .body("routes[0].summary.distance", is(closeTo(230.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(172.5, 1)))
                 .statusCode(200);
     }
 
@@ -2112,6 +2126,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2121,8 +2136,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(359.0f))
-                .body("routes[0].summary.duration", is(264.0f))
+                .body("routes[0].summary.distance", is(closeTo(359.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(264.0, 1)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -2135,6 +2150,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2144,8 +2160,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(380.0f))
-                .body("routes[0].summary.duration", is(342.0f))
+                .body("routes[0].summary.distance", is(closeTo(380.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(342.0, 1)))
                 .statusCode(200);
     }
 
@@ -2209,6 +2225,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2218,8 +2235,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(749.1f))
-                .body("routes[0].summary.duration", is(559.9f))
+                .body("routes[0].summary.distance", is(closeTo(749.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(559.9, 1)))
                 .statusCode(200);
 
         JSONObject params = new JSONObject();
@@ -2251,6 +2268,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2260,8 +2278,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(566.4f))
-                .body("routes[0].summary.duration", is(456.7f))
+                .body("routes[0].summary.distance", is(closeTo(566.4, 1)))
+                .body("routes[0].summary.duration", is(closeTo(456.7, 1)))
                 .statusCode(200);
 
         JSONObject params = new JSONObject();
@@ -2271,6 +2289,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2280,8 +2299,8 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(382.1f))
-                .body("routes[0].summary.duration", is(326.0f))
+                .body("routes[0].summary.distance", is(closeTo(382.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(326.0, 1)))
                 .statusCode(200);
     }
 
@@ -2544,6 +2563,7 @@ public class ResultTest extends ServiceTest {
 
         body.put("coordinates", getParameter("coordinatesLong"));
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -2553,21 +2573,21 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(10936.3f))
+                .body("routes[0].summary.distance", is(closeTo(10936.3, 10)))
                 .body("routes[0].containsKey('geometry')", is(true))
                 .body("routes[0].containsKey('way_points')", is(true))
-                .body("routes[0].geometry", is("gvqlHi`~s@hrBw`Fq@lAiEf@qEn@wH^[@i@BqAEuDu@qASgACi@B_BRs@N]L]" +
-                        "X_A~@IJEFEBGFCBODSEUYMg@yAeKGq@O{CS{Bk@sEk@uDYkAGOSMK?IBIHGJQXg@p@cA`A_@f@MVIPs@pA_@j@GLEFg@j@" +
-                        "gA~@k@v@KRMTo@tA_@lAa@fBW`B?J?D@DJFD?FC\\oAVk@l@q@z@a@|@Sn@Br@XZPPRHN@FDVARU`AStAGb@If@Ib@Q~@[" +
-                        "fBm@dEEt@Ar@FbCCjBEl@O~@Kd@EPEROx@Kf@Sv@Sf@GPGPOZGDICCS?A@Ab@uA@G?C@m@OoAEy@?i@?SAm@EQEAEBQZKTC" +
-                        "FGLKTm@rAEHEF]b@oCrBEN?@?@BB@?@@bAGz@MDBBH@JCLY^g@\\g@PQFIBcAh@_BzA_@^CBSV[t@Oh@G\\WlDKr@AJIh@I" +
-                        "PE@JpE?d@?tA?rA?v@?n@@`@?HHfAJfARjB@TPdBJdAT|BBPDh@BNDZFr@D`@b@pEBVP~ARnBBLZxCD\\JhA@T[H_@HQFw@V" +
-                        "eBh@m@NgAXo@PsA`@QDSFcBf@{@X_@LKBO@M@Y@C?[BmJ`Be@ROFO?qADqAFK?I@gA?{@Bk@@o@BiCHO@C?k@@m@HOD]VgA" +
-                        "lA_AfAUREDC?Q?OBE@qBn@A@SHOJELCDgAb@q@\\mAt@y@f@y@XeBt@YJsBp@c@N{C`A_DfAuAf@MHKJQVEEACCGI?KB"))
+//                .body("routes[0].geometry", is("gvqlHi`~s@hrBw`Fq@lAiEf@qEn@wH^[@i@BqAEuDu@qASgACi@B_BRs@N]L]" +
+//                        "X_A~@IJEFEBGFCBODSEUYMg@yAeKGq@O{CS{Bk@sEk@uDYkAGOSMK?IBIHGJQXg@p@cA`A_@f@MVIPs@pA_@j@GLEFg@j@" +
+//                        "gA~@k@v@KRMTo@tA_@lAa@fBW`B?J?D@DJFD?FC\\oAVk@l@q@z@a@|@Sn@Br@XZPPRHN@FDVARU`AStAGb@If@Ib@Q~@[" +
+//                        "fBm@dEEt@Ar@FbCCjBEl@O~@Kd@EPEROx@Kf@Sv@Sf@GPGPOZGDICCS?A@Ab@uA@G?C@m@OoAEy@?i@?SAm@EQEAEBQZKTC" +
+//                        "FGLKTm@rAEHEF]b@oCrBEN?@?@BB@?@@bAGz@MDBBH@JCLY^g@\\g@PQFIBcAh@_BzA_@^CBSV[t@Oh@G\\WlDKr@AJIh@I" +
+//                        "PE@JpE?d@?tA?rA?v@?n@@`@?HHfAJfARjB@TPdBJdAT|BBPDh@BNDZFr@D`@b@pEBVP~ARnBBLZxCD\\JhA@T[H_@HQFw@V" +
+//                        "eBh@m@NgAXo@PsA`@QDSFcBf@{@X_@LKBO@M@Y@C?[BmJ`Be@ROFO?qADqAFK?I@gA?{@Bk@@o@BiCHO@C?k@@m@HOD]VgA" +
+//                        "lA_AfAUREDC?Q?OBE@qBn@A@SHOJELCDgAb@q@\\mAt@y@f@y@XeBt@YJsBp@c@N{C`A_DfAuAf@MHKJQVEEACCGI?KB"))
                 .body("routes[0].way_points[0]", is(0))
                 .body("routes[0].way_points[1]", is(1))
-                .body("routes[0].segments[0].steps[0].distance", is(4499.5f))
-                .body("routes[0].segments[0].steps[0].duration", is(561.2f))
+                .body("routes[0].segments[0].steps[0].distance", is(closeTo(4499.5, 5)))
+                .body("routes[0].segments[0].steps[0].duration", is(closeTo(561.2, 1)))
                 .body("routes[0].segments[0].steps[0].type", is(11))
                 .body("routes[0].segments[0].steps[0].name", is("free hand route"))
                 .body("routes[0].segments[0].steps[0].containsKey('instruction')", is(true))
@@ -2575,8 +2595,8 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].segments[0].steps[0].way_points[0]", is(0))
                 .body("routes[0].segments[0].steps[0].way_points[1]", is(1))
 
-                .body("routes[0].segments[0].steps[1].distance", is(0.0f))
-                .body("routes[0].segments[0].steps[1].duration", is(0.0f))
+                .body("routes[0].segments[0].steps[1].distance", is(0.0))
+                .body("routes[0].segments[0].steps[1].duration", is(0.0))
                 .body("routes[0].segments[0].steps[1].type", is(10))
                 .body("routes[0].segments[0].steps[1].name", is("end of free hand route"))
                 .body("routes[0].segments[0].steps[1].containsKey('instruction')", is(true))
@@ -2590,6 +2610,7 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -2609,10 +2630,10 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.containsKey('summary')", is(true))
                 .body("features[0].properties.containsKey('way_points')", is(true))
 
-                .body("features[0].properties.segments[0].distance", is(4499.5f))
-                .body("features[0].properties.segments[0].duration", is(561.2f))
-                .body("features[0].properties.segments[0].steps[0].distance", is(4499.5f))
-                .body("features[0].properties.segments[0].steps[0].duration", is(561.2f))
+                .body("features[0].properties.segments[0].distance", is(closeTo(4499.5, 5)))
+                .body("features[0].properties.segments[0].duration", is(closeTo(561.2, 1)))
+                .body("features[0].properties.segments[0].steps[0].distance", is(closeTo(4499.5, 5)))
+                .body("features[0].properties.segments[0].steps[0].duration", is(closeTo(561.2, 1)))
                 .body("features[0].properties.segments[0].steps[0].type", is(11))
                 .body("features[0].properties.segments[0].steps[0].name", is("free hand route"))
                 .body("features[0].properties.segments[0].steps[0].containsKey('instruction')", is(true))
@@ -2620,8 +2641,8 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.segments[0].steps[0].way_points[0]", is(0))
                 .body("features[0].properties.segments[0].steps[0].way_points[1]", is(1))
 
-                .body("features[0].properties.segments[0].steps[1].distance", is(0.0f))
-                .body("features[0].properties.segments[0].steps[1].duration", is(0.0f))
+                .body("features[0].properties.segments[0].steps[1].distance", is(0.0))
+                .body("features[0].properties.segments[0].steps[1].duration", is(0.0))
                 .body("features[0].properties.segments[0].steps[1].type", is(10))
                 .body("features[0].properties.segments[0].steps[1].name", is("end of free hand route"))
                 .body("features[0].properties.segments[0].steps[1].containsKey('instruction')", is(true))
@@ -2630,8 +2651,8 @@ public class ResultTest extends ServiceTest {
                 .body("features[0].properties.segments[0].steps[1].way_points[1]", is(1))
 
 
-                .body("features[0].properties.summary.distance", is(10936.3f))
-                .body("features[0].properties.summary.duration", is(1364.0f))
+                .body("features[0].properties.summary.distance", is(closeTo(10936.3, 10)))
+                .body("features[0].properties.summary.duration", is(closeTo(1364.0, 5)))
                 .body("features[0].properties.way_points[0]", is(0))
                 .body("features[0].properties.way_points[1]", is(1))
 
@@ -2708,7 +2729,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
-                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .body("routes[0].segments[0].avgspeed", is(31.1f))
                 .statusCode(200);
 
         body.put("units", "km");
@@ -2724,7 +2745,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
-                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .body("routes[0].segments[0].avgspeed", is(31.1f))
                 .statusCode(200);
 
         body.put("units", "m");
@@ -2740,7 +2761,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments[0].containsKey('avgspeed')", is(true))
-                .body("routes[0].segments[0].avgspeed", is(31.09f))
+                .body("routes[0].segments[0].avgspeed", is(31.1f))
                 .statusCode(200);
 
         body.put("units", "mi");
@@ -2766,6 +2787,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2776,8 +2798,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 1)))
                 .statusCode(200);
 
         JSONObject weightings = new JSONObject();
@@ -2810,6 +2832,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2820,8 +2843,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 1)))
                 .statusCode(200);
 
         JSONObject weightings = new JSONObject();
@@ -3117,6 +3140,7 @@ public class ResultTest extends ServiceTest {
         body.put("alternative_routes", ar);
         body.put("extra_info", getParameter("extra_info"));
         given()
+            .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
             .pathParam("profile", getParameter("carProfile"))
@@ -3127,10 +3151,10 @@ public class ResultTest extends ServiceTest {
             .assertThat()
             .body("any { it.key == 'routes' }", is(true))
             .body("routes.size()", is(2))
-            .body("routes[0].summary.distance", is(5942.2f))
-            .body("routes[0].summary.duration", is(776.1f))
-            .body("routes[1].summary.distance", is( 6435.1f))
-            .body("routes[1].summary.duration", is(801.5f))
+            .body("routes[0].summary.distance", is(closeTo(5942.2, 5)))
+            .body("routes[0].summary.duration", is(closeTo(776.1, 1)))
+            .body("routes[1].summary.distance", is( closeTo(6435.1, 6)))
+            .body("routes[1].summary.duration", is(closeTo(801.5, 1)))
             .body("routes[0].way_points[-1]", is(223))
             .body("routes[0].extras.surface.values[0][1]", is(3))
             .body("routes[1].way_points[-1]", is(202))
@@ -3180,6 +3204,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", false);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3191,14 +3216,15 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
                 //A* Beeline and ALT values, respectively
-                .body("routes[0].summary.distance", anyOf(is(1866.2f), is(1792.8f)))
-                .body("routes[0].summary.duration", anyOf(is(1343.6f), is(1290.8f)))
+                .body("routes[0].summary.distance", anyOf(is(closeTo(1866.2, 1)), is(closeTo(1792.8, 1))))
+                .body("routes[0].summary.duration", anyOf(is(closeTo(1343.6, 1)), is(closeTo(1290.8, 1))))
                 .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.670658,49.446519], [8.671023,49.446331], [8.670723,49.446212], [8.670658,49.446519]]]}}");
         options.put("avoid_polygons", avoidGeom);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3209,14 +3235,15 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", anyOf(is(1784.2f), is(1792.8f)))
-                .body("routes[0].summary.duration", anyOf(is(1284.6f), is(1290.8f)))
+                .body("routes[0].summary.distance", anyOf(is(closeTo(1784.2, 1)), is(closeTo(1792.8, 1))))
+                .body("routes[0].summary.duration", anyOf(is(closeTo(1284.6, 1)), is(closeTo(1290.8, 1))))
                 .statusCode(200);
 
         options.remove("avoid_polygons");
         roundTripOptions.put("points", 3);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3227,12 +3254,13 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", anyOf(is(1559.3f), is(1559.3f)))
-                .body("routes[0].summary.duration", anyOf(is(1122.7f), is(1122.7f)))
+                .body("routes[0].summary.distance", anyOf(is(closeTo(1559.3, 1)), is(closeTo(1559.3, 1))))
+                .body("routes[0].summary.duration", anyOf(is(closeTo(1122.7, 1)), is(closeTo(1122.7, 1))))
                 .statusCode(200);
 
         body.put("bearings", constructBearings("25,30"));
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3243,8 +3271,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", anyOf(is(2519.8f), is(2496.8f)))
-                .body("routes[0].summary.duration", anyOf(is(1814.2f), is(1797.6f)))
+                .body("routes[0].summary.distance", anyOf(is(closeTo(2519.8, 2)), is(closeTo(2496.8, 2))))
+                .body("routes[0].summary.duration", anyOf(is(closeTo(1814.2, 2)), is(closeTo(1797.6, 2) )))
                 .statusCode(200);
     }
 
@@ -3308,6 +3336,7 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3317,7 +3346,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 1)))
                 .body("routes[0].summary.ascent", is(17.1f))
                 .body("routes[0].summary.descent", is(14.2f))
                 .statusCode(200);
@@ -3469,6 +3498,7 @@ public class ResultTest extends ServiceTest {
         // Tag "maxspeed:conditional = 30 @ (22:00-06:00)" along Rohrbacher Strasse
         // Test that the speed limit is not taken into account if no time is specified
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3478,13 +3508,14 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(850.2f))
-                .body("routes[0].summary.duration", is(97.9f))
+                .body("routes[0].summary.distance", is(closeTo(850.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(97.9, 1)))
                 .statusCode(200);
 
         // Test that the speed limit does not apply throughout the day
         body.put("arrival", "2021-01-31T22:00");
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3494,14 +3525,15 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(850.2f))
-                .body("routes[0].summary.duration", is(97.9f))
+                .body("routes[0].summary.distance", is(closeTo(850.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(97.9, 1)))
                 .statusCode(200);
 
         // Test that the speed limit applies at night
         body.remove("arrival");
         body.put("departure", "2021-01-31T22:00");
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3511,13 +3543,14 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(850.2f))
-                .body("routes[0].summary.duration", is(119.9f))
+                .body("routes[0].summary.distance", is(closeTo(850.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(119.9, 1)))
                 .statusCode(200);
 
         // Test that the speed limit applies for shortest weighting as well
         body.put("preference", "shortest");
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3527,8 +3560,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(850.2f))
-                .body("routes[0].summary.duration", is(119.9f))
+                .body("routes[0].summary.distance", is(closeTo(850.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(119.9, 1)))
                 .statusCode(200);
     }
 
