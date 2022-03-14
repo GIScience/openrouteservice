@@ -384,7 +384,7 @@ public class RoutingProfile {
         return ghConfig;
     }
 
-    private static String makeProfileName(String vehicleName, String weightingName) {
+    public static String makeProfileName(String vehicleName, String weightingName) {
         return vehicleName + "_" + weightingName;
     }
 
@@ -1171,7 +1171,8 @@ public class RoutingProfile {
         String weighting = mGraphHopper.getProfile(req.getProfile()).getWeighting();
 
         //Priority: CH->Core->ALT
-        useCH = useCH && mGraphHopper.isCHAvailable(weighting);
+
+        useCH = useCH && mGraphHopper.isCHAvailable(req.getEncoderName(), weighting);
         useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(weighting);
         useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(weighting);
 

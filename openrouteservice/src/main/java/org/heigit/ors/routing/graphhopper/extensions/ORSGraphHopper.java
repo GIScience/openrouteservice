@@ -16,9 +16,15 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.*;
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.Router;
+import com.graphhopper.routing.RouterConfig;
+import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.lm.LandmarkStorage;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -60,6 +66,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
+import static org.heigit.ors.routing.RoutingProfile.makeProfileName;
 
 
 public class ORSGraphHopper extends GraphHopper {
@@ -668,6 +675,16 @@ public class ORSGraphHopper extends GraphHopper {
 
 	}
 
+    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    private boolean hasCHProfile(String profileName) {
+        boolean hasCHProfile = false;
+        for (com.graphhopper.config.CHProfile chProfile : getCHPreparationHandler().getCHProfiles()) {
+            if (profileName.equals(chProfile.getProfile()))
+                hasCHProfile = true;
+        }
+        return hasCHProfile;
+    }
+
 	/**
 	 * Enables or disables core calculation.
 	 */
@@ -770,19 +787,13 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 	}
 
-	public final boolean isCHAvailable(String weighting) {
-		// TODO: reimplement, maybe related to CHPreparationHandler
-//		CHAlgoFactoryDecorator chFactoryDecorator = getCHFactoryDecorator();
-//		if (chFactoryDecorator.isEnabled() && chFactoryDecorator.hasCHProfiles()) {
-//			for (CHProfile chProfile : chFactoryDecorator.getCHProfiles()) {
-//				if (weighting.equals(chProfile.getWeighting().getName()))
-//					return true;
-//			}
-//		}
-		return false;
-	}
+    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    public final boolean isCHAvailable(String encoderName, String weighting) {
+        String profileName = makeProfileName(encoderName, weighting);
+        return getCHPreparationHandler().isEnabled() && hasCHProfile(profileName);
+    }
 
-	public final boolean isLMAvailable(String weighting) {
+    public final boolean isLMAvailable(String weighting) {
 		// TODO: reimplement, maybe related to LMPreparationHandler
 //		LMAlgoFactoryDecorator lmFactoryDecorator = getLMFactoryDecorator();
 //		if (lmFactoryDecorator.isEnabled()) {
