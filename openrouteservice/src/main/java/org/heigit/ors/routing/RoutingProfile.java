@@ -230,6 +230,18 @@ public class RoutingProfile {
         boolean prepareCore = false;
         boolean prepareFI = false;
 
+        Integer[] profilesTypes = config.getProfilesTypes();
+        List<Profile> profiles = new ArrayList(profilesTypes.length);
+
+        // TODO: Multiple profiles were used to share the graph  for several
+        //       bike profiles. We don't use this feature now but it might be
+        //       desireable in the future. However, this behavior is standard
+        //       in original GH through an already existing mechanism.
+        if (profilesTypes.length != 1)
+            throw new IllegalStateException("Expected single profile in config");
+
+        String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
+
         ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
         if (config.getIsochronePreparationOpts() != null) {
@@ -270,10 +282,15 @@ public class RoutingProfile {
                     }
 
                     if (prepareCH) {
-//                        if (chOpts.hasPath(KEY_THREADS))
-//                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
-//                        if (chOpts.hasPath(KEY_WEIGHTINGS))
-//                            ghConfig.putObject(KEY_PREPARE_CH_WEIGHTINGS, StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS)));
+                        if (chOpts.hasPath(KEY_THREADS))
+                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
+                        if (chOpts.hasPath(KEY_WEIGHTINGS)) {
+                            List<CHProfile> chProfiles = new ArrayList<>();
+                            String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS));
+                            for (String weighting : chWeightingsString.split(","))
+                                chProfiles.add(new CHProfile(makeProfileName(vehicle, weighting)));
+                            ghConfig.setCHProfiles(chProfiles);
+                        }
                     }
                 }
 
@@ -286,12 +303,17 @@ public class RoutingProfile {
                     }
 
                     if (prepareLM) {
-//                        if (lmOpts.hasPath(KEY_THREADS))
-//                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
-//                        if (lmOpts.hasPath(KEY_WEIGHTINGS))
-//                            ghConfig.putObject(KEY_PREPARE_LM_WEIGHTINGS, StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS)));
-//                        if (lmOpts.hasPath(KEY_LANDMARKS))
-//                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
+                        if (lmOpts.hasPath(KEY_THREADS))
+                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
+                        if (lmOpts.hasPath(KEY_WEIGHTINGS)) {
+                            List<LMProfile> lmProfiles = new ArrayList<>();
+                            String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS));
+                            for (String weighting : lmWeightingsString.split(","))
+                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting)));
+                            ghConfig.setLMProfiles(lmProfiles);
+                        }
+                        if (lmOpts.hasPath(KEY_LANDMARKS))
+                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
                     }
                 }
 
@@ -339,47 +361,19 @@ public class RoutingProfile {
         if (config.getOptimize() && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
-        StringBuilder flagEncoders = new StringBuilder();
-        String[] encoderOpts = !Helper.isEmpty(config.getEncoderOptions()) ? config.getEncoderOptions().split(",") : null;
-        Integer[] profilesTypes = config.getProfilesTypes();
-        List<Profile> profiles = new ArrayList(profilesTypes.length);
-        List<CHProfile> chProfiles = new ArrayList<>();
-        List<LMProfile> lmProfiles = new ArrayList<>();
+        String flagEncoder = vehicle;
+        if(!Helper.isEmpty(config.getEncoderOptions()))
+                flagEncoder += "|" + config.getEncoderOptions();
 
-        // TODO: Multiple profiles were used to share the graph  for several
-        //       bike profiles. We don't use this feature now but it might be
-        //       desireable in the future. However, this behavior is standard
-        //       in original GH through an already existing mechanism.
-        for (int i = 0; i < profilesTypes.length; i++) {
-            String vehicle = RoutingProfileType.getEncoderName(profilesTypes[i]);
-            if (encoderOpts == null)
-                flagEncoders.append(vehicle);
-            else
-                flagEncoders.append(vehicle + "|" + encoderOpts[i]);
-            if (i < profilesTypes.length - 1)
-                flagEncoders.append(",");
+        // TODO: make this list of weightings configurable for each vehicle as in GH
+        String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
+        for (String weighting : weightings)
+            profiles.add(new Profile(makeProfileName(vehicle, weighting)).setVehicle(vehicle).setWeighting(weighting));
 
-            // TODO: make this list of weightings configurable for each vehicle as in GH
-            String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
-            for (String weighting : weightings) {
-                String profileName = makeProfileName(vehicle, weighting);
-
-                profiles.add(new Profile(profileName).setVehicle(vehicle).setWeighting(weighting));
-                if (prepareCH) {
-                    chProfiles.add(new CHProfile(profileName));
-                }
-                if (prepareLM) {
-                    lmProfiles.add(new LMProfile(profileName));
-                }
-            }
-        }
-
-        ghConfig.putObject("graph.flag_encoders", flagEncoders.toString().toLowerCase());
+        ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
         ghConfig.setProfiles(profiles);
-        ghConfig.setCHProfiles(chProfiles);
-        ghConfig.setLMProfiles(lmProfiles);
 
         return ghConfig;
     }
