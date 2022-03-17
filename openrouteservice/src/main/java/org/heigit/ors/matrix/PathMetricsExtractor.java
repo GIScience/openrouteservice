@@ -13,53 +13,21 @@
  */
 package org.heigit.ors.matrix;
 
-import com.graphhopper.coll.GHLongObjectHashMap;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 public class PathMetricsExtractor {
-	private class MetricsItem {
-		private double time;
-		private double distance;
-		private double weight;
-
-		public double getTime() {
-			return time;
-		}
-
-		public void setTime(double time) {
-			this.time = time;
-		}
-
-		public double getDistance() {
-			return distance;
-		}
-
-		public void setDistance(double distance) {
-			this.distance = distance;
-		}
-
-		public double getWeight() {
-			return weight;
-		}
-
-		public void setWeight(double weight) {
-			this.weight = weight;
-		}
-	}
-
 	private final int metrics;
 	private final Graph graph;
 	private RoutingCHGraph chGraph;
@@ -71,7 +39,6 @@ public class PathMetricsExtractor {
 	private final DistanceUnit distUnits;
 	private boolean reverseOrder = true;
 	private static final boolean UNPACK_DISTANCE = false;
-	private final GHLongObjectHashMap<MetricsItem> edgeMetrics;
 
 	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units) {
 		this.metrics = metrics;
@@ -79,7 +46,6 @@ public class PathMetricsExtractor {
 		this.weighting = weighting;
 		timeWeighting = new FastestWeighting(encoder);
 		distUnits = units;
-		edgeMetrics = new GHLongObjectHashMap<>();
 
 		if (graph instanceof RoutingCHGraph)
 			chGraph = (RoutingCHGraph)graph;
@@ -103,7 +69,7 @@ public class PathMetricsExtractor {
 		}
 	}
 
-	public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception {
+	public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws IllegalStateException, StatusCodeException {
 		if (targets == null)
 			throw new IllegalStateException("Target destinations not set"); 
 
@@ -114,8 +80,6 @@ public class PathMetricsExtractor {
 		boolean calcTime = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION);
 		boolean calcDistance = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE);
 		boolean calcWeight = MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT);
-		long entryHash = 0;
-		MetricsItem edgeMetricsItem;
 
 		for (int i = 0; i < targets.length; ++i) {
 			SPTEntry goalEdge = targets[i];
@@ -126,13 +90,7 @@ public class PathMetricsExtractor {
 				pathWeight = 0.0;
 
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
-					edgeMetricsItem = null;
-					if (edgeMetrics != null) {
-						entryHash = getSPTEntryHash(goalEdge);
-						edgeMetricsItem = edgeMetrics.get(entryHash);
-					}
 
-					if (edgeMetricsItem == null) {
 						if (chGraph != null) {
 							RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
 
@@ -160,7 +118,6 @@ public class PathMetricsExtractor {
 										DistanceUnit.METERS, distUnits);
 						} else {
 							EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-
 							if (calcDistance)
 								edgeDistance = (distUnits == DistanceUnit.METERS) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
 
@@ -171,25 +128,10 @@ public class PathMetricsExtractor {
 								edgeWeight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
 						}
 
-						if (edgeMetrics != null) {
-							edgeMetricsItem = new MetricsItem();
-							edgeMetricsItem.distance = edgeDistance;
-							edgeMetricsItem.time = edgeTime;
-							edgeMetricsItem.weight = edgeWeight;
-							edgeMetrics.put(entryHash, edgeMetricsItem);
-						}
- 
 						pathDistance += edgeDistance;
 						pathTime += edgeTime;
 						pathWeight += edgeWeight;
-					} else {
-						if (calcDistance)
-							pathDistance += edgeMetricsItem.distance;
-						if (calcTime)
-							pathTime += edgeMetricsItem.time;
-						if (calcWeight)
-							pathWeight += edgeMetricsItem.weight;
-					}
+
 
 					goalEdge = goalEdge.parent;
 
@@ -213,10 +155,6 @@ public class PathMetricsExtractor {
 
 			index++;
 		}
-	}
-
-	private long getSPTEntryHash(SPTEntry entry) {
-		return (long)entry.adjNode + entry.edge;
 	}
 
 	private void extractEdgeValues(RoutingCHEdgeIteratorState iterState, boolean reverse) {
