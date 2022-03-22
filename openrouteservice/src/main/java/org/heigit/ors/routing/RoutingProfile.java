@@ -723,13 +723,15 @@ public class RoutingProfile {
 
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
 
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""));
+        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
+
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
         // filter graph for nodes in Bounding Box
