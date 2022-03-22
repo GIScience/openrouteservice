@@ -66,6 +66,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
+import static java.util.Collections.emptyList;
 import static org.heigit.ors.routing.RoutingProfile.makeProfileName;
 
 
@@ -111,7 +112,11 @@ public class ORSGraphHopper extends GraphHopper {
 	public GraphHopper init(GraphHopperConfig ghConfig) {
 		GraphHopper ret = super.init(ghConfig);
 
-		corePreparationHandler.init(ghConfig);
+		if (ghConfig instanceof ORSGraphHopperConfig) {
+			ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
+			corePreparationHandler.init(orsConfig);
+		}
+
 		//FIXME: coreLMPreparationHandler.init(ghConfig);
 		fastIsochroneFactory.init(ghConfig);
 
@@ -697,6 +702,8 @@ public class ORSGraphHopper extends GraphHopper {
 	public final boolean isCoreEnabled() {
 		return corePreparationHandler.isEnabled();
 	}
+
+
 // TODO: initialization logic needs to be moved to CorePrepartionHandler.init
 //	public void initCoreAlgoFactoryDecorator() {
 //		if (!coreFactoryDecorator.hasCHProfiles()) {
@@ -723,6 +730,33 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public final CorePreparationHandler getCorePreparationHandler() {
 		return corePreparationHandler;
+	}
+
+	@Override
+	protected void loadORS() {
+		List<CHConfig> chConfigs;
+		if (corePreparationHandler.isEnabled()) {
+			initCorePreparationHandler();
+			chConfigs = corePreparationHandler.getCHConfigs();
+		} else {
+			chConfigs = emptyList();
+		}
+
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
+			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
+		else
+			throw new IllegalStateException("Expected and instance of ORSGraphHopperStorage");
+	}
+
+	private void initCorePreparationHandler() {
+		if (corePreparationHandler.hasCHConfigs()) {
+			return;
+		}
+
+		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+			Profile profile = profilesByName.get(chProfile.getProfile());
+			corePreparationHandler.addCHConfig(new CHConfig(profile.getName(), createWeighting(profile, new PMap()), profile.isTurnCosts(), CHConfig.TYPE_CORE));
+		}
 	}
 
 	protected void prepareCore(boolean closeEarly) {
@@ -789,8 +823,9 @@ public class ORSGraphHopper extends GraphHopper {
 
     //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
     public final boolean isCHAvailable(String encoderName, String weighting) {
-        String profileName = makeProfileName(encoderName, weighting);
-        return getCHPreparationHandler().isEnabled() && hasCHProfile(profileName);
+        String profileName1 = makeProfileName(encoderName, weighting, false);
+		String profileName2 = makeProfileName(encoderName, weighting, true);
+        return getCHPreparationHandler().isEnabled() && (hasCHProfile(profileName1) || hasCHProfile(profileName2));
     }
 
     public final boolean isLMAvailable(String weighting) {

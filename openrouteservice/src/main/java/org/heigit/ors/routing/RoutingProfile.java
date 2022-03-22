@@ -16,7 +16,6 @@ package org.heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
@@ -137,7 +136,7 @@ public class RoutingProfile {
     }
 
     public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
-        GraphHopperConfig args = createGHSettings(osmFile, config);
+        ORSGraphHopperConfig args = createGHSettings(osmFile, config);
 
         int profileId;
         synchronized (lockObj) {
@@ -205,8 +204,8 @@ public class RoutingProfile {
         return gh;
     }
 
-    private static GraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
-        GraphHopperConfig ghConfig = new GraphHopperConfig();
+    private static ORSGraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
+        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", "RAM_STORE");
         ghConfig.putObject("datareader.file", sourceFile);
         ghConfig.putObject("graph.location", config.getGraphPath());
@@ -231,7 +230,7 @@ public class RoutingProfile {
         boolean prepareFI = false;
 
         Integer[] profilesTypes = config.getProfilesTypes();
-        List<Profile> profiles = new ArrayList(profilesTypes.length);
+        Map<String, Profile> profiles = new LinkedHashMap<>();
 
         // TODO: Multiple profiles were used to share the graph  for several
         //       bike profiles. We don't use this feature now but it might be
@@ -288,7 +287,7 @@ public class RoutingProfile {
                             List<CHProfile> chProfiles = new ArrayList<>();
                             String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS));
                             for (String weighting : chWeightingsString.split(","))
-                                chProfiles.add(new CHProfile(makeProfileName(vehicle, weighting)));
+                                chProfiles.add(new CHProfile(makeProfileName(vehicle, weighting, false)));
                             ghConfig.setCHProfiles(chProfiles);
                         }
                     }
@@ -309,7 +308,7 @@ public class RoutingProfile {
                             List<LMProfile> lmProfiles = new ArrayList<>();
                             String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS));
                             for (String weighting : lmWeightingsString.split(","))
-                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting)));
+                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting, false)));
                             ghConfig.setLMProfiles(lmProfiles);
                         }
                         if (lmOpts.hasPath(KEY_LANDMARKS))
@@ -330,8 +329,24 @@ public class RoutingProfile {
                     if (prepareCore) {
                         if (coreOpts.hasPath(KEY_THREADS))
                             ghConfig.putObject("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
-                        if (coreOpts.hasPath(KEY_WEIGHTINGS))
-                            ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS)));
+                        if (coreOpts.hasPath(KEY_WEIGHTINGS)) {
+                            List<CHProfile> coreProfiles = new ArrayList<>();
+                            String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS));
+                            for (String weighting : coreWeightingsString.split(",")) {
+                                String configStr = "";
+                                if (weighting.contains("|")) {
+                                    configStr = weighting;
+                                    weighting = weighting.split("\\|")[0];
+                                }
+                                PMap configMap = new PMap(configStr);
+                                boolean hasTurnCosts = configMap.getBool("edge_based", false);
+
+                                String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
+                                profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
+                                coreProfiles.add(new CHProfile(profileName));
+                            }
+                            ghConfig.setCoreProfiles(coreProfiles);
+                        }
                         if (coreOpts.hasPath(KEY_LMSETS))
                             ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
                         if (coreOpts.hasPath(KEY_LANDMARKS))
@@ -367,19 +382,24 @@ public class RoutingProfile {
 
         // TODO: make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
-        for (String weighting : weightings)
-            profiles.add(new Profile(makeProfileName(vehicle, weighting)).setVehicle(vehicle).setWeighting(weighting));
-
+        boolean hasTurnCosts = false;
+        for (String weighting : weightings) {
+            String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
+            profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
+        }
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
-        ghConfig.setProfiles(profiles);
+        ghConfig.setProfiles(new ArrayList<Profile>(profiles.values()));
 
         return ghConfig;
     }
 
-    public static String makeProfileName(String vehicleName, String weightingName) {
-        return vehicleName + "_" + weightingName;
+    public static String makeProfileName(String vehicleName, String weightingName, boolean hasTurnCosts) {
+        String profileName = vehicleName + "_" + weightingName;
+        if (hasTurnCosts)
+            profileName += "_with_turn_costs";
+        return profileName;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
@@ -628,7 +648,7 @@ public class RoutingProfile {
         int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
         setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""));
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
 
         //TODO probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
@@ -728,7 +748,7 @@ public class RoutingProfile {
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""));
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
         Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
 
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);

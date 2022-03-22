@@ -24,6 +24,7 @@ import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 
 import static com.graphhopper.routing.ch.CHParameters.*;
 import static com.graphhopper.util.Helper.getMemInfo;
@@ -58,6 +59,18 @@ public class PrepareCore extends PrepareContractionHierarchies {
     }
 
     @Override
+    public CHStorage getCHStore (CHConfig chConfig) {
+        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage) {
+            ORSGraphHopperStorage ghStorage = (ORSGraphHopperStorage) graph;
+            CHStorage chStore = ghStorage.getCoreStore(chConfig.getName());
+            if (chStore == null)
+                throw new IllegalArgumentException("There is no Core graph '" + chConfig.getName() + "', existing: " + ghStorage.getCoreGraphNames());
+            return chStore;
+        }
+        return super.getCHStore(chConfig);
+    }
+
+    @Override
     public void initFromGraph() {
         // todo: this whole chain of initFromGraph() methods is just needed because PrepareContractionHierarchies does
         // not simply prepare contraction hierarchies, but instead it also serves as some kind of 'container' to give
@@ -71,7 +84,6 @@ public class PrepareCore extends PrepareContractionHierarchies {
             }
         }
         logger.info("Creating Core graph, {}", getMemInfo());
-        CHPreparationGraph.TurnCostFunction turnCostFunction = CHPreparationGraph.buildTurnCostFunctionFromTurnCostStorage(graph, chConfig.getWeighting());
         prepareGraph = CorePreparationGraph.nodeBased(graph.getNodes(), graph.getEdges());
         nodeContractor = new CoreNodeContractor(prepareGraph, chBuilder, pMap);
         maxLevel = nodes;
