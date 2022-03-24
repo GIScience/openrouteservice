@@ -64,10 +64,10 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static java.util.Collections.emptyList;
-import static org.heigit.ors.routing.RoutingProfile.makeProfileName;
 
 
 public class ORSGraphHopper extends GraphHopper {
@@ -682,14 +682,29 @@ public class ORSGraphHopper extends GraphHopper {
 
     //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
     private boolean hasCHProfile(String profileName) {
-        boolean hasCHProfile = false;
-        for (com.graphhopper.config.CHProfile chProfile : getCHPreparationHandler().getCHProfiles()) {
-            if (profileName.equals(chProfile.getProfile()))
-                hasCHProfile = true;
-        }
-        return hasCHProfile;
+		return contains(getGraphHopperStorage().getCHGraphNames(), profileName);
     }
 
+	private boolean hasCoreProfile(String profileName) {
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage) {
+			List<String> profiles = ((ORSGraphHopperStorage) getGraphHopperStorage()).getCoreGraphNames();
+			return contains(profiles, profileName);
+		}
+		return false;
+	}
+
+	private boolean hasLMProfile(String profileName) {
+		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map((lmConfig) -> lmConfig.getName()).collect(Collectors.toList());
+		return contains(profiles, profileName);
+	}
+
+	private boolean contains(List<String> profiles, String profileName) {
+		for (String profile : profiles) {
+			if (profileName.equals(profile))
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * Enables or disables core calculation.
 	 */
@@ -822,32 +837,18 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
     //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
-    public final boolean isCHAvailable(String encoderName, String weighting) {
-        String profileName1 = makeProfileName(encoderName, weighting, false);
-		String profileName2 = makeProfileName(encoderName, weighting, true);
-        return getCHPreparationHandler().isEnabled() && (hasCHProfile(profileName1) || hasCHProfile(profileName2));
+    public final boolean isCHAvailable(String profileName) {
+        return getCHPreparationHandler().isEnabled() && hasCHProfile(profileName);
     }
 
-    public final boolean isLMAvailable(String weighting) {
-		// TODO: reimplement, maybe related to LMPreparationHandler
-//		LMAlgoFactoryDecorator lmFactoryDecorator = getLMFactoryDecorator();
-//		if (lmFactoryDecorator.isEnabled()) {
-//			List<String> weightings = lmFactoryDecorator.getWeightingsAsStrings();
-//			return weightings.contains(weighting);
-//		}
-		return false;
+    public final boolean isLMAvailable(String profileName) {
+		return getLMPreparationHandler().isEnabled() && hasLMProfile(profileName);
 	}
 
-	public final boolean isCoreAvailable(String weighting) {
-		CorePreparationHandler handler = getCorePreparationHandler();
-		if (handler.isEnabled() && handler.hasCHConfigs()) {
-			for (CHConfig chConfig : handler.getCHConfigs()) {
-				if (weighting.equals(chConfig.getWeighting().getName()))
-					return true;
-			}
-		}
-		return false;
+	public final boolean isCoreAvailable(String profileName) {
+		return getCorePreparationHandler().isEnabled() && hasCoreProfile(profileName);
 	}
+
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
 		return eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
 	}

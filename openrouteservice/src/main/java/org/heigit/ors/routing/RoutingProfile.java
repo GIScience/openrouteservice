@@ -1184,13 +1184,13 @@ public class RoutingProfile {
      * @param useALT  Should ALT be enabled
      */
     private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT) {
-        String weighting = mGraphHopper.getProfile(req.getProfile()).getWeighting();
+        String profileName = req.getProfile();
 
         //Priority: CH->Core->ALT
 
-        useCH = useCH && mGraphHopper.isCHAvailable(req.getEncoderName(), weighting);
-        useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(weighting);
-        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(weighting);
+        useCH = useCH && mGraphHopper.isCHAvailable(profileName);
+        useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(profileName);
+        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(profileName);
 
         req.getHints().putObject(KEY_CH_DISABLE, !useCH);
         req.getHints().putObject(KEY_CORE_DISABLE, !useCore);
