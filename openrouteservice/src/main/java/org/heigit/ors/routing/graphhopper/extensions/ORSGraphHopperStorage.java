@@ -105,6 +105,9 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
                 if (!cg.chStore.loadExisting())
                     throw new IllegalStateException("Cannot load " + cg);
             });
+            if (getExtensions() != null) {
+                getExtensions().loadExisting();
+            }
     }
 
     public void flush() {
