@@ -218,7 +218,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     boolean isVirtualNode(int node) {
-        return node >= graph.getNodes();
+        return node >= graph.getBaseGraph().getNodes();//QueryGraph->BaseGraph
     }
 
     boolean isTurnRestrictedNode(int node) {

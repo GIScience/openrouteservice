@@ -39,7 +39,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
      */
     public CoreDijkstraFilter(RoutingCHGraph graph) {
         this.graph = graph;
-        maxNodes = graph.getNodes();
+        maxNodes = graph.getBaseGraph().getBaseGraph().getNodes();//QueryRoutingCHGraph->QueryGraph->BaseGraph
         coreNodeLevel = maxNodes;
     }
 
