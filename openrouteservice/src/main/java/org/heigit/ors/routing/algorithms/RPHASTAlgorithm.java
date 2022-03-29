@@ -134,6 +134,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             return false;
 
         currFrom = prioQueue.poll();
+        upwardEdgeFilter.updateHighestNode(currFrom.getAdjNode());
         fillEdgesUpward(currFrom, prioQueue, bestWeightMap, outEdgeExplorer);
         visitedCountFrom++;
 
@@ -217,7 +218,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             if (!upwardEdgeFilter.accept(iter))
                 continue;
 
-            upwardEdgeFilter.updateHighestNode(iter);
             edgeWeight = iter.getWeight(false);
 //            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
