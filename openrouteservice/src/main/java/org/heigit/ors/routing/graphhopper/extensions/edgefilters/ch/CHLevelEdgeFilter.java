@@ -49,17 +49,15 @@ public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
             baseNodeLevel = graph.getLevel(nodeId);
     }
 
-    public void updateHighestNode(RoutingCHEdgeIteratorState edgeIterState) {
-        int adjNode = edgeIterState.getAdjNode();
-
-        if (adjNode < maxNodes) {
-            if (highestNode == -1 || highestNodeLevel < graph.getLevel(adjNode)) {
-                highestNode = adjNode;
+    public void updateHighestNode(int node) {
+        if (node < maxNodes) {
+            if (highestNode == -1 || highestNodeLevel < graph.getLevel(node)) {
+                highestNode = node;
                 highestNodeLevel = graph.getLevel(highestNode);
             }
         } else {
             if (highestNode == -1)
-                highestNode = adjNode;
+                highestNode = node;
         }
     }
 
