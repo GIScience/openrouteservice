@@ -44,6 +44,7 @@ RELEASING:
 - remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
 - set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
+- typo in docker documentation
 
 ## [6.7.0] - 2022-01-04
 ### Added
