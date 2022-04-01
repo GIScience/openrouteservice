@@ -145,7 +145,7 @@ public class CoreDijkstraTest {
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        for (int edge = 0; edge < ghStorage.getEdges(); edge ++)
+        for (int edge = 0; edge < ghStorage.getEdges(); edge++)
             restrictedEdges.add(edge);
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
@@ -187,7 +187,7 @@ public class CoreDijkstraTest {
 
     @Test
     public void testMixedGraph2() {
-        // Core consisting of a single edges 1-5 and 5-2
+        // Core consisting of edges 1-5 and 5-2
         ghStorage = createGHStorage(weighting);
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
@@ -208,6 +208,37 @@ public class CoreDijkstraTest {
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
         assertEquals(p1.toString(), 402.30, p1.getDistance(), 1e-2);
         assertEquals(p1.toString(), 144829, p1.getTime());
+    }
+
+    @Test
+    public void testCoreRestriction() {
+        // Core consisting of edges 1-5 and 5-2
+        ghStorage = createGHStorage(weighting);
+        initDirectedAndDiffSpeed(ghStorage, carEncoder);
+
+        CoreTestEdgeFilter coreEdges = new CoreTestEdgeFilter();
+        coreEdges.add(3);
+        coreEdges.add(5);
+
+        prepareCore(ghStorage, chConfig, coreEdges);
+
+        Integer[] core = {1, 2, 5};
+        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
+
+        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        coreFilter.addRestrictionFilter(restrictedEdges);
+
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        restrictedEdges.add(5);
+        Path p1 = algo.calcPath(0, 3);
+        assertEquals(IntArrayList.from(0, 1, 2, 3), p1.calcNodes());
+
+        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        restrictedEdges.add(4);
+        Path p2 = algo.calcPath(0, 3);
+        assertEquals(IntArrayList.from(0, 1, 5, 3), p2.calcNodes());
     }
 
     /**
