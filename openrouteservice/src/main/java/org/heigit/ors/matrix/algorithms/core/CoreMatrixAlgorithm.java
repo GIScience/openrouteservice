@@ -36,6 +36,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +82,8 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         Weighting preparedWeighting = chGraph.getWeighting();
         super.init(req, gh, chGraph, encoder, preparedWeighting);
         hasTurnWeighting = preparedWeighting.hasTurnCosts();
-        coreNodeLevel = chGraph.getNodes();
-        nodeCount = chGraph.getNodes();
+        nodeCount = GraphUtils.getBaseGraph(chGraph).getNodes();
+        coreNodeLevel = nodeCount;
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, preparedWeighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);

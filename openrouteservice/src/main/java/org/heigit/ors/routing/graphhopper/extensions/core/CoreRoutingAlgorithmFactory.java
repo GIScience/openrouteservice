@@ -45,7 +45,7 @@ public class CoreRoutingAlgorithmFactory {
 
     public AbstractCoreRoutingAlgorithm createAlgo(AlgorithmOptions opts) {
         AbstractCoreRoutingAlgorithm algo;
-        String algoStr = opts.getAlgorithm();
+        String algoStr = DIJKSTRA_BI;//FIXME: opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
             CoreALT tmpAlgo = new CoreALT(routingCHGraph, getWeighting());

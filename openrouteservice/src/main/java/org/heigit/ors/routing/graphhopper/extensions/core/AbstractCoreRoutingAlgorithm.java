@@ -20,6 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.function.Supplier;
 
@@ -66,7 +67,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        coreNodeLevel = chGraph.getNodes();
+        coreNodeLevel = GraphUtils.getBaseGraph(chGraph).getNodes();
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
 
