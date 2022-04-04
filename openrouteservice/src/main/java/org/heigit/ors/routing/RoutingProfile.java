@@ -244,7 +244,7 @@ public class RoutingProfile {
         // TODO: make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
         for (String weighting : weightings) {
-            boolean hasTurnCosts = false;
+            boolean hasTurnCosts = EncoderOptions.hasTurnCosts(config.getEncoderOptions());
             String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
         }
@@ -1309,5 +1309,20 @@ public class RoutingProfile {
 
     public int hashCode() {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
+    }
+
+    // TODO: this is only a transitional class created to enable the upgrade to
+    //       GH4. It should be cleaned up later.
+    private static class EncoderOptions {
+
+        public static boolean hasTurnCosts(String encoderOptions) {
+            for (String option: encoderOptions.split("|")) {
+                String[] keyValuePair = option.split("=");
+                if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {
+                    return keyValuePair[1].equals("true");
+                }
+            }
+            return false;
+        }
     }
 }
