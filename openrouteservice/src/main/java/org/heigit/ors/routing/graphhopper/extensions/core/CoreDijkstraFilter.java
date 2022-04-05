@@ -17,6 +17,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
@@ -39,7 +40,7 @@ public class CoreDijkstraFilter implements CHEdgeFilter {
      */
     public CoreDijkstraFilter(RoutingCHGraph graph) {
         this.graph = graph;
-        maxNodes = graph.getBaseGraph().getBaseGraph().getNodes();//QueryRoutingCHGraph->QueryGraph->BaseGraph
+        maxNodes = GraphUtils.getBaseGraph(graph).getNodes();
         coreNodeLevel = maxNodes;
     }
 

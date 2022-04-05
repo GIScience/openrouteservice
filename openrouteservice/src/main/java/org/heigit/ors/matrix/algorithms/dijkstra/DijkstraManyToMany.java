@@ -30,6 +30,7 @@ import org.heigit.ors.routing.algorithms.AbstractManyToManyRoutingAlgorithm;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.MultiSourceStoppingCriterion;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     public DijkstraManyToMany(RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {
         super(chGraph, weighting, tMode);
         this.chGraph = chGraph;
-        this.coreNodeLevel = chGraph.getNodes();
+        this.coreNodeLevel = GraphUtils.getBaseGraph(chGraph).getNodes();
         this.nodeCount = chGraph.getNodes();
         int size = Math.min(Math.max(200, chGraph.getNodes() / 10), 2000);
         initCollections(size);

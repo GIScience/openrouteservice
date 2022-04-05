@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
     protected final FlagEncoder encoder;
@@ -30,7 +31,7 @@ public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
 
     protected CHLevelEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
         graph = g;
-        maxNodes = g instanceof QueryRoutingCHGraph ? g.getBaseGraph().getBaseGraph().getNodes() : g.getBaseGraph().getNodes();
+        maxNodes = GraphUtils.getBaseGraph(g).getNodes();
         this.encoder = encoder;
     }
 

@@ -20,6 +20,7 @@ import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage.CoreEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class TarjansCoreSCCAlgorithm {
         this.nodeLowLink = new int[ghStorage.getNodes()];
         CoreEdgeFilter coreEdgeFilter = new CoreEdgeFilter(core, edgeFilter);
         this.edgeFilter = edge -> coreEdgeFilter.accept(edge) && Double.isFinite(edge.getWeight(false));
-        this.coreNodeLevel = core.getNodes();
+        this.coreNodeLevel = GraphUtils.getBaseGraph(core).getNodes();
 
 
         if (ignoreSingleEntries) {

@@ -196,9 +196,20 @@ public class ORSGraphHopper extends GraphHopper {
 	protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,
 									PathDetailsBuilderFactory pathBuilderFactory, TranslationMap trMap, RouterConfig routerConfig,
 									WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
-		Router r = new Router(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
+		ORSRouter r = new ORSRouter(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
 		r.setEdgeFilterFactory(new ORSEdgeFilterFactory());
 		r.setPathProcessorFactory(pathProcessorFactory);
+
+		if (!(ghStorage instanceof ORSGraphHopperStorage))
+			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
+
+		Map<String, RoutingCHGraph> coreGraphs = new LinkedHashMap<>();
+		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+			String chGraphName = corePreparationHandler.getPreparation(chProfile.getProfile()).getCHConfig().getName();
+			coreGraphs.put(chProfile.getProfile(), ((ORSGraphHopperStorage) ghStorage).getRoutingCoreGraph(chGraphName));
+		}
+		r.setCoreGraphs(coreGraphs);
+
 		return r;
 	}
 
@@ -760,7 +771,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
 			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
 		else
-			throw new IllegalStateException("Expected and instance of ORSGraphHopperStorage");
+			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
 	}
 
 	private void initCorePreparationHandler() {

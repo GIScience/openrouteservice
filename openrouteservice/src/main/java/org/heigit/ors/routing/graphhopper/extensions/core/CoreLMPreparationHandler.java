@@ -22,6 +22,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import java.util.*;
 
@@ -95,7 +96,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
      */
     public static HashMap<Integer, Integer> createCoreNodeIdMap(RoutingCHGraph core) {
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
-        int maxNode = core.getNodes();
+        int maxNode = GraphUtils.getBaseGraph(core).getNodes();
         int coreNodeLevel = maxNode;
         int index = 0;
         for (int i = 0; i < maxNode; i++){

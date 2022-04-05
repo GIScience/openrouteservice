@@ -241,6 +241,17 @@ public class RoutingProfile {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
+        // TODO: make this list of weightings configurable for each vehicle as in GH
+        String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
+        for (String weighting : weightings) {
+            if (EncoderOptions.hasTurnCosts(config.getEncoderOptions())) {
+                String profileName = makeProfileName(vehicle, weighting, true);
+                profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true));
+            }
+            String profileName = makeProfileName(vehicle, weighting, false);
+            profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
+        }
+
         ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
         if (config.getIsochronePreparationOpts() != null) {
@@ -380,13 +391,6 @@ public class RoutingProfile {
         if(!Helper.isEmpty(config.getEncoderOptions()))
                 flagEncoder += "|" + config.getEncoderOptions();
 
-        // TODO: make this list of weightings configurable for each vehicle as in GH
-        String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
-        boolean hasTurnCosts = false;
-        for (String weighting : weightings) {
-            String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
-            profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
-        }
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
@@ -873,7 +877,8 @@ public class RoutingProfile {
             }
         }
 
-        String profileName = encoderName + "_" + WeightingMethod.getName(searchParams.getWeightingMethod());
+        boolean useTurnCostProfile = searchParams.requiresDynamicPreprocessedWeights();
+        String profileName = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName);
         searchCntx.setProperties(props);
 
@@ -1308,5 +1313,20 @@ public class RoutingProfile {
 
     public int hashCode() {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
+    }
+
+    // TODO: this is only a transitional class created to enable the upgrade to
+    //       GH4. It should be cleaned up later.
+    private static class EncoderOptions {
+
+        public static boolean hasTurnCosts(String encoderOptions) {
+            for (String option: encoderOptions.split("\\|")) {
+                String[] keyValuePair = option.split("=");
+                if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {
+                    return keyValuePair[1].equals("true");
+                }
+            }
+            return false;
+        }
     }
 }
