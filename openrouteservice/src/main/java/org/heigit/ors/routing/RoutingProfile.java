@@ -244,9 +244,12 @@ public class RoutingProfile {
         // TODO: make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
         for (String weighting : weightings) {
-            boolean hasTurnCosts = EncoderOptions.hasTurnCosts(config.getEncoderOptions());
-            String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
-            profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
+            if (EncoderOptions.hasTurnCosts(config.getEncoderOptions())) {
+                String profileName = makeProfileName(vehicle, weighting, true);
+                profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true));
+            }
+            String profileName = makeProfileName(vehicle, weighting, false);
+            profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
         }
 
         ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
@@ -874,7 +877,8 @@ public class RoutingProfile {
             }
         }
 
-        String profileName = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), searchParams.getConsiderTurnRestrictions());
+        boolean useTurnCostProfile = searchParams.requiresDynamicPreprocessedWeights();
+        String profileName = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName);
         searchCntx.setProperties(props);
 
