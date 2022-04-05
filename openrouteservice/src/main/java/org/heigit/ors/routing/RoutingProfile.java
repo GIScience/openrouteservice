@@ -1316,7 +1316,7 @@ public class RoutingProfile {
     private static class EncoderOptions {
 
         public static boolean hasTurnCosts(String encoderOptions) {
-            for (String option: encoderOptions.split("|")) {
+            for (String option: encoderOptions.split("\\|")) {
                 String[] keyValuePair = option.split("=");
                 if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {
                     return keyValuePair[1].equals("true");
