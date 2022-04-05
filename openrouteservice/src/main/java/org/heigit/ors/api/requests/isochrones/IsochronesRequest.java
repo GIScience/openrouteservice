@@ -29,6 +29,7 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -37,7 +38,6 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.util.Arrays;
@@ -163,7 +163,9 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasSmoothing = false;
 
+    @JsonIgnore
     private IsochroneMapCollection isoMaps;
+    @JsonIgnore
     private IsochroneRequest isochroneRequest;
 
 
