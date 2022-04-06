@@ -1282,6 +1282,7 @@ public class ResultTest extends ServiceTest {
 
         //Test against default maximum speed lower bound setting
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-car")
@@ -1291,13 +1292,14 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(1709.5f))
+                .body("routes[0].summary.duration", is(closeTo(1709.5, 1)))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound
         body.put("maximum_speed", 75);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1307,7 +1309,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(1996.2f))
+                .body("routes[0].summary.duration", is(closeTo(1996.2, 1)))
                 .statusCode(200);
     }
 
@@ -1764,6 +1766,7 @@ public class ResultTest extends ServiceTest {
 
         // Test that providing border control in avoid_features works
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1773,7 +1776,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1404f))
+                .body("routes[0].summary.distance", is(closeTo(1404, 1)))
                 .statusCode(200);
 
         options = new JSONObject();
@@ -1809,6 +1812,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1818,14 +1822,14 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1156.6f))
+                .body("routes[0].summary.distance", is(closeTo(1156.6, 1)))
                 .statusCode(200);
-
         options = new JSONObject();
         options.put("avoid_countries", constructFromPipedList("1|3"));
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1835,12 +1839,13 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(3172.4f))
+                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
         options.put("avoid_countries", constructFromPipedList("AT|FR"));
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1850,12 +1855,13 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(3172.4f))
+                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
         options.put("avoid_countries", constructFromPipedList("AUT|FRA"));
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1865,7 +1871,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(3172.4f))
+                .body("routes[0].summary.distance", is(closeTo(3172.4f, 3)))
                 .statusCode(200);
 
     }
