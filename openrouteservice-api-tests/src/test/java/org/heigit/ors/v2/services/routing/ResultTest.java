@@ -1339,7 +1339,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testUTurnRestrictions() { // not implemented yet
+    public void testUTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.698302,49.412282|8.698801,49.41223"));
         body.put("preference", getParameter("preference"));
@@ -1350,16 +1350,17 @@ public class ResultTest extends ServiceTest {
 
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then()
+                .then().log().all()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2968.5f))//FIXME: should be equal to the reference A* route distance of 2816.7f
+                .body("routes[0].summary.distance", is(closeTo(2816.7, 2)))
                 .statusCode(200);
     }
 
