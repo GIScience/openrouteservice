@@ -104,12 +104,7 @@ public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
             }
 
             if (!softWeightings.isEmpty()) {
-                // TODO (cleanup): We do not want to mess around with implementation
-                //                 details of AdditionWeighting which should accept
-                //                 any collection instead of its internal array.
-                Weighting[] arrWeightings = new Weighting[softWeightings.size()];
-                arrWeightings = softWeightings.toArray(arrWeightings);
-                weighting = new AdditionWeighting(arrWeightings, weighting);
+                weighting = new AdditionWeighting(softWeightings, weighting);
             }
         }
         return weighting;
