@@ -352,7 +352,7 @@ public class RoutingProfile {
                                     weighting = weighting.split("\\|")[0];
                                 }
                                 PMap configMap = new PMap(configStr);
-                                boolean considerTurnRestrictions = configMap.getBool("edge_based", false);
+                                boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
 
                                 String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
                                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions));
