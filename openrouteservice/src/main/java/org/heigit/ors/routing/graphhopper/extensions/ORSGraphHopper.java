@@ -672,16 +672,16 @@ public class ORSGraphHopper extends GraphHopper {
 			if (isPartitionPrepared()) {
 				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
-				List<CHProfile> chProfiles = new ArrayList<>();
+				List<CHProfile> profiles = new ArrayList<>();
 				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
 						Profile profile = null; // TODO: setup correctly
 						Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr).putObject("isochroneWeighting", "true"), false);
-						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
+						profiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
 					}
 				}
 
-				for (CHProfile chProfile : chProfiles) {
+				for (CHProfile chProfile : profiles) {
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 						calculateCellProperties(chProfile.getWeighting(), partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 					}
