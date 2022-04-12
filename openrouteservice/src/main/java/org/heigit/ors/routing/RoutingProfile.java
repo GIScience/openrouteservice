@@ -241,10 +241,12 @@ public class RoutingProfile {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
+        boolean hasTurnCosts = EncoderOptions.hasTurnCosts(config.getEncoderOptions());
+
         // TODO: make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
         for (String weighting : weightings) {
-            if (EncoderOptions.hasTurnCosts(config.getEncoderOptions())) {
+            if (hasTurnCosts) {
                 String profileName = makeProfileName(vehicle, weighting, true);
                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true));
             }
@@ -319,7 +321,7 @@ public class RoutingProfile {
                             List<LMProfile> lmProfiles = new ArrayList<>();
                             String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS));
                             for (String weighting : lmWeightingsString.split(","))
-                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting, false)));
+                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting, hasTurnCosts)));
                             ghConfig.setLMProfiles(lmProfiles);
                         }
                         if (lmOpts.hasPath(KEY_LANDMARKS))
@@ -350,10 +352,10 @@ public class RoutingProfile {
                                     weighting = weighting.split("\\|")[0];
                                 }
                                 PMap configMap = new PMap(configStr);
-                                boolean hasTurnCosts = configMap.getBool("edge_based", false);
+                                boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
 
-                                String profileName = makeProfileName(vehicle, weighting, hasTurnCosts);
-                                profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(hasTurnCosts));
+                                String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
+                                profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions));
                                 coreProfiles.add(new CHProfile(profileName));
                             }
                             ghConfig.setCoreProfiles(coreProfiles);

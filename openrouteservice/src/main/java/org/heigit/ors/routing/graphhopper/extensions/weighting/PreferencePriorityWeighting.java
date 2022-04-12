@@ -17,6 +17,7 @@ import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
@@ -35,6 +36,10 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
 	}
 
+	public PreferencePriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
+		super(encoder, map, tcp);
+		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
+	}
 	@Override
 	public double calcEdgeWeight( EdgeIteratorState edgeState, boolean reverse) {
 		double weight = super.calcEdgeWeight(edgeState, reverse);

@@ -103,7 +103,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
     public void postInit(CHPreparationGraph prepareGraph) {
         restrictedNodes = new boolean[nodes];
         EdgeExplorer restrictionExplorer;
-        restrictionExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES);
+        restrictionExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES);//FIXME: each edge is probably unnecessarily visited twice
 
         for (int node = 0; node < nodes; node++) {
             EdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);

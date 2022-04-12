@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * @deprecated This class does not work with the design of GH 4.0
- * The class OrsWeightingFactoryGh4 is meant to be a cleaned up replacement
+ * The class {@link OrsWeightingFactoryGh4} is meant to be a cleaned up replacement
  * of this one, but does not provide all the functionality yet.
  */
 @Deprecated
