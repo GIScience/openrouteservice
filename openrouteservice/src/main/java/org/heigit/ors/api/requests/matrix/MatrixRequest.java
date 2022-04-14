@@ -309,6 +309,7 @@ public class MatrixRequest extends APIRequest {
             coreRequest.setUnits(convertUnits(units));
 
         MatrixSearchParameters params = new MatrixSearchParameters();
+        params.setProfileType(coreRequest.getProfileType());
         if(this.hasMatrixOptions()) {
             params = processRequestOptions(getMatrixOptions(), params);
             coreRequest.setFlexibleMode(this.processMatrixRequestOptions(params));
