@@ -56,6 +56,7 @@ public class MatrixRequest extends APIRequest {
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
     public static final String PARAM_OPTIONS = "options";
+    public static final String PARAM_AVOID_AREAS = "avoid_areas";
 
     @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates.",
             example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
@@ -112,6 +113,14 @@ public class MatrixRequest extends APIRequest {
             hidden = true)
     @JsonProperty(PARAM_OPTIONS)
     private MatrixRequestOptions matrixOptions;
+
+    @ApiModelProperty(name = PARAM_AVOID_AREAS,
+            value = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object." +
+                    "Currently, only avoid_areas are supported.",
+            example = "{\"avoid_areas\": geojson_data}")
+    @JsonProperty(PARAM_AVOID_AREAS)
+    private JSONObject avoidArea;
+
 
     @ApiModelProperty(hidden = true)
     private APIEnums.MatrixResponseType responseType;
@@ -246,6 +255,18 @@ public class MatrixRequest extends APIRequest {
         return matrixOptions != null;
     }
 
+    public void setAvoidArea(JSONObject obj) {
+        this.avoidArea = obj;
+    }
+
+    public JSONObject getAvoidArea() {
+        return avoidArea;
+    }
+
+    public boolean hasAvoidArea() {
+        return avoidArea != null;
+    }
+
     public APIEnums.MatrixResponseType getResponseType() {
         return responseType;
     }
@@ -254,7 +275,7 @@ public class MatrixRequest extends APIRequest {
         this.responseType = responseType;
     }
 
-    public MatrixResult generateMatrixFromRequest() throws StatusCodeException {
+    public MatrixResult generateMatrixFromRequest() throws Exception {
         org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest();
 
         try {
@@ -277,7 +298,7 @@ public class MatrixRequest extends APIRequest {
         return params;
     }
 
-    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest() throws StatusCodeException {
+    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest() throws Exception {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
 
         int numberOfSources = sources == null ? locations.size() : sources.length;
@@ -310,6 +331,15 @@ public class MatrixRequest extends APIRequest {
 
         MatrixSearchParameters params = new MatrixSearchParameters();
         params.setProfileType(coreRequest.getProfileType());
+        if (this.hasAvoidArea() && this.hasMatrixOptions() && !this.getMatrixOptions().hasAvoidPolygonFeatures()) {
+            MatrixRequestOptions mor = this.getMatrixOptions();
+            mor.setAvoidPolygonFeatures(getAvoidArea());
+            this.setMatrixOptions(mor);
+        } else if (this.hasAvoidArea() && !this.hasMatrixOptions()) {
+            MatrixRequestOptions mor = new MatrixRequestOptions();
+            mor.setAvoidPolygonFeatures(getAvoidArea());
+            this.setMatrixOptions(mor);
+        }
         if(this.hasMatrixOptions()) {
             params = processRequestOptions(getMatrixOptions(), params);
             coreRequest.setFlexibleMode(this.processMatrixRequestOptions(params));

@@ -197,19 +197,21 @@ public class JsonMatrixRequestParser {
 
         MatrixSearchParameters params = new MatrixSearchParameters();
         params.setProfileType(req.getProfileType());
+        if (json.has(KEY_AVOID_AREAS)) {
+            JSONObject jAvoidAreas = json.optJSONObject(KEY_AVOID_AREAS);
+            final String KEY_AVOID_POLYGONS = "avoid_polygons";
+            if (json.has(KEY_OPTIONS) && !json.optJSONObject(KEY_OPTIONS).has(KEY_AVOID_POLYGONS)) {
+                json.optJSONObject(KEY_OPTIONS).put(KEY_AVOID_POLYGONS, jAvoidAreas);
+            } else if (!json.has(KEY_OPTIONS)) {
+                JSONObject jObj = new JSONObject();
+                jObj.put(KEY_AVOID_POLYGONS, jAvoidAreas);
+                json.put(KEY_OPTIONS, jObj);
+            } // If json.has(KEY_OPTIONS) is true and and avoid_polygons member is present, ignore the avoid_areas.
+        }
         if (json.has(KEY_OPTIONS)) {
             JSONObject jOptions = json.optJSONObject(KEY_OPTIONS);
             params.setOptions(jOptions.toString());
             if (params.hasAvoidAreas()) {
-                req.setFlexibleMode(true);
-            }
-        } else if (json.has(KEY_AVOID_AREAS)) {
-            JSONObject jAvoidAreas = json.optJSONObject(KEY_AVOID_AREAS);
-            final String KEY_AVOID_POLYGONS = "avoid_polygons";
-            if (jAvoidAreas.has(KEY_AVOID_POLYGONS)) {
-                String[] names = {KEY_AVOID_POLYGONS};
-                JSONObject jObj = new JSONObject(jAvoidAreas, names);
-                params.setOptions(jObj.toString());
                 req.setFlexibleMode(true);
             }
         }
