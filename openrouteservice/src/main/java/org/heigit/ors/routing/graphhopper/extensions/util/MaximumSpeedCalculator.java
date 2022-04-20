@@ -11,17 +11,17 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.graphhopper.extensions.weighting;
+package org.heigit.ors.routing.graphhopper.extensions.util;
 
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
+import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * Speed calculator to limit the speed during routing according to the maximum speed set by user.
- * @deprecated Use {@link OrsMaximumSpeedCalculator} instead
+ *
  * @author Andrzej Oles
  */
-@Deprecated
 public class MaximumSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     private final double userMaxSpeed;
 
@@ -39,5 +39,4 @@ public class MaximumSpeedCalculator extends AbstractAdjustedSpeedCalculator {
 
         return speed;
     }
-
 }

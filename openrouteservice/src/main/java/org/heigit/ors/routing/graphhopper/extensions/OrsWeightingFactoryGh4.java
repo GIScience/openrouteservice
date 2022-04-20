@@ -10,6 +10,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.graphhopper.extensions.util.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
 import java.util.ArrayList;
@@ -62,6 +63,17 @@ public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
         weighting = applySoftWeightings(hints, encoder, weighting);
 
         return weighting;
+    }
+
+    @Override
+    protected void setSpeedCalculator(Weighting weighting, PMap requestHints) {
+        super.setSpeedCalculator(weighting, requestHints);
+
+        if (requestHints.has("maximum_speed")) {
+            double maximumSpeedLowerBound = requestHints.getDouble("maximum_speed_lower_bound", 0);
+            double maximumSpeed = requestHints.getDouble("maximum_speed", maximumSpeedLowerBound);
+            weighting.setSpeedCalculator(new MaximumSpeedCalculator(weighting.getSpeedCalculator(), maximumSpeed));
+        }
     }
 
     private Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {

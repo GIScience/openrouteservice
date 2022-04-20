@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.StopWatch;
 import org.heigit.ors.routing.graphhopper.extensions.core.AbstractCoreRoutingAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreRoutingAlgorithmFactory;
@@ -22,12 +23,14 @@ import java.util.List;
 
 public class CorePathCalculator implements PathCalculator {
     private final CoreRoutingAlgorithmFactory algoFactory;
+    private Weighting weighting;
     private final AlgorithmOptions algoOpts;
     private String debug;
     private int visitedNodes;
 
-    public CorePathCalculator(CoreRoutingAlgorithmFactory algoFactory, AlgorithmOptions algoOpts) {
+    public CorePathCalculator(CoreRoutingAlgorithmFactory algoFactory, Weighting weighting, AlgorithmOptions algoOpts) {
         this.algoFactory = algoFactory;
+        this.weighting = weighting;
         this.algoOpts = algoOpts;
     }
 
@@ -41,7 +44,7 @@ public class CorePathCalculator implements PathCalculator {
 
     private AbstractCoreRoutingAlgorithm createAlgo() {
         StopWatch sw = new StopWatch().start();
-        AbstractCoreRoutingAlgorithm algo = algoFactory.createAlgo(algoOpts);
+        AbstractCoreRoutingAlgorithm algo = algoFactory.createAlgo(weighting, algoOpts);
         debug = ", algoInit:" + (sw.stop().getNanos() / 1000) + " μs";
         return algo;
     }

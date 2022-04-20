@@ -20,6 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.routing.graphhopper.extensions.CorePathExtractor;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
             hasTurnWeighting = true;
         }
 
-        pathExtractorSupplier = () -> new NodeBasedCHBidirPathExtractor(chGraph);
+        pathExtractor = new CorePathExtractor(chGraph, weighting);
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
@@ -80,7 +81,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
 
-    private Supplier<BidirPathExtractor> pathExtractorSupplier;
+    private BidirPathExtractor pathExtractor;
 
     public abstract void initFrom(int from, double weight, long time);
 
@@ -128,17 +129,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     @Override
     protected Path extractPath() {
         if (finished())
-            return createPathExtractor().extract(bestFwdEntry, bestBwdEntry, bestWeight);
+            return pathExtractor.extract(bestFwdEntry, bestBwdEntry, bestWeight);
 
         return createEmptyPath();
-    }
-
-    public void setPathExtractorSupplier(Supplier<BidirPathExtractor> pathExtractorSupplier) {
-        this.pathExtractorSupplier = pathExtractorSupplier;
-    }
-
-    BidirPathExtractor createPathExtractor() {
-        return pathExtractorSupplier.get();
     }
 
     protected Path createEmptyPath() {
