@@ -39,6 +39,7 @@ import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
 import org.heigit.ors.util.ToyGraphCreationUtil;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -366,5 +367,49 @@ public class CoreDijkstraTest {
                 via,
                 to,
                 cost);
+    }
+
+    @Ignore
+    @Test
+    public void testUTurn() {
+        CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
+        EncodingManager encodingManager = EncodingManager.create(carEncoder);
+        GraphHopperStorage graph = new GraphBuilder(encodingManager).build();
+        Weighting weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, graph.getTurnCostStorage()));
+        CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
+        graph.addCHGraph(chConfig).create(1000);
+        //       0
+        //       |
+        //       1
+        //       |
+        // 7-6-5-2-3-4
+        // | |
+        // 8-9
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(0, 1).setDistance(1));// 0
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(1, 2).setDistance(1));// 1
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(2, 3).setDistance(1));// 2
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(3, 4).setDistance(1));// 3
+        GHUtility.setSpeed(60, true, true, carEncoder, graph.edge(2, 5).setDistance(1));//  4
+        GHUtility.setSpeed(60, true, true, carEncoder, graph.edge(5, 6).setDistance(1));//  5
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(6, 7).setDistance(1));// 6
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(7, 8).setDistance(1));// 7
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(8, 9).setDistance(1));// 8
+        GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(9, 6).setDistance(1));// 9
+
+        setTurnCost(graph, Double.POSITIVE_INFINITY, 1, 2, 2);
+        setTurnCost(graph, Double.POSITIVE_INFINITY, 9, 6, 6);
+
+        EdgeFilterSequence coreEdgeFilter = new EdgeFilterSequence();
+        coreEdgeFilter.add(new TurnRestrictionsCoreEdgeFilter(carEncoder, graph));
+        prepareCore(graph, chConfig, coreEdgeFilter);
+
+        Integer[] core = {1, 2, 3, 9, 6, 7};
+        assertCore(graph, new HashSet<>(Arrays.asList(core)));
+
+        RoutingCHGraph chGraph = graph.getRoutingCHGraph();
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions());
+
+        Path p = algo.calcPath(0, 4);
+        assertEquals(p.toString(), 12, p.getDistance(), 1e-6);
     }
 }
