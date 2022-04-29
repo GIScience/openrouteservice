@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportRequest;
-import org.heigit.ors.api.requests.export.ExportRequestHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
 import org.heigit.ors.export.ExportErrorCodes;
@@ -95,7 +94,7 @@ public class ExportAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 
-        ExportResult result = new ExportRequestHandler().generateExportFromRequest(request);
+        ExportResult result = request.generateExportFromRequest();
 
         return new JsonExportResponse(result);
     }

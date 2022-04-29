@@ -1,7 +1,7 @@
 package org.heigit.ors.export;
 
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.ServiceRequest;
 
 public class ExportRequest  extends ServiceRequest {
     private BBox bbox;
