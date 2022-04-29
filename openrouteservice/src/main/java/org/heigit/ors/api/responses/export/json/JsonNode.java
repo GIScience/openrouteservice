@@ -8,7 +8,7 @@ import org.heigit.ors.util.FormatUtility;
 
 import java.util.Map;
 
-public class JsonExportLocation {
+public class JsonNode {
     protected static final int COORDINATE_DECIMAL_PLACES = 6;
 
     @ApiModelProperty(value = "Id of the corresponding node in the graph", example = "1")
@@ -18,19 +18,19 @@ public class JsonExportLocation {
 
     @ApiModelProperty(value = "{longitude},{latitude} coordinates of the closest accessible point on the routing graph",
             example = "[8.678962, 49.40783]")
-    @JsonProperty(value = "coord")
+    @JsonProperty(value = "location")
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-    protected Coordinate coord;
+    protected Coordinate location;
 
-    JsonExportLocation(Map.Entry<Integer, Coordinate> location) {
+    JsonNode(Map.Entry<Integer, Coordinate> location) {
         this.nodeId = location.getKey();
-        this.coord = location.getValue();
+        this.location = location.getValue();
     }
 
-    public Double[] getCoord() {
+    public Double[] getLocation() {
         Double[] coord2D = new Double[2];
-        coord2D[0] = FormatUtility.roundToDecimals(coord.x, COORDINATE_DECIMAL_PLACES);
-        coord2D[1] = FormatUtility.roundToDecimals(coord.y, COORDINATE_DECIMAL_PLACES);
+        coord2D[0] = FormatUtility.roundToDecimals(location.x, COORDINATE_DECIMAL_PLACES);
+        coord2D[1] = FormatUtility.roundToDecimals(location.y, COORDINATE_DECIMAL_PLACES);
         // coord2D[3] = location.z; --> example for third dimension
         return coord2D;
     }

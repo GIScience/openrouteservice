@@ -7,7 +7,7 @@ import org.heigit.ors.common.Pair;
 
 import java.util.Map;
 
-public class JsonEdgeWeight {
+public class JsonEdge {
     @ApiModelProperty(value = "Id of the start point of the edge", example = "1")
     @JsonProperty(value = "fromId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
@@ -24,7 +24,7 @@ public class JsonEdgeWeight {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
     protected Double weight;
 
-    JsonEdgeWeight(Map.Entry<Pair<Integer, Integer>, Double> weightedEdge) {
+    JsonEdge(Map.Entry<Pair<Integer, Integer>, Double> weightedEdge) {
         this.fromId = weightedEdge.getKey().first;
         this.toId = weightedEdge.getKey().second;
         this.weight = weightedEdge.getValue();
