@@ -819,14 +819,17 @@ public class RoutingProfile {
 
         GraphHopper gh = getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
 
-        HintsMap hintsMap = new HintsMap();
+        PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
-        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-        EdgeExplorer explorer = graph.createEdgeExplorer(DefaultEdgeFilter.outEdges(flagEncoder));
+        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
+        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
+
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+
 
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
@@ -834,14 +837,20 @@ public class RoutingProfile {
         BBox bbox = req.getBoundingBox();
 
         ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, new LocationIndex.Visitor() {
-            @Override
-            public void onNode(int nodeId) {
-                if (bbox.contains(nodeAccess.getLat(nodeId), nodeAccess.getLon(nodeId))) {
-                    nodesInBBox.add(nodeId);
-                }
+        index.query(bbox, edgeId -> {
+            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
+            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
+            int baseNode = edge.getBaseNode();
+            int adjNode = edge.getAdjNode();
+
+            if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
+                nodesInBBox.add(baseNode);
+            }
+            if (bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
+                nodesInBBox.add(adjNode);
             }
         });
+
         LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
@@ -859,7 +868,7 @@ public class RoutingProfile {
             while (iter.next()) {
                 int to = iter.getAdjNode();
                 if (nodesInBBox.contains(to)) {
-                    double weight = weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                    double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
                     Pair<Integer, Integer> p = new Pair<>(from, to);
                     res.addEdge(p, weight);
                 }
