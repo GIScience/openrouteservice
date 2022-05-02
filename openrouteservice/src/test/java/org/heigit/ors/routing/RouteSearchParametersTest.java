@@ -184,14 +184,14 @@ public class RouteSearchParametersTest {
     @Test
     public void getFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
     }
 
     @Test
     public void setFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setFlexibleMode(true);
-        Assert.assertTrue(routeSearchParameters.getFlexibleMode());
+        Assert.assertTrue(routeSearchParameters.hasFlexibleMode());
     }
 
     @Test

@@ -1753,7 +1753,7 @@ public class ResultTest extends ServiceTest {
     // test fitness params bike..
 
     @Test
-    public void testBordersAvoid() { // check route
+    public void testBordersAvoid() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
@@ -1800,7 +1800,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCountryExclusion() { // check route, rewrite to ensure the country is actually avoided
+    public void testCountryExclusion() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");

@@ -284,7 +284,7 @@ public class IsochronesRequestHandlerTest {
         Assert.assertNull(routeSearchParameters.getAvoidAreas());
         Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
         Assert.assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
         Assert.assertNull(routeSearchParameters.getProfileParameters());
         Assert.assertNull(routeSearchParameters.getBearings());
@@ -303,7 +303,7 @@ public class IsochronesRequestHandlerTest {
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
         Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
         Assert.assertNull(routeSearchParameters.getBearings());
         Assert.assertNull(routeSearchParameters.getMaximumRadiuses());

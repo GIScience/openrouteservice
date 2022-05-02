@@ -176,7 +176,7 @@ public class RouteRequestHandlerTest {
         Assert.assertTrue(routingRequest.getIncludeElevation());
         Assert.assertEquals(WeightingMethod.FASTEST, routingRequest.getSearchParameters().getWeightingMethod());
         Assert.assertEquals(DistanceUnit.METERS, routingRequest.getUnits());
-        Assert.assertTrue(routingRequest.getSearchParameters().getFlexibleMode());
+        Assert.assertTrue(routingRequest.getSearchParameters().hasFlexibleMode());
 
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
         Assert.assertArrayEquals(new int[] {115}, routingRequest.getSearchParameters().getAvoidCountries());
