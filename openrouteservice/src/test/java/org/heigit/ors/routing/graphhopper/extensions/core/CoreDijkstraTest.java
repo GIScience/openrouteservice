@@ -38,6 +38,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
+import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -118,6 +119,21 @@ public class CoreDijkstraTest {
         graphHopperStorage.freeze();
         PrepareCore prepare = new PrepareCore(graphHopperStorage, chConfig, restrictedEdges);
         prepare.doWork();
+
+        RoutingCHGraph routingCHGraph = graphHopperStorage.getRoutingCHGraph();
+        if (DebugUtility.isDebug()) {
+            for (int i = 0; i < routingCHGraph.getNodes(); i++)
+                System.out.println("nodeId " + i + " level: " + routingCHGraph.getLevel(i));
+            for (int i = 0; i < routingCHGraph.getNodes(); i++) {
+                RoutingCHEdgeIterator iter = routingCHGraph.createOutEdgeExplorer().setBaseNode(i);
+                while (iter.next()) {
+                    System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+                    if (iter.isShortcut())
+                        System.out.print(" (shortcut)");
+                    System.out.println(" [weight: " + iter.getWeight(false) + "]");
+                }
+            }
+        }
     }
 
     @Test
@@ -369,7 +385,6 @@ public class CoreDijkstraTest {
                 cost);
     }
 
-    @Ignore
     @Test
     public void testUTurn() {
         CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);

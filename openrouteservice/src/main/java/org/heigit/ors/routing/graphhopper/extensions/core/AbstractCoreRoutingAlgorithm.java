@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.ch.CHEntry;
 import com.graphhopper.routing.ch.NodeBasedCHBidirPathExtractor;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -187,16 +188,26 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     //TODO: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
-    protected boolean accept(RoutingCHEdgeIteratorState iter, int prevOrNextEdgeId) {
-        if (iter.getEdge() == prevOrNextEdgeId) {
+    protected boolean accept(RoutingCHEdgeIteratorState iter, CHEntry prevOrNextEdgeId, boolean reverse) {
+        if (iter.getEdge() == prevOrNextEdgeId.edge)
             return false;
-        } else {
-            return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+        if (iter.isShortcut())
+            return getIncEdge(iter, !reverse) != prevOrNextEdgeId.incEdge;
+
+        return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+    }
+
+    int getIncEdge(RoutingCHEdgeIteratorState iter, boolean reverse) {
+        if (iter.isShortcut()) {
+            return reverse ? iter.getSkippedEdge1() : iter.getSkippedEdge2();
+        }
+        else {
+            return iter.getOrigEdge();
         }
     }
 
-    protected SPTEntry createSPTEntry(int node, double weight, long time) {
-        SPTEntry entry = new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
+    protected CHEntry createCHEntry(int node, double weight, long time) {
+        CHEntry entry = new CHEntry(EdgeIterator.NO_EDGE, -1, node, weight);
         entry.time = time;
         return entry;
     }
