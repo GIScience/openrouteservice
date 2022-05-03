@@ -40,6 +40,10 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.export.ExportRequest;
+import org.heigit.ors.export.ExportResult;
+import org.heigit.ors.export.ExportWarning;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
@@ -782,6 +786,7 @@ public class RoutingProfile {
             }
 
         });
+        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no centrality can be calculated
@@ -804,6 +809,70 @@ public class RoutingProfile {
         } else {
             Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
             res.setEdgeCentralityScores(edgeBetweenness);
+        }
+
+        return res;
+    }
+
+    public ExportResult computeExport(ExportRequest req) throws Exception {
+        ExportResult res = new ExportResult();
+
+        GraphHopper gh = getGraphhopper();
+        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
+        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
+
+        PMap hintsMap = new PMap();
+        int weightingMethod = WeightingMethod.FASTEST;
+        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
+        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
+        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
+
+        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+
+
+        // filter graph for nodes in Bounding Box
+        LocationIndex index = gh.getLocationIndex();
+        NodeAccess nodeAccess = graph.getNodeAccess();
+        BBox bbox = req.getBoundingBox();
+
+        ArrayList<Integer> nodesInBBox = new ArrayList<>();
+        index.query(bbox, edgeId -> {
+            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
+            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
+            int baseNode = edge.getBaseNode();
+            int adjNode = edge.getAdjNode();
+
+            if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
+                nodesInBBox.add(baseNode);
+            }
+            if (bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
+                nodesInBBox.add(adjNode);
+            }
+        });
+
+        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+
+        if (nodesInBBox.isEmpty()) {
+            // without nodes, no centrality can be calculated
+            res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
+            return res;
+        }
+
+        // calculate node coordinates
+        for (int from : nodesInBBox) {
+            Coordinate coord = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
+            res.addLocation(from, coord);
+
+            EdgeIterator iter = explorer.setBaseNode(from);
+            while (iter.next()) {
+                int to = iter.getAdjNode();
+                if (nodesInBBox.contains(to)) {
+                    double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
+                    Pair<Integer, Integer> p = new Pair<>(from, to);
+                    res.addEdge(p, weight);
+                }
+            }
         }
 
         return res;
