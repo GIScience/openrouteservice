@@ -14,6 +14,7 @@
 package org.heigit.ors.v2.services.routing;
 
 import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
@@ -52,6 +53,8 @@ import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
+
+    public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
 
     public ResultTest() {
         JSONArray coordsShort = new JSONArray();
@@ -109,7 +112,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testSimpleGetRoute() {
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .param("start", "8.686581,49.403154")
                 .param("end", "8.688126,49.409074")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1282,7 +1285,7 @@ public class ResultTest extends ServiceTest {
 
         //Test against default maximum speed lower bound setting
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-car")
@@ -1299,7 +1302,7 @@ public class ResultTest extends ServiceTest {
         body.put("maximum_speed", 75);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1350,7 +1353,7 @@ public class ResultTest extends ServiceTest {
 
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-car")
@@ -1394,7 +1397,7 @@ public class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("25,30|90,20"));
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "cycling-road")
@@ -1439,7 +1442,7 @@ public class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("|90,20"));
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
@@ -1460,7 +1463,7 @@ public class ResultTest extends ServiceTest {
         body.put("continue_straight", true);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1630,7 +1633,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1654,7 +1657,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1687,7 +1690,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1711,7 +1714,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1735,7 +1738,7 @@ public class ResultTest extends ServiceTest {
 
         // Generic test to ensure that the distance and duration dont get changed
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1767,7 +1770,7 @@ public class ResultTest extends ServiceTest {
 
         // Test that providing border control in avoid_features works
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1813,7 +1816,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1830,7 +1833,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1846,7 +1849,7 @@ public class ResultTest extends ServiceTest {
         // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
         options.put("avoid_countries", constructFromPipedList("AT|FR"));
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1862,7 +1865,7 @@ public class ResultTest extends ServiceTest {
         // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
         options.put("avoid_countries", constructFromPipedList("AUT|FRA"));
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -1939,7 +1942,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -2047,7 +2050,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2130,7 +2133,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2154,7 +2157,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2272,7 +2275,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2293,7 +2296,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2567,7 +2570,7 @@ public class ResultTest extends ServiceTest {
 
         body.put("coordinates", getParameter("coordinatesLong"));
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -2614,7 +2617,7 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -2791,7 +2794,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2836,7 +2839,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3144,7 +3147,7 @@ public class ResultTest extends ServiceTest {
         body.put("alternative_routes", ar);
         body.put("extra_info", getParameter("extra_info"));
         given()
-            .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+            .config(JSON_CONFIG_DOUBLE_NUMBERS)
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
             .pathParam("profile", getParameter("carProfile"))
@@ -3167,7 +3170,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3205,7 +3208,7 @@ public class ResultTest extends ServiceTest {
         body.put("instructions", false);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3225,7 +3228,7 @@ public class ResultTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3244,7 +3247,7 @@ public class ResultTest extends ServiceTest {
         roundTripOptions.put("points", 3);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3261,7 +3264,7 @@ public class ResultTest extends ServiceTest {
 
         body.put("bearings", constructBearings("25,30"));
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3338,7 +3341,7 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -3500,7 +3503,7 @@ public class ResultTest extends ServiceTest {
         // Tag "maxspeed:conditional = 30 @ (22:00-06:00)" along Rohrbacher Strasse
         // Test that the speed limit is not taken into account if no time is specified
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3517,7 +3520,7 @@ public class ResultTest extends ServiceTest {
         // Test that the speed limit does not apply throughout the day
         body.put("arrival", "2021-01-31T22:00");
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3535,7 +3538,7 @@ public class ResultTest extends ServiceTest {
         body.remove("arrival");
         body.put("departure", "2021-01-31T22:00");
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -3552,7 +3555,7 @@ public class ResultTest extends ServiceTest {
         // Test that the speed limit applies for shortest weighting as well
         body.put("preference", "shortest");
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
