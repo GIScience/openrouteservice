@@ -1,11 +1,15 @@
 package org.heigit.ors.centrality;
 
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeExplorer;
+import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.PMap;
 import junit.framework.TestCase;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
@@ -18,7 +22,6 @@ import org.junit.Test;
 import java.util.*;
 
 public class CentralityAlgorithmTest extends TestCase {
-    private CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private ORSGraphHopper graphHopper;
@@ -38,32 +41,34 @@ public class CentralityAlgorithmTest extends TestCase {
 
         // explicitly create directed edges instead of using edge(a, b, dist, bothDirections)
         // this will also avoid problems with flagEncoder.getAverageSpeedEnc().isStoreTwoDirections() == false
-        g.edge(0, 1).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 2).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 3).setDistance(5d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(3, 0).setDistance(5d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 8).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(8, 0).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 2).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 1).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 8).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(8, 1).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 3).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(3, 2).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(3, 4).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(4, 3).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(4, 5).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(5, 4).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(4, 6).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(6, 4).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(5, 7).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(7, 5).setDistance(1d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(6, 7).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(7, 6).setDistance(2d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(7, 8).setDistance(3d).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(8, 7).setDistance(3d).setFlags(encodingManager.flagsDefault(true, false));
+        GHUtility.setSpeed(60, 0, encodingManager.getEncoder("car"),
+                g.edge(0, 1).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(1, 0).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(0, 2).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(2, 0).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(0, 3).setDistance(5d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(3, 0).setDistance(5d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(0, 8).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(8, 0).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(1, 2).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(2, 1).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(1, 8).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(8, 1).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(2, 3).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(3, 2).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(3, 4).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(4, 3).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(4, 5).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(5, 4).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(4, 6).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(6, 4).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(5, 7).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(7, 5).setDistance(1d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(6, 7).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(7, 6).setDistance(2d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(7, 8).setDistance(3d),//.setFlags(encodingManager.flagsDefault(true, false));
+                g.edge(8, 7).setDistance(3d)
+        );//.setFlags(encodingManager.flagsDefault(true, false));
 
         //Set test lat lon
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
@@ -87,28 +92,31 @@ public class CentralityAlgorithmTest extends TestCase {
         //  |/   \
         //  1-----8
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 2).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 3).setDistance(5).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(3, 0).setDistance(5).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(0, 8).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(8, 0).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 2).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 1).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(1, 8).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(8, 1).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(2, 3).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(3, 2).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(4, 5).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(5, 4).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(4, 6).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(6, 4).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(5, 7).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(7, 5).setDistance(1).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(6, 7).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
-        g.edge(7, 6).setDistance(2).setFlags(encodingManager.flagsDefault(true, false));
+
+        GHUtility.setSpeed(60, 0, encodingManager.getEncoder("car"),
+                g.edge(0, 1).setDistance(1d),
+                g.edge(1, 0).setDistance(1d),
+                g.edge(0, 2).setDistance(1d),
+                g.edge(2, 0).setDistance(1d),
+                g.edge(0, 3).setDistance(5d),
+                g.edge(3, 0).setDistance(5d),
+                g.edge(0, 8).setDistance(1d),
+                g.edge(8, 0).setDistance(1d),
+                g.edge(1, 2).setDistance(1d),
+                g.edge(2, 1).setDistance(1d),
+                g.edge(1, 8).setDistance(2d),
+                g.edge(8, 1).setDistance(2d),
+                g.edge(2, 3).setDistance(2d),
+                g.edge(3, 2).setDistance(2d),
+                g.edge(4, 5).setDistance(1d),
+                g.edge(5, 4).setDistance(1d),
+                g.edge(4, 6).setDistance(1d),
+                g.edge(6, 4).setDistance(1d),
+                g.edge(5, 7).setDistance(1d),
+                g.edge(7, 5).setDistance(1d),
+                g.edge(6, 7).setDistance(2d),
+                g.edge(7, 6).setDistance(2d)
+        );
 
         //Set test lat lo
         g.getBaseGraph().getNodeAccess().setNode(0, 3, 3);
@@ -126,27 +134,14 @@ public class CentralityAlgorithmTest extends TestCase {
 
        @Test
     public void testMediumDirectedGraphNodeCentrality() {
-        graphHopper = new ORSGraphHopper();
-        graphHopper.setCHEnabled(false);
-        graphHopper.setCoreEnabled(false);
-        graphHopper.setCoreLMEnabled(false);
-        graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createMediumDirectedGraph());
-        graphHopper.postProcessing();
+        GraphHopperStorage graphHopperStorage = createMediumDirectedGraph();
+        Weighting weighting = new FastestWeighting(carEncoder);
 
-        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
-        String encoderName = "car";
-        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+        Graph graph = graphHopperStorage.getBaseGraph();
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
 
-        PMap hintsMap = new PMap();
-        //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.putObject("weighting", "fastest");
-        hintsMap.putObject("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
-        alg = new BrandesCentralityAlgorithm();
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
-
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
         List<Double> expectedScores = new ArrayList<>(Arrays.asList(26d / 3d, 0d, 41d / 3d, 41d / 3d, 47d / 3d, 6d, 0d, 31d / 3d, 31d / 3d));
@@ -159,32 +154,21 @@ public class CentralityAlgorithmTest extends TestCase {
             e.printStackTrace();
         }
 
-        for (Integer v : nodes) {
+
+           for (Integer v : nodes) {
             assertEquals(expectedScores.get(v), betweenness.get(v), 0.0001d);
         }
     }
 
     @Test
     public void testMediumDirectedGraphEdgeCentrality() {
-        graphHopper = new ORSGraphHopper();
-        graphHopper.setCHEnabled(false);
-        graphHopper.setCoreEnabled(false);
-        graphHopper.setCoreLMEnabled(false);
-        graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createMediumDirectedGraph());
-        graphHopper.postProcessing();
+        GraphHopperStorage graphHopperStorage = createMediumDirectedGraph();
+        Weighting weighting = new FastestWeighting(carEncoder);
 
-        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
-        String encoderName = "car";
-        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+        Graph graph = graphHopperStorage.getBaseGraph();
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
 
-        PMap hintsMap = new PMap();
-        //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.put("weighting", "fastest");
-        hintsMap.put("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
-        alg = new BrandesCentralityAlgorithm();
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
 
@@ -208,25 +192,13 @@ public class CentralityAlgorithmTest extends TestCase {
 
     @Test
     public void testTwoComponentDirectedGraphNodeCentrality() {
-        graphHopper = new ORSGraphHopper();
-        graphHopper.setCHEnabled(false);
-        graphHopper.setCoreEnabled(false);
-        graphHopper.setCoreLMEnabled(false);
-        graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createTwoComponentDirectedGraph());
-        graphHopper.postProcessing();
+        GraphHopperStorage graphHopperStorage = createTwoComponentDirectedGraph();
+        Weighting weighting = new FastestWeighting(carEncoder);
 
-        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
-        String encoderName = "car";
-        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+        Graph graph = graphHopperStorage.getBaseGraph();
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
 
-        PMap hintsMap = new PMap();
-        //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.put("weighting", "fastest");
-        hintsMap.put("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
-        alg = new BrandesCentralityAlgorithm();
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
 
@@ -248,25 +220,13 @@ public class CentralityAlgorithmTest extends TestCase {
 
     @Test
     public void testTwoComponentDirectedGraphEdgeCentrality() {
-        graphHopper = new ORSGraphHopper();
-        graphHopper.setCHEnabled(false);
-        graphHopper.setCoreEnabled(false);
-        graphHopper.setCoreLMEnabled(false);
-        graphHopper.setEncodingManager(encodingManager);
-        graphHopper.setGraphHopperStorage(createTwoComponentDirectedGraph());
-        graphHopper.postProcessing();
+        GraphHopperStorage graphHopperStorage = createTwoComponentDirectedGraph();
+        Weighting weighting = new FastestWeighting(carEncoder);
 
-        Graph graph = graphHopper.getGraphHopperStorage().getBaseGraph();
-        String encoderName = "car";
-        FlagEncoder flagEncoder = graphHopper.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
+        Graph graph = graphHopperStorage.getBaseGraph();
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
 
-        PMap hintsMap = new PMap();
-        //the following two lines represent the setWeighting()-Method of RoutingProfile
-        hintsMap.putObject("weighting", "fastest");
-        hintsMap.putObject("weighting_method", "fastest");
-        Weighting weighting = new ORSWeightingFactory(graphHopper.getGraphHopperStorage(), flagEncoder).createWeighting(hintsMap, false);
-        alg = new BrandesCentralityAlgorithm();
+        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
         alg.init(graph, weighting, explorer);
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
