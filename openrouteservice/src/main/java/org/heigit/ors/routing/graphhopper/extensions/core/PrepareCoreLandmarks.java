@@ -20,6 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.util.Map;
@@ -48,9 +49,10 @@ public class PrepareCoreLandmarks extends PrepareLandmarks {
     public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
         if (!(lmConfig instanceof CoreLMConfig))
             throw(new IllegalStateException("Expected instance of CoreLMConfig"));
-        CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
+        if (!(graph instanceof ORSGraphHopperStorage))
+            throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
-        return new CoreLandmarkStorage(dir, graph, coreLMConfig, landmarks);
+        return new CoreLandmarkStorage(dir, (ORSGraphHopperStorage) graph, (CoreLMConfig) lmConfig, landmarks);
     }
 
     public boolean matchesFilter(PMap pmap){

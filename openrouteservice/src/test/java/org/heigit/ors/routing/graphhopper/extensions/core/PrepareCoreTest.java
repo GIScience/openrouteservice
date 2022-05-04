@@ -115,19 +115,19 @@ public class PrepareCoreTest {
         addEdge(14, 16, 1);
     }
 
-    private void contractGraph(EdgeFilter restrictedEdges) {
-        contractGraph(restrictedEdges, null);
+    private RoutingCHGraph contractGraph(EdgeFilter restrictedEdges) {
+        return contractGraph(restrictedEdges, null);
     }
 
-    private void contractGraph(EdgeFilter restrictedEdges, int[] nodeOrdering) {
-        contractGraph(g, chConfig, restrictedEdges, nodeOrdering);
+    private RoutingCHGraph contractGraph(EdgeFilter restrictedEdges, int[] nodeOrdering) {
+        return contractGraph(g, chConfig, restrictedEdges, nodeOrdering);
     }
 
-    public static void contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges) {
-        contractGraph(g, chConfig, restrictedEdges, null);
+    public static RoutingCHGraph contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges) {
+        return contractGraph(g, chConfig, restrictedEdges, null);
     }
 
-    public static void contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges, int[] nodeOrdering) {
+    public static RoutingCHGraph contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges, int[] nodeOrdering) {
         RoutingCHGraph routingCHGraph = g.getRoutingCHGraph();
         g.freeze();
 
@@ -154,6 +154,8 @@ public class PrepareCoreTest {
                 }
             }
         }
+
+        return routingCHGraph;
     }
 
     @Test

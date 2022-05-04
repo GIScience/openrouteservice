@@ -131,7 +131,7 @@ public class CoreLandmarkStorageTest {
     private CoreLandmarkStorage createLandmarks(LMEdgeFilterSequence lmEdgeFilter) {
         HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(routingCHGraph);
         CoreLMConfig coreLMConfig = new CoreLMConfig(encoder.toString(), weighting).setEdgeFilter(lmEdgeFilter);
-        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, coreLMConfig, 2);
+        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, routingCHGraph, coreLMConfig, 2);
         storage.setCoreNodeIdMap(coreNodeIdMap);
         storage.setMinimumNodes(2);
         storage.createLandmarks();

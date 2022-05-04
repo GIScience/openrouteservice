@@ -93,8 +93,8 @@ public class PrepareCoreLandmarksTest
                 updateDistancesFor(graph, node, -hIndex / 50.0, wIndex / 50.0);
             }
         }
-        contractGraph(graph, chConfig, new AllCoreEdgeFilter());
-        RoutingCHGraph core = graph.getCoreGraph(weighting);
+
+        RoutingCHGraph core = contractGraph(graph, chConfig, new AllCoreEdgeFilter());
         HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
         Directory dir = new RAMDirectory();
         LocationIndexTree index = new LocationIndexTree(graph, dir);
@@ -103,7 +103,7 @@ public class PrepareCoreLandmarksTest
         int lm = 5, activeLM = 2;
         Weighting weighting = new FastestWeighting(encoder);
         CoreLMConfig coreLMConfig = new CoreLMConfig("car", weighting).setEdgeFilter(new LMEdgeFilterSequence());
-        CoreLandmarkStorage store = new CoreLandmarkStorage(dir, graph, coreLMConfig, lm);
+        CoreLandmarkStorage store = new CoreLandmarkStorage(dir, graph, core, coreLMConfig, lm);
         store.setCoreNodeIdMap(coreNodeIdMap);
         store.setMinimumNodes(2);
         store.createLandmarks();
@@ -194,8 +194,7 @@ public class PrepareCoreLandmarksTest
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(1);
-        contractGraph(graph, chConfig, restrictedEdges);
-        RoutingCHGraph core = graph.getCoreGraph(weighting);
+        RoutingCHGraph core = contractGraph(graph, chConfig, restrictedEdges);
         Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
 
         Directory dir = new RAMDirectory(fileStr, true).create();

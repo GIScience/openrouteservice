@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.*;
+import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Path;
@@ -49,6 +50,7 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
@@ -91,13 +93,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
-// TODO: forDesktop and algoDecorators have been removed from GH
-//		forDesktop();
-//		algoDecorators.clear();
-//		algoDecorators.add(corePreparationHandler);
-//		algoDecorators.add(coreLMFactoryDecorator);
-//		algoDecorators.add(getCHFactoryDecorator());
-//		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
 		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
 
@@ -115,6 +110,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if (ghConfig instanceof ORSGraphHopperConfig) {
 			ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
 			corePreparationHandler.init(orsConfig);
+			coreLMPreparationHandler.init(orsConfig);
 		}
 
 		//FIXME: coreLMPreparationHandler.init(ghConfig);
@@ -206,7 +202,7 @@ public class ORSGraphHopper extends GraphHopper {
 		Map<String, RoutingCHGraph> coreGraphs = new LinkedHashMap<>();
 		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
 			String chGraphName = corePreparationHandler.getPreparation(chProfile.getProfile()).getCHConfig().getName();
-			coreGraphs.put(chProfile.getProfile(), ((ORSGraphHopperStorage) ghStorage).getRoutingCoreGraph(chGraphName));
+			coreGraphs.put(chProfile.getProfile(), ((ORSGraphHopperStorage) ghStorage).getCoreGraph(chGraphName));
 		}
 		r.setCoreGraphs(coreGraphs);
 
@@ -772,6 +768,9 @@ public class ORSGraphHopper extends GraphHopper {
 			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
 		else
 			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
+
+		if (coreLMPreparationHandler.isEnabled())
+			initCoreLMPreparationHandler();
 	}
 
 	private void initCorePreparationHandler() {
@@ -782,6 +781,19 @@ public class ORSGraphHopper extends GraphHopper {
 		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
 			Profile profile = profilesByName.get(chProfile.getProfile());
 			corePreparationHandler.addCHConfig(new CHConfig(profile.getName(), createWeighting(profile, new PMap()), profile.isTurnCosts(), CHConfig.TYPE_CORE));
+		}
+	}
+
+	private void initCoreLMPreparationHandler() {
+		if (coreLMPreparationHandler.hasLMProfiles())
+			return;
+
+		for (LMProfile lmProfile : coreLMPreparationHandler.getLMProfiles()) {
+			if (lmProfile.usesOtherPreparation())
+				continue;
+			Profile profile = profilesByName.get(lmProfile.getProfile());
+			Weighting weighting = createWeighting(profile, new PMap(), true);
+			coreLMPreparationHandler.addLMConfig(new CoreLMConfig(profile.getName(), weighting));
 		}
 	}
 

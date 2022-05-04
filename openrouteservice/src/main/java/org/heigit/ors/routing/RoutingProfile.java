@@ -348,6 +348,7 @@ public class RoutingProfile {
                             ghConfig.putObject("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
                         if (coreOpts.hasPath(KEY_WEIGHTINGS)) {
                             List<CHProfile> coreProfiles = new ArrayList<>();
+                            List<LMProfile> coreLMProfiles = new ArrayList<>();
                             String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS));
                             for (String weighting : coreWeightingsString.split(",")) {
                                 String configStr = "";
@@ -361,8 +362,10 @@ public class RoutingProfile {
                                 String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
                                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions));
                                 coreProfiles.add(new CHProfile(profileName));
+                                coreLMProfiles.add(new LMProfile(profileName));
                             }
                             ghConfig.setCoreProfiles(coreProfiles);
+                            ghConfig.setCoreLMProfiles(coreLMProfiles);
                         }
                         if (coreOpts.hasPath(KEY_LMSETS))
                             ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
