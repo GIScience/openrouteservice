@@ -34,23 +34,27 @@ There are three main reasons for this problem, listed in order of most to least 
 
 ## How much RAM does building `file.pbf` need?
 
-Here are a few build times for different `.pbf`-files on a machine with an Intel i7-6600U (2x2.6GHz):
 
-| PBF-File                      | Size   | Build duration (min) |
+Here are a few examples of RAM usage for different `.pbf`-files on a machine with an Intel i7-6600U (2x2.6GHz):
+
+| PBF-File                      | Size   | RAM used |
 |:-----------------------------:|:------:|----------------------|
-| berlin-latest.osm.pbf         |  63 Mb |
+| berlin-latest.osm.pbf         |  67 Mb | 353 MB, max: 4.8GB used: 3.2GB
 | tennessee-latest.osm.pbf      | 120 Mb |
 | north-carolina-latest.osm.pbf | 293 Mb |
 | spain-latest.osm.pbf          | 948 Mb |
 
 ## How long does it take to build `file.pbf`?
 
-Here are a few build times for different `.pbf`-files on a machine with an Intel i7-6600U (2x2.6GHz):
+On a machine with an Intel i7-6600U (2x2.6GHz), it will take around 40 to 50 seconds to compile ors and start building graphs.
+This time is **not** included in the following table. Note, that graphs for all nine profiles were being built.
 
-
-| PBF-File                      | Size   | Build duration (min) |
-|:-----------------------------:|:------:|----------------------|
-| berlin-latest.osm.pbf         |  63 Mb |
+| PBF-File                      | Size   | Build duration (min:sec) |
+|:-----------------------------:|:------:|--------------------------|
+| berlin-latest.osm.pbf         |  67 Mb | 09:58
 | tennessee-latest.osm.pbf      | 120 Mb |
 | north-carolina-latest.osm.pbf | 293 Mb |
 | spain-latest.osm.pbf          | 948 Mb |
+
+
+## 
