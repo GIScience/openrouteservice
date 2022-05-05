@@ -183,7 +183,7 @@ public class CentralityAlgorithmTest extends TestCase {
             e.printStackTrace();
         }
 
-        for (Pair<> p : edges) {
+        for (Pair p : edges) {
             assertEquals(expectedScores.get(edges.indexOf(p)), betweenness.get(p), 0.0001d);
         }
     }
