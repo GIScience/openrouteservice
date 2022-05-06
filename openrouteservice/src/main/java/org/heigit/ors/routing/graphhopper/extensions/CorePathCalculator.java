@@ -14,21 +14,22 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.StopWatch;
-import org.heigit.ors.routing.graphhopper.extensions.core.AbstractCoreRoutingAlgorithm;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreRoutingAlgorithmFactory;
 
 import java.util.List;
 
 public class CorePathCalculator implements PathCalculator {
-    private final CoreRoutingAlgorithmFactory algoFactory;
+    private final QueryGraph queryGraph;
+    private final RoutingAlgorithmFactory algoFactory;
     private Weighting weighting;
     private final AlgorithmOptions algoOpts;
     private String debug;
     private int visitedNodes;
 
-    public CorePathCalculator(CoreRoutingAlgorithmFactory algoFactory, Weighting weighting, AlgorithmOptions algoOpts) {
+    public CorePathCalculator(QueryGraph queryGraph, RoutingAlgorithmFactory algoFactory, Weighting weighting, AlgorithmOptions algoOpts) {
+        this.queryGraph = queryGraph;
         this.algoFactory = algoFactory;
         this.weighting = weighting;
         this.algoOpts = algoOpts;
@@ -38,18 +39,18 @@ public class CorePathCalculator implements PathCalculator {
     public List<Path> calcPaths(int from, int to, EdgeRestrictions edgeRestrictions) {
         if (!edgeRestrictions.getUnfavoredEdges().isEmpty())
             throw new IllegalArgumentException("Using unfavored edges is currently not supported for CH");
-        AbstractCoreRoutingAlgorithm algo = createAlgo();
+        RoutingAlgorithm algo = createAlgo();
         return calcPaths(from, to, edgeRestrictions, algo);
     }
 
-    private AbstractCoreRoutingAlgorithm createAlgo() {
+    private RoutingAlgorithm createAlgo() {
         StopWatch sw = new StopWatch().start();
-        AbstractCoreRoutingAlgorithm algo = algoFactory.createAlgo(weighting, algoOpts);
+        RoutingAlgorithm algo = algoFactory.createAlgo(queryGraph, weighting, algoOpts);
         debug = ", algoInit:" + (sw.stop().getNanos() / 1000) + " μs";
         return algo;
     }
 
-    private List<Path> calcPaths(int from, int to, EdgeRestrictions edgeRestrictions, AbstractCoreRoutingAlgorithm algo) {
+    private List<Path> calcPaths(int from, int to, EdgeRestrictions edgeRestrictions, RoutingAlgorithm algo) {
         StopWatch sw = new StopWatch().start();
         List<Path> paths;
         /* FIXME

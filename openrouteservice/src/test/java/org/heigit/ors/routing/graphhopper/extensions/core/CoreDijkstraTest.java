@@ -145,9 +145,7 @@ public class CoreDijkstraTest {
         prepareCore(ghStorage, chConfig, new CoreTestEdgeFilter());
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
@@ -168,9 +166,7 @@ public class CoreDijkstraTest {
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
         assertEquals(IntArrayList.from(0, 1, 5, 2, 3), p1.calcNodes());
@@ -190,9 +186,7 @@ public class CoreDijkstraTest {
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2};
@@ -215,9 +209,7 @@ public class CoreDijkstraTest {
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
         Integer[] core = {1, 2, 5};
@@ -243,16 +235,15 @@ public class CoreDijkstraTest {
         assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        coreFilter.addRestrictionFilter(restrictedEdges);
-
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        AlgorithmOptions opts = new AlgorithmOptions();
+        opts.setEdgeFilter(restrictedEdges);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, opts);
         restrictedEdges.add(5);
         Path p1 = algo.calcPath(0, 3);
         assertEquals(IntArrayList.from(0, 1, 2, 3), p1.calcNodes());
 
-        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, opts);
         restrictedEdges.add(4);
         Path p2 = algo.calcPath(0, 3);
         assertEquals(IntArrayList.from(0, 1, 5, 3), p2.calcNodes());
@@ -292,8 +283,7 @@ public class CoreDijkstraTest {
         //car
         prepareCore(g, carConfig, new CoreTestEdgeFilter());
         RoutingCHGraph chGraph = g.getRoutingCHGraph(carConfig.getName());
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 7);
 
         assertEquals(IntArrayList.from(0, 4, 6, 7), p1.calcNodes());
@@ -303,8 +293,7 @@ public class CoreDijkstraTest {
         //foot
         prepareCore(g, footConfig, new CoreTestEdgeFilter());
         chGraph = g.getRoutingCHGraph(footConfig.getName());
-        coreFilter = new CoreDijkstraFilter(chGraph);
-        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
 
         Path p2 = algo.calcPath(0, 7);
         assertEquals(p2.toString(), 17000, p2.getDistance(), 1e-6);
@@ -369,8 +358,7 @@ public class CoreDijkstraTest {
         assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
 
         RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
-        CoreDijkstraFilter coreFilter = new CoreDijkstraFilter(chGraph);
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions()).setEdgeFilter(coreFilter);
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
 
         Path p = algo.calcPath(0, 3);
         assertEquals(p.toString(), 4, p.getDistance(), 1e-6);
@@ -422,7 +410,7 @@ public class CoreDijkstraTest {
         assertCore(graph, new HashSet<>(Arrays.asList(core)));
 
         RoutingCHGraph chGraph = graph.getRoutingCHGraph();
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(weighting, new AlgorithmOptions());
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
 
         Path p = algo.calcPath(0, 4);
         assertEquals(p.toString(), 12, p.getDistance(), 1e-6);

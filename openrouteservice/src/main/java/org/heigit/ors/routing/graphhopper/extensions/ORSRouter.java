@@ -89,7 +89,8 @@ public class ORSRouter extends Router {
         }
 
         protected PathCalculator createPathCalculator(QueryGraph queryGraph) {
-            return new CorePathCalculator(new CoreRoutingAlgorithmFactory(this.getRoutingCHGraph(this.profile.getName()), queryGraph), weighting, getAlgoOpts());
+            RoutingAlgorithmFactory algorithmFactory = new CoreRoutingAlgorithmFactory(this.getRoutingCHGraph(this.profile.getName()), queryGraph);
+            return new CorePathCalculator(queryGraph, algorithmFactory, weighting, getAlgoOpts());
         }
 
         AlgorithmOptions getAlgoOpts() {
