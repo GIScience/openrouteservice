@@ -37,6 +37,7 @@ public class ORSRouter extends Router {
     private final EncodingManager encodingManager;
     private final Map<String, Profile> profilesByName;
     private final RouterConfig routerConfig;
+    private final WeightingFactory weightingFactory;
     private Map<String, RoutingCHGraph> coreGraphs;
 
     public ORSRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName, PathDetailsBuilderFactory pathDetailsBuilderFactory, TranslationMap translationMap, RouterConfig routerConfig, WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
@@ -45,6 +46,7 @@ public class ORSRouter extends Router {
         this.encodingManager = ghStorage.getEncodingManager();
         this.profilesByName = profilesByName;
         this.routerConfig = routerConfig;
+        this.weightingFactory = weightingFactory;
     }
 
     public void setCoreGraphs(Map<String, RoutingCHGraph> coreGraphs) {
@@ -59,7 +61,7 @@ public class ORSRouter extends Router {
     protected Router.Solver createSolver(GHRequest request) {
         boolean disableCore = getDisableCore(request.getHints());
         if (!disableCore) {
-            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.ghStorage, this.coreGraphs);
+            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs);
         } else {
             return super.createSolver(request);
         }
@@ -68,9 +70,11 @@ public class ORSRouter extends Router {
     private static class CoreSolver extends Router.Solver {
         private final Map<String, RoutingCHGraph> chGraphs;
         private final GraphHopperStorage ghStorage;
+        private final WeightingFactory weightingFactory;
 
-        CoreSolver(GHRequest request, Map<String, Profile> profilesByName, RouterConfig routerConfig, EncodedValueLookup lookup, GraphHopperStorage ghStorage, Map<String, RoutingCHGraph> chGraphs) {
+        CoreSolver(GHRequest request, Map<String, Profile> profilesByName, RouterConfig routerConfig, EncodedValueLookup lookup, WeightingFactory weightingFactory, GraphHopperStorage ghStorage, Map<String, RoutingCHGraph> chGraphs) {
             super(request, profilesByName, routerConfig, lookup);
+            this.weightingFactory = weightingFactory;
             this.ghStorage = ghStorage;
             this.chGraphs = chGraphs;
         }
@@ -81,11 +85,12 @@ public class ORSRouter extends Router {
         }
 
         protected Weighting createWeighting() {
-            return this.getRoutingCHGraph(this.profile.getName()).getWeighting();
+            return weightingFactory.createWeighting(profile, request.getHints(), false);
         }
 
         protected PathCalculator createPathCalculator(QueryGraph queryGraph) {
-            return new CorePathCalculator(new CoreRoutingAlgorithmFactory(this.getRoutingCHGraph(this.profile.getName()), queryGraph), getAlgoOpts());
+            RoutingAlgorithmFactory algorithmFactory = new CoreRoutingAlgorithmFactory(this.getRoutingCHGraph(this.profile.getName()), queryGraph);
+            return new CorePathCalculator(queryGraph, algorithmFactory, weighting, getAlgoOpts());
         }
 
         AlgorithmOptions getAlgoOpts() {

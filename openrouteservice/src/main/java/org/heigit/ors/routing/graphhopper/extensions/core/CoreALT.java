@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.ch.CHEntry;
 import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.BalancedWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
@@ -95,7 +96,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     @Override
-    protected SPTEntry createSPTEntry(int node, double weight, long time) {
+    protected CHEntry createCHEntry(int node, double weight, long time) {
         throw new IllegalStateException("use AStarEdge constructor directly");
     }
 
@@ -253,7 +254,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                      RoutingCHEdgeExplorer explorer, boolean reverse) {
         RoutingCHEdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
-            if (!accept(iter, currEdge.edge))
+            if (!accept(iter, currEdge, reverse))
                 continue;
 
             int traversalId = iter.getAdjNode();
@@ -315,7 +316,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     private void fillEdgesCore(AStarEntry currEdge, PriorityQueue<AStarEntry> prioQueue, IntObjectMap<AStarEntry> bestWeightMap, IntObjectMap<List<AStarEntry>> bestWeightMapCore, RoutingCHEdgeExplorer explorer, boolean reverse) {
         RoutingCHEdgeIterator iter = explorer.setBaseNode(currEdge.adjNode);
         while (iter.next()) {
-            if (!accept(iter, currEdge.edge))
+            if (!accept(iter, currEdge, reverse))
                 continue;
 
             int traversalId = iter.getAdjNode();
@@ -425,11 +426,11 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
         }
     }
 
-    public static class AStarEntry extends SPTEntry {
+    public static class AStarEntry extends CHEntry {
         double weightOfVisitedPath;
 
         public AStarEntry(int edgeId, int adjNode, double weightForHeap, double weightOfVisitedPath) {
-            super(edgeId, adjNode, weightForHeap);
+            super(edgeId, -1, adjNode, weightForHeap);//FIXME
             this.weightOfVisitedPath = weightOfVisitedPath;
         }
 

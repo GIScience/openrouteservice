@@ -23,6 +23,7 @@ import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 
@@ -32,7 +33,7 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
  * Given a {@link RoutingCHGraph} and possibly a {@link QueryGraph} this class sets up and creates routing
  * algorithm instances used for CH.
  */
-public class CoreRoutingAlgorithmFactory {
+public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     private final RoutingCHGraph routingCHGraph;
 
     public CoreRoutingAlgorithmFactory(RoutingCHGraph routingCHGraph, QueryGraph queryGraph) {
@@ -43,20 +44,21 @@ public class CoreRoutingAlgorithmFactory {
         this.routingCHGraph = routingCHGraph;
     }
 
-    public AbstractCoreRoutingAlgorithm createAlgo(AlgorithmOptions opts) {
+    @Override
+    public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
         AbstractCoreRoutingAlgorithm algo;
         String algoStr = DIJKSTRA_BI;//FIXME: opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(routingCHGraph, getWeighting());
-            //FIXME tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
+            CoreALT tmpAlgo = new CoreALT(routingCHGraph, weighting);
+            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts.getHints(), weighting, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
-            algo = new CoreDijkstra(routingCHGraph, getWeighting());
+            algo = new CoreDijkstra(routingCHGraph, weighting);
         } else if (TD_DIJKSTRA.equals(algoStr)) {
-            algo = new TDCoreDijkstra(routingCHGraph, getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
         } else if (TD_ASTAR.equals(algoStr)) {
-            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
             //FIXME tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else {
@@ -75,9 +77,5 @@ public class CoreRoutingAlgorithmFactory {
         algo.setEdgeFilter(levelFilter);
 
         return algo;
-    }
-
-    private Weighting getWeighting() {
-        return routingCHGraph.getWeighting();
     }
 }

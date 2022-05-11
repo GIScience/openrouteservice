@@ -483,7 +483,7 @@ public class RouteSearchParameters {
         this.profileParams = profileParams;
     }
 
-    public boolean getFlexibleMode() {
+    public boolean hasFlexibleMode() {
         return flexibleMode;
     }
 
@@ -580,7 +580,8 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || isProfileTypeHeavyVehicle() && getVehicleType() > 0
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed();
+            || hasMaximumSpeed()
+            || hasFlexibleMode();
     }
 
     /**

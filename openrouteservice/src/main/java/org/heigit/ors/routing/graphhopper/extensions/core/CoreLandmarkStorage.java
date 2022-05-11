@@ -33,6 +33,7 @@ import com.graphhopper.storage.*;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.util.*;
@@ -55,11 +56,16 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     private final GraphHopperStorage graph;
     private final CoreLMConfig lmConfig;
 
-    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
+    public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
+        this(dir, graph, (RoutingCHGraphImpl) graph.getCoreGraph(lmConfig.getSuperName()), lmConfig, landmarks);
+    }
+
+    //needed primarily for unit tests
+    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, RoutingCHGraph core, final CoreLMConfig lmConfig, int landmarks) {
         super(graph, dir, lmConfig, landmarks);
         this.graph = graph;
         this.lmConfig = lmConfig;
-        core = graph.getCoreGraph(lmConfig.getWeighting());
+        this.core = (RoutingCHGraphImpl) core;
         this.landmarksFilter = lmConfig.getEdgeFilter();
     }
 

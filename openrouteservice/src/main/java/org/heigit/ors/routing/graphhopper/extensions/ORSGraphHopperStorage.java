@@ -61,7 +61,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
     /**
      * @return the {@link RoutingCHGraph} for the specified profile name, or null if it does not exist
      */
-    public RoutingCHGraph getRoutingCoreGraph(String chName) {
+    public RoutingCHGraph getCoreGraph(String chName) {
         CHEntry chEntry = getCoreEntry(chName);
         return chEntry == null ? null : chEntry.chGraph;
     }
