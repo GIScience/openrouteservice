@@ -11,3 +11,5 @@ cgiar-cache
 srtm_38_03.zip
 logs/
 .attach_*
+# jqwik
+.jqwik-database
