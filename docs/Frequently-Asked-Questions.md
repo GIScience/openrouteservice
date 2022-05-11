@@ -1,6 +1,6 @@
 ---
 title: FAQ
-nav_order: 3
+nav_order: 6
 has_toc: true
 ---
 
@@ -32,29 +32,37 @@ There are three main reasons for this problem, listed in order of most to least 
    If routes in Heidelberg(Germany) can be found, the ors is still running on the
    default dataset.
 
-## How much RAM does building `file.pbf` need?
+## When does the OSM data update in the openrouteservice?
 
+The openrouteservice builds its data from the `planet.osm.pbf`-files. According
+to [the osm-wiki](https://wiki.openstreetmap.org/wiki/Planet.osm), these files
+take two days to build and are updated weekly.
 
-Here are a few examples of RAM usage for different `.pbf`-files on a machine with an Intel i7-6600U (2x2.6GHz):
+Since the `planet`-files are rather large (currently over 60GB), there is a bit
+of work involved to make sure the download went right and the file is not
+corrupted in any way and in fact new. Parts of this process are in the hands of
+the OSM, parts are done by the openrouteservice.
 
-| PBF-File                      | Size   | RAM used |
-|:-----------------------------:|:------:|----------------------|
-| berlin-latest.osm.pbf         |  67 Mb | 353 MB, max: 4.8GB used: 3.2GB
-| tennessee-latest.osm.pbf      | 120 Mb |
-| north-carolina-latest.osm.pbf | 293 Mb |
-| spain-latest.osm.pbf          | 948 Mb |
+Once the newest `planet`-file is on the openrouteservice-servers, it needs to
+be preprocessed before the openrouteservice can start building the graphs used
+for routing.
 
-## How long does it take to build `file.pbf`?
+The build process in itself is [rather
+resource-intensive](Installation/System-Requirements). It takes roughly two
+days for any one of the nine profiles. For the mentioned resource requirements,
+this means that it will take roughly a week for all profiles to be re-built.
 
-On a machine with an Intel i7-6600U (2x2.6GHz), it will take around 40 to 50 seconds to compile ors and start building graphs.
-This time is **not** included in the following table. Note, that graphs for all nine profiles were being built.
+Once the graphs are built, the production instances have to load them. Since
+this should happen in a low-traffic timeslot, it is also scheduled to happen
+once per week.
 
-| PBF-File                      | Size   | Build duration (min:sec) |
-|:-----------------------------:|:------:|--------------------------|
-| berlin-latest.osm.pbf         |  67 Mb | 09:58
-| tennessee-latest.osm.pbf      | 120 Mb |
-| north-carolina-latest.osm.pbf | 293 Mb |
-| spain-latest.osm.pbf          | 948 Mb |
+To sum up: if you change anything in the OSM, it will therefore take roughly a
+week until it's included in the `planet`-file. This gets read once a week, the
+build takes a week and reloading graphs happens once a week.
 
+If everything aligns as it should, changes should be reflected in the
+openrouteservice within two to three weeks.
 
-## 
+If, however, anything goes wrong anywhere, this will usually mean a delay of at
+least a week, assuming it gets noticed and fixed immediately. It is no sign of
+concern, if changes are not reflected within a month.
