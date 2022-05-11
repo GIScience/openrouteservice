@@ -5,8 +5,14 @@ has_toc: true
 ---
 
 # Frequently Asked Questions
+ {: .no_toc }
 
-## Why is my ors reporting `Could not find point`
+1. TOC
+{:toc}
+
+---
+
+## Why is my ors reporting `Could not find point`?
 
 This is a frequently encountered error message:
 ```
@@ -21,9 +27,11 @@ There are three main reasons for this problem, listed in order of most to least 
    (check help button for parameter info). Output is also [lon,lat] as by the
    GeoJSON Specification.
 
-2. The given start and endpoint are further than 350m away from any
-   routable road. The maximum distance for snapping to road segments in our API
-   is 350m. This can be customized for local installations via the TODO-parameter.
+2. The given start and endpoint are further than 350m away from any routable
+   road. The maximum distance for snapping to road segments in our API is 350m.
+ This can be customized for local installations via the
+  `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
+  [configuration](Installation/Configuration) for details.
 
 3. The start and enpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.
@@ -31,6 +39,8 @@ There are three main reasons for this problem, listed in order of most to least 
    been built for.
    If routes in Heidelberg(Germany) can be found, the ors is still running on the
    default dataset.
+
+---
 
 ## When does the OSM data update in the openrouteservice?
 
