@@ -24,10 +24,12 @@ import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHConfig;
+import com.graphhopper.storage.ConditionalEdges;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
@@ -66,7 +68,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static java.util.Collections.emptyList;
 
 
@@ -652,7 +653,7 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
 		loadOrPrepareCoreLM();
 
-		if(false && fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
+		if(fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
 			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
 			try {
 				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
@@ -672,18 +673,13 @@ public class ORSGraphHopper extends GraphHopper {
 			if (isPartitionPrepared()) {
 				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
-				List<CHProfile> profiles = new ArrayList<>();
-				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
-						Profile profile = null; // TODO: setup correctly
-						Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr).putObject("isochroneWeighting", "true"), false);
-						profiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
-					}
-				}
+				List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
+				for (Profile profile : profiles) {
+					Weighting weighting = createWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"), false);
+//					profiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
 
-				for (CHProfile chProfile : profiles) {
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-						calculateCellProperties(chProfile.getWeighting(), partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
+						calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 					}
 				}
 			}

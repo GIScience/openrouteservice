@@ -268,12 +268,31 @@ public class RoutingProfile {
             }
 
             if (prepareFI) {
+                //Copied from core
                 if (fastisochroneOpts.hasPath(KEY_THREADS))
                     ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
-                if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS))
-                    ghConfig.putObject(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS)));
                 if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
                     ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
+                if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS)) {
+                    List<Profile> fastisochronesProfiles = new ArrayList<>();
+                    String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS));
+                    for (String weighting : fastisochronesWeightingsString.split(",")) {
+                        String configStr = "";
+                        weighting = weighting.trim();
+                        if (weighting.contains("|")) {
+                            configStr = weighting;
+                            weighting = weighting.split("\\|")[0];
+                        }
+                        PMap configMap = new PMap(configStr);
+                        boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
+
+                        String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
+                        Profile profile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions);
+                        profiles.put(profileName, profile);
+                        fastisochronesProfiles.add(profile);
+                    }
+                    ghConfig.setFastisochroneProfiles(fastisochronesProfiles);
+                }
             }
         }
 
