@@ -20,12 +20,12 @@ package org.heigit.ors.fastisochrones;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
-import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 
 import java.util.PriorityQueue;
@@ -44,7 +44,7 @@ public abstract class AbstractIsochroneDijkstra extends AbstractRoutingAlgorithm
     protected boolean reverseDirection = false;
 
     protected AbstractIsochroneDijkstra(Graph graph, Weighting weighting) {
-        super(graph, weighting, TraversalMode.NODE_BASED);
+        super(graph, weighting, weighting.hasTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
     }

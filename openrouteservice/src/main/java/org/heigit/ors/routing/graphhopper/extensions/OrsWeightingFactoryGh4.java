@@ -1,21 +1,23 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
+import com.graphhopper.config.Profile;
 import com.graphhopper.routing.DefaultWeightingFactory;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.PriorityWeighting;
-import com.graphhopper.routing.weighting.TurnCostProvider;
-import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.util.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.graphhopper.util.Helper.toLowerCase;
 
 /**
  * This class is a preliminary adaptation of ORSWeightingFactory to the new
@@ -29,10 +31,12 @@ import java.util.Map;
  */
 public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
     private GraphHopperStorage graphStorage;
+    private EncodingManager encodingManager;
 
     public OrsWeightingFactoryGh4(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
         super(ghStorage, encodingManager);
         graphStorage = ghStorage; // TODO: cleanup - this references the same storage as in super
+        this.encodingManager = encodingManager; // TODO: cleanup - this references the same storage as in super
     }
 
     @Override
@@ -63,6 +67,37 @@ public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
         weighting = applySoftWeightings(hints, encoder, weighting);
 
         return weighting;
+    }
+
+    public Weighting createIsochroneWeighting(Profile profile, PMap requestHints) {
+        FlagEncoder encoder = this.encodingManager.getEncoder(profile.getVehicle());
+        String weightingStr = toLowerCase(profile.getWeighting());
+        Weighting result = null;
+
+        //Isochrones only support fastest or shortest as no path is found.
+        //CalcWeight must be directly comparable to the isochrone limit
+
+        if ("shortest".equalsIgnoreCase(weightingStr))
+        {
+            result = new ShortestWeighting(encoder);
+        }
+        else if ("fastest".equalsIgnoreCase(weightingStr)
+                || "priority".equalsIgnoreCase(weightingStr)
+                || "recommended_pref".equalsIgnoreCase(weightingStr)
+                || "recommended".equalsIgnoreCase(weightingStr))
+        {
+            result = new FastestWeighting(encoder, requestHints);
+        }
+
+        return result;
+    }
+
+    public static Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
+        if (travelRangeType == TravelRangeType.TIME) {
+            return new FastestWeighting(searchContext.getEncoder());
+        } else {
+            return new ShortestWeighting(searchContext.getEncoder());
+        }
     }
 
     @Override

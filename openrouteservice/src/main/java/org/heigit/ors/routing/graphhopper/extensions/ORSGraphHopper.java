@@ -47,7 +47,6 @@ import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.IsochroneWeightingFactory;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
@@ -671,8 +670,7 @@ public class ORSGraphHopper extends GraphHopper {
 				calculateContours();
 				List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
 				for (Profile profile : profiles) {
-					Weighting weighting = createWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"), false);
-//					profiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
+					Weighting weighting = ((OrsWeightingFactoryGh4) createWeightingFactory()).createIsochroneWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"));
 
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 						calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
@@ -869,9 +867,8 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-		return eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
+		return eccentricity != null && eccentricity.isAvailable(OrsWeightingFactoryGh4.createIsochroneWeighting(searchContext, travelRangeType));
 	}
-
 
 	/**
 	 * Partitioning
