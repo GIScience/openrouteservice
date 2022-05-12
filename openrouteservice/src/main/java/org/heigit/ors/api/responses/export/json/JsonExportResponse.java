@@ -24,22 +24,39 @@ public class JsonExportResponse extends ExportResponse {
     @JsonProperty("edges")
     public List<JsonEdge> edges;
 
+    @JsonProperty("edges_extra")
+    public List<JsonEdgeExtra> edgesExtra;
+
     @JsonProperty("warning")
     public JSONWarning warning;
+
+    @JsonProperty("nodes_count")
+    public Long nodesCount;
+
+    @JsonProperty("edges_count")
+    public Long edgesCount;
 
     public JsonExportResponse(ExportResult exportResult) {
         super(exportResult);
 
-        this.nodes = new ArrayList<>();
+        nodes = new ArrayList<>();
         for (Map.Entry<Integer, Coordinate> location : exportResult.getLocations().entrySet()) {
-            this.nodes.add(new JsonNode(location));
+            nodes.add(new JsonNode(location));
         }
+        nodesCount = nodes.stream().count();
 
-        this.edges = new ArrayList<>();
+        edges = new ArrayList<>();
         for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeigths().entrySet()) {
-            this.edges.add(new JsonEdge(edgeWeight));
+            edges.add(new JsonEdge(edgeWeight));
         }
+        edgesCount = edges.stream().count();
 
+        if (exportResult.hasEdgeExtras()) {
+            edgesExtra = new ArrayList<>();
+            for (Map.Entry<Integer, Map<String, Object>> edge : exportResult.getEdgeExtras().entrySet()) {
+                edgesExtra.add(new JsonEdgeExtra(edge));
+            }
+        }
 
         if (exportResult.hasWarning()) {
             ExportWarning warning = exportResult.getWarning();

@@ -57,6 +57,8 @@ import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -894,6 +896,18 @@ public class RoutingProfile {
                     double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
                     Pair<Integer, Integer> p = new Pair<>(from, to);
                     res.addEdge(p, weight);
+
+                    WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
+                    if (storage != null) {
+                        WheelchairAttributes attributes = new WheelchairAttributes();
+                        byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
+                        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+                        Map<String, Object> extra = new HashMap<>();
+                        extra.put("incline", attributes.getIncline());
+                        extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
+                        extra.put("suitable", attributes.isSuitable());
+                        res.addEdgeExtra(iter.getEdge(), extra);
+                    }
                 }
             }
         }

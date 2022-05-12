@@ -1,7 +1,6 @@
 package org.heigit.ors.export;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import org.heigit.ors.export.ExportWarning;
 import org.heigit.ors.common.Pair;
 
 import java.util.HashMap;
@@ -10,7 +9,8 @@ import java.util.Map;
 public class ExportResult {
     private Map<Integer, Coordinate> locations;
     private Map<Pair<Integer, Integer>, Double> edgeWeigths;
-        private ExportWarning warning;
+    private Map<Integer, Map<String, Object>> edgeExtras;
+    private ExportWarning warning;
 
 
         public ExportResult() {
@@ -47,4 +47,16 @@ public class ExportResult {
 
         public boolean hasWarning() {return this.warning != null; }
 
+        public Map<Integer, Map<String, Object>> getEdgeExtras() {
+                return edgeExtras;
+        }
+
+        public void addEdgeExtra(Integer edge, Map<String, Object> extra) {
+            if (edgeExtras == null) {
+                edgeExtras = new HashMap<>();
+            }
+            this.edgeExtras.put(edge, extra);
+        }
+
+        public boolean hasEdgeExtras() {return edgeExtras != null; }
 }
