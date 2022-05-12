@@ -207,7 +207,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     protected CHEntry createCHEntry(int node, double weight, long time) {
-        CHEntry entry = new CHEntry(EdgeIterator.NO_EDGE, -1, node, weight);
+        CHEntry entry = new CHEntry(EdgeIterator.NO_EDGE, EdgeIterator.NO_EDGE, node, weight);
         entry.time = time;
         return entry;
     }

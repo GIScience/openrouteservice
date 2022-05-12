@@ -47,12 +47,10 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
         AbstractCoreRoutingAlgorithm algo;
-        String algoStr = DIJKSTRA_BI;//FIXME: opts.getAlgorithm();
+        String algoStr = ASTAR_BI;//FIXME: opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(routingCHGraph, weighting);
-            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts.getHints(), weighting, graph.getNodeAccess()));
-            algo = tmpAlgo;
+            algo = new CoreALT(routingCHGraph, weighting);
         } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(routingCHGraph, weighting);
         } else if (TD_DIJKSTRA.equals(algoStr)) {

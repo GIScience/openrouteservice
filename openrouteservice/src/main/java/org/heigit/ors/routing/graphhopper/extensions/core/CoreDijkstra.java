@@ -225,7 +225,6 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 continue;
 
             int traversalId = iter.getAdjNode();
-            // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
             double tmpWeight = calcEdgeWeight(iter, currEdge, reverse);
             if (Double.isInfinite(tmpWeight))
                 continue;
@@ -249,12 +248,13 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
 
                 if (ee == null) {
                     ee = new CHEntry(iter.getEdge(), getIncEdge(iter, reverse), iter.getAdjNode(), tmpWeight);
-                    // Modification by Maxim Rylov: Assign the original edge id.
                     ee.originalEdge = iter.getOrigEdge();
                     entries.add(ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
                     ee.edge = iter.getEdge();
+                    ee.originalEdge = iter.getOrigEdge();
+                    ee.incEdge = getIncEdge(iter, reverse);
                     ee.weight = tmpWeight;
                 } else
                     continue;
@@ -269,12 +269,13 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 CHEntry ee = bestWeightMap.get(traversalId);
                 if (ee == null) {
                     ee = new CHEntry(iter.getEdge(), getIncEdge(iter, reverse), iter.getAdjNode(), tmpWeight);
-                    // Modification by Maxim Rylov: Assign the original edge id.
                     ee.originalEdge = iter.getOrigEdge();
                     bestWeightMap.put(traversalId, ee);
                 } else if (ee.weight > tmpWeight) {
                     prioQueue.remove(ee);
                     ee.edge = iter.getEdge();
+                    ee.originalEdge = iter.getOrigEdge();
+                    ee.incEdge = getIncEdge(iter, reverse);
                     ee.weight = tmpWeight;
                 } else
                     continue;
@@ -307,14 +308,14 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
         ListIterator<CHEntry> it = entries.listIterator();
         while (it.hasNext()) {
             CHEntry entryOther = it.next();
-
+            // u-turn check neccessary because getTurnWeight discards them based on originalEdge which is -1 for shortcuts
             if (entryCurrent.edge == entryOther.edge)
                 continue;
 
             double newWeight = entryCurrent.weight + entryOther.weight;
-
             if (newWeight < bestWeight) {
                 double turnWeight = getTurnWeight(entryCurrent.originalEdge, entryCurrent.adjNode, entryOther.originalEdge, reverse);
+                // currently only infinite (u-)turn costs are supported
                 if (Double.isInfinite(turnWeight))
                     continue;
 
