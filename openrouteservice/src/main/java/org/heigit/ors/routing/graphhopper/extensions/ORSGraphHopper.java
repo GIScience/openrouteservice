@@ -51,11 +51,10 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
-import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
+import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -644,8 +643,10 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		//Create the landmarks in the core
-		if (coreLMPreparationHandler.isEnabled())
+		if (coreLMPreparationHandler.isEnabled()) {
+			initCoreLMPreparationHandler();
 			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
+		}
 		loadOrPrepareCoreLM();
 
 		if(fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
@@ -762,9 +763,6 @@ public class ORSGraphHopper extends GraphHopper {
 			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
 		else
 			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
-
-		if (coreLMPreparationHandler.isEnabled())
-			initCoreLMPreparationHandler();
 	}
 
 	private void initCorePreparationHandler() {
@@ -782,12 +780,19 @@ public class ORSGraphHopper extends GraphHopper {
 		if (coreLMPreparationHandler.hasLMProfiles())
 			return;
 
+		CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
+		coreLMOptions.createRestrictionFilters(getGraphHopperStorage());
+
 		for (LMProfile lmProfile : coreLMPreparationHandler.getLMProfiles()) {
 			if (lmProfile.usesOtherPreparation())
 				continue;
 			Profile profile = profilesByName.get(lmProfile.getProfile());
 			Weighting weighting = createWeighting(profile, new PMap(), true);
-			coreLMPreparationHandler.addLMConfig(new CoreLMConfig(profile.getName(), weighting));
+			for (LMEdgeFilterSequence edgeFilter : coreLMOptions.getFilters()) {
+				CoreLMConfig coreLMConfig = new CoreLMConfig(profile.getName(), weighting);
+				coreLMConfig.setEdgeFilter(edgeFilter);
+				coreLMPreparationHandler.addLMConfig(coreLMConfig);
+			}
 		}
 	}
 

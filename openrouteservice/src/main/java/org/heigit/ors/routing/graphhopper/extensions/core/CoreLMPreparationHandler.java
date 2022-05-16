@@ -13,12 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.config.LMProfile;
+import com.graphhopper.config.Profile;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.lm.PrepareLandmarks;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
+import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
@@ -60,8 +64,6 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
     @Override
     protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LandmarkSuggestion> lmSuggestions) {
-        coreLMOptions.createRestrictionFilters(ghStorage);
-
         for (LMConfig lmConfig : getLMConfigs()) {
             if (!(lmConfig instanceof CoreLMConfig))
                 throw(new IllegalStateException("Expected instance of CoreLMConfig"));
@@ -79,16 +81,14 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                 throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
                         "Couldn't find " + lmConfigName  + " in " + getMaximumWeights());
 
-            for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
-                PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                        coreLMConfig.setEdgeFilter(edgeFilterSequence), getLandmarks(), coreNodeIdMap).
-                        setLandmarkSuggestions(lmSuggestions).
-                        setMaximumWeight(maximumWeight).
-                        setLogDetails(getLogDetails());
-                if (getMinNodes() > 1)
-                    tmpPrepareLM.setMinimumNodes(getMinNodes());
-                addPreparation(tmpPrepareLM);
-            }
+            PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
+                    coreLMConfig, getLandmarks(), coreNodeIdMap).
+                    setLandmarkSuggestions(lmSuggestions).
+                    setMaximumWeight(maximumWeight).
+                    setLogDetails(getLogDetails());
+            if (getMinNodes() > 1)
+                tmpPrepareLM.setMinimumNodes(getMinNodes());
+            addPreparation(tmpPrepareLM);
         }
     }
 
