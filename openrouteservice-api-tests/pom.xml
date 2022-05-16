@@ -1,14 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.heigit.ors</groupId>
+	<parent>
+		<artifactId>openrouteservice</artifactId>
+		<groupId>org.heigit.ors</groupId>
+		<version>7.0.0</version>
+	</parent>
     <artifactId>openrouteservice-api-tests</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <name>openrouteservice-api-tests</name>
-    <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,21 +51,12 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
-            <id>HeiGIT main</id>
-            <name>Central repository for HeiGIT service dependency related artefacts</name>
-            <url>https://repo.heigit.org/artifactory/main</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>4.3.1</version>
+            <version>5.0.1</version>
             <scope>test</scope>
         </dependency>
 

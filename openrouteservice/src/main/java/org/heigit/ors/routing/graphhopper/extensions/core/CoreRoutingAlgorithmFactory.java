@@ -18,14 +18,16 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.RoutingAlgorithm;
+import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.RoutingProfile;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
@@ -54,9 +56,9 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
         } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(routingCHGraph, weighting);
         } else if (TD_DIJKSTRA.equals(algoStr)) {
-            algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RoutingProfile.KEY_ARRIVAL));
         } else if (TD_ASTAR.equals(algoStr)) {
-            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RoutingProfile.KEY_ARRIVAL));
             //FIXME tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
             algo = tmpAlgo;
         } else {

@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import org.heigit.ors.api.requests.common.APIEnums;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -152,15 +150,15 @@ public final class WheelchairTypesEncoder {
 
     public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
         switch(attribute) {
-            case SMOOTHNESS: return getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
+            case SMOOTHNESS: return getSmoothnessType(value);
             case SURFACE: return getSurfaceType(value);
             case TRACK: return getTrackType(value);
             default: throw new Exception("Attribute is not a recognised encoded type");
         }
     }
     
-    public static int getSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {
-    	return SMOOTHNESS_MAP.getOrDefault(smoothnessType.toString(), -1);
+    public static int getSmoothnessType(String smoothnessType) {
+    	return SMOOTHNESS_MAP.getOrDefault(smoothnessType, -1);
     }
     
     public static int getTrackType(String value) {

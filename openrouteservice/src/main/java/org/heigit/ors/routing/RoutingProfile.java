@@ -30,7 +30,6 @@ import com.typesafe.config.Config;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityWarning;
@@ -40,7 +39,6 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -111,6 +109,8 @@ public class RoutingProfile {
     private static final int KEY_FLEX_STATIC = 0;
     private static final int KEY_FLEX_PREPROCESSED = 1;
     private static final int KEY_FLEX_FULLY = 2;
+    public static final String KEY_DEPARTURE = "departure";
+    public static final String KEY_ARRIVAL = "arrival";
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
@@ -1124,9 +1124,9 @@ public class RoutingProfile {
 
             if (searchParams.isTimeDependent()) {
                 if (searchParams.hasDeparture())
-                    req.getHints().putObject(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
+                    req.getHints().putObject(KEY_DEPARTURE, searchParams.getDeparture());
                 else if (searchParams.hasArrival())
-                    req.getHints().putObject(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
+                    req.getHints().putObject(KEY_ARRIVAL, searchParams.getArrival());
             }
 
             if (astarEpsilon != null)

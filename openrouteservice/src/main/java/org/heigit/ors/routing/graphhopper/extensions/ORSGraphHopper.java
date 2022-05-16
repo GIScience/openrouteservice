@@ -38,7 +38,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -50,6 +49,7 @@ import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
@@ -437,7 +437,7 @@ public class ORSGraphHopper extends GraphHopper {
 //	}
 
 	private boolean isRequestTimeDependent(PMap hints) {
-		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
+		return hints.has(RoutingProfile.KEY_DEPARTURE) || hints.has(RoutingProfile.KEY_ARRIVAL);
 	}
 
 	public Weighting createTimeDependentAccessWeighting(Weighting weighting) {

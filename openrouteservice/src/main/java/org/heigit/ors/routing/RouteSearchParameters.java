@@ -17,9 +17,6 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -55,6 +52,7 @@ public class RouteSearchParameters {
     public static final String KEY_PROFILE_PARAMS = "profile_params";
     public static final String KEY_AVOID_FEATURES = "avoid_features";
     public static final String KEY_AVOID_POLYGONS = "avoid_polygons";
+    public static final String KEY_ALTERNATIVE_ROUTES = "alternative_routes";
     public static final String KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR = "alternative_routes_weight_factor";
     public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
     private int profileType;
@@ -348,7 +346,7 @@ public class RouteSearchParameters {
                     wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jRestrictions.getString("track_type")));
 
                 if (jRestrictions.has("smoothness_type"))
-                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.forValue(jRestrictions.getString("smoothness_type"))));
+                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(jRestrictions.getString("smoothness_type")));
 
                 if (jRestrictions.has("maximum_sloped_kerb"))
                     wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
@@ -411,7 +409,7 @@ public class RouteSearchParameters {
                         }
                     }
                 } catch (InternalServerException e) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
                 }
             }
         }
@@ -420,12 +418,12 @@ public class RouteSearchParameters {
             try {
                 alternativeRoutesCount = json.getInt("alternative_routes_count");
             } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_ALTERNATIVE_ROUTES, json.getString("alternative_routes"));
             }
             String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
             int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
             if (countLimit > 0 && alternativeRoutesCount > countLimit) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
             if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {

@@ -38,7 +38,7 @@
 
 	<filter>
 		<filter-name>CompressionFilter</filter-name> 
-		<filter-class>org.heigit.ors.servlet.filters.CompressionFilter</filter-class>
+		<filter-class>org.heigit.ors.api.servlet.filters.CompressionFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>CompressionFilter</filter-name>
@@ -47,7 +47,7 @@
   
 	<filter>
 		<filter-name>StatusCodeHandlerFilter</filter-name>
-		<filter-class>org.heigit.ors.servlet.filters.StatusCodeHandlerFilter</filter-class>
+		<filter-class>org.heigit.ors.api.servlet.filters.StatusCodeHandlerFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>StatusCodeHandlerFilter</filter-name>
@@ -57,13 +57,13 @@
   
     <!-- LISTENERS -->
 	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.LoggingStartupContextListener</listener-class>
+		<listener-class>org.heigit.ors.api.servlet.listeners.LoggingStartupContextListener</listener-class>
 	</listener>
 	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.ORSInitContextListener</listener-class>
+		<listener-class>org.heigit.ors.api.servlet.listeners.ORSInitContextListener</listener-class>
 	</listener>
 	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.ORSKafkaConsumerInitContextListener</listener-class>
+		<listener-class>org.heigit.ors.api.servlet.listeners.ORSKafkaConsumerInitContextListener</listener-class>
 	</listener>
 </web-app>
 
