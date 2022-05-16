@@ -4,8 +4,8 @@ import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +31,6 @@ public class FastIsochroneFactoryTest {
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         assertTrue(fastIsochroneFactory.isEnabled());
         assertTrue(fastIsochroneFactory.isDisablingAllowed());
-        assertEquals("fastest", fastIsochroneFactory.getFastisochroneProfileStrings().iterator().next());
     }
 
     @Test
