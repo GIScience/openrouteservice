@@ -51,13 +51,8 @@ limitations under the License.
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <spring.version>2.5.13</spring.version>
     </properties>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.13</version>
-    </parent>
 
     <modules>
         <module>openrouteservice</module>
@@ -66,49 +61,37 @@ limitations under the License.
     </modules>
 
     <build>
-        <finalName>ors</finalName>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>resources/locales/*.resources</include>
-                    <include>logs/*</include>
-                    <include>resources/version.properties</include>
-                    <include>application.properties</include>
-                    <include>resources/services/locations/categories.txt</include>
-                    <include>resources/services/routing/speed_limits/*.*</include>
-                    <include>META-INF/services/*.*</include>
-                    <include>app.config*</include>
-                    <include>ors-config*.json</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>../openrouteservice-api-tests/conf</directory>
-                <includes>
-                    <include>ors-config-test.json</include>
-                </includes>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
-
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
-            </plugin>
-            <plugin>
-                <!-- Java 11 upgrade -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <configuration>
-                    <generateBackupPoms>false</generateBackupPoms>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                &lt;!&ndash; Java 11 upgrade &ndash;&gt;-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>versions-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <generateBackupPoms>false</generateBackupPoms>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-antrun-plugin</artifactId>-->
+<!--                <version>1.8</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <echo>Creating version file</echo>-->
+<!--                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"-->
+<!--                                      tofile="${basedir}/target/version.properties"/>-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -117,23 +100,23 @@ limitations under the License.
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.3</version>
-                <configuration>
-                    <warSourceDirectory>WebContent</warSourceDirectory>
-                    <webXml>WebContent/WEB-INF/web.xml</webXml>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <!-- <attachClasses>true</attachClasses>
-                    <classesClassifier>classes</classesClassifier> -->
-                    <!-- <archive>
-                      <manifest>
-                        <addClasspath>true</addClasspath>
-                        <mainClass>ors.heigit.routing.GraphBuilder</mainClass>
-                      </manifest>
-                    </archive>-->
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <artifactId>maven-war-plugin</artifactId>-->
+<!--                <version>3.2.3</version>-->
+<!--                <configuration>-->
+<!--                    <warSourceDirectory>WebContent</warSourceDirectory>-->
+<!--                    <webXml>WebContent/WEB-INF/web.xml</webXml>-->
+<!--                    <failOnMissingWebXml>false</failOnMissingWebXml>-->
+<!--                    &lt;!&ndash; <attachClasses>true</attachClasses>-->
+<!--                    <classesClassifier>classes</classesClassifier> &ndash;&gt;-->
+<!--                    &lt;!&ndash; <archive>-->
+<!--                      <manifest>-->
+<!--                        <addClasspath>true</addClasspath>-->
+<!--                        <mainClass>ors.heigit.routing.GraphBuilder</mainClass>-->
+<!--                      </manifest>-->
+<!--                    </archive>&ndash;&gt;-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 <!--            <plugin>-->
 <!--                <groupId>org.apache.tomcat.maven</groupId>-->
 <!--                <artifactId>tomcat7-maven-plugin</artifactId>-->
@@ -197,13 +180,6 @@ limitations under the License.
 <!--            <plugin>-->
 <!--                <groupId>org.springframework.boot</groupId>-->
 <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>repackage</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
 <!--            </plugin>-->
 <!--            <plugin>&lt;!&ndash; clean up from war:inplace  &ndash;&gt;-->
 <!--                <artifactId>maven-clean-plugin</artifactId>-->
@@ -222,45 +198,19 @@ limitations under the License.
 <!--                <version>3.2.0</version>-->
 <!--            </plugin>-->
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-                <configuration>
-                    <!--suppress UnresolvedMavenProperty -->
-                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                        <include>**/*Properties.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
-                <executions>
-                    <!-- prepare agent for measuring unit tests -->
-                    <execution>
-                        <id>prepare-unit-tests</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${sonar.jacoco.reportPath}</destFile>
-                            <propertyName>surefireArgLine</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-surefire-plugin</artifactId>-->
+<!--                <version>2.22.2</version>-->
+<!--                <configuration>-->
+<!--                    &lt;!&ndash;suppress UnresolvedMavenProperty &ndash;&gt;-->
+<!--                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>-->
+<!--                    <includes>-->
+<!--                        <include>**/*Tests.java</include>-->
+<!--                        <include>**/*Properties.java</include>-->
+<!--                    </includes>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
@@ -289,24 +239,19 @@ limitations under the License.
         </repository>
     </repositories>
 
-<!--    <dependencyManagement>-->
-<!--        <dependencies>-->
-<!--            <dependency>-->
-<!--                <groupId>org.junit</groupId>-->
-<!--                <artifactId>junit-bom</artifactId>-->
-<!--                <version>5.8.2</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-<!--        </dependencies>-->
-<!--    </dependencyManagement>-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.8.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
         <dependency>
             <!-- Java 11 upgrade -->
             <groupId>javax.annotation</groupId>
@@ -400,62 +345,18 @@ limitations under the License.
             <scope>test</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>javax.servlet</groupId>-->
-<!--            <artifactId>javax.servlet-api</artifactId>-->
-<!--            <version>4.0.1</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
             <version>1.5.0</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- remove the comment to enable debugging
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.20</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.20</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.20</version>
-        </dependency>
-        -->
-
-        <dependency>
-            <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-core</artifactId>
-            <version>4.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-web-api</artifactId>
-            <version>4.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -529,6 +430,7 @@ limitations under the License.
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.11.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
