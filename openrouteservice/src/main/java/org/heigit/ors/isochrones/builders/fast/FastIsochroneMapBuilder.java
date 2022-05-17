@@ -77,6 +77,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private RouteSearchContext searchcontext;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
+    private QueryGraph queryGraph;
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
@@ -145,8 +146,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
 
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
-        QueryGraph queryGraph = QueryGraph.create(graph, snaps);
-
+        queryGraph = QueryGraph.create(graph, snaps);
         int from = res.getClosestNode();
 
         //This calculates the nodes that are within the limit
@@ -799,7 +799,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private List<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
         List<GHIntObjectHashMap<SPTEntry>> disconnectedCells = new ArrayList<>();
-        EdgeExplorer edgeExplorer = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph().createEdgeExplorer();
+        EdgeExplorer edgeExplorer = queryGraph.createEdgeExplorer();
         Queue<Integer> queue = new ArrayDeque<>();
         IntHashSet visitedNodes = new IntHashSet(map.size());
         for (IntObjectCursor<SPTEntry> entry : map) {
