@@ -33,7 +33,7 @@ public class ParamsTest extends ServiceTest {
     public ParamsTest() {
         // Locations
         addParameter("preference", "fastest");
-        addParameter("carProfile", "driving-hgv");
+        addParameter("hgvProfile", "driving-hgv");
 
         JSONArray firstLocation = new JSONArray();
         firstLocation.put(8.681495);
@@ -101,7 +101,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -120,7 +120,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -139,7 +139,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -161,7 +161,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -183,7 +183,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -205,7 +205,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -227,7 +227,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -250,7 +250,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -272,7 +272,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -292,7 +292,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -315,7 +315,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
@@ -329,7 +329,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
@@ -355,7 +355,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
@@ -380,7 +380,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
@@ -400,7 +400,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/blah")
@@ -412,7 +412,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath()+"/{profile}/geojson")
@@ -422,26 +422,27 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(406);
     }
 
-    @Test
-    public void testDestination() {
-
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_1800"));
-        body.put("range_type", "time");
-        body.put("interval", getParameter("interval_200"));
-        body.put("location_type", "destination");
-
-        given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
-                .statusCode(200);
-    }
+    //Currently no support for location type destination with fast isochrones
+//    @Test
+//    public void testDestination() {
+//
+//        JSONObject body = new JSONObject();
+//        body.put("locations", getParameter("locations_1"));
+//        body.put("range", getParameter("ranges_1800"));
+//        body.put("range_type", "time");
+//        body.put("interval", getParameter("interval_200"));
+//        body.put("location_type", "destination");
+//
+//        given()
+//                .header("Accept", "application/geo+json")
+//                .header("Content-Type", "application/json")
+//                .pathParam("profile", getParameter("hgvProfile"))
+//                .body(body.toString())
+//                .when()
+//                .post(getEndPointPath() + "/{profile}/geojson")
+//                .then()
+//                .statusCode(200);
+//    }
 
     @Test
     public void testStart() {
@@ -456,7 +457,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -478,7 +479,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -501,7 +502,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -525,7 +526,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -546,12 +547,12 @@ public class ParamsTest extends ServiceTest {
         body.put("range", ranges);
         body.put("range_type", "time");
         body.put("interval", getParameter("interval_200"));
-        body.put("location_type", "destination");
+        body.put("location_type", "start");
 
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -579,7 +580,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -601,7 +602,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -625,7 +626,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -649,7 +650,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -676,7 +677,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -701,7 +702,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -726,7 +727,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -739,7 +740,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -752,7 +753,7 @@ public class ParamsTest extends ServiceTest {
         given()
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
