@@ -91,7 +91,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         AreaIndex<SplitArea> areaIndex = getAreaIndex();
         boolean logDetails = isLogDetails();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
-        int coreNodes = core.getCoreNodes();
+        int coreNodes = getBaseNodes();
 
         // fill 'from' and 'to' weights with maximum value
         long maxBytes = (long) coreNodes * LM_ROW_LENGTH;
@@ -222,6 +222,11 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     @Override
     public int getIndex(int node) {
         return coreNodeIdMap.get(node);
+    }
+
+    @Override
+    protected int getBaseNodes() {
+        return core.getCoreNodes();
     }
 
     protected static class CoreEdgeFilter implements CHEdgeFilter {
