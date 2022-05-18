@@ -185,7 +185,7 @@ public class UnitsConverter {
 
                 // Replace textual descriptions with assumed values
                 unprocessedInclineValue = unprocessedInclineValue.replace("up", "10");
-                unprocessedInclineValue = unprocessedInclineValue.replace("down", "10");
+                unprocessedInclineValue = unprocessedInclineValue.replace("down", "-10");
                 unprocessedInclineValue = unprocessedInclineValue.replace("yes", "10");
                 unprocessedInclineValue = unprocessedInclineValue.replace("steep", "15");
                 unprocessedInclineValue = unprocessedInclineValue.replace("no", "0");
