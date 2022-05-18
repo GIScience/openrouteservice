@@ -32,11 +32,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import java.io.File;
 import java.io.IOException;
 import java.io.InvalidObjectException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HereTrafficReader {
     private static final Logger LOGGER = Logger.getLogger(HereTrafficReader.class);
@@ -139,9 +135,9 @@ public class HereTrafficReader {
     }
 
     private HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> readRefPatterns() {
-        ArrayList<ArrayList<String>> rawPatternReferenceList = CSVUtility.readFile(patternsReferenceFile);
+        List<List<String>> rawPatternReferenceList = CSVUtility.readFile(patternsReferenceFile);
         HashMap<Integer, EnumMap<TrafficEnums.TravelDirection, Integer[]>> processedPatternReferenceList = new HashMap<>();
-        for (ArrayList<String> rawPatternReference : rawPatternReferenceList) {
+        for (List<String> rawPatternReference : rawPatternReferenceList) {
             EnumMap<TrafficEnums.TravelDirection, Integer[]> patternMap = new EnumMap<>(TrafficEnums.TravelDirection.class);
             Integer linkId = Integer.parseInt(rawPatternReference.get(0));
             TrafficEnums.TravelDirection travelDirection = TrafficEnums.TravelDirection.forValue(rawPatternReference.get(1));
@@ -160,9 +156,9 @@ public class HereTrafficReader {
     }
 
     private Map<Integer, TrafficPattern> readPatterns() {
-        ArrayList<ArrayList<String>> patterns = CSVUtility.readFile(patternsFile);
+        List<List<String>> patterns = CSVUtility.readFile(patternsFile);
         Map<Integer, TrafficPattern> hereTrafficPatterns = new HashMap<>();
-        for (ArrayList<String> pattern : patterns) {
+        for (List<String> pattern : patterns) {
             int patternID = Integer.parseInt(pattern.get(0));
             short[] patternValues = new short[pattern.size() - 1];
             for (int i = 1; i < pattern.size(); i++) {

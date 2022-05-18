@@ -83,6 +83,11 @@ public class NoiseIndexGraphStorage implements GraphExtension {
         return this;
     }
 
+    @Override
+    public void init(Graph graph, Directory directory) {
+        // TODO: not implemented yet
+    }
+
     /**
      * This method makes sure that the underlying data is written to the storage. Keep in mind that
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
@@ -110,7 +115,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     /**
      * @return the allocated storage size in bytes
      */
-    @Override
+    // TODO: @Override
     public long getCapacity() {
         return orsEdges.getCapacity();
     }

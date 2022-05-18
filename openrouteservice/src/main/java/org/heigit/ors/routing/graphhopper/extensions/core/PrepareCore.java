@@ -130,9 +130,11 @@ public class PrepareCore extends PrepareContractionHierarchies {
         prepareGraph.prepareForContraction();
     }
 
-    @Override
+    // TODO: @Override
     protected long getNodesToAvoidContract(int initSize) {
-        return restrictedNodesCount + super.getNodesToAvoidContract(initSize - restrictedNodesCount) + 1;// offset by one in order to avoid contraction of first core node!
+        // TODO: this probably works differently now:
+        // return restrictedNodesCount + super.getNodesToAvoidContract(initSize - restrictedNodesCount) + 1;// offset by one in order to avoid contraction of first core node!
+        return 0; // TODO: temporary fix to make it compile
     }
 
     @Override
@@ -146,11 +148,13 @@ public class PrepareCore extends PrepareContractionHierarchies {
             coreNodeContractor.insertShortcuts(sortedNodes.poll());
     }
 
-    @Override
+    // TODO: @Override
     public float calculatePriority(int node) {
         if (restrictedNodes[node])
             return RESTRICTION_PRIORITY;
-        else
-            return super.calculatePriority(node);
+        else {
+            // TODO: this probably works differently now: return super.calculatePriority(node);
+            return 0.0f; // TODO: temporary fix to make it compile
+        }
     }
 }

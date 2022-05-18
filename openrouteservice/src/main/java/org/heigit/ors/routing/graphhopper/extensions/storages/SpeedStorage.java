@@ -38,6 +38,11 @@ public class SpeedStorage implements GraphExtension {
         return true;
     }
 
+    @Override
+    public void flush() {
+        // TODO: not implemented yet
+    }
+
     /**
      * Creates the storage and defaults all values to Byte.MIN_VALUE
      *
@@ -86,7 +91,7 @@ public class SpeedStorage implements GraphExtension {
         return speedData.isClosed();
     }
 
-    @Override
+    // TODO: @Override
     public long getCapacity() {
         return speedData.getCapacity();
     }

@@ -20,9 +20,10 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -393,7 +394,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, edge.getDistance()));
             }
             if (outputLog) {
-                LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+                LineString lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
                 addOSMGeometryForLogging(lineString.toString());
                 addHereSegmentForLogging(trafficLinkId);
             }

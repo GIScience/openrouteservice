@@ -79,6 +79,11 @@ public class GreenIndexGraphStorage implements GraphExtension {
         return this;
     }
 
+    @Override
+    public void init(Graph graph, Directory directory) {
+        // TODO: mot implemented yet
+    }
+
     /**
      * This method makes sure that the underlying data is written to the storage. Keep in mind that
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
