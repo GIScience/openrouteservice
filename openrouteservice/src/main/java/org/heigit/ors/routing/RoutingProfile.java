@@ -929,7 +929,6 @@ public class RoutingProfile {
 
         /* Avoid areas */
         if (searchParams.hasAvoidAreas()) {
-            props.putObject("avoid_areas", true);
             props.putObject("avoid_areas", searchParams.getAvoidAreas());
         }
 
@@ -945,7 +944,6 @@ public class RoutingProfile {
 
         /* Avoid features */
         if (searchParams.hasAvoidFeatures()) {
-            props.putObject("avoid_features", searchParams.getAvoidFeatureTypes());
             props.putObject("avoid_features", searchParams);
         }
 
