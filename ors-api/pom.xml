@@ -55,7 +55,6 @@
 
 	<build>
 		<finalName>ors</finalName>
-		<sourceDirectory>src/main/java</sourceDirectory>
 		<resources>
 			<resource>
 				<directory>../openrouteservice/src/main/resources</directory>

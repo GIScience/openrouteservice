@@ -6,6 +6,7 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .recommenders/caches/manual-mappings.json
 .recommenders/index/http___download_eclipse_org_recommenders_models_neon_/segments.gen
 .idea/
+.run/
 *.iml
 .DS_Store
 nohup.out
