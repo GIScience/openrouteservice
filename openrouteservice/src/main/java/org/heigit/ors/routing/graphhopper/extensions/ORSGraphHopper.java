@@ -22,6 +22,7 @@ import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.lm.LandmarkStorage;
+import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -204,6 +205,12 @@ public class ORSGraphHopper extends GraphHopper {
 			coreGraphs.put(chProfile.getProfile(), ((ORSGraphHopperStorage) ghStorage).getCoreGraph(chGraphName));
 		}
 		r.setCoreGraphs(coreGraphs);
+
+		Map<String, PrepareCoreLandmarks> coreLandmarks = new LinkedHashMap<>();
+		for (PrepareLandmarks preparation : coreLMPreparationHandler.getPreparations()) {
+			coreLandmarks.put(preparation.getLMConfig().getName(), (PrepareCoreLandmarks) preparation);
+		}
+		r.setCoreLandmarks(coreLandmarks);
 
 		return r;
 	}

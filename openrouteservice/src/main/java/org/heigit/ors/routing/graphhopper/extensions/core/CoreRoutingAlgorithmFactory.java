@@ -19,6 +19,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.lm.LMApproximator;
+import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -26,6 +28,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
 
@@ -35,6 +38,14 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
  */
 public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     private final RoutingCHGraph routingCHGraph;
+    private LandmarkStorage lms;
+    private int defaultActiveLandmarks;
+
+    public CoreRoutingAlgorithmFactory(RoutingCHGraph routingCHGraph, QueryGraph queryGraph, LandmarkStorage lms) {
+        this(routingCHGraph, queryGraph);
+        this.lms = lms;
+        this.defaultActiveLandmarks = Math.max(1, Math.min(lms.getLandmarkCount() / 2, 12));
+    }
 
     public CoreRoutingAlgorithmFactory(RoutingCHGraph routingCHGraph, QueryGraph queryGraph) {
         this(new QueryRoutingCHGraph(routingCHGraph, queryGraph));
@@ -50,7 +61,12 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
         String algoStr = ASTAR_BI;//FIXME: opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
-            algo = new CoreALT(routingCHGraph, weighting);
+            CoreALT tmpAlgo = new CoreALT(routingCHGraph, weighting);
+            if (lms != null) {
+                int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
+                tmpAlgo.setApproximation(LMApproximator.forLandmarks(graph, lms, activeLM));
+            }
+            algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(routingCHGraph, weighting);
         } else if (TD_DIJKSTRA.equals(algoStr)) {

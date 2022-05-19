@@ -29,6 +29,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreRoutingAlgorithmFactory;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
 
 import java.util.Map;
 
@@ -39,6 +40,7 @@ public class ORSRouter extends Router {
     private final RouterConfig routerConfig;
     private final WeightingFactory weightingFactory;
     private Map<String, RoutingCHGraph> coreGraphs;
+    private Map<String, PrepareCoreLandmarks> coreLandmarks;
 
     public ORSRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName, PathDetailsBuilderFactory pathDetailsBuilderFactory, TranslationMap translationMap, RouterConfig routerConfig, WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
         super(ghStorage, locationIndex, profilesByName, pathDetailsBuilderFactory, translationMap, routerConfig, weightingFactory, chGraphs, landmarks);
@@ -53,6 +55,10 @@ public class ORSRouter extends Router {
         this.coreGraphs = coreGraphs;
     }
 
+    public void setCoreLandmarks(Map<String, PrepareCoreLandmarks> coreLandmarks) {
+        this.coreLandmarks = coreLandmarks;
+    }
+
     private static boolean getDisableCore(PMap hints) {
         return hints.getBool("core.disable", true);
     }
@@ -61,7 +67,7 @@ public class ORSRouter extends Router {
     protected Router.Solver createSolver(GHRequest request) {
         boolean disableCore = getDisableCore(request.getHints());
         if (!disableCore) {
-            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs);
+            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks);
         } else {
             return super.createSolver(request);
         }
@@ -71,12 +77,14 @@ public class ORSRouter extends Router {
         private final Map<String, RoutingCHGraph> chGraphs;
         private final GraphHopperStorage ghStorage;
         private final WeightingFactory weightingFactory;
+        private final Map<String, PrepareCoreLandmarks> landmarks;
 
-        CoreSolver(GHRequest request, Map<String, Profile> profilesByName, RouterConfig routerConfig, EncodedValueLookup lookup, WeightingFactory weightingFactory, GraphHopperStorage ghStorage, Map<String, RoutingCHGraph> chGraphs) {
+        CoreSolver(GHRequest request, Map<String, Profile> profilesByName, RouterConfig routerConfig, EncodedValueLookup lookup, WeightingFactory weightingFactory, GraphHopperStorage ghStorage, Map<String, RoutingCHGraph> chGraphs, Map<String, PrepareCoreLandmarks> landmarks) {
             super(request, profilesByName, routerConfig, lookup);
             this.weightingFactory = weightingFactory;
             this.ghStorage = ghStorage;
             this.chGraphs = chGraphs;
+            this.landmarks = landmarks;
         }
 
         protected void checkRequest() {
@@ -89,7 +97,8 @@ public class ORSRouter extends Router {
         }
 
         protected PathCalculator createPathCalculator(QueryGraph queryGraph) {
-            RoutingAlgorithmFactory algorithmFactory = new CoreRoutingAlgorithmFactory(this.getRoutingCHGraph(this.profile.getName()), queryGraph);
+            RoutingCHGraph chGraph = getRoutingCHGraph(this.profile.getName());
+            RoutingAlgorithmFactory algorithmFactory = getRoutingAlgorithmFactory(chGraph, queryGraph);
             return new CorePathCalculator(queryGraph, algorithmFactory, weighting, getAlgoOpts());
         }
 
@@ -114,6 +123,23 @@ public class ORSRouter extends Router {
                 return chGraph;
             }
         }
-    }
 
+        private RoutingAlgorithmFactory getRoutingAlgorithmFactory(RoutingCHGraph chGraph, QueryGraph queryGraph) {
+            PMap map = request.getHints();
+            LandmarkStorage lms = null;
+            for (PrepareCoreLandmarks p : landmarks.values()) {
+               if (p.getLMConfig().getWeighting().getName().equals(map.getString("weighting_method", "")));
+                        if (p.matchesFilter(map)) {
+                            lms = p.getLandmarkStorage();
+                            break;
+                        }
+            }
+
+            if (lms==null) {
+                return new CoreRoutingAlgorithmFactory(chGraph, queryGraph);
+            } else {
+                return new CoreRoutingAlgorithmFactory(chGraph, queryGraph, lms);
+            }
+        }
+    }
 }
