@@ -1170,10 +1170,10 @@ public class RoutingProfile {
                 resp = mGraphHopper.route(req);
             }
             if (DebugUtility.isDebug() && !directedSegment) {
-                LOGGER.info("visited_nodes.average - " + resp.getHints().getString("visited_nodes.average", ""));
+                LOGGER.info("visited nodes: " + resp.getHints().getObject("visited_nodes.sum", null));
             }
             if (DebugUtility.isDebug() && directedSegment) {
-                LOGGER.info("skipped segment - " + resp.getHints().getString("skipped_segment", ""));
+                LOGGER.info("skipped segment: " + resp.getHints().getString("skipped_segment", null));
             }
             endUseGH();
         } catch (Exception ex) {
