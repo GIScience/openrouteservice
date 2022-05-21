@@ -71,7 +71,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_SEGREGATED = "segregated";
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
 
-    // Pushing section heighways are parts where you need to get off your bike and push it (German: Schiebestrecke)
+    // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
     protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
     protected final HashSet<String> oppositeLanes = new HashSet<>();
     protected final Set<String> preferHighwayTags = new HashSet<>();
