@@ -247,8 +247,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         avoidHighwayTags.add(KEY_MOTORWAY_LINK);
 
         // bridleways are allowed to ride over in some cases
-        setHighwaySpeed("bridleway", 6);
-        avoidHighwayTags.add("bridleway");
+        setHighwaySpeed(KEY_BRIDLEWAY, 6);
+        avoidHighwayTags.add(KEY_BRIDLEWAY);
 
         setCyclingNetworkPreference("icn", BEST.getValue());
         setCyclingNetworkPreference("ncn", BEST.getValue());
