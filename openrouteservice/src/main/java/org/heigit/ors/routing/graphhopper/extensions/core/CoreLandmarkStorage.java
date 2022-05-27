@@ -67,6 +67,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         this.lmConfig = lmConfig;
         this.core = (RoutingCHGraphImpl) core;
         this.landmarksFilter = lmConfig.getEdgeFilter();
+        setMinimumNodes(Math.min(getBaseNodes() / 2, 500000));
     }
 
     public void setCoreNodeIdMap (Map<Integer, Integer> coreNodeIdMap) {
