@@ -35,6 +35,7 @@ import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -238,7 +239,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         public CoreEdgeFilter(RoutingCHGraph graph, EdgeFilter edgeFilter) {
             this.graph = graph;
             this.edgeFilter = edgeFilter;
-            coreNodeLevel = ((RoutingCHGraphImpl) graph).getCoreNodes();
+            coreNodeLevel = GraphUtils.getBaseGraph(graph).getNodes();
         }
 
         @Override
