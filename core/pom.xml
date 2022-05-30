@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.graphhopper</groupId>
+    <groupId>com.github.GIScience.graphhopper</groupId>
     <artifactId>graphhopper-core</artifactId>
     <name>GraphHopper Core</name>
     <version>0.13-SNAPSHOT</version>
@@ -13,7 +13,7 @@
         working seamlessly with OpenStreetMap data.
     </description>
     <parent>
-        <groupId>com.graphhopper</groupId>
+        <groupId>com.github.GIScience.graphhopper</groupId>
         <artifactId>graphhopper-parent</artifactId>
         <version>0.13-SNAPSHOT</version>
     </parent>
@@ -36,11 +36,6 @@
         </license>
     </licenses>
     <dependencies>
-        <dependency>
-            <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc</artifactId>
@@ -95,15 +90,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.graphhopper</groupId>
+            <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.13-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.graphhopper</groupId>
+            <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.13-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
