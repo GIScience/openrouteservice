@@ -28,6 +28,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
 import static com.graphhopper.util.Parameters.Algorithms.*;
@@ -64,7 +65,8 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
             CoreALT tmpAlgo = new CoreALT(routingCHGraph, weighting);
             if (lms != null) {
                 int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
-                tmpAlgo.setApproximation(LMApproximator.forLandmarks(graph, lms, activeLM));
+                LMApproximator lmApproximator = new LMApproximator(graph, lms.getWeighting(), GraphUtils.getBaseGraph(graph).getNodes(), lms, activeLM, lms.getFactor(), false);
+                tmpAlgo.setApproximation(lmApproximator);
             }
             algo = tmpAlgo;
         } else if (DIJKSTRA_BI.equals(algoStr)) {
