@@ -1,6 +1,7 @@
 package org.heigit.ors.matrix;
 
 import com.carrotsearch.hppc.IntHashSet;
+import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
@@ -33,7 +34,12 @@ public class TargetGraphBuilder {
 
         this.coreNodeLevel = coreNodeLevel;
         this.chGraph = chGraph;
-        this.nodeCount = chGraph.getNodes();
+        //Get node count from base graph, as chGraph should be a query graph with additional virtual nodes that are counted in chGraph.getNodes()
+        //TODO implement isVirtualNode in QueryRoutingCHGraph from underlying query graph for better style
+        if(chGraph instanceof QueryRoutingCHGraph)
+            this.nodeCount = chGraph.getBaseGraph().getBaseGraph().getNodes();
+        else
+            this.nodeCount = chGraph.getNodes();
 
         addNodes(targetGraph, localPrioQueue, targets, coreExitPoints);
 

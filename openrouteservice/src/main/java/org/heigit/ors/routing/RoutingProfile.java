@@ -40,7 +40,6 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -52,6 +51,7 @@ import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
+import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -680,22 +680,23 @@ public class RoutingProfile {
         int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
         setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
         setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
+        String CHProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
+        String CoreProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
 
         //TODO probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
             // RPHAST
-            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile(profileName)) {
-                return computeRPHASTMatrix(req, gh, flagEncoder, profileName);
+            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile(CHProfileName)) {
+                return computeRPHASTMatrix(req, gh, flagEncoder, CHProfileName);
             }
             // Core
             //TODO check whether hasCoreProfile is equivalent to isCoreAvailable
-            else if (req.getSearchParameters().getDynamicSpeeds() && hasCoreProfile(profileName)) { //&& ((ORSGraphHopper) (gh)).isCoreAvailable(weightingName)) {
-                return computeCoreMatrix();
+            else if (req.getSearchParameters().getDynamicSpeeds() && mGraphHopper.isCoreAvailable(CoreProfileName)) { //&& ((ORSGraphHopper) (gh)).isCoreAvailable(weightingName)) {
+                return computeCoreMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
             }
             // Dijkstra
             else {
-                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, profileName);
+                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
             }
         } catch (Exception ex) {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
@@ -719,8 +720,8 @@ public class RoutingProfile {
 
         RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
-        MatrixResult mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-        return mtxResult;
+        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        return matrixResult;
     }
 
     /**
@@ -728,23 +729,23 @@ public class RoutingProfile {
      *
      * @return
      */
-    private MatrixResult computeCoreMatrix() {
-//        Weighting weighting = new ORSWeightingFactory().createWeighting(hintsMap, flagEncoder, gh.getGraphHopperStorage());
-//        RoutingCHGraph graph = this.mGraphHopper.getGraphHopperStorage().getCoreGraph(weighting);
-//        RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-//        PMap additionalHints = (PMap) searchCntx.getProperties();
-//        EdgeFilter edgeFilter = this.mGraphHopper.getEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, this.mGraphHopper.getGraphHopperStorage());
-//
-//        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-//        MatrixSearchContext mtxSearchCntx = builder.create(graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
-//
-//        weighting = createTurnWeighting(graph, weighting, TraversalMode.EDGE_BASED, MatrixServiceSettings.getUTurnCost());
-//        if (weighting instanceof TurnWeighting)
-//            ((TurnWeighting) weighting).setInORS(true);
-//        ((CoreMatrixAlgorithm) alg).init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting, edgeFilter);
-//        mtxResult = alg.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-//        return mtxResult;
-        return null;
+    private MatrixResult computeCoreMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
+        Weighting weighting = new OrsWeightingFactoryGh4(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
+        RoutingCHGraph graph = ((ORSGraphHopperStorage) gh.getGraphHopperStorage()).getCoreGraph(profileName);
+        RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
+        PMap additionalHints = searchCntx.getProperties();
+        EdgeFilter edgeFilter = new ORSEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, gh.getGraphHopperStorage());
+
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+
+        //TODO why was this cleaned up by making it do nothing? This flag had a use and it does not fulfill it anymore. Has the use been removed? Has it been checked? Is there a plan to reimplement?
+//        if (weighting.hasTurnCosts())
+//            (weighting).setInORS(true);
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+        algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
+        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        return matrixResult;
     }
 
     /**
@@ -766,8 +767,8 @@ public class RoutingProfile {
 
         DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-        MatrixResult mtxResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-        return mtxResult;
+        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
+        return matrixResult;
     }
 
     public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
