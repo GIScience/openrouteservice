@@ -17,14 +17,14 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
-import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
+import com.graphhopper.routing.profiles.*;
 import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
 
 import java.util.*;
@@ -59,6 +59,14 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
     protected EncodedValueOld relationCodeEncoder;
+
+    private BooleanEncodedValue conditionalAccessEncoder;
+
+    protected void setProperties(PMap properties) {
+        this.properties = properties;
+        this.setBlockFords(properties.getBool("block_fords", true));
+    }
+
 
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
@@ -155,6 +163,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(speedEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
+        if (properties.getBool(ConditionalEdges.ACCESS, false)) {
+            conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
+            registerNewEncodedValue.add(conditionalAccessEncoder);
+        }
     }
 
     @Override
@@ -210,14 +222,16 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         // no need to evaluate ferries or fords - already included here
         if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
+        //return EncodingManager.Access.WAY;
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
             return EncodingManager.Access.CAN_SKIP;
 
         if (way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
-            return EncodingManager.Access.WAY;
+            return isPermittedWayConditionallyRestricted(way);
+        //return EncodingManager.Access.WAY;
 
         if (!allowedHighwayTags.contains(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
@@ -232,7 +246,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (getConditionalTagInspector().isPermittedWayConditionallyRestricted(way))
             return EncodingManager.Access.CAN_SKIP;
 
-        return EncodingManager.Access.WAY;
+        return isPermittedWayConditionallyRestricted(way);
+        //return EncodingManager.Access.WAY;
     }
 
     @Override
@@ -268,6 +283,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             }
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
+            if (access.isConditional() && conditionalAccessEncoder!=null)
+                conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = getFerrySpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
