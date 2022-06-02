@@ -336,4 +336,27 @@ public class PedestrianFlagEncoderTest {
 //        assertTrue(throwsError);
     }
 
+    @Test
+    public void acceptLockGateFootAllowed() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "yes");
+
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
+    public void rejectLockGateFootAccessMissing() {
+        way.setTag("waterway", "lock_gate");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
+    @Test
+    public void rejectLockGateFootForbidden() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "no");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
 }
