@@ -46,6 +46,7 @@ RELEASING:
 - set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
+- foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
 
 ## [6.7.0] - 2022-01-04
 ### Added
