@@ -306,6 +306,15 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (way.hasTag(OSMTags.Keys.MAN_MADE, "pier"))
             acceptPotentially = EncodingManager.Access.WAY;
 
+
+        // only route via lock_gate if foot-tag allows for it.
+        if (way.hasTag(OSMTags.Keys.WATERWAY, "lock_gate")) {
+            if (way.hasTag(OSMTags.Keys.FOOT, intendedValues)) {
+                acceptPotentially = EncodingManager.Access.WAY;
+            }
+        }
+
+
         if (!acceptPotentially.canSkip()) {
             if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
                 return EncodingManager.Access.CAN_SKIP;
