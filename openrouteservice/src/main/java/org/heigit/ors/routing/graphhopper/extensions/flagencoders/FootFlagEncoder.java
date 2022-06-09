@@ -223,7 +223,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         // no need to evaluate ferries or fords - already included here
         if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
             return isPermittedWayConditionallyRestricted(way);
-        //return EncodingManager.Access.WAY;
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
@@ -231,7 +230,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         if (way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
             return isPermittedWayConditionallyRestricted(way);
-        //return EncodingManager.Access.WAY;
 
         if (!allowedHighwayTags.contains(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
@@ -247,7 +245,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         return isPermittedWayConditionallyRestricted(way);
-        //return EncodingManager.Access.WAY;
     }
 
     @Override
