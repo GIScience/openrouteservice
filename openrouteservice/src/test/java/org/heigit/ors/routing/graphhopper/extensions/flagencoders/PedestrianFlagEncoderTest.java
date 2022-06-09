@@ -336,4 +336,20 @@ public class PedestrianFlagEncoderTest {
 //        assertTrue(throwsError);
     }
 
+    /**
+     * Test the routing of a pedestrian way with time restrictions.
+     * A flag encoder with conditional access activated must be used.
+     */
+    @Test
+    public void testTimeDependent(){
+        PMap properties = new PMap();
+        properties.put("conditional_access", true);
+        PedestrianFlagEncoder td_flagEncoder = new PedestrianFlagEncoder(properties);
+
+        way = generatePedestrianWay();
+        way.setTag("access:conditional", "no @ (15:00-19:30)");
+
+        assertTrue(td_flagEncoder.getAccess(way).isConditional());
+    }
+
 }
