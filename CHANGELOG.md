@@ -38,6 +38,7 @@ RELEASING:
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
 - Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
+- Pedestrian and hiking support for time dependent routing
 ### Fixed
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
