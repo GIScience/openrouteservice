@@ -24,7 +24,6 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,7 +34,11 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
-    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
+    private final EncodingManager encodingManager = EncodingManager.create(
+            new ORSDefaultFlagEncoderFactory(),
+            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for testTimeDependent()
+            4
+    );
     private final PedestrianFlagEncoder flagEncoder;
     private final BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
@@ -338,18 +341,16 @@ public class PedestrianFlagEncoderTest {
 
     /**
      * Test the routing of a pedestrian way with time restrictions.
-     * A flag encoder with conditional access activated must be used.
+     * An encoding manager with conditional access activated must be used.
      */
     @Test
     public void testTimeDependent(){
-        PMap properties = new PMap();
-        properties.put("conditional_access", true);
-        PedestrianFlagEncoder td_flagEncoder = new PedestrianFlagEncoder(properties);
+        assertTrue(encodingManager.hasConditionalAccess());
 
         way = generatePedestrianWay();
         way.setTag("access:conditional", "no @ (15:00-19:30)");
 
-        assertTrue(td_flagEncoder.getAccess(way).isConditional());
+        assertTrue(flagEncoder.getAccess(way).isConditional());
     }
 
 }
