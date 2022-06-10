@@ -411,19 +411,19 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.21</version>
+            <version>v0.13.22</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.21</version>
+            <version>v0.13.22</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.21</version>
+            <version>v0.13.22</version>
         </dependency>
 
         <!-- remove the comment to enable debugging

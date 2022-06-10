@@ -94,9 +94,9 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				double latMain = readerCntx.getNodeLatitude(internalMainId);
 				double lonMain = readerCntx.getNodeLongitude(internalMainId);
 				// connect the boundary of the open space
-				long neighborOsmId = osmNodeIds.get(idxMain + 1);
-				int internalNeighborId = nodeMap.get(neighborOsmId);
 				int idxNeighbor = idxMain + 1;
+				long neighborOsmId = osmNodeIds.get(idxNeighbor);
+				int internalNeighborId = nodeMap.get(neighborOsmId);
 				double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId);
 				double lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);
 				double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);
@@ -108,7 +108,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 					int internalPartnerId = nodeMap.get(partnerOsmId);
 					// coordinates of second nodes
 					double latPartner = readerCntx.getNodeLatitude(internalPartnerId);
-					double lonPartner = readerCntx.getNodeLatitude(internalPartnerId);
+					double lonPartner = readerCntx.getNodeLongitude(internalPartnerId);
 					// connect nodes
 					LineString ls = geometryFactory.createLineString(new Coordinate[]{new Coordinate(lonMain, latMain), new Coordinate(lonPartner, latPartner)});
 					// check if new edge is within open space

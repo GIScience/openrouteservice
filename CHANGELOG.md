@@ -47,6 +47,7 @@ RELEASING:
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
 - foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
 
 ## [6.7.0] - 2022-01-04
 ### Added
