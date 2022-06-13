@@ -21,7 +21,7 @@ import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
-import org.heigit.ors.config.RoutingServiceSettings;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.GeomUtility;
 
 import javax.xml.bind.annotation.XmlElement;

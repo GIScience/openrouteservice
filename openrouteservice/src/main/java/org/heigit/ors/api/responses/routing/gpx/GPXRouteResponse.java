@@ -33,13 +33,13 @@ import java.util.List;
 public class GPXRouteResponse extends RouteResponse {
 
     @XmlAttribute(name = "version")
-    private static final String GPX_VERSION = "1.0";
+    private String gpxVersion = "1.0";
 
     @XmlAttribute(name = "creator")
-    private static final String GPX_CREATOR = "openrouteservice";
+    private String gpxCreator = "openrouteservice";
 
     @XmlAttribute(name = "xmlns")
-    private static final String XMLNS_LINK = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd";
+    private String xmlnsLink = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd";
 
     @XmlElement(name = "metadata")
     private GPXMetadata metadata;

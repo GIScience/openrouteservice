@@ -28,7 +28,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private final byte[] byteValues;
+	private byte[] byteValues;
 
 	public WaySurfaceTypeGraphStorage() {
 		efWaytype = 0;

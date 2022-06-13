@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JSONMatrixResponseTest {
-    private final Double[][] bareCoordinates = new Double[3][];
-    private final Double[] bareCoordinate1 = new Double[2];
-    private final Double[] bareCoordinate2 = new Double[2];
-    private final Double[] bareCoordinate3 = new Double[2];
+    private Double[][] bareCoordinates = new Double[3][];
+    private Double[] bareCoordinate1 = new Double[2];
+    private Double[] bareCoordinate2 = new Double[2];
+    private Double[] bareCoordinate3 = new Double[2];
     private JSONMatrixResponse jsonMatrixDurationsResponse;
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixCombinedResponse;

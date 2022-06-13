@@ -49,8 +49,8 @@ public class Contour {
     private static final double BUFFER_SIZE = 0.0003;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
-    private final IsochroneNodeStorage isochroneNodeStorage;
-    private final CellStorage cellStorage;
+    private IsochroneNodeStorage isochroneNodeStorage;
+    private CellStorage cellStorage;
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         this.ghStorage = ghStorage;

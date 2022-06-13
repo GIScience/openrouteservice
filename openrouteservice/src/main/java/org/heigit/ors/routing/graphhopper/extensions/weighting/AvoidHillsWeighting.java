@@ -27,8 +27,8 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStor
  * @author Maxim Rylov
  */
 public class AvoidHillsWeighting extends FastestWeighting {
-	private final HillIndexGraphStorage gsHillIndex;
-	private final byte[] buffer;
+	private HillIndexGraphStorage gsHillIndex;
+	private byte[] buffer;
 	private double maxSteepness = -1;
 	                                         //0     1   2    3    4    5    6    7    8    9   10    11   12   13    14    15
 	private static final double[] PENALTY_FACTOR = {1.0, 1.0, 1.1, 1.5, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.2, 3.5, 3.7, 3.9, 4.2};
@@ -67,6 +67,6 @@ public class AvoidHillsWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("AvoidHillsWeighting" + this).hashCode();
+		return ("AvoidHillsWeighting" + toString()).hashCode();
 	}
 }

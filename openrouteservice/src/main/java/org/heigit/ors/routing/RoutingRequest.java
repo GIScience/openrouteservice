@@ -17,7 +17,7 @@ import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.common.ServiceRequest;
+import org.heigit.ors.services.ServiceRequest;
 
 import java.util.ArrayList;
 import java.util.List;

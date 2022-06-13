@@ -10,8 +10,8 @@ import java.util.Map;
  * @author Hendrik Leuschner
  */
 class BiPartitionProjection {
-    private final Map<Projector.Projection, IntArrayList> projection0;
-    private final Map<Projector.Projection, IntArrayList> projection1;
+    private Map<Projector.Projection, IntArrayList> projection0;
+    private Map<Projector.Projection, IntArrayList> projection1;
 
     public BiPartitionProjection(Map<Projector.Projection, IntArrayList> partition0, Map<Projector.Projection, IntArrayList> partition1) {
         this.projection0 = partition0;

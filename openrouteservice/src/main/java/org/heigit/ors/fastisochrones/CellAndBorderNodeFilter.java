@@ -12,7 +12,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
  */
 public class CellAndBorderNodeFilter implements EdgeFilter {
     private final int maxNodes;
-    private final IsochroneNodeStorage isochroneNodeStorage;
+    private IsochroneNodeStorage isochroneNodeStorage;
     private int cellId;
 
     /* Edge is within a specified Cell */

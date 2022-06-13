@@ -24,20 +24,20 @@ import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 
 public class RouteResult {
+	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
+	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
 
+	private RouteSummary summary;
 	private Coordinate[] geometry;
 	private List<RouteSegment> segments;
 	private List<RouteExtraInfo> extraInfo;
+	private List<Integer> wayPointsIndices;
+	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
 	private String graphDate = "";
-	private final List<Integer> wayPointsIndices;
-	private final List<RouteWarning> routeWarnings;
-	private final RouteSummary summary;
 
 	private ZonedDateTime departure;
 	private ZonedDateTime arrival;
-	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
-	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
