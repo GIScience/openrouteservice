@@ -11,15 +11,15 @@ import io.swagger.annotations.ApiModelProperty;
 public class GeoJSONIsochroneProperties {
     @ApiModelProperty(value = "Id of the isochrone based on the position in the `locations` query-parameter. Every location comprises its own group of polygons.", example ="1")
     @JsonProperty(value = "group_index")
-    private final Integer groupIndex;
+    private Integer groupIndex;
 
     @ApiModelProperty(value = "The range value of this isochrone/equidistant in seconds/meters.", example = "90")
     @JsonProperty("value")
-    private final Double value;
+    private Double value;
 
     @ApiModelProperty(value = "The coordinates of the specific analysis location.", example = "[8.676441,49.411648]")
     @JsonProperty("center")
-    private final Double[] center;
+    private Double[] center;
 
     @ApiModelProperty(value = "Area of the polygon in square meters (for attributes=area). CUSTOM_KEYS:{'validWhen':{'ref':'attributes','containsValue':'area'}}",
             example = "567.827")

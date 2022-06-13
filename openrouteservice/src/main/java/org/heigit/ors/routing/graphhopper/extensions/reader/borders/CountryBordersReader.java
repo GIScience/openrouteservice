@@ -41,11 +41,11 @@ public class CountryBordersReader {
     private final String idsPath;
     private final String openPath;
 
-    private final HashMap<String, CountryInfo> ids = new HashMap<>();
-    private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
-    private final HashMap<String, Integer> isoCodes = new HashMap<>();
+    private HashMap<String, CountryInfo> ids = new HashMap<>();
+    private HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
+    private HashMap<String, Integer> isoCodes = new HashMap<>();
 
-    private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
+    private HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
     private static CountryBordersReader currentInstance = null;
 
@@ -380,13 +380,13 @@ public class CountryBordersReader {
      */
     private void readIds() {
         // First read the csv file
-        List<List<String>> data = CSVUtility.readFile(idsPath);
+        ArrayList<ArrayList<String>> data = CSVUtility.readFile(idsPath);
 
         // Loop through and store in the hashmap
         int countries = 0;
         int isoCCA2 = 0;
         int isoCCA3 = 0;
-        for(List<String> col : data) {
+        for(ArrayList<String> col : data) {
             if(col.size() >= 3) {
                 ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
                 countries++;
@@ -430,10 +430,10 @@ public class CountryBordersReader {
      */
     private void readOpenBorders() {
         // First read the csv file
-        List<List<String>> data = CSVUtility.readFile(openPath);
+        ArrayList<ArrayList<String>> data = CSVUtility.readFile(openPath);
 
         // Loop through and store in the hashmap
-        for(List<String> col : data) {
+        for(ArrayList<String> col : data) {
             if(col.size() == 2) {
                 // See if there is already the start country
                 if(!openBorders.containsKey(col.get(0))) {

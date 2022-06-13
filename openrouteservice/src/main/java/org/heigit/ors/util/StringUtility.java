@@ -98,13 +98,13 @@ public class StringUtility {
 	
 	public static String decodeRequestString(String inputString) throws UnsupportedEncodingException {
 		if (inputString.startsWith("REQUEST=")) {
-			inputString = inputString.substring(8);
+			inputString = inputString.substring(8, inputString.length());
 		}
 		if (inputString.startsWith("xml=")) {
-			inputString = inputString.substring(4);
+			inputString = inputString.substring(4, inputString.length());
 		} else if (inputString.startsWith("---")) {
 			int iIndexStart = inputString.indexOf("<?xml");
-			inputString = inputString.substring(iIndexStart);
+			inputString = inputString.substring(iIndexStart, inputString.length());
 			int iIndexEnd = inputString.indexOf("---");
 			inputString = inputString.substring(0, iIndexEnd);
 		}
@@ -115,10 +115,10 @@ public class StringUtility {
 
 	public static String decodeRequestString2(String inputString) throws UnsupportedEncodingException {
 		if (inputString.startsWith("REQUEST=")) {
-			inputString = inputString.substring(8);
+			inputString = inputString.substring(8, inputString.length());
 		} else if (inputString.startsWith("---")) {
 			int iIndexStart = inputString.indexOf("<?xml");
-			inputString = inputString.substring(iIndexStart);
+			inputString = inputString.substring(iIndexStart, inputString.length());
 			int iIndexEnd = inputString.indexOf("---");
 			inputString = inputString.substring(0, iIndexEnd);
 		}

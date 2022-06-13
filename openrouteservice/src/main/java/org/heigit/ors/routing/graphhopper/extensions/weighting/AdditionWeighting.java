@@ -41,7 +41,7 @@ public class AdditionWeighting extends AbstractAdjustedWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("AddWeighting" + this).hashCode();
+		return ("AddWeighting" + toString()).hashCode();
 	}
 
 	@Override

@@ -33,8 +33,8 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class HikingFlagEncoderTest {
-    private final EncodingManager encodingManager;
-    private final HikingFlagEncoder flagEncoder;
+    private EncodingManager encodingManager;
+    private HikingFlagEncoder flagEncoder;
     private ReaderWay way;
 
     public HikingFlagEncoderTest() {

@@ -23,8 +23,9 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToInteger;
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.intToByteArray;
+import java.util.BitSet;
+
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
 /**
  * Storage that maps nodeIds to their respective cells and borderness.
@@ -34,9 +35,9 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.intToByteArra
  */
 public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private final DataAccess isochroneNodes;
-    private final int cellBytes;
-    private final int nodeCount;
-    private final IntSet cellIdsSet = new IntHashSet();
+    private int cellBytes;
+    private int nodeCount;
+    private IntSet cellIdsSet = new IntHashSet();
 
     public IsochroneNodeStorage(int nodeCount, Directory dir) {
         isochroneNodes = dir.find("isochronenodes");

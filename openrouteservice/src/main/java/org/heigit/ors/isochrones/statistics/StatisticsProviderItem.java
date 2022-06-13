@@ -14,7 +14,7 @@
 package org.heigit.ors.isochrones.statistics;
 
 public class StatisticsProviderItem  {
-	private final StatisticsProvider provider;
+	private StatisticsProvider provider;
 	private boolean isInitialized = false;
 
 	public StatisticsProviderItem(StatisticsProvider provider)

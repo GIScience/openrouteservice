@@ -221,12 +221,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
             // TODO: save conditional speeds only if their value is different from the default speed
             if (getConditionalSpeedInspector()!=null && getConditionalSpeedInspector().hasConditionalSpeed(way))
-                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder!=null) {
+                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder!=null)
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
-                } else {
+                else
                     // conditional maxspeed overrides unconditional one
                     speed = applyConditionalSpeed(getConditionalSpeedInspector().getTagValue(), speed);
-                }
 
             speed = getSurfaceSpeed(way, speed);
 
@@ -363,7 +362,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             speed = maxSpeed;
 
         if (speed == null)
-            throw new IllegalStateException(this + ", no speed found for: " + highwayValue + ", tags: " + way);
+            throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
 
         if (highwayValue.equals("track")) {
             String tt = way.getTag("tracktype");
@@ -673,6 +672,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("VehicleFlagEncoder" + this).hashCode();
+        return ("VehicleFlagEncoder" + toString()).hashCode();
     }
 }

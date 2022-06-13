@@ -35,8 +35,8 @@ import static org.heigit.ors.routing.RouteResult.*;
 
 class RouteResultBuilder
 {
-	private final AngleCalc angleCalc;
-	private final DistanceCalc distCalc;
+	private AngleCalc angleCalc;
+	private DistanceCalc distCalc;
 	private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
     private int startWayPointIndex = 0;
 

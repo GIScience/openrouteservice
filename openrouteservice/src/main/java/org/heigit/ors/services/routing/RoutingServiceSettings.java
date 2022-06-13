@@ -11,12 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.config;
+package org.heigit.ors.services.routing;
 
 import java.util.List;
 import java.util.Map;
 
 import com.graphhopper.util.Helper;
+
+import org.heigit.ors.config.AppConfig;
 
 public class RoutingServiceSettings {
 	private static final String SERVICE_NAME_ROUTING = "routing";
@@ -100,10 +102,10 @@ public class RoutingServiceSettings {
 	   return config.getServiceParameter(SERVICE_NAME_ROUTING, paramName);
 	}
 	
-	public static String getParameter(String paramName, boolean notNull) {
+	public static String getParameter(String paramName, boolean notNull) throws Exception  {
 	   String value = config.getServiceParameter(SERVICE_NAME_ROUTING, paramName);
 	   if (notNull && Helper.isEmpty(value))
-		   throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
+		   throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
 	   
 	   return value;
 	}

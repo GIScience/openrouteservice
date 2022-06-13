@@ -43,7 +43,7 @@ public class RoutingProfilesUpdater {
 
 	public class UpdateTask extends TimerTask {
 
-		private final RoutingProfilesUpdater updater;
+		private RoutingProfilesUpdater updater;
 
 		public UpdateTask(RoutingProfilesUpdater updater) {
 			this.updater = updater;
@@ -56,8 +56,8 @@ public class RoutingProfilesUpdater {
 
 	private static final Logger LOGGER = Logger.getLogger(RoutingProfilesUpdater.class.getName());
 
-	private final RouteUpdateConfiguration config;
-	private final RoutingProfilesCollection routingProfilesCollection;
+	private RouteUpdateConfiguration config;
+	private RoutingProfilesCollection routingProfilesCollection;
 	private Timer timer;
 	private long updatePeriod;
 	private boolean isRunning;
@@ -99,7 +99,7 @@ public class RoutingProfilesUpdater {
 
 		nextUpdate = firstUpdateTime;
 		if (LOGGER.isLoggable(Level.INFO))
-			LOGGER.info("Profile updater is started and scheduled at " + firstUpdateTime + ".");
+			LOGGER.info("Profile updater is started and scheduled at " + firstUpdateTime.toString() + ".");
 	}
 
 	private void downloadFile(String url, File destination) {
