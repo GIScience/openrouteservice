@@ -7,8 +7,6 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 
 public class IsochroneWeightingFactory {
-    private IsochroneWeightingFactory() {}
-
     public static Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
         HintsMap hintsMap;
         if (travelRangeType == TravelRangeType.TIME) {

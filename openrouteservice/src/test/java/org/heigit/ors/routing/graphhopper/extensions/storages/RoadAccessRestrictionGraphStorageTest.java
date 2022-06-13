@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class RoadAccessRestrictionGraphStorageTest {
-    private final RoadAccessRestrictionsGraphStorage storage;
+    private RoadAccessRestrictionsGraphStorage storage;
     byte[] buffer;
 
     public RoadAccessRestrictionGraphStorageTest() {

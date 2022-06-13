@@ -16,6 +16,7 @@ package org.heigit.ors.v2.services.matrix;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
+import org.heigit.ors.v2.services.serviceSettings.MatrixServiceSettings;
 import org.heigit.ors.v2.services.utils.HelperFunctions;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -99,7 +100,7 @@ public class ResultTest extends ServiceTest {
         addParameter("locations6", locations6);
 
         // Fake array to test maximum exceedings
-        JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(101);
+        JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1);
         addParameter("maximumLocations", maximumLocations);
         JSONArray minimalLocations = HelperFunctions.fakeJSONLocations(1);
         addParameter("minimalLocations", minimalLocations);

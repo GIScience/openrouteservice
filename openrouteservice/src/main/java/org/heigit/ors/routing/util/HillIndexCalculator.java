@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HillIndexCalculator {
-   private final DistanceCalc distCalc;
-   private final List<RouteSplit> splits;
+   private DistanceCalc distCalc;
+   private List<RouteSplit> splits;
    
    public HillIndexCalculator() {
 	   distCalc = new DistanceCalc3D();

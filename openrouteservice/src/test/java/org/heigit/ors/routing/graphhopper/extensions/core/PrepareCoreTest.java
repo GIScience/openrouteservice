@@ -185,7 +185,7 @@ public class PrepareCoreTest {
         shortcuts.put(9, new Pair<>(3, 2)); // shortcut in place of restricted edge
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {2, 3};
+        Integer core[] = {2, 3};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -202,7 +202,7 @@ public class PrepareCoreTest {
         shortcuts.put(9, new Pair<>(4, 3));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {3, 4};
+        Integer core[] = {3, 4};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -218,7 +218,7 @@ public class PrepareCoreTest {
         shortcuts.put(7, new Pair<>(3, 0));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {0, 3, 4};
+        Integer core[] = {0, 3, 4};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -237,7 +237,7 @@ public class PrepareCoreTest {
         shortcuts.put(10, new Pair<>(4, 3));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {1, 3, 4, 5};
+        Integer core[] = {1, 3, 4, 5};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -270,7 +270,7 @@ public class PrepareCoreTest {
         shortcuts.put(18, new Pair<>(0,4));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {0, 1};
+        Integer core[] = {0, 1};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -288,7 +288,7 @@ public class PrepareCoreTest {
         shortcuts.put(14, new Pair<>(7,3));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {0, 1, 2, 3};
+        Integer core[] = {0, 1, 2, 3};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -310,7 +310,7 @@ public class PrepareCoreTest {
         shortcuts.put(17, new Pair<>(3,2));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {2, 3, 7, 8};
+        Integer core[] = {2, 3, 7, 8};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -329,7 +329,7 @@ public class PrepareCoreTest {
         shortcuts.put(15, new Pair<>(8,3));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {3, 4, 7, 8};
+        Integer core[] = {3, 4, 7, 8};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 
@@ -376,7 +376,7 @@ public class PrepareCoreTest {
         shortcuts.put(36, new Pair<>(7, 15));
         assertShortcuts(g, shortcuts);
 
-        Integer[] core = {6, 7, 12, 15};
+        Integer core[] = {6, 7, 12, 15};
         assertCore(g, new HashSet<>(Arrays.asList(core)));
     }
 

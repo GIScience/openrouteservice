@@ -36,10 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Matrix Service", tags = "Matrix")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Matrix", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance")
-})
+@Api(value = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance", tags = "Matrix")
 @RequestMapping("/v2/matrix")
 @ApiResponses({
         @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),

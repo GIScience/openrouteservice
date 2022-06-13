@@ -26,7 +26,7 @@ public class CountryBordersHierarchy {
     private double minLon = 180f;
     private double maxLat = -180f;
     private double maxLon = -180f;
-    private final ArrayList<CountryBordersPolygon> polygons = new ArrayList<>();
+    private ArrayList<CountryBordersPolygon> polygons = new ArrayList<>();
 
     /**
      * Add a boundary polygon to the hierarchy and update the hiearchies extent.

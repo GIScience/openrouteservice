@@ -18,8 +18,8 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.PMap;
 
 public class RouteSearchContext {
-	private final GraphHopper graphhopper;
-	private final FlagEncoder encoder;
+	private GraphHopper graphhopper;
+	private FlagEncoder encoder;
 	private PMap properties;
 
 	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder) {

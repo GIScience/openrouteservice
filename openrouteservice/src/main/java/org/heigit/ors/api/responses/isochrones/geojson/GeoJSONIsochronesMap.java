@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeoJSONIsochronesMap {
-    private final IsochroneMap isochroneMap;
-    private final Coordinate mapCenter;
-    private final int travellerID;
-    private final List<GeoJSONIsochrone> features = new ArrayList<>();
+    private IsochroneMap isochroneMap;
+    private Coordinate mapCenter;
+    private int travellerID;
+    private List<GeoJSONIsochrone> features = new ArrayList<>();
 
     GeoJSONIsochronesMap(IsochroneMap isoMap) {
         this.isochroneMap = isoMap;

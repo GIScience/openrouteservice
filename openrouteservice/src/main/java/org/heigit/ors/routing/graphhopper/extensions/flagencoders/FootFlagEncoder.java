@@ -486,6 +486,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("FootFlagEncoder" + this).hashCode();
+        return ("FootFlagEncoder" + toString()).hashCode();
     }
 }

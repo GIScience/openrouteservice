@@ -27,9 +27,9 @@ import org.apache.log4j.Logger;
 public class PluginManager<T extends Plugin> {
 	private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
 
-	private final ServiceLoader<T> loader;
-	private final Object lockObj;
-	private static final Map<String, Object> pluginMgrCache = new HashMap<>();
+	private ServiceLoader<T> loader;
+	private Object lockObj;
+	private static Map<String, Object> pluginMgrCache = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
 	public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {

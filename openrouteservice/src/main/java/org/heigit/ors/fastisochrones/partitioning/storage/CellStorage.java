@@ -41,12 +41,12 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.longToByteArr
  */
 public class CellStorage implements Storable<CellStorage> {
     private final DataAccess cells;
-    private final int byteCount;
+    private int byteCount;
     private int nodeIndexOffset;
     private int contourIndexOffset;
-    private final int nodeCount;
+    private int nodeCount;
     private long cellContourPointer;
-    private final IsochroneNodeStorage isochroneNodeStorage;
+    private IsochroneNodeStorage isochroneNodeStorage;
     private IntLongMap cellIdToNodesPointerMap;
     private IntLongMap cellIdToContourPointerMap;
     private IntIntMap cellIdToSuperCellMap = new IntIntHashMap();
@@ -116,7 +116,7 @@ public class CellStorage implements Storable<CellStorage> {
         nodeIndexOffset = cellCount * 12;
         //There are more contours than cells because of supercell contours
         contourIndexOffset = 2 * cellCount * 18;
-        long nodePointer = contourIndexOffset;
+        long nodePointer = (long) contourIndexOffset;
 
         //Put all the cell nodes in the storage
         for (IntCursor cellId : cellIdToNodesMap.keys()) {
@@ -328,13 +328,13 @@ public class CellStorage implements Storable<CellStorage> {
         while (cells.getInt(bytePos) != -1) {
             int superCellId = cells.getInt(bytePos);
             IntHashSet cellIds = new IntHashSet();
-            bytePos += byteCount;
+            bytePos += (long) byteCount;
             while (cells.getInt(bytePos) != -1) {
                 cellIds.add(cells.getInt(bytePos));
-                bytePos += byteCount;
+                bytePos += (long) byteCount;
             }
             superCellIdToCellsMap.put(superCellId, cellIds);
-            bytePos += byteCount;
+            bytePos += (long) byteCount;
         }
     }
 

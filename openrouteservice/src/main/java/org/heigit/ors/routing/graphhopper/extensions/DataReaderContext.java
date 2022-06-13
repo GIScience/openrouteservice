@@ -21,11 +21,11 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 
 public interface DataReaderContext {
-	   LongIntMap getNodeMap();
+	   public LongIntMap getNodeMap();
 	   
-	   double getNodeLongitude(int nodeId);
+	   public double getNodeLongitude(int nodeId);
 	   
-	   double getNodeLatitude(int nodeId);
+	   public double getNodeLatitude(int nodeId);
 
 	   Collection<EdgeIteratorState> addWay(final LongIndexedContainer subgraphNodes, final IntsRef wayFlags, final long wayId);
 }

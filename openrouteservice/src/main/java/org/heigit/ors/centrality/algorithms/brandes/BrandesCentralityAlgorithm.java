@@ -22,9 +22,9 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
     }
 
     private class QueueElement implements Comparable<QueueElement> {
-        public final Double dist;
-        public final Integer pred;
-        public final Integer v;
+        public Double dist;
+        public Integer pred;
+        public Integer v;
 
         public QueueElement(Double dist, Integer pred, Integer v) {
             this.dist = dist;
@@ -49,44 +49,44 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
         }
 
         for (int s : nodesInBBox) {
-            Stack<Integer> stack = new Stack<>();
-            Map<Integer, List<Integer>> p = new HashMap<>();
+            Stack<Integer> S = new Stack<>();
+            Map<Integer, List<Integer>> P = new HashMap<>();
             Map<Integer, Integer> sigma = new HashMap<>();
 
             // single source shortest path
             // S, P, sigma = SingleSourceDijkstra(graph, nodesInBBox, s);
 
             for (int v : nodesInBBox) {
-                p.put(v, new ArrayList<>());
+                P.put(v, new ArrayList<>());
                 sigma.put(v, 0);
             }
             sigma.put(s, 1);
 
-            Map<Integer, Double> d = new HashMap<>();
+            Map<Integer, Double> D = new HashMap<>();
             Map<Integer, Double> seen = new HashMap<>();
             seen.put(s, 0.0d);
 
-            PriorityQueue<QueueElement> q = new PriorityQueue<>();
+            PriorityQueue<QueueElement> Q = new PriorityQueue<>();
 
-            q.add(new QueueElement(0d, s, s));
+            Q.add(new QueueElement(0d, s, s));
 
             // check that everything has the length it should.
-            assert stack.empty(); //S should be empty
+            assert S.empty(); //S should be empty
             assert seen.size() == 1;
 
-            while (q.peek() != null) {
-                QueueElement first = q.poll();
+            while (Q.peek() != null) {
+                QueueElement first = Q.poll();
                 Double dist = first.dist;
                 Integer pred = first.pred;
                 Integer v = first.v;
 
-                if (d.containsKey(v)) {
+                if (D.containsKey(v)) {
                     continue;
                 }
 
                 sigma.put(v, sigma.get(v) + sigma.get(pred));
-                stack.push(v);
-                d.put(v, dist);
+                S.push(v);
+                D.put(v, dist);
 
                 // iterate all edges connected to v
                 EdgeIterator iter = explorer.setBaseNode(v);
@@ -98,25 +98,25 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
                         continue;
                     }
 
-                    if (d.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
+                    if (D.containsKey(w)) { // This is only possible if weights are always bigger than 0, which should be given for real-world examples.
                         // Node already checked, skipping edge
                         continue;
                     }
 
-                    Double vwDist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
+                    Double vw_dist = dist + weighting.calcWeight(iter, false, EdgeIterator.NO_EDGE);
 
-                    if (seen.containsKey(w) && (Math.abs(vwDist - seen.get(w)) < 0.000001d)) {
+                    if (seen.containsKey(w) && (Math.abs(vw_dist - seen.get(w)) < 0.000001d)) {
                         sigma.put(w, sigma.get(w) + sigma.get(v));
-                        List<Integer> predecessors = p.get(w);
+                        List<Integer> predecessors = P.get(w);
                         predecessors.add(v);
-                        p.put(w, predecessors);
-                    } else if (!seen.containsKey(w) || vwDist < seen.get(w)) {
-                        seen.put(w, vwDist);
-                        q.add(new QueueElement(vwDist, v, w));
+                        P.put(w, predecessors);
+                    } else if (!seen.containsKey(w) || vw_dist < seen.get(w)) {
+                        seen.put(w, vw_dist);
+                        Q.add(new QueueElement(vw_dist, v, w));
                         sigma.put(w, 0);
                         ArrayList<Integer> predecessors = new ArrayList<>();
                         predecessors.add(v);
-                        p.put(w, predecessors);
+                        P.put(w, predecessors);
                     }
                 }
             }
@@ -124,14 +124,14 @@ public class BrandesCentralityAlgorithm implements CentralityAlgorithm {
             // accumulate betweenness
             Map<Integer, Double> delta = new HashMap<>();
 
-            for (Integer v : stack) {
+            for (Integer v : S) {
                 delta.put(v, 0.0d);
             }
 
-            while (!stack.empty()) {
-                Integer w = stack.pop();
+            while (!S.empty()) {
+                Integer w = S.pop();
                 Double coefficient = (1 + delta.get(w)) / sigma.get(w);
-                for (Integer v : p.get(w)) {
+                for (Integer v : P.get(w)) {
                     delta.merge(v, sigma.get(v) * coefficient, Double::sum);
                 }
                 if (w != s) {

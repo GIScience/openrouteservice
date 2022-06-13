@@ -33,7 +33,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 	private int prevGradientCat = 0;
 	private int pointsCount = 0;
 	private RouteSegmentItem prevSegmentItem;
-	private final DistanceCalc3D distCalc;
+	private DistanceCalc3D distCalc;
 	private boolean lastEdge;
 	
     public SteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {

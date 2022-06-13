@@ -112,7 +112,7 @@ public abstract class MaxFlowMinCut {
     }
 
     protected boolean acceptForPartitioning(EdgeIterator edgeIterator) {
-        return edgeFilter == null || edgeFilter.accept(edgeIterator);
+        return edgeFilter == null ? true : edgeFilter.accept(edgeIterator);
     }
 
     public void setAdditionalEdgeFilter(EdgeFilter edgeFilter) {

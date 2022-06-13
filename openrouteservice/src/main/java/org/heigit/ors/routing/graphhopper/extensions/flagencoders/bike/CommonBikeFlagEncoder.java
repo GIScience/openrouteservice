@@ -20,18 +20,13 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.profiles.*;
-import com.graphhopper.routing.util.EncodedValueOld;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.InstructionAnnotation;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.Translation;
-import org.apache.log4j.Logger;
+import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -100,7 +95,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
     // conditions...
-    private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
+    private boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder;
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
     // MARQ24 MOD END
 
@@ -277,10 +272,8 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         registerNewEncodedValue.add(wayTypeEncoder);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 3, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
-        if (properties.getBool(ConditionalEdges.ACCESS, false)) {
-            conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
-            registerNewEncodedValue.add(conditionalAccessEncoder);
-        }
+        if (properties.getBool(ConditionalEdges.ACCESS, false))
+            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
     }
 
     @Override
@@ -893,7 +886,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
 
         private final int value;
 
-        WayType(int value) {
+        private WayType(int value) {
             this.value = value;
         }
 
@@ -905,11 +898,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     protected enum UpdateType {
         UPGRADE_ONLY,
         DOWNGRADE_ONLY,
-        BOTH
+        BOTH;
     }
 
     protected static class SpeedValue {
-        private final Integer speed;
+        private Integer speed;
         private  UpdateType type = UpdateType.BOTH;
 
         private SpeedValue(Integer speed){
@@ -940,7 +933,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("CommonBikeFlagEnc" + this).hashCode();
+        return ("CommonBikeFlagEnc" + this.toString()).hashCode();
     }
 
     @Override

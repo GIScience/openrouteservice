@@ -24,24 +24,22 @@ import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.routing.RouteStep;
 import org.heigit.ors.util.StringUtility;
 
-import java.util.Arrays;
-
 @ApiModel(value="JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStep {
     @ApiModelProperty(value = "The distance for the step in metres.", example = "245")
     @JsonProperty("distance")
-    private final Double distance;
+    private Double distance;
     @ApiModelProperty(value = "The duration for the step in seconds.", example = "96.2")
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
-    private final Double duration;
+    private Double duration;
     @ApiModelProperty(value = "The [instruction](https://GIScience.github.io/openrouteservice/documentation/Instruction-Types.html) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
-    private final Integer type;
+    private Integer type;
     @ApiModelProperty(value = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
     @JsonProperty("instruction")
-    private final String instruction;
+    private String instruction;
     @ApiModelProperty(value = "The name of the next street.", example = "Berliner Straße")
     @JsonProperty("name")
     private String name;
@@ -50,10 +48,11 @@ public class JSONStep {
     private Integer exitNumber;
     @ApiModelProperty(value = "Contains the bearing of the entrance and all passed exits in a roundabout  CUSTOM_KEYS:{'validWhen':{'ref':'roundabout_exits',value:true}}.", example = "[10,45,60]")
     @JsonProperty("exit_bearings")
-    private int[] exitBearings;
+    private Integer[] exitBearings;
+
     @ApiModelProperty(value = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
     @JsonProperty("way_points")
-    private int[] waypoints;
+    private Integer[] waypoints;
     @ApiModelProperty(value = "The maneuver to be performed  CUSTOM_KEYS:{'validWhen':{'ref':'maneuvers',value:true}}")
     @JsonProperty("maneuver")
     private JSONStepManeuver maneuver;
@@ -64,19 +63,27 @@ public class JSONStep {
         this.type = step.getType();
         this.instruction = step.getInstruction();
 
-        this.name = StringUtility.isEmpty(step.getName()) ? "-" : step.getName();
+        this.name = step.getName();
+        if (StringUtility.isEmpty(name))
+            this.name = "-";
 
-        if (step.getExitNumber() != -1)
+        if(step.getExitNumber() != -1)
             this.exitNumber = step.getExitNumber();
-
-        if (step.getWayPoints().length > 0)
-            this.waypoints = Arrays.copyOf(step.getWayPoints(), step.getWayPoints().length);
-
-        if (step.getManeuver() != null)
+        if(step.getWayPoints().length > 0) {
+            waypoints = new Integer[step.getWayPoints().length];
+            for (int i=0; i< step.getWayPoints().length; i++) {
+                waypoints[i] = step.getWayPoints()[i];
+            }
+        }
+        if(step.getManeuver() != null) {
             this.maneuver = new JSONStepManeuver(step.getManeuver());
-
-        if (step.getRoundaboutExitBearings() != null && step.getRoundaboutExitBearings().length > 0)
-            this.exitBearings = Arrays.copyOf(step.getRoundaboutExitBearings(), step.getRoundaboutExitBearings().length);
+        }
+        if(step.getRoundaboutExitBearings() != null && step.getRoundaboutExitBearings().length > 0) {
+            this.exitBearings = new Integer[step.getRoundaboutExitBearings().length];
+            for(int i=0; i< step.getRoundaboutExitBearings().length; i++) {
+                this.exitBearings[i] = step.getRoundaboutExitBearings()[i];
+            }
+        }
     }
 
     public Double getDistance() {
@@ -103,7 +110,7 @@ public class JSONStep {
         return exitNumber;
     }
 
-    public int[] getWaypoints() {
+    public Integer[] getWaypoints() {
         return waypoints;
     }
 

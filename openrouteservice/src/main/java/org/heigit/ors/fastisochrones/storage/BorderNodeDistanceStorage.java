@@ -39,15 +39,15 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
  */
 public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceStorage> {
     private final DataAccess borderNodes;
-    private final int byteCount;
+    private int byteCount;
     private int borderNodeIndexOffset;
-    private final int nodeCount;
+    private int nodeCount;
     private int borderNodeCount;
     private int necessaryCapacity = 0;
     private long borderNodePointer;
-    private final IsochroneNodeStorage isochroneNodeStorage;
+    private IsochroneNodeStorage isochroneNodeStorage;
     private IntLongHashMap borderNodeToPointerMap;
-    private final Weighting weighting;
+    private Weighting weighting;
 
     public BorderNodeDistanceStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
         final String name = AbstractWeighting.weightingToFileName(weighting);
@@ -186,9 +186,11 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     }
 
     public boolean hasWeighting(Weighting weighting) {
-        return getWeighting().getName() != null
+        if (getWeighting().getName() != null
                 && getWeighting().getName().equals(weighting.getName())
                 && getWeighting().getFlagEncoder().toString() != null
-                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString());
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
+            return true;
+        return false;
     }
 }

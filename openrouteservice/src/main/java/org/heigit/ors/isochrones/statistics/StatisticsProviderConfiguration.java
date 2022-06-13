@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 public class StatisticsProviderConfiguration {
-	private final int id;
-	private final String name;
-	private final Map<String, Object> parameters;
-	private final Map<String, String> mapping;
-	private final String attribution;
+	private int id;
+	private String name;
+	private Map<String, Object> parameters;
+	private Map<String, String> mapping;
+	private String attribution;
 	
 	public StatisticsProviderConfiguration(int id, String name, Map<String, Object> parameters, Map<String, String> mapping, String attribution) {
 		this.id = id;
