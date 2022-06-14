@@ -14,7 +14,7 @@
 package org.heigit.ors.routing;
 
 public class WayPointBearing {
-    private final double value;
+    private double value;
 
     /**
      * @deprecated

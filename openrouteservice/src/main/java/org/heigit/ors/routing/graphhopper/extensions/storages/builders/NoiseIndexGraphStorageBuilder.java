@@ -35,7 +35,7 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final Logger LOGGER = Logger.getLogger(NoiseIndexGraphStorageBuilder.class.getName());
 
     private NoiseIndexGraphStorage storage;
-    private final Map<Long, Integer> osmId2noiseLevel = new HashMap<>();
+    private Map<Long, Integer> osmId2noiseLevel = new HashMap<>();
     // currently noise level is only from 0 to 3
     private static final int MAX_LEVEL = 8;
 
@@ -76,7 +76,7 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         int pos = row.indexOf(',');
         if (pos > 0) {
         	rowValues[0] = row.substring(0, pos).trim();
-        	rowValues[1] = row.substring(pos + 1).trim();
+        	rowValues[1] = row.substring(pos+1, row.length()).trim();
         	// read, check and push "osm_id" and "noise level" values
             return !Helper.isEmpty(rowValues[0]) && !Helper.isEmpty(rowValues[1]);
         }

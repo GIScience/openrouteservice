@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.v2.services.isochrones;
 
+import org.heigit.ors.services.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;

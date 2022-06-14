@@ -87,7 +87,7 @@ public final class DoubleFormatUtil {
             return;
         } else if (Double.isNaN(source) || Double.isInfinite(source)) {
             // Cannot be formated
-            target.append(source);
+            target.append(Double.toString(source));
             return;
         }
 
@@ -110,7 +110,7 @@ public final class DoubleFormatUtil {
             if (scale >= decLength) {
                 if ("0".equals(decS)) {
                     // source is a mathematical integer
-                    target.append(s, 0, dot);
+                    target.append(s.substring(0, dot));
                 } else {
                     target.append(s);
                     // Remove trailing zeroes
@@ -151,7 +151,7 @@ public final class DoubleFormatUtil {
                     // decimal part precision is lower than scale,
                     // no rounding involved
                     target.append(intS);
-                    target.append(decS, 0, exposant);
+                    target.append(decS.substring(0, exposant));
                     target.append('.');
                     target.append(decS.substring(exposant));
                 } else {
@@ -285,7 +285,7 @@ public final class DoubleFormatUtil {
             return;
         } else if (Double.isNaN(source) || Double.isInfinite(source)) {
             // Cannot be formated
-            target.append(source);
+            target.append(Double.toString(source));
             return;
         }
 

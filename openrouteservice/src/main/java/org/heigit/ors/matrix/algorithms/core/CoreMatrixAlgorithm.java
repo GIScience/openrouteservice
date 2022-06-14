@@ -38,7 +38,7 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
-import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,16 +11,11 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.common;
+package org.heigit.ors.servlet.http;
 
-public class ServiceRequest {
-	private String id;
+import javax.servlet.http.HttpServletResponse;
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
+public interface HttpRequestProcessor {
+    void process(HttpServletResponse response) throws Exception;
+    void destroy();
 }

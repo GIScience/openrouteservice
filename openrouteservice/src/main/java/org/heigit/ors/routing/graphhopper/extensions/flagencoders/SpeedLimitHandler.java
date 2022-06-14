@@ -27,10 +27,10 @@ import java.util.Map;
 public class SpeedLimitHandler {
 	private static final Logger LOGGER = Logger.getLogger(SpeedLimitHandler.class.getName());
 	
-	private final Map<String, Integer> defaultSpeeds = new HashMap<>();
-	private final Map<String, Integer> surfaceSpeeds = new HashMap<>();
-	private final Map<String, Integer> trackTypeSpeeds = new HashMap<>();
-	private final Map<String, Integer> countryMaxSpeeds = new HashMap<>();
+	private Map<String, Integer> defaultSpeeds = new HashMap<>();
+	private Map<String, Integer> surfaceSpeeds = new HashMap<>();
+	private Map<String, Integer> trackTypeSpeeds = new HashMap<>();
+	private Map<String, Integer> countryMaxSpeeds = new HashMap<>();
 	
 	public SpeedLimitHandler(String encoderName, Map<String, Integer> defaultSpeeds, Map<String, Integer> surfaceSpeeds, Map<String, Integer> trackTypeSpeeds) {
 		this.defaultSpeeds.putAll(defaultSpeeds);

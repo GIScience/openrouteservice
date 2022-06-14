@@ -24,22 +24,22 @@ public class InstructionTranslator {
 	private static final String STR_EXIT_NUMBER = "{exit_number}";
 	private static final String STR_DIRECTION = "{direction}";
 
-	private final LanguageResources resources;
-	private final String[] directions;
-	private final String actionDepartDefault;
-	private final String actionDepartName;
-	private final String[] actionArriveDefault;
-	private final String[] actionArriveName;
-	private final String actionRoundaboutDefault;
-	private final String actionRoundaboutName;
-	private final String actionContinueDefault;
-	private final String actionContinueName;
-	private final String actionKeepDefault;
-	private final String actionKeepName;
-	private final String actionTurnDefault;
-	private final String actionTurnName;
-	private final String[] numerals;
-	private final String[] turnManeuvers;
+	private LanguageResources resources;
+	private String[] directions;
+	private String actionDepartDefault;
+	private String actionDepartName;
+	private String[] actionArriveDefault;
+	private String[] actionArriveName;
+	private String actionRoundaboutDefault;
+	private String actionRoundaboutName;
+	private String actionContinueDefault;
+	private String actionContinueName;
+	private String actionKeepDefault;
+	private String actionKeepName;
+	private String actionTurnDefault;
+	private String actionTurnName;
+	private String[] numerals;
+	private String[] turnManeuvers;
 
 	InstructionTranslator(LanguageResources resources) throws Exception {
 		this.resources = resources;

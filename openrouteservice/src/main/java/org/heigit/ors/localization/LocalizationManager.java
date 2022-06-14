@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class LocalizationManager {
 	protected static final Logger LOGGER = Logger.getLogger(LocalizationManager.class);
 
-	private final Map<String, LanguageResources> langResources;
+	private Map<String, LanguageResources> langResources;
 	private static LocalizationManager mInstance = null;
 
 	private LocalizationManager() throws Exception {

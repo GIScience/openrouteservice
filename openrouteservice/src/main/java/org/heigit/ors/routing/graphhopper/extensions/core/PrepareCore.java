@@ -233,7 +233,9 @@ public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgor
         // Recompute priority of uncontracted neighbors.
         // Without neighbor updates preparation is faster but we need them
         // to slightly improve query time. Also if not applied too often it decreases the shortcut number.
-        boolean neighborUpdate = neighborUpdatePercentage != 0;
+        boolean neighborUpdate = true;
+        if (neighborUpdatePercentage == 0)
+            neighborUpdate = false;
 
         StopWatch neighborSW = new StopWatch();
         while (!sortedNodes.isEmpty()) {

@@ -50,8 +50,8 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
     private final Graph graph;
     private final CoreLandmarkStorage lms;
     private final Weighting weighting;
-    private final int defaultActiveLandmarks;
-    private final LMEdgeFilterSequence landmarksFilter;
+    private int defaultActiveLandmarks;
+    private LMEdgeFilterSequence landmarksFilter;
 
     public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Map<Integer, Integer> coreNodeIdMap, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
                                 int activeLandmarks) {

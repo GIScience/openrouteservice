@@ -1,7 +1,7 @@
 package org.heigit.ors.centrality;
 
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.common.ServiceRequest;
+import org.heigit.ors.services.ServiceRequest;
 
 import java.util.ArrayList;
 import java.util.List;

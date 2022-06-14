@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RouteSegmentInfo {
-	private final List<EdgeIteratorState> edges;
-	private final Geometry geometry;
-	private final long time;
-	private final double distance;
+	private List<EdgeIteratorState> edges;
+	private Geometry geometry;
+	private long time;
+	private double distance;
 
 	public RouteSegmentInfo(List<EdgeIteratorState> edges, double distance, long time, Geometry geom) {
 		this.edges = edges;

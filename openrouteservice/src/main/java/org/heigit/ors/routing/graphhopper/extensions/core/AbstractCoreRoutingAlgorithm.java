@@ -49,7 +49,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
-    protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
+    public AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
         super(graph, new PreparationWeighting(weighting), TraversalMode.NODE_BASED);
 
         if (weighting instanceof TurnWeighting) {

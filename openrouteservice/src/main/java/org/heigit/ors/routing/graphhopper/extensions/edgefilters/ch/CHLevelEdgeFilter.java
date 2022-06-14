@@ -27,7 +27,7 @@ public abstract class CHLevelEdgeFilter implements EdgeFilter {
 	protected int baseNode;
 	protected int baseNodeLevel = -1;
 
-	protected CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
+	public CHLevelEdgeFilter(CHGraph g, FlagEncoder encoder) {
 		graph = g;
 		maxNodes = g.getNodes(); 
 		this.encoder = encoder;

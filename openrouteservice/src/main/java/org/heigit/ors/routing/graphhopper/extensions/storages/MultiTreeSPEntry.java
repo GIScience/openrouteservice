@@ -21,9 +21,9 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
 	protected int adjNode;
-	private int edge;
-	private boolean visited = false;
-	protected final MultiTreeSPEntryItem[] items;
+	protected int edge;
+	protected boolean visited = false;
+	protected MultiTreeSPEntryItem[] items;
 	private double totalWeight = 0.0;
 
 	public MultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MultiTreeSPEntry parent, int numTrees) {

@@ -549,8 +549,8 @@ public class ORSGraphHopper extends GraphHopper {
 //					}
 //				}
         }
-		if (!isRouteable)
-			throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.emptyMap());
+        if (!isRouteable)
+            throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.<String, Object>emptyMap());
 
     }
 
