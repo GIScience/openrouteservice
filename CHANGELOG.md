@@ -47,6 +47,7 @@ RELEASING:
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
 - foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
 
 ## [6.7.0] - 2022-01-04
 ### Added
