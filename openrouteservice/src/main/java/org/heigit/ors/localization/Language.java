@@ -19,7 +19,7 @@ public class Language {
 	private final String langTag;
 	private final String enLangName;
 	private final String nativeName;
-	private final Locale locale;
+	private Locale locale;
 
 	public Language(String langTag) {
 		this.langTag = langTag;

@@ -36,20 +36,20 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private final byte[] buffer;
+	private byte[] buffer;
 
 	// bit encoders
-	private final EncodedValueOld surfaceEncoder;
-	private final EncodedValueOld smoothnessEncoder;
-	private final EncodedValueOld trackTypeEncoder;
-	private final EncodedValueOld sideFlagEncoder;
-	private final EncodedValueOld kerbHeightEncoder;
-	private final EncodedValueOld hasKerbHeightEncoder;
-	private final EncodedValueOld inclineEncoder;
-	private final EncodedValueOld hasInclineEncoder;
-	private final EncodedValueOld widthEncoder;
-	private final EncodedValueOld surfaceQualityKnownEncoder;
-	private final EncodedValueOld pedestrianisedEncoder;
+	private EncodedValueOld surfaceEncoder;
+	private EncodedValueOld smoothnessEncoder;
+	private EncodedValueOld trackTypeEncoder;
+	private EncodedValueOld inclineEncoder;
+	private EncodedValueOld kerbHeightEncoder;
+	private EncodedValueOld widthEncoder;
+	private EncodedValueOld sideFlagEncoder;
+	private EncodedValueOld hasKerbHeightEncoder;
+	private EncodedValueOld hasInclineEncoder;
+	private EncodedValueOld surfaceQualityKnownEncoder;
+	private EncodedValueOld pedestrianisedEncoder;
 
 	public static final int BYTE_COUNT = 5;
 

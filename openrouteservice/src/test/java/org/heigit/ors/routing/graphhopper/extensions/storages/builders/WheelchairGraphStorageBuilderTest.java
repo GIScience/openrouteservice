@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class WheelchairGraphStorageBuilderTest {
     private WheelchairGraphStorageBuilder builder;
@@ -142,8 +141,8 @@ public class WheelchairGraphStorageBuilderTest {
 
         way.setTag("highway", "crossing");
 
-        Map<Integer, Map<String,String>> nodeTags = new HashMap<>();
-        Map<String, String> tags = new HashMap<>();
+        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
+        HashMap<String, String> tags = new HashMap<>();
         tags.put("kerb:height", "0.03");
         nodeTags.put(1, tags);
 
@@ -160,8 +159,8 @@ public class WheelchairGraphStorageBuilderTest {
 
         way.setTag("footway", "crossing");
 
-        Map<Integer, Map<String,String>> nodeTags = new HashMap<>();
-        Map<String, String> tags = new HashMap<>();
+        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
+        HashMap<String, String> tags = new HashMap<>();
         tags.put("kerb:height", "0.03");
         nodeTags.put(1, tags);
 

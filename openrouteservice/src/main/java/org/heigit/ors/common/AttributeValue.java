@@ -14,9 +14,9 @@
 package org.heigit.ors.common;
 
 public class AttributeValue {
-	private final String name;
-	private final double value;
-	private final String source;
+	private String name;
+	private double value;
+	private String source;
 
 	public AttributeValue(String name, double value, String source)
 	{

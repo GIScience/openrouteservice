@@ -23,7 +23,7 @@ import java.util.Collection;
 
 public class OSMDataReaderContext implements DataReaderContext {
 
-	private final OSMReader osmReader;
+	private OSMReader osmReader;
 	
 	public OSMDataReaderContext(OSMReader osmReader) {
 		this.osmReader = osmReader;

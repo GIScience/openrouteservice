@@ -63,7 +63,7 @@ public class CountryBordersHierarchyTest {
             cbh2 = new CountryBordersHierarchy();
             cbh2.add(cbp3);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e.toString());
         }
     }
 

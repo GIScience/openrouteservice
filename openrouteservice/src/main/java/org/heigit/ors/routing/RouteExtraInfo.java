@@ -27,8 +27,8 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
 public class RouteExtraInfo {
-    private final String name;
-    private final List<RouteSegmentItem> segments;
+    private String name;
+    private List<RouteSegmentItem> segments;
     private double factor = 1.0;
     private boolean usedForWarnings = false;
     private WarningGraphExtension warningGraphExtension;

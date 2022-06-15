@@ -42,7 +42,7 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
  */
 public class RoutingRequestMockup {
 
-    private final RoutingRequest routingRequest;
+    private RoutingRequest routingRequest;
 
 
     // For now only two profiles are integrated. Both referring to a Heidelberg graph!
@@ -54,8 +54,8 @@ public class RoutingRequestMockup {
         STANDARD_CAR_SEARCH_PROFILE
     }
 
-    private final Coordinate[] coords2d = new Coordinate[3];
-    private final Coordinate[] coords3d = new Coordinate[3];
+    private Coordinate[] coords2d = new Coordinate[3];
+    private Coordinate[] coords3d = new Coordinate[3];
 
     public RoutingRequestMockup() {
         routingRequest = new RoutingRequest();

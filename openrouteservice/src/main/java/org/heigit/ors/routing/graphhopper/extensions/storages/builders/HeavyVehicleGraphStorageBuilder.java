@@ -34,14 +34,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private int hgvType = 0;
 	private int hgvDestination = 0;
 	private boolean hasRestrictionValues;
-	private final double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
-	private final List<String> motorVehicleRestrictions = new ArrayList<>(5);
-	private final Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
-	private final Set<String> motorVehicleHgvValues = new HashSet<>(6);
+	private double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
+	private List<String> motorVehicleRestrictions = new ArrayList<>(5);
+	private Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
+	private Set<String> motorVehicleHgvValues = new HashSet<>(6);
 
-	private final Set<String> noValues = new HashSet<>(5);
-	private final Set<String> yesValues = new HashSet<>(5);
-	private final Pattern patternDimension;
+	private Set<String> noValues = new HashSet<>(5);
+	private Set<String> yesValues = new HashSet<>(5);
+	private Pattern patternDimension;
 
 	public HeavyVehicleGraphStorageBuilder() {
 		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));

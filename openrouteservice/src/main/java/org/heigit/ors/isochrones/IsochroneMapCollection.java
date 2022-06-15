@@ -18,7 +18,7 @@ import java.util.List;
 
 public class IsochroneMapCollection {
 	private int nIsochrones = 0;
-	private final List<IsochroneMap> isochroneMaps = new ArrayList<>();
+	private List<IsochroneMap> isochroneMaps = new ArrayList<>();
 	
 	public void add(IsochroneMap map) {
 		isochroneMaps.add(map);

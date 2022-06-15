@@ -25,7 +25,6 @@ SOFTWARE.
 */
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * This provides static methods to convert an XML text into a JSONObject, and to
@@ -80,7 +79,7 @@ public class XML {
             public Iterator<Integer> iterator() {
                 return new Iterator<Integer>() {
                     private int nextIndex = 0;
-                    private final int length = string.length();
+                    private int length = string.length();
 
                     @Override
                     public boolean hasNext() {
@@ -89,9 +88,6 @@ public class XML {
 
                     @Override
                     public Integer next() {
-                    	if (!hasNext()) {
-                    		throw new NoSuchElementException();
-                    	}
                         int result = string.codePointAt(this.nextIndex);
                         this.nextIndex += Character.charCount(result);
                         return result;

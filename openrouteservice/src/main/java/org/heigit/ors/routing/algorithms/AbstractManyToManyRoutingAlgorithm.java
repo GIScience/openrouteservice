@@ -23,7 +23,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
-import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
 	protected final Graph graph;
@@ -44,7 +44,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
 	 * @param traversalMode
 	 *            how the graph is traversed e.g. if via nodes or edges.
 	 */
-	protected AbstractManyToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+	public AbstractManyToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
 		this.weighting = weighting;
 		flagEncoder = weighting.getFlagEncoder();
 		this.traversalMode = traversalMode;

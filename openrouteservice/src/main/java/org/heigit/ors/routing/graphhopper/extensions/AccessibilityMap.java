@@ -18,9 +18,9 @@ import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.shapes.GHPoint3D;
 
 public class AccessibilityMap {
-    private final IntObjectMap<SPTEntry> map;
-    private final SPTEntry edgeEntry;
-    private final GHPoint3D snappedPosition;
+    private IntObjectMap<SPTEntry> map;
+    private SPTEntry edgeEntry;
+    private GHPoint3D snappedPosition;
 
     public AccessibilityMap(IntObjectMap<SPTEntry> map, SPTEntry edgeEntry) {
         this(map, edgeEntry, null);

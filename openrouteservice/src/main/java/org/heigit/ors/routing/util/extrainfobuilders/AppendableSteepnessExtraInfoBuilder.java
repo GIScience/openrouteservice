@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class AppendableSteepnessExtraInfoBuilder extends SteepnessExtraInfoBuilder {
-	private final ArrayList<PointList> segmentPointLists;
+	private ArrayList<PointList> segmentPointLists;
 
     public AppendableSteepnessExtraInfoBuilder(RouteExtraInfo extraInfo) {
     	super(extraInfo);
