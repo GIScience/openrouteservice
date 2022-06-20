@@ -19,7 +19,6 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 public class OSMDataReaderContext implements DataReaderContext {
@@ -37,16 +36,16 @@ public class OSMDataReaderContext implements DataReaderContext {
 
 	@Override
 	public double getNodeLongitude(int nodeId) {
-		return 0;
+		return osmReader.getTmpLongitude(nodeId);
 	}
 
 	@Override
 	public double getNodeLatitude(int nodeId) {
-		return 0;
+		return osmReader.getTmpLatitude(nodeId);
 	}
 
 	@Override
 	public Collection<EdgeIteratorState> addWay(LongIndexedContainer subgraphNodes, IntsRef wayFlags, long wayId) {
-		return new ArrayList<>();
+		return osmReader.addOSMWay(subgraphNodes, wayFlags, wayId);
 	}
 }
