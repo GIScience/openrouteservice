@@ -59,18 +59,18 @@ public class PathMetricsExtractor {
 		}
 	}
 
-	private final int metrics;
-	private final Graph graph;
+	private int metrics;
+	private Graph graph;
 	private CHGraph chGraph;
-	private final Weighting weighting;
-	private final Weighting timeWeighting;
+	private Weighting weighting;
+	private Weighting timeWeighting;
 	private double edgeDistance;
 	private double edgeWeight;
 	private double edgeTime;
-	private final DistanceUnit distUnits;
+	private DistanceUnit distUnits;
 	private boolean reverseOrder = true;
 	private static final boolean UNPACK_DISTANCE = false;
-	private final GHLongObjectHashMap<MetricsItem> edgeMetrics;
+	private GHLongObjectHashMap<MetricsItem> edgeMetrics;
 
 	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units) {
 		this.metrics = metrics;

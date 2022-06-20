@@ -16,8 +16,8 @@ package org.heigit.ors.common;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class NamedLocation {
-   private final Coordinate coordinate;
-   private final String name;
+   private Coordinate coordinate;
+   private String name;
    
    public NamedLocation(Coordinate coord, String name) {
 	   coordinate = coord;

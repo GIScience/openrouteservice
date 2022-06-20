@@ -143,8 +143,8 @@ public class SystemMessage {
     }
 
     private static class Message {
-        private final String text;
-        private final List<Condition> conditions;
+        private String text;
+        private List<Condition> conditions;
 
         public Message(String text, List<Condition> conditions) {
             this.text = text;
@@ -166,8 +166,8 @@ public class SystemMessage {
     }
 
     private static class Condition {
-        private final String type;
-        private final String[] values;
+        private String type;
+        private String[] values;
 
         public Condition(String type, String valuesCSV) {
             this.type = type;
@@ -240,8 +240,8 @@ public class SystemMessage {
         private String apiVersion = "";
         private String apiFormat = "";
         private String requestService = "";
-        private final Set<String> requestProfiles = new HashSet<>();
-        private final Set<String> requestPreferences = new HashSet<>();
+        private Set<String> requestProfiles = new HashSet<>();
+        private Set<String> requestPreferences = new HashSet<>();
 
         public String getApiVersion() {
             return apiVersion;

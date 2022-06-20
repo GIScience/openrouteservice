@@ -44,7 +44,7 @@ public class ProxyNodeDijkstra extends AbstractRoutingAlgorithm {
     protected SPTEntry currEdge;
     private int visitedNodes;
     private int coreNodeLevel = -1;
-    private final CHGraph chGraph;
+    private CHGraph chGraph;
     EdgeExplorer explorer;
 
     // Modification by Maxim Rylov: Added a new class variable used for computing isochrones.

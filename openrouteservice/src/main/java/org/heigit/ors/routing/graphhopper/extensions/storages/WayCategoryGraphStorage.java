@@ -27,7 +27,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private final byte[] byteValues;
+	private byte[] byteValues;
 
 	public WayCategoryGraphStorage() {
 		efWaytype = 0;

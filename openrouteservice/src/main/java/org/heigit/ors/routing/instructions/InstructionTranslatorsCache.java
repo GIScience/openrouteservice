@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstructionTranslatorsCache {
-	private final Map<Integer, InstructionTranslator> translators;
+	private Map<Integer, InstructionTranslator> translators;
 	private static InstructionTranslatorsCache mInstance = null;
 
 	private InstructionTranslatorsCache()

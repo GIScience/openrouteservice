@@ -317,7 +317,7 @@ public class JSONObject {
      *            An array of strings, the names of the fields to be obtained
      *            from the object.
      */
-    public JSONObject(Object object, String[] names) {
+    public JSONObject(Object object, String names[]) {
         this();
         Class<?> c = object.getClass();
         for (int i = 0; i < names.length; i += 1) {
@@ -902,7 +902,8 @@ public class JSONObject {
 		
 		if (hasDot && !hasE)
 		{
-            return ch == '0' || ch == '.';
+			if (ch == '0' || ch == '.')
+				return true;
 		}
 		
 		return false;

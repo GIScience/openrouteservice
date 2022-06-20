@@ -112,7 +112,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void basicPingTest() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
 		given()
 				.header("Accept", "application/json")
@@ -131,7 +131,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectNoInstructions() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("instructions", "false");
         body.put("preference", getParameter("preference"));
 		given()
@@ -151,7 +151,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectInstructions() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("instructions", "true");
         body.put("preference", getParameter("preference"));
 		given()
@@ -172,7 +172,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectInstructionsAsText() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("instructions", "true");
         body.put("instructions_format", "text");
         body.put("preference", getParameter("preference"));
@@ -193,7 +193,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectInstructionsAsHtml() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("instructions", "true");
         body.put("instructions_format", "html");
         body.put("preference", getParameter("preference"));
@@ -569,7 +569,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_features", avoids);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -596,7 +596,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_features", avoids);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -629,7 +629,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_polygons", polygon);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -663,7 +663,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_polygons", polygon);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -695,7 +695,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_polygons", polygon);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -776,7 +776,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("profile_params", profileParams);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -804,7 +804,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_features", avoids);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -824,7 +824,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectBearingsFormatError() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 
 		JSONArray bearings = new JSONArray();
@@ -856,7 +856,7 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 
 		body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 
 		bearings = new JSONArray();
@@ -887,7 +887,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectRadiusesFormatError() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 
 		JSONArray radii = new JSONArray();
@@ -910,7 +910,7 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(400);
 
 		body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 
 		radii = new JSONArray();
@@ -971,7 +971,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectUnknownUnits() {
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("units", "j");
 
@@ -992,7 +992,7 @@ public class ParamsTest extends ServiceTest {
 	public void expectUnknownInstructionFormat() {
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("instructions_format", "blah");
 
@@ -1012,7 +1012,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectUnknownPreference() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", "blah");
 
 		given()
@@ -1031,7 +1031,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectUnknownLanguage() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("language", "blah");
 
@@ -1051,7 +1051,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectUnknownAttributes() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("attributes", Arrays.asList("blah"));
 
@@ -1089,7 +1089,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_features", avoids);
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -1112,7 +1112,7 @@ public class ParamsTest extends ServiceTest {
 		options.put("avoid_borders", "blah");
 
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 		body.put("options", options);
 
@@ -1132,7 +1132,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectInvalidResponseFormat() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
 		body.put("preference", getParameter("preference"));
 
 		given()
@@ -1569,7 +1569,7 @@ public class ParamsTest extends ServiceTest {
 	@Test
 	public void expectAlternativeRoutesToRejectMoreThanTwoWaypoints() {
 		JSONObject body = new JSONObject();
-		body.put("coordinates", getParameter("coordinatesWithViaPoint"));
+		body.put("coordinates", (JSONArray) getParameter("coordinatesWithViaPoint"));
 		body.put("preference", getParameter("preference"));
 
 		JSONObject ar = new JSONObject();

@@ -40,6 +40,7 @@ RELEASING:
 - Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
 - Pedestrian and hiking support for time dependent routing
 ### Fixed
+- allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
 - internal properties of `IsochronesRequest` model not ignored for swagger file generation
@@ -48,6 +49,8 @@ RELEASING:
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
 - foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
+- address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
 
 ## [6.7.0] - 2022-01-04
 ### Added
@@ -83,8 +86,6 @@ RELEASING:
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
-### Removed
-- old v1 API code and related classes
 ### Fixed
 - Errors in travel speed explanation
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))

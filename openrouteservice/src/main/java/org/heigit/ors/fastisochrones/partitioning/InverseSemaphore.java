@@ -5,7 +5,7 @@ package org.heigit.ors.fastisochrones.partitioning;
  */
 public class InverseSemaphore {
     private int value = 0;
-    private final Object lock = new Object();
+    private Object lock = new Object();
 
     public void beforeSubmit() {
         synchronized (lock) {

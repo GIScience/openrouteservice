@@ -40,23 +40,23 @@ public class ORSOSMReader extends OSMReader {
 
 	private static final Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
 
-	private final GraphProcessContext procCntx;
+	private GraphProcessContext procCntx;
 	private boolean processNodeTags;
-	private final OSMDataReaderContext readerCntx;
+	private OSMDataReaderContext readerCntx;
 
-	private final HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
+	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
 	private boolean processWholeGeom = false;
 	private boolean detachSidewalksFromRoad = false;
 
-	private final boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
+	private boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
 	private boolean getElevationFromPreprocessedDataErrorLogged = false;
 
-	private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
+	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
-	private final HashSet<String> extraTagKeys;
+	private HashSet<String> extraTagKeys;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
@@ -183,7 +183,7 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	public void onProcessWay(ReaderWay way) {
 
-		Map<Integer, Map<String,String>> tags = new HashMap<>();
+		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
 		ArrayList<Coordinate> allCoordinates = new ArrayList<>();
 

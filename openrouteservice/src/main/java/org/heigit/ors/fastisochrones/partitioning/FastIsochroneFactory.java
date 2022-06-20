@@ -20,7 +20,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.FastIsochrone;
-import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 
 import java.util.*;
 import java.util.concurrent.ExecutorCompletionService;

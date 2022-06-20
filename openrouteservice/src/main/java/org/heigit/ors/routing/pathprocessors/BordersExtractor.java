@@ -1,13 +1,15 @@
 package org.heigit.ors.routing.pathprocessors;
 
+import com.carrotsearch.hppc.IntHashSet;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BordersExtractor {
     public enum Avoid { CONTROLLED, NONE, ALL }
-    private final BordersGraphStorage storage;
-    private final int[] avoidCountries;
+    private BordersGraphStorage storage;
+    private int[] avoidCountries;
 
     public BordersExtractor(BordersGraphStorage storage, int[] avoidCountries) {
         this.storage = storage;

@@ -23,7 +23,7 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 
 public interface MatrixAlgorithm {
-  void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);
+  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting);
   
-  MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception;
+  public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception;
 }

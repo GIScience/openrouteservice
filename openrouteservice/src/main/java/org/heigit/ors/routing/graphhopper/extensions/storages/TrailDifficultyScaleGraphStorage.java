@@ -25,7 +25,7 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
 	protected int edgesCount; 
-	private final byte[] byteValues;
+	private byte[] byteValues;
 
 	public TrailDifficultyScaleGraphStorage()  {
 		efDifficultyScale = nextBlockEntryIndex (2);

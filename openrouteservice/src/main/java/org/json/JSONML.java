@@ -457,7 +457,7 @@ public class JSONML {
                     } else if (object instanceof JSONArray) {
                         sb.append(toString((JSONArray)object));
                     } else {
-                        sb.append(object);
+                        sb.append(object.toString());
                     }
                 }
             } while (i < length);
@@ -538,7 +538,7 @@ public class JSONML {
                     } else if (object instanceof JSONArray) {
                         sb.append(toString((JSONArray)object));
                     } else {
-                        sb.append(object);
+                        sb.append(object.toString());
                     }
                 }
             }

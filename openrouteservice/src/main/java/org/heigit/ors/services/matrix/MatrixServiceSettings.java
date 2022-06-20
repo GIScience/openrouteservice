@@ -11,7 +11,9 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library; 
  *  if not, see <https://www.gnu.org/licenses/>.  
  */
-package org.heigit.ors.config;
+package org.heigit.ors.services.matrix;
+
+import org.heigit.ors.config.AppConfig;
 
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 

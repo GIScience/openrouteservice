@@ -39,14 +39,14 @@ import java.util.*;
 
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
-	private final GeometryFactory geometryFactory = new GeometryFactory();
-	private final Map<Integer, Integer> intId2idx = new HashMap<>();
-	private final Map<Integer, Integer> idx2intId =  new HashMap<>();
-	private final Map<Integer, Long> intId2osmId = new HashMap<>();
-	private final ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
+	private GeometryFactory geometryFactory = new GeometryFactory();
+	private Map<Integer, Integer> intId2idx = new HashMap<>();
+	private Map<Integer, Integer> idx2intId =  new HashMap<>();
+	private Map<Integer, Long> intId2osmId = new HashMap<>();
+	private ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
 	private Coordinate[] coordinates;
-	private final Set<ArrayList<Integer>> edges = new HashSet<>();
-	private final ArrayList<Integer> tmpEdge = new ArrayList<>();
+	private Set<ArrayList<Integer>> edges = new HashSet<>();
+	private ArrayList<Integer> tmpEdge = new ArrayList<>();
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -94,9 +94,9 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				double latMain = readerCntx.getNodeLatitude(internalMainId);
 				double lonMain = readerCntx.getNodeLongitude(internalMainId);
 				// connect the boundary of the open space
-				long neighborOsmId = osmNodeIds.get(idxMain + 1);
-				int internalNeighborId = nodeMap.get(neighborOsmId);
 				int idxNeighbor = idxMain + 1;
+				long neighborOsmId = osmNodeIds.get(idxNeighbor);
+				int internalNeighborId = nodeMap.get(neighborOsmId);
 				double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId);
 				double lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);
 				double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);
@@ -108,7 +108,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 					int internalPartnerId = nodeMap.get(partnerOsmId);
 					// coordinates of second nodes
 					double latPartner = readerCntx.getNodeLatitude(internalPartnerId);
-					double lonPartner = readerCntx.getNodeLatitude(internalPartnerId);
+					double lonPartner = readerCntx.getNodeLongitude(internalPartnerId);
 					// connect nodes
 					LineString ls = geometryFactory.createLineString(new Coordinate[]{new Coordinate(lonMain, latMain), new Coordinate(lonPartner, latPartner)});
 					// check if new edge is within open space

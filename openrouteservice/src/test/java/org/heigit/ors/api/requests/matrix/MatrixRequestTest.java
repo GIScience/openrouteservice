@@ -2,7 +2,7 @@ package org.heigit.ors.api.requests.matrix;
 
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,11 +15,11 @@ import java.util.List;
 public class MatrixRequestTest {
     private MatrixRequest matrixLocationsRequest;
     private MatrixRequest matrixLocationsListRequest;
-    private final List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
-    private final Double[][] bareCoordinates = new Double[3][];
-    private final Double[] bareCoordinate1 = new Double[2];
-    private final Double[] bareCoordinate2 = new Double[2];
-    private final Double[] bareCoordinate3 = new Double[2];
+    private List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
+    private Double[][] bareCoordinates = new Double[3][];
+    private Double[] bareCoordinate1 = new Double[2];
+    private Double[] bareCoordinate2 = new Double[2];
+    private Double[] bareCoordinate3 = new Double[2];
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
 

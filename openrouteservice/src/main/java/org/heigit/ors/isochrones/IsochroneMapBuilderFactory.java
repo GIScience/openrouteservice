@@ -22,7 +22,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 public class IsochroneMapBuilderFactory {
-    private final RouteSearchContext searchContext;
+    private RouteSearchContext searchContext;
 
     public IsochroneMapBuilderFactory(RouteSearchContext searchContext) {
         this.searchContext = searchContext;

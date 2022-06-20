@@ -13,7 +13,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 public class FixedCellEdgeFilter implements EdgeFilter {
     //Any node with an id higher than this is virtual
     private final int maxNodes;
-    private final IsochroneNodeStorage isochroneNodeStorage;
+    private IsochroneNodeStorage isochroneNodeStorage;
     private int cellId;
     private boolean strict = true;
 

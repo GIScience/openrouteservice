@@ -21,7 +21,7 @@ import com.graphhopper.util.Helper;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.config.RoutingServiceSettings;
+import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,22 +42,22 @@ public class RouteResponseInfo {
     private String osmFileMD5Hash;
     @ApiModelProperty(value = "The service that was requested", example = "routing")
     @JsonProperty("service")
-    private final String service;
+    private String service;
     @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)",example = "1549549847974")
     @JsonProperty("timestamp")
-    private final long timeStamp;
+    private long timeStamp;
 
     @ApiModelProperty(value = "The information that was used for generating the route")
     @JsonProperty("query")
-    private final RouteRequest request;
+    private RouteRequest request;
 
     @ApiModelProperty(value = "Information about the routing service")
     @JsonProperty("engine")
-    private final EngineInfo engineInfo;
+    private EngineInfo engineInfo;
 
     @ApiModelProperty(value = "System message", example ="A message string configured in the service")
     @JsonProperty("system_message")
-    private final String systemMessage;
+    private String systemMessage;
 
     public RouteResponseInfo(RouteRequest request) {
         service = "routing";
@@ -87,10 +87,10 @@ public class RouteResponseInfo {
     private class EngineInfo {
         @ApiModelProperty(value = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")
-        private final String version;
+        private String version;
         @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
-        private final String buildDate;
+        private String buildDate;
         @ApiModelProperty(value = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("graph_date")
         private String graphDate;

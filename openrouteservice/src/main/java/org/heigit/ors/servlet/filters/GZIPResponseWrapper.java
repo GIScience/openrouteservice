@@ -49,13 +49,11 @@ class GZIPResponseWrapper extends HttpServletResponseWrapper {
 		}
 	}
 
-	@Override
 	public void flushBuffer() throws IOException {
 		if (responseStream != null && !responseStream.isClosed())
 			responseStream.flush();
 	}
 
-	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (writer != null)
 			throw new IllegalStateException("getWriter() has already been called!");
@@ -66,7 +64,6 @@ class GZIPResponseWrapper extends HttpServletResponseWrapper {
 		return (responseStream);
 	}
 
-	@Override
 	public PrintWriter getWriter() throws IOException {
 		if (writer != null)
 			return (writer);
@@ -79,7 +76,6 @@ class GZIPResponseWrapper extends HttpServletResponseWrapper {
 		return (writer);
 	}
 
-	@Override
 	public void setContentLength(int length) {
 		// nothing to do
 	}
