@@ -39,6 +39,7 @@ RELEASING:
 - python code on decoding polylines including elevation data
 - Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
 ### Fixed
+- allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
 - internal properties of `IsochronesRequest` model not ignored for swagger file generation
@@ -47,6 +48,7 @@ RELEASING:
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
 - foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
 - address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
 
 ## [6.7.0] - 2022-01-04
