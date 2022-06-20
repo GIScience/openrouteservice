@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.GIScience.graphhopper</groupId>
+    <groupId>com.graphhopper</groupId>
     <artifactId>graphhopper-web-api</artifactId>
     <packaging>jar</packaging>
     <version>0.13-SNAPSHOT</version>
@@ -11,14 +11,14 @@
     <description>JSON Representation of the API classes</description>
 
     <parent>
-        <groupId>com.github.GIScience.graphhopper</groupId>
+        <groupId>com.graphhopper</groupId>
         <artifactId>graphhopper-parent</artifactId>
         <version>0.13-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
+            <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-api</artifactId>
             <version>0.13-SNAPSHOT</version>
         </dependency>
