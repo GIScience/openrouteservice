@@ -14,7 +14,6 @@
 package org.heigit.ors.isochrones.builders.grid;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.MMapDirectory;
 import com.graphhopper.storage.index.Location2IDQuadtree;
 import com.graphhopper.storage.index.LocationIndex;

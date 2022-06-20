@@ -39,14 +39,14 @@ import java.util.*;
 
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
-	private GeometryFactory geometryFactory = new GeometryFactory();
-	private Map<Integer, Integer> intId2idx = new HashMap<>();
-	private Map<Integer, Integer> idx2intId =  new HashMap<>();
-	private Map<Integer, Long> intId2osmId = new HashMap<>();
-	private ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
+	private final GeometryFactory geometryFactory = new GeometryFactory();
+	private final Map<Integer, Integer> intId2idx = new HashMap<>();
+	private final Map<Integer, Integer> idx2intId =  new HashMap<>();
+	private final Map<Integer, Long> intId2osmId = new HashMap<>();
+	private final ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
 	private Coordinate[] coordinates;
-	private Set<ArrayList<Integer>> edges = new HashSet<>();
-	private ArrayList<Integer> tmpEdge = new ArrayList<>();
+	private final Set<ArrayList<Integer>> edges = new HashSet<>();
+	private final ArrayList<Integer> tmpEdge = new ArrayList<>();
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 

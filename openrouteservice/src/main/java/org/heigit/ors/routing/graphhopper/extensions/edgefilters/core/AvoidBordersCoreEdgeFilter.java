@@ -21,7 +21,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
-    private BordersGraphStorage storage;
+    private final BordersGraphStorage storage;
     private int[] avoidCountries;
     private boolean isAvoidCountries = false;
 

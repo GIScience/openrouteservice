@@ -14,8 +14,8 @@
 package org.heigit.ors.localization;
 
 public class LocalString {
-	private Language language;
-	private String string;
+	private final Language language;
+	private final String string;
 
 	public LocalString(Language language, String string) 
 	{ 

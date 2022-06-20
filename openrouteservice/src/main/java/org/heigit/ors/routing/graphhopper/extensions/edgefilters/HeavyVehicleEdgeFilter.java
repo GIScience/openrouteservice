@@ -50,17 +50,17 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		} 
 	}
 
-	private int vehicleType;
-	private boolean hasHazmat; 
-	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-	private float[] restrictionValues;
-	private double[] retValues;
-	private Integer[] indexValues;
-	private Integer[] indexLocs;
-	private int restCount;
+	private final int vehicleType;
+	private boolean hasHazmat;
+	private final HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
+	private final float[] restrictionValues;
+	private final double[] retValues;
+	private final Integer[] indexValues;
+	private final Integer[] indexLocs;
+	private final int restCount;
 	private int mode = MODE_CLOSEST_EDGE;
 	private	List<Integer> destinationEdges;
-	private byte[] buffer;
+	private final byte[] buffer;
 
 	private static final int MODE_DESTINATION_EDGES = -1;
 	private static final int MODE_CLOSEST_EDGE = -2;

@@ -35,10 +35,10 @@ public class JSONStepManeuver {
     private Double[] location;
     @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.", example = "24")
     @JsonProperty("bearing_before")
-    private Integer bearingBefore;
+    private final Integer bearingBefore;
     @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.", example = "96")
     @JsonProperty("bearing_after")
-    private Integer bearingAfter;
+    private final Integer bearingAfter;
 
     public JSONStepManeuver(RouteStepManeuver maneuver) {
         Coordinate coordinate = maneuver.getLocation();

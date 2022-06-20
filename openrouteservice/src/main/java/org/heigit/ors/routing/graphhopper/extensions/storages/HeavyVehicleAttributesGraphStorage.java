@@ -25,7 +25,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
 
 	private final int efVehicleType;
-	private final int efDestinationType;
 	private final int efRestrictions;
 
 	private DataAccess orsEdges;
@@ -39,7 +38,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) {
 		efVehicleType = nextBlockEntryIndex(1);
-		efDestinationType = nextBlockEntryIndex(1);
 
 		if (includeRestrictions)
 			// first byte indicates whether any restrictions are given 

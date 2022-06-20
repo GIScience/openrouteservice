@@ -70,7 +70,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
     private int preparationThreads;
     private ExecutorService threadPool;
     private boolean logDetails = false;
-    private CoreLMOptions coreLMOptions = new CoreLMOptions();
+    private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
     public CoreLMAlgoFactoryDecorator() {
         setPreparationThreads(1);
@@ -254,8 +254,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
             completionService.submit(() -> {
                 if (plm.loadExisting())
                     return;
-                LOGGER.info(tmpCounter + "/" + getPreparations().size() + " calling CoreLM prepare.doWork for "
-                        + plm.getWeighting() + " ... (" + Helper.getMemInfo() + ")");
+                LOGGER.info(String.format("%d/%d calling CoreLM prepare.doWork for %s ... (%s)", tmpCounter, getPreparations().size(), plm.getWeighting(), Helper.getMemInfo()));
                 prepared.set(true);
                 Thread.currentThread().setName(name);
                 plm.doWork();
@@ -349,8 +348,8 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      * @see com.graphhopper.GraphHopper#calcPaths(GHRequest, GHResponse)
      */
     public static class CoreLMRAFactory implements RoutingAlgorithmFactory {
-        private RoutingAlgorithmFactory defaultAlgoFactory;
-        private PrepareCoreLandmarks p;
+        private final RoutingAlgorithmFactory defaultAlgoFactory;
+        private final PrepareCoreLandmarks p;
 
         public CoreLMRAFactory(PrepareCoreLandmarks p, RoutingAlgorithmFactory defaultAlgoFactory) {
             this.defaultAlgoFactory = defaultAlgoFactory;

@@ -111,9 +111,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private List<Integer> warningExtensions;
 
 	private int profileType = RoutingProfileType.UNKNOWN;
-	private FlagEncoder encoder;
-	private boolean encoderWithPriority;
-	private byte[] buffer;
+	private final FlagEncoder encoder;
+	private final boolean encoderWithPriority;
+	private final byte[] buffer;
 	private static final Logger LOGGER = Logger.getLogger(ExtraInfoProcessor.class.getName());
 
 	private String skippedExtraInfo = "";
@@ -314,12 +314,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 *
 	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
-		boolean include = false;
-
-		if(RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag))
-			include = true;
-
-		return include;
+		return RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag);
 	}
 
 	public List<RouteExtraInfo> getExtras() {

@@ -24,7 +24,7 @@ import org.heigit.ors.util.StreamUtility;
 
 public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
-    private byte[] body;
+    private final byte[] body;
 
     public MultiReadHttpServletRequest(HttpServletRequest httpServletRequest) throws IOException {
         super(httpServletRequest);
@@ -47,7 +47,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
     private static class ServletInputStreamImpl extends ServletInputStream {
 
-        private InputStream is;
+        private final InputStream is;
 
         public ServletInputStreamImpl(InputStream is) {
             this.is = is;

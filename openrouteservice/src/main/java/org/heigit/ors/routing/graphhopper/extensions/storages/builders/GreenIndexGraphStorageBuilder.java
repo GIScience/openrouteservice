@@ -35,10 +35,10 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final Logger LOGGER = Logger.getLogger(GreenIndexGraphStorageBuilder.class.getName());
 
     private GreenIndexGraphStorage storage;
-    private Map<Long, Double> greenIndices = new HashMap<>();
+    private final Map<Long, Double> greenIndices = new HashMap<>();
     private static final int TOTAL_LEVEL = 64;
     private static final int DEFAULT_LEVEL = TOTAL_LEVEL - 1;
-    private Map<Byte, SlotRange> slots = new HashMap<>(TOTAL_LEVEL);
+    private final Map<Byte, SlotRange> slots = new HashMap<>(TOTAL_LEVEL);
 
     @Override
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
@@ -92,7 +92,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         int pos = row.indexOf(separator);
         if (pos > 0) {
         	rowValues[0] = row.substring(0, pos).trim();
-        	rowValues[1] = row.substring(pos+1, row.length()).trim();
+        	rowValues[1] = row.substring(pos+1).trim();
         	// read, check and push "osm_id" and "ungreen_factor" values
             return !Helper.isEmpty(rowValues[0]) && !Helper.isEmpty(rowValues[1]);
         }

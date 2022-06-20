@@ -66,7 +66,7 @@ public final class JTS {
      * A pool of direct positions for use in {@link #orthodromicDistance}.
      */
     private static final GeneralDirectPosition[] POSITIONS = new GeneralDirectPosition[4];
-    private static GeometryFactory factory;
+    private static final GeometryFactory factory;
 
     static {
         for (int i = 0; i < POSITIONS.length; i++) {

@@ -35,7 +35,7 @@ import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 
 import java.util.ArrayList;
 import java.util.HashSet;

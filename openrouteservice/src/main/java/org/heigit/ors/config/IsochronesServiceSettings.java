@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.services.isochrones;
+package org.heigit.ors.config;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigObject;
@@ -179,11 +179,9 @@ public class IsochronesServiceSettings {
         fastIsochroneProfiles.add(routingProfile);
     }
 
-    public static String getWeightings() {
-        if (weightings == "")
-            return "fastest";
-        return weightings;
-    }
+	public static String getWeightings() {
+		return weightings.equals("") ? "fastest" : weightings;
+	}
 
     public static boolean getAllowComputeArea() {
         return allowComputeArea;
@@ -252,10 +250,10 @@ public class IsochronesServiceSettings {
         return config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
     }
 
-    public static String getParameter(String paramName, boolean notNull) throws Exception {
-        String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
-        if (notNull && Helper.isEmpty(value))
-            throw new Exception("Parameter '" + paramName + "' must not be null or empty.");
+	public static String getParameter(String paramName, boolean notNull) {
+		String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, paramName);
+		if (notNull && Helper.isEmpty(value))
+			throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
 
         return value;
     }

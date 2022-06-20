@@ -17,24 +17,20 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder {
-    protected Map<String, String> parameters;
+public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
+{
+	protected Map<String, String> parameters;
 
-    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags) {
-        processWay(way);
-    }
-
-    public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
-        processEdge(way, edge);
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    public void finish() {
-    }
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags) { processWay(way);}
+	
+	public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) { processEdge(way, edge); }
+	
+	public void setParameters(Map<String, String> parameters)
+	{
+		this.parameters = parameters;
+	}
+	
+	public void finish(){}
 }

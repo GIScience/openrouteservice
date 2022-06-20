@@ -26,8 +26,8 @@ import java.util.List;
 
 @ApiModel(value = "JSONExtra", description = "An object representing one of the extra info items requested")
 public class JSONExtra {
-    private List<List<Long>> values;
-    private List<JSONExtraSummary> summary;
+    private final List<List<Long>> values;
+    private final List<JSONExtraSummary> summary;
 
     public JSONExtra(List<RouteSegmentItem> segments, List<ExtraSummaryItem> summaryItems) {
         values = new ArrayList<>();

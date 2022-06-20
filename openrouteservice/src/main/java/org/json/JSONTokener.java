@@ -45,7 +45,7 @@ public class JSONTokener {
     private long    index;
     private long    line;
     private char    previous;
-    private Reader  reader;
+    private final Reader  reader;
     private boolean usePrevious;
 
 
@@ -448,7 +448,7 @@ public class JSONTokener {
      * @return  A JSONException object, suitable for throwing
      */
     public JSONException syntaxError(String message) {
-        return new JSONException(message + this.toString());
+        return new JSONException(message + this);
     }
 
     /**
@@ -459,7 +459,7 @@ public class JSONTokener {
      * @return  A JSONException object, suitable for throwing
      */
     public JSONException syntaxError(String message, Throwable causedBy) {
-        return new JSONException(message + this.toString(), causedBy);
+        return new JSONException(message + this, causedBy);
     }
 
     /**

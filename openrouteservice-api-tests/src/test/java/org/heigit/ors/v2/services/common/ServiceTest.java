@@ -20,7 +20,6 @@
  */
 package org.heigit.ors.v2.services.common;
 
-import org.heigit.ors.services.common.Utils;
 import io.restassured.RestAssured;
 import org.junit.BeforeClass;
 

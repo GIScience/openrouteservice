@@ -15,7 +15,7 @@ package org.heigit.ors.matrix;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.ServiceRequest;
 
 public class MatrixRequest extends ServiceRequest {
 	private int profileType = -1;
