@@ -40,11 +40,11 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     private RoadAccessRestrictionsGraphStorage storage;
     private boolean hasRestrictions = false;
     private int restrictions;
-    private final List<String> accessRestrictedTags = new ArrayList<>(5);
-    private final List<String> motorCarTags = new ArrayList<>(5);
-    private final List<String> motorCycleTags = new ArrayList<>(5);
-    private final Set<String> restrictedValues = new HashSet<>(5);
-    private final Set<String> permissiveValues = new HashSet<>(5);
+    private List<String> accessRestrictedTags = new ArrayList<>(5);
+    private List<String> motorCarTags = new ArrayList<>(5);
+    private List<String> motorCycleTags = new ArrayList<>(5);
+    private Set<String> restrictedValues = new HashSet<>(5);
+    private Set<String> permissiveValues = new HashSet<>(5);
 
     private int profileType;
 
@@ -133,14 +133,14 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      *                  apply restrictions on a way introduced by items like lift gates that are nodes on the way
      */
     @Override
-    public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags) {
+    public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags) {
         if (hasRestrictions) {
             hasRestrictions = false;
             restrictions = 0;
         }
 
         if(nodeTags != null) {
-            for (Map<String, String> tagPairs : nodeTags.values()) {
+            for (HashMap<String, String> tagPairs : nodeTags.values()) {
                 for (Map.Entry<String, String> pair : tagPairs.entrySet()) {
                     way.setTag(pair.getKey(), pair.getValue());
                 }

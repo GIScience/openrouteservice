@@ -22,11 +22,11 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class GPXLink {
     @XmlAttribute(name = "href")
-    private final String href;
+    private String href;
     @XmlElement(name = "text")
-    private final String text;
+    private String text;
     @XmlElement
-    private final String type;
+    private String type;
 
     public GPXLink() {
         this.href = AppConfig.getGlobal().getParameter("info", "base_url");

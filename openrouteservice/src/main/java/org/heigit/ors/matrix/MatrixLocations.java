@@ -14,8 +14,8 @@
 package org.heigit.ors.matrix;
 
 public class MatrixLocations {
-	private final int[] nodeIds;
-	private final ResolvedLocation[] locations;
+	private int[] nodeIds;
+	private ResolvedLocation[] locations;
 	private boolean hasValidNodes = false;
 
 	public MatrixLocations(int size) {

@@ -24,9 +24,9 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 
 public class AccelerationWeighting extends FastestWeighting {
-	private final GraphHopperStorage ghStorage;
-	private final AngleCalc angleCalc = new AngleCalc();
-	private final long maxEdges;
+	private GraphHopperStorage ghStorage;
+	private AngleCalc angleCalc = new AngleCalc();
+	private long maxEdges;
 
 	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
 		super(encoder, map);
@@ -143,6 +143,6 @@ public class AccelerationWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("AccWeighting" + this).hashCode();
+		return ("AccWeighting" + toString()).hashCode();
 	}
 }

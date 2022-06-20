@@ -19,7 +19,7 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
-    private final int travellerId;
+    private int travellerId;
     private Coordinate location;
     private Boolean reverseDirection = false;
     private TravelRangeType rangeType = TravelRangeType.TIME;

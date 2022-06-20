@@ -27,10 +27,10 @@ import org.heigit.ors.util.UnitsConverter;
 import org.heigit.ors.common.Pair;
 
 public class IsochronesIntersection {
-	private final Geometry geometry;
+	private Geometry geometry;
 	private Envelope envelope;
 	private double area = 0.0;
-	private final List<Pair<Integer, Integer>> contourRefs;
+	private List<Pair<Integer, Integer>> contourRefs;
 
 	public IsochronesIntersection(Geometry geometry) {
 		this.geometry = geometry;

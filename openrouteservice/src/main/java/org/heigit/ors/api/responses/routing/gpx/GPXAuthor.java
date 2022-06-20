@@ -22,13 +22,13 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class GPXAuthor {
     @XmlElement(name = "name")
-    private final String name;
+    private String name;
 
     @XmlElement(name = "email")
-    private final GPXEmail email;
+    private GPXEmail email;
 
     @XmlElement(name = "link")
-    private final GPXLink link;
+    private GPXLink link;
 
     public GPXAuthor() throws InternalServerException  {
         this.name = AppConfig.getGlobal().getParameter("info", "author_tag");

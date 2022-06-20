@@ -36,10 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Centrality Service", tags = "Centrality")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Centrality", description = "Get node centrality for different modes of transport")
-})
+@Api(value = "Centrality Service", description = "Get node centrality for different modes of transport", tags = "Centrality")
 @RequestMapping("/v2/centrality")
 @ApiResponses({
         @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),

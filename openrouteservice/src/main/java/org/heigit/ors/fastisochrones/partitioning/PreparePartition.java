@@ -21,11 +21,11 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  */
 public class PreparePartition {
     private static final Logger LOGGER = LoggerFactory.getLogger(PreparePartition.class);
-    private final GraphHopperStorage ghStorage;
-    private final EdgeFilterSequence edgeFilters;
-    private final IsochroneNodeStorage isochroneNodeStorage;
-    private final CellStorage cellStorage;
-    private final int nodes;
+    private GraphHopperStorage ghStorage;
+    private EdgeFilterSequence edgeFilters;
+    private IsochroneNodeStorage isochroneNodeStorage;
+    private CellStorage cellStorage;
+    private int nodes;
 
     public PreparePartition(GraphHopperStorage ghStorage, EdgeFilterSequence edgeFilters) {
         this.ghStorage = ghStorage;

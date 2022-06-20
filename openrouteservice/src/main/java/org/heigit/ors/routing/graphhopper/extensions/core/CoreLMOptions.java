@@ -20,6 +20,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.AvoidFeatu
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class CoreLMOptions {
         //Create one edgefiltersequence for each lmset
         for(String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
-            String[] tmpFilters = set.split(",");
+            List<String> tmpFilters = Arrays.asList(set.split(","));
             LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
             int feature;
             int country;

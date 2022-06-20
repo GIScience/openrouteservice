@@ -30,8 +30,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String KEY_SLOPED_KERB = "sloped_kerb";
 	public static final String KEY_KERB_HEIGHT = "kerb:height";
 	public static final String KEY_FOOTWAY = "footway";
-	public static final String SW_VAL_RIGHT = "right";
-	public static final String SW_VAL_LEFT = "left";
+	public static final String KEY_RIGHT = "right";
+	public static final String KEY_LEFT = "left";
 	public static final String KEY_BOTH = "both";
 	public static final String KEY_SIDEWALK_BOTH = "sidewalk:both:";
 	public static final String KEY_FOOTWAY_BOTH = "footway:both:";
@@ -44,12 +44,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	}
 
 	private WheelchairAttributesGraphStorage storage;
-	private final WheelchairAttributes wheelchairAttributes;
-	private final WheelchairAttributes wheelchairAttributesLeftSide;
-	private final WheelchairAttributes wheelchairAttributesRightSide;
+	private WheelchairAttributes wheelchairAttributes;
+	private WheelchairAttributes wheelchairAttributesLeftSide;
+	private WheelchairAttributes wheelchairAttributesRightSide;
 
-	private Map<Integer, Map<String,String>> nodeTagsOnWay;
-	private Map<String, Object> cleanedTags;
+	private HashMap<Integer, HashMap<String,String>> nodeTagsOnWay;
+	private HashMap<String, Object> cleanedTags;
 
 	private boolean hasLeftSidewalk = false;
 	private boolean hasRightSidewalk = false;
@@ -108,7 +108,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @param nodeTags	Tags that have been stored on nodes of the way that should be used during processing
 	 */
 	@Override
-	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags)
+	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags)
 	{
 		// Start by resetting storage variables after the previous way
 		wheelchairAttributes.reset();
@@ -259,10 +259,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case SW_VAL_LEFT:
+				case KEY_LEFT:
 					hasLeftSidewalk = true;
 					break;
-				case SW_VAL_RIGHT:
+				case KEY_RIGHT:
 					hasRightSidewalk = true;
 					break;
 				case KEY_BOTH:
@@ -553,13 +553,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
 		    String side = way.getTag("ors-sidewalk-side");
-		    if(side.equals(SW_VAL_LEFT)) {
+		    if(side.equals(KEY_LEFT)) {
 				// Only get the attributes for the left side
-				at = getAttributes(SW_VAL_LEFT);
+				at = getAttributes(KEY_LEFT);
 				at.setSide(WheelchairAttributes.Side.LEFT);
             }
-            if(side.equals(SW_VAL_RIGHT)) {
-		    	at = getAttributes(SW_VAL_RIGHT);
+            if(side.equals(KEY_RIGHT)) {
+		    	at = getAttributes(KEY_RIGHT);
 		    	at.setSide(WheelchairAttributes.Side.RIGHT);
 			}
         } else {
@@ -605,8 +605,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Explicit heights are those provided by the :height tag - these should take precidence
 		List<Integer> explicitKerbHeights = new ArrayList<>();
 
-		for(Map.Entry<Integer, Map<String, String>> entry: nodeTagsOnWay.entrySet()) {
-			Map<String, String> tags = entry.getValue();
+		for(Map.Entry<Integer, HashMap<String, String>> entry: nodeTagsOnWay.entrySet()) {
+			HashMap<String, String> tags = entry.getValue();
 			for (Map.Entry<String,String> tag : tags.entrySet()) {
 				switch (tag.getKey()) {
 					case KEY_SLOPED_CURB:
@@ -688,10 +688,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now get the specific items
 		switch(side) {
-			case SW_VAL_LEFT:
+			case KEY_LEFT:
 				at = at.merge(wheelchairAttributesLeftSide);
 				break;
-			case SW_VAL_RIGHT:
+			case KEY_RIGHT:
 				at = at.merge(wheelchairAttributesRightSide);
 				break;
 			default:

@@ -32,5 +32,6 @@ public class OSMTags {
         public static final String MAN_MADE = "man_made";
         public static final String TUNNEL = "tunnel";
         public static final String BICYCLE = "bicycle";
+        public static final String WATERWAY = "waterway";
     }
 }

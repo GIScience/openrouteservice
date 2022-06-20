@@ -22,8 +22,8 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-	private final byte[] buffer;
-	private final WayCategoryGraphStorage storage;
+	private byte[] buffer;
+	private WayCategoryGraphStorage storage;
 	private int avoidFeatures;
 	private static final String TYPE = "avoid_features";
 

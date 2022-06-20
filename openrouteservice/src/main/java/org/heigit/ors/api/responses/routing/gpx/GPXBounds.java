@@ -31,22 +31,18 @@ public class GPXBounds extends BoundingBoxBase implements BoundingBox {
         super(bounding);
     }
 
-    @Override
     @XmlAttribute(name = "minLat")
     public double getMinLat() {
         return FormatUtility.roundToDecimals(this.minLat, COORDINATE_DECIMAL_PLACES);
     }
-    @Override
     @XmlAttribute(name = "minLon")
     public double getMinLon() {
         return FormatUtility.roundToDecimals(this.minLon, COORDINATE_DECIMAL_PLACES);
     }
-    @Override
     @XmlAttribute(name = "maxLat")
     public double getMaxLat() {
         return FormatUtility.roundToDecimals(this.maxLat, COORDINATE_DECIMAL_PLACES);
     }
-    @Override
     @XmlAttribute(name = "maxLon")
     public double getMaxLon() {
         return FormatUtility.roundToDecimals(this.maxLon, COORDINATE_DECIMAL_PLACES);

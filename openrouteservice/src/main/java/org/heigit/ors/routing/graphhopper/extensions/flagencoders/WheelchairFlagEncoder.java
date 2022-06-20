@@ -132,7 +132,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     /**
      * Barriers (nodes) that are not accessible. Routes that would these nodes are not possible.
      */
-    private final Set<String> inaccessibleBarriers = new HashSet<>(5);
+    private Set<String> inaccessibleBarriers = new HashSet<>(5);
     
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
@@ -707,6 +707,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("WheelchairFlagEncoder" + this).hashCode();
+        return ("WheelchairFlagEncoder" + toString()).hashCode();
     }
 }

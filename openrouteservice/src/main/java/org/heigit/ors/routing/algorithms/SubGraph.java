@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
 public class SubGraph {
 	private final Logger logger = Logger.getLogger(getClass());
 
-	private final GHIntObjectHashMap<EdgeIteratorLink> node2EdgesMap;
-	private final Graph baseGraph;
+	private GHIntObjectHashMap<EdgeIteratorLink> node2EdgesMap;
+	private Graph baseGraph;
 
 	class EdgeIteratorLink  {
 		private EdgeIteratorState state;
@@ -57,7 +57,7 @@ public class SubGraph {
 	}
 
 	class SubGraphEdgeExplorer implements EdgeExplorer {
-		private final SubGraph graph;
+		private SubGraph graph;
 
 		public SubGraphEdgeExplorer(SubGraph graph) {
 			this.graph = graph;

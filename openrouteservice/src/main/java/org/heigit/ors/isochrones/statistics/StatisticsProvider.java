@@ -25,9 +25,9 @@ import java.util.Map;
 import org.heigit.ors.isochrones.Isochrone;
 
 public interface StatisticsProvider {
-	void init(Map<String, Object> parameters) throws Exception;
-	void close() throws Exception;
-	String getName();
+	public void init(Map<String, Object> parameters) throws Exception;	
+	public void close() throws Exception;
+	public String getName();
 	
-    double[] getStatistics(Isochrone isochrone, String[] properties) throws Exception;
+    public double[] getStatistics(Isochrone isochrone, String[] properties) throws Exception;
 }

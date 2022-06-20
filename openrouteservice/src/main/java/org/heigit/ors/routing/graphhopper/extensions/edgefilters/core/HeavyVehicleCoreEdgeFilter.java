@@ -22,7 +22,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
 
 
 public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
-	private final HeavyVehicleAttributesGraphStorage storage;
+	private HeavyVehicleAttributesGraphStorage storage;
 
 	public HeavyVehicleCoreEdgeFilter(GraphStorage graphStorage) {
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);

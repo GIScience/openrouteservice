@@ -29,7 +29,7 @@ public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
 {
 	private TollwaysGraphStorage storage;
 	private int tollways;
-	private final List<String> tollTags = new ArrayList<>(6);
+	private List<String> tollTags = new ArrayList<>(6);
 	
 	public TollwaysGraphStorageBuilder() {
 		// Currently consider only toll tags relevant to cars or hgvs:

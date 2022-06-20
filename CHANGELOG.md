@@ -46,6 +46,8 @@ RELEASING:
 - set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
 - added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
 - typo in docker documentation
+- foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
 
 ## [6.7.0] - 2022-01-04
 ### Added
@@ -81,8 +83,6 @@ RELEASING:
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
-### Removed
-- old v1 API code and related classes
 ### Fixed
 - Errors in travel speed explanation
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
