@@ -39,6 +39,7 @@ RELEASING:
 - python code on decoding polylines including elevation data
 - Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
 ### Fixed
+- allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
 - internal properties of `IsochronesRequest` model not ignored for swagger file generation
