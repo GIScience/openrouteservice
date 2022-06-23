@@ -26,6 +26,7 @@ import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions .core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.junit.Before;
@@ -51,7 +52,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PrepareCoreLandmarksTest
 /* extends AbstractRoutingAlgorithmTester */ {
-    private GraphHopperStorage graph;
+    private ORSGraphHopperStorage graph;
     private FlagEncoder encoder;
     private TraversalMode tm = TraversalMode.NODE_BASED;
     private EncodingManager encodingManager;
@@ -64,7 +65,9 @@ public class PrepareCoreLandmarksTest
         encodingManager = new EncodingManager.Builder().add(encoder).add(Subnetwork.create("car")).build();
         weighting = new FastestWeighting(encoder);
         chConfig = new CHConfig("car", weighting, false, CHConfig.TYPE_CORE);
-        graph = new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+        graph = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        graph.addCoreGraph(chConfig);
+        graph.create(1000);
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.GHUtility;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.util.DebugUtility;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +40,15 @@ public class PrepareCoreTest {
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
     private final CHConfig chConfig = new CHConfig("c", weighting, false, CHConfig.TYPE_CORE);
-    private GraphHopperStorage g;
+    private ORSGraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
 
     @Before
     public void setUp() {
-        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
-        routingCHGraph = g.getRoutingCHGraph();
+        g = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        g.addCoreGraph(chConfig);
+        g.create(1000);
+        routingCHGraph = g.getCoreGraph(chConfig.getName());
     }
 
     private void createSimpleGraph() {
@@ -123,12 +126,12 @@ public class PrepareCoreTest {
         return contractGraph(g, chConfig, restrictedEdges, nodeOrdering);
     }
 
-    public static RoutingCHGraph contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges) {
+    public static RoutingCHGraph contractGraph(ORSGraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges) {
         return contractGraph(g, chConfig, restrictedEdges, null);
     }
 
-    public static RoutingCHGraph contractGraph(GraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges, int[] nodeOrdering) {
-        RoutingCHGraph routingCHGraph = g.getRoutingCHGraph();
+    public static RoutingCHGraph contractGraph(ORSGraphHopperStorage g, CHConfig chConfig, EdgeFilter restrictedEdges, int[] nodeOrdering) {
+        RoutingCHGraph routingCHGraph = g.getCoreGraph(chConfig.getName());
         g.freeze();
 
         PrepareCore prepare = new PrepareCore(g, chConfig, restrictedEdges);
