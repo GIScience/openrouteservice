@@ -36,11 +36,11 @@ import com.graphhopper.storage.*;
 
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class CoreDijkstraTest {
     private final FlagEncoder carEncoder;
     private final Weighting weighting;
     private final CHConfig chConfig;
-    GraphHopperStorage ghStorage;
+    ORSGraphHopperStorage ghStorage;
 
     public CoreDijkstraTest() {
         encodingManager = EncodingManager.create("car");
@@ -111,16 +111,19 @@ public class CoreDijkstraTest {
         edge53.setDistance(edge53.getDistance() * 2);
     }
 
-    private GraphHopperStorage createGHStorage(Weighting weighting) {
-        return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+    private ORSGraphHopperStorage createGHStorage() {
+        ORSGraphHopperStorage g = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        g.addCoreGraph(chConfig);
+        g.create(1000);
+        return g;
     }
 
-    private void prepareCore(GraphHopperStorage graphHopperStorage, CHConfig chConfig, EdgeFilter restrictedEdges) {
+    private void prepareCore(ORSGraphHopperStorage graphHopperStorage, CHConfig chConfig, EdgeFilter restrictedEdges) {
         graphHopperStorage.freeze();
         PrepareCore prepare = new PrepareCore(graphHopperStorage, chConfig, restrictedEdges);
         prepare.doWork();
 
-        RoutingCHGraph routingCHGraph = graphHopperStorage.getRoutingCHGraph();
+        RoutingCHGraph routingCHGraph = graphHopperStorage.getCoreGraph(chConfig.getName());
         if (DebugUtility.isDebug()) {
             for (int i = 0; i < routingCHGraph.getNodes(); i++)
                 System.out.println("nodeId " + i + " level: " + routingCHGraph.getLevel(i));
@@ -139,12 +142,12 @@ public class CoreDijkstraTest {
     @Test
     public void testCHGraph() {
         // No core at all
-        GraphHopperStorage ghStorage = createGHStorage(weighting);
+        ghStorage = createGHStorage();
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         prepareCore(ghStorage, chConfig, new CoreTestEdgeFilter());
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
@@ -156,7 +159,7 @@ public class CoreDijkstraTest {
     @Test
     public void testCoreGraph() {
         // All edges are part of core
-        GraphHopperStorage ghStorage = createGHStorage(weighting);
+        ghStorage = createGHStorage();
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -165,7 +168,7 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
@@ -177,7 +180,7 @@ public class CoreDijkstraTest {
     @Test
     public void testMixedGraph() {
         // Core consisting of a single edge 1-2
-        ghStorage = createGHStorage(weighting);
+        ghStorage = createGHStorage();
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -185,7 +188,7 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
@@ -199,7 +202,7 @@ public class CoreDijkstraTest {
     @Test
     public void testMixedGraph2() {
         // Core consisting of edges 1-5 and 5-2
-        ghStorage = createGHStorage(weighting);
+        ghStorage = createGHStorage();
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -208,7 +211,7 @@ public class CoreDijkstraTest {
 
         prepareCore(ghStorage, chConfig, restrictedEdges);
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 3);
 
@@ -222,7 +225,7 @@ public class CoreDijkstraTest {
     @Test
     public void testCoreRestriction() {
         // Core consisting of edges 1-5 and 5-2
-        ghStorage = createGHStorage(weighting);
+        ghStorage = createGHStorage();
         initDirectedAndDiffSpeed(ghStorage, carEncoder);
 
         CoreTestEdgeFilter coreEdges = new CoreTestEdgeFilter();
@@ -234,7 +237,7 @@ public class CoreDijkstraTest {
         Integer[] core = {1, 2, 5};
         assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         AlgorithmOptions opts = new AlgorithmOptions();
         opts.setEdgeFilter(restrictedEdges);
@@ -254,11 +257,24 @@ public class CoreDijkstraTest {
      *
      * @param coreNodes
      */
-    private void assertCore(GraphHopperStorage ghStorage, Set<Integer> coreNodes) {
-        int nodes = ghStorage.getRoutingCHGraph().getNodes();
+    private void assertCore(ORSGraphHopperStorage ghStorage, Set<Integer> coreNodes) {
+        int nodes = ghStorage.getCoreGraph(chConfig.getName()).getNodes();
         int maxLevel = nodes;
         for (int node = 0; node < nodes; node++) {
-            int level = ghStorage.getRoutingCHGraph().getLevel(node);
+            int level = ghStorage.getCoreGraph(chConfig.getName()).getLevel(node);
+            if (coreNodes.contains(node)) {
+                assertEquals(maxLevel, level);
+            } else {
+                assertTrue(level < maxLevel);
+            }
+        }
+    }
+
+    private void assertCore(ORSGraphHopperStorage ghStorage, Set<Integer> coreNodes, CHConfig chConfig) {
+        int nodes = ghStorage.getCoreGraph(chConfig.getName()).getNodes();
+        int maxLevel = nodes;
+        for (int node = 0; node < nodes; node++) {
+            int level = ghStorage.getCoreGraph(chConfig.getName()).getLevel(node);
             if (coreNodes.contains(node)) {
                 assertEquals(maxLevel, level);
             } else {
@@ -277,13 +293,16 @@ public class CoreDijkstraTest {
 
         CHConfig footConfig = new CHConfig("p_foot", footWeighting, false, CHConfig.TYPE_CORE);
         CHConfig carConfig = new CHConfig("p_car", carWeighting, false, CHConfig.TYPE_CORE);
-        GraphHopperStorage g = new GraphBuilder(em).setCHConfigs(footConfig, carConfig).create();
+        ORSGraphHopperStorage g = new ORSGraphHopperStorage(new RAMDirectory(), em, false, false, -1);
+        g.addCoreGraph(footConfig).addCoreGraph(carConfig);
+        g.create(1000);
+
         initFootVsCar(carEncoder, footEncoder, g);
 
         //car
         prepareCore(g, carConfig, new CoreTestEdgeFilter());
-        RoutingCHGraph chGraph = g.getRoutingCHGraph(carConfig.getName());
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
+        RoutingCHGraph chGraph = g.getCoreGraph(carConfig.getName());
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(g,  carWeighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 7);
 
         assertEquals(IntArrayList.from(0, 4, 6, 7), p1.calcNodes());
@@ -292,8 +311,8 @@ public class CoreDijkstraTest {
 
         //foot
         prepareCore(g, footConfig, new CoreTestEdgeFilter());
-        chGraph = g.getRoutingCHGraph(footConfig.getName());
-        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
+        chGraph = g.getCoreGraph(footConfig.getName());
+        algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(g, footWeighting, new AlgorithmOptions());
 
         Path p2 = algo.calcPath(0, 7);
         assertEquals(p2.toString(), 17000, p2.getDistance(), 1e-6);
@@ -342,10 +361,10 @@ public class CoreDijkstraTest {
     public void testOneToOneTurnRestrictions() {
         CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
         EncodingManager encodingManager = EncodingManager.create(carEncoder);
-        GraphHopperStorage ghStorage = new GraphBuilder(encodingManager).build();
+        ORSGraphHopperStorage ghStorage = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, true, -1);
         Weighting weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, ghStorage.getTurnCostStorage()));
         CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
-        ghStorage.addCHGraph(chConfig).create(1000);
+        ghStorage.addCoreGraph(chConfig).create(1000);
 
         ToyGraphCreationUtil.createMediumGraph(ghStorage, encodingManager);
         setTurnCost(ghStorage, Double.POSITIVE_INFINITY, 1, 2, 6);
@@ -355,9 +374,9 @@ public class CoreDijkstraTest {
         prepareCore(ghStorage, chConfig, coreEdgeFilter);
 
         Integer[] core = {0, 2, 3};
-        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)));
+        assertCore(ghStorage, new HashSet<>(Arrays.asList(core)), chConfig);
 
-        RoutingCHGraph chGraph = ghStorage.getRoutingCHGraph();
+        RoutingCHGraph chGraph = ghStorage.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
 
         Path p = algo.calcPath(0, 3);
@@ -377,10 +396,10 @@ public class CoreDijkstraTest {
     public void testUTurn() {
         CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
         EncodingManager encodingManager = EncodingManager.create(carEncoder);
-        GraphHopperStorage graph = new GraphBuilder(encodingManager).build();
+        ORSGraphHopperStorage graph = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, true, -1);
         Weighting weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, graph.getTurnCostStorage()));
         CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
-        graph.addCHGraph(chConfig).create(1000);
+        graph.addCoreGraph(chConfig).create(1000);
         //       0
         //       |
         //       1
@@ -407,9 +426,9 @@ public class CoreDijkstraTest {
         prepareCore(graph, chConfig, coreEdgeFilter);
 
         Integer[] core = {1, 2, 3, 9, 6, 7};
-        assertCore(graph, new HashSet<>(Arrays.asList(core)));
+        assertCore(graph, new HashSet<>(Arrays.asList(core)), chConfig);
 
-        RoutingCHGraph chGraph = graph.getRoutingCHGraph();
+        RoutingCHGraph chGraph = graph.getCoreGraph(chConfig.getName());
         RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(ghStorage, weighting, new AlgorithmOptions());
 
         Path p = algo.calcPath(0, 4);

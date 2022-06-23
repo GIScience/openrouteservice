@@ -33,7 +33,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
      * Adds a {@link CHStorage} for the given {@link CHConfig}. You need to call this method before calling {@link #create(long)}
      * or {@link #loadExisting()}.
      */
-    public GraphHopperStorage addCoreGraph(CHConfig chConfig) {
+    public ORSGraphHopperStorage addCoreGraph(CHConfig chConfig) {
         if (getCoreConfigs().contains(chConfig))
             throw new IllegalArgumentException("For the given CH profile a CHStorage already exists: '" + chConfig.getName() + "'");
         coreEntries.add(createCHEntry(chConfig));
@@ -43,7 +43,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
     /**
      * @see #addCHGraph(CHConfig)
      */
-    public GraphHopperStorage addCoreGraphs(List<CHConfig> chConfigs) {
+    public ORSGraphHopperStorage addCoreGraphs(List<CHConfig> chConfigs) {
         for (CHConfig chConfig : chConfigs) {
             addCoreGraph(chConfig);
         }
@@ -85,7 +85,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
     /**
      * After configuring this storage you need to create it explicitly.
      */
-    public GraphHopperStorage create(long byteCount) {
+    public ORSGraphHopperStorage create(long byteCount) {
         super.create(byteCount);
 
         coreEntries.forEach(ch -> ch.chStore.create());
