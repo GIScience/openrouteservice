@@ -232,6 +232,9 @@ public class RoutingManagerConfiguration  {
 					case "traffic_expiration_min":
 						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
 						break;
+					case "gtfs_file":
+						profile.setGtfsFile(StringUtility.trimQuotes(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

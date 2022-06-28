@@ -16,6 +16,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.*;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.gtfs.GraphHopperGtfs;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
@@ -72,7 +73,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 
-public class ORSGraphHopper extends GraphHopper {
+public class ORSGraphHopper extends GraphHopperGtfs {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
 	public static final String KEY_DEPARTURE = "departure";
 	public static final String KEY_ARRIVAL = "arrival";

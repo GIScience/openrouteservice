@@ -39,8 +39,8 @@ public class RouteProfileConfiguration {
 	private boolean optimize = false;
 	
 	private int encoderFlagsSize = 4;
-	private String encoderOptions = null;
-	
+	private String encoderOptions = "";
+	private String gtfsFile = "";
 	private Config isochronePreparationOpts;
 	private Config preparationOpts;
 	private Config executionOpts;
@@ -105,6 +105,8 @@ public class RouteProfileConfiguration {
 		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 
 		trafficExpirationMin = rpc.trafficExpirationMin;
+
+		gtfsFile = rpc.gtfsFile;
 	}
 
 	public Integer[] getProfilesTypes() {
@@ -409,5 +411,13 @@ public class RouteProfileConfiguration {
 
 	public int getTrafficExpirationMin() {
 		return this.trafficExpirationMin;
+	}
+
+	public void setGtfsFile(String gtfsFile) {
+		this.gtfsFile = gtfsFile;
+	}
+
+	public String getGtfsFile() {
+		return this.gtfsFile;
 	}
 }
