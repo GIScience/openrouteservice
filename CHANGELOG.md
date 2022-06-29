@@ -50,6 +50,7 @@ RELEASING:
 - foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
 - graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
 - address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
+- fix minor spelling errors in Places.md ([#1196](https://github.com/GIScience/openrouteservice/issues/1196))
 
 ## [6.7.0] - 2022-01-04
 ### Added
