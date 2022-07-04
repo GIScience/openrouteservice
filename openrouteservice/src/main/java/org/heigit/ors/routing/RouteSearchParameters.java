@@ -41,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 
@@ -90,6 +91,11 @@ public class RouteSearchParameters {
 
     private LocalDateTime departure;
     private LocalDateTime arrival;
+    private int scheduleRows;
+    private Duration scheduleDuaration;
+    private boolean ignoreTransfers;
+    private Duration walkingTime;
+    private boolean schedule;
 
     public int getProfileType() {
         return profileType;
@@ -622,4 +628,43 @@ public class RouteSearchParameters {
         return (hasDeparture() || hasArrival());
     }
 
+    public void setScheduleDuaration(Duration scheduleDuaration) {
+        this.scheduleDuaration = scheduleDuaration;
+    }
+
+    public Duration getScheduleDuaration() {
+        return scheduleDuaration;
+    }
+
+    public void setIgnoreTransfers(boolean ignoreTransfers) {
+        this.ignoreTransfers = ignoreTransfers;
+    }
+
+    public boolean isIgnoreTransfers() {
+        return ignoreTransfers;
+    }
+
+    public void setScheduleRows(int scheduleRows) {
+        this.scheduleRows = scheduleRows;
+    }
+
+    public int getScheduleRows() {
+        return scheduleRows;
+    }
+
+    public void setWalkingTime(Duration walkingTime) {
+        this.walkingTime = walkingTime;
+    }
+
+    public Duration getWalkingTime() {
+        return walkingTime;
+    }
+
+    public void setSchedule(boolean schedule) {
+        this.schedule = schedule;
+    }
+
+    public boolean hasSchedule() {
+        return schedule;
+    }
 }
