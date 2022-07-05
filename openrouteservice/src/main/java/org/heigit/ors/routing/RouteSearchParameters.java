@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;

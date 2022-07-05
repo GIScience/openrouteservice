@@ -92,6 +92,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
 	private double maximumSpeedLowerBound;
 
+	public GraphHopperConfig getConfig() {
+		return config;
+	}
+
+	private GraphHopperConfig config;
+
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		processContext.init(this);
@@ -119,6 +125,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+		config = ghConfig;
 		return ret;
 	}
 

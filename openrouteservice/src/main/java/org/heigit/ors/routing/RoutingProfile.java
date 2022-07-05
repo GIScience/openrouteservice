@@ -19,6 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.gtfs.*;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -72,6 +73,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -1095,6 +1098,14 @@ public class RoutingProfile {
 
         try {
             int profileType = searchParams.getProfileType();
+            if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
+                PtRouter ptRouter = PtRouterImpl
+                        .createFactory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper, mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
+                        .createWithoutRealtimeFeed();
+                Request ptRequest = createPtRequest();
+
+                return ptRouter.route(ptRequest);
+            }
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
