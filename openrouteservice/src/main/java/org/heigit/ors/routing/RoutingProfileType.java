@@ -195,7 +195,7 @@ public class RoutingProfileType {
                 return WHEELCHAIR;
 
             case "pt":
-                return GH_FOOT;
+                return PUBLIC_TRANSPORT;
 
             // GH DEFAULTS:
             case "gh-car":
@@ -260,6 +260,8 @@ public class RoutingProfileType {
             case RoutingProfileType.WHEELCHAIR:
                 return FlagEncoderNames.WHEELCHAIR;
 
+            case RoutingProfileType.PUBLIC_TRANSPORT:
+                return FlagEncoderNames.GH_FOOT;
 
             case RoutingProfileType.GH_CAR:
                 return FlagEncoderNames.GH_CAR;

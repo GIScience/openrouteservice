@@ -1218,10 +1218,10 @@ public class RoutingProfile {
         if (params.hasDeparture() && params.hasArrival()) {
             throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
         } else if (params.hasArrival()) {
-            departureTime = Instant.from(params.getArrival());
+            departureTime = params.getArrival().toInstant(ZoneOffset.UTC);
             arrive_by = true;
         } else if (params.hasDeparture()) {
-            departureTime = Instant.from(params.getDeparture());
+            departureTime = params.getDeparture().toInstant(ZoneOffset.UTC);
         } else {
             // pt.earliest_departure_time is @NotNull, we need to emulate that here.
             departureTime = Instant.now();
@@ -1264,8 +1264,8 @@ public class RoutingProfile {
         }
 
         // default to foot access and egress
-        ptRequest.setAccessProfile("foot");
-        ptRequest.setEgressProfile("foot");
+        ptRequest.setAccessProfile("foot_fastest");
+        ptRequest.setEgressProfile("foot_fastest");
 
 
         return ptRequest;

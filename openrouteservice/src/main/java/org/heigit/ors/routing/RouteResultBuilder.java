@@ -241,19 +241,23 @@ class RouteResultBuilder
                 if (ii == 0) {
                     double lat;
                     double lon;
-                    if (currentStepPoints.size() == 1) {
-                        if (nextStepPoints != null) {
-                            lat = nextStepPoints.getLat(0);
-                            lon = nextStepPoints.getLon(0);
-                        } else {
-                            lat = currentStepPoints.getLat(0);
-                            lon = currentStepPoints.getLon(0);
-                        }
+                    if (currentStepPoints.size() == 0) { // departure step without points, occurs in PT routing
+                        instrText = instrTranslator.getDepartPt();
                     } else {
-                        lat = currentStepPoints.getLat(1);
-                        lon = currentStepPoints.getLon(1);
+                        if (currentStepPoints.size() == 1) {
+                            if (nextStepPoints != null) {
+                                lat = nextStepPoints.getLat(0);
+                                lon = nextStepPoints.getLon(0);
+                            } else {
+                                lat = currentStepPoints.getLat(0);
+                                lon = currentStepPoints.getLon(0);
+                            }
+                        } else {
+                            lat = currentStepPoints.getLat(1);
+                            lon = currentStepPoints.getLon(1);
+                        }
+                        instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
                     }
-                    instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
                 } else {
                     if (instr instanceof RoundaboutInstruction) {
                         RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;

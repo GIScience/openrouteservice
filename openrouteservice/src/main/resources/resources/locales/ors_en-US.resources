@@ -56,6 +56,9 @@
 					"default": "Head {direction}",
 					"name": "Head {direction} on {way_name}"
 				}
+				"pt": {
+					"default": "Depart",
+				}
 			},
 			"roundabout": {
 				"default": {

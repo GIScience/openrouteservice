@@ -27,6 +27,7 @@ public class InstructionTranslator {
 	private final String[] directions;
 	private final String actionDepartDefault;
 	private final String actionDepartName;
+	private final String actionDepartPt;
 	private final String[] actionArriveDefault;
 	private final String[] actionArriveName;
 	private final String actionRoundaboutDefault;
@@ -69,6 +70,7 @@ public class InstructionTranslator {
 
 		actionDepartDefault = resources.getTranslation("instructions.actions.depart.default.default");
 		actionDepartName = resources.getTranslation("instructions.actions.depart.default.name");
+		actionDepartPt = resources.getTranslation("instructions.actions.depart.pt.default");
 		actionContinueDefault = resources.getTranslation("instructions.actions.continue.default.default");
 		actionContinueName = resources.getTranslation("instructions.actions.continue.default.name");
 		actionKeepDefault = resources.getTranslation("instructions.actions.keep.default.default");
@@ -148,7 +150,11 @@ public class InstructionTranslator {
 		else 
 			return actionDepartName.replace(STR_DIRECTION, directions[direction.ordinal()]).replace(STR_WAY_NAME, wayName);
 	}
-	
+
+	public String getDepartPt() {
+		return actionDepartPt;
+	}
+
 	public String getArrive(ArrivalDirection direction, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionArriveDefault[direction.ordinal()];

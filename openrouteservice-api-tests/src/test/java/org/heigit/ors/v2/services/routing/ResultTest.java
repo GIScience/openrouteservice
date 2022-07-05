@@ -3665,8 +3665,6 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testPT() {
 
-//         route?point=49.44685350733894,8.67295815572669&point=49.37861479774895,8.706720441937222&pt.earliest_departure_time=2022-07-04T13:02:26Z&pt.arrive_by=false&locale=en-US&profile=pt&pt.profile=false&pt.access_profile=foot&pt.egress_profile=foot&pt.profile_duration=PT120M&pt.limit_street_time=PT30M&pt.ignore_transfers=false
-
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.6729581);
@@ -3679,7 +3677,7 @@ public class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", coordinates);
         body.put("instructions", true);
-
+        body.put("departure", "2022-07-04T13:02:26Z");
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
