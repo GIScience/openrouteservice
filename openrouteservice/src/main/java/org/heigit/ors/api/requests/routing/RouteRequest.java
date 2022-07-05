@@ -895,6 +895,27 @@ public class RouteRequest extends APIRequest {
             params.setMaximumSpeed(maximumSpeed);
         }
 
+        // propagate GTFS-parameters to params to convert to ptRequest in RoutingProfile.computeRoute
+        if (this.hasSchedule()) {
+            params.setSchedule(schedule);
+        }
+
+        if (this.hasWalkingTime()) {
+            params.setWalkingTime(walkingTime);
+        }
+
+        if (this.hasScheduleRows()) {
+            params.setScheduleRows(scheduleRows);
+        }
+
+        if (this.hasIgnoreTransfers()) {
+            params.setIgnoreTransfers(ignoreTransfers);
+        }
+
+        if (this.hasScheduleDuration()) {
+            params.setScheduleDuaration(scheduleDuration);
+        }
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);

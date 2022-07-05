@@ -40,6 +40,7 @@ import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
@@ -76,6 +77,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -1102,7 +1107,8 @@ public class RoutingProfile {
                 PtRouter ptRouter = PtRouterImpl
                         .createFactory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper, mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
                         .createWithoutRealtimeFeed();
-                Request ptRequest = createPtRequest();
+
+                Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
 
                 return ptRouter.route(ptRequest);
             }
@@ -1200,6 +1206,69 @@ public class RoutingProfile {
         }
 
         return resp;
+    }
+
+    private Request createPTRequest(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters params) throws IncompatibleParameterException {
+        List<GHLocation> points = Arrays.asList(new GHPointLocation(new GHPoint(lat0, lon0)), new GHPointLocation(new GHPoint(lat1, lon1)));
+
+        // GH uses pt.earliest_departure_time for both departure and arrival.
+        // We need to check which is used here (and issue an exception if it's both) and consequently parse it and set arrive_by.
+        Instant departureTime = null;
+        boolean arrive_by = false;
+        if (params.hasDeparture() && params.hasArrival()) {
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+        } else if (params.hasArrival()) {
+            departureTime = Instant.from(params.getArrival());
+            arrive_by = true;
+        } else if (params.hasDeparture()) {
+            departureTime = Instant.from(params.getDeparture());
+        } else {
+            // pt.earliest_departure_time is @NotNull, we need to emulate that here.
+            departureTime = Instant.now();
+        }
+
+        Request ptRequest = new Request(points, departureTime);
+        ptRequest.setArriveBy(arrive_by);
+
+        // schedule is called profile in GraphHopper
+        if (params.hasSchedule()) {
+            ptRequest.setProfileQuery(params.getSchedule());
+        }
+
+        // scheduleDuration is called profileDuration accordingly
+        if (params.hasScheduleDuration()) {
+            ptRequest.setMaxProfileDuration(params.getScheduleDuaration());
+        }
+
+        if (params.hasIgnoreTransfers()) {
+            ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
+        }
+
+        // TODO: check whether language can be parsed in RouteResultBuilder
+        // language is called locale in GraphHopper
+        // if (params.hasLanguage()) {
+        //    ptRequest.setLocale(Helper.getLocale(params.getLanguage().toString()));
+        // }
+
+        // scheduleRows is called limitSolutions in GraphHopper
+        if (params.hasScheduleRows()) {
+            ptRequest.setLimitSolutions(params.getScheduleRows());
+        }
+
+        // setLimitTripTime missing from documentation
+        // according to GraphHopper
+
+        // walkingTime is called limit_street_time in GraphHopper
+        if (params.hasWalkingTime()) {
+            ptRequest.setLimitStreetTime(params.getWalkingTime());
+        }
+
+        // default to foot access and egress
+        ptRequest.setAccessProfile("foot");
+        ptRequest.setEgressProfile("foot");
+
+
+        return ptRequest;
     }
 
     /**

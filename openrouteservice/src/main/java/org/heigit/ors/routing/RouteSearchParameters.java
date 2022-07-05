@@ -97,6 +97,9 @@ public class RouteSearchParameters {
     private boolean ignoreTransfers;
     private Duration walkingTime;
     private boolean schedule;
+    private boolean hasScheduleRows = false;
+    private boolean hasWalkingTime = false;
+    private boolean hasScheduleDuration = false;
 
     public int getProfileType() {
         return profileType;
@@ -631,6 +634,7 @@ public class RouteSearchParameters {
 
     public void setScheduleDuaration(Duration scheduleDuaration) {
         this.scheduleDuaration = scheduleDuaration;
+        this.hasScheduleDuration = true;
     }
 
     public Duration getScheduleDuaration() {
@@ -641,12 +645,21 @@ public class RouteSearchParameters {
         this.ignoreTransfers = ignoreTransfers;
     }
 
-    public boolean isIgnoreTransfers() {
+    public boolean getIgnoreTransfers() {
+        return this.ignoreTransfers;
+    }
+
+    public boolean hasIgnoreTransfers() {
         return ignoreTransfers;
+    }
+
+    public boolean hasScheduleRows() {
+        return hasScheduleRows;
     }
 
     public void setScheduleRows(int scheduleRows) {
         this.scheduleRows = scheduleRows;
+        this.hasScheduleRows = true;
     }
 
     public int getScheduleRows() {
@@ -655,17 +668,30 @@ public class RouteSearchParameters {
 
     public void setWalkingTime(Duration walkingTime) {
         this.walkingTime = walkingTime;
+        this.hasWalkingTime = true;
     }
 
     public Duration getWalkingTime() {
         return walkingTime;
     }
 
+    public boolean hasWalkingTime() {
+        return this.hasWalkingTime;
+    }
+
     public void setSchedule(boolean schedule) {
         this.schedule = schedule;
     }
 
+    public boolean getSchedule() {
+        return this.schedule;
+    }
+
     public boolean hasSchedule() {
-        return schedule;
+        return this.schedule;
+    }
+
+    public boolean hasScheduleDuration() {
+        return this.hasScheduleDuration;
     }
 }
