@@ -122,7 +122,8 @@ class RouteResultBuilder
 
         int pathIndex = 0;
         for (ResponsePath path : response.getAll()) {
-            RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
+            List<RouteExtraInfo> extraList = extras.length == response.getAll().size() ? extras[pathIndex] : extras[0];
+            RouteResult result = createInitialRouteResult(request, extraList);
 
             handleResponseWarnings(result, response);
 
@@ -143,8 +144,8 @@ class RouteResultBuilder
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
-                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
+                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "UTC");
+                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "UTC");
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }
@@ -160,7 +161,6 @@ class RouteResultBuilder
         ZonedDateTime arrival;
 
         long duration = (long) result.getSummary().getDuration();
-
         if (request.getSearchParameters().hasDeparture()) {
             ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of(timezoneDeparture));
             departure = zonedDateTime;
@@ -358,7 +358,7 @@ class RouteResultBuilder
                 lat1  = segPoints.getLat(1);
             }
             maneuver.setBearingAfter((int)Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
-        } else {
+        } else if (prevSegPoints.size() > 0) {
             int locIndex = prevSegPoints.size() - 1;
             double lon0 = prevSegPoints.getLon(locIndex);
             double lat0 = prevSegPoints.getLat(locIndex);
