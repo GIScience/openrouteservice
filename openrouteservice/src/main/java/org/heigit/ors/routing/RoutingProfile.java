@@ -1240,9 +1240,7 @@ public class RoutingProfile {
             ptRequest.setMaxProfileDuration(params.getScheduleDuaration());
         }
 
-        if (params.hasIgnoreTransfers()) {
-            ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
-        }
+        ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
 
         // TODO: check whether language can be parsed in RouteResultBuilder
         // language is called locale in GraphHopper

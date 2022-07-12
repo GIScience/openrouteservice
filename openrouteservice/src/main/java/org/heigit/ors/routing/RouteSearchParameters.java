@@ -94,7 +94,7 @@ public class RouteSearchParameters {
     private LocalDateTime arrival;
     private int scheduleRows;
     private Duration scheduleDuaration;
-    private boolean ignoreTransfers;
+    private boolean ignoreTransfers = false;
     private Duration walkingTime;
     private boolean schedule;
     private boolean hasScheduleRows = false;
@@ -647,10 +647,6 @@ public class RouteSearchParameters {
 
     public boolean getIgnoreTransfers() {
         return this.ignoreTransfers;
-    }
-
-    public boolean hasIgnoreTransfers() {
-        return ignoreTransfers;
     }
 
     public boolean hasScheduleRows() {
