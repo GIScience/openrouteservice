@@ -56,9 +56,6 @@
 					"default": "Head {direction}",
 					"name": "Head {direction} on {way_name}"
 				}
-				"pt": {
-					"default": "Depart",
-				}
 			},
 			"roundabout": {
 				"default": {
@@ -94,6 +91,11 @@
 					"name": "Keep {turn_maneuver} onto {way_name}"
 				},
 			}
+            "pt": {
+                "start": "Enter {name}"
+                "transfer": "Change to {name}"
+                "end": "Exit to {name}"
+            }
 		}
 	}
 }

@@ -241,23 +241,19 @@ class RouteResultBuilder
                 if (ii == 0) {
                     double lat;
                     double lon;
-                    if (currentStepPoints.size() == 0) { // departure step without points, occurs in PT routing
-                        instrText = instrTranslator.getDepartPt();
-                    } else {
-                        if (currentStepPoints.size() == 1) {
-                            if (nextStepPoints != null) {
-                                lat = nextStepPoints.getLat(0);
-                                lon = nextStepPoints.getLon(0);
-                            } else {
-                                lat = currentStepPoints.getLat(0);
-                                lon = currentStepPoints.getLon(0);
-                            }
+                    if (currentStepPoints.size() == 1) {
+                        if (nextStepPoints != null) {
+                            lat = nextStepPoints.getLat(0);
+                            lon = nextStepPoints.getLon(0);
                         } else {
-                            lat = currentStepPoints.getLat(1);
-                            lon = currentStepPoints.getLon(1);
+                            lat = currentStepPoints.getLat(0);
+                            lon = currentStepPoints.getLon(0);
                         }
-                        instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
+                    } else {
+                        lat = currentStepPoints.getLat(1);
+                        lon = currentStepPoints.getLon(1);
                     }
+                    instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
                 } else {
                     if (instr instanceof RoundaboutInstruction) {
                         RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;
@@ -268,6 +264,12 @@ class RouteResultBuilder
                             instrText = instrTranslator.getTurn(instrType, roadName);
                         } else if (isKeepInstruction(instrType)) {
                             instrText = instrTranslator.getKeep(instrType, roadName);
+                        } else if (instrType == InstructionType.PT_ENTER) {
+                            instrText = instrTranslator.getPt(instrType, roadName);
+                        } else if (instrType == InstructionType.PT_TRANSFER) {
+                            instrText = instrTranslator.getPt(instrType, roadName);
+                        } else if (instrType == InstructionType.PT_EXIT) {
+                            instrText = instrTranslator.getPt(instrType, roadName);
                         } else if (instrType == InstructionType.CONTINUE) {
                             instrText = instrTranslator.getContinue(instrType, roadName);
                         } else if (instrType == InstructionType.FINISH) {
@@ -420,6 +422,12 @@ class RouteResultBuilder
 				return InstructionType.KEEP_LEFT;
 			case Instruction.KEEP_RIGHT:
 				return InstructionType.KEEP_RIGHT;
+            case Instruction.PT_START_TRIP:
+                return InstructionType.PT_ENTER;
+            case Instruction.PT_TRANSFER:
+                return InstructionType.PT_TRANSFER;
+            case Instruction.PT_END_TRIP:
+                return InstructionType.PT_EXIT;
             case Instruction.CONTINUE_ON_STREET:
             default:
 				return InstructionType.CONTINUE;
