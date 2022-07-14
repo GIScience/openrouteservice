@@ -73,6 +73,11 @@ public class RouteSegment {
 		steps.add(step);
 	}
 
+	public void addSteps(List<RouteStep> steps)
+	{
+		steps.addAll(steps);
+	}
+
 	public List<RouteStep> getSteps() {
 		return steps;
 	}

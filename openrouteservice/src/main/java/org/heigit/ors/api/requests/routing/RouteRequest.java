@@ -923,69 +923,8 @@ public class RouteRequest extends APIRequest {
         return routingRequest;
     }
 
-    private Request convertToPTRequest() throws IncompatibleParameterException {
-        // TODO GTFS: refactor the following Double -> String -> GHLocation to make it throw acceptable exceptions
-        List<String> requestPoints = this.coordinates.stream().map(List<Double>::toString).collect(toList());
-        List<GHLocation> points = requestPoints.stream().map(GHLocation::fromString).collect(Collectors.toList());
-
-
-        // GH uses pt.earliest_departure_time for both departure and arrival.
-        // We need to check which is used here (and issue an exception if it's both) and consequently parse it and set arrive_by.
-        Instant departureTime = null;
-        boolean arrive_by = false;
-        if (this.hasDeparture && this.hasArrival) {
-            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
-        } else if (this.hasArrival) {
-            departureTime = Instant.from(this.arrival);
-            arrive_by = true;
-        } else if (this.hasDeparture) {
-            departureTime = Instant.from(this.departure);
-        } else {
-            // pt.earliest_departure_time is @NotNull, we need to emulate that here.
-            departureTime = Instant.now();
-        }
-
-        Request ptRequest = new Request(points, departureTime);
-        ptRequest.setArriveBy(arrive_by);
-
-        // schedule is called profile in GraphHopper
-        if (this.hasSchedule()) {
-            ptRequest.setProfileQuery(schedule);
-        }
-
-        // scheduleDuration is called profileDuration accordingly
-        if (this.hasScheduleDuration()) {
-            ptRequest.setMaxProfileDuration(scheduleDuration);
-        }
-
-        if (this.hasIgnoreTransfers()) {
-            ptRequest.setIgnoreTransfers(ignoreTransfers);
-        }
-
-        // language is called locale in GraphHopper
-        if (this.hasLanguage()) {
-            ptRequest.setLocale(Helper.getLocale(this.getLanguage().toString()));
-        }
-
-        // scheduleRows is called limitSolutions in GraphHopper
-        if (this.hasScheduleRows()) {
-            ptRequest.setLimitSolutions(scheduleRows);
-        }
-
-        // setLimitTripTime missing from documentation
-        // according to GraphHopper
-
-        // walkingTime is called limit_street_time in GraphHopper
-        if (this.hasWalkingTime()) {
-            ptRequest.setLimitStreetTime(walkingTime);
-        }
-
-        // default to foot access and egress
-        ptRequest.setAccessProfile("foot");
-        ptRequest.setEgressProfile("foot");
-
-
-        return ptRequest;
+    public boolean isPtRequest(){
+        return convertRouteProfileType(profile) == RoutingProfileType.PUBLIC_TRANSPORT;
     }
 
     private List<Integer> processSkipSegments() throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {

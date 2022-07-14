@@ -80,6 +80,11 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
         else
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
 
+        if (this.isPtRequest) {
+            summary.setTransfers(routeResult.getSummary().getTransfers());
+            summary.setFare(routeResult.getSummary().getFare());
+        }
+
         if(routeResult.hasDepartureAndArrival()) {
             departure = routeResult.getDeparture();
             arrival = routeResult.getArrival();

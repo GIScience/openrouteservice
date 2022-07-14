@@ -48,8 +48,8 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
 
-    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map<String, JSONExtra> extras, boolean includeElevation) {
-        super(result, includeElevation);
+    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map<String, JSONExtra> extras, boolean includeElevation, boolean isPtRequest) {
+        super(result, includeElevation, isPtRequest);
         this.segments = segments;
         this.wayPoints = result.getWayPointsIndices();
         this.extras = extras;

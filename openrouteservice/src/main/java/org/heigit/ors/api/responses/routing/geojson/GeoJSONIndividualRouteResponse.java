@@ -42,7 +42,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
 
         Map extras = constructExtras(request, routeResult);
 
-        properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation);
+        properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest);
     }
 
     @ApiModelProperty(dataType = "org.json.simple.JSONObject")

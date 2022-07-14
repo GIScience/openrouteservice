@@ -22,6 +22,7 @@ import org.heigit.ors.routing.RouteResult;
 public class IndividualRouteResponse {
     protected Coordinate[] routeCoordinates;
     protected boolean includeElevation = false;
+    protected boolean isPtRequest = false;
 
 
     public IndividualRouteResponse(RouteResult result, RouteRequest request) {
@@ -30,5 +31,7 @@ public class IndividualRouteResponse {
 
         if(request.hasUseElevation())
             includeElevation = request.getUseElevation();
+
+        isPtRequest = request.isPtRequest();
     }
 }

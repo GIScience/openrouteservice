@@ -43,6 +43,30 @@ public class JSONSummary {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double descent;
 
+    @JsonProperty(value = "transfers")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+    protected int transfers;
+
+    public int getTransfers() {
+        return transfers;
+    }
+
+    public void setTransfers(int transfers) {
+        this.transfers = transfers;
+    }
+
+    public int getFare() {
+        return fare;
+    }
+
+    public void setFare(int fare) {
+        this.fare = fare;
+    }
+
+    @JsonProperty(value = "fare")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+    protected int fare;
+
     public JSONSummary(Double distance, Double duration) {
         this.distance = distance;
         this.duration = duration;
@@ -54,10 +78,14 @@ public class JSONSummary {
         this.descent = descent;
     }
 
-    public JSONSummary(RouteResult route, boolean includeElevation) {
+    public JSONSummary(RouteResult route, boolean includeElevation, boolean isPtRequest) {
         if(includeElevation) {
             this.ascent = route.getSummary().getAscent();
             this.descent = route.getSummary().getDescent();
+        }
+        if(isPtRequest) {
+            this.transfers = route.getSummary().getTransfers();
+            this.fare = route.getSummary().getFare();
         }
         this.distance = route.getSummary().getDistance();
         this.duration = route.getSummary().getDuration();
