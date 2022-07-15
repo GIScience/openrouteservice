@@ -139,7 +139,7 @@ class RouteResultBuilder
             result.addSegment(createRouteSegment(path, request, null));
 
             if (request.getSearchParameters().getProfileType() == RoutingProfileType.PUBLIC_TRANSPORT) {
-                addLegsToRouteResult(result, request, path.getLegs());
+                addLegsToRouteResult(result, request, path.getLegs(), response);
             }
 
             result.calculateRouteSummary(request, path);
@@ -205,10 +205,10 @@ class RouteResultBuilder
         return seg;
     }
 
-    private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs) throws Exception {
+    private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs, GHResponse response) throws Exception {
         for (Trip.Leg leg : legs) {
             List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : new ArrayList<>();
-            result.addLeg(new RouteLeg(leg, request.getUnits(), instructions));
+            result.addLeg(new RouteLeg(leg, request.getUnits(), instructions, response, request.getIncludeElevation()));
         }
     }
 

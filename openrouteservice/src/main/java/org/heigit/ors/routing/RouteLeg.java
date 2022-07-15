@@ -13,15 +13,22 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.GHResponse;
 import com.graphhopper.Trip;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_DEPARTURE;
 
 public class RouteLeg {
 	private final String type;
@@ -29,8 +36,8 @@ public class RouteLeg {
 	private final String tripHeadsign;
 	private final double distance;
 	private final double duration;
-	private final Date departureTime;
-	private final Date arrivalTime;
+	private final ZonedDateTime departureTime;
+	private final ZonedDateTime arrivalTime;
 	private final String feedId;
 	private final String tripId;
 	private final String routeId;
@@ -38,13 +45,16 @@ public class RouteLeg {
 	private Coordinate[] geometry;
 	private final List<RouteStep> instructions;
 	private final List<RoutePtStop> stops;
+	private final boolean includeElevation;
 
-	public RouteLeg(Trip.Leg leg, DistanceUnit units, List<RouteStep> instructions) throws Exception {
+	public RouteLeg(Trip.Leg leg, DistanceUnit units, List<RouteStep> instructions, GHResponse response, boolean includeElevation) throws Exception {
 		distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(leg.getDistance(), DistanceUnit.METERS, units), units);
 		type = leg.type;
 		departureLocation = leg.departureLocation;
-		departureTime = leg.getDepartureTime();
-		arrivalTime = leg.getArrivalTime();
+		String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "UTC");
+		String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "UTC");
+		departureTime = ZonedDateTime.ofInstant(leg.getDepartureTime().toInstant(), ZoneId.of(timezoneDeparture));
+		arrivalTime = ZonedDateTime.ofInstant(leg.getArrivalTime().toInstant(), ZoneId.of(timezoneArrival));
 		geometry = new Coordinate[leg.geometry.getCoordinates().length];
 		for (int i = 0; i < leg.geometry.getCoordinates().length; i++) {
 			// this is an ugly hack since GH uses org.locationtech.jts.geom classes and we expect com.vividsolutions.jts.geom classes.
@@ -52,6 +62,7 @@ public class RouteLeg {
 			geometry[i] = new Coordinate(leg.geometry.getCoordinates()[i].x, leg.geometry.getCoordinates()[i].y, leg.geometry.getCoordinates()[i].z);
 		}
 		this.instructions = instructions;
+		this.includeElevation = includeElevation;
 		if (leg instanceof Trip.PtLeg) {
 			duration = FormatUtility.roundToDecimals(((Trip.PtLeg) leg).travelTime / 1000.0, 1);
 			tripHeadsign = ((Trip.PtLeg) leg).trip_headsign;
@@ -102,11 +113,11 @@ public class RouteLeg {
 		return duration;
 	}
 
-	public Date getDepartureTime() {
+	public ZonedDateTime getDepartureTime() {
 		return departureTime;
 	}
 
-	public Date getArrivalTime() {
+	public ZonedDateTime getArrivalTime() {
 		return arrivalTime;
 	}
 
@@ -136,5 +147,9 @@ public class RouteLeg {
 
 	public List<RoutePtStop> getStops() {
 		return stops;
+	}
+
+	public boolean getIncludeElevation() {
+		return includeElevation;
 	}
 }

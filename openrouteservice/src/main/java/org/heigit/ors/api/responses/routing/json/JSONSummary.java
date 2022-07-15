@@ -37,7 +37,8 @@ public class JSONSummary {
             "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}", example = "166.3")
     @JsonProperty(value = "ascent")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
-    protected Double ascent;@ApiModelProperty(value = "Total descent in meters." +
+    protected Double ascent;
+    @ApiModelProperty(value = "Total descent in meters." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}", example = "201.3")
     @JsonProperty(value = "descent")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")

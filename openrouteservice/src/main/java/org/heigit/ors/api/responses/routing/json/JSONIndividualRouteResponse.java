@@ -59,6 +59,10 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     @ApiModelProperty("List of warnings that have been generated for the route")
     private List<JSONWarning> warnings;
 
+    @ApiModelProperty("List containing the legs the route consists of.")
+    @JsonProperty("legs")
+    @JsonInclude()
+    private final List<JSONLeg> legs;
     private final Map<String, JSONExtra> extras;
 
     @ApiModelProperty(value = "Departure date and time" +
@@ -114,6 +118,8 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
                 warnings.add(new JSONWarning(warning));
             }
         }
+
+        legs = constructLegs(routeResult);
     }
 
     private String constructEncodedGeometry(final Coordinate[] coordinates) {

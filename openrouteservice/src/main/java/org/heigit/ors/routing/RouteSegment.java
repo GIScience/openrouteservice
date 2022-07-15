@@ -73,9 +73,9 @@ public class RouteSegment {
 		steps.add(step);
 	}
 
-	public void addSteps(List<RouteStep> steps)
+	public void addSteps(List<RouteStep> stepsToAdd)
 	{
-		steps.addAll(steps);
+		steps.addAll(stepsToAdd);
 	}
 
 	public List<RouteStep> getSteps() {
