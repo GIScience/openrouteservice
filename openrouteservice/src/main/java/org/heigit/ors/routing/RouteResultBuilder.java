@@ -207,7 +207,8 @@ class RouteResultBuilder
 
     private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs, GHResponse response) throws Exception {
         for (Trip.Leg leg : legs) {
-            List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : new ArrayList<>();
+            startWayPointIndex = 0;
+            List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : null;
             result.addLeg(new RouteLeg(leg, request.getUnits(), instructions, response, request.getIncludeElevation()));
         }
     }

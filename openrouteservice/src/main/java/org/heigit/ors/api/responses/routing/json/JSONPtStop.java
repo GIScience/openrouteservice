@@ -19,6 +19,7 @@ package org.heigit.ors.api.responses.routing.json;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.routing.RoutePtStop;
@@ -26,6 +27,8 @@ import org.heigit.ors.routing.RouteStep;
 import org.heigit.ors.util.StringUtility;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @ApiModel(value="JSONPtStop", description = "Stop of a public transport leg")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -36,10 +39,45 @@ public class JSONPtStop {
     @ApiModelProperty(value = "The name of the stop.", example = "Heidelberg, Alois-Link-Platz")
     @JsonProperty("name")
     private String name;
+    @ApiModelProperty(value = "The location of the stop.", example = "[8.6912542, 49.399979]")
+    @JsonProperty("location")
+    private List<Double> location;
+    @ApiModelProperty(value = "Arrival time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("arrival_time")
+    private Date arrivalTime;
+    @ApiModelProperty(value = "Planned arrival time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("planned_arrival_time")
+    private Date plannedArrivalTime;
+    @ApiModelProperty(value = "Predicted arrival time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("predicted_arrival_time")
+    private Date predictedArrivalTime;
+    @ApiModelProperty(value = "Whether arrival at the stop was cancelled.", example = "false")
+    @JsonProperty("arrival_cancelled")
+    private Boolean arrivalCancelled;
+    @ApiModelProperty(value = "Departure time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("departure_time")
+    private Date departureTime;
+    @ApiModelProperty(value = "Planned departure time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("planned_departure_time")
+    private Date plannedDepartureTime;
+    @ApiModelProperty(value = "Predicted departure time of the stop.", example = "2022-07-04T13:22:00Z")
+    @JsonProperty("predicted_departure_time")
+    private Date predictedDepartureTime;
+    @ApiModelProperty(value = "Whether departure at the stop was cancelled.", example = "false")
+    @JsonProperty("departure_cancelled")
+    private Boolean departureCancelled;
 
     public JSONPtStop(RoutePtStop stop) {
-        stopId = stop.stopId;
-        name = stop.stopName;
-
+        stopId = stop.getStopId();
+        name = stop.getStopName();
+        location = stop.getLocationAsCoordinateList();
+        arrivalTime = stop.getArrivalTime();
+        plannedArrivalTime = stop.getPlannedArrivalTime();
+        predictedArrivalTime = stop.getPredictedArrivalTime();
+        arrivalCancelled = stop.isArrivalCancelled();
+        departureTime = stop.getDepartureTime();
+        plannedDepartureTime = stop.getPlannedDepartureTime();
+        predictedDepartureTime = stop.getPredictedDepartureTime();
+        departureCancelled = stop.isDepartureCancelled();
     }
 }

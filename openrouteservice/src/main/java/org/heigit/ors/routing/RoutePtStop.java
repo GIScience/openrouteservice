@@ -16,22 +16,25 @@ package org.heigit.ors.routing;
 import com.graphhopper.Trip;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class RoutePtStop {
-	public final String stopId;
-	public final String stopName;
-	public final Coordinate location;
+	private final String stopId;
+	private final String stopName;
+	private final Coordinate location;
 
-	public final Date arrivalTime;
-	public final Date plannedArrivalTime;
-	public final Date predictedArrivalTime;
-	public final boolean arrivalCancelled;
+	private final Date arrivalTime;
+	private final Date plannedArrivalTime;
+	private final Date predictedArrivalTime;
+	private final boolean arrivalCancelled;
 
-	public final Date departureTime;
-	public final Date plannedDepartureTime;
-	public final Date predictedDepartureTime;
-	public final boolean departureCancelled;
+	private final Date departureTime;
+	private final Date plannedDepartureTime;
+	private final Date predictedDepartureTime;
+	private final boolean departureCancelled;
 	public RoutePtStop(Trip.Stop stop) {
 		stopId = stop.stop_id;
 		stopName = stop.stop_name;
@@ -44,5 +47,49 @@ public class RoutePtStop {
 		plannedDepartureTime = stop.plannedDepartureTime;
 		predictedDepartureTime = stop.predictedDepartureTime;
 		departureCancelled = stop.departureCancelled;
+	}
+
+	public String getStopId() {
+		return stopId;
+	}
+
+	public String getStopName() {
+		return stopName;
+	}
+
+	public List<Double> getLocationAsCoordinateList() {
+		return Double.isNaN(location.z) ? Arrays.asList(location.x, location.y) : Arrays.asList(location.x, location.y, location.z);
+	}
+
+	public Date getArrivalTime() {
+		return arrivalTime;
+	}
+
+	public Date getPlannedArrivalTime() {
+		return plannedArrivalTime;
+	}
+
+	public Date getPredictedArrivalTime() {
+		return predictedArrivalTime;
+	}
+
+	public boolean isArrivalCancelled() {
+		return arrivalCancelled;
+	}
+
+	public Date getDepartureTime() {
+		return departureTime;
+	}
+
+	public Date getPlannedDepartureTime() {
+		return plannedDepartureTime;
+	}
+
+	public Date getPredictedDepartureTime() {
+		return predictedDepartureTime;
+	}
+
+	public boolean isDepartureCancelled() {
+		return departureCancelled;
 	}
 }

@@ -77,11 +77,9 @@ public class JSONLeg {
     private final String geomResponse;
     @ApiModelProperty("List containing the specific steps the segment consists of.")
     @JsonProperty("instructions")
-    @JsonInclude()
     private final List<JSONStep> instructions;
     @ApiModelProperty("List containing the stops the along the leg.")
     @JsonProperty("stops")
-    @JsonInclude()
     private final List<JSONPtStop> stops;
 
     public JSONLeg(RouteLeg leg) {
@@ -95,14 +93,22 @@ public class JSONLeg {
         feedId = leg.getFeedId();
         tripId = leg.getTripId();
         routeId = leg.getRouteId();
-        isInSameVehicleAsPrevious = leg.isInSameVehicleAsPrevious();
-        instructions = new ArrayList<>();
-        for(RouteStep routeStep : leg.getInstructions()) {
-            instructions.add(new JSONStep(routeStep));
+        isInSameVehicleAsPrevious = type.equals("pt") ? leg.isInSameVehicleAsPrevious() : null;
+        if (leg.getInstructions() != null) {
+            instructions = new ArrayList<>();
+            for (RouteStep routeStep : leg.getInstructions()) {
+                instructions.add(new JSONStep(routeStep));
+            }
+        } else {
+            instructions = null;
         }
-        stops = new ArrayList<>();
-        for(RoutePtStop stop : leg.getStops()) {
-            stops.add(new JSONPtStop(stop));
+        if (leg.getStops() != null) {
+            stops = new ArrayList<>();
+            for(RoutePtStop stop : leg.getStops()) {
+                stops.add(new JSONPtStop(stop));
+            }
+        } else {
+            stops = null;
         }
         geomResponse = constructEncodedGeometry(leg.getGeometry(), leg.getIncludeElevation());
     }

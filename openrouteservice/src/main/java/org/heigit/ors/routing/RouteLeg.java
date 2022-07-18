@@ -75,7 +75,7 @@ public class RouteLeg {
 				stops.add(new RoutePtStop(stop));
 			}
 		} else { // leg must be instance of Trip.WalkLeg
-			duration = FormatUtility.roundToDecimals(getDurationSum(instructions) / 1000.0, 1);
+			duration = FormatUtility.roundToDecimals(getDurationSum(instructions), 1);
 			tripHeadsign = null;
 			feedId = null;
 			tripId = null;
