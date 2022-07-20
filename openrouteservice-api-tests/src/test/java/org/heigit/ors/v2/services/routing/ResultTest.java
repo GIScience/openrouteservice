@@ -3677,6 +3677,7 @@ public class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", coordinates);
         body.put("instructions", true);
+        body.put("elevation", true);
         body.put("departure", "2022-07-04T13:02:26Z");
         body.put("walking_time", "PT30M");
         given()
