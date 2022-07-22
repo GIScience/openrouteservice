@@ -19,6 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.plugins.Plugin;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
 import java.util.Map;
 

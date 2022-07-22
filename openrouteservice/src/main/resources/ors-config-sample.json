@@ -67,7 +67,7 @@
               "maxcellnodes": 5000
             },
             "profile-hgv": {
-              "enabled": true,
+              "enabled": false,
               "threads": 12,
               "weightings": "recommended, shortest",
               "maxcellnodes": 5000

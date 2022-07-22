@@ -59,6 +59,8 @@ import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -191,7 +193,6 @@ public class RoutingProfile {
 //        gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
-
         // store CountryBordersReader for later use
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
             if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
@@ -905,6 +906,18 @@ public class RoutingProfile {
                     double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
                     Pair<Integer, Integer> p = new Pair<>(from, to);
                     res.addEdge(p, weight);
+
+                    WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
+                    if (storage != null) {
+                        WheelchairAttributes attributes = new WheelchairAttributes();
+                        byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
+                        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+                        Map<String, Object> extra = new HashMap<>();
+                        extra.put("incline", attributes.getIncline());
+                        extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
+                        extra.put("suitable", attributes.isSuitable());
+                        res.addEdgeExtra(iter.getEdge(), extra);
+                    }
                 }
             }
         }
@@ -937,7 +950,10 @@ public class RoutingProfile {
         props.putObject("routing_profile_type", profileType);
         props.putObject("routing_profile_params", profileParams);
 
-        // PARAMETERS FOR EdgeFilterFactory
+        /*
+         * PARAMETERS FOR EdgeFilterFactory
+         * ======================================================================================================
+         */
 
         /* Avoid areas */
         if (searchParams.hasAvoidAreas()) {
@@ -988,38 +1004,38 @@ public class RoutingProfile {
         return searchCntx;
     }
 
-    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
-            throws Exception {
-        RouteSegmentInfo[] rsi;
+//    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
+//            throws Exception {
+//        RouteSegmentInfo[] rsi;
+//
+//        waitForUpdateCompletion();
+//
+//        beginUseGH();
+//
+//        try {
+//            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
+//
+//            endUseGH();
+//        } catch (Exception ex) {
+//            endUseGH();
+//
+//            throw ex;
+//        }
+//
+//        return rsi;
+//    }
 
-        waitForUpdateCompletion();
-
-        beginUseGH();
-
-        try {
-            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            throw ex;
-        }
-
-        return rsi;
-    }
-
-    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations, double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
-        if (mMapMatcher == null) {
-            mMapMatcher = new HiddenMarkovMapMatcher();
-            mMapMatcher.setGraphHopper(mGraphHopper);
-        }
-
-        mMapMatcher.setSearchRadius(searchRadius);
-        mMapMatcher.setEdgeFilter(edgeFilter);
-
-        return mMapMatcher.match(locations, bothDirections);
-    }
+//    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations, double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
+//        if (mMapMatcher == null) {
+//            mMapMatcher = new HiddenMarkovMapMatcher();
+//            mMapMatcher.setGraphHopper(mGraphHopper);
+//        }
+//
+//        mMapMatcher.setSearchRadius(searchRadius);
+//        mMapMatcher.setEdgeFilter(edgeFilter);
+//
+//        return mMapMatcher.match(locations, bothDirections);
+//    }
 
     public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
@@ -1319,7 +1335,7 @@ public class RoutingProfile {
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 
         if (hasTimeDependentSpeed)
-            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
+            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
     }
 
     /**
@@ -1349,7 +1365,7 @@ public class RoutingProfile {
         map.putObject(KEY_WEIGHTING, weighting);
 
         if (hasTimeDependentSpeed)
-            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED, true);
+            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
     }
 
     /**
@@ -1391,7 +1407,8 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = searchCntx.getEncoder();
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
-                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED));
+                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || mGraphHopper.isTrafficEnabled();
     }
 
     /**

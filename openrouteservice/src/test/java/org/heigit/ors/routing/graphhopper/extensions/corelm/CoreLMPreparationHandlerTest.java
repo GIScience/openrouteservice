@@ -10,10 +10,12 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHConfig;
-import com.graphhopper.storage.GraphBuilder;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RAMDirectory;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMOptions;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -23,6 +25,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class CoreLMPreparationHandlerTest {
+    private static final String CONF_1 = "conf1";
+    private static final String CONF_2 = "conf2";
 
     @Test
     public void testEnabled() {
@@ -38,23 +42,25 @@ public class CoreLMPreparationHandlerTest {
         EncodingManager em = EncodingManager.create(car);
         Weighting shortest = new ShortestWeighting(car);
         Weighting fastest = new FastestWeighting(car);
-        CHConfig chShortest = new CHConfig("shortest", shortest, false, CHConfig.TYPE_CORE);
-        CHConfig chFastest = new CHConfig("fastest", fastest, false, CHConfig.TYPE_CORE);
-        GraphHopperStorage g = new GraphBuilder(em).setCHConfigs(chShortest, chFastest).create();
+        CHConfig chShortest = new CHConfig(CONF_1, shortest, false, CHConfig.TYPE_CORE);
+        CHConfig chFastest = new CHConfig(CONF_2, fastest, false, CHConfig.TYPE_CORE);
+        ORSGraphHopperStorage g = new ORSGraphHopperStorage(new RAMDirectory(), em, false, false, -1);
+        g.addCoreGraph(chShortest).addCoreGraph(chFastest);
 
         CoreLMPreparationHandler coreLMhandler = new CoreLMPreparationHandler();
         coreLMhandler.setLMProfiles(
-                new LMProfile("conf1").setMaximumLMWeight(65_000),
-                new LMProfile("conf2").setMaximumLMWeight(20_000)
+                new LMProfile(CONF_1).setMaximumLMWeight(65_000),
+                new LMProfile(CONF_2).setMaximumLMWeight(20_000)
         );
         coreLMhandler
-                .addLMConfig(new CoreLMConfig("conf1", fastest))
-                .addLMConfig(new CoreLMConfig("conf2", shortest));
+                .addLMConfig(new CoreLMConfig(CONF_1, fastest).setEdgeFilter(new LMEdgeFilterSequence()))
+                .addLMConfig(new CoreLMConfig(CONF_2, shortest).setEdgeFilter(new LMEdgeFilterSequence()));
 
         String coreLMSets = "allow_all";
         List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
-        coreLMhandler.getCoreLMOptions().setRestrictionFilters(tmpCoreLMSets);
-
+        CoreLMOptions coreLMOptions = coreLMhandler.getCoreLMOptions();
+        coreLMOptions.setRestrictionFilters(tmpCoreLMSets);
+        coreLMOptions.createRestrictionFilters(g);
         coreLMhandler.createPreparations(g, null);
         assertEquals(1, coreLMhandler.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
         assertEquals(0.3, coreLMhandler.getPreparations().get(1).getLandmarkStorage().getFactor(), .1);

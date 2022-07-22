@@ -128,11 +128,11 @@ public class ORSRouter extends Router {
             PMap map = request.getHints();
             LandmarkStorage lms = null;
             for (PrepareCoreLandmarks p : landmarks.values()) {
-               if (p.getLMConfig().getWeighting().getName().equals(map.getString("weighting_method", "")));
-                        if (p.matchesFilter(map)) {
-                            lms = p.getLandmarkStorage();
-                            break;
-                        }
+                if (p.getLMConfig().getWeighting().getName().equals(map.getString("weighting_method", "")))
+                    if (p.matchesFilter(map)) {
+                        lms = p.getLandmarkStorage();
+                        break;
+                    }
             }
 
             if (lms==null) {
