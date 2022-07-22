@@ -22,6 +22,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.*;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
@@ -47,9 +48,8 @@ public class CorePreparationHandler extends CHPreparationHandler {
         DISABLE = Core.DISABLE;
     }
 
-    public void init(GraphHopperConfig ghConfig) {
-        // TODO: this needs to check if core is enabled and create appropriate CHProfiles
-//        setCHProfiles(ghConfig.getCHProfiles());
+    public void init(ORSGraphHopperConfig ghConfig) {
+        setCHProfiles(ghConfig.getCoreProfiles());
         pMap = ghConfig.asPMap();
     }
 

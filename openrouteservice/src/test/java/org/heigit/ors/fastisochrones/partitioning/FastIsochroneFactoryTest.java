@@ -1,13 +1,17 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
-import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.Profile;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -22,7 +26,18 @@ public class FastIsochroneFactoryTest {
 
     private FastIsochroneFactory intitFastIsochroneFactory() {
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
-        fastIsochroneFactory.init(new GraphHopperConfig().putObject(ORSParameters.FastIsochrone.PREPARE + "weightings", "fastest"));
+
+        List<Profile> fastisochronesProfiles = new ArrayList<>();
+        String vehicle = "car";
+        String weighting = "fastest";
+        String profileName = RoutingProfile.makeProfileName(vehicle, weighting, true);
+        Profile profile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true);
+        fastisochronesProfiles.add(profile);
+
+        ORSGraphHopperConfig orsGraphHopperConfig = new ORSGraphHopperConfig();
+        orsGraphHopperConfig.setFastisochroneProfiles(fastisochronesProfiles);
+
+        fastIsochroneFactory.init(orsGraphHopperConfig);
         return fastIsochroneFactory;
     }
 
@@ -31,7 +46,6 @@ public class FastIsochroneFactoryTest {
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         assertTrue(fastIsochroneFactory.isEnabled());
         assertTrue(fastIsochroneFactory.isDisablingAllowed());
-        assertEquals("fastest", fastIsochroneFactory.getFastisochroneProfileStrings().iterator().next());
     }
 
     @Test

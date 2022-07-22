@@ -12,17 +12,16 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.TurnCostProvider;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.routing.util.FlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 
 /**
@@ -51,7 +50,7 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
     }
 
     boolean hasTurnRestrictions(EdgeIteratorState edge) {
-        return ( isInvolvedInTurnRelation(edge, inEdgeExplorer) || isInvolvedInTurnRelation(edge, outEdgeExplorer));
+        return (isInvolvedInTurnRelation(edge, inEdgeExplorer) || isInvolvedInTurnRelation(edge, outEdgeExplorer));
     }
 
     boolean isInvolvedInTurnRelation(EdgeIteratorState edge, EdgeExplorer edgeExplorer) {
@@ -61,6 +60,9 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
 
         while (edgeIterator.next()) {
             int otherEdge = edgeIterator.getEdge();
+            //Do not add edges to the core because of u turn restrictions
+            if (queriedEdge == otherEdge)
+                continue;
             Double turnCost = (edgeExplorer == inEdgeExplorer) ?
                     turnCostProvider.calcTurnWeight(otherEdge, viaNode, queriedEdge) :
                     turnCostProvider.calcTurnWeight(queriedEdge, viaNode, otherEdge);

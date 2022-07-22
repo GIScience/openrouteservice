@@ -17,6 +17,7 @@ import java.util.HashSet;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.GHUtility;
 
 public class CoreTestEdgeFilter extends HashSet<Integer> implements EdgeFilter {
 
@@ -27,7 +28,17 @@ public class CoreTestEdgeFilter extends HashSet<Integer> implements EdgeFilter {
 	 */
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		return !contains(iter.getEdge());
+		return !contains(iter.getEdgeKey());
+	}
+
+	public void add(int edge) {
+		add(edge, false);
+		add(edge, true);
+	}
+
+	public void add(int edge, boolean reverse) {
+		int edgeKey = GHUtility.createEdgeKey(edge, reverse);
+		super.add(edgeKey);
 	}
 
 }

@@ -65,10 +65,6 @@ public class TollwaysGraphStorage implements GraphExtension {
 		edges.close();
 	}
 
-	public long getCapacity() {
-		return edges.getCapacity();
-	}
-
 	public int entries() {
 		return edgesCount;
 	}

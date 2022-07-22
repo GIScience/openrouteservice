@@ -39,10 +39,6 @@ public class OsmIdGraphStorage implements GraphExtension {
         this.orsEdges = d.find("");
     }
 
-    public void setSegmentSize(int bytes) {
-        orsEdges.setSegmentSize(bytes);
-    }
-
     public OsmIdGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -56,10 +52,6 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     public void close() {
         orsEdges.close();
-    }
-
-    public long getCapacity() {
-        return orsEdges.getCapacity();
     }
 
     public int entries() {

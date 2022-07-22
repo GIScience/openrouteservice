@@ -64,10 +64,6 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		edges.close();
 	}
 
-	public long getCapacity() {
-		return edges.getCapacity();
-	}
-
 	public int entries() {
 		return edgesCount;
 	}

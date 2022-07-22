@@ -25,7 +25,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 public class RouteProfileConfiguration {
 	private String name = "";
 	private boolean enabled = true;
-	private String profiles; // comma separated
+	private String profiles = ""; // comma separated
 	private String graphPath;
 	private Map<String, Map<String, String>> extStorages;
 	private Map<String, Map<String, String>> graphBuilders;

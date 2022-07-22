@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
@@ -34,7 +35,8 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 * */
 	public boolean isFilter(PMap pmap){
 		//true if the avoidFeaturespart fits the query
-		boolean avoidFeatures = isAvoidFeature(pmap.getInt("avoid_features", 0));
+		RouteSearchParameters routeSearchParameters = pmap.getObject("avoid_features", new RouteSearchParameters());
+		boolean avoidFeatures = isAvoidFeature(routeSearchParameters.getAvoidFeatureTypes());
 		boolean avoidCountries = isAvoidCountry(pmap.getString("avoid_countries", ""));
 		return avoidFeatures && avoidCountries;
 

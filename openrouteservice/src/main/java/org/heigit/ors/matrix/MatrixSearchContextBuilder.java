@@ -1,21 +1,23 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.matrix;
 
 import com.graphhopper.routing.querygraph.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.BBox;
@@ -26,32 +28,10 @@ import org.heigit.ors.exceptions.PointNotFoundException;
 import java.util.*;
 
 public class MatrixSearchContextBuilder {
-	private Map<Coordinate, LocationEntry> locationCache;
 	private final boolean resolveNames;
 	private final LocationIndex locIndex;
 	private final EdgeFilter edgeFilter;
-
-	class LocationEntry {
-		private int nodeId;
-		private ResolvedLocation location;
-		private Snap snap;
-
-		public int getNodeId() {
-			return nodeId;
-		}
-
-		public void setNodeId(int nodeId) {
-			this.nodeId = nodeId;
-		}
-
-		public ResolvedLocation getLocation() {
-			return location;
-		}
-
-		public void setLocation(ResolvedLocation location) {
-			this.location = location;
-		}
-	}
+	private Map<Coordinate, LocationEntry> locationCache;
 
 	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames) {
 		locIndex = index;
@@ -59,7 +39,7 @@ public class MatrixSearchContextBuilder {
 		this.resolveNames = resolveNames;
 	}
 
-	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
+	public MatrixSearchContext create(Graph graph, RoutingCHGraph chGraph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
 		if (locationCache == null)
 			locationCache = new HashMap<>();
 		else
@@ -68,16 +48,20 @@ public class MatrixSearchContextBuilder {
 		checkBounds(graph.getBounds(), sources, destinations);
 
 		List<Snap> snaps = new ArrayList<>(sources.length + destinations.length);
-		
+
 		resolveLocations(sources, snaps, maxSearchRadius);
 		resolveLocations(destinations, snaps, maxSearchRadius);
 
 		QueryGraph queryGraph = QueryGraph.create(graph, snaps);
-		
+		RoutingCHGraph routingCHGraph = null;
+		if (chGraph != null) {
+			routingCHGraph = new QueryRoutingCHGraph(chGraph, queryGraph);
+		}
+
 		MatrixLocations mlSources = createLocations(sources);
 		MatrixLocations mlDestinations = createLocations(destinations);
-		
-		return new  MatrixSearchContext(queryGraph, mlSources, mlDestinations);
+
+		return new MatrixSearchContext(queryGraph, routingCHGraph, mlSources, mlDestinations);
 	}
 
 	private void checkBounds(BBox bounds, Coordinate[] sources, Coordinate[] destinations) throws PointNotFoundException {
@@ -114,19 +98,19 @@ public class MatrixSearchContextBuilder {
 
 	private int[] pointIdsOutOfBounds(BBox bounds, Coordinate[] coords) {
 		List<Integer> ids = new ArrayList<>();
-		for (int i=0; i<coords.length; i++) {
+		for (int i = 0; i < coords.length; i++) {
 			Coordinate c = coords[i];
 			if (!bounds.contains(c.y, c.x)) {
 				ids.add(i);
 			}
 		}
 		int[] idsArray = new int[ids.size()];
-		for(int i=0; i<ids.size(); i++) {
+		for (int i = 0; i < ids.size(); i++) {
 			idsArray[i] = ids.get(i);
 		}
 		return idsArray;
 	}
-	
+
 	private void resolveLocations(Coordinate[] coords, List<Snap> queryResults, double maxSearchRadius) {
 		for (Coordinate p : coords) {
 			LocationEntry ld = locationCache.get(p);
@@ -149,7 +133,7 @@ public class MatrixSearchContextBuilder {
 			}
 		}
 	}
- 	
+
 	private MatrixLocations createLocations(Coordinate[] coords) throws Exception {
 		MatrixLocations mlRes = new MatrixLocations(coords.length);
 		for (int i = 0; i < coords.length; i++) {
@@ -161,5 +145,27 @@ public class MatrixSearchContextBuilder {
 				throw new Exception("Oops!");
 		}
 		return mlRes;
+	}
+
+	class LocationEntry {
+		private int nodeId;
+		private ResolvedLocation location;
+		private Snap snap;
+
+		public int getNodeId() {
+			return nodeId;
+		}
+
+		public void setNodeId(int nodeId) {
+			this.nodeId = nodeId;
+		}
+
+		public ResolvedLocation getLocation() {
+			return location;
+		}
+
+		public void setLocation(ResolvedLocation location) {
+			this.location = location;
+		}
 	}
 }

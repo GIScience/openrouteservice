@@ -14,13 +14,24 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.*;
+import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.*;
+import com.graphhopper.reader.osm.OSMReader;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.Router;
+import com.graphhopper.routing.RouterConfig;
+import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.lm.LandmarkStorage;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.lm.PrepareLandmarks;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHConfig;
+import com.graphhopper.storage.ConditionalEdges;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
@@ -44,10 +55,10 @@ import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
-import org.heigit.ors.routing.graphhopper.extensions.core.CorePreparationHandler;
+import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -62,7 +73,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.*;
 import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
@@ -92,13 +105,6 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
-// TODO: forDesktop and algoDecorators have been removed from GH
-//		forDesktop();
-//		algoDecorators.clear();
-//		algoDecorators.add(corePreparationHandler);
-//		algoDecorators.add(coreLMFactoryDecorator);
-//		algoDecorators.add(getCHFactoryDecorator());
-//		algoDecorators.add(getLMFactoryDecorator());
 		processContext.init(this);
 		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
 
@@ -113,7 +119,13 @@ public class ORSGraphHopper extends GraphHopper {
 	public GraphHopper init(GraphHopperConfig ghConfig) {
 		GraphHopper ret = super.init(ghConfig);
 
-		corePreparationHandler.init(ghConfig);
+		if (ghConfig instanceof ORSGraphHopperConfig) {
+			ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
+			corePreparationHandler.init(orsConfig);
+			coreLMPreparationHandler.init(orsConfig);
+		}
+
+		//FIXME: coreLMPreparationHandler.init(ghConfig);
 		fastIsochroneFactory.init(ghConfig);
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
@@ -142,11 +154,10 @@ public class ORSGraphHopper extends GraphHopper {
 		super.cleanUp();
 	}
 
-	// TODO: DataReader is gone, maybe override GraphHopper.importOSM instead?
-//	@Override
-//	protected DataReader createReader(GraphHopperStorage tmpGraph) {
-//		return initDataReader(new ORSOSMReader(tmpGraph, processContext));
-//	}
+	@Override
+	protected  OSMReader createOSMReader() {
+		return new ORSOSMReader(getGraphHopperStorage(), processContext);
+	}
 
 	@Override
 	public GraphHopper importOrLoad() {
@@ -192,15 +203,33 @@ public class ORSGraphHopper extends GraphHopper {
 	protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,
 									PathDetailsBuilderFactory pathBuilderFactory, TranslationMap trMap, RouterConfig routerConfig,
 									WeightingFactory weightingFactory, Map<String, RoutingCHGraph> chGraphs, Map<String, LandmarkStorage> landmarks) {
-		Router r = new Router(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
+		ORSRouter r = new ORSRouter(ghStorage, locationIndex, profilesByName, pathBuilderFactory, trMap, routerConfig, weightingFactory, chGraphs, landmarks);
 		r.setEdgeFilterFactory(new ORSEdgeFilterFactory());
+		r.setPathProcessorFactory(pathProcessorFactory);
+
+		if (!(ghStorage instanceof ORSGraphHopperStorage))
+			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
+
+		Map<String, RoutingCHGraph> coreGraphs = new LinkedHashMap<>();
+		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+			String chGraphName = corePreparationHandler.getPreparation(chProfile.getProfile()).getCHConfig().getName();
+			coreGraphs.put(chProfile.getProfile(), ((ORSGraphHopperStorage) ghStorage).getCoreGraph(chGraphName));
+		}
+		r.setCoreGraphs(coreGraphs);
+
+		Map<String, PrepareCoreLandmarks> coreLandmarks = new LinkedHashMap<>();
+		for (PrepareLandmarks preparation : coreLMPreparationHandler.getPreparations()) {
+			coreLandmarks.put(preparation.getLMConfig().getName(), (PrepareCoreLandmarks) preparation);
+		}
+		r.setCoreLandmarks(coreLandmarks);
+
 		return r;
 	}
 
 	@Override
 	protected WeightingFactory createWeightingFactory() {
 		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
-		return new DefaultWeightingFactory(getGraphHopperStorage(), getEncodingManager());
+		return new OrsWeightingFactoryGh4(getGraphHopperStorage(), getEncodingManager());
 	}
 
 	// TODO: This override is unnecessary, because the changes are already applied
@@ -443,9 +472,9 @@ public class ORSGraphHopper extends GraphHopper {
         for (int i = 0; i < latitudes.length; i++)
             req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
-		//req.setVehicle(vehicle); // TODO: setVehicle removed from GH
+		//req.setVehicle(vehicle); // TODO: removed, use Profile instead
 		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("weighting", "fastest");
+		req.getHints().putObject("weighting", "fastest"); // TODO: not permitted, use profile instead
 		// TODO add limit of maximum visited nodes
 
 
@@ -632,18 +661,20 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 
 		//Create the landmarks in the core
-		if (coreLMPreparationHandler.isEnabled())
+		if (coreLMPreparationHandler.isEnabled()) {
+			initCoreLMPreparationHandler();
 			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
+		}
 		loadOrPrepareCoreLM();
 
-        if (fastIsochroneFactory.isEnabled()) {
-            EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
-            try {
-                partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
-            } catch (Exception e) {
-                LOGGER.debug(e.getLocalizedMessage());
-            }
-            fastIsochroneFactory.createPreparation(gs, partitioningEdgeFilter);
+		if(fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
+			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
+			try {
+				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+			} catch (Exception e) {
+				LOGGER.debug(e.getLocalizedMessage());
+			}
+			fastIsochroneFactory.createPreparation(gs, partitioningEdgeFilter);
 
 			if (!isPartitionPrepared())
 				preparePartition();
@@ -654,32 +685,45 @@ public class ORSGraphHopper extends GraphHopper {
 			}
 			//No fast isochrones without partition
 			if (isPartitionPrepared()) {
-				/* Initialize edge filter sequence for fast isochrones*/
+				// Initialize edge filter sequence for fast isochrones
 				calculateContours();
-				List<CHProfile> chProfiles = new ArrayList<>();
-				for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-					for (String coreWeightingStr : fastIsochroneFactory.getFastisochroneProfileStrings()) {
-						Profile profile = null; // TODO: setup correctly
-						Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr).putObject("isochroneWeighting", "true"), false);
-						chProfiles.add(new CHProfile(weighting, TraversalMode.NODE_BASED, INFINITE_U_TURN_COSTS, "isocore"));
+				List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
+				for (Profile profile : profiles) {
+					Weighting weighting = ((OrsWeightingFactoryGh4) createWeightingFactory()).createIsochroneWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"));
+
+					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+						calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
 					}
 				}
-
-                for (CHProfile chProfile : chProfiles) {
-                    for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-                        calculateCellProperties(chProfile.getWeighting(), partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
-                    }
-                }
-            }
+			}
         }
+	}
 
+    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    private boolean hasCHProfile(String profileName) {
+		return contains(getGraphHopperStorage().getCHGraphNames(), profileName);
     }
 
-	// TODO: orphan method
-//	public EdgeFilterFactory getEdgeFilterFactory() {
-//		return this.edgeFilterFactory;
-//	}
+	private boolean hasCoreProfile(String profileName) {
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage) {
+			List<String> profiles = ((ORSGraphHopperStorage) getGraphHopperStorage()).getCoreGraphNames();
+			return contains(profiles, profileName);
+		}
+		return false;
+	}
 
+	private boolean hasLMProfile(String profileName) {
+		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map((lmConfig) -> lmConfig.getName()).collect(Collectors.toList());
+		return contains(profiles, profileName);
+	}
+
+	private boolean contains(List<String> profiles, String profileName) {
+		for (String profile : profiles) {
+			if (profileName.equals(profile))
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * Enables or disables core calculation.
 	 */
@@ -692,6 +736,8 @@ public class ORSGraphHopper extends GraphHopper {
 	public final boolean isCoreEnabled() {
 		return corePreparationHandler.isEnabled();
 	}
+
+
 // TODO: initialization logic needs to be moved to CorePrepartionHandler.init
 //	public void initCoreAlgoFactoryDecorator() {
 //		if (!coreFactoryDecorator.hasCHProfiles()) {
@@ -718,6 +764,53 @@ public class ORSGraphHopper extends GraphHopper {
 
 	public final CorePreparationHandler getCorePreparationHandler() {
 		return corePreparationHandler;
+	}
+
+	@Override
+	protected void loadORS() {
+		List<CHConfig> chConfigs;
+		if (corePreparationHandler.isEnabled()) {
+			initCorePreparationHandler();
+			chConfigs = corePreparationHandler.getCHConfigs();
+		} else {
+			chConfigs = emptyList();
+		}
+
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
+			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
+		else
+			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
+	}
+
+	private void initCorePreparationHandler() {
+		if (corePreparationHandler.hasCHConfigs()) {
+			return;
+		}
+
+		for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+			Profile profile = profilesByName.get(chProfile.getProfile());
+			corePreparationHandler.addCHConfig(new CHConfig(profile.getName(), createWeighting(profile, new PMap()), profile.isTurnCosts(), CHConfig.TYPE_CORE));
+		}
+	}
+
+	private void initCoreLMPreparationHandler() {
+		if (coreLMPreparationHandler.hasLMProfiles())
+			return;
+
+		CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
+		coreLMOptions.createRestrictionFilters(getGraphHopperStorage());
+
+		for (LMProfile lmProfile : coreLMPreparationHandler.getLMProfiles()) {
+			if (lmProfile.usesOtherPreparation())
+				continue;
+			Profile profile = profilesByName.get(lmProfile.getProfile());
+			Weighting weighting = createWeighting(profile, new PMap(), true);
+			for (LMEdgeFilterSequence edgeFilter : coreLMOptions.getFilters()) {
+				CoreLMConfig coreLMConfig = new CoreLMConfig(profile.getName(), weighting);
+				coreLMConfig.setEdgeFilter(edgeFilter);
+				coreLMPreparationHandler.addLMConfig(coreLMConfig);
+			}
+		}
 	}
 
 	protected void prepareCore(boolean closeEarly) {
@@ -782,42 +875,22 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 	}
 
-	public final boolean isCHAvailable(String weighting) {
-		// TODO: reimplement, maybe related to CHPreparationHandler
-//		CHAlgoFactoryDecorator chFactoryDecorator = getCHFactoryDecorator();
-//		if (chFactoryDecorator.isEnabled() && chFactoryDecorator.hasCHProfiles()) {
-//			for (CHProfile chProfile : chFactoryDecorator.getCHProfiles()) {
-//				if (weighting.equals(chProfile.getWeighting().getName()))
-//					return true;
-//			}
-//		}
-		return false;
+    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    public final boolean isCHAvailable(String profileName) {
+        return getCHPreparationHandler().isEnabled() && hasCHProfile(profileName);
+    }
+
+    public final boolean isLMAvailable(String profileName) {
+		return getLMPreparationHandler().isEnabled() && hasLMProfile(profileName);
 	}
 
-	public final boolean isLMAvailable(String weighting) {
-		// TODO: reimplement, maybe related to LMPreparationHandler
-//		LMAlgoFactoryDecorator lmFactoryDecorator = getLMFactoryDecorator();
-//		if (lmFactoryDecorator.isEnabled()) {
-//			List<String> weightings = lmFactoryDecorator.getWeightingsAsStrings();
-//			return weightings.contains(weighting);
-//		}
-		return false;
+	public final boolean isCoreAvailable(String profileName) {
+		return getCorePreparationHandler().isEnabled() && hasCoreProfile(profileName);
 	}
 
-	public final boolean isCoreAvailable(String weighting) {
-		CorePreparationHandler handler = getCorePreparationHandler();
-		if (handler.isEnabled() && handler.hasCHConfigs()) {
-			for (CHConfig chConfig : handler.getCHConfigs()) {
-				if (weighting.equals(chConfig.getWeighting().getName()))
-					return true;
-			}
-		}
-		return false;
-	}
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-		return eccentricity != null && eccentricity.isAvailable(IsochroneWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
+		return eccentricity != null && eccentricity.isAvailable(OrsWeightingFactoryGh4.createIsochroneWeighting(searchContext, travelRangeType));
 	}
-
 
     /**
      * Partitioning

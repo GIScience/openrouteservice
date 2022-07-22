@@ -14,20 +14,23 @@
 package org.heigit.ors.fastisochrones.partitioning;
 
 import com.graphhopper.GraphHopperConfig;
-import com.graphhopper.storage.*;
+import com.graphhopper.config.Profile;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Helper;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.FastIsochrone;
-import org.heigit.ors.config.IsochronesServiceSettings;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.graphhopper.util.Helper.toLowerCase;
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
 
 /**
@@ -39,7 +42,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
  * @author Hendrik Leuschner
  */
 public class FastIsochroneFactory {
-    private final Set<String> fastisochroneProfileStrings = new LinkedHashSet<>();
+    private List<Profile> fastIsochroneProfiles;
     private PreparePartition partition;
     private boolean disablingAllowed = true;
     private boolean enabled = false;
@@ -48,54 +51,20 @@ public class FastIsochroneFactory {
 
 
     public void init(GraphHopperConfig ghConfig) {
-        setMaxThreadCount(ghConfig.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
-        setMaxCellNodesNumber(ghConfig.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
-        String weightingsStr = ghConfig.getString(FastIsochrone.PREPARE + "weightings", "");
-
-        if ("no".equals(weightingsStr)) {
-            // default is fastest and we need to clear this explicitely
-            fastisochroneProfileStrings.clear();
-        } else if (!weightingsStr.isEmpty()) {
-            setFastIsochroneProfilesAsStrings(Arrays.asList(weightingsStr.split(",")));
-        }
-
-        boolean enableThis = !fastisochroneProfileStrings.isEmpty();
+        ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
+        setMaxThreadCount(orsConfig.getInt(FastIsochrone.PREPARE + "threads", getMaxThreadCount()));
+        setMaxCellNodesNumber(orsConfig.getInt(FastIsochrone.PREPARE + "maxcellnodes", getMaxCellNodesNumber()));
+        fastIsochroneProfiles = orsConfig.getFastisochroneProfiles();
+        boolean enableThis = !fastIsochroneProfiles.isEmpty();
         setEnabled(enableThis);
         if (enableThis) {
-            setDisablingAllowed(ghConfig.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
-            IsochronesServiceSettings.setFastIsochronesActive(ghConfig.getString(FastIsochrone.PROFILE, ""));
+            setDisablingAllowed(orsConfig.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
+            IsochronesServiceSettings.setFastIsochronesActive(orsConfig.getString(FastIsochrone.PROFILE, ""));
         }
     }
 
-    /**
-     * @param profileStrings A list of multiple fast isochrone profile strings
-     * @see #addFastIsochroneProfileAsString(String)
-     */
-    public FastIsochroneFactory setFastIsochroneProfilesAsStrings(List<String> profileStrings) {
-        if (profileStrings.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an empty list of CH profile strings");
-
-        fastisochroneProfileStrings.clear();
-        for (String profileString : profileStrings) {
-            profileString = toLowerCase(profileString);
-            profileString = profileString.trim();
-            addFastIsochroneProfileAsString(profileString);
-        }
-        return this;
-    }
-
-    public Set<String> getFastisochroneProfileStrings() {
-        return fastisochroneProfileStrings;
-    }
-
-    /**
-     * Enables the use of fast isochrones to reduce isochrones query times. Disabled by default.
-     *
-     * @param profileString String representation of a weighting.
-     */
-    public FastIsochroneFactory addFastIsochroneProfileAsString(String profileString) {
-        fastisochroneProfileStrings.add(profileString);
-        return this;
+    public List<Profile> getFastIsochroneProfiles() {
+        return fastIsochroneProfiles;
     }
 
     public final boolean isEnabled() {

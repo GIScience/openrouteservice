@@ -14,15 +14,15 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.*;
+import com.graphhopper.routing.ch.CHEntry;
 import com.graphhopper.routing.ch.NodeBasedCHBidirPathExtractor;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.*;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.storage.RoutingCHEdgeExplorer;
-import com.graphhopper.storage.RoutingCHEdgeIteratorState;
-import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.routing.graphhopper.extensions.CorePathExtractor;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.function.Supplier;
 
@@ -52,10 +52,10 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
-    protected AbstractCoreRoutingAlgorithm(Graph graph, Weighting weighting) {
-        super(graph, weighting, TraversalMode.NODE_BASED);
+    protected AbstractCoreRoutingAlgorithm(RoutingCHGraph graph, Weighting weighting) {
+        super(graph.getBaseGraph(), weighting, weighting.hasTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED);
 
-        chGraph = (RoutingCHGraph) graph;
+        chGraph = graph;
 
         inEdgeExplorer =  chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
@@ -65,11 +65,11 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
             hasTurnWeighting = true;
         }
 
-        pathExtractorSupplier = () -> new NodeBasedCHBidirPathExtractor(chGraph);
+        pathExtractor = new CorePathExtractor(chGraph, weighting);
         int size = Math.min(2000, Math.max(200, graph.getNodes() / 10));
         initCollections(size);
 
-        coreNodeLevel = chGraph.getNodes() + 1;
+        coreNodeLevel = GraphUtils.getBaseGraph(chGraph).getNodes();
         turnRestrictedNodeLevel = coreNodeLevel + 1;
     }
 
@@ -82,7 +82,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     protected final int coreNodeLevel;
     protected final int turnRestrictedNodeLevel;
 
-    private Supplier<BidirPathExtractor> pathExtractorSupplier;
+    private BidirPathExtractor pathExtractor;
 
     public abstract void initFrom(int from, double weight, long time);
 
@@ -130,17 +130,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     @Override
     protected Path extractPath() {
         if (finished())
-            return createPathExtractor().extract(bestFwdEntry, bestBwdEntry, bestWeight);
+            return pathExtractor.extract(bestFwdEntry, bestBwdEntry, bestWeight);
 
         return createEmptyPath();
-    }
-
-    public void setPathExtractorSupplier(Supplier<BidirPathExtractor> pathExtractorSupplier) {
-        this.pathExtractorSupplier = pathExtractorSupplier;
-    }
-
-    BidirPathExtractor createPathExtractor() {
-        return pathExtractorSupplier.get();
     }
 
     protected Path createEmptyPath() {
@@ -196,16 +188,26 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     //TODO: refactor CoreEdgeFilter to plain EdgeFilter to avoid overriding this method
-    protected boolean accept(RoutingCHEdgeIteratorState iter, int prevOrNextEdgeId) {
-        if (iter.getEdge() == prevOrNextEdgeId) {
+    protected boolean accept(RoutingCHEdgeIteratorState iter, CHEntry prevOrNextEdgeId, boolean reverse) {
+        if (iter.getEdge() == prevOrNextEdgeId.edge)
             return false;
-        } else {
-            return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+        if (iter.isShortcut())
+            return getIncEdge(iter, !reverse) != prevOrNextEdgeId.incEdge;
+
+        return additionalCoreEdgeFilter == null || additionalCoreEdgeFilter.accept(iter);
+    }
+
+    int getIncEdge(RoutingCHEdgeIteratorState iter, boolean reverse) {
+        if (iter.isShortcut()) {
+            return reverse ? iter.getSkippedEdge1() : iter.getSkippedEdge2();
+        }
+        else {
+            return iter.getOrigEdge();
         }
     }
 
-    protected SPTEntry createSPTEntry(int node, double weight, long time) {
-        SPTEntry entry = new SPTEntry(EdgeIterator.NO_EDGE, node, weight);
+    protected CHEntry createCHEntry(int node, double weight, long time) {
+        CHEntry entry = new CHEntry(EdgeIterator.NO_EDGE, EdgeIterator.NO_EDGE, node, weight);
         entry.time = time;
         return entry;
     }
@@ -221,7 +223,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     boolean isVirtualNode(int node) {
-        return node >= graph.getNodes();
+        return node >= graph.getBaseGraph().getNodes();//QueryGraph->BaseGraph
     }
 
     boolean isTurnRestrictedNode(int node) {

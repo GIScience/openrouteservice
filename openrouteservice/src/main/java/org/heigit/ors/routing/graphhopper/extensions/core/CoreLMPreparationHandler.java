@@ -13,7 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.LMProfile;
+import com.graphhopper.config.Profile;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkSuggestion;
@@ -21,7 +22,11 @@ import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
+import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
 import java.util.*;
 
@@ -46,9 +51,8 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
         COUNT = CoreLandmark.COUNT;
     }
 
-    @Override
-    public void init(GraphHopperConfig ghConfig) {
-        super.init(ghConfig);
+    public void init(ORSGraphHopperConfig ghConfig) {
+        init(ghConfig, ghConfig.getCoreLMProfiles());
 
         //Get the landmark sets that should be calculated
         String coreLMSets = ghConfig.getString(CoreLandmark.LMSETS, "allow_all");
@@ -60,26 +64,31 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
     @Override
     protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LandmarkSuggestion> lmSuggestions) {
-        coreLMOptions.createRestrictionFilters(ghStorage);
-
         for (LMConfig lmConfig : getLMConfigs()) {
-            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(ghStorage, lmConfig.getWeighting());
+            if (!(lmConfig instanceof CoreLMConfig))
+                throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+            if (!(ghStorage instanceof ORSGraphHopperStorage))
+                throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
-            for (LMEdgeFilterSequence edgeFilterSequence : coreLMOptions.getFilters()) {
-                Double maximumWeight = getMaximumWeights().get(lmConfig.getName());
-                if (maximumWeight == null)
-                    throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
-                            "Couldn't find " + lmConfig.getName() + " in " + getMaximumWeights());
+            CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
+            String lmConfigName = coreLMConfig.getSuperName();
 
-                PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                        lmConfig, getLandmarks(), coreNodeIdMap, edgeFilterSequence).
-                        setLandmarkSuggestions(lmSuggestions).
-                        setMaximumWeight(maximumWeight).
-                        setLogDetails(getLogDetails());
-                if (getMinNodes() > 1)
-                    tmpPrepareLM.setMinimumNodes(getMinNodes());
-                addPreparation(tmpPrepareLM);
-            }
+            RoutingCHGraph core = ((ORSGraphHopperStorage) ghStorage).getCoreGraph(lmConfigName);
+            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
+
+            Double maximumWeight = getMaximumWeights().get(lmConfigName);
+            if (maximumWeight == null)
+                throw new IllegalStateException("maximumWeight cannot be null. Default should be just negative. " +
+                        "Couldn't find " + lmConfigName  + " in " + getMaximumWeights());
+
+            PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
+                    coreLMConfig, getLandmarks(), coreNodeIdMap).
+                    setLandmarkSuggestions(lmSuggestions).
+                    setMaximumWeight(maximumWeight).
+                    setLogDetails(getLogDetails());
+            if (getMinNodes() > 1)
+                tmpPrepareLM.setMinimumNodes(getMinNodes());
+            addPreparation(tmpPrepareLM);
         }
     }
 
@@ -87,10 +96,9 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
      * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
      * Otherwise we would have to store a lot of empty info
      */
-    public Map<Integer, Integer> createCoreNodeIdMap(GraphHopperStorage graph, Weighting weighting) {
-        RoutingCHGraph core = graph.getCoreGraph(weighting);
+    public static HashMap<Integer, Integer> createCoreNodeIdMap(RoutingCHGraph core) {
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
-        int maxNode = graph.getNodes();
+        int maxNode = GraphUtils.getBaseGraph(core).getNodes();
         int coreNodeLevel = maxNode;
         int index = 0;
         for (int i = 0; i < maxNode; i++){

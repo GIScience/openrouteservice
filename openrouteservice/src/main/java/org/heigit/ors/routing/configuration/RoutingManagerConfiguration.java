@@ -21,7 +21,6 @@ import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,7 @@ public class RoutingManagerConfiguration  {
 	private RouteProfileConfiguration[] profiles;
 
 	private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String,Object> defaultFastIsochroneParams, RouteProfileConfiguration profile){
-		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.profile-" + profile.getName();
+		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles." + profile.getName();
 		Map<String, Object> profileParams = IsochronesServiceSettings.getParametersMap(profileRef, true);
 
 		if (profileParams == null)

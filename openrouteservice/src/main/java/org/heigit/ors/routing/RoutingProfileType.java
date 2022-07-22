@@ -284,7 +284,7 @@ public class RoutingProfileType {
                 return FlagEncoderNames.BIKE_ELECTRO;
 
             default:
-                return "UNKNOWN";
+                return FlagEncoderNames.UNKNOWN;
         }
     }
 

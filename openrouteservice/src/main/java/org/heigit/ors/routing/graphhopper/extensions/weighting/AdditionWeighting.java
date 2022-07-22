@@ -17,14 +17,28 @@ import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 
+import java.util.Collection;
+
+// TODO (cleanup): The name is misleading as the class does not only
+//                 perform addition. Rename into SoftWeighting
 public class AdditionWeighting extends AbstractAdjustedWeighting {
 	private final Weighting[] weightings;
 
+	/*
+	 * @deprecated This constructor reveals too much of the implementation
+	 * details. Use {@link AdditionWeighting(Collection<Weighting> weightings, Weighting superWeighting)}
+	 */
+	@Deprecated
     public AdditionWeighting(Weighting[] weightings, Weighting superWeighting) {
         super(superWeighting);
         this.weightings = weightings.clone();
     }
-    
+
+	public AdditionWeighting(Collection<Weighting> weightings, Weighting superWeighting) {
+		super(superWeighting);
+		this.weightings = weightings.toArray(new Weighting[0]);
+	}
+
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
         double sumOfWeights = 0;

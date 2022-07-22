@@ -99,10 +99,6 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_wheelchair");
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
-
 	public WheelchairAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
@@ -116,10 +112,6 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 
 	public void close() {
 		orsEdges.close();
-	}
-
-	public long getCapacity() {
-		return orsEdges.getCapacity();
 	}
 
 	public int entries() {
@@ -306,7 +298,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		return -1;
 	}
 
-	// TODO: how to deal with @Override
+	@Override
 	public boolean isClosed() {
 		return false;
 	}

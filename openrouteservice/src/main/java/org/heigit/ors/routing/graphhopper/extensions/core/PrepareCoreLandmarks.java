@@ -20,6 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
 import java.util.Map;
@@ -37,17 +38,21 @@ import java.util.Map;
 public class PrepareCoreLandmarks extends PrepareLandmarks {
     private final LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap, LMEdgeFilterSequence landmarksFilter) {
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, CoreLMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap) {
         super(dir, graph, lmConfig, landmarks);
-        this.landmarksFilter = landmarksFilter;
+        this.landmarksFilter = lmConfig.getEdgeFilter();
         CoreLandmarkStorage coreLandmarkStorage = (CoreLandmarkStorage) getLandmarkStorage();
         coreLandmarkStorage.setCoreNodeIdMap(coreNodeIdMap);
-        coreLandmarkStorage.setLandmarksFilter(landmarksFilter);
     }
 
     @Override
     public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
-        return new CoreLandmarkStorage(dir, graph, lmConfig, landmarks);
+        if (!(lmConfig instanceof CoreLMConfig))
+            throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+        if (!(graph instanceof ORSGraphHopperStorage))
+            throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
+
+        return new CoreLandmarkStorage(dir, (ORSGraphHopperStorage) graph, (CoreLMConfig) lmConfig, landmarks);
     }
 
     public boolean matchesFilter(PMap pmap){

@@ -13,17 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.util.ConditionalAccessEdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.Parameters;
 
 public class TDCoreDijkstra extends CoreDijkstra {
     private boolean reverse;
 
-    public TDCoreDijkstra(Graph graph, Weighting weighting, boolean reverse) {
+    public TDCoreDijkstra(RoutingCHGraph graph, Weighting weighting, boolean reverse) {
         super(graph, weighting);
         this.reverse = reverse;
     }

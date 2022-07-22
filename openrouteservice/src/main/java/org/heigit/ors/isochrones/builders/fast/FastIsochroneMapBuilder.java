@@ -17,6 +17,7 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.HikeFlagEncoder;
@@ -24,7 +25,6 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
@@ -37,7 +37,10 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.*;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
+import org.heigit.ors.isochrones.IsochroneSearchParameters;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.routing.AvoidFeatureFlags;
@@ -45,6 +48,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.OrsWeightingFactoryGh4;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
@@ -73,6 +77,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     private RouteSearchContext searchcontext;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
+    private QueryGraph queryGraph;
     private double searchWidth = 0.0007;
     private double pointWidth = 0.0005;
     private double visitorThreshold = 0.0013;
@@ -127,7 +132,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         // only needed for reachfactor property
         double meanMetersPerSecond = meanSpeed / 3.6;
 
-        Weighting weighting = IsochroneWeightingFactory.createIsochroneWeighting(searchcontext, parameters.getRangeType());
+        Weighting weighting = OrsWeightingFactoryGh4.createIsochroneWeighting(searchcontext, parameters.getRangeType());
 
         Coordinate loc = parameters.getLocation();
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
@@ -141,8 +146,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "The closest node is null.");
 
         Graph graph = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph();
-        QueryGraph queryGraph = QueryGraph.create(graph, snaps);
-
+        queryGraph = QueryGraph.create(graph, snaps);
         int from = res.getClosestNode();
 
         //This calculates the nodes that are within the limit
@@ -795,7 +799,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private List<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
         List<GHIntObjectHashMap<SPTEntry>> disconnectedCells = new ArrayList<>();
-        EdgeExplorer edgeExplorer = searchcontext.getGraphHopper().getGraphHopperStorage().getBaseGraph().createEdgeExplorer();
+        EdgeExplorer edgeExplorer = queryGraph.createEdgeExplorer();
         Queue<Integer> queue = new ArrayDeque<>();
         IntHashSet visitedNodes = new IntHashSet(map.size());
         for (IntObjectCursor<SPTEntry> entry : map) {

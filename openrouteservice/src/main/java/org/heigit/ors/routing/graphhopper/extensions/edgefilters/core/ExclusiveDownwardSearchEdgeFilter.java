@@ -14,29 +14,30 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 
 //TODO refactor this extension of downwardsearchedgefilter
 public class ExclusiveDownwardSearchEdgeFilter extends DownwardSearchEdgeFilter {
-	private boolean swap = false;
+    private boolean swap = false;
 
-	public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
-		super(g, encoder);
-	}
+    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
+        super(g, encoder);
+    }
 
-	public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder, boolean swap) {
-		this(g, encoder);
-		this.swap = swap;
-	}
+    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder, boolean swap) {
+        this(g, encoder);
+        this.swap = swap;
+    }
 
-	@Override
-	public boolean accept(EdgeIteratorState edgeIterState) {
-		int adj = edgeIterState.getAdjNode();
-		if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
-			return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
-		else
-			return false;
-	}
+    //    @Override
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
+        int adj = edgeIterState.getAdjNode();
+        if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))
+            return swap ? isAccessible(edgeIterState, true) : isAccessible(edgeIterState, false);
+//            return swap ? edgeIterState.get(accessEnc) : edgeIterState.getReverse(accessEnc);
+        else
+            return false;
+    }
 }
