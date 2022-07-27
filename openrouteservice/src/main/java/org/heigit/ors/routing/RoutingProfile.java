@@ -164,7 +164,7 @@ public class RoutingProfile {
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        // TODO: gh.setEdgeFilterFactory(edgeFilterFactory);
+        // TODO takb: gh.setEdgeFilterFactory(edgeFilterFactory);
 
         ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
         gh.setPathProcessorFactory(pathProcessorFactory);
@@ -237,7 +237,7 @@ public class RoutingProfile {
         Integer[] profilesTypes = config.getProfilesTypes();
         Map<String, Profile> profiles = new LinkedHashMap<>();
 
-        // TODO: Multiple profiles were used to share the graph  for several
+        // TODO Future improvement : Multiple profiles were used to share the graph  for several
         //       bike profiles. We don't use this feature now but it might be
         //       desireable in the future. However, this behavior is standard
         //       in original GH through an already existing mechanism.
@@ -248,7 +248,7 @@ public class RoutingProfile {
 
         boolean hasTurnCosts = EncoderOptions.hasTurnCosts(config.getEncoderOptions());
 
-        // TODO: make this list of weightings configurable for each vehicle as in GH
+        // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
         for (String weighting : weightings) {
             if (hasTurnCosts) {
@@ -684,15 +684,14 @@ public class RoutingProfile {
         String CHProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
         String CoreProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
 
-        //TODO probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
+        //TODO Refactoring : probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
             // RPHAST
             if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile(CHProfileName)) {
                 return computeRPHASTMatrix(req, gh, flagEncoder, CHProfileName);
             }
             // Core
-            //TODO check whether hasCoreProfile is equivalent to isCoreAvailable
-            else if (req.getSearchParameters().getDynamicSpeeds() && mGraphHopper.isCoreAvailable(CoreProfileName)) { //&& ((ORSGraphHopper) (gh)).isCoreAvailable(weightingName)) {
+            else if (req.getSearchParameters().getDynamicSpeeds() && mGraphHopper.isCoreAvailable(CoreProfileName)) {
                 return computeCoreMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
             }
             // Dijkstra
@@ -740,7 +739,7 @@ public class RoutingProfile {
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-        //TODO why was this cleaned up by making it do nothing? This flag had a use and it does not fulfill it anymore. Has the use been removed? Has it been checked? Is there a plan to reimplement?
+        //TODO can be removed when the matrix virtual edge issue has been checked
 //        if (weighting.hasTurnCosts())
 //            (weighting).setInORS(true);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -1404,17 +1403,17 @@ public class RoutingProfile {
         return result;
     }
 
-    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
-        // TODO: clarify whether this is still needed, as the weightings know their turn costs now
-//        if (!(weighting instanceof TurnWeighting)) {
-//            FlagEncoder encoder = weighting.getFlagEncoder();
-//            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
-//                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
-//            }
-//        }
-
-        return weighting;
-    }
+//        // TODO: check if removeing this is ok, as the weightings know their turn costs now
+//    public Weighting createTurnWeighting(Graph graph, Weighting weighting, TraversalMode tMode, double uTurnCosts) {
+////        if (!(weighting instanceof TurnWeighting)) {
+////            FlagEncoder encoder = weighting.getFlagEncoder();
+////            if (encoder.supports(TurnWeighting.class) && tMode.isEdgeBased()) {
+////                return new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()), uTurnCosts);
+////            }
+////        }
+//
+//        return weighting;
+//    }
 
     public boolean equals(Object o) {
         return o != null && o.getClass().equals(RoutingProfile.class) && this.hashCode() == o.hashCode();
@@ -1424,7 +1423,7 @@ public class RoutingProfile {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
     }
 
-    // TODO: this is only a transitional class created to enable the upgrade to
+    // TODO Refactoring: this is only a transitional class created to enable the upgrade to
     //       GH4. It should be cleaned up later.
     private static class EncoderOptions {
 

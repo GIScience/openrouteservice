@@ -115,18 +115,19 @@ public class TollwaysGraphStorage implements GraphExtension {
 		return -1;
 	}
 
-	public TollwaysGraphStorage copyTo(TollwaysGraphStorage clonedStorage) {
-		if (!(clonedStorage instanceof TollwaysGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		TollwaysGraphStorage clonedTC = (TollwaysGraphStorage) clonedStorage;
-
-		// edges.copyTo(clonedTC.edges); // TODO: method does not exist any more
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
-	}
+// TODO: check if this is ok
+//	public TollwaysGraphStorage copyTo(TollwaysGraphStorage clonedStorage) {
+//		if (!(clonedStorage instanceof TollwaysGraphStorage)) {
+//			throw new IllegalStateException("the extended storage to clone must be the same");
+//		}
+//
+//		TollwaysGraphStorage clonedTC = (TollwaysGraphStorage) clonedStorage;
+//
+//		// edges.copyTo(clonedTC.edges); // TODO: method does not exist any more
+//		clonedTC.edgesCount = edgesCount;
+//
+//		return clonedStorage;
+//	}
 
 	@Override
 	public boolean isClosed() {

@@ -113,8 +113,8 @@ public class PathMetricsExtractor {
 
 							if (!UNPACK_DISTANCE && calcDistance)
 								edgeDistance = (distUnits == DistanceUnit.METERS)
-										? 0 // TODO: find out where to get this from: iterState.getDistance()
-							            : DistanceUnitUtil.convert(0, // TODO: find out where to get this from: iterState.getDistance(),
+										? 0 // TODO aoles: find out where to get this from: iterState.getDistance()
+							            : DistanceUnitUtil.convert(0, // TODO aoles: find out where to get this from: iterState.getDistance(),
 										DistanceUnit.METERS, distUnits);
 						} else {
 							EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
@@ -169,7 +169,7 @@ public class PathMetricsExtractor {
 			expandEdge(iterState, reverse);  
 		} else {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
+				edgeDistance = 0; // TODO aoles: find out where to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
 				edgeTime = iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
@@ -180,7 +180,7 @@ public class PathMetricsExtractor {
 	private void expandEdge(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (!iterState.isShortcut()) {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance += 0; // TODO: find out where to get this from: iterState.getDistance();
+				edgeDistance += 0; // TODO aoles: find out where to get this from: iterState.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
 				edgeTime += iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))

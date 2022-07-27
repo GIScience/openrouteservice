@@ -54,7 +54,7 @@ class AlgorithmComparisonTest {
         dir.clear();
     }
 
-// TODO Uncomment this and resolve differences to enable this test
+// TODO Future improvement : Uncomment this and resolve differences to enable this test
     
 //    @Property(tries = 2000)// , seed="-2270368960184993644") // reproduces a failure
 //        // @Report(Reporting.GENERATED)

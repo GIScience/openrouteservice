@@ -57,7 +57,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
                 pathMetricsExtractor.setEmptyValues(srcIndex, dstData, times, distances, weights);
         } else {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
-            //TODO Check whether this is unnecessary
+            //TODO Refactoring : Check whether this access filter is unnecessary
             algorithm.setEdgeFilter(AccessFilter.allEdges(this.encoder.getAccessEnc()));
             algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
             algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());

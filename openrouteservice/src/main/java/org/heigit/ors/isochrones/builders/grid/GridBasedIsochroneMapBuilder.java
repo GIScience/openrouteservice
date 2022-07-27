@@ -32,6 +32,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO Refactoring : can be probably removed altogether
 public class GridBasedIsochroneMapBuilder implements IsochroneMapBuilder {
 	private static final Logger LOGGER = Logger.getLogger(GridBasedIsochroneMapBuilder.class.getName());
 

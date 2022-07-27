@@ -535,7 +535,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         return Parameters.Algorithms.DIJKSTRA;
     }
 
-    //TODO Move to helper class the weighting stuff
+    //TODO Refactoring : Move the weighting stuff to helper class
     double calcPathWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
         return calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
     }

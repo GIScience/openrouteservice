@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class TarjansCoreSCCAlgorithm {
     private final ArrayList<IntArrayList> components = new ArrayList<>();
-    // TODO use just the Graph interface here
+    // TODO Refactoring : check if this comment might have been taken from GH code, probably irrelevant : "use just the Graph interface here"
     private final IntArrayDeque nodeStack;
     private final GHBitSet onStack;
     private final GHBitSet ignoreSet;

@@ -4,7 +4,7 @@ import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 
-//TODO with removal of TurnWeighting, this is probably not necessary anymore
+//TODO with removal of TurnWeighting, this is probably not necessary anymore, needs to be checked
 // In the current status, this code is wrong. Used to be `turnweighting.setInORS`, which has been changed to GHUtility. That is not equivalent and seems to not actually do anything.
 public class TurnWeightingHelper {
 

@@ -550,7 +550,7 @@ public class ORSGraphHopper extends GraphHopper {
 					BordersExtractor bordersExtractor = new BordersExtractor(GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), BordersGraphStorage.class), null);
 					isRouteable = bordersExtractor.isSameCountry(edgeIds);
 				}
-				//TODO Avoiding CONTROLLED borders
+				//TODO Refactoring : Avoiding CONTROLLED borders
 				//Currently this is extremely messy, as for some reason the READER stores data in addition to the BordersStorage.
 				//At the same time, it is not possible to get isOpen from the Reader via ids, because it only takes Strings. But there are no Strings in the Storage.
 				//So no controlled borders for now until this whole thing is refactored and the Reader is an actual reader and not a storage.
@@ -650,7 +650,7 @@ public class ORSGraphHopper extends GraphHopper {
 		if(corePreparationHandler.isEnabled())
 			corePreparationHandler.setProcessContext(processContext).createPreparations(gs);
 		if (isCorePrepared()) {
-			// TODO
+			// TODO aoles
 			// check loaded profiles
 //			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
 //				if (!getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
@@ -667,7 +667,7 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 		loadOrPrepareCoreLM();
 
-		if(fastIsochroneFactory.isEnabled()) {  //TODO: enable only once the other TODO below is addressed
+		if (fastIsochroneFactory.isEnabled()) {
 			EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
 			try {
 				partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
@@ -699,7 +699,7 @@ public class ORSGraphHopper extends GraphHopper {
         }
 	}
 
-    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    //TODO Refactoring : This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
     private boolean hasCHProfile(String profileName) {
 		return contains(getGraphHopperStorage().getCHGraphNames(), profileName);
     }
@@ -724,21 +724,22 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 		return false;
 	}
-	/**
-	 * Enables or disables core calculation.
-	 */
-	public GraphHopper setCoreEnabled(boolean enable) {
-		ensureNotLoaded();
-		//TODO corePreparationHandler.setEnabled(enable);
-		return this;
-	}
+//	TODO aoles : check if removing this is ok
+//	/**
+//	 * Enables or disables core calculation.
+//	 */
+//	public GraphHopper setCoreEnabled(boolean enable) {
+//		ensureNotLoaded();
+//		//TODO corePreparationHandler.setEnabled(enable);
+//		return this;
+//	}
 
 	public final boolean isCoreEnabled() {
 		return corePreparationHandler.isEnabled();
 	}
 
 
-// TODO: initialization logic needs to be moved to CorePrepartionHandler.init
+// TODO aoles: initialization logic needs to be moved to CorePrepartionHandler.init
 //	public void initCoreAlgoFactoryDecorator() {
 //		if (!coreFactoryDecorator.hasCHProfiles()) {
 //			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
@@ -814,7 +815,7 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	protected void prepareCore(boolean closeEarly) {
-		//TODO
+		//TODO aoles
 //		for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
 //			if (!getProfileVersion(profile.getProfile()).isEmpty()
 //					&& !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
@@ -826,7 +827,7 @@ public class ORSGraphHopper extends GraphHopper {
 			ghStorage.freeze();
 			corePreparationHandler.prepare(ghStorage.getProperties(), closeEarly);
 			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
-			//TODO
+			//TODO aoles
 //			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
 //				// potentially overwrite existing keys from LM
 //				setProfileVersion(profile.getProfile(), profilesByName.get(profile.getProfile()).getVersion());
@@ -840,27 +841,19 @@ public class ORSGraphHopper extends GraphHopper {
                 || "true".equals(getGraphHopperStorage().getProperties().get("prepare.done"));
     }
 
-	/**
-	 * Enables or disables core calculation.
-	 */
-	public GraphHopper setCoreLMEnabled(boolean enable) {
-		ensureNotLoaded();
-		//TODO coreLMPreparationHandler.setEnabled(enable);
-		return this;
-	}
+//	TODO aoles : check if removing this is ok
+//	/**
+//	 * Enables or disables core calculation.
+//	 */
+//	public GraphHopper setCoreLMEnabled(boolean enable) {
+//		ensureNotLoaded();
+//		//TODO coreLMPreparationHandler.setEnabled(enable);
+//		return this;
+//	}
 
 	public final boolean isCoreLMEnabled() {
 		return coreLMPreparationHandler.isEnabled();
 	}
-
-// TODO: initialization logic needs to be moved to CoreLMPrepartionHandler.init
-//	public void initCoreLMAlgoFactoryDecorator() {
-//		if (!coreLMFactoryDecorator.hasWeightings()) {
-//			for (CHProfile profile : corePreparationHandler.getCHProfiles())
-//				coreLMFactoryDecorator.addWeighting(profile.getWeighting());
-//		}
-//	}
-
 
 	/**
 	 * For landmarks it is required to always call this method: either it creates the landmark data or it loads it.
@@ -875,7 +868,7 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 	}
 
-    //TODO This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
+    //TODO Refactoring : This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
     public final boolean isCHAvailable(String profileName) {
         return getCHPreparationHandler().isEnabled() && hasCHProfile(profileName);
     }

@@ -72,10 +72,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private CoreDijkstraFilter additionalCoreEdgeFilter;
     private SubGraph targetGraph;
 
-    //TODO
-    // 3. getOriginalEdge not working
-    // 4. Check why all the edge calc weight stuff needs to be here in the algorithm and not in the weighting or iterator
-    // 5. TurnWeightingHelper needs to be checked. Is it still necessary?
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
@@ -509,6 +505,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         return calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
     }
 
+    // TODO Refactoring : Check why all the edge calc weight stuff needs to be here in the algorithm and not in the weighting or iterator
     double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         double edgeWeight = edgeState.getWeight(reverse);
         double turnCost = getTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), edgeState.getOrigEdge(), reverse);

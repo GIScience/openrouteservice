@@ -47,7 +47,6 @@ public class MultiTreeMetricsExtractor {
     public MultiTreeMetricsExtractor(int metrics, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting,
                                      DistanceUnit units) {
         this.metrics = metrics;
-        //TODO is this choice of graph correct
         this.graph = chGraph.getBaseGraph();
         this.weighting = weighting;
         timeWeighting = new FastestWeighting(encoder);
