@@ -25,6 +25,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.UpwardSearchEdgeFilter;
@@ -285,7 +286,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 			return;
 
 		while (iter.next()) {
-			edgeWeight = weighting.calcWeight(iter, false, 0);
+			edgeWeight = calcEdgeWeight(iter);
 
 			if (!Double.isInfinite(edgeWeight)) {
 				MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
@@ -340,5 +341,12 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 				}
 			}
 		}
+	}
+
+	private double calcEdgeWeight(EdgeIteratorState iter) {
+		if (iter instanceof SubGraph.EdgeIteratorLinkIterator)
+			iter = ((SubGraph.EdgeIteratorLinkIterator) iter).getCurrState();
+
+		return weighting.calcWeight(iter, false, 0);
 	}
 }
