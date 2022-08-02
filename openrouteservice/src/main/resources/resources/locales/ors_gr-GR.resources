@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1ος",
 			"2": "2ος",
@@ -47,7 +47,7 @@
 						"name": "Άφιξη στο {way_name}, στα δεξιά"
 					},
 					"straight": {
-						"default": "Φτάσετε στον προορισμό σας, ευθεία μπροστά"
+						"default": "Φτάσετε στον προορισμό σας, ευθεία μπροστά",
 						"name": "Άφιξη στο {way_name}, ευθεία μπροστά"
 					}
 			},          
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Στρίψτε {turn_maneuver}",
-					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
-				},
+					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Κάντε αναστροφή",
 					"name": "Κάντε αναστροφή στην οδό {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Στρίψτε {turn_maneuver}",
-					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}",
-				},
+					"name": "Στρίψτε {turn_maneuver} στην οδό {way_name}"
+				}
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1e",
 			"2": "2e",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Keer om {turn_maneuver}",
-					"name": "Keer om {turn_maneuver} richting {way_name}",
-				},
+					"name": "Keer om {turn_maneuver} richting {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Rechtsomkeerd",
 					"name": "Rechtsomkeerd richting {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Keer om {turn_maneuver}",
-					"name": "Keer om {turn_maneuver} richting {way_name}",
-				},
+					"name": "Keer om {turn_maneuver} richting {way_name}"
+				}
 			}
 		}
 	}

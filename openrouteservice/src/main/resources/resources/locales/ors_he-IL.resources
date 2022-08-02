@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "ראשון",
 			"2": "שני",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "פנה {turn_maneuver}",
-					"name": "פנה {turn_maneuver} אל {way_name}",
-				},
+					"name": "פנה {turn_maneuver} אל {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "בצע פניית פרסה",
 					"name": "בצע פניית פרסה אל {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "המשך {turn_maneuver}",
 					"name": "המשך {turn_maneuver} אל {way_name}"
-				},
+				}
 			}
 		}
 	}

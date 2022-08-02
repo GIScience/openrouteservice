@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1.",
 			"2": "2.",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Skręć {turn_maneuver}",
-					"name": "Skręć {turn_maneuver} na {way_name}",
-				},
+					"name": "Skręć {turn_maneuver} na {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Zawróć",
 					"name": "Zawróć na {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Kieruj się {turn_maneuver} ",
 					"name": "Kieruj się {turn_maneuver} na {way_name}"
-				},
+				}
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1ª",
 			"2": "2ª",
@@ -73,8 +73,8 @@
 			"turn": {
 				"default": {
 					"default": "Vire {turn_maneuver}",
-					"name": "Vire {turn_maneuver} em direção a {way_name}",
-				},
+					"name": "Vire {turn_maneuver} em direção a {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -85,12 +85,12 @@
 					"default": "Faça inversão de marcha",
 					"name": "Faça inversão de marcha em direção a {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Vire {turn_maneuver}",
-					"name": "Vire {turn_maneuver} em direção a {way_name}",
-				},
+					"name": "Vire {turn_maneuver} em direção a {way_name}"
+				}
 			}
 		}
 	}

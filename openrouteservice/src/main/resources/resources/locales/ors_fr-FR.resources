@@ -1,5 +1,5 @@
 {
-    instructions {
+    "instructions": {
         "numerals": {
             "1": "1ère",
             "2": "2ème",
@@ -72,8 +72,8 @@
             "turn": {
                 "default": {
                     "default": "Tournez {turn_maneuver}",
-                    "name": "Tournez {turn_maneuver} sur {way_name}",
-                },
+                    "name": "Tournez {turn_maneuver} sur {way_name}"
+                }
             },
             "continue": {
                 "default": {
@@ -84,12 +84,12 @@
                     "default": "Faites un demi-tour ",
                     "name": "Faites un demi-tour sur {way_name}"
                 }
-            }
+            },
 			"keep": {
 				"default": {
                     "default": "Tournez {turn_maneuver}",
-                    "name": "Tournez {turn_maneuver} sur {way_name}",
-				},
+                    "name": "Tournez {turn_maneuver} sur {way_name}"
+				}
 			}
         }
     }

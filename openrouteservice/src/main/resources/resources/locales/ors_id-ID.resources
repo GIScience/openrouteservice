@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "pertama",
 			"2": "kedua",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Belok {turn_maneuver}",
-					"name": "Belok {turn_maneuver} ke {way_name}",
-				},
+					"name": "Belok {turn_maneuver} ke {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Putar Balik",
 					"name": "Putar balik pada {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Tetap berada pada {turn_maneuver}",
 					"name": "Tetap berada pada {turn_maneuver} di {way_name}"
-				},
+				}
 			}
 		}
 	}

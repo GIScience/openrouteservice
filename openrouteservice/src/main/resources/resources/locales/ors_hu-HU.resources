@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "első",
 			"2": "második",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Forduljon be {turn_maneuver}",
-					"name": "Forduljon be {turn_maneuver} erre: {way_name}", 
-				},
+					"name": "Forduljon be {turn_maneuver} erre: {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Forduljon meg",
 					"name": "Forduljon meg, és menjen tovább ezen: {way_name}" 
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Tartson {turn_maneuver}",
-					"name": "Tartson {turn_maneuver} ezen: {way_name}",
-				},
+					"name": "Tartson {turn_maneuver} ezen: {way_name}"
+				}
 			}
 		}
 	}

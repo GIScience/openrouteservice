@@ -1,5 +1,5 @@
 {
-    instructions {
+    "instructions": {
         "numerals": {
             "1": "第1",
             "2": "第2",
@@ -72,8 +72,8 @@
             "turn": {
                 "default": {
                     "default": "{turn_maneuver}",
-                    "name": "{turn_maneuver} 进入 {way_name}",
-                },
+                    "name": "{turn_maneuver} 进入 {way_name}"
+                }
             },
             "continue": {
                 "default": {
@@ -84,12 +84,12 @@
                     "default": "前方掉头",
                     "name": "前方掉头后进入 {way_name}"
                 }
-            }
+            },
 			"keep": {
 				"default": {
                     "default": "{turn_maneuver}",
-                    "name": "{turn_maneuver} 进入 {way_name}",
-				},
+                    "name": "{turn_maneuver} 进入 {way_name}"
+				}
 			}
         }
     }

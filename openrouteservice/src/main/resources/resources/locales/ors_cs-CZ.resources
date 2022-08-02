@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1.",
 			"2": "2.",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Zahněte {turn_maneuver}",
-					"name": "Zahněte {turn_maneuver} na {way_name}",
-				},
+					"name": "Zahněte {turn_maneuver} na {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Otočte se",
 					"name": "Otočte se na {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Pokračujte {turn_maneuver}",
 					"name": "Pokračujte {turn_maneuver} na {way_name}"
-				},
+				}
 			}
 		}
 	}

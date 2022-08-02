@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "१",
 			"2": "२",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "घुम्नुहोस् {turn_maneuver}",
-					"name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर",
-				},
+					"name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,13 +84,13 @@
 					"default": "U मोड लिनुहोस्",
 					"name": "{way_name} तिर U मोड लिनुहोस्"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "घुम्नुहोस् {turn_maneuver}",
-					"name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर",
-				},
+					"name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर"
+				}
 			}
-        }
+    }
 	}
 }

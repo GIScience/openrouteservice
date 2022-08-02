@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1a",
 			"2": "2a",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "¡Gire {turn_maneuver}!",
-					"name": "¡Gire {turn_maneuver} a {way_name}!",
-				},
+					"name": "¡Gire {turn_maneuver} a {way_name}!"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "¡Haga una vuelta en U!",
 					"name": "¡Haga una vuelta en U a {way_name}!"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "¡Gire {turn_maneuver}!",
-					"name": "¡Gire {turn_maneuver} a {way_name}!",
-				},
+					"name": "¡Gire {turn_maneuver} a {way_name}!"
+				}
 			}
 		}
 	}

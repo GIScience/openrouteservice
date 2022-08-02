@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1-й",
 			"2": "2-й",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Поверните {turn_maneuver}",
-					"name": "Поверните {turn_maneuver} на {way_name}",
-				},
+					"name": "Поверните {turn_maneuver} на {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Произведите разворот",
 					"name": "Произведите разворот на {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Поверните {turn_maneuver}",
-					"name": "Поверните {turn_maneuver} на {way_name}",
-				},
+					"name": "Поверните {turn_maneuver} на {way_name}"
+				}
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1番目",
 			"2": "2番目",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "{turn_maneuver}へ曲がります",
-					"name": "{way_name}に向けて{turn_maneuver}へ曲がります",
-				},
+					"name": "{way_name}に向けて{turn_maneuver}へ曲がります"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Uターンします",
 					"name": "{way_name}に向けてUターンします"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "そのまま{turn_maneuver}に進みます",
 					"name": "そのまま{way_name}上を{turn_maneuver}に進みます"
-				},
+				}
 			}
 		}
 	}
