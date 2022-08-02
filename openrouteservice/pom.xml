@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.7.0</version>
+    <version>6.7.0-gtfs</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -441,26 +441,43 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.21</version>
+            <version>gtfs-4.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.21</version>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
+            <version>gtfs-4.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.21</version>
+            <artifactId>graphhopper-web-api</artifactId>
+            <version>gtfs-4.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        -->
 
+        <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
@@ -496,6 +513,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.typesafe</groupId>

@@ -99,7 +99,8 @@
             "bike-electric",
             "walking",
             "hiking",
-            "wheelchair"
+            "wheelchair",
+            "pt"
           ],
           "default_params": {
             "encoder_flags_size": 8,
@@ -326,6 +327,14 @@
                 },
                 "OsmId": {}
               }
+            }
+          },
+          "profile-pt": {
+            "profiles": "pt",
+            "parameters": {
+              "encoder_options": "block_fords=false",
+              "elevation": true,
+              "gtfs_file": "openrouteservice-api-tests/data/vrn_gtfs.zip"
             }
           }
         }

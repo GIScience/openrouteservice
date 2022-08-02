@@ -3664,7 +3664,6 @@ public class ResultTest extends ServiceTest {
     }
     @Test
     public void testPT() {
-
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.6729581);
@@ -3681,21 +3680,25 @@ public class ResultTest extends ServiceTest {
         body.put("departure", "2022-07-04T13:02:26Z");
         body.put("walking_time", "PT30M");
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("ptProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-
-                .statusCode(200);
-
-
-//        "http://localhost:8989/route?point=49.4468535%2C8.6729581&point=49.3786147%2C8.7067204&pt.earliest_departure_time=2022-07-04T13%3A02%3A26Z&pt.arrive_by=false&locale=en-US&profile=pt&pt.profile=false&pt.access_profile=foot&pt.egress_profile=foot&pt.profile_duration=PT120M&pt.limit_street_time=PT30M&pt.ignore_transfers=false"
-    }
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}")
+            .then().log().ifValidationFails()
+            .assertThat()
+            .body("any { it.key == 'routes' }", is(true))
+            .body("routes[0].summary.transfers", is(2))
+            .body("routes[0].legs.size()", is(5))
+            .body("routes[0].legs[0].containsKey('arrival')", is(true))
+            .body("routes[0].legs[0].containsKey('departure')", is(true))
+            .body("routes[0].legs[0].containsKey('instructions')", is(true))
+            .body("routes[0].legs[1].containsKey('feed_id')", is(true))
+            .body("routes[0].legs[1].containsKey('trip_id')", is(true))
+            .body("routes[0].legs[1].containsKey('route_id')", is(true))
+            .statusCode(200);
+}
 
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();

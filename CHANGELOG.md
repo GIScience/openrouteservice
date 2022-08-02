@@ -35,6 +35,10 @@ RELEASING:
 
 ## [Unreleased]
 
+## [6.7.0-gtfs] - 2022-07-29
+### Added
+- GTFS support
+
 ## [6.7.0] - 2022-01-04
 ### Added
 - add core matrix algorithm
