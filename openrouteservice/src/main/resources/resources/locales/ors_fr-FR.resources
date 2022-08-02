@@ -33,24 +33,24 @@
             "uturn": "demi-tour"
         },
         "actions": {
-			"arrive": {
-           		 	"default": {
-		                	"default": "Arrivez à votre destination",
-							"name": "Arrivez à {way_name}"
-                	},
-					"left": {
-						"default": "Arrivé à votre destination, sur la gauche",
-						"name": "Arrivé à {way_name}, destination sur la gauche"
-					},
-					"right": {
-						"default": "Arrivé à votre destination, sur la droite",
-						"name": "Arrivé à {way_name}, destination sur la droite"
-					},
-					"straight": {
-						"default": "Arrivé à votre destination, droit devant",
-						"name": "Arrivé à {way_name}, destination droit devant"
-					}
-			},          
+            "arrive": {
+                "default": {
+                    "default": "Arrivez à votre destination",
+                    "name": "Arrivez à {way_name}"
+                },
+                "left": {
+                    "default": "Arrivé à votre destination, sur la gauche",
+                    "name": "Arrivé à {way_name}, destination sur la gauche"
+                },
+                "right": {
+                    "default": "Arrivé à votre destination, sur la droite",
+                    "name": "Arrivé à {way_name}, destination sur la droite"
+                },
+                "straight": {
+                    "default": "Arrivé à votre destination, droit devant",
+                    "name": "Arrivé à {way_name}, destination droit devant"
+                }
+            },
             "depart": {
                 "default": {
                     "default": "Démarrez en direction {direction}",
@@ -81,16 +81,16 @@
                     "name": "Continuez {turn_maneuver} sur {way_name}"
                 },
                 "uturn": {
-                    "default": "Faites un demi-tour ",
+                    "default": "Faites un demi-tour",
                     "name": "Faites un demi-tour sur {way_name}"
                 }
             },
-			"keep": {
-				"default": {
+            "keep": {
+                "default": {
                     "default": "Tournez {turn_maneuver}",
                     "name": "Tournez {turn_maneuver} sur {way_name}"
-				}
-			}
+                }
+            }
         }
     }
 }
