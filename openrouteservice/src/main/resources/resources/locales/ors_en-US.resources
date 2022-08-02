@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions" {
 		"numerals": {
 			"1": "1st",
 			"2": "2nd",
