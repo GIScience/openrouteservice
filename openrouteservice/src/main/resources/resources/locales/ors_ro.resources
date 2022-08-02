@@ -1,0 +1,96 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": "",
+            "6": "",
+            "7": "",
+            "8": "",
+            "9": "",
+            "10": ""
+        },
+        "directions": {
+            "north": "",
+            "northeast": "",
+            "east": "",
+            "southeast": "",
+            "south": "",
+            "southwest": "",
+            "west": "",
+            "northwest": ""
+        },
+        "turn_maneuvers": {
+            "left": "",
+            "right": "",
+            "sharp_left": "",
+            "sharp_right": "",
+            "slight_left": "",
+            "slight_right": "",
+            "straight": "",
+            "uturn": ""
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "",
+                    "name": ""
+                },
+                "left": {
+                    "default": "",
+                    "name": ""
+                },
+                "right": {
+                    "default": "",
+                    "name": ""
+                },
+                "straight": {
+                    "default": "",
+                    "name": ""
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "",
+                    "name": ""
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "",
+                        "name": ""
+                    },
+                    "default": {
+                        "default": "",
+                        "name": ""
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "",
+                    "name": ""
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "",
+                    "name": ""
+                },
+                "uturn": {
+                    "default": "",
+                    "name": ""
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "",
+                    "name": ""
+                }
+            }
+        }
+    }
+}
