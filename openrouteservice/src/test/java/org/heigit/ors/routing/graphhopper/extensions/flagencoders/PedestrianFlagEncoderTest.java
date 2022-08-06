@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 public class PedestrianFlagEncoderTest {
     private final EncodingManager encodingManager = EncodingManager.create(
             new ORSDefaultFlagEncoderFactory(),
-            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for testHighwayConditionallyClosed()
+            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for time restriction testing
             4
     );
     private final PedestrianFlagEncoder flagEncoder;
@@ -340,9 +340,20 @@ public class PedestrianFlagEncoderTest {
     }
 
     /**
-     * Test the routing of a pedestrian way with time restrictions.
+     * Test the routing of pedestrian ways with time restrictions.
      * An encoding manager with conditional access activated must be used.
      */
+    @Test
+    public void testHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way = generatePedestrianWay();
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (15:00-19:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
     @Test
     public void testHighwayConditionallyClosed(){
         assertTrue(encodingManager.hasConditionalAccess());
@@ -352,6 +363,29 @@ public class PedestrianFlagEncoderTest {
 
         assertTrue(flagEncoder.getAccess(way).isConditional());
     }
+    
+    @Test
+    public void testNonHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    @Test
+    public void testNonHighwayConditionallyClosed(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access:conditional", "no @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    // End of time restriction testing
 
     @Test
     public void acceptLockGateFootAllowed() {
