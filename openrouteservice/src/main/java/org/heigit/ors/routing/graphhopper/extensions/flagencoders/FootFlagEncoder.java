@@ -220,13 +220,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (hasTooDifficultSacScale(way))
             return EncodingManager.Access.CAN_SKIP;
 
-        // no need to evaluate ferries or fords - already included here
-        if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
-            return isPermittedWayConditionallyRestricted(way);
-
         // check access restrictions
-        if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-            return EncodingManager.Access.CAN_SKIP;
+        if (way.hasTag(restrictions, restrictedValues))
+            return isRestrictedWayConditionallyPermitted(way);
 
         if (way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
             return isPermittedWayConditionallyRestricted(way);
@@ -330,9 +326,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
 
         if (!acceptPotentially.canSkip()) {
-            if (way.hasTag(restrictions, restrictedValues) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                return EncodingManager.Access.CAN_SKIP;
-            return acceptPotentially;
+            if (way.hasTag(restrictions, restrictedValues))
+                acceptPotentially = isRestrictedWayConditionallyPermitted(way, acceptPotentially);
         }
 
         return EncodingManager.Access.CAN_SKIP;
