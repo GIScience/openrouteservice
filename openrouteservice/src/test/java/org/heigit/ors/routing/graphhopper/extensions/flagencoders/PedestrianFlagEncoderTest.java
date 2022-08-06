@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 public class PedestrianFlagEncoderTest {
     private final EncodingManager encodingManager = EncodingManager.create(
             new ORSDefaultFlagEncoderFactory(),
-            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for testTimeDependent()
+            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for testHighwayConditionallyClosed()
             4
     );
     private final PedestrianFlagEncoder flagEncoder;
@@ -344,7 +344,7 @@ public class PedestrianFlagEncoderTest {
      * An encoding manager with conditional access activated must be used.
      */
     @Test
-    public void testTimeDependent(){
+    public void testHighwayConditionallyClosed(){
         assertTrue(encodingManager.hasConditionalAccess());
 
         way = generatePedestrianWay();
