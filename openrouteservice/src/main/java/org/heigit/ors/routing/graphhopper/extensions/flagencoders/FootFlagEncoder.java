@@ -328,7 +328,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (!acceptPotentially.canSkip()) {
             if (way.hasTag(restrictions, restrictedValues))
                 return isRestrictedWayConditionallyPermitted(way, acceptPotentially);
-            return isPermittedWayConditionallyRestricted(way);
+            return isPermittedWayConditionallyRestricted(way, acceptPotentially);
         }
 
         return EncodingManager.Access.CAN_SKIP;
