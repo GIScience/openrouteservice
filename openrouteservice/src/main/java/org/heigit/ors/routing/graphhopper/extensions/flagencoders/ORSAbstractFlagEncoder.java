@@ -13,7 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
+import com.graphhopper.routing.util.EncodingManager;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     /* This is just a temporary class to ease the transition from GH0.10 to 0.12 */
