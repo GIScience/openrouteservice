@@ -163,9 +163,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        // TODO takb: gh.setEdgeFilterFactory(edgeFilterFactory);
-
         ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
         gh.setPathProcessorFactory(pathProcessorFactory);
 

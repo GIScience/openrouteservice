@@ -16,7 +16,8 @@ import java.io.IOException;
         name="CustomConfigurationFactory",
         category = ConfigurationFactory.CATEGORY
 )
-@Order(50) // TODO: check whether this class is in use
+@Order(50)
+// Class is loaded by LOG4J automagically due to the annotation above
 public class LoggingConfigFactory extends ConfigurationFactory{
     protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 

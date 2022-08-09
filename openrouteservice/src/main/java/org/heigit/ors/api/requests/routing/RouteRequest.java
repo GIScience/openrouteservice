@@ -807,7 +807,7 @@ public class RouteRequest extends APIRequest {
         return params;
     }
 
-    // TODO: can this be merged with processRequestOptions in MatrixRequestHandler?
+    // TODO Refactoring: can this be merged with processRequestOptions in MatrixRequestHandler?
 
     private boolean convertIncludeGeometry() throws IncompatibleParameterException {
         if (!includeGeometry && responseType != APIEnums.RouteResponseType.JSON) {

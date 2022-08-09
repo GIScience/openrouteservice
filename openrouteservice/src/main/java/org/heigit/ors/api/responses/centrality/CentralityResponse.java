@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.centrality.CentralityResult;
 
-//TODO: should this include CentralityResponseInfo, as does RouteResponse?
+//TODO Refactoring: should this include CentralityResponseInfo, as does RouteResponse?
 public class CentralityResponse {
     @JsonIgnore
     protected BoundingBox bbox;
