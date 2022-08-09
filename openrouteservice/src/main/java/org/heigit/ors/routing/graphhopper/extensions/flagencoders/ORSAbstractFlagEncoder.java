@@ -24,4 +24,15 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
     public abstract double getMeanSpeed();
 
+    /*
+     TODO add in AbstractFlagEncoder (Graphhopper repository) as:
+
+     public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way, EncodingManager.Access accept) {
+         return getConditionalAccess(way, accept, false);
+     }
+     */
+    public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way, EncodingManager.Access accept) {
+        EncodingManager.Access permitted = isPermittedWayConditionallyRestricted(way);
+        return permitted == EncodingManager.Access.WAY ? accept : permitted;
+    }
 }
