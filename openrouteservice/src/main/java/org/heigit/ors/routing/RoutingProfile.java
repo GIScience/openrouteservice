@@ -171,9 +171,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        // TODO: gh.setEdgeFilterFactory(edgeFilterFactory);
-
         ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
         gh.setPathProcessorFactory(pathProcessorFactory);
 
@@ -1120,12 +1117,9 @@ public class RoutingProfile {
         try {
             int profileType = searchParams.getProfileType();
             if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
-                PtRouter ptRouter = PtRouterImpl
-                        .createFactory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper, mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
+                PtRouter ptRouter = new PtRouterImpl.Factory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper.getGraphHopperStorage(), mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
                         .createWithoutRealtimeFeed();
-
                 Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
-
                 return ptRouter.route(ptRequest);
             }
             int weightingMethod = searchParams.getWeightingMethod();

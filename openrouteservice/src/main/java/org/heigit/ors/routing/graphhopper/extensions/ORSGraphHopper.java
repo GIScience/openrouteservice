@@ -114,7 +114,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 		processContext = procCntx;
 		processContext.init(this);
 		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
-
     }
 
 

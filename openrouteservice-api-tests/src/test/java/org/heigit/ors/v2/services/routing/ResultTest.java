@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -3679,7 +3680,7 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
         body.put("departure", "2022-07-04T13:02:26Z");
         body.put("walking_time", "PT30M");
-        given()
+        Response res = given()
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
             .pathParam("profile", getParameter("ptProfile"))
@@ -3697,7 +3698,8 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('feed_id')", is(true))
             .body("routes[0].legs[1].containsKey('trip_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_id')", is(true))
-            .statusCode(200);
+                .statusCode(200).extract().response();
+        System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
 }
 
     private JSONArray constructBearings(String coordString) {
