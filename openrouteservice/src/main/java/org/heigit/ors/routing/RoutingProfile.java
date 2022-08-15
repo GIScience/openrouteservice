@@ -1117,10 +1117,13 @@ public class RoutingProfile {
         try {
             int profileType = searchParams.getProfileType();
             if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
+                StopWatch stopWatch = (new StopWatch()).start();
                 PtRouter ptRouter = new PtRouterImpl.Factory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper.getGraphHopperStorage(), mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
                         .createWithoutRealtimeFeed();
                 Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
-                return ptRouter.route(ptRequest);
+                GHResponse res = ptRouter.route(ptRequest);
+                res.addDebugInfo("Request total:" + stopWatch.stop().getSeconds() + "s");
+                return res;
             }
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
