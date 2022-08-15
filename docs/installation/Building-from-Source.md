@@ -42,7 +42,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
 After you have packaged openrouteservice, there are two options for running it.
 One is to run the `mvn tomcat7:run` command which triggers a self contained
 Tomcat instance running on port `8082`.  This is more restrictive in terms of
-settings for Tomcat. The other is to install and run Tomcat 8 
+settings for Tomcat. The other is to install and run Tomcat 8
 
 ## Running from within IDE
 
@@ -52,8 +52,10 @@ To run the project from within your IDE, you have to:
      `openrouteservice-api-tests` modules as Maven model.
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
-  2. Configure your IDE to run `tomcat7:run-war` as the maven goal, setting the
-     environment variable `ORS_CONFIG=ors-config-test.json`.
+  2. Configure your IDE to run `tomcat7:run` as the maven goal, setting the
+     environment variable `ORS_CONFIG=ors-config.json`. For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
+
+     Using these settings, **cross-origin requests will not be permitted**. If you need this to be possible, use the run command `tomcat7:run-war` instead. Running this command will create the files `ors.war` and `./ors/WEB-INF/web.xml` inside the `openrouteservice/target` folder. The CORS settings will be set to `cors.allowed.origins` in the `web.xml` file.
 
   3. You can run API tests via JUnit.
 
@@ -132,20 +134,20 @@ repository](https://github.com/GIScience/graphhopper), follow these steps:
    <artifactId>graphhopper-core</artifactId>
        <version>v0.9.12</version>
    </dependency>
-   
+
    <dependency>
    <groupId>com.github.GIScience.graphhopper</groupId>
    <artifactId>graphhopper-reader-osm</artifactId>
    <version>v0.9.12</version>
    </dependency>
    -->
-   
+
    <dependency>
        <groupId>com.graphhopper</groupId>
        <artifactId>graphhopper-core</artifactId>
        <version>0.13-SNAPSHOT</version>
    </dependency>
-   
+
    <dependency>
        <groupId>com.graphhopper</groupId>
        <artifactId>graphhopper-reader-osm</artifactId>
@@ -164,6 +166,6 @@ repository](https://github.com/GIScience/graphhopper), follow these steps:
 
 **Note that in these examples, the 0.13_2 version of GH is used - you should
 update which you use accordingly. To know which to use, check the
-[openrouteservice pom file](https://github.com/GIScience/openrouteservice/pom.xml) 
+[openrouteservice pom file](https://github.com/GIScience/openrouteservice/pom.xml)
 and see what version is being used for the `com.github.GIScience.graphhopper`
 dependencies**
