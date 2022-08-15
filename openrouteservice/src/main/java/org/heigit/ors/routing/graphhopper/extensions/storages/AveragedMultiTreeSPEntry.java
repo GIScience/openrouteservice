@@ -66,6 +66,6 @@ public class AveragedMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public String toString() {
-		return getAdjNode() + " (" + 0 + ") weights: " /* TODO: + Arrays.toString(items)*/;
+		return "adjNode: " + getAdjNode() + ",  average weight: " + weight;
 	}
 }
