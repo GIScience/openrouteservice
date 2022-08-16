@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.v2.services.matrix;
 
+import io.restassured.RestAssured;
+import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
@@ -22,6 +24,8 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.JsonConfig.jsonConfig;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "matrix")
@@ -97,6 +101,25 @@ public class ResultTest extends ServiceTest {
         locations6.put(coord2);
 
         addParameter("locations6", locations6);
+
+        JSONArray locations7 = new JSONArray();
+        coord1 = new JSONArray();
+        coord1.put(8.703320316580971);
+        coord1.put(49.43318333640056);
+        locations7.put(coord1);
+        coord2 = new JSONArray();
+        coord2.put(8.687654576684464);
+        coord2.put(49.424556390630144);
+        locations7.put(coord2);
+        coord3 = new JSONArray();
+        coord3.put(8.720827102661133);
+        coord3.put(49.450717967273356);
+        locations7.put(coord3);
+        coord4 = new JSONArray();
+        coord4.put(8.708810806274414);
+        coord4.put(49.45122015291216);
+        locations7.put(coord4);
+        addParameter("locations7", locations7);
 
         // Fake array to test maximum exceedings
         JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(101);
@@ -887,6 +910,47 @@ public class ResultTest extends ServiceTest {
                 .body("durations[1][0]", is(48.77f))
                 .body("durations[1][1]", is(0.0f))
                 .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testCrossVirtualNode() {
+        JSONObject body = new JSONObject();
+        JSONObject options = new JSONObject();
+        body.put("locations", getParameter("locations7"));
+        body.put("resolve_locations", true);
+        body.put("metrics", getParameter("metricsDuration"));
+        body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
+
+
+        given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations.size()", is(4))
+                .body("durations[0][0]", is(closeTo(0.0f, 0.1f)))
+                .body("durations[0][1]", is(closeTo(1143.82f, 0.1f)))
+                .body("durations[0][2]", is(closeTo(730.49f, 0.1f)))
+                .body("durations[0][3]", is(closeTo(523.27f, 0.1f)))
+                .body("durations[1][0]", is(closeTo(635.97f, 0.1f)))
+                .body("durations[1][1]", is(closeTo(0.0f, 0.1f)))
+                .body("durations[1][2]", is(closeTo(1194.68f, 0.1f)))
+                .body("durations[1][3]", is(closeTo(996.18f, 0.1f)))
+                .body("durations[2][0]", is(closeTo(730.49f, 0.1f)))
+                .body("durations[2][1]", is(closeTo(1196.91f, 0.1f)))
+                .body("durations[2][2]", is(closeTo(0.0f, 0.1f)))
+                .body("durations[2][3]", is(closeTo(207.82f, 0.1f)))
+                .body("durations[3][0]", is(closeTo(523.27f, 0.1f)))
+                .body("durations[3][1]", is(closeTo(989.7f, 0.1f)))
+                .body("durations[3][2]", is(closeTo(207.82f, 0.1f)))
+                .body("durations[3][3]", is(closeTo(0.0f, 0.1f)))
                 .statusCode(200);
     }
 }
