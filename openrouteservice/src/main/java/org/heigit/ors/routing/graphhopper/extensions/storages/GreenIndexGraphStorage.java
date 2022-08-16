@@ -48,7 +48,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
     }
 
     public int getEdgeValue(int edgeId, byte[] buffer) {
-        // TODO this needs further checking when implementing the Weighting classes/functions
+        // TODO Future improvement: this needs further checking when implementing the Weighting classes/functions
         long edgePointer = (long) edgeId * edgeEntryBytes;
         orsEdges.getBytes(edgePointer + EF_GREENINDEX, buffer, 1);
 
@@ -58,7 +58,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
     /**
      * @return true if successfully loaded from persistent storage.
      */
-    // TODO how to deal with @Override
+    @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_greenindex'. corrupt file or directory?");
@@ -73,7 +73,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
      *
      * @param initBytes
      */
-    // TODO how to deal with @Override
+    @Override
     public GreenIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -84,7 +84,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
      * loses.
      */
-    // TODO how to deal with @Override
+    @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
         orsEdges.setHeader(4, edgesCount);

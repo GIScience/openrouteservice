@@ -77,7 +77,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      *
      * @param initBytes
      */
-    // TODO: how to deal with @Override
+    @Override
     public NoiseIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -88,7 +88,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
      * loses.
      */
-    // TODO how to deal with @Override
+    @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
         orsEdges.setHeader(4, edgesCount);
