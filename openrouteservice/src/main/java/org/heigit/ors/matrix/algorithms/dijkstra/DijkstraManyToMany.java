@@ -39,8 +39,6 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
 /**
  * A Core and Dijkstra based algorithm that runs a many to many search in the core and downwards.
@@ -296,9 +294,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             if (!accept(iter, currEdgeItem.getEdge()))
                 continue;
 
-            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
             double edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
-            resetTurnWeighting(hasTurnWeighting);
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
 
@@ -401,7 +397,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting);
         }
         return addToQueue;
     }

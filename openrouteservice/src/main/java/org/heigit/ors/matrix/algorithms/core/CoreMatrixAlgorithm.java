@@ -43,8 +43,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
 /**
  * A Core and Dijkstra based algorithm that calculates the weights from multiple start to multiple goal nodes.
@@ -323,7 +321,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
-            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
+//            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
 
             edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if (Double.isInfinite(edgeWeight))
@@ -339,7 +337,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting);
+//            resetTurnWeighting(hasTurnWeighting);
         }
 
         return addToQueue;
