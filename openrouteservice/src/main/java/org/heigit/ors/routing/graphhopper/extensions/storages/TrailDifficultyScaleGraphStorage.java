@@ -54,6 +54,10 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		return this;
 	}
 
+	@Override
+	public long getCapacity() {
+		return edges.getCapacity();
+	}
 	public void flush() {
 		edges.setHeader(0, edgeEntryBytes);
 		edges.setHeader(4, edgesCount);

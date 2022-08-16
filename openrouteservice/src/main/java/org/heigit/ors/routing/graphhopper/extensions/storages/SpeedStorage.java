@@ -77,6 +77,11 @@ public class SpeedStorage implements GraphExtension {
     }
 
     @Override
+    public long getCapacity() {
+        return speedData.getCapacity();
+    }
+
+    @Override
     public void close() {
         speedData.close();
     }

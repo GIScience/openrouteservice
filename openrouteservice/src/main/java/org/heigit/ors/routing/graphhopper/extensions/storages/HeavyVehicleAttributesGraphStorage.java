@@ -160,6 +160,11 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	}
 
 	@Override
+	public long getCapacity() {
+		return orsEdges.getCapacity();
+	}
+
+	@Override
 	public boolean isClosed() {
 		return false;
 	}

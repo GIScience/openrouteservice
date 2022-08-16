@@ -111,6 +111,11 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     public void close() { orsEdges.close(); }
 
     @Override
+    public long getCapacity() {
+        return orsEdges.getCapacity();
+    }
+
+    @Override
     public boolean isClosed() {
         return false;
     }

@@ -1028,4 +1028,18 @@ public class ORSGraphHopper extends GraphHopper {
     public boolean isTrafficEnabled() {
         return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;
     }
+	public long getMemoryUsage() {
+		long mem = 0;
+		if (getLMPreparationHandler().isEnabled()) {
+			mem += getLMPreparationHandler().getPreparations().stream().mapToLong(lm -> lm.getLandmarkStorage().getCapacity()).sum();
+		}
+		if (isCoreEnabled()) {
+			// core CH preparations are handled in ORSGraphHopperStorage.getCapacity()
+			mem += coreLMPreparationHandler.getPreparations().stream().mapToLong(lm -> lm.getLandmarkStorage().getCapacity()).sum();
+		}
+		if (fastIsochroneFactory.isEnabled()) {
+			mem += fastIsochroneFactory.getCapacity();
+		}
+		return mem + getGraphHopperStorage().getCapacity();
+	}
 }

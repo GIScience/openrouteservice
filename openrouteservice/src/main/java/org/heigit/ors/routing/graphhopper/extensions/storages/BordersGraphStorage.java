@@ -171,7 +171,7 @@ public class BordersGraphStorage implements GraphExtension {
 	/**
 	 * @return the allocated storage size in bytes
 	 */
-	// TODO: how to deal with @Override
+	@Override
 	public long getCapacity() {
 		return orsEdges.getCapacity();
 	}

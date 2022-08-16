@@ -151,9 +151,9 @@ public class RoutingProfilesCollection {
 		int i = 0;
 		for(RoutingProfile profile : getUniqueProfiles()) {
 			i++;
-			long capacity = profile.getCapacity();
-			totalProfilesMemory += capacity;
-			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(capacity), ((double)capacity/totalUsedMemory)*100)); 
+			long profileMemory = profile.getMemoryUsage();
+			totalProfilesMemory += profileMemory;
+			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(profileMemory), ((double)profileMemory/totalUsedMemory)*100));
 		}
 		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100));
 		logger.info("========================================================================");

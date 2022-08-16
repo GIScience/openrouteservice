@@ -98,6 +98,11 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.close();
     }
 
+    @Override
+    public long getCapacity() {
+        return edges.getCapacity();
+    }
+
     public int entries() {
         return edgesCount;
     }

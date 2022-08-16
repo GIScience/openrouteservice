@@ -48,8 +48,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.mapmatching.MapMatcher;
-import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
@@ -454,9 +452,8 @@ public class RoutingProfile {
         return hasCoreProfile;
     }
 
-    public long getCapacity() {
-        GraphHopperStorage graph = mGraphHopper.getGraphHopperStorage();
-        return graph.getCapacity(); // TODO: how to deal with + graph.getExtension().getCapacity();
+    public long getMemoryUsage() {
+        return mGraphHopper.getMemoryUsage();
     }
 
     public ORSGraphHopper getGraphhopper() {
