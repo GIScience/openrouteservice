@@ -1,96 +1,96 @@
 {
-    "instructions": {
-        "numerals": {
-            "1": "1",
-            "2": "2",
-            "3": "tria",
-            "4": "4-a",
-            "5": "5-a",
-            "6": "6-a",
-            "7": "7-a",
-            "8": "8-a",
-            "9": "9-a",
-            "10": "10-a"
+  "instructions": {
+    "numerals": {
+      "1": "1",
+      "2": "2",
+      "3": "tria",
+      "4": "4-a",
+      "5": "5-a",
+      "6": "6-a",
+      "7": "7-a",
+      "8": "8-a",
+      "9": "9-a",
+      "10": "10-a"
+    },
+    "directions": {
+      "north": "nordo",
+      "northeast": "nordoriento",
+      "east": "oriento",
+      "southeast": "sudoriento",
+      "south": "sudo",
+      "southwest": "sudokcidento",
+      "west": "okcidento",
+      "northwest": "nordokcidento"
+    },
+    "turn_maneuvers": {
+      "left": "maldekstre",
+      "right": "rajto",
+      "sharp_left": "akra maldekstra",
+      "sharp_right": "akra rajto",
+      "slight_left": "malgranda maldekstro",
+      "slight_right": "malgranda rajto",
+      "straight": "rekte",
+      "uturn": "U-turno"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Alvenis ĉe via destino",
+          "name": "Alvenis ĉe la nomo {way_name}"
         },
-        "directions": {
-            "north": "nordo",
-            "northeast": "nordoriento",
-            "east": "oriento",
-            "southeast": "sudoriento",
-            "south": "sudo",
-            "southwest": "sudokcidento",
-            "west": "okcidento",
-            "northwest": "nordokcidento"
+        "left": {
+          "default": "Alvenis ĉe via destino, maldekstre",
+          "name": "Alvenu ĉe {way_name}, maldekstre"
         },
-        "turn_maneuvers": {
-            "left": "maldekstre",
-            "right": "rajto",
-            "sharp_left": "akra maldekstra",
-            "sharp_right": "akra rajto",
-            "slight_left": "malgranda maldekstro",
-            "slight_right": "malgranda rajto",
-            "straight": "rekte",
-            "uturn": "U-turno"
+        "right": {
+          "default": "Alvenis ĉe via destino, dekstraflanke",
+          "name": "Alvenis ĉe la nomo {way_name}, dekstraflanke"
         },
-        "actions": {
-            "arrive": {
-                "default": {
-                    "default": "Alvenis ĉe via destino",
-                    "name": "Alvenis ĉe la nomo {way_name}"
-                },
-                "left": {
-                    "default": "Alvenis ĉe via destino, maldekstre",
-                    "name": "Alvenu ĉe {way_name}, maldekstre"
-                },
-                "right": {
-                    "default": "Alvenis ĉe via destino, dekstraflanke",
-                    "name": "Alvenis ĉe la nomo {way_name}, dekstraflanke"
-                },
-                "straight": {
-                    "default": "Venu al via destino, rekte antaŭ",
-                    "name": "Alveninte ĉe {way_name} , rekte antaŭ"
-                }
-            },
-            "depart": {
-                "default": {
-                    "default": "Kapo {direction}",
-                    "name": "Kapo {direction} sur {way_name}"
-                }
-            },
-            "roundabout": {
-                "default": {
-                    "exit": {
-                        "default": "Enigu la rondon kaj prenu la {exit_number} elirejo",
-                        "name": "Eniru la trafikcirklon kaj prenu la elirejon {exit_number} sur {way_name}"
-                    },
-                    "default": {
-                        "default": "Enmetu la rondon",
-                        "name": "Enigu la rondon kaj eliron sur {way_name}"
-                    }
-                }
-            },
-            "turn": {
-                "default": {
-                    "default": "Turnu {turn_maneuver}",
-                    "name": "Turnu {turn_maneuver} sur {way_name}"
-                }
-            },
-            "continue": {
-                "default": {
-                    "default": "Daŭrigu {turn_maneuver}",
-                    "name": "Turnu {turn_maneuver} sur {way_name}"
-                },
-                "uturn": {
-                    "default": "Fari U-turnon",
-                    "name": "Faru U-turnon sur {way_name}"
-                }
-            },
-            "keep": {
-                "default": {
-                    "default": "Daŭrigu {turn_maneuver}",
-                    "name": "Konservu {turn_maneuver} sur {way_name}"
-                }
-            }
+        "straight": {
+          "default": "Venu al via destino, rekte antaŭ",
+          "name": "Alveninte ĉe {way_name} , rekte antaŭ"
         }
+      },
+      "depart": {
+        "default": {
+          "default": "Kapo {direction}",
+          "name": "Kapo {direction} sur {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Enigu la rondon kaj prenu la {exit_number} elirejo",
+            "name": "Eniru la trafikcirklon kaj prenu la elirejon {exit_number} sur {way_name}"
+          },
+          "default": {
+            "default": "Enmetu la rondon",
+            "name": "Enigu la rondon kaj eliron sur {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Turnu {turn_maneuver}",
+          "name": "Turnu {turn_maneuver} sur {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Daŭrigu {turn_maneuver}",
+          "name": "Turnu {turn_maneuver} sur {way_name}"
+        },
+        "uturn": {
+          "default": "Fari U-turnon",
+          "name": "Faru U-turnon sur {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Daŭrigu {turn_maneuver}",
+          "name": "Konservu {turn_maneuver} sur {way_name}"
+        }
+      }
     }
+  }
 }
