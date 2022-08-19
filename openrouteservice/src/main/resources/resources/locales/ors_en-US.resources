@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1st",
 			"2": "2nd",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Turn {turn_maneuver}",
-					"name": "Turn {turn_maneuver} onto {way_name}",
-				},
+					"name": "Turn {turn_maneuver} onto {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Make a U-turn",
 					"name": "Make a U-turn onto {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Keep {turn_maneuver}",
 					"name": "Keep {turn_maneuver} onto {way_name}"
-				},
+				}
 			}
 		}
 	}

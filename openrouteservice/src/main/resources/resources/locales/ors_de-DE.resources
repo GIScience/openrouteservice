@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "erste",
 			"2": "zweite",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Biegen Sie {turn_maneuver} ab",
-					"name": "Biegen Sie {turn_maneuver} auf {way_name} ab",
-				},
+					"name": "Biegen Sie {turn_maneuver} auf {way_name} ab"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Eine Kehrtwendung vollziehen",
 					"name": "Eine Kehrtwendung auf {way_name} vollziehen"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "{turn_maneuver} halten",
 					"name": "{turn_maneuver} halten auf {way_name}"
-				},
+				}
 			}
 		}
 	}

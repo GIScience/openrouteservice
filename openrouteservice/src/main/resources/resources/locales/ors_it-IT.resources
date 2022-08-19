@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "prima",
 			"2": "seconda",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Gira {turn_maneuver}",
-					"name": "Gira {turn_maneuver} su {way_name}",
-				},
+					"name": "Gira {turn_maneuver} su {way_name}"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "Fai un'inversione a U",
 					"name": "Fai un'inversione a U su {way_name}"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "Gira {turn_maneuver}",
-					"name": "Gira {turn_maneuver} su {way_name}",
-				},
+					"name": "Gira {turn_maneuver} su {way_name}"
+				}
 			}
 		}
 	}

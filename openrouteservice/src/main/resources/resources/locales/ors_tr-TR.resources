@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "1.",
 			"2": "2.",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "{turn_maneuver}a dönün",
-					"name": "{way_name} tarafına doğru {turn_maneuver}a dönün",
-				},
+					"name": "{way_name} tarafına doğru {turn_maneuver}a dönün"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,12 @@
 					"default": "U Dönüşü yapın",
 					"name": "{way_name} tarafına doğru U Dönüşü yapın"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "{turn_maneuver}da kalın",
 					"name": "{way_name} tarafına doğru {turn_maneuver}da kalın"
-				},
+				}
 			}
 		}
 	}
