@@ -14,6 +14,7 @@
 package org.heigit.ors.v2.services.matrix;
 
 import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
@@ -25,12 +26,13 @@ import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+
 
 @EndPointAnnotation(name = "matrix")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
+    public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
     public ResultTest() {
         // Locations
         JSONArray coordsShort = new JSONArray();
@@ -219,11 +221,11 @@ public class ResultTest extends ServiceTest {
                 .body("metadata.query.containsKey('resolve_locations')", is(true))
                 .body("metadata.query.resolve_locations", is(true))
                 .body("destinations[0].containsKey('name')", is(true))
-                .body("destinations[0].name", is("Wielandtstraße"))
+                .body("destinations[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("destinations[1].name", is("Werderplatz"))
                 .body("destinations[2].name", is("Roonstraße"))
                 .body("sources[0].containsKey('name')", is(true))
-                .body("sources[0].name", is("Wielandtstraße"))
+                .body("sources[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("sources[1].name", is("Werderplatz"))
                 .body("sources[2].name", is("Roonstraße"))
                 .statusCode(200);
@@ -256,6 +258,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -266,15 +269,16 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(3))
-                .body("durations[0][0]", is(0.0f))
-                .body("durations[0][1]", is(212.67f))
-                .body("durations[0][2]", is(315.18f))
-                .body("durations[1][0]", is(211.17f))
-                .body("durations[1][1]", is(0.0f))
-                .body("durations[1][2]", is(102.53f))
-                .body("durations[2][0]", is(235.97f))
-                .body("durations[2][1]", is(90.42f))
-                .body("durations[2][2]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(0.0, 0.001)))
+                .body("durations[0][1]", is(closeTo(212.67, 2)))
+                .body("durations[0][2]", is(closeTo(315.18, 3)))
+                .body("durations[1][0]", is(closeTo(211.17, 2)))
+                .body("durations[1][1]", is(closeTo(0.0, 0.001)))
+                .body("durations[1][2]", is(closeTo(102.53, 1)))
+                .body("durations[2][0]", is(closeTo(235.97, 2)))
+                .body("durations[2][1]", is(closeTo(90.42, 0.9)))
+                .body("durations[2][2]", is(closeTo(0.0, 0.001)))
+
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
@@ -287,6 +291,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsDistance"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -297,15 +302,15 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'distances' }", is(true))
                 .body("distances.size()", is(3))
-                .body("distances[0][0]", is(0.0f))
-                .body("distances[0][1]", is(886.14f))
-                .body("distances[0][2]", is(1365.16f))
-                .body("distances[1][0]", is(1171.08f))
-                .body("distances[1][1]", is(0.0f))
-                .body("distances[1][2]", is(479.08f))
-                .body("distances[2][0]", is(1274.4f))
-                .body("distances[2][1]", is(376.77f))
-                .body("distances[2][2]", is(0.0f))
+                .body("distances[0][0]", is(closeTo(0.0, 0.001)))
+                .body("distances[0][1]", is(closeTo(886.14, 9)))
+                .body("distances[0][2]", is(closeTo(1365.16f, 13)))
+                .body("distances[1][0]", is(closeTo(1171.08, 11)))
+                .body("distances[1][1]", is(closeTo(0.0, 0.001)))
+                .body("distances[1][2]", is(closeTo(479.08, 5)))
+                .body("distances[2][0]", is(closeTo(1274.4, 13)))
+                .body("distances[2][1]", is(closeTo(376.77, 4)))
+                .body("distances[2][2]", is(closeTo(0.0, 0.001)))
                 .statusCode(200);
     }
 
@@ -317,6 +322,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsAll"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -327,27 +333,27 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(3))
-                .body("durations[0][0]", is(0.0f))
-                .body("durations[0][1]", is(212.67f))
-                .body("durations[0][2]", is(315.18f))
-                .body("durations[1][0]", is(211.17f))
-                .body("durations[1][1]", is(0.0f))
-                .body("durations[1][2]", is(102.53f))
-                .body("durations[2][0]", is(235.97f))
-                .body("durations[2][1]", is(90.42f))
-                .body("durations[2][2]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(0.0, 0.001)))
+                .body("durations[0][1]", is(closeTo(212.67, 2)))
+                .body("durations[0][2]", is(closeTo(315.18, 3)))
+                .body("durations[1][0]", is(closeTo(211.17, 2)))
+                .body("durations[1][1]", is(closeTo(0.0, 0.001)))
+                .body("durations[1][2]", is(closeTo(102.53, 1)))
+                .body("durations[2][0]", is(closeTo(235.97, 2)))
+                .body("durations[2][1]", is(closeTo(90.42, 0.9)))
+                .body("durations[2][2]", is(closeTo(0.0, 0.001)))
 
                 .body("any { it.key == 'distances' }", is(true))
                 .body("distances.size()", is(3))
-                .body("distances[0][0]", is(0.0f))
-                .body("distances[0][1]", is(886.14f))
-                .body("distances[0][2]", is(1365.16f))
-                .body("distances[1][0]", is(1171.08f))
-                .body("distances[1][1]", is(0.0f))
-                .body("distances[1][2]", is(479.08f))
-                .body("distances[2][0]", is(1274.4f))
-                .body("distances[2][1]", is(376.77f))
-                .body("distances[2][2]", is(0.0f))
+                .body("distances[0][0]", is(closeTo(0.0, 0.001)))
+                .body("distances[0][1]", is(closeTo(886.14, 9)))
+                .body("distances[0][2]", is(closeTo(1365.16, 13)))
+                .body("distances[1][0]", is(closeTo(1171.08, 11)))
+                .body("distances[1][1]", is(closeTo(0.0, 0.001)))
+                .body("distances[1][2]", is(closeTo(479.08, 5)))
+                .body("distances[2][0]", is(closeTo(1274.4, 12)))
+                .body("distances[2][1]", is(closeTo(376.77,4)))
+                .body("distances[2][2]", is(closeTo(0.0, 0.001)))
 
                 .statusCode(200);
     }
@@ -362,6 +368,7 @@ public class ResultTest extends ServiceTest {
 
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -374,27 +381,27 @@ public class ResultTest extends ServiceTest {
 
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(3))
-                .body("durations[0][0]", is(0.0f))
-                .body("durations[0][1]", is(212.67f))
-                .body("durations[0][2]", is(315.18f))
-                .body("durations[1][0]", is(211.17f))
-                .body("durations[1][1]", is(0.0f))
-                .body("durations[1][2]", is(102.53f))
-                .body("durations[2][0]", is(235.97f))
-                .body("durations[2][1]", is(90.42f))
-                .body("durations[2][2]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(0.0, 0.01)))
+                .body("durations[0][1]", is(closeTo(212.67, 2)))
+                .body("durations[0][2]", is(closeTo(315.18, 3)))
+                .body("durations[1][0]", is(closeTo(211.17, 2)))
+                .body("durations[1][1]", is(closeTo(0.0, 0.01)))
+                .body("durations[1][2]", is(closeTo(102.53, 1)))
+                .body("durations[2][0]", is(closeTo(235.97, 2)))
+                .body("durations[2][1]", is(closeTo(90.42, 1)))
+                .body("durations[2][2]", is(closeTo(0.0, 0)))
 
                 .body("any { it.key == 'distances' }", is(true))
                 .body("distances.size()", is(3))
-                .body("distances[0][0]", is(0.0f))
-                .body("distances[0][1]", is(0.89f))
-                .body("distances[0][2]", is(1.37f))
-                .body("distances[1][0]", is(1.17f))
-                .body("distances[1][1]", is(0.0f))
-                .body("distances[1][2]", is(0.48f))
-                .body("distances[2][0]", is(1.27f))
-                .body("distances[2][1]", is(0.38f))
-                .body("distances[2][2]", is(0.0f))
+                .body("distances[0][0]", is(closeTo(0.0, 0.01)))
+                .body("distances[0][1]", is(closeTo(0.89, 0.009)))
+                .body("distances[0][2]", is(closeTo(1.37, 0.01)))
+                .body("distances[1][0]", is(closeTo(1.17, 0.01)))
+                .body("distances[1][1]", is(closeTo(0.0, 0.01)))
+                .body("distances[1][2]", is(closeTo(0.48, 0.005)))
+                .body("distances[2][0]", is(closeTo(1.27, 0.01)))
+                .body("distances[2][1]", is(closeTo(0.38, 0.004)))
+                .body("distances[2][2]", is(closeTo(0.0, 0.01)))
 
                 .statusCode(200);
     }
@@ -663,7 +670,7 @@ public class ResultTest extends ServiceTest {
                 .body("destinations[0].location[0]", is(8.681495f))
                 .body("destinations[0].location[1]", is(49.41461f))
                 .body("destinations[0].containsKey('name')", is(true))
-                .body("destinations[0].name", is("Wielandtstraße"))
+                .body("destinations[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("destinations[0].containsKey('snapped_distance')", is(true))
                 .body("destinations[0].snapped_distance", is(0.02f))
 
@@ -752,7 +759,7 @@ public class ResultTest extends ServiceTest {
                 .body("sources[0].location[0]", is(8.681495f))
                 .body("sources[0].location[1]", is(49.41461f))
                 .body("sources[0].containsKey('name')", is(true))
-                .body("sources[0].name", is("Wielandtstraße"))
+                .body("sources[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("sources[0].containsKey('snapped_distance')", is(true))
                 .body("sources[0].snapped_distance", is(0.02f))
 
@@ -806,6 +813,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -817,12 +825,12 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(2))
                 .body("durations[0].size()", is(3))
-                .body("durations[0][0]", is(211.17f))
-                .body("durations[0][1]", is(0.0f))
-                .body("durations[0][2]", is(102.53f))
-                .body("durations[1][0]", is(235.97f))
-                .body("durations[1][1]", is(90.42f))
-                .body("durations[1][2]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(211.17, 2)))
+                .body("durations[0][1]", is(closeTo(0.0, 0.01)))
+                .body("durations[0][2]", is(closeTo(102.53, 1)))
+                .body("durations[1][0]", is(closeTo(235.97, 2)))
+                .body("durations[1][1]", is(closeTo(90.42, 1)))
+                .body("durations[1][2]", is(closeTo(0.0, 0)))
                 .statusCode(200);
     }
 
@@ -834,6 +842,7 @@ public class ResultTest extends ServiceTest {
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -845,12 +854,12 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(3))
                 .body("durations[0].size()", is(2))
-                .body("durations[0][0]", is(212.67f))
-                .body("durations[0][1]", is(315.18f))
-                .body("durations[1][0]", is(0.0f))
-                .body("durations[1][1]", is(102.53f))
-                .body("durations[2][0]", is(90.42f))
-                .body("durations[2][1]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(212.67, 2)))
+                .body("durations[0][1]", is(closeTo(315.18, 3)))
+                .body("durations[1][0]", is(closeTo(0.0, 0.01)))
+                .body("durations[1][1]", is(closeTo(102.53, 1)))
+                .body("durations[2][0]", is(closeTo(90.42, 1)))
+                .body("durations[2][1]", is(closeTo(0.0, 0.01)))
                 .statusCode(200);
     }
 
@@ -864,6 +873,7 @@ public class ResultTest extends ServiceTest {
         body.put("destinations", new JSONArray(new int[] {2,3,4}));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -876,11 +886,11 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'sources' }", is(true))
                 .body("destinations.size()", is(3))
                 .body("sources.size()", is(2))
-                .body("destinations[0].snapped_distance", is(4.18f))
-                .body("destinations[1].snapped_distance", is(2.42f))
-                .body("destinations[2].snapped_distance", is(7.11f))
-                .body("sources[0].snapped_distance", is(8.98f))
-                .body("sources[1].snapped_distance", is(7.87f))
+                .body("destinations[0].snapped_distance", is(closeTo(4.18, 0.05)))
+                .body("destinations[1].snapped_distance", is(closeTo(2.42, 0.03)))
+                .body("destinations[2].snapped_distance", is(closeTo(7.11, 0.07)))
+                .body("sources[0].snapped_distance", is(closeTo(8.98, 0.09)))
+                .body("sources[1].snapped_distance", is(closeTo(7.87, 0.08)))
                 .statusCode(200);
     }
 
@@ -924,7 +934,7 @@ public class ResultTest extends ServiceTest {
 
 
         given()
-                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))

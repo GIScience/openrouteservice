@@ -891,6 +891,7 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
@@ -900,7 +901,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 107.83f, 8.719662f, 49.424603f, 404.73f))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405,0.5), closeTo(107.83,1), closeTo(8.719662,0.1), closeTo(49.424603,0.5), closeTo(404.73,4)))
                 .statusCode(200);
     }
 
@@ -914,6 +915,7 @@ public class ResultTest extends ServiceTest {
         body.put("maneuvers", true);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
@@ -923,13 +925,13 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 107.83f, 8.719662f, 49.424603f, 404.73f))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405f,0.5), closeTo(107.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f,0.5), closeTo(404.73f, 4)))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
                 .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(175))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(80))
-                .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.678618f, 49.411697f))
+                .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(closeTo(8.678618,0.1), closeTo(49.411697,0.5)))
                 .statusCode(200);
     }
 
