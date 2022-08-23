@@ -789,6 +789,7 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
@@ -800,10 +801,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
-                .body("routes[0].summary.distance", is(13079.0f))
-                .body("routes[0].summary.duration", is(2737.0f))
-                .body("routes[0].summary.ascent", is(351.0f))
-                .body("routes[0].summary.descent", is(347.6f))
+                .body("routes[0].summary.distance", is(closeTo(13079.0, 130)))
+                .body("routes[0].summary.duration", is(closeTo(2737.0, 27)))
+                .body("routes[0].summary.ascent", is(closeTo(351.0, 35)))
+                .body("routes[0].summary.descent", is(closeTo(347.6, 34)))
                 .statusCode(200);
     }
 
@@ -1589,6 +1590,7 @@ public class ResultTest extends ServiceTest {
 
         // Test that buses are not allowed on Neue Schlossstraße (https://www.openstreetmap.org/way/150549948)
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1598,12 +1600,13 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(605.3f))
+                .body("routes[0].summary.distance", is(closeTo(605.3, 6)))
                 .statusCode(200);
 
         options.put("vehicle_type", "bus");
         body.put("options", options);
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "driving-hgv")
@@ -1613,7 +1616,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(1039.9f))
+                .body("routes[0].summary.distance", is(closeTo(1039.9, 10)))
                 .statusCode(200);
     }
 
@@ -1645,8 +1648,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(809.3, 1)))
-                .body("routes[0].summary.duration", is(closeTo(239.1, 1)))
+                .body("routes[0].summary.distance", is(closeTo(809.3, 8)))
+                .body("routes[0].summary.duration", is(closeTo(239.1, 2)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1669,8 +1672,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(379.5, 1)))
-                .body("routes[0].summary.duration", is(closeTo(270.0, 1)))
+                .body("routes[0].summary.distance", is(closeTo(379.5, 3)))
+                .body("routes[0].summary.duration", is(closeTo(270.0, 2)))
                 .statusCode(200);
     }
 

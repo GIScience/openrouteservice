@@ -355,6 +355,7 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "mi");
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("cyclingProfile"))
