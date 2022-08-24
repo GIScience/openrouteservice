@@ -40,6 +40,7 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -692,6 +693,8 @@ public class RoutingProfile {
             else {
                 return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
             }
+        } catch (PointNotFoundException e) {
+            throw e;
         } catch (Exception ex) {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
         }

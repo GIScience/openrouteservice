@@ -722,7 +722,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", is(MatrixErrorCodes.POINT_NOT_FOUND))
                 .statusCode(404);
