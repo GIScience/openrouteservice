@@ -17,9 +17,9 @@ services:
       - ./elevation_cache:/ors-core/data/elevation_cache
       - ./logs/ors:/var/log/ors
       - ./logs/tomcat:/usr/local/tomcat/logs
-      - ./precompiled:/ors-core/data/precompiled
+      - ./pre-built:/ors-core/data/pre-built
       - ./conf:/ors-conf
-      #- ./your_osm.pbf:/ors-core/data/osm_file.pbf
+      #- ./your_osm.pbf:/ors-core/data/osm_file.pbf - I would remove this.
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
       - LOAD_GRAPHS=True
