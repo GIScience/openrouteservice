@@ -6,6 +6,7 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 ARG ORS_CONFIG=./openrouteservice/src/main/resources/ors-config-sample.json
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
 ENV BUILD_GRAPHS="False"
+ENV LOAD_GRAPHS="False"
 ARG UID=1000
 ARG TOMCAT_VERSION=8.5.69
 
@@ -53,7 +54,7 @@ RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors
 RUN chmod -R go+rwX /ors-core /ors-conf /usr/local/tomcat /var/log/ors
 
 # Define volumes
-VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors"]
+VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors", "/ors-core/data/precompiled"]
 
 # Start the container
 EXPOSE 8080
