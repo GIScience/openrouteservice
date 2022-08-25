@@ -54,7 +54,7 @@ RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors
 RUN chmod -R go+rwX /ors-core /ors-conf /usr/local/tomcat /var/log/ors
 
 # Define volumes
-VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors", "/ors-core/data/precompiled"]
+VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors", "/ors-core/data/pre-built"]
 
 # Start the container
 EXPOSE 8080
