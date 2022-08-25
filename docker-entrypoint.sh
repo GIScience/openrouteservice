@@ -19,7 +19,7 @@ fi
 echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" > /usr/local/tomcat/bin/setenv.sh
 echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 
-# Handle graph building or loading
+##### Building and loading of graphs ----------------------------------------------------------------
 if [ "${BUILD_GRAPHS}" = "True" ] && [ "${LOAD_GRAPHS}" = "True" ] ; then
 	echo "Variables BUILD_GRAPHS and LOAD_GRAPHS in docker-compose.yml cannot both be set to 'True'."
 	exit 1
@@ -70,22 +70,53 @@ if [ "${do_extract_graphs}" = "True" ] ; then
   md5sum ${precompiled_graphs_tar} > ${precompiled_graphs_md5}
 fi
 
+##### Load ors.war ----------------------------------------------------------------
+
+echo "### Delete ors folder to redeploy ###"
+if [ "${LOAD_ORS_WAR}" = "True" ] ; then
+  # Check if ors.war file exists, if not exit.
+  if [ -f "${precompiled_graphs_tar}" ]; then
+    echo "Found "${precompiled_ors_war}""
+  else
+    echo ""${precompiled_ors_war}" not found. Please add it to the directory /precompiled."
+    exit 1
+  fi
+  echo "Extracting ors.war file"
+  # Delete old files
+  rm -rf /usr/local/tomcat/webapps/ors/*
+  rm -f /usr/local/tomcat/webapps/ors.war
+  # Copy ors.war
+  cp ${precompiled_ors_war} /usr/local/tomcat/webapps
+  # Extract ors.war file
+  mkdir /usr/local/tomcat/webapps/ors
+  unzip -q ${precompiled_ors_war} -d /usr/local/tomcat/webapps/ors
+  # Replace paths in ors-config.json to match docker setup
+  jq '.ors.services.routing.sources[0] = "data/osm_file.pbf"' ${tomcat_ors_config} |sponge ${tomcat_ors_config} && \
+  jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "data/elevation_cache"' ${tomcat_ors_config} |sponge ${tomcat_ors_config} && \
+  jq '.ors.services.routing.profiles.default_params.graphs_root_path = "data/graphs"' ${tomcat_ors_config} |sponge ${tomcat_ors_config} && \
+  # init_threads = 1, > 1 been reported some issues
+  jq '.ors.services.routing.init_threads = 1' ${tomcat_ors_config} |sponge ${tomcat_ors_config} && \
+  # Delete all profiles but car
+  #jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' ors-config.json |sponge ors-config.json
+  cp ${tomcat_ors_config} /ors-conf/ors-config-adjusted.json
+fi
+
 echo "### openrouteservice configuration ###"
 # if Tomcat built before, copy the mounted ors-config.json to the Tomcat webapp ors-config.json, else copy it from the source
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
   echo "Tomcat already built: Copying /ors-conf/ors-config.json to tomcat webapp folder"
-	cp -f /ors-conf/ors-config.json $tomcat_ors_config
+  cp -f /ors-conf/ors-config.json $tomcat_ors_config
 else
-	if [ ! -f /ors-conf/ors-config.json ]; then
-	  echo "No ors-config.json in ors-conf folder. Copy config from ${source_ors_config}"
-		cp -f $source_ors_config /ors-conf/ors-config.json
-	else
-	  echo "ors-config.json exists in ors-conf folder. Copy config to ${source_ors_config}"
-		cp -f /ors-conf/ors-config.json $source_ors_config
-	fi
-	echo "### Package openrouteservice and deploy to Tomcat ###"
-	mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
-	cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+  if [ ! -f /ors-conf/ors-config.json ]; then
+    echo "No ors-config.json in ors-conf folder. Copy config from ${source_ors_config}"
+    cp -f $source_ors_config /ors-conf/ors-config.json
+  else
+    echo "ors-config.json exists in ors-conf folder. Copy config to ${source_ors_config}"
+    cp -f /ors-conf/ors-config.json $source_ors_config
+  fi
+  echo "### Package openrouteservice and deploy to Tomcat ###"
+  mvn -q -f /ors-core/openrouteservice/pom.xml package -DskipTests && \
+  cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
 fi
 
 /usr/local/tomcat/bin/catalina.sh run
