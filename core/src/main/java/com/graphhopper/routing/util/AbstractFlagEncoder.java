@@ -673,8 +673,12 @@ public abstract class AbstractFlagEncoder implements FlagEncoder {
     }
 
     public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way) {
-        return getConditionalAccess(way, EncodingManager.Access.WAY, false);
+        return isPermittedWayConditionallyRestricted(way, EncodingManager.Access.WAY);
     }
+    
+    public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way, EncodingManager.Access accept) {
+         return getConditionalAccess(way, accept, false);
+     }
 
     private EncodingManager.Access getConditionalAccess(ReaderWay way, EncodingManager.Access accept, boolean permissive) {
         ConditionalTagInspector conditionalTagInspector = getConditionalTagInspector();
