@@ -9,7 +9,7 @@ import java.util.Map;
 public class ExportResult {
     private Map<Integer, Coordinate> locations;
     private Map<Pair<Integer, Integer>, Double> edgeWeigths;
-    private Map<Integer, Map<String, Object>> edgeExtras;
+    private Map<Pair<Integer, Integer>, Map<String, Object>> edgeExtras;
     private ExportWarning warning;
 
 
@@ -47,11 +47,11 @@ public class ExportResult {
 
         public boolean hasWarning() {return this.warning != null; }
 
-        public Map<Integer, Map<String, Object>> getEdgeExtras() {
+        public Map<Pair<Integer, Integer>, Map<String, Object>> getEdgeExtras() {
                 return edgeExtras;
         }
 
-        public void addEdgeExtra(Integer edge, Map<String, Object> extra) {
+        public void addEdgeExtra(Pair<Integer, Integer> edge, Map<String, Object> extra) {
             if (edgeExtras == null) {
                 edgeExtras = new HashMap<>();
             }

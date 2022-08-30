@@ -61,7 +61,7 @@ public class ORSOSMReader extends OSMReader {
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
 
-		setCalcDistance3D(false);
+		enforce2D();
 		this.procCntx = procCntx;
 		this.procCntx.initArrays();
 		this.readerCntx = new OSMDataReaderContext(this);
@@ -400,7 +400,7 @@ public class ORSOSMReader extends OSMReader {
 					latSum = latSum + nextLat;
 					lonSum = lonSum + nextLon;
 					sumCount++;
-					totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+					totalDist = totalDist + getDistanceCalc().calcDist(currLat, currLon, nextLat, nextLon);
 
 					currLat = nextLat;
 					currLon = nextLon;

@@ -57,6 +57,7 @@ import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -892,16 +893,23 @@ public class RoutingProfile {
                     Pair<Integer, Integer> p = new Pair<>(from, to);
                     res.addEdge(p, weight);
 
-                    WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
-                    if (storage != null) {
-                        WheelchairAttributes attributes = new WheelchairAttributes();
-                        byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-                        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+                    if (req.debug()) {
                         Map<String, Object> extra = new HashMap<>();
-                        extra.put("incline", attributes.getIncline());
-                        extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
-                        extra.put("suitable", attributes.isSuitable());
-                        res.addEdgeExtra(iter.getEdge(), extra);
+                        extra.put("edge_id", iter.getEdge());
+                        WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
+                        if (storage != null) {
+                            WheelchairAttributes attributes = new WheelchairAttributes();
+                            byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
+                            storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+                            extra.put("incline", attributes.getIncline());
+                            extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
+                            extra.put("suitable", attributes.isSuitable());
+                        }
+                        OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
+                        if (storage2 != null) {
+                            extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
+                        }
+                        res.addEdgeExtra(p, extra);
                     }
                 }
             }

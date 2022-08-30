@@ -27,6 +27,8 @@ public class ExportRequest extends APIRequest {
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
 
+    public static final String PARAM_DEBUG = "debug";
+
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "centrality_request")
     @JsonProperty(PARAM_ID)
@@ -47,6 +49,10 @@ public class ExportRequest extends APIRequest {
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
 
+    @ApiModelProperty(name = PARAM_DEBUG, hidden = true)
+    @JsonProperty(PARAM_DEBUG)
+    private boolean debug;
+
     @JsonCreator
     public ExportRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
         this.bbox = bbox;
@@ -63,6 +69,10 @@ public class ExportRequest extends APIRequest {
     public void setId(String id) {
         this.id = id;
         this.hasId = true;
+    }
+
+    public boolean debug() {
+        return debug;
     }
 
     public List<List<Double>> getBbox () {
@@ -113,6 +123,7 @@ public class ExportRequest extends APIRequest {
         }
 
         exportRequest.setBoundingBox(convertBBox(this.getBbox()));
+        exportRequest.setDebug(debug);
 
         return exportRequest;
     }

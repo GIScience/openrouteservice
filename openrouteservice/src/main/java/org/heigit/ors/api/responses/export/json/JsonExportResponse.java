@@ -53,7 +53,7 @@ public class JsonExportResponse extends ExportResponse {
 
         if (exportResult.hasEdgeExtras()) {
             edgesExtra = new ArrayList<>();
-            for (Map.Entry<Integer, Map<String, Object>> edge : exportResult.getEdgeExtras().entrySet()) {
+            for (Map.Entry<Pair<Integer, Integer>, Map<String, Object>> edge : exportResult.getEdgeExtras().entrySet()) {
                 edgesExtra.add(new JsonEdgeExtra(edge));
             }
         }
