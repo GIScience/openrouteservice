@@ -23,15 +23,17 @@ echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 
 ##### Load pre-built graphs ----------------------------------------------------------------
 
-if [ "${BUILD_GRAPHS}" = "True" ] && [ "${LOAD_GRAPHS}" = "True" ] ; then
-	echo "Variables BUILD_GRAPHS and LOAD_GRAPHS in docker-compose.yml cannot both be set to 'True'."
+if [ "${BUILD_GRAPHS}" = "True" ] && [ "${USE_PREBUILT}" = "True" ] ; then
+	echo "Variables BUILD_GRAPHS and USE_PREBUILT in docker-compose.yml cannot both be set to 'True'."
 	exit 1
 fi
 
 if [ "${BUILD_GRAPHS}" = "True" ] ; then
   echo "### New graphs will be built. Old ones are deleted. ###"
   rm -rf ${graphs}/*
-elif [ "${LOAD_GRAPHS}" = "True" ]; then
+  rm -rf /usr/local/tomcat/webapps/ors/*
+  rm -f /usr/local/tomcat/webapps/ors.war
+elif [ "${USE_PREBUILT}" = "True" ]; then
   echo "### Loading pre-built graphs ###"
   # Check if compressed graphs (graphs.tar.xz) exists, if not exit.
 	if [ -f "${graphs_tar}" ]; then
@@ -78,7 +80,7 @@ fi
 
 echo "### Loading pre-built ors.war file ###"
 
-if [ "${LOAD_ORS_WAR}" = "True" ] ; then
+if [ "${USE_PREBUILT}" = "True" ] ; then
   # Check if ors.war file exists, if not exit.
   if [ -f "${graphs_tar}" ]; then
     echo "Found "${ors_war}""

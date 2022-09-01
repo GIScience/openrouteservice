@@ -6,7 +6,7 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 ARG ORS_CONFIG=./openrouteservice/src/main/resources/ors-config-sample.json
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
 ENV BUILD_GRAPHS="False"
-ENV LOAD_GRAPHS="False"
+ENV USE_PREBUILT="False"
 ARG UID=1000
 ARG TOMCAT_VERSION=8.5.69
 
