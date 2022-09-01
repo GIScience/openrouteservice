@@ -58,6 +58,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private OsmIdGraphStorage extOsmId;
 	private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
 	private BordersGraphStorage extCountryTraversalInfo;
+	private ShadowIndexGraphStorage extShadowIndex;
 
 	private RouteExtraInfo surfaceInfo;
 	private RouteExtraInfoBuilder surfaceInfoBuilder;
@@ -98,6 +99,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 	private RouteExtraInfo countryTraversalInfo;
 	private RouteExtraInfoBuilder countryTraversalInfoBuilder;
+
+	private RouteExtraInfo shadowInfo;
+	private RouteExtraInfoBuilder shadowInfoBuilder;
 
 	private List<Integer> warningExtensions;
 
@@ -219,6 +223,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 					noiseInfoBuilder = new AppendableRouteExtraInfoBuilder(noiseInfo);
 				} else {
 					skippedExtras.add("noise");
+				}
+			}
+
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SHADOW)) {
+				extShadowIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, ShadowIndexGraphStorage.class);
+				if (extShadowIndex != null) {
+					shadowInfo = new RouteExtraInfo("shadow");
+					shadowInfoBuilder = new AppendableRouteExtraInfoBuilder(shadowInfo);
+				} else {
+					skippedExtras.add("shadow");
 				}
 			}
 
@@ -346,6 +360,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 			countryTraversalInfoBuilder.finish();
 			extras.add(countryTraversalInfo);
 		}
+		if (shadowInfo != null) {
+			shadowInfoBuilder.finish();
+			extras.add(shadowInfo);
+		}
 		return extras;
 	}
 
@@ -376,6 +394,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 			((AppendableRouteExtraInfoBuilder) roadAccessRestrictionsInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.roadAccessRestrictionsInfoBuilder);
 		if (countryTraversalInfoBuilder != null)
 			((AppendableRouteExtraInfoBuilder) countryTraversalInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.countryTraversalInfoBuilder);
+		if (shadowInfo != null)
+			((AppendableRouteExtraInfoBuilder) shadowInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.shadowInfoBuilder);
 	}
 
 	@Override
@@ -488,6 +508,11 @@ public class ExtraInfoProcessor implements PathProcessor {
 		if (roadAccessRestrictionsInfoBuilder != null) {
 			int value = extRoadAccessRestrictions.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			roadAccessRestrictionsInfoBuilder.addSegment(value, value, geom, dist);
+		}
+
+		if (shadowInfoBuilder != null) {
+			int shadowLevel = extShadowIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			shadowInfoBuilder.addSegment(shadowLevel, shadowLevel, geom, dist);
 		}
 	}
 

@@ -156,6 +156,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 					case "acceleration":
 						softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
 						break;
+					case "shadow":
+						softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
 					default:
 						break;
 				}

@@ -2805,6 +2805,50 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testPreferShadow() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2097.2f))
+                .body("routes[0].summary.duration", is(1510.0f))
+                .statusCode(200);
+
+        JSONObject weightings = new JSONObject();
+        weightings.put("shadow", 1.0);
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(2308.3f))
+                .body("routes[0].summary.duration", is(1662.0f))
+                .statusCode(200);
+    }
+
+    @Test
     public void testPreferQuiet() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
