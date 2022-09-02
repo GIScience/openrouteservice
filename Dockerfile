@@ -19,7 +19,7 @@ RUN mkdir -p /usr/local/tomcat /ors-conf /var/log/ors && \
 
 # Install dependencies and locales
 RUN apt-get update -qq && \
-    apt-get install -qq -y locales nano maven moreutils jq && \
+    apt-get install -qq -y locales nano maven moreutils jq md5deep && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
 

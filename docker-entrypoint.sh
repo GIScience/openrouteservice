@@ -4,7 +4,7 @@ graphs=/ors-core/data/graphs
 tomcat_ors_config=/usr/local/tomcat/webapps/ors/WEB-INF/classes/ors-config.json
 source_ors_config=/ors-core/openrouteservice/src/main/resources/ors-config.json
 graphs_tar=/ors-core/data/pre-built/graph.tar.xz
-graphs_md5=/ors-core/data/pre-built/graph.md5
+graphs_md5=/ors-core/data/pre-built/graphs.md5
 ors_war=/ors-core/data/pre-built/ors.war
 do_extract_graphs=False
 
@@ -36,7 +36,7 @@ if [ "${BUILD_GRAPHS}" = "True" ] ; then
   rm -f /usr/local/tomcat/webapps/ors.war
 elif [ "${USE_PREBUILT}" = "True" ]; then
   echo "### Loading pre-built graphs ###"
-  # Check if compressed graphs (graphs.tar.xz) exists, if not exit.
+  # Check if graphs.tar.xz exists, if not exit.
 	if [ -f "${graphs_tar}" ]; then
 	  echo "Found pre-built graphs: "${graphs_tar}""
   else
@@ -52,7 +52,8 @@ elif [ "${USE_PREBUILT}" = "True" ]; then
     # Check if md5sum file exists
     if [ -f "${graphs_md5}" ]; then
       echo "Found MD5 sum of graphs: "${graphs_md5}". Checking whether graphs are up-to-date..."
-      if md5sum -c ${graphs_md5}; then
+      # check = md5deep -X directory_hash.md5 -r /path/to/your/second/direcotory
+      if md5deep -X ${graphs_md5} -r ${graphs} ; then
         echo "Current graphs are up-to-date. Nothing to do."
         do_extract_graphs=False
       else
@@ -60,7 +61,7 @@ elif [ "${USE_PREBUILT}" = "True" ]; then
         do_extract_graphs=True
       fi
     else
-        echo "No valid md5 sum of "${graphs_md5}" found. "${graphs_md5}" will be extracted."
+        echo "No valid md5 sum of graphs folder found. "${graphs_tar}" will be extracted."
         do_extract_graphs=True
     fi
   fi
@@ -73,7 +74,7 @@ elif [ "${USE_PREBUILT}" = "True" ]; then
     tar -xf ${graphs_tar} -C ${graphs}
     mv -f /ors-core/data/graphs/graphs/* ${graphs}
     rm -rf /ors-core/data/graphs/graphs
-    md5sum ${graphs_tar} > ${graphs_md5}
+    md5deep -rel "${graphs}/" > "${graphs_md5}"
   fi
 fi
 
@@ -124,7 +125,6 @@ if [ "${USE_PREBUILT}" = "True" ] ; then
   # Delete all profiles but car
   jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' ./ors-config.json |sponge ./ors-config.json
   cp -f ./ors-config.json /ors-conf/ors-config.json
-  cp -f ./ors-config.json /ors-conf/ors-config-test.json
   cp -f ./ors-config.json ${tomcat_ors_config}
 fi
 
