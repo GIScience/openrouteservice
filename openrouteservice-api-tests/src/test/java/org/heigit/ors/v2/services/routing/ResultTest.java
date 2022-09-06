@@ -1028,7 +1028,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}");
 
-        response.then()
+        response.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
@@ -1037,7 +1037,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].extras.traildifficulty.values[0][1]", is(2))
                 .body("routes[0].extras.traildifficulty.values[0][2]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][0]", is(2))
-                .body("routes[0].extras.traildifficulty.values[1][1]", is(6))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(4))
                 .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
                 .statusCode(200);
 
@@ -1057,19 +1057,19 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}");
 
-        response.then()
+        response.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.traildifficulty.values.size()", is(3))
                 .body("routes[0].extras.traildifficulty.values[0][0]", is(0))
-                .body("routes[0].extras.traildifficulty.values[0][1]", is(12))
+                .body("routes[0].extras.traildifficulty.values[0][1]", is(9))
                 .body("routes[0].extras.traildifficulty.values[0][2]", is(0))
-                .body("routes[0].extras.traildifficulty.values[1][0]", is(12))
-                .body("routes[0].extras.traildifficulty.values[1][1]", is(27))
+                .body("routes[0].extras.traildifficulty.values[1][0]", is(9))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(25))
                 .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
-                .body("routes[0].extras.traildifficulty.values[2][0]", is(27))
-                .body("routes[0].extras.traildifficulty.values[2][1]", is(30))
+                .body("routes[0].extras.traildifficulty.values[2][0]", is(25))
+                .body("routes[0].extras.traildifficulty.values[2][1]", is(27))
                 .body("routes[0].extras.traildifficulty.values[2][2]", is(0))
                 .statusCode(200);
 
