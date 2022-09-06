@@ -68,7 +68,7 @@ public class ORSRouter extends Router {
     protected Router.Solver createSolver(GHRequest request, EdgeFilterFactory edgeFilterFactory) {
         boolean disableCore = getDisableCore(request.getHints());
         if (!disableCore) {
-            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks);
+            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks).setEdgeFilterFactory(edgeFilterFactory);
         } else {
             return super.createSolver(request, edgeFilterFactory);
         }
