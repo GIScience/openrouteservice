@@ -901,9 +901,11 @@ public class RoutingProfile {
                             WheelchairAttributes attributes = new WheelchairAttributes();
                             byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
                             storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-                            extra.put("incline", attributes.getIncline());
-                            extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
-                            extra.put("suitable", attributes.isSuitable());
+                            if (attributes.hasValues()) {
+                                extra.put("incline", attributes.getIncline());
+                                extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
+                                extra.put("suitable", attributes.isSuitable());
+                            }
                         }
                         OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
                         if (storage2 != null) {

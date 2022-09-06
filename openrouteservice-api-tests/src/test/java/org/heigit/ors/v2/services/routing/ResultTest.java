@@ -2232,7 +2232,7 @@ public class ResultTest extends ServiceTest {
     @Test
     public void testWheelchairDebugExport() {
         JSONObject body = new JSONObject();
-        body.put("bbox", constructCoords("8.689499,49.378692|8.692417,49.380925"));
+        body.put("bbox", constructCoords("8.662440776824953, 49.41372343556617|8.677289485931398, 49.42018658125273"));
         body.put("debug", true);
         given()
                 .header("Accept", "application/json")
@@ -2244,78 +2244,16 @@ public class ResultTest extends ServiceTest {
                 .then().log().all()
                 .assertThat()
                 .statusCode(200);
-//        27795433
-//        {
-//            "edgeId": "20532->6808",
-//                "extra": {
-//            "osm_id": 27795433,
-//                    "edge_id": 8185,
-//                    "surface_quality_known": true,
-//                    "suitable": true,
-//                    "incline": -1
-//        }
-//        },
-//        {
-//            "edgeId": "6808->20532",
-//                "extra": {
-//            "osm_id": 27795433,
-//                    "edge_id": 8185,
-//                    "surface_quality_known": true,
-//                    "suitable": true,
-//                    "incline": -1
-//        }
-//        },
-//        258716581
-//        {
-//            "edgeId": "6806->6807",
-//                "extra": {
-//            "osm_id": 258716581,
-//                    "edge_id": 31222,
-//                    "surface_quality_known": false,
-//                    "suitable": false,
-//                    "incline": -1
-//        }
-//        },
-//        {
-//            "edgeId": "6807->6806",
-//                "extra": {
-//            "osm_id": 258716581,
-//                    "edge_id": 31222,
-//                    "surface_quality_known": false,
-//                    "suitable": false,
-//                    "incline": -1
-//        }
-//        },
-//        4426817
-//        {
-//            "edgeId": "391->6806",
-//                "extra": {
-//            "osm_id": 4426817,
-//                    "edge_id": 181,
-//                    "surface_quality_known": false,
-//                    "suitable": true,
-//                    "incline": -1
-//        }
-//        },
-//        {
-//            "edgeId": "6806->391",
-//                "extra": {
-//            "osm_id": 4426817,
-//                    "edge_id": 181,
-//                    "surface_quality_known": false,
-//                    "suitable": true,
-//                    "incline": -1
-//              }
-//        },
-    }
+
+}
 
     @Test
     public void testWheelchairSurfaceQualityKnown() {
+
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.691499,49.379192|8.689917,49.380425"));
-        body.put("preference", "shortest");
+        body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
+        body.put("preference", "recommended");
         body.put("instructions", true);
-        body.put("extra_info", constructExtras("osmid"));
 
 //        given()
 //                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
@@ -2328,8 +2266,8 @@ public class ResultTest extends ServiceTest {
 //                .then().log().ifValidationFails()
 //                .assertThat()
 //                .body("any { it.key == 'routes' }", is(true))
-//                .body("routes[0].summary.distance", is(closeTo(185.7, 1)))
-//                .body("routes[0].summary.duration", is(closeTo(147.2, 1)))
+//                .body("routes[0].summary.distance", is(closeTo(749.1f, 1)))
+//                .body("routes[0].summary.duration", is(closeTo(559.9f, 1)))
 //                .statusCode(200);
 
         JSONObject params = new JSONObject();
@@ -2337,7 +2275,6 @@ public class ResultTest extends ServiceTest {
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
         body.put("options", options);
-        params.put("allow_unsuitable", false);
 
         given()
                 .header("Accept", "application/json")
@@ -2352,6 +2289,49 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(2215.7f))
                 .body("routes[0].summary.duration", is(1656.7f))
                 .statusCode(200);
+
+//        JSONObject body = new JSONObject();
+//        body.put("coordinates", constructCoords("8.668175339698793, 49.415594066329106|8.669645190238954, 49.413261001859425"));
+//        body.put("instructions", true);
+//        body.put("preference", "shortest");
+//        body.put("extra_info", constructExtras("osmid"));
+//
+//        JSONObject params = new JSONObject();
+//        params.put("allow_unsuitable", true);
+//        JSONObject options = new JSONObject();
+//        options.put("profile_params", params);
+//        body.put("options", options);
+//
+//        given()
+//                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+//                .header("Accept", "application/json")
+//                .header("Content-Type", "application/json")
+//                .pathParam("profile", "wheelchair")
+//                .body(body.toString())
+//                .when()
+//                .post(getEndPointPath() + "/{profile}")
+//                .then().log().ifValidationFails()
+//                .assertThat()
+//                .body("any { it.key == 'routes' }", is(true))
+//                .body("routes[0].summary.distance", is(closeTo(319.1, 1)))
+//                .body("routes[0].summary.duration", is(closeTo(261.8, 1)))
+//                .statusCode(200);
+//
+//        params.put("surface_quality_known", true);
+//
+//        given()
+//                .header("Accept", "application/json")
+//                .header("Content-Type", "application/json")
+//                .pathParam("profile", "wheelchair")
+//                .body(body.toString())
+//                .when()
+//                .post(getEndPointPath() + "/{profile}")
+//                .then().log().ifValidationFails()
+//                .assertThat()
+//                .body("any { it.key == 'routes' }", is(true))
+//                .body("routes[0].summary.distance", is(2215.7f))
+//                .body("routes[0].summary.duration", is(1656.7f))
+//                .statusCode(200);
     }
 
     @Test

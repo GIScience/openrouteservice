@@ -19,6 +19,7 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
+import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -64,12 +65,12 @@ public class ORSRouter extends Router {
     }
 
     @Override
-    protected Router.Solver createSolver(GHRequest request) {
+    protected Router.Solver createSolver(GHRequest request, EdgeFilterFactory edgeFilterFactory) {
         boolean disableCore = getDisableCore(request.getHints());
         if (!disableCore) {
             return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks);
         } else {
-            return super.createSolver(request);
+            return super.createSolver(request, edgeFilterFactory);
         }
     }
 
@@ -87,9 +88,10 @@ public class ORSRouter extends Router {
             this.landmarks = landmarks;
         }
 
+        @Override
         protected void checkRequest() {
             super.checkRequest();
-            //check request params compatibility with core algo
+            // TODO: check request params compatibility with core algo
         }
 
         protected Weighting createWeighting() {

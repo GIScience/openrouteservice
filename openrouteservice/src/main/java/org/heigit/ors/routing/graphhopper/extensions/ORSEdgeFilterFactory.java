@@ -30,12 +30,18 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
 
     public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {
+        return createEdgeFilter(opts, flagEncoder, gs, null);
+    }
+
+    public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs, EdgeFilter prependFilter) {
         /* Initialize empty edge filter sequence */
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
 
+        if (prependFilter != null)
+            edgeFilters.add(prependFilter);
+
         /* Default edge filter which accepts both directions of the specified vehicle */
         edgeFilters.add(AccessFilter.allEdges(flagEncoder.getAccessEnc()));
-
         try {
             if (opts == null) {
                 opts = new PMap();
@@ -43,7 +49,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
             /* Avoid areas */
             if (opts.has("avoid_areas")) {
-                edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) opts.getObject("avoid_areas", new Polygon[]{})));
+                edgeFilters.add(new AvoidAreasEdgeFilter(opts.getObject("avoid_areas", new Polygon[]{})));
             }
     
             /* Heavy vehicle filter */
