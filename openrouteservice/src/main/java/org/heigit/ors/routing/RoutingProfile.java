@@ -1086,7 +1086,7 @@ public class RoutingProfile {
             //Overwrite algorithm selected in setSpeedups
             req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
 
-            mGraphHopper.setSimplifyResponse(geometrySimplify);
+            mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
             resp = mGraphHopper.route(req);
 
             endUseGH();
@@ -1189,7 +1189,7 @@ public class RoutingProfile {
             if (directedSegment) {
                 resp = mGraphHopper.constructFreeHandRoute(req);
             } else {
-                mGraphHopper.setSimplifyResponse(geometrySimplify);
+                mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
                 resp = mGraphHopper.route(req);
             }
             if (DebugUtility.isDebug() && !directedSegment) {
