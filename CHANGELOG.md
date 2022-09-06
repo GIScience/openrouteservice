@@ -38,6 +38,8 @@ RELEASING:
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
 - Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
+- Esperanto language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
+- Romanian language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
 ### Fixed
 - allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
