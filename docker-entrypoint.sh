@@ -133,8 +133,9 @@ echo "### Openrouteservice configuration ###"
 
 # if Tomcat built before, copy the mounted ors-config.json to the Tomcat webapp ors-config.json, else copy it from the source
 if [ -d "/usr/local/tomcat/webapps/ors" ]; then
-  echo "Tomcat already built: Copying /ors-conf/ors-config.json to tomcat webapp folder"
-  if [ -f /ors-conf/ors-config.json ]; then
+  echo "Tomcat already built:"
+  if [ -f /ors-conf/ors-config.json ] && [ "${USE_PREBUILT}" = "False" ]; then
+    echo "Copying /ors-conf/ors-config.json to tomcat webapp folder"
     cp -f /ors-conf/ors-config.json ${tomcat_ors_config}
   fi
 else
