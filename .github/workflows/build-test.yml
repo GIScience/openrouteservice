@@ -32,7 +32,6 @@ jobs:
         shell: bash
       - name: Compress graphs, compile ors.war and copy to pre-built folder
         run: |
-          sudo chown -R 0:0 ${GITHUB_WORKSPACE}/docker/graphs
           sudo chmod -R ugo+rwx ${GITHUB_WORKSPACE}/docker/graphs
           tar -cJf ${GITHUB_WORKSPACE}/docker/pre-built/graph.tar.xz ${GITHUB_WORKSPACE}/docker/graphs
           docker exec ors-test-container bash -c  "cd ./openrouteservice && mvn compile war:war"

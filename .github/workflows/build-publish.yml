@@ -8,9 +8,60 @@ on:
   workflow_dispatch:
 
 jobs:
+  build_and_test_docker:
+    name: Build and test Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+      - name: Build image with USE_PREBUILT="False"
+        run: docker buildx build --output "type=image,push=false" --platform linux/amd64 --tag ors-test --build-arg VAR_USE_PREBUILT="False" .
+      - name: Prepare folders
+        run: |
+          mkdir ${GITHUB_WORKSPACE}/docker/graphs
+          mkdir ${GITHUB_WORKSPACE}/docker/pre-built
+          chmod ugo+rwx ${GITHUB_WORKSPACE}/docker/graphs
+          chmod ugo+rwx ${GITHUB_WORKSPACE}/docker/pre-built
+          chmod ugo+rwx ${GITHUB_WORKSPACE}/docker/data/elevation_cache
+      - name: Run container
+        run : docker run -d -p 127.0.0.1:8080:8080/tcp -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container ors-test
+      - name: Test ORS status
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test.sh"
+          ${GITHUB_WORKSPACE}/.github/workflows/run_test.sh
+        shell: bash
+      - name: Compress graphs, compile ors.war and copy to pre-built folder
+        run: |
+          sudo chmod -R ugo+rwx ${GITHUB_WORKSPACE}/docker/graphs
+          tar -cJf ${GITHUB_WORKSPACE}/docker/pre-built/graph.tar.xz ${GITHUB_WORKSPACE}/docker/graphs
+          docker exec ors-test-container bash -c  "cd ./openrouteservice && mvn compile war:war"
+          docker exec ors-test-container bash -c  "cp -f /ors-core/openrouteservice/target/ors.war /ors-core/data/pre-built/ors.war "
+          docker stop ors-test-container
+          docker rm ors-test-container
+          rm -rf ${GITHUB_WORKSPACE}/docker/graphs/*
+      - name: Build image with USE_PREBUILT="True"
+        run: |
+          docker buildx build --output "type=image,push=false" --platform linux/amd64 --tag ors-test-2 --build-arg VAR_USE_PREBUILT="True" .
+      - name: Run docker container without pre-built directory (should fail)
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test_prebuilt_fail.sh"
+          ${GITHUB_WORKSPACE}/.github/workflows/run_test_prebuilt_fail.sh
+        shell: bash
+      - name: Run docker container with pre-built directory
+        run: |
+          docker run -d -p 127.0.0.1:8080:8080/tcp -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built \
+          -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container-2 ors-test-2
+      - name: Test ORS status
+        run: |
+          chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test.sh"
+          ${GITHUB_WORKSPACE}/.github/workflows/run_test.sh
+        shell: bash
   build_and_publish_docker:
     name: Push Docker image to docker hub and github packages
     runs-on: ubuntu-latest
+    needs: build_and_test_docker
     steps:
       - name: Checkout
         uses: actions/checkout@v2.2.0
