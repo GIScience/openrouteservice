@@ -124,7 +124,6 @@ if [ "${USE_PREBUILT}" = "True" ] ; then
   jq '.ors.services.routing.init_threads = 1' ./ors-config.json |sponge ./ors-config.json
   # Delete all profiles but car
   jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' ./ors-config.json |sponge ./ors-config.json
-  cp -f ./ors-config.json /ors-conf/ors-config.json
   cp -f ./ors-config.json ${tomcat_ors_config}
 fi
 
