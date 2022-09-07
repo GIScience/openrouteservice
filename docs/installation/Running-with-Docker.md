@@ -66,16 +66,18 @@ There are some important directories one might want to preserve on the host mach
 - `/usr/local/tomcat/logs`: Contains the Tomcat logs.
 - `/ors-conf`: Contains the `ors-config.json` which is used to control ORS.
 - `/ors-core/data/osm_file.pbf`: The OSM file being used to generate graphs.
+- `/pre-built`: Contains optional pre-built graphs and pre-compiled ors.war file. Will be used if `USE_PREBUILT` is True.
 
 Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/master/docker/docker-compose.yml) for examples.
 
 ## Environment variables
 
 - `BUILD_GRAPHS`: Forces ORS to rebuild the routings graph(s) when set to `True`. Useful when another PBF is specified in the Docker volume mapping to `/ors-core/data/osm_file.pbf`
+- `USE_PREBUILT`: When set to `True` ORS will use the pre-built graphs and pre-compiled ors.war located in the `/pre-built` volume instead of building the routing graph from the OSM file.
 - `JAVA_OPTS`: Custom Java runtime options, such as `-Xms` or `-Xmx`
 - `CATALINA_OPTS`: Custom Catalina options
 
-Specify either during container startup or in `docker-compose.yml`.
+Specify either during container startup or in `docker-compose.yml`. `BUILD_GRAPHS` and `USE_PREBUILT` must not both be set to `True`.
 
 ## Build arguments
 
@@ -103,6 +105,14 @@ E.g.
 It should be mentioned that if your dataset is very large, please adjust the `-Xmx` parameter of `JAVA_OPTS` environment variable. A good rule of thumb is to give Java 2 x file size of the PBF **per profile**.
 
 Note, `.osm`, `.osm.gz`, `.osm.zip` and `.pbf` file format are supported as OSM files.
+
+### Using pre-built graphs and ors.war file
+
+Instead of building the routing graph based on the OSM file, it is also possible to use pre-built graphs along with a pre-compiled ors.war file.
+
+1. Set `USE_PREBUILT` to `True` and `BUILD_GRAPHS` to `True` in the `docker-compose.yml` file.
+2. Store the pre-built graphs (compressed and named `graph.tar.xz`) and the pre-compiled `ors.war` file in the `/pre-built` volume.
+3. Run e.g. `docker run -d -p 8080:8080 -e BUILD_GRAPHS=False USE_PREBUILT=True ./pre-built:/ors-core/data/pre-built docker_ors-app`.
 
 ### Customize ors configuration
 
