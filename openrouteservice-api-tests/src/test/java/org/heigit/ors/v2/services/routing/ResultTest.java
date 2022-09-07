@@ -149,7 +149,7 @@ public class ResultTest extends ServiceTest {
                 .log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}/gpx");
 
-        response.then()
+        response.then().log().ifValidationFails()
                 .log().ifValidationFails()
                 .assertThat()
                 .contentType("application/gpx+xml;charset=UTF-8")
@@ -191,7 +191,7 @@ public class ResultTest extends ServiceTest {
                 gpxRte = true;
                 NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                 int rteSize = rteChildren.getLength();
-                Assert.assertEquals(76, rteSize);
+                Assert.assertEquals(48, rteSize);
                 Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()), 0.005);
                 Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()), 0.005);
                 Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()), 0.005);
