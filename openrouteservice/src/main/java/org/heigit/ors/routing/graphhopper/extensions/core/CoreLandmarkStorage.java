@@ -37,7 +37,9 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -315,6 +317,14 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         @Override
         public void runAlgo() {
             super.runAlgo();
+        }
+
+        // Need to override the DijkstraBidirectionCHNoSOD method as it uses the graphs weighting instead of the CoreLandmarkStorage one.
+        // The graph uses a turn cost based weighting, though, which is not allowed for LM distance calculation.
+        @Override
+        protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+            double edgeWeight = edgeState.getWeight(reverse);
+            return edgeWeight;
         }
 
         @Override
