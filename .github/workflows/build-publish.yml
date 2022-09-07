@@ -16,8 +16,8 @@ jobs:
         uses: actions/checkout@v2.2.0
         with:
           fetch-depth: 0
-      - name: Build image with USE_PREBUILT="False"
-        run: docker buildx build --output "type=image,push=false" --platform linux/amd64 --tag ors-test --build-arg VAR_USE_PREBUILT="False" .
+      - name: Build image
+        run: docker buildx build --output "type=image,push=false" --platform linux/amd64 --tag ors-test .
       - name: Prepare folders
         run: |
           mkdir ${GITHUB_WORKSPACE}/docker/graphs
@@ -26,7 +26,7 @@ jobs:
           chmod ugo+rwx ${GITHUB_WORKSPACE}/docker/pre-built
           chmod ugo+rwx ${GITHUB_WORKSPACE}/docker/data/elevation_cache
       - name: Run container
-        run : docker run -d -p 127.0.0.1:8080:8080/tcp -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container ors-test
+        run : docker run -d -p 127.0.0.1:8080:8080/tcp -e BUILD_GRAPHS=True -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container ors-test
       - name: Test ORS status
         run: |
           chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test.sh"
@@ -41,9 +41,6 @@ jobs:
           docker stop ors-test-container
           docker rm ors-test-container
           rm -rf ${GITHUB_WORKSPACE}/docker/graphs/*
-      - name: Build image with USE_PREBUILT="True"
-        run: |
-          docker buildx build --output "type=image,push=false" --platform linux/amd64 --tag ors-test-2 --build-arg VAR_USE_PREBUILT="True" .
       - name: Run docker container without pre-built directory (should fail)
         run: |
           chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test_prebuilt_fail.sh"
@@ -51,8 +48,8 @@ jobs:
         shell: bash
       - name: Run docker container with pre-built directory
         run: |
-          docker run -d -p 127.0.0.1:8080:8080/tcp -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built \
-          -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container-2 ors-test-2
+          docker run -d -p 127.0.0.1:8080:8080/tcp -e USE_PREBUILT=True -v ${GITHUB_WORKSPACE}/docker/pre-built:/ors-core/data/pre-built \
+          -v ${GITHUB_WORKSPACE}/docker/graphs:/ors-core/data/graphs -v ${GITHUB_WORKSPACE}/docker/data/elevation_cache:/ors-core/data/elevation_cache --name ors-test-container-2 ors-test
       - name: Test ORS status
         run: |
           chmod +x "${GITHUB_WORKSPACE}/.github/workflows/run_test.sh"
