@@ -2843,8 +2843,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2308.3f))
-                .body("routes[0].summary.duration", is(1662.0f))
+                .body("routes[0].summary.distance", is(2125.7f))
+                .body("routes[0].summary.duration", is(1530.5f))
                 .statusCode(200);
     }
 
