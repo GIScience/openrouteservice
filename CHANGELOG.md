@@ -43,10 +43,12 @@ RELEASING:
 - Romanian language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
 - link to YouTube docker setup guide to docs (thanks to SyntaxByte)
 - prototype of generic CSV-based routing to be used for heat stress
-- Shadow Routing 
+- Shadow Routing
+- Support for pre-built graphs in docker setup
+
 ### Fixed
 - allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
-- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
+- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110))
 - Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
 - internal properties of `IsochronesRequest` model not ignored for swagger file generation
 - remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
@@ -102,7 +104,7 @@ RELEASING:
 ## [6.6.4] - 2022-01-03
 ### Fixed
 - update log4j to version 2.17.1
-- switch to GH fork version v0.13.15-4 
+- switch to GH fork version v0.13.15-4
 
 ## [6.6.3] - 2021-12-15
 ### Fixed
@@ -179,7 +181,7 @@ RELEASING:
 
 ## [6.4.0] - 2021-03-26
 ### Added
-- API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm. 
+- API endpoint "centrality" to calculate [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) values for nodes inside a given bounding box. Centrality is calculated using Brandes' algorithm.
 - Support for turn restrictions with core-based routing algorithms
 ### Changed
 - Use Querygraph and virtual nodes for isochrone calculation in the same manner as in routing
