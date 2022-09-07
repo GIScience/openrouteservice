@@ -3011,7 +3011,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('geometry')", is(false))
@@ -3020,11 +3020,11 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].segments[0].steps[1].way_points[0]", is(1))
                 .body("routes[0].segments[0].steps[1].way_points[1]", is(1))
                 .body("routes[0].segments[1].steps[0].way_points[0]", is(1))
-                .body("routes[0].segments[1].steps[0].way_points[1]", is(4))
-                .body("routes[0].segments[1].steps[1].way_points[0]", is(4))
-                .body("routes[0].segments[1].steps[1].way_points[1]", is(15))
-                .body("routes[0].segments[1].steps[2].way_points[0]", is(15))
-                .body("routes[0].segments[1].steps[2].way_points[1]", is(15))
+                .body("routes[0].segments[1].steps[0].way_points[1]", is(3))
+                .body("routes[0].segments[1].steps[1].way_points[0]", is(3))
+                .body("routes[0].segments[1].steps[1].way_points[1]", is(10))
+                .body("routes[0].segments[1].steps[2].way_points[0]", is(10))
+                .body("routes[0].segments[1].steps[2].way_points[1]", is(10))
                 .statusCode(200);
     }
 
