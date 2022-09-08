@@ -44,6 +44,12 @@ public class JSONLeg {
     @ApiModelProperty(value = "The headsign of the public transport vehicle of the leg.", example = "Bismarckplatz - Speyererhof - EMBL - Boxberg - Mombertplatz")
     @JsonProperty("trip_headsign")
     private final String tripHeadsign;
+    @ApiModelProperty(value = "The public transport route name of the leg.", example = "RNV Bus 39A")
+    @JsonProperty("route_long_name")
+    private final String routeLongName;
+    @ApiModelProperty(value = "The public transport route name (short version) of the leg.", example = "39A")
+    @JsonProperty("route_short_name")
+    private final String routeShortName;
     @ApiModelProperty(value = "The distance for the leg in metres.", example = "245")
     @JsonProperty("distance")
     private final Double distance;
@@ -86,6 +92,8 @@ public class JSONLeg {
         type = leg.getType();
         departureLocation = leg.getDepartureLocation();
         tripHeadsign = leg.getTripHeadsign();
+        routeLongName = leg.getRouteLongName();
+        routeShortName = leg.getRouteShortName();
         distance = leg.getDistance();
         duration = leg.getDuration();
         departure = leg.getDepartureTime();

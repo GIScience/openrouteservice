@@ -284,9 +284,9 @@ class RouteResultBuilder
                     } else if (isKeepInstruction(instrType)) {
                         instrText = instrTranslator.getKeep(instrType, roadName);
                     } else if (instrType == InstructionType.PT_ENTER) {
-                        instrText = instrTranslator.getPt(instrType, roadName);
+                        instrText = instrTranslator.getPt(instrType, roadName, instr.getHeadsign());
                     } else if (instrType == InstructionType.PT_TRANSFER) {
-                        instrText = instrTranslator.getPt(instrType, roadName);
+                        instrText = instrTranslator.getPt(instrType, roadName, instr.getHeadsign());
                     } else if (instrType == InstructionType.PT_EXIT) {
                         instrText = instrTranslator.getPt(instrType, roadName);
                     } else if (instrType == InstructionType.CONTINUE) {

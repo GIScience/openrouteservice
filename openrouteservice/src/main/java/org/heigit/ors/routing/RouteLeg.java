@@ -34,6 +34,8 @@ public class RouteLeg {
 	private final String type;
 	private final String departureLocation;
 	private final String tripHeadsign;
+	private final String routeLongName;
+	private final String routeShortName;
 	private final double distance;
 	private final double duration;
 	private final ZonedDateTime departureTime;
@@ -66,6 +68,8 @@ public class RouteLeg {
 		if (leg instanceof Trip.PtLeg) {
 			duration = FormatUtility.roundToDecimals(((Trip.PtLeg) leg).travelTime / 1000.0, 1);
 			tripHeadsign = ((Trip.PtLeg) leg).trip_headsign;
+			routeLongName = ((Trip.PtLeg) leg).route_long_name;
+			routeShortName = ((Trip.PtLeg) leg).route_short_name;
 			feedId = ((Trip.PtLeg) leg).feed_id;
 			tripId = ((Trip.PtLeg) leg).trip_id;
 			routeId = ((Trip.PtLeg) leg).route_id;
@@ -77,6 +81,8 @@ public class RouteLeg {
 		} else { // leg must be instance of Trip.WalkLeg
 			duration = FormatUtility.roundToDecimals(getDurationSum(instructions), 1);
 			tripHeadsign = null;
+			routeLongName = null;
+			routeShortName = null;
 			feedId = null;
 			tripId = null;
 			routeId = null;
@@ -103,6 +109,14 @@ public class RouteLeg {
 
 	public String getTripHeadsign() {
 		return tripHeadsign;
+	}
+
+	public String getRouteLongName() {
+		return routeLongName;
+	}
+
+	public String getRouteShortName() {
+		return routeShortName;
 	}
 
 	public double getDistance() {

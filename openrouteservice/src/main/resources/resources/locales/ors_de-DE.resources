@@ -1,5 +1,5 @@
 {
-	instructions {
+	"instructions": {
 		"numerals": {
 			"1": "erste",
 			"2": "zweite",
@@ -72,8 +72,8 @@
 			"turn": {
 				"default": {
 					"default": "Biegen Sie {turn_maneuver} ab",
-					"name": "Biegen Sie {turn_maneuver} auf {way_name} ab",
-				},
+					"name": "Biegen Sie {turn_maneuver} auf {way_name} ab"
+				}
 			},
 			"continue": {
 				"default": {
@@ -84,12 +84,25 @@
 					"default": "Eine Kehrtwendung vollziehen",
 					"name": "Eine Kehrtwendung auf {way_name} vollziehen"
 				}
-			}
+			},
 			"keep": {
 				"default": {
 					"default": "{turn_maneuver} halten",
 					"name": "{turn_maneuver} halten auf {way_name}"
+				}
+			},
+			"pt": {
+				"start": {
+					"default": "Einsteigen in {name}",
+					"headsign": "Einsteigen in {name} nach {headsign}"
 				},
+				"transfer": {
+					"default": "Umsteigen in {name}",
+					"headsign": "Umsteigen in {name} nach {headsign}"
+				},
+				"end": "Exit to {name}"
+			},
+			"start": {
 			}
 		}
 	}
