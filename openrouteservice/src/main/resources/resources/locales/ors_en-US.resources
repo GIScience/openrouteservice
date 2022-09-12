@@ -98,7 +98,7 @@
 				},
 				"transfer": {
 					"default": "Change to {name}",
-					"headsign": "Change to {name} nach {headsign}"
+					"headsign": "Change to {name} headed for {headsign}"
 				},
                 "end": "Exit to {name}"
             }

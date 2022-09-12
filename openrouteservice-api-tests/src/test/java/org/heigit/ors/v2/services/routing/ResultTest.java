@@ -3687,7 +3687,7 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}")
-            .then().log().ifValidationFails()
+            .then().log().all()
             .assertThat()
             .body("any { it.key == 'routes' }", is(true))
             .body("routes[0].summary.transfers", is(2))
