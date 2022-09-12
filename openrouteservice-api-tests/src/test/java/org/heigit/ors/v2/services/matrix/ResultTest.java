@@ -636,7 +636,7 @@ public class ResultTest extends ServiceTest {
                 .body("destinations[1].location[0]", is(8.686507f))
                 .body("destinations[1].location[1]", is(49.41943f))
                 .body("destinations[1].containsKey('snapped_distance')", is(true))
-                .body("destinations[1].snapped_distance", is(0.02f))
+                .body("destinations[1].snapped_distance", is(0.01f))
 
                 .body("destinations[2].size()", is(2))
                 .body("destinations[2].containsKey('location')", is(true))
@@ -682,7 +682,7 @@ public class ResultTest extends ServiceTest {
                 .body("destinations[1].containsKey('name')", is(true))
                 .body("destinations[1].name", is("Werderplatz"))
                 .body("destinations[1].containsKey('snapped_distance')", is(true))
-                .body("destinations[1].snapped_distance", is(0.02f))
+                .body("destinations[1].snapped_distance", is(0.01f))
 
                 .body("destinations[2].size()", is(3))
                 .body("destinations[2].containsKey('location')", is(true))
@@ -725,7 +725,7 @@ public class ResultTest extends ServiceTest {
                 .body("sources[1].location[0]", is(8.686507f))
                 .body("sources[1].location[1]", is(49.41943f))
                 .body("sources[1].containsKey('snapped_distance')", is(true))
-                .body("sources[1].snapped_distance", is(0.02f))
+                .body("sources[1].snapped_distance", is(0.01f))
 
                 .body("sources[2].size()", is(2))
                 .body("sources[2].containsKey('location')", is(true))
@@ -771,7 +771,7 @@ public class ResultTest extends ServiceTest {
                 .body("sources[1].containsKey('name')", is(true))
                 .body("sources[1].name", is("Werderplatz"))
                 .body("sources[1].containsKey('snapped_distance')", is(true))
-                .body("sources[1].snapped_distance", is(0.02f))
+                .body("sources[1].snapped_distance", is(0.01f))
 
                 .body("sources[2].size()", is(3))
                 .body("sources[2].containsKey('location')", is(true))
