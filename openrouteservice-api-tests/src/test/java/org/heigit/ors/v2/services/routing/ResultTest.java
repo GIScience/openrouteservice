@@ -1217,10 +1217,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.noise.values[0][0]", is(0))
-                .body("routes[0].extras.noise.values[0][1]", is(10))
+                .body("routes[0].extras.noise.values[0][1]", is(8))
                 .body("routes[0].extras.noise.values[0][2]", is(10))
-                .body("routes[0].extras.noise.values[4][0]", is(27))
-                .body("routes[0].extras.noise.values[4][1]", is(34))
+                .body("routes[0].extras.noise.values[4][0]", is(23))
+                .body("routes[0].extras.noise.values[4][1]", is(30))
                 .body("routes[0].extras.noise.values[4][2]", is(9))
 
                 .statusCode(200);
