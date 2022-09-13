@@ -151,11 +151,13 @@ public class APIEnums {
 
         private final String value;
 
-        CentralityResponseType(String value) { this.value = value; }
+        CentralityResponseType(String value) {
+            this.value = value;
+        }
 
         @JsonCreator
         public static CentralityResponseType forValue(String v) throws ParameterValueException {
-            for (CentralityResponseType enumItem: CentralityResponseType.values()) {
+            for (CentralityResponseType enumItem : CentralityResponseType.values()) {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
@@ -164,7 +166,9 @@ public class APIEnums {
 
         @Override
         @JsonValue
-        public String toString() { return value; }
+        public String toString() {
+            return value;
+        }
     }
 
     @ApiModel
@@ -363,6 +367,8 @@ public class APIEnums {
         DE_DE("de-de"),
         EN("en"),
         EN_US("en-us"),
+        EO("eo"),
+        EO_EO("eo-eo"),
         ES("es"),
         ES_ES("es-es"),
         FR("fr"),
@@ -387,10 +393,12 @@ public class APIEnums {
         PL_PL("pl-pl"),
         PT("pt"),
         PT_PT("pt-pt"),
-        TR("tr"),
-        TR_TR("tr-tr"),
+        RO("ro"),
+        RO_RO("ro-ro"),
         RU("ru"),
         RU_RU("ru-ru"),
+        TR("tr"),
+        TR_TR("tr-tr"),
         ZH("zh"),
         ZH_CN("zh-cn");
 
