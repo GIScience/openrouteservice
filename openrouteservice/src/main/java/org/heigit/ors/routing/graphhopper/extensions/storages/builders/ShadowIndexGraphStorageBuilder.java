@@ -29,9 +29,8 @@ import java.util.Map;
 
 
 /**
- * This class builds imports the shadow index data as a new the ShadowGraphStorage.
+ * This class builds the shadow index data as a new ShadowGraphStorage.
  *
- * @author Christina Ludwig, christina.ludwig@uni-heidelberg.de
  */
 public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private ShadowIndexGraphStorage _storage;
