@@ -13,9 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     /* This is just a temporary class to ease the transition from GH0.10 to 0.12 */
@@ -26,15 +24,4 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
     public abstract double getMeanSpeed();
 
-    /*
-     TODO add in AbstractFlagEncoder (Graphhopper repository) as:
-
-     public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way, EncodingManager.Access accept) {
-         return getConditionalAccess(way, accept, false);
-     }
-     */
-    public EncodingManager.Access isPermittedWayConditionallyRestricted(ReaderWay way, EncodingManager.Access accept) {
-        EncodingManager.Access permitted = isPermittedWayConditionallyRestricted(way);
-        return permitted == EncodingManager.Access.WAY ? accept : permitted;
-    }
 }
