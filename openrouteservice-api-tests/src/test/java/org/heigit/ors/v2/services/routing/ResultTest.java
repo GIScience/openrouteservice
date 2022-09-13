@@ -3687,9 +3687,10 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}")
-            .then().log().all()
+            .then().log().ifValidationFails()
             .assertThat()
             .body("any { it.key == 'routes' }", is(true))
+            .body("routes.size()", is(3))
             .body("routes[0].summary.transfers", is(2))
             .body("routes[0].legs.size()", is(5))
             .body("routes[0].legs[0].containsKey('arrival')", is(true))
@@ -3698,9 +3699,30 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('feed_id')", is(true))
             .body("routes[0].legs[1].containsKey('trip_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_id')", is(true))
-                .statusCode(200).extract().response();
+            .statusCode(200).extract().response();
         System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
-}
+
+        given()
+            .header("Accept", "application/geo+json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}/geojson")
+            .then().log().ifValidationFails()
+            .assertThat()
+            .body("any { it.key == 'features' }", is(true))
+            .body("features.size()", is(3))
+            .body("features[0].properties.transfers", is(2))
+            .body("features[0].properties.legs.size()", is(5))
+            .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
+            .body("features[0].properties.legs[0].containsKey('departure')", is(true))
+            .body("features[0].properties.legs[0].containsKey('instructions')", is(true))
+            .body("features[0].properties.legs[1].containsKey('feed_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('trip_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_id')", is(true))
+            .statusCode(200).extract().response();
+    }
 
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
