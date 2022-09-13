@@ -1101,7 +1101,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.tollways.values.size()", is(1))
                 .body("routes[0].extras.tollways.values[0][0]", is(0))
-                .body("routes[0].extras.tollways.values[0][1]", is(101))
+                .body("routes[0].extras.tollways.values[0][1]", is(75))
                 .body("routes[0].extras.tollways.values[0][2]", is(0))
                 .statusCode(200);
 
@@ -1121,13 +1121,13 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.tollways.values.size()", is(3))
                 .body("routes[0].extras.tollways.values[0][0]", is(0))
-                .body("routes[0].extras.tollways.values[0][1]", is(52))
+                .body("routes[0].extras.tollways.values[0][1]", is(36))
                 .body("routes[0].extras.tollways.values[0][2]", is(0))
-                .body("routes[0].extras.tollways.values[1][0]", is(52))
-                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][0]", is(36))
+                .body("routes[0].extras.tollways.values[1][1]", is(49))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
-                .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(101))
+                .body("routes[0].extras.tollways.values[2][0]", is(49))
+                .body("routes[0].extras.tollways.values[2][1]", is(79))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
@@ -1159,13 +1159,13 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.tollways.values.size()", is(3))
                 .body("routes[0].extras.tollways.values[0][0]", is(0))
-                .body("routes[0].extras.tollways.values[0][1]", is(52))
+                .body("routes[0].extras.tollways.values[0][1]", is(36))
                 .body("routes[0].extras.tollways.values[0][2]", is(0))
-                .body("routes[0].extras.tollways.values[1][0]", is(52))
-                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][0]", is(36))
+                .body("routes[0].extras.tollways.values[1][1]", is(49))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
-                .body("routes[0].extras.tollways.values[2][0]", is(66))
-                .body("routes[0].extras.tollways.values[2][1]", is(101))
+                .body("routes[0].extras.tollways.values[2][0]", is(49))
+                .body("routes[0].extras.tollways.values[2][1]", is(79))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
                 .statusCode(200);
 
@@ -1217,10 +1217,10 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.noise.values[0][0]", is(0))
-                .body("routes[0].extras.noise.values[0][1]", is(10))
+                .body("routes[0].extras.noise.values[0][1]", is(8))
                 .body("routes[0].extras.noise.values[0][2]", is(10))
-                .body("routes[0].extras.noise.values[4][0]", is(27))
-                .body("routes[0].extras.noise.values[4][1]", is(34))
+                .body("routes[0].extras.noise.values[4][0]", is(23))
+                .body("routes[0].extras.noise.values[4][1]", is(30))
                 .body("routes[0].extras.noise.values[4][2]", is(9))
 
                 .statusCode(200);
