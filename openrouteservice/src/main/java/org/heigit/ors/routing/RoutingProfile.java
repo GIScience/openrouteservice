@@ -19,7 +19,10 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.AccessFilter;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
@@ -713,8 +716,8 @@ public class RoutingProfile {
      */
     private MatrixResult computeRPHASTMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, String profileName) throws Exception {
         RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
         RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
@@ -734,8 +737,8 @@ public class RoutingProfile {
         PMap additionalHints = searchCntx.getProperties();
         EdgeFilter edgeFilter = new ORSEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, gh.getGraphHopperStorage());
 
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
         //TODO can be removed when the matrix virtual edge issue has been checked
 //        if (weighting.hasTurnCosts())
@@ -760,8 +763,8 @@ public class RoutingProfile {
     private MatrixResult computeDijkstraMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
         Weighting weighting = new OrsWeightingFactoryGh4(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
         DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
