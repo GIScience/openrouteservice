@@ -2991,9 +2991,9 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("features[0].geometry.coordinates.size()", is(314))
-                .body("features[0].properties.segments[1].steps[0].way_points[0]", is(160))
-                .body("features[0].properties.segments[1].steps[0].way_points[1]", is(160))
+                .body("features[0].geometry.coordinates.size()", is(216))
+                .body("features[0].properties.segments[1].steps[0].way_points[0]", is(107))
+                .body("features[0].properties.segments[1].steps[0].way_points[1]", is(107))
                 .statusCode(200);
     }
 
