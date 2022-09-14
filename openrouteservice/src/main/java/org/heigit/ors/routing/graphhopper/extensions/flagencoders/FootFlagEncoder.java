@@ -67,6 +67,11 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         this.setBlockFords(properties.getBool("block_fords", true));
     }
 
+    protected void setProperties(PMap properties, boolean blockFords) {
+        this.properties = properties;
+        this.setBlockFords(properties.getBool("block_fords", blockFords));
+    }
+
 
     FootFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor, 0);
