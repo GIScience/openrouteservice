@@ -3396,7 +3396,7 @@ public class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("features[0].properties.way_points[1]", is(93))
+                .body("features[0].properties.way_points[1]", is(72))
                 .statusCode(200);
     }
 
