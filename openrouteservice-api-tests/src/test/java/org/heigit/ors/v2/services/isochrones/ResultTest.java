@@ -112,6 +112,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("cyclingProfile"))
@@ -121,13 +122,13 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(49))
+                .body("features[0].geometry.coordinates[0].size()", is(51))
                 .body("features[0].properties.center.size()", is(2))
-                .body("bbox", hasItems(8.663323f, 49.40837f, 8.700336f, 49.439884f))
+                .body("bbox", hasItems(closeTo(8.663323f, 0.001f), closeTo(49.40837f, 0.001f), closeTo(8.700336f, 0.001f), closeTo(49.439884f, 0.001f)))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
-                .body("features[0].properties.value", is(400f))
+                .body("features[0].properties.value", is(400.0))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
 
@@ -226,7 +227,7 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(closeTo(1699492.0, 34000)))
+                .body("features[0].properties.area", is(closeTo(1527136.0, 34000)))
                 .statusCode(200);
 
         body.put("location_type", "destination");
@@ -262,7 +263,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7561, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
                 .statusCode(200);
 
     }
@@ -288,7 +289,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7561, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
                 .statusCode(200);
 
     }
@@ -303,6 +304,7 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "km");
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("cyclingProfile"))
@@ -312,8 +314,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6.6, 0.132)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7561, 0.007)))
+                .body("features[0].properties.area", is(closeTo(6.48, 0.132)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
                 .statusCode(200);
 
     }
@@ -366,7 +368,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(2.55, 0.05)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7561, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
                 .statusCode(200);
 
     }
@@ -398,11 +400,11 @@ public class ResultTest extends ServiceTest {
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(38))
+                .body("features[2].geometry.coordinates[0].size()", is(40))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 //.body("features[2].properties.area", is(5824280.5f))
-                .body("features[0].properties.area", is(both(greaterThan(6590000f)).and(lessThan(6600000f))))
+                .body("features[0].properties.area", is(both(greaterThan(6400000f)).and(lessThan(6600000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
