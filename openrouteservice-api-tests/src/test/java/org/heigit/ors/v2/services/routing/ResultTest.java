@@ -43,6 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.JsonConfig.jsonConfig;
+import io.restassured.RestAssured;
+import io.restassured.path.json.config.JsonPathConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
@@ -2766,6 +2769,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2776,8 +2780,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 2)))
                 .statusCode(200);
 
         JSONObject weightings = new JSONObject();
@@ -2789,6 +2793,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2799,17 +2804,17 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2308.3f))
-                .body("routes[0].summary.duration", is(1662.0f))
+                .body("routes[0].summary.distance", is(closeTo(2308.3, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1662.0, 2)))
                 .statusCode(200);
     }
-
     @Test
     public void testPreferShadow() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2820,8 +2825,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 2)))
                 .statusCode(200);
 
         JSONObject weightings = new JSONObject();
@@ -2833,6 +2838,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2843,8 +2849,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2125.7f))
-                .body("routes[0].summary.duration", is(1530.5f))
+                .body("routes[0].summary.distance", is(closeTo(2125.7, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1530.5, 2)))
                 .statusCode(200);
     }
 
@@ -2854,6 +2860,7 @@ public class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesWalking"));
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2864,8 +2871,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2097.2f))
-                .body("routes[0].summary.duration", is(1510.0f))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 2)))
                 .statusCode(200);
 
         JSONObject weightings = new JSONObject();
@@ -2877,6 +2884,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2887,8 +2895,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2878.7f))
-                .body("routes[0].summary.duration", is(2072.6f))
+                .body("routes[0].summary.distance", is(closeTo(2878.7, 2)))
+                .body("routes[0].summary.duration", is(closeTo(2072.6, 2)))
                 .statusCode(200);
     }
 
