@@ -63,7 +63,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     private BooleanEncodedValue conditionalAccessEncoder;
 
     protected void setProperties(PMap properties) {
-        this.setProperties(properties, true)
+        this.setProperties(properties, true);
     }
 
     protected void setProperties(PMap properties, boolean blockFords) {
