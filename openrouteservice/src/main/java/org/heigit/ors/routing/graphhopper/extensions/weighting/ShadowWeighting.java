@@ -38,9 +38,7 @@ public class ShadowWeighting extends FastestWeighting {
 
     private double calShadowWeighting(int shadowIndexValue) {
         double _amplifyer = 5.; // amplify influence of shadow
-        double shadowWeight = shadowIndexValue * 0.01 * _amplifyer * _userWeighting;
-        //System.out.print("Shadow: " + shadowWeight + "\n");
-        return shadowWeight;
+        return shadowIndexValue * 0.01 * _amplifyer * _userWeighting;
     }
 
     @Override
@@ -48,7 +46,6 @@ public class ShadowWeighting extends FastestWeighting {
         int shadowValue = _shadowIndexStorage
             .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
         return calShadowWeighting(shadowValue);
-        //return _defaultGreenWeight;
     }
 
     @Override

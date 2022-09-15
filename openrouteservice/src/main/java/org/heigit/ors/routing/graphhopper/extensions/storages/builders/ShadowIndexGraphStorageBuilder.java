@@ -19,6 +19,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphStorage;
 
 import java.io.BufferedReader;
@@ -33,6 +34,7 @@ import java.util.Map;
  *
  */
 public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
+    private static final Logger LOGGER = Logger.getLogger(ShadowIndexGraphStorageBuilder.class.getName());
     private ShadowIndexGraphStorage _storage;
     private Map<Long, Integer> osm_shadowindex_lookup = new HashMap<>();
     private int max_level = 100;
@@ -50,35 +52,27 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
         // TODO Check if the shadow index file exists
         String csvFile = parameters.get("filepath");
         System.out.print("Shadow Index File: " + csvFile + "\n");
-        readNoiseIndicesFromCSV(csvFile);
+        readShadowIndicesFromCSV(csvFile);
         _storage = new ShadowIndexGraphStorage();
 
         return _storage;
     }
 
-    private void readNoiseIndicesFromCSV(String csvFile) throws IOException {
-        BufferedReader csvBuffer = null;
-        try {
+    private void readShadowIndicesFromCSV(String csvFile) throws IOException {
+        try (BufferedReader csvBuffer = new BufferedReader(new FileReader(csvFile))) {
             String row;
-            csvBuffer = new BufferedReader(new FileReader(csvFile));
-            // Jump the header line
-            csvBuffer.readLine();
-            String[] rowValues = new String[2]; 
-            while ((row = csvBuffer.readLine()) != null) 
-            {
-                if (!parseCSVrow(row, rowValues)) 
-                	continue;
-                
+            String[] rowValues = new String[2];
+            while ((row = csvBuffer.readLine()) != null) {
+                if (!parseCSVrow(row, rowValues))
+                    continue;
+
                 osm_shadowindex_lookup.put(Long.parseLong(rowValues[0]), Integer.parseInt(rowValues[1]));
             }
-
         } catch (IOException openFileEx) {
-            openFileEx.printStackTrace();
+            LOGGER.error(openFileEx.getStackTrace());
             throw openFileEx;
-        } finally {
-            if (csvBuffer != null) 
-            	csvBuffer.close();
         }
+
     }
 
     private boolean parseCSVrow(String row,  String[] rowValues) {
@@ -90,7 +84,7 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
         {
         	rowValues[0] = row.substring(0, pos).trim();
         	rowValues[1] = row.substring(pos+1, row.length()).trim();
-        	// read, check and push "osm_id" and "noise level" values
+        	// read, check and push "osm_id" and "shadow level" values
         	if (Helper.isEmpty(rowValues[0]) || Helper.isEmpty(rowValues[1])) 
         		return false;
         	
