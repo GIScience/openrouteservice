@@ -22,8 +22,7 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
     public PedestrianFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", true));
+        setProperties(properties);
     }
 
     private PedestrianFlagEncoder(int speedBits, double speedFactor) {
