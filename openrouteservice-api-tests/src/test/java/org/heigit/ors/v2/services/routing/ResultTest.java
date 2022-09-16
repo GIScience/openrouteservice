@@ -1276,7 +1276,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(greaterThan(200.0f)))
+                .body("routes[0].summary.distance", is(693.8f))
                 .statusCode(200);
     }
 
@@ -1341,7 +1341,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(greaterThan(200.0f)))
+                .body("routes[0].summary.distance", is(693.8f))
                 .statusCode(200);
     }
 
