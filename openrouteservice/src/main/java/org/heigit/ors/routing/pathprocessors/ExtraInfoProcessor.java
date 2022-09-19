@@ -260,7 +260,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 				if (extCsvData != null) {
 					csvInfo = new RouteExtraInfo("csv");
 					csvInfoBuilder = new AppendableRouteExtraInfoBuilder(csvInfo);
-					csvColumn = extCsvData.columnIndex(opts.get("weighting_#csv#column", ""));
+					csvColumn = extCsvData.columnIndex(params.get("weighting_#csv#column", ""));
 				} else {
 					skippedExtras.add("csv");
 				}
@@ -294,7 +294,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 * the list of warning extras.
 	 *
 	 * @param encodedExtras		The encoded value stating which extras were passed explicitly
-	 * @param infoFlag			The id of the extra info whos inclusion needs to be decided
+	 * @param infoFlag			The id of the extra info whose inclusion needs to be decided
 	 *
 	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {

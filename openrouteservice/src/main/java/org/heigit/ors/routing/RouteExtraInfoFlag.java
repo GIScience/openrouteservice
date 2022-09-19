@@ -86,6 +86,7 @@ public class RouteExtraInfoFlag {
                     break;
                 case "csv":
                     res |= CSV;
+                    break;
                 default:
             }
         }
