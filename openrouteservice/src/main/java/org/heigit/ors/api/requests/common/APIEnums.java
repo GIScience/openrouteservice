@@ -66,7 +66,8 @@ public class APIEnums {
         ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions"),
         COUNTRY_INFO("countryinfo"),
         GREEN("green"),
-        NOISE("noise");
+        NOISE("noise"),
+        CSV("csv");
 
         private final String value;
 

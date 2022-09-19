@@ -55,6 +55,8 @@ import java.util.Arrays;
 
         public int getEdgeValue(int edgeId, int columnIndex, byte[] buffer) {
             long edgePointer = (long) edgeId * edgeEntryBytes;
+            // TODO: maybe we don't need to get the whole buffer, but just the
+            //       single element and can use a 1-element buffer at call-site
             orsEdges.getBytes(edgePointer + efCsvIndex, buffer, numEntries);
 
             return buffer[columnIndex];
