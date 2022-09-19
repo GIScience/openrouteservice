@@ -3696,9 +3696,11 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[0].containsKey('arrival')", is(true))
             .body("routes[0].legs[0].containsKey('departure')", is(true))
             .body("routes[0].legs[0].containsKey('instructions')", is(true))
+            .body("routes[0].legs[0].containsKey('geometry')", is(true))
             .body("routes[0].legs[1].containsKey('feed_id')", is(true))
             .body("routes[0].legs[1].containsKey('trip_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_id')", is(true))
+            .body("routes[0].legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
         System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
 
@@ -3718,9 +3720,11 @@ public class ResultTest extends ServiceTest {
             .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
             .body("features[0].properties.legs[0].containsKey('departure')", is(true))
             .body("features[0].properties.legs[0].containsKey('instructions')", is(true))
+            .body("features[0].properties.legs[0].containsKey('geometry')", is(true))
             .body("features[0].properties.legs[1].containsKey('feed_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('trip_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('route_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
     }
 

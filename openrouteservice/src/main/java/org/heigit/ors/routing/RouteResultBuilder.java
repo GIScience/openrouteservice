@@ -34,7 +34,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.heigit.ors.routing.RouteResult.*;
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
+import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_DEPARTURE;
 
 class RouteResultBuilder
 {
@@ -209,7 +210,7 @@ class RouteResultBuilder
         for (Trip.Leg leg : legs) {
             startWayPointIndex = 0;
             List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : null;
-            result.addLeg(new RouteLeg(leg, request.getUnits(), instructions, response, request.getIncludeElevation()));
+            result.addLeg(new RouteLeg(leg, instructions, response, request));
         }
     }
 
