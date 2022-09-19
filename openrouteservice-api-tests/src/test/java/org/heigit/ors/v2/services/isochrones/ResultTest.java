@@ -36,6 +36,8 @@ public class ResultTest extends ServiceTest {
 
         // Locations
         addParameter("preference", "fastest");
+        // Use only car and cycling and no HGV.
+        // Making and HGV request results in the usage of fast isochrones, which are covered in their own tests.
         addParameter("cyclingProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
 
@@ -222,24 +224,25 @@ public class ResultTest extends ServiceTest {
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "driving-hgv")
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(closeTo(1527136.0, 34000)))
+                .body("features[0].properties.area", is(closeTo(1596570.0f, 34000f)))
                 .statusCode(200);
 
         body.put("location_type", "destination");
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/geo+json")
                 .header("Content-Type", "application/json")
-                .pathParam("profile", "driving-hgv")
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(1561223.9f))
+                .body("features[0].properties.area", is(closeTo(1670210.0f, 10000f)))
                 .statusCode(200);
     }
 
