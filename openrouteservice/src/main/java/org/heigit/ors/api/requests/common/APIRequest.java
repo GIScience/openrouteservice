@@ -434,6 +434,12 @@ public class APIRequest {
                 pw.addParameter("level", weightings.getSteepnessDifficulty());
                 params.add(pw);
             }
+            if (weightings.hasCsv()) {
+                ProfileWeighting pw = new ProfileWeighting("csv");
+                pw.addParameter("column", weightings.getCsvColumn());
+                pw.addParameter("factor", weightings.getCsvFactor());
+                params.add(pw);
+            }
         } catch (InternalServerException e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "weightings");
 

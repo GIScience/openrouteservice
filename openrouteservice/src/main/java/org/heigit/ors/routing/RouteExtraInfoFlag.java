@@ -30,6 +30,7 @@ public class RouteExtraInfoFlag {
     public static final int ROAD_ACCESS_RESTRICTIONS = 2048;
     public static final int COUNTRY_INFO = 4096;
     public static final int SHADOW = 8192;
+    public static final int CSV = 16384;
 
     private RouteExtraInfoFlag() {}
 
@@ -84,6 +85,9 @@ public class RouteExtraInfoFlag {
                     break;
                 case "countryinfo":
                     res |= COUNTRY_INFO;
+                    break;
+                case "csv":
+                    res |= CSV;
                     break;
                 case "shadow":
                     res |= SHADOW;

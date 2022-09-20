@@ -67,6 +67,7 @@ public class APIEnums {
         COUNTRY_INFO("countryinfo"),
         GREEN("green"),
         NOISE("noise"),
+        CSV("csv"),
         SHADOW("shadow");
 
         private final String value;

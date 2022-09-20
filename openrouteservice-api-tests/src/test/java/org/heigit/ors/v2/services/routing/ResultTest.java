@@ -13,6 +13,9 @@
  */
 package org.heigit.ors.v2.services.routing;
 
+import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
@@ -52,6 +55,7 @@ import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
+    public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
 
     public ResultTest() {
         JSONArray coordsShort = new JSONArray();
@@ -1217,6 +1221,36 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testCsvExtraInfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("extra_info", constructExtras("csv"));
+        JSONObject weightings = new JSONObject();
+        weightings.put("csv_factor", 1.0);
+        weightings.put("csv_column", "less_than_0.5");
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.csv.values[2][0]", is(lessThan(50)))
+
+                .statusCode(200);
+    }
     @Test
     public void testInvalidExtraInfoWarning() {
         JSONObject body = new JSONObject();
