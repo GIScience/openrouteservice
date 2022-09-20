@@ -68,6 +68,7 @@ public class APIEnums {
         GREEN("green"),
         NOISE("noise"),
         CSV("csv");
+        SHADOW("shadow");
 
         private final String value;
 

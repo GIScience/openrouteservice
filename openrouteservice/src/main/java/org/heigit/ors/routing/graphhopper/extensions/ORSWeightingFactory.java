@@ -159,6 +159,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 					case "csv":
 						softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
 						break;
+					case "shadow":
+						softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+						break;
 					default:
 						break;
 				}

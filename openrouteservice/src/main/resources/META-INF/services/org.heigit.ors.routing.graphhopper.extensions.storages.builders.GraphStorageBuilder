@@ -14,3 +14,4 @@ org.heigit.ors.routing.graphhopper.extensions.storages.builders.OsmIdGraphStorag
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.SpeedGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.ExpiringSpeedGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.ShadowIndexGraphStorageBuilder

@@ -59,6 +59,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
 	private BordersGraphStorage extCountryTraversalInfo;
 	private CsvGraphStorage extCsvData;
+	private ShadowIndexGraphStorage extShadowIndex;
+
 	private RouteExtraInfo surfaceInfo;
 	private RouteExtraInfoBuilder surfaceInfoBuilder;
 
@@ -102,6 +104,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private RouteExtraInfo csvInfo;
 	private RouteExtraInfoBuilder csvInfoBuilder;
 	int csvColumn = 0;
+
+  private RouteExtraInfo shadowInfo;
+	private RouteExtraInfoBuilder shadowInfoBuilder;
+
 	private List<Integer> warningExtensions;
 
 	private int profileType = RoutingProfileType.UNKNOWN;
@@ -222,6 +228,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 					noiseInfoBuilder = new AppendableRouteExtraInfoBuilder(noiseInfo);
 				} else {
 					skippedExtras.add("noise");
+				}
+			}
+
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SHADOW)) {
+				extShadowIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, ShadowIndexGraphStorage.class);
+				if (extShadowIndex != null) {
+					shadowInfo = new RouteExtraInfo("shadow");
+					shadowInfoBuilder = new AppendableRouteExtraInfoBuilder(shadowInfo);
+				} else {
+					skippedExtras.add("shadow");
 				}
 			}
 
@@ -364,6 +380,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 			csvInfoBuilder.finish();
 			extras.add(csvInfo);
 		}
+		if (shadowInfo != null) {
+			shadowInfoBuilder.finish();
+			extras.add(shadowInfo);
+		}
 		return extras;
 	}
 
@@ -396,6 +416,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 			((AppendableRouteExtraInfoBuilder) countryTraversalInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.countryTraversalInfoBuilder);
 		if (csvInfo != null)
 			((AppendableRouteExtraInfoBuilder) csvInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.csvInfoBuilder);
+		if (shadowInfo != null)
+			((AppendableRouteExtraInfoBuilder) shadowInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.shadowInfoBuilder);
 	}
 
 	@Override
@@ -513,6 +535,11 @@ public class ExtraInfoProcessor implements PathProcessor {
 		if (csvInfoBuilder != null) {
 			int value = extCsvData.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), csvColumn, buffer);
 			csvInfoBuilder.addSegment(value, value, geom, dist);
+		}
+
+    if (shadowInfoBuilder != null) {
+			int shadowLevel = extShadowIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			shadowInfoBuilder.addSegment(shadowLevel, shadowLevel, geom, dist);
 		}
 	}
 
