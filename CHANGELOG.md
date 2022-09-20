@@ -42,6 +42,7 @@ RELEASING:
 - Esperanto language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
 - Romanian language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
 - link to YouTube docker setup guide to docs (thanks to SyntaxByte)
+- Shadow Routing 
 ### Fixed
 - allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
