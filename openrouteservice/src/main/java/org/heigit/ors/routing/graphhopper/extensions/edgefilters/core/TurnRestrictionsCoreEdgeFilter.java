@@ -63,10 +63,22 @@ public class TurnRestrictionsCoreEdgeFilter implements EdgeFilter {
             //Do not add edges to the core because of u turn restrictions
             if (queriedEdge == otherEdge)
                 continue;
-            Double turnCost = (edgeExplorer == inEdgeExplorer) ?
-                    turnCostProvider.calcTurnWeight(otherEdge, viaNode, queriedEdge) :
-                    turnCostProvider.calcTurnWeight(queriedEdge, viaNode, otherEdge);
-            if (turnCost.equals(Double.POSITIVE_INFINITY))
+            //Double turnCost = (edgeExplorer == inEdgeExplorer) ?
+            //        turnCostProvider.calcTurnWeight(otherEdge, viaNode, queriedEdge) :
+            //        turnCostProvider.calcTurnWeight(queriedEdge, viaNode, otherEdge);
+            //if (turnCost.equals(Double.POSITIVE_INFINITY))
+            //    return true;
+            // ---
+            // The following code checks whether the given edge is involved in a turn restriction (TR) in any direction,
+            // i.e. even in the opposite one in which the TR does not actually apply. This is so primarily for backwards
+            // compatibility with the former implementation in order to make `testTurnRestrictions` API test pass.
+            // In principle it should be enough to check only in the direction in which the TR applies as in the
+            // commented out section above. However, then probably #1073 would need to be addressed for the API test to pass.
+            // ---
+            // fwd when edgeExplorer == inEdgeExplorer otherwise it's the other way round!
+            Double turnCostFwd = turnCostProvider.calcTurnWeight(otherEdge, viaNode, queriedEdge);
+            Double turnCostBwd = turnCostProvider.calcTurnWeight(queriedEdge, viaNode, otherEdge);
+            if (turnCostFwd.equals(Double.POSITIVE_INFINITY) || turnCostBwd.equals(Double.POSITIVE_INFINITY))
                 return true;
         }
 
