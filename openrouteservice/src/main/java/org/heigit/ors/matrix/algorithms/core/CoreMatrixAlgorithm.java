@@ -321,7 +321,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
-//            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
 
             edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if (Double.isInfinite(edgeWeight))
@@ -337,7 +336,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-//            resetTurnWeighting(hasTurnWeighting);
         }
 
         return addToQueue;

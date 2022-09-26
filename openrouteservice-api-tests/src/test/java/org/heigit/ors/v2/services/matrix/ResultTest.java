@@ -909,6 +909,7 @@ public class ResultTest extends ServiceTest {
 
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("carProfile"))
@@ -919,10 +920,10 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'durations' }", is(true))
                 .body("durations.size()", is(2))
-                .body("durations[0][0]", is(0.0f))
-                .body("durations[0][1]", is(126.46f))
-                .body("durations[1][0]", is(48.77f))
-                .body("durations[1][1]", is(0.0f))
+                .body("durations[0][0]", is(closeTo(0.0f, 0f)))
+                .body("durations[0][1]", is(closeTo(126.46f, 0.5f)))
+                .body("durations[1][0]", is(closeTo(48.25f, 0.5f)))
+                .body("durations[1][1]", is(closeTo(0.0f, 0f)))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
