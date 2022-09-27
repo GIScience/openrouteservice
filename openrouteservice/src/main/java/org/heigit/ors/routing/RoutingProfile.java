@@ -246,7 +246,7 @@ public class RoutingProfile {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
-        boolean hasTurnCosts = EncoderOptions.hasTurnCosts(config.getEncoderOptions());
+        boolean hasTurnCosts = config.isTurnCostEnabled();
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
@@ -994,9 +994,10 @@ public class RoutingProfile {
             }
         }
 
-        boolean useTurnCostProfile = searchParams.requiresDynamicPreprocessedWeights();
+        boolean useTurnCostProfile = config.isTurnCostEnabled();
         String profileName = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName);
+        String profileNameCH = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
+        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
         searchCntx.setProperties(props);
 
         return searchCntx;
@@ -1080,7 +1081,7 @@ public class RoutingProfile {
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
             //Roundtrip not possible with preprocessed edges.
-            setSpeedups(req, false, false, true);
+            setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (astarEpsilon != null)
                 req.getHints().putObject("astarbi.epsilon", astarEpsilon);
@@ -1155,15 +1156,16 @@ public class RoutingProfile {
 
             if (flexibleMode == KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
-                setSpeedups(req, true, true, true);
+                // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
+                setSpeedups(req, true, true, true, searchCntx.profileNameCH());
 
             if (flexibleMode == KEY_FLEX_PREPROCESSED) {
-                setSpeedups(req, false, optimized, true);
+                setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if (flexibleMode == KEY_FLEX_FULLY)
-                setSpeedups(req, false, false, true);
+                setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
                 if (searchParams.hasDeparture())
@@ -1305,12 +1307,12 @@ public class RoutingProfile {
      * @param useCore Should Core be enabled
      * @param useALT  Should ALT be enabled
      */
-    private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT) {
+    private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
         String profileName = req.getProfile();
 
         //Priority: CH->Core->ALT
 
-        useCH = useCH && mGraphHopper.isCHAvailable(profileName);
+        useCH = useCH && mGraphHopper.isCHAvailable(profileNameCH);
         useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(profileName);
         useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(profileName);
 
@@ -1318,8 +1320,10 @@ public class RoutingProfile {
         req.getHints().putObject(KEY_CORE_DISABLE, !useCore);
         req.getHints().putObject(KEY_LM_DISABLE, !useALT);
 
-        if (useCH)
+        if (useCH) {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+            req.setProfile(profileNameCH);
+        }
     }
 
     boolean hasTimeDependentSpeed(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
@@ -1431,20 +1435,5 @@ public class RoutingProfile {
 
     public int hashCode() {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
-    }
-
-    // TODO Refactoring: this is only a transitional class created to enable the upgrade to
-    //       GH4. It should be cleaned up later.
-    private static class EncoderOptions {
-
-        public static boolean hasTurnCosts(String encoderOptions) {
-            for (String option: encoderOptions.split("\\|")) {
-                String[] keyValuePair = option.split("=");
-                if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {
-                    return keyValuePair[1].equals("true");
-                }
-            }
-            return false;
-        }
     }
 }
