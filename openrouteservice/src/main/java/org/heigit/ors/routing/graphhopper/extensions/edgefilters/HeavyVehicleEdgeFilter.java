@@ -67,6 +67,10 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 	private static final int MODE_ROUTE = 0;
 
 	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
+		this(vehicleType, vehicleParams, GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class));
+	}
+
+	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, HeavyVehicleAttributesGraphStorage hgvStorage) {
 		float[] vehicleAttrs = new float[VehicleDimensionRestrictions.COUNT];
 
 		if (vehicleParams!=null) {
@@ -102,7 +106,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		this.vehicleType = vehicleType;
 		this.buffer = new byte[2];
 
-		this.gsHeavyVehicles = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
+		this.gsHeavyVehicles = hgvStorage;
 	}
 
 	public void setDestinationEdge(EdgeIteratorState edge, Graph graph, FlagEncoder encoder, TraversalMode tMode) {

@@ -31,6 +31,8 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 
 	private final List<GraphStorageBuilder> graphStorageBuilders;
 
+	private GraphExtension graphExtension = null;
+
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
 		this.graphStorageBuilders = graphStorageBuilders;
 	}
@@ -96,5 +98,9 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			LOGGER.error(ex.getStackTrace());
 		}
 		return false;
+	}
+
+	public GraphExtension getGraphExtension() {
+		return graphExtension;
 	}
 }

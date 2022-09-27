@@ -138,6 +138,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("footway");
         addPushingSection("pedestrian");
         addPushingSection("steps");
+        addPushingSection(KEY_BRIDLEWAY);
 
         setCyclingNetworkPreference("icn", PriorityCode.BEST.getValue());
         setCyclingNetworkPreference("ncn", PriorityCode.BEST.getValue());

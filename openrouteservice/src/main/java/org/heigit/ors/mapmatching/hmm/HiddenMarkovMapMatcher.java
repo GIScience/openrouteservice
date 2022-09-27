@@ -187,26 +187,26 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
     private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
         // Phase II: Compute distances, probabilities, etc.
 
-		double v;
-		double dist;
-		Coordinate z0 = z[0];
-		
-		double defaultProbability = 0.0;
-		double distThreshold = 250;
-        
-		for (int t = 0; t < nZ; t++) {
-			int nRI = x[t].length;
-			
-			for (int i = 0; i < nRI; i++) {
-				MatchPoint xi = x[t][i];
-				int ri = xi.segmentId;
-				dist = xi.distanceVal;// distCalcEarth.calcDist(zt.lat, zt.lon, xi.lat, xi.lon)
-				if (dist > distThreshold)
-					emissionProbs[ri][t] = defaultProbability;
-				else {
-					v = dist / SIGMA_Z;
-					emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / DENOM;
-				}
+        double v;
+        double dist;
+        Coordinate z0 = z[0];
+
+        double defaultProbability = 0.0;
+        double distThreshold = 250;
+
+        for (int t = 0; t < nZ; t++) {
+            int nRI = x[t].length;
+
+            for (int i = 0; i < nRI; i++) {
+                MatchPoint xi = x[t][i];
+                int ri = xi.segmentId;
+                dist = xi.distanceVal;// distCalcEarth.calcDist(zt.lat, zt.lon, xi.lat, xi.lon)
+                if (dist > distThreshold)
+                    emissionProbs[ri][t] = defaultProbability;
+                else {
+                    v = dist / SIGMA_Z;
+                    emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / DENOM;
+                }
 
 				if (startProbs[ri] == 0.0) {
 					dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / SIGMA_Z;
@@ -272,7 +272,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 								double time = path.getTime();
 								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
                                 double dt2 = Math.abs(time - perfTime)/perfTime;
-                                								
+
 								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
 							}
 						} catch(Exception ex) {
@@ -280,7 +280,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						}
 					}
 				}
-				
+
 				transProbs[i][j] = value;
 			}
 		}
@@ -314,14 +314,14 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         }
 
 		res = gh.getRouteSegment(latitudes, longitudes, encoder.toString());
-		
+
 		return res;
 	}
-	
+
 	static double exponentialDistribution(double beta, double x) {
-        return 1.0 / beta * Math.exp(-x / beta); 
+        return 1.0 / beta * Math.exp(-x / beta);
     }
-	
+
 	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
 			List<Integer> roadSegments) {
 		// TODO: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);

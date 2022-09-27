@@ -31,7 +31,10 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
-    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS);
+    private final EncodingManager encodingManager = EncodingManager.create(
+            new ORSDefaultFlagEncoderFactory(),
+            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true" // Added conditional access for time restriction testing
+    );
     private final PedestrianFlagEncoder flagEncoder;
     private final BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
@@ -244,4 +247,76 @@ public class PedestrianFlagEncoderTest {
         way.setTag("bicycle", "permissive");
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }
+
+    /**
+     * Test the routing of pedestrian ways with time restrictions.
+     * An encoding manager with conditional access activated must be used.
+     */
+    @Test
+    public void testHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way = generatePedestrianWay();
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (15:00-19:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+
+    @Test
+    public void testHighwayConditionallyClosed(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way = generatePedestrianWay();
+        way.setTag("access:conditional", "no @ (15:00-19:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+
+    @Test
+    public void testNonHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+
+    @Test
+    public void testNonHighwayConditionallyClosed(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access:conditional", "no @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+
+    // End of time restriction testing
+
+    @Test
+    public void acceptLockGateFootAllowed() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "yes");
+
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
+    public void rejectLockGateFootAccessMissing() {
+        way.setTag("waterway", "lock_gate");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
+    @Test
+    public void rejectLockGateFootForbidden() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "no");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
 }

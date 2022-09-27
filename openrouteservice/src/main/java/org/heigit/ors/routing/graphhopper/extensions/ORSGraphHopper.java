@@ -48,7 +48,6 @@ import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.IsochroneWeightingFactory;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
@@ -58,8 +57,8 @@ import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -76,10 +75,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
-import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
-import static com.graphhopper.util.Parameters.Algorithms.*;
-import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
-import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_DEPARTURE;
 
 
 public class ORSGraphHopper extends GraphHopper {

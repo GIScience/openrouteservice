@@ -1227,6 +1227,36 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
+    public void testCsvExtraInfo() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("extra_info", constructExtras("csv"));
+        JSONObject weightings = new JSONObject();
+        weightings.put("csv_factor", 1.0);
+        weightings.put("csv_column", "less_than_0.5");
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.csv.values[2][0]", is(lessThan(50)))
+
+                .statusCode(200);
+    }
+    @Test
     public void testInvalidExtraInfoWarning() {
         JSONObject body = new JSONObject();
         body.put("preference", "recommended");
@@ -2886,6 +2916,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2896,8 +2927,53 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2308.3f))
-                .body("routes[0].summary.duration", is(1662.0f))
+                .body("routes[0].summary.distance", is(closeTo(2308.3, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1662.0, 2)))
+                .statusCode(200);
+    }
+    @Test
+    public void testPreferShadow() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(closeTo(2097.2, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1510.0, 2)))
+                .statusCode(200);
+
+        JSONObject weightings = new JSONObject();
+        weightings.put("shadow", 1.0);
+        JSONObject params = new JSONObject();
+        params.put("weightings", weightings);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.distance", is(closeTo(2125.7, 2)))
+                .body("routes[0].summary.duration", is(closeTo(1530.5, 2)))
                 .statusCode(200);
     }
 
@@ -2931,6 +3007,7 @@ public class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("footProfile"))
@@ -2941,8 +3018,8 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('summary')", is(true))
-                .body("routes[0].summary.distance", is(2878.7f))
-                .body("routes[0].summary.duration", is(2072.6f))
+                .body("routes[0].summary.distance", is(closeTo(2878.7, 2)))
+                .body("routes[0].summary.duration", is(closeTo(2072.6, 2)))
                 .statusCode(200);
     }
 

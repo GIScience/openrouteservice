@@ -13,7 +13,7 @@ ARG TOMCAT_VERSION=8.5.69
 RUN useradd -u $UID -md /ors-core ors
 
 # Create directories
-RUN mkdir /usr/local/tomcat /ors-conf /var/log/ors && \
+RUN mkdir -p /usr/local/tomcat /ors-conf /var/log/ors && \
     chown ors:ors /usr/local/tomcat /ors-conf /var/log/ors
 
 # Install dependencies and locales

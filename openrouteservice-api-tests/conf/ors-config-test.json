@@ -338,6 +338,12 @@
                 "NoiseIndex": {
                   "filepath": "openrouteservice-api-tests/data/noise_data_hd.csv"
                 },
+                "csv": {
+                  "filepath": "openrouteservice-api-tests/data/csv_data_hd.csv"
+                },
+                "ShadowIndex": {
+                  "filepath": "openrouteservice-api-tests/data/shadow_index_hd.csv"
+                },
                 "WayCategory": {},
                 "WaySurfaceType": {},
                 "HillIndex": {},
@@ -357,6 +363,9 @@
                 },
                 "NoiseIndex": {
                   "filepath": "openrouteservice-api-tests/data/noise_data_hd.csv"
+                },
+                "ShadowIndex": {
+                  "filepath": "openrouteservice-api-tests/data/shadow_index_hd.csv"
                 },
                 "WayCategory": {},
                 "WaySurfaceType": {},

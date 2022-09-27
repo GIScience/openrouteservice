@@ -40,6 +40,7 @@ If that doesn't work, the sidebar has you covered:
   [translations](contributing/Contributing-Translations)
 * [Documentation](documentation/Documentation) contains all sorts of
   explanation about the internal workings of the openrouteservice.
+* [FAQ](Frequently-Asked-Questions) contains answers to frequently asked questions.
 
 If you prefer a dark theme, click on the *dark* button next to the search bar.
 
