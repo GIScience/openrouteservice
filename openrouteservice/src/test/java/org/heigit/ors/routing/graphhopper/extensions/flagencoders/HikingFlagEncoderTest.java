@@ -21,7 +21,7 @@ import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
@@ -93,7 +93,7 @@ public class HikingFlagEncoderTest {
         assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
 
         rel.getTags().put("route", "ferry");
-        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handleRelationTags(ref, rel));
+        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(ref, rel));
 
     }
 
@@ -110,7 +110,7 @@ public class HikingFlagEncoderTest {
     @Test
     public void testAddPriorityFromRelation() {
         way = generateHikeWay();
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 1));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
     @Test
@@ -146,11 +146,11 @@ public class HikingFlagEncoderTest {
     @Test
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test

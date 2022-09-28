@@ -18,7 +18,7 @@ import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
@@ -272,19 +272,19 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                     case "road":
                     case "unclassified":
                         if (maxSpeed > 0 && maxSpeed <= 30) {
-                            weightToPrioMap.put(120d, PriorityCode.REACH_DESTINATION.getValue());
+                            weightToPrioMap.put(120d, PriorityCode.REACH_DEST.getValue());
                         } else {
-                            weightToPrioMap.put(100d, PriorityCode.VERY_BAD.getValue());
+                            weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
                         }
                         break;
                     case "living_street":
-                        weightToPrioMap.put(100d, PriorityCode.VERY_BAD.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
                         break;
                     case VAL_TRACK:
-                        weightToPrioMap.put(100d, PriorityCode.REACH_DESTINATION.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
                         break;
                     default:
-                        weightToPrioMap.put(40d, PriorityCode.VERY_BAD.getValue());
+                        weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
                         break;
                 }
             } else {
@@ -294,7 +294,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
             if (maxSpeed > 0) {
                 // We assume that the given road segment goes through a settlement.
                 if (maxSpeed <= 40)
-                    weightToPrioMap.put(110d, PriorityCode.VERY_BAD.getValue());
+                    weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
                 else if (maxSpeed <= 50)
                     weightToPrioMap.put(110d, PriorityCode.UNCHANGED.getValue());
             }

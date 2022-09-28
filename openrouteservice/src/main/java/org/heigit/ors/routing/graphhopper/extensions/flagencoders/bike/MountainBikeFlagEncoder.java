@@ -19,14 +19,14 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Specifies the settings for mountain biking

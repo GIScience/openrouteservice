@@ -19,7 +19,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
@@ -78,7 +78,7 @@ public class PedestrianFlagEncoderTest {
 
         rel.setTag("route", "ferry");
         IntsRef ref = new IntsRef(2);
-        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handleRelationTags(ref, rel));
+        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(ref, rel));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class PedestrianFlagEncoderTest {
     @Test
     public void testDesignatedFootwayPriority() {
         way.setTag("highway", "secondary");
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
 
         way.setTag("foot", "designated");
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
@@ -134,11 +134,11 @@ public class PedestrianFlagEncoderTest {
     @Test
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
-        assertEquals(PriorityCode.REACH_DESTINATION.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class PedestrianFlagEncoderTest {
         way.setTag("tunnel", "yes");
         way.setTag("sidewalk", "no");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.VERY_BAD.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer)PriorityCode.AVOID_IF_POSSIBLE.getValue(), priorityMap.lastEntry().getValue());
 
         way.setTag("sidewalk", "both");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
@@ -241,9 +241,9 @@ public class PedestrianFlagEncoderTest {
         way.setTag("highway", "path");
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "official");
-        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "designated");
-        assertEquals(PriorityCode.VERY_BAD.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("bicycle", "permissive");
         assertEquals(PriorityCode.PREFER.getValue(), flagEncoder.handlePriority(way, 0));
     }

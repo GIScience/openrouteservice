@@ -19,8 +19,8 @@ import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
 
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.BEST;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.VERY_NICE;
 
 public class HikingFlagEncoder extends FootFlagEncoder {
 

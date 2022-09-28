@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
@@ -27,7 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
  * @author Peter Karich
  */
 public class FastestSafeWeighting extends FastestWeighting {
-	private final Double priorityThreshold = PriorityCode.REACH_DESTINATION.getValue() / (double)PriorityCode.BEST.getValue();
+	private final Double priorityThreshold = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
 	
 	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
 		super(encoder, map);

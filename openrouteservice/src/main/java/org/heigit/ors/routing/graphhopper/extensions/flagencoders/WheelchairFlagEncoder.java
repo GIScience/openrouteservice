@@ -17,7 +17,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
@@ -460,7 +460,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             code = PriorityCode.PREFER.getValue();
         } 
         else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = VERY_BAD.getValue();
+            code = AVOID_IF_POSSIBLE.getValue();
         }
 
         double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
@@ -666,9 +666,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         int sum = positiveFeatures - negativeFeatures;
 
-        if (sum <= -6) return EXCLUDE.getValue();
-        else if (sum <= -3) return REACH_DESTINATION.getValue();
-        else if (sum <= -1) return VERY_BAD.getValue();
+        if (sum <= -6) return AVOID_AT_ALL_COSTS.getValue();
+        else if (sum <= -3) return REACH_DEST.getValue();
+        else if (sum <= -1) return AVOID_IF_POSSIBLE.getValue();
         else if (sum ==0) return UNCHANGED.getValue();
         else if (sum <= 2) return PREFER.getValue();
         else if (sum <= 5) return VERY_NICE.getValue();

@@ -21,7 +21,7 @@ import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
@@ -35,7 +35,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFla
 import java.util.*;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Defines bit layout of bicycles (not motorcycles) for speed, access and relations (network).
@@ -254,7 +254,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         setCyclingNetworkPreference("lcn", PREFER.getValue());
         setCyclingNetworkPreference("mtb", UNCHANGED.getValue());
 
-        setCyclingNetworkPreference("deprecated", REACH_DESTINATION.getValue());
+        setCyclingNetworkPreference("deprecated", REACH_DEST.getValue());
 
         setAvoidSpeedLimit(71);
     }
@@ -375,7 +375,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 code = PriorityCode.PREFER.getValue();  // Assume priority of network "lcn" as bicycle route default
             }
         } else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = VERY_BAD.getValue();
+            code = AVOID_IF_POSSIBLE.getValue();
         }
 
         int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
@@ -641,11 +641,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             case 0:
                 return UNCHANGED;
             case -1:
-                return VERY_BAD;
+                return AVOID_IF_POSSIBLE;
             case -2:
-                return REACH_DESTINATION;
+                return REACH_DEST;
             case -3:
-                return EXCLUDE;
+                return AVOID_AT_ALL_COSTS;
             default:
                 return UNCHANGED;
         }
@@ -690,15 +690,15 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
                 }
             }
         } else if (avoidHighwayTags.contains(highway) || maxSpeed >= avoidSpeedLimit && !KEY_TRACK.equals(highway)) {
-            weightToPrioMap.put(50d, REACH_DESTINATION.getValue());
+            weightToPrioMap.put(50d, REACH_DEST.getValue());
             if (way.hasTag("tunnel", intendedValues)) {
-                weightToPrioMap.put(50d, EXCLUDE.getValue());
+                weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
             }
         }
 
         if (pushingSectionsHighways.contains(highway)
                 || "parking_aisle".equals(service)) {
-            int pushingSectionPrio = VERY_BAD.getValue();
+            int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
             // MARQ24 MOD START
             if(!isRoadBikeEncoder) {
             // MARQ24 MOD END
@@ -713,7 +713,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             // MARQ24 MOD END
 
             if (way.hasTag("foot", "yes")) {
-                pushingSectionPrio = Math.max(pushingSectionPrio - 1, EXCLUDE.getValue());
+                pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
                 if (!isRoadBikeEncoder && way.hasTag(KEY_SEGREGATED, "yes")) {
                     pushingSectionPrio = Math.min(pushingSectionPrio + 1, BEST.getValue());
                 }
@@ -722,7 +722,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         if (way.hasTag(KEY_RAILWAY, "tram")) {
-            weightToPrioMap.put(50d, EXCLUDE.getValue());
+            weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
         }
 
         String classBicycleValue = way.getTag(classBicycleKey);

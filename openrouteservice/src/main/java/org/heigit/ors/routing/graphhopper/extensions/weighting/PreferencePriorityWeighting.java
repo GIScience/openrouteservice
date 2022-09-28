@@ -15,7 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.util.EdgeIteratorState;
@@ -25,8 +25,8 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class PreferencePriorityWeighting extends FastestWeighting {
-	private static final double THRESHOLD_VERY_BAD = PriorityCode.VERY_BAD.getValue() / (double)PriorityCode.BEST.getValue();
-	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DESTINATION.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_VERY_BAD = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_PREFER = PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_VERY_NICE = PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST.getValue();
 	private final DecimalEncodedValue priorityEncoder;

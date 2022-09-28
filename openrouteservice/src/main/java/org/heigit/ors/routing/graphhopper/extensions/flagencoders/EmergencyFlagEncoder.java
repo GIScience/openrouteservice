@@ -15,7 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -338,16 +338,16 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 					weightToPrioMap.put(100d,  PriorityCode.UNCHANGED.getValue());
 				else if ("residential".equals(highway) || KEY_SERVICE.equals(highway) || "road".equals(highway) || "unclassified".equals(highway)) {
 					 if (maxSpeed > 0 && maxSpeed <= 30)
-						 weightToPrioMap.put(120d,  PriorityCode.REACH_DESTINATION.getValue());
+						 weightToPrioMap.put(120d,  PriorityCode.REACH_DEST.getValue());
 					 else
-						 weightToPrioMap.put(100d,  PriorityCode.VERY_BAD.getValue());
+						 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
 				}
 				else if ("living_street".equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.VERY_BAD.getValue());
+					 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
 				else if (KEY_TRACK.equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.REACH_DESTINATION.getValue());
+					 weightToPrioMap.put(100d,  PriorityCode.REACH_DEST.getValue());
 				else 
-					weightToPrioMap.put(40d, PriorityCode.VERY_BAD.getValue());
+					weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
 			}
 			else	
 				weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
@@ -355,7 +355,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 			if (maxSpeed > 0) {
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)
-					weightToPrioMap.put(110d, PriorityCode.VERY_BAD.getValue());
+					weightToPrioMap.put(110d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
 				else if (maxSpeed <= 50)
 					weightToPrioMap.put(110d, PriorityCode.UNCHANGED.getValue());
 			}
