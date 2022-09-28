@@ -3460,7 +3460,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectElevationSmoothing() {  // waiting for smoothing update check
+    public void expectElevationSmoothing() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -3476,9 +3476,9 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2002.4f))
-                .body("routes[0].summary.ascent", is(7.5f))
-                .body("routes[0].summary.descent", is(6.2f))
+                .body("routes[0].summary.distance", is(2002.1f))
+                .body("routes[0].summary.ascent", is(7.1f))
+                .body("routes[0].summary.descent", is(6.6f))
                 .statusCode(200);
     }
 
