@@ -51,7 +51,7 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         // TODO Check if the shadow index file exists
         String csvFile = parameters.get("filepath");
-        LOGGER.info("Shadow Index File: " + csvFile + "\n");
+        LOGGER.info("Shadow Index File: " + csvFile);
         readShadowIndicesFromCSV(csvFile);
         _storage = new ShadowIndexGraphStorage();
 

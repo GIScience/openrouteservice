@@ -224,7 +224,7 @@ public class ORSGraphHopper extends GraphHopper {
 	@Override
 	protected WeightingFactory createWeightingFactory() {
 		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
-		return new OrsWeightingFactoryGh4(getGraphHopperStorage(), getEncodingManager());
+		return new OrsWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
 
 	// TODO: This override is unnecessary, because the changes are already applied
@@ -684,7 +684,7 @@ public class ORSGraphHopper extends GraphHopper {
 				calculateContours();
 				List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
 				for (Profile profile : profiles) {
-					Weighting weighting = ((OrsWeightingFactoryGh4) createWeightingFactory()).createIsochroneWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"));
+					Weighting weighting = ((OrsWeightingFactory) createWeightingFactory()).createIsochroneWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"));
 
 					for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
 						calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
@@ -877,7 +877,7 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-		return eccentricity != null && eccentricity.isAvailable(OrsWeightingFactoryGh4.createIsochroneWeighting(searchContext, travelRangeType));
+		return eccentricity != null && eccentricity.isAvailable(OrsWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
 	}
 
     /**

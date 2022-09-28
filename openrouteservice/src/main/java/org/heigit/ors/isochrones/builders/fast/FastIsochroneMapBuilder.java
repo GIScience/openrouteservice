@@ -48,7 +48,7 @@ import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import org.heigit.ors.routing.graphhopper.extensions.OrsWeightingFactoryGh4;
+import org.heigit.ors.routing.graphhopper.extensions.OrsWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
@@ -132,7 +132,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         // only needed for reachfactor property
         double meanMetersPerSecond = meanSpeed / 3.6;
 
-        Weighting weighting = OrsWeightingFactoryGh4.createIsochroneWeighting(searchcontext, parameters.getRangeType());
+        Weighting weighting = OrsWeightingFactory.createIsochroneWeighting(searchcontext, parameters.getRangeType());
 
         Coordinate loc = parameters.getLocation();
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();

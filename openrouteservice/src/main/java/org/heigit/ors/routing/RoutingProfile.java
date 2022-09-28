@@ -182,7 +182,6 @@ public class RoutingProfile {
             loadCntx.setElevationProvider(gh.getElevationProvider());
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-//        gh.setWeightingFactory(new ORSWeightingFactory());
 
         gh.importOrLoad();
         // store CountryBordersReader for later use
@@ -731,7 +730,7 @@ public class RoutingProfile {
      * @return
      */
     private MatrixResult computeCoreMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
-        Weighting weighting = new OrsWeightingFactoryGh4(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
+        Weighting weighting = new OrsWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
         RoutingCHGraph graph = ((ORSGraphHopperStorage) gh.getGraphHopperStorage()).getCoreGraph(profileName);
         RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
         PMap additionalHints = searchCntx.getProperties();
@@ -762,7 +761,7 @@ public class RoutingProfile {
      */
     private MatrixResult computeDijkstraMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-        Weighting weighting = new OrsWeightingFactoryGh4(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
+        Weighting weighting = new OrsWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 

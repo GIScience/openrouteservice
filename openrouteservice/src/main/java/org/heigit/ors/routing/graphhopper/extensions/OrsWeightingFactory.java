@@ -29,14 +29,9 @@ import static com.graphhopper.util.Helper.toLowerCase;
  * to figure out, which parts of ORSWeightingFactory are still needed and which
  * ones are remnants of unmaintained features.
  */
-public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
-    private GraphHopperStorage graphStorage;
-    private EncodingManager encodingManager;
-
-    public OrsWeightingFactoryGh4(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
+public class OrsWeightingFactory extends DefaultWeightingFactory {
+    public OrsWeightingFactory(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
         super(ghStorage, encodingManager);
-        graphStorage = ghStorage; // TODO: cleanup - this references the same storage as in super
-        this.encodingManager = encodingManager; // TODO: cleanup - this references the same storage as in super
     }
 
     @Override
@@ -131,19 +126,25 @@ public class OrsWeightingFactoryGh4 extends DefaultWeightingFactory {
             for (String weightingName : weightingNames) {
                 switch (weightingName) {
                     case "steepness_difficulty":
-                        softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+                        softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
                     case "avoid_hills":
-                        softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+                        softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
                     case "green":
-                        softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+                        softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
                     case "quiet":
-                        softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+                        softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
                     case "acceleration":
-                        softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+                        softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                        break;
+                    case "csv":
+                        softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                        break;
+                    case "shadow":
+                        softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
                     default:
                         break;
