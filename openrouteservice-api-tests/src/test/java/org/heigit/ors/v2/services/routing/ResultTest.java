@@ -2280,34 +2280,13 @@ public class ResultTest extends ServiceTest {
 
     @Test
     public void testWheelchairSurfaceQualityKnown() {
-
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
         body.put("preference", "recommended");
         body.put("instructions", true);
 
-//        given()
-//                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
-//                .header("Accept", "application/json")
-//                .header("Content-Type", "application/json")
-//                .pathParam("profile", "wheelchair")
-//                .body(body.toString())
-//                .when()
-//                .post(getEndPointPath() + "/{profile}")
-//                .then().log().ifValidationFails()
-//                .assertThat()
-//                .body("any { it.key == 'routes' }", is(true))
-//                .body("routes[0].summary.distance", is(closeTo(749.1f, 1)))
-//                .body("routes[0].summary.duration", is(closeTo(559.9f, 1)))
-//                .statusCode(200);
-
-        JSONObject params = new JSONObject();
-        params.put("surface_quality_known", true);
-        JSONObject options = new JSONObject();
-        options.put("profile_params", params);
-        body.put("options", options);
-
         given()
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", "wheelchair")
@@ -2317,52 +2296,30 @@ public class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2215.7f))
-                .body("routes[0].summary.duration", is(1656.7f))
+                .body("routes[0].summary.distance", is(closeTo(749.1f, 1)))
+                .body("routes[0].summary.duration", is(closeTo(559.9f, 1)))
                 .statusCode(200);
 
-//        JSONObject body = new JSONObject();
-//        body.put("coordinates", constructCoords("8.668175339698793, 49.415594066329106|8.669645190238954, 49.413261001859425"));
-//        body.put("instructions", true);
-//        body.put("preference", "shortest");
-//        body.put("extra_info", constructExtras("osmid"));
-//
-//        JSONObject params = new JSONObject();
-//        params.put("allow_unsuitable", true);
-//        JSONObject options = new JSONObject();
-//        options.put("profile_params", params);
-//        body.put("options", options);
-//
-//        given()
-//                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
-//                .header("Accept", "application/json")
-//                .header("Content-Type", "application/json")
-//                .pathParam("profile", "wheelchair")
-//                .body(body.toString())
-//                .when()
-//                .post(getEndPointPath() + "/{profile}")
-//                .then().log().ifValidationFails()
-//                .assertThat()
-//                .body("any { it.key == 'routes' }", is(true))
-//                .body("routes[0].summary.distance", is(closeTo(319.1, 1)))
-//                .body("routes[0].summary.duration", is(closeTo(261.8, 1)))
-//                .statusCode(200);
-//
-//        params.put("surface_quality_known", true);
-//
-//        given()
-//                .header("Accept", "application/json")
-//                .header("Content-Type", "application/json")
-//                .pathParam("profile", "wheelchair")
-//                .body(body.toString())
-//                .when()
-//                .post(getEndPointPath() + "/{profile}")
-//                .then().log().ifValidationFails()
-//                .assertThat()
-//                .body("any { it.key == 'routes' }", is(true))
-//                .body("routes[0].summary.distance", is(2215.7f))
-//                .body("routes[0].summary.duration", is(1656.7f))
-//                .statusCode(200);
+        JSONObject params = new JSONObject();
+        params.put("surface_quality_known", true);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(2215.7, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1656.7, 1)))
+                .statusCode(200);
     }
 
     @Test
