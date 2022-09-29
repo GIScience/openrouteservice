@@ -739,9 +739,6 @@ public class RoutingProfile {
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
 
-        //TODO can be removed when the matrix virtual edge issue has been checked
-//        if (weighting.hasTurnCosts())
-//            (weighting).setInORS(true);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
         MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
