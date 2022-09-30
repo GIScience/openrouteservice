@@ -16,7 +16,11 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
+import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -24,6 +28,7 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
@@ -39,7 +44,6 @@ import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
@@ -52,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
@@ -386,11 +391,12 @@ public class RoutingProfileManager {
                     if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
                                         i,
                                         FormatUtility.formatCoordinate(c0),
                                         i + 1,
-                                        FormatUtility.formatCoordinate(c1))
+                                        FormatUtility.formatCoordinate(c1),
+                                        ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails().values().stream().map(Object::toString).collect(Collectors.joining(" ")))
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();

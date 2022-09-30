@@ -50,8 +50,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.mapmatching.MapMatcher;
-import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.mapmatching.hmm.HiddenMarkovMapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
@@ -79,10 +77,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.

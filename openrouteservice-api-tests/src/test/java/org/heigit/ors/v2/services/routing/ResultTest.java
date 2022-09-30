@@ -3728,6 +3728,37 @@ public class ResultTest extends ServiceTest {
             .statusCode(200).extract().response();
     }
 
+    @Test
+    public void testPTFail() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.704433);
+        coord1.put(49.403378);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.676101);
+        coord2.put(49.408324); //
+        coordinates.put(coord2);
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("departure", "2022-09-26T07:30:26Z");
+        body.put("walking_time", "PT10S");
+        given()
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}")
+            .then().log().all()
+            .assertThat()
+            .body("any { it.key == 'error' }", is(true))
+            .body("error.code", is(2009))
+            .body("error.message", containsString("Entry station cannot be reached within given street time."))
+            .body("error.message", containsString("Exit station cannot be reached within given street time."))
+            .statusCode(404).extract().response();
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
