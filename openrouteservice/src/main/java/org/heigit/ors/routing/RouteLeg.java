@@ -35,6 +35,8 @@ public class RouteLeg {
 	private final String tripHeadsign;
 	private final String routeLongName;
 	private final String routeShortName;
+	private final String routeDesc;
+	private final int routeType;
 	private final double distance;
 	private final double duration;
 	private final ZonedDateTime departureTime;
@@ -72,6 +74,8 @@ public class RouteLeg {
 			tripHeadsign = ((Trip.PtLeg) leg).trip_headsign;
 			routeLongName = ((Trip.PtLeg) leg).route_long_name;
 			routeShortName = ((Trip.PtLeg) leg).route_short_name;
+			routeDesc = ((Trip.PtLeg) leg).route_desc;
+			routeType = ((Trip.PtLeg) leg).route_type;
 			feedId = ((Trip.PtLeg) leg).feed_id;
 			tripId = ((Trip.PtLeg) leg).trip_id;
 			routeId = ((Trip.PtLeg) leg).route_id;
@@ -85,6 +89,8 @@ public class RouteLeg {
 			tripHeadsign = null;
 			routeLongName = null;
 			routeShortName = null;
+			routeDesc = null;
+			routeType = 0;
 			feedId = null;
 			tripId = null;
 			routeId = null;
@@ -119,6 +125,14 @@ public class RouteLeg {
 
 	public String getRouteShortName() {
 		return routeShortName;
+	}
+
+	public String getRouteDesc() {
+		return routeDesc;
+	}
+
+	public int getRouteType() {
+		return routeType;
 	}
 
 	public double getDistance() {

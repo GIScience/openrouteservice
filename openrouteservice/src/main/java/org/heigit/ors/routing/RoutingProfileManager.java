@@ -55,6 +55,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -389,14 +390,35 @@ public class RoutingProfileManager {
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
                     if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                        Map<String, Object> details = ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails();
+                        if (!details.isEmpty()) {
+                            int code = RoutingErrorCodes.ROUTE_NOT_FOUND;
+                            if (details.containsKey("entry_not_reached") && details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_NOT_REACHED;
+                            } else if (details.containsKey("entry_not_reached")) {
+                                code = RoutingErrorCodes.PT_ENTRY_NOT_REACHED;
+                            } else if (details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_EXIT_NOT_REACHED;
+                            }
+                            throw new RouteNotFoundException(
+                                code,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1),
+                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                )
+                            );
+                        }
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
                                         i,
                                         FormatUtility.formatCoordinate(c0),
                                         i + 1,
-                                        FormatUtility.formatCoordinate(c1),
-                                        ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails().values().stream().map(Object::toString).collect(Collectors.joining(" ")))
+                                        FormatUtility.formatCoordinate(c1)
+                                        )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();

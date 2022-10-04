@@ -3700,6 +3700,7 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('feed_id')", is(true))
             .body("routes[0].legs[1].containsKey('trip_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_id')", is(true))
+            .body("routes[0].legs[1].containsKey('route_type')", is(true))
             .body("routes[0].legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
         System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
@@ -3724,6 +3725,7 @@ public class ResultTest extends ServiceTest {
             .body("features[0].properties.legs[1].containsKey('feed_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('trip_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('route_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_type')", is(true))
             .body("features[0].properties.legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
     }
@@ -3742,6 +3744,39 @@ public class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", coordinates);
         body.put("departure", "2022-09-26T07:30:26Z");
+        body.put("walking_time", "PT1M");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("ptProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'error' }", is(true))
+                .body("error.code", is(2013))
+                .body("error.message", containsString("PT entry point cannot be reached within given street time."))
+                .statusCode(404).extract().response();
+
+        coordinates = new JSONArray();
+        coordinates.put(coord2);
+        coordinates.put(coord1);
+        body.put("coordinates", coordinates);
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("ptProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'error' }", is(true))
+                .body("error.code", is(2014))
+                .body("error.message", containsString("PT exit point cannot be reached within given street time."))
+                .statusCode(404).extract().response();
+
         body.put("walking_time", "PT10S");
         given()
             .header("Accept", "application/json")
@@ -3750,12 +3785,12 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}")
-            .then().log().all()
+            .then().log().ifValidationFails()
             .assertThat()
             .body("any { it.key == 'error' }", is(true))
-            .body("error.code", is(2009))
-            .body("error.message", containsString("Entry station cannot be reached within given street time."))
-            .body("error.message", containsString("Exit station cannot be reached within given street time."))
+            .body("error.code", is(2015))
+            .body("error.message", containsString("PT entry point cannot be reached within given street time."))
+            .body("error.message", containsString("PT exit point cannot be reached within given street time."))
             .statusCode(404).extract().response();
     }
 
