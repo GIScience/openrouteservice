@@ -2681,8 +2681,8 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('warnings')", is(true))
                 .body("routes[0].warnings[0].containsKey('code')", is(true))
                 .body("routes[0].warnings[0].code", is(3))
-                .body("routes[0].segments.size", is(4))
-                .body("routes[0].way_points.size", is(5))
+                .body("routes[0].segments.size()", is(4))
+                .body("routes[0].way_points.size()", is(5))
                 .body("routes[0].bbox[0]", is(0.0f))
                 .body("routes[0].bbox[1]", is(0.0f))
                 .statusCode(200);

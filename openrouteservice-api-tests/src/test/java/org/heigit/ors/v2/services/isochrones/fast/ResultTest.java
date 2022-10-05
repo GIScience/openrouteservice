@@ -379,7 +379,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(75))
+                .body("features[0].geometry.coordinates[0].size()", is(75))
                 .statusCode(200);
 
         body.put("smoothing", "100");
@@ -393,7 +393,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(89))
+                .body("features[0].geometry.coordinates[0].size()", is(89))
                 .statusCode(200);
     }
 
