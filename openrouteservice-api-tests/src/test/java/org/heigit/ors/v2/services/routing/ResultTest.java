@@ -1329,7 +1329,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1709.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1710.7, 1)))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound

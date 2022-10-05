@@ -32,7 +32,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private boolean includeRestrictions = true;
 	private HeavyVehicleAttributesGraphStorage storage;
 	private int hgvType = 0;
-	private int hgvDestination = 0;
 	private boolean hasRestrictionValues;
 	private final double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
 	private final List<String> motorVehicleRestrictions = new ArrayList<>(5);
@@ -77,7 +76,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	public void processWay(ReaderWay way) {
 		// reset values
 		hgvType = 0;
-		hgvDestination = 0;
 
 		if (hasRestrictionValues) {
 			restrictionValues[0] = 0.0;
@@ -101,9 +99,11 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			if (way.hasTag(motorVehicleRestrictions, motorVehicleHgvValues)) {
 				int flag = 0;
 				for (String key : motorVehicleRestrictions) {
-					String val = way.getTag(key);
-					if (motorVehicleHgvValues.contains(val))
-						flag |= HeavyVehicleAttributes.getFromString(val);
+					String [] values = way.getTagValues(key);
+					for (String val: values) {
+						if (motorVehicleHgvValues.contains(val))
+							flag |= HeavyVehicleAttributes.getFromString(val);
+					}
 				}
 				hgvType = HeavyVehicleAttributes.ANY & ~flag;
 			}
@@ -213,7 +213,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	}
 
 	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		storage.setEdgeValue(edge.getEdge(), hgvType, hgvDestination, restrictionValues);
+		storage.setEdgeValue(edge.getEdge(), hgvType, restrictionValues);
 	}
 
 	private String getHeavyVehicleValue(String key, String hv, String value) {
@@ -251,7 +251,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 				hgvType &= ~flag;
 			else if ("destination".equals(tag) || (flag==HeavyVehicleAttributes.DELIVERY && VAL_DELIVERY.equals(tag))) {
 				hgvType |= flag;
-				hgvDestination |= flag;
 			}
 		}
 	}

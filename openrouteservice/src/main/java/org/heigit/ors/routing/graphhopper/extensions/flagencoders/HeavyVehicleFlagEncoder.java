@@ -156,16 +156,17 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         String highwayValue = way.getTag(KEY_HIGHWAY);
-
-        String firstValue = way.getFirstPriorityTag(restrictions);
+        String [] restrictionValues = way.getFirstPriorityTagValues(restrictions);
         if (highwayValue == null) {
             if (way.hasTag("route", ferries)) {
-                if (restrictedValues.contains(firstValue))
-                    return EncodingManager.Access.CAN_SKIP;
-                if (intendedValues.contains(firstValue) ||
-                        // implied default is allowed only if foot and bicycle is not specified:
-                        firstValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
-                    return EncodingManager.Access.FERRY;
+                for (String restrictionValue: restrictionValues) {
+                    if (restrictedValues.contains(restrictionValue))
+                        return EncodingManager.Access.CAN_SKIP;
+                    if (intendedValues.contains(restrictionValue) ||
+                            // implied default is allowed only if foot and bicycle is not specified:
+                            restrictionValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
+                        return EncodingManager.Access.FERRY;
+                }
             }
             return EncodingManager.Access.CAN_SKIP;
         }
@@ -184,11 +185,13 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
-        if (!firstValue.isEmpty()) {
-            if (restrictedValues.contains(firstValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
-                return EncodingManager.Access.CAN_SKIP;
-            if (intendedValues.contains(firstValue))
-                return EncodingManager.Access.WAY;
+        for (String restrictionValue: restrictionValues) {
+            if (!restrictionValue.isEmpty()) {
+                if (restrictedValues.contains(restrictionValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
+                    return EncodingManager.Access.CAN_SKIP;
+                if (intendedValues.contains(restrictionValue))
+                    return EncodingManager.Access.WAY;
+            }
         }
 
         // do not drive street cars into fords
