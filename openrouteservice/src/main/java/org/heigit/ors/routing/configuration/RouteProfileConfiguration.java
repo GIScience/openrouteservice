@@ -65,11 +65,12 @@ public class RouteProfileConfiguration {
     private int trafficExpirationMin = 15;
 
     private boolean turnCostEnabled = false;
+	private boolean enforceTurnCosts = false;
 
-    public RouteProfileConfiguration() {
-        extStorages = new HashMap<>();
-        graphBuilders = new HashMap<>();
-    }
+	public RouteProfileConfiguration() {
+		extStorages = new HashMap<>();
+		graphBuilders = new HashMap<>();
+	}
 
     public RouteProfileConfiguration(RouteProfileConfiguration rpc) {
         name = rpc.name;
@@ -392,9 +393,13 @@ public class RouteProfileConfiguration {
         this.turnCostEnabled = turnCostEnabled;
     }
 
-    public void setTrafficExpirationMin(int trafficExpirationMin) {
-        this.trafficExpirationMin = trafficExpirationMin;
-    }
+	public boolean isEnforceTurnCosts() {
+		return enforceTurnCosts;
+	}
+
+	public void setTrafficExpirationMin(int trafficExpirationMin) {
+		this.trafficExpirationMin = trafficExpirationMin;
+	}
 
     public int getTrafficExpirationMin() {
         return this.trafficExpirationMin;
