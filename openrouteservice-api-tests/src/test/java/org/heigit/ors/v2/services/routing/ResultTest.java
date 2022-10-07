@@ -3701,6 +3701,7 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('trip_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_id')", is(true))
             .body("routes[0].legs[1].containsKey('route_type')", is(true))
+            .body("routes[0].legs[1].containsKey('route_desc')", is(true))
             .body("routes[0].legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
         System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
@@ -3726,6 +3727,7 @@ public class ResultTest extends ServiceTest {
             .body("features[0].properties.legs[1].containsKey('trip_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('route_id')", is(true))
             .body("features[0].properties.legs[1].containsKey('route_type')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_desc')", is(true))
             .body("features[0].properties.legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
     }
@@ -3792,6 +3794,46 @@ public class ResultTest extends ServiceTest {
             .body("error.message", containsString("PT entry point cannot be reached within given street time."))
             .body("error.message", containsString("PT exit point cannot be reached within given street time."))
             .statusCode(404).extract().response();
+
+        body.put("walking_time", "PT10M");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("ptProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'error' }", is(true))
+                .body("error.code", is(2016))
+                .body("error.message", containsString("PT entry and exit points found but no connecting route. Increase walking time to explore more results."))
+                .statusCode(404).extract().response();
+
+        coordinates = new JSONArray();
+        JSONArray coord3 = new JSONArray();
+        coord3.put(8.758935);
+        coord3.put(49.337371);
+        JSONArray coord4 = new JSONArray();
+        coord4.put(8.771123);
+        coord4.put(49.511863);
+        coordinates.put(coord3);
+        coordinates.put(coord4);
+        body.put("coordinates", coordinates);
+        body.put("walking_time", "PT30M");
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("ptProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'error' }", is(true))
+                .body("error.code", is(2017))
+                .body("error.message", containsString("Maximum number of nodes exceeded: 15000"))
+                .statusCode(404).extract().response();
     }
 
     private JSONArray constructBearings(String coordString) {

@@ -63,6 +63,8 @@ public class RouteProfileConfiguration {
 
 	private int trafficExpirationMin = 15;
 
+	private int maximumVisitedNodesPT = 1000000;
+
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
 		graphBuilders = new HashMap<>();
@@ -107,6 +109,7 @@ public class RouteProfileConfiguration {
 		trafficExpirationMin = rpc.trafficExpirationMin;
 
 		gtfsFile = rpc.gtfsFile;
+		maximumVisitedNodesPT = rpc.maximumVisitedNodesPT;
 	}
 
 	public Integer[] getProfilesTypes() {
@@ -419,5 +422,13 @@ public class RouteProfileConfiguration {
 
 	public String getGtfsFile() {
 		return this.gtfsFile;
+	}
+
+	public int getMaximumVisitedNodesPT() {
+		return maximumVisitedNodesPT;
+	}
+
+	public void setMaximumVisitedNodesPT(int maximumVisitedNodesPT) {
+		this.maximumVisitedNodesPT = maximumVisitedNodesPT;
 	}
 }

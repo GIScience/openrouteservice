@@ -90,7 +90,7 @@ public class RouteLeg {
 			routeLongName = null;
 			routeShortName = null;
 			routeDesc = null;
-			routeType = 0;
+			routeType = -1;
 			feedId = null;
 			tripId = null;
 			routeId = null;

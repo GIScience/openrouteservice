@@ -1272,6 +1272,7 @@ public class RoutingProfile {
         ptRequest.setAccessProfile("foot_fastest");
         ptRequest.setEgressProfile("foot_fastest");
 
+        ptRequest.setMaxVisitedNodes(config.getMaximumVisitedNodesPT());
 
         return ptRequest;
     }

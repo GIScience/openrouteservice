@@ -21,6 +21,7 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
+import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -399,6 +400,8 @@ public class RoutingProfileManager {
                                 code = RoutingErrorCodes.PT_ENTRY_NOT_REACHED;
                             } else if (details.containsKey("exit_not_reached")) {
                                 code = RoutingErrorCodes.PT_EXIT_NOT_REACHED;
+                            } else if (details.containsKey("combined_not_reached")) {
+                                code = RoutingErrorCodes.PT_ROUTE_NOT_FOUND;
                             }
                             throw new RouteNotFoundException(
                                 code,
@@ -412,13 +415,25 @@ public class RoutingProfileManager {
                             );
                         }
                         throw new RouteNotFoundException(
-                                RoutingErrorCodes.ROUTE_NOT_FOUND,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
-                                        i,
-                                        FormatUtility.formatCoordinate(c0),
-                                        i + 1,
-                                        FormatUtility.formatCoordinate(c1)
-                                        )
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                i,
+                                FormatUtility.formatCoordinate(c0),
+                                i + 1,
+                                FormatUtility.formatCoordinate(c1)
+                            )
+                        );
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
+                        Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
+                        throw new RouteNotFoundException(
+                            RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
+                            String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
+                                i,
+                                FormatUtility.formatCoordinate(c0),
+                                i + 1,
+                                FormatUtility.formatCoordinate(c1),
+                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                            )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();

@@ -334,6 +334,7 @@
             "parameters": {
               "encoder_options": "block_fords=false",
               "elevation": true,
+              "maximum_visited_nodes": 1000000,
               "gtfs_file": "openrouteservice-api-tests/data/vrn_gtfs.zip"
             }
           }

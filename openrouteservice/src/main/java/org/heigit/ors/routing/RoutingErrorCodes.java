@@ -38,6 +38,9 @@ public class RoutingErrorCodes {
     public static final int PT_EXIT_NOT_REACHED = 2014;
     public static final int PT_NOT_REACHED = 2015;
 
+    public static final int PT_ROUTE_NOT_FOUND = 2016;
+
+    public static final int PT_MAX_VISITED_NODES_EXCEEDED = 2017;
     public static final int UNKNOWN = 2099;
     private RoutingErrorCodes() {}
 }
