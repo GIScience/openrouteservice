@@ -232,6 +232,9 @@ public class RoutingManagerConfiguration  {
 					case "traffic_expiration_min":
 						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
 						break;
+					case "force_turn_costs":
+						profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

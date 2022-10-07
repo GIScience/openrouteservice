@@ -393,6 +393,10 @@ public class RouteProfileConfiguration {
         this.turnCostEnabled = turnCostEnabled;
     }
 
+	public void setEnforceTurnCosts(boolean enforceTurnCosts) {
+		this.enforceTurnCosts = enforceTurnCosts;
+	}
+
 	public boolean isEnforceTurnCosts() {
 		return enforceTurnCosts;
 	}

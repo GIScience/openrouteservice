@@ -63,7 +63,7 @@ RELEASING:
 
 ## [6.7.1] - 2022-10-05
 ### Added
-- optional `encoder_options` parameter `force_turn_costs` ([#1220](https://github.com/GIScience/openrouteservice/pull/1220))
+- optional routing profile parameter `force_turn_costs` ([#1220](https://github.com/GIScience/openrouteservice/pull/1220))
 
 ## [6.7.0] - 2022-01-04
 ### Added
