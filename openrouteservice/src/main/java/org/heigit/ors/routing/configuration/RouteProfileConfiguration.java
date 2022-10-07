@@ -85,7 +85,7 @@ public class RouteProfileConfiguration {
 
 		encoderFlagsSize = rpc.encoderFlagsSize;
 		encoderOptions = rpc.encoderOptions;
-		enforceTurnCosts = hasEnforceTurnCosts(rpc.encoderOptions);
+		enforceTurnCosts = rpc.enforceTurnCosts;
 
 		isochronePreparationOpts = rpc.isochronePreparationOpts;
 		preparationOpts = rpc.preparationOpts;
@@ -216,15 +216,6 @@ public class RouteProfileConfiguration {
 	{
 		return maximumDistanceDynamicWeights;
 	}
-    private static boolean hasEnforceTurnCosts(String encoderOptions) {
-        for (String option : encoderOptions.split("\\|")) {
-            String[] keyValuePair = option.split("=");
-            if (keyValuePair.length > 0 && keyValuePair[0].equals("force_turn_costs")) {
-                return keyValuePair[1].equals("true");
-            }
-        }
-        return false;
-    }
 
 	public void setMaximumDistanceAvoidAreas(Double value)
 	{
@@ -274,7 +265,6 @@ public class RouteProfileConfiguration {
 	public void setEncoderOptions(String value)
 	{
 		encoderOptions = value;
-		enforceTurnCosts = hasEnforceTurnCosts(value);
 	}
 	
 	public String getEncoderOptions()
@@ -415,6 +405,10 @@ public class RouteProfileConfiguration {
 
 	public double getMaximumSpeedLowerBound(){
 		return maximumSpeedLowerBound;
+	}
+
+	public void setEnforceTurnCosts(boolean enforceTurnCosts) {
+		this.enforceTurnCosts = enforceTurnCosts;
 	}
 
 	public boolean isEnforceTurnCosts() {
