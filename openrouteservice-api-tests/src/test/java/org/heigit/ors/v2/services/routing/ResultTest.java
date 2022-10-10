@@ -1418,7 +1418,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(617.1f))
+                .body("routes[0].summary.distance", is(617.3f))
                 .statusCode(200);
     }
 
