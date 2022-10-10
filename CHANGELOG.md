@@ -34,6 +34,30 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
+- python code on decoding polylines including elevation data
+- Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
+- Pedestrian and hiking support for time dependent routing
+- Esperanto language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
+- Romanian language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
+- link to YouTube docker setup guide to docs (thanks to SyntaxByte)
+- prototype of generic CSV-based routing to be used for heat stress
+- Shadow Routing 
+### Fixed
+- allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
+- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
+- Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
+- internal properties of `IsochronesRequest` model not ignored for swagger file generation
+- remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
+- set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
+- added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
+- typo in docker documentation
+- foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
+- address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
+- fix minor spelling errors in Places.md ([#1196](https://github.com/GIScience/openrouteservice/issues/1196))
+- address matrix failures for HGV profile ([#1198](https://github.com/GIScience/openrouteservice/issues/1198))
 
 ## [6.7.1] - 2022-10-05
 ### Added

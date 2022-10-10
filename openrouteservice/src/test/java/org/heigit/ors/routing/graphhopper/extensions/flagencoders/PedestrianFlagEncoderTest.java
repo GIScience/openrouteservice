@@ -24,7 +24,6 @@ import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,9 +34,13 @@ import java.util.TreeMap;
 import static org.junit.Assert.*;
 
 public class PedestrianFlagEncoderTest {
-    private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.PEDESTRIAN_ORS, 4);
-    private PedestrianFlagEncoder flagEncoder;
-    private BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
+    private final EncodingManager encodingManager = EncodingManager.create(
+            new ORSDefaultFlagEncoderFactory(),
+            FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for time restriction testing
+            4
+    );
+    private final PedestrianFlagEncoder flagEncoder;
+    private final BooleanEncodedValue roundaboutEnc = encodingManager.getBooleanEncodedValue("roundabout");
     private ReaderWay way;
     // TODO: Refactor the design of this test class to make more sense. Currently, the member variable 'way' is
     // TODO: modified in methods like 'generatePedestrianWay' or 'generateFerryWay', but also returned by this methods
@@ -334,6 +337,77 @@ public class PedestrianFlagEncoderTest {
 //        }
 //
 //        assertTrue(throwsError);
+    }
+
+    /**
+     * Test the routing of pedestrian ways with time restrictions.
+     * An encoding manager with conditional access activated must be used.
+     */
+    @Test
+    public void testHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way = generatePedestrianWay();
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (15:00-19:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    @Test
+    public void testHighwayConditionallyClosed(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way = generatePedestrianWay();
+        way.setTag("access:conditional", "no @ (15:00-19:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    @Test
+    public void testNonHighwayConditionallyOpen(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access", "no");
+        way.setTag("access:conditional", "yes @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    @Test
+    public void testNonHighwayConditionallyClosed(){
+        assertTrue(encodingManager.hasConditionalAccess());
+
+        way.setTag("railway", "platform");
+        way.setTag("access:conditional", "no @ (5:00-23:30)");
+
+        assertTrue(flagEncoder.getAccess(way).isConditional());
+    }
+    
+    // End of time restriction testing
+
+    @Test
+    public void acceptLockGateFootAllowed() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "yes");
+
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
+    public void rejectLockGateFootAccessMissing() {
+        way.setTag("waterway", "lock_gate");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
+    @Test
+    public void rejectLockGateFootForbidden() {
+        way.setTag("waterway", "lock_gate");
+        way.setTag("foot", "no");
+
+        assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
 }

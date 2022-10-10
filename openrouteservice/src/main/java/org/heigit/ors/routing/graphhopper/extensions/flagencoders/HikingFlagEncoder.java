@@ -23,11 +23,11 @@ import static com.graphhopper.routing.util.PriorityCode.BEST;
 import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
 
 public class HikingFlagEncoder extends FootFlagEncoder {
+
     public HikingFlagEncoder(PMap properties) {
         this((int) properties.getLong("speedBits", 4),
                 properties.getDouble("speedFactor", 1));
-        this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", false));
+        setProperties(properties, false);
     }
 
     private HikingFlagEncoder(int speedBits, double speedFactor) {

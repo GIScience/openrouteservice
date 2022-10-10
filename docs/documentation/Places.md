@@ -14,7 +14,7 @@ Category groups
 
 |                             Name                             | Value |
 |:------------------------------------------------------------:|:-----:|
-| [accomodation](#accomodation--100)                           | 100   |
+| [accommodation](#accommodation--100)                         | 100   |
 | [animals](#animals--120)                                     | 120   |
 | [arts_and_culture](#arts_and_culture--130)                   | 130   |
 | [education](#education--150)                                 | 150   |
@@ -35,12 +35,12 @@ Category groups
 
 Categories listed by group
 
-### accomodation : 100
+### accommodation : 100
 
 |      Name      | Value |
 |:--------------:|:-----:|
 | alpine_hut     | 101   |
-| apparmtent     | 102   |
+| apartment      | 102   |
 | camp_site      | 103   |
 | caravan_site   | 104   |
 | chalet         | 105   |
@@ -77,7 +77,7 @@ Categories listed by group
 | college        | 151   |
 | driving_school | 152   |
 | kindergarten   | 153   |
-| lanuage_school | 154   |
+| language_school| 154   |
 | music_school   | 155   |
 | school         | 156   |
 | university     | 157   |
@@ -206,7 +206,7 @@ Categories listed by group
 |        Name       | Value | Name             | Value | Name                | Value | Name                  | Value | Name          | Value | Name            | Value |
 |:-----------------:|:-----:|------------------|-------|---------------------|-------|-----------------------|-------|---------------|-------|-----------------|-------|
 | agrarian          | 421   | curtain          | 441   | e-cigarette         | 461   | hifi                  | 481   | optician      | 502   | tiles           | 522   |
-| alkohol           | 422   | cheese           | 442   | farm                | 462   | houseware             | 482   | organic       | 503   | tobacco         | 523   |
+| alcohol           | 422   | cheese           | 442   | farm                | 462   | houseware             | 482   | organic       | 503   | tobacco         | 523   |
 | antiques          | 423   | chemist          | 443   | fashion             | 463   | hunting               | 483   | outdoor       | 504   | toys            | 524   |
 | art               | 424   | chocolate        | 444   | fishing             | 464   | jewelry               | 485   | paint         | 505   | trophy          | 525   |
 | bag               | 425   | clock            | 445   | florist             | 465   | leather               | 486   | pastry        | 506   | tyres           | 526   |
@@ -214,7 +214,7 @@ Categories listed by group
 | bed               | 427   | clothes          | 447   | furniture           | 467   | kiosk                 | 488   | photo         | 508   | vending_machine | 528   |
 | beverages         | 428   | coffee           | 448   | games               | 468   | kitchen               | 489   | pyrotechnics  | 509   | video           | 529   |
 | bicycle           | 429   | computer         | 449   | garden_centre       | 469   | lamps                 | 490   | radiotechnics | 510   | video_games     | 530   |
-| books             | 430   | confectionery    | 450   | garden_furniture    | 470   | lottery               | 491   | seefood       | 511   | watches         | 531   |
+| books             | 430   | confectionery    | 450   | garden_furniture    | 470   | lottery               | 491   | seafood       | 511   | watches         | 531   |
 | boutique          | 431   | convenience      | 451   | gas                 | 471   | mall                  | 492   | second_hand   | 512   | weapons         | 532   |
 | brewing_supplies  | 432   | copyshop         | 452   | general             | 472   | marketplace           | 493   | security      | 513   | wine            | 533   |
 | business_machines | 433   | cosmetics        | 453   | gift                | 473   | medical_supply        | 494   | shoes         | 514   |                 |       |

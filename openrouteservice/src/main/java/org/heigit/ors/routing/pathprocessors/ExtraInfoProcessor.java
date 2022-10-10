@@ -58,6 +58,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private OsmIdGraphStorage extOsmId;
 	private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
 	private BordersGraphStorage extCountryTraversalInfo;
+	private CsvGraphStorage extCsvData;
+	private ShadowIndexGraphStorage extShadowIndex;
 
 	private RouteExtraInfo surfaceInfo;
 	private RouteExtraInfoBuilder surfaceInfoBuilder;
@@ -98,6 +100,13 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 	private RouteExtraInfo countryTraversalInfo;
 	private RouteExtraInfoBuilder countryTraversalInfoBuilder;
+
+	private RouteExtraInfo csvInfo;
+	private RouteExtraInfoBuilder csvInfoBuilder;
+	int csvColumn = 0;
+
+  private RouteExtraInfo shadowInfo;
+	private RouteExtraInfoBuilder shadowInfoBuilder;
 
 	private List<Integer> warningExtensions;
 
@@ -222,6 +231,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 				}
 			}
 
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SHADOW)) {
+				extShadowIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, ShadowIndexGraphStorage.class);
+				if (extShadowIndex != null) {
+					shadowInfo = new RouteExtraInfo("shadow");
+					shadowInfoBuilder = new AppendableRouteExtraInfoBuilder(shadowInfo);
+				} else {
+					skippedExtras.add("shadow");
+				}
+			}
+
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
 				extOsmId = GraphStorageUtils.getGraphExtension(graphHopperStorage, OsmIdGraphStorage.class);
 				if (extOsmId != null) {
@@ -249,6 +268,17 @@ public class ExtraInfoProcessor implements PathProcessor {
 					countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
 				} else {
 					skippedExtras.add("countryinfo");
+				}
+			}
+
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.CSV)) {
+				extCsvData = GraphStorageUtils.getGraphExtension(graphHopperStorage, CsvGraphStorage.class);
+				if (extCsvData != null) {
+					csvInfo = new RouteExtraInfo("csv");
+					csvInfoBuilder = new AppendableRouteExtraInfoBuilder(csvInfo);
+					csvColumn = extCsvData.columnIndex(params.get("weighting_#csv#column", ""));
+				} else {
+					skippedExtras.add("csv");
 				}
 			}
 		} catch (Exception ex) {
@@ -280,7 +310,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 * the list of warning extras.
 	 *
 	 * @param encodedExtras		The encoded value stating which extras were passed explicitly
-	 * @param infoFlag			The id of the extra info whos inclusion needs to be decided
+	 * @param infoFlag			The id of the extra info whose inclusion needs to be decided
 	 *
 	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
@@ -346,6 +376,14 @@ public class ExtraInfoProcessor implements PathProcessor {
 			countryTraversalInfoBuilder.finish();
 			extras.add(countryTraversalInfo);
 		}
+		if (csvInfo != null) {
+			csvInfoBuilder.finish();
+			extras.add(csvInfo);
+		}
+		if (shadowInfo != null) {
+			shadowInfoBuilder.finish();
+			extras.add(shadowInfo);
+		}
 		return extras;
 	}
 
@@ -376,6 +414,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 			((AppendableRouteExtraInfoBuilder) roadAccessRestrictionsInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.roadAccessRestrictionsInfoBuilder);
 		if (countryTraversalInfoBuilder != null)
 			((AppendableRouteExtraInfoBuilder) countryTraversalInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.countryTraversalInfoBuilder);
+		if (csvInfo != null)
+			((AppendableRouteExtraInfoBuilder) csvInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.csvInfoBuilder);
+		if (shadowInfo != null)
+			((AppendableRouteExtraInfoBuilder) shadowInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.shadowInfoBuilder);
 	}
 
 	@Override
@@ -488,6 +530,16 @@ public class ExtraInfoProcessor implements PathProcessor {
 		if (roadAccessRestrictionsInfoBuilder != null) {
 			int value = extRoadAccessRestrictions.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			roadAccessRestrictionsInfoBuilder.addSegment(value, value, geom, dist);
+		}
+
+		if (csvInfoBuilder != null) {
+			int value = extCsvData.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), csvColumn, buffer);
+			csvInfoBuilder.addSegment(value, value, geom, dist);
+		}
+
+    if (shadowInfoBuilder != null) {
+			int shadowLevel = extShadowIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			shadowInfoBuilder.addSegment(shadowLevel, shadowLevel, geom, dist);
 		}
 	}
 

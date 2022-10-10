@@ -62,14 +62,18 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecor
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.MaximumSpeedCalculator;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
@@ -82,6 +86,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
+import static com.graphhopper.routing.ch.CHAlgoFactoryDecorator.EdgeBasedCHMode.EDGE_OR_NODE;
+import static com.graphhopper.routing.ch.CHAlgoFactoryDecorator.EdgeBasedCHMode.OFF;
 import static com.graphhopper.routing.weighting.TurnWeighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Parameters.Algorithms.*;
 import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
@@ -628,6 +634,44 @@ public class ORSGraphHopper extends GraphHopper {
 
         if (isTrafficEnabled())
             ORSWeightingFactory.addTrafficSpeedCalculator(getLMFactoryDecorator().getWeightings(), getGraphHopperStorage());
+    }
+
+    @Override
+    public void initCHAlgoFactoryDecorator() {
+        CHAlgoFactoryDecorator chFactoryDecorator = getCHFactoryDecorator();
+        EncodingManager encodingManager = getEncodingManager();
+        if (!chFactoryDecorator.hasCHProfiles()) {
+            for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+                for (String chWeightingStr : chFactoryDecorator.getCHProfileStrings()) {
+                    // ghStorage is null at this point
+
+                    // extract weighting string and u-turn-costs
+                    String configStr = "";
+                    if (chWeightingStr.contains("|")) {
+                        configStr = chWeightingStr;
+                        chWeightingStr = chWeightingStr.split("\\|")[0];
+                    }
+                    PMap config = new PMap(configStr);
+                    int uTurnCosts = config.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
+
+                    Weighting weighting = createWeighting(new HintsMap(chWeightingStr), encoder, null);
+                    if (encoder.toString().equals(FlagEncoderNames.HEAVYVEHICLE) && graphStorageFactory instanceof ORSGraphStorageFactory) {
+                        ORSGraphStorageFactory orsGraphStorageFactory = (ORSGraphStorageFactory) graphStorageFactory;
+                        HeavyVehicleAttributesGraphStorage hgvStorage = GraphStorageUtils.getGraphExtension(orsGraphStorageFactory.getGraphExtension(), HeavyVehicleAttributesGraphStorage.class);
+                        EdgeFilter hgvEdgeFilter = new HeavyVehicleEdgeFilter(HeavyVehicleAttributes.HGV, null, hgvStorage);
+                        weighting = new HgvAccessWeighting(weighting, hgvEdgeFilter);
+                    }
+
+                    CHAlgoFactoryDecorator.EdgeBasedCHMode edgeBasedCHMode = chFactoryDecorator.getEdgeBasedCHMode();
+                    if (!(edgeBasedCHMode == EDGE_OR_NODE && encoder.supports(TurnWeighting.class))) {
+                        chFactoryDecorator.addCHProfile(CHProfile.nodeBased(weighting));
+                    }
+                    if (edgeBasedCHMode != OFF && encoder.supports(TurnWeighting.class)) {
+                        chFactoryDecorator.addCHProfile(CHProfile.edgeBased(weighting, uTurnCosts));
+                    }
+                }
+            }
+        }
     }
 
     /**

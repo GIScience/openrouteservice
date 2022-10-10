@@ -420,9 +420,24 @@ public class APIRequest {
                 params.add(pw);
             }
 
+            if (weightings.hasShadowIndex()) {
+                ProfileWeighting pw = new ProfileWeighting("shadow");
+                Float shadowFactor = weightings.getShadowIndex();
+                if (shadowFactor > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", shadowFactor), "shadow factor", "1.0");
+                pw.addParameter("factor", shadowFactor);
+                params.add(pw);
+            }
+
             if (weightings.hasSteepnessDifficulty()) {
                 ProfileWeighting pw = new ProfileWeighting("steepness_difficulty");
                 pw.addParameter("level", weightings.getSteepnessDifficulty());
+                params.add(pw);
+            }
+            if (weightings.hasCsv()) {
+                ProfileWeighting pw = new ProfileWeighting("csv");
+                pw.addParameter("column", weightings.getCsvColumn());
+                pw.addParameter("factor", weightings.getCsvFactor());
                 params.add(pw);
             }
         } catch (InternalServerException e) {

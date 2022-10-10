@@ -142,6 +142,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         problematicSpeedFactor = configuration.getDouble("problematic_speed_factor", 1);
         preferredSpeedFactor = configuration.getDouble("preferred_speed_factor", 1);
+        	
+        setProperties(configuration);
     }
 
     /**

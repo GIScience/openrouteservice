@@ -65,8 +65,9 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_JUNCTION = "junction";
     public static final String KEY_SEGREGATED = "segregated";
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
+    public static final String KEY_BRIDLEWAY = "bridleway";
 
-    // Pushing section heighways are parts where you need to get off your bike and push it (German: Schiebestrecke)
+    // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
     protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
     protected final HashSet<String> oppositeLanes = new HashSet<>();
     protected final Set<String> preferHighwayTags = new HashSet<>();
@@ -240,6 +241,10 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         avoidHighwayTags.add(KEY_MOTORWAY);
         avoidHighwayTags.add(KEY_MOTORWAY_LINK);
 
+        // bridleways are allowed to ride over in some cases
+        setHighwaySpeed(KEY_BRIDLEWAY, 6);
+        avoidHighwayTags.add(KEY_BRIDLEWAY);
+
         setCyclingNetworkPreference("icn", BEST.getValue());
         setCyclingNetworkPreference("ncn", BEST.getValue());
         setCyclingNetworkPreference("rcn", VERY_NICE.getValue());
@@ -336,7 +341,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // accept only if explicitly tagged for bike usage
-        if (KEY_MOTORWAY.equals(highwayValue) || KEY_MOTORWAY_LINK.equals(highwayValue)) {
+        if (KEY_MOTORWAY.equals(highwayValue) || KEY_MOTORWAY_LINK.equals(highwayValue) || KEY_BRIDLEWAY.equals(highwayValue)) {
             return EncodingManager.Access.CAN_SKIP;
         }
 
