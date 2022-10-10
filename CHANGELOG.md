@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.8.0] - 2022-10-10
 ### Added
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
@@ -569,7 +571,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...HEAD
+[6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
 [6.7.1]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...v6.7.1
 [6.7.0]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...v6.7.0
 [6.6.4]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...v6.6.4
