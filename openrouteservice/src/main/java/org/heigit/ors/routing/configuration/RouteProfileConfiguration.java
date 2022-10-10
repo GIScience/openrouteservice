@@ -63,6 +63,8 @@ public class RouteProfileConfiguration {
 
 	private int trafficExpirationMin = 15;
 
+	private boolean enforceTurnCosts = false;
+
 	public RouteProfileConfiguration() {
 		extStorages = new HashMap<>();
 		graphBuilders = new HashMap<>();
@@ -83,6 +85,8 @@ public class RouteProfileConfiguration {
 
 		encoderFlagsSize = rpc.encoderFlagsSize;
 		encoderOptions = rpc.encoderOptions;
+		enforceTurnCosts = rpc.enforceTurnCosts;
+
 		isochronePreparationOpts = rpc.isochronePreparationOpts;
 		preparationOpts = rpc.preparationOpts;
 		executionOpts = rpc.executionOpts;
@@ -401,6 +405,14 @@ public class RouteProfileConfiguration {
 
 	public double getMaximumSpeedLowerBound(){
 		return maximumSpeedLowerBound;
+	}
+
+	public void setEnforceTurnCosts(boolean enforceTurnCosts) {
+		this.enforceTurnCosts = enforceTurnCosts;
+	}
+
+	public boolean isEnforceTurnCosts() {
+		return enforceTurnCosts;
 	}
 
 	public void setTrafficExpirationMin(int trafficExpirationMin) {
