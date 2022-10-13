@@ -74,6 +74,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -1240,6 +1241,8 @@ public class RoutingProfile {
         // schedule is called profile in GraphHopper
         if (params.hasSchedule()) {
             ptRequest.setProfileQuery(params.getSchedule());
+        } else {
+            ptRequest.setProfileQuery(false);
         }
 
         // scheduleDuration is called profileDuration accordingly
@@ -1247,6 +1250,7 @@ public class RoutingProfile {
             ptRequest.setMaxProfileDuration(params.getScheduleDuaration());
         }
 
+        // this will default to false
         ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
 
         // TODO: check whether language can be parsed in RouteResultBuilder
@@ -1266,6 +1270,8 @@ public class RoutingProfile {
         // walkingTime is called limit_street_time in GraphHopper
         if (params.hasWalkingTime()) {
             ptRequest.setLimitStreetTime(params.getWalkingTime());
+        } else {
+            ptRequest.setLimitStreetTime(Duration.ofMinutes(15));
         }
 
         // default to foot access and egress
