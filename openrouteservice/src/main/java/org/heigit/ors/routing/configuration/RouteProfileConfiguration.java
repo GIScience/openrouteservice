@@ -88,6 +88,7 @@ public class RouteProfileConfiguration {
         encoderFlagsSize = rpc.encoderFlagsSize;
         encoderOptions = rpc.encoderOptions;
         turnCostEnabled = hasTurnCosts(rpc.encoderOptions);
+		enforceTurnCosts = rpc.enforceTurnCosts;
 
         isochronePreparationOpts = rpc.isochronePreparationOpts;
         preparationOpts = rpc.preparationOpts;
