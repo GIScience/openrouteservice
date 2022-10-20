@@ -16,6 +16,7 @@ package org.heigit.ors.isochrones.builders.concaveballs;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
@@ -36,6 +37,7 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
@@ -78,20 +80,24 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         String graphdate = graph.getProperties().get("datareader.import.date");
 
         // 1. Find all graph edges for a given cost.
-        double maxSpeed = searchContext.getEncoder().getMaxSpeed();
+        FlagEncoder encoder = searchContext.getEncoder();
+        double maxSpeed = encoder.getMaxSpeed();
 
-        if (searchContext.getEncoder() instanceof FootFlagEncoder || searchContext.getEncoder() instanceof HikeFlagEncoder) {
+        if (encoder instanceof FootFlagEncoder || encoder instanceof HikeFlagEncoder) {
             // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
             maxSpeed = 4;
         }
 
-        if (searchContext.getEncoder() instanceof WheelchairFlagEncoder) {
+        if (encoder instanceof WheelchairFlagEncoder) {
             maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
         }
 
         double meanSpeed = maxSpeed;
-        if (searchContext.getEncoder() instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) searchContext.getEncoder()).getMeanSpeed();
+        if (encoder instanceof ORSAbstractFlagEncoder) {
+            meanSpeed = ((ORSAbstractFlagEncoder) encoder).getMeanSpeed();
+        }
+        if (encoder instanceof CommonBikeFlagEncoder) {
+            meanSpeed = ((CommonBikeFlagEncoder) encoder).getMeanSpeed();
         }
 
         AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(searchContext, parameters);

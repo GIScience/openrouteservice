@@ -13,22 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.IntsRef;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     /* This is just a temporary class to ease the transition from GH0.10 to 0.12 */
 
     protected ORSAbstractFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
-    }
-
-    @Override
-    public IntsRef handleWayTags(IntsRef var1, ReaderWay var2, EncodingManager.Access var3) {
-        // TODO: override in subclass
-        return null;
     }
 
     public abstract double getMeanSpeed();
