@@ -29,6 +29,7 @@ import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
 
 import java.util.*;
 
+import static com.graphhopper.routing.ev.RouteNetwork.*;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
@@ -41,7 +42,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
  * @author Nop
  * @author Karl Hübner
  */
-public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
+public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootFlagEncoder {
     static final int SLOW_SPEED = 2;
     private static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
@@ -59,6 +60,8 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
     protected DecimalEncodedValue priorityRelationEnc;
+    private EnumEncodedValue<RouteNetwork> footRouteEnc;
+    Map<RouteNetwork, Integer> routeMap = new HashMap<>();
 
     private BooleanEncodedValue conditionalAccessEncoder;
 
@@ -73,7 +76,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
 
     FootFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor, 0);
+        super(speedBits, speedFactor);
         restrictions.addAll(Arrays.asList("foot", "access"));
 
         restrictedValues.addAll(Arrays.asList(
@@ -148,6 +151,11 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         hikingNetworkToCode.put("rwn", UNCHANGED.getValue());
         hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
 
+        routeMap.put(INTERNATIONAL, UNCHANGED.getValue());
+        routeMap.put(NATIONAL, UNCHANGED.getValue());
+        routeMap.put(REGIONAL, UNCHANGED.getValue());
+        routeMap.put(LOCAL, UNCHANGED.getValue());
+
         maxPossibleSpeed = FERRY_SPEED;
     }
 
@@ -169,6 +177,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }
+        footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
     }
 
     @Override
@@ -232,6 +241,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         if (access.canSkip())
             return edgeFlags;
 
+        Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
         if (!access.isFerry()) {
             String sacScale = way.getTag(OSMTags.Keys.SAC_SCALE);
             if (sacScale != null && !"hiking".equals(sacScale)) {
@@ -250,11 +260,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         accessEnc.setBool(false, edgeFlags, true);
         accessEnc.setBool(true, edgeFlags, true);
 
-        int priorityFromRelation = 0;
-        if (relationFlags != null)
-              priorityFromRelation = (int) priorityRelationEnc.getDecimal(false, relationFlags);
-
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
         return edgeFlags;
     }
 
@@ -412,7 +418,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     private void assignAvoidUnlessSidewalkPresentPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
         if (avoidUnlessSidewalkTags.contains(highway) && !way.hasTag(OSMTags.Keys.SIDEWALK, usableSidewalkValues))
-            weightToPrioMap.put(45d, REACH_DEST.getValue());
+            weightToPrioMap.put(45d, AVOID_AT_ALL_COSTS.getValue());
     }
 
     /**
