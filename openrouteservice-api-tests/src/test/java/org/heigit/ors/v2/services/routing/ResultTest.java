@@ -818,22 +818,23 @@ public class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
 
-                .body("routes[0].segments[0].distance", is(6696.6f))
-                .body("routes[0].segments[0].duration", is(1398.4f))
-                .body("routes[0].segments[1].distance", is(6382.4f))
-                .body("routes[0].segments[1].duration", is(1338.6f))
+                .body("routes[0].segments[0].distance", is(closeTo(6689.5f, 1)))
+                .body("routes[0].segments[0].duration", is(closeTo(1397.0f, 1)))
+                .body("routes[0].segments[1].distance", is(closeTo(6377.1f, 1)))
+                .body("routes[0].segments[1].duration", is(closeTo(1337.6f, 1)))
                 .statusCode(200);
     }
 
@@ -880,7 +881,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 332, 624))
+                .body("routes[0].way_points", hasItems(0, 229, 426))
                 .statusCode(200);
     }
 
@@ -979,14 +980,14 @@ public class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}");
 
-        response.then()
+        response.then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.surface.values.size()", is(38))
-                .body("routes[0].extras.surface.values[18][1]", is(258))
-                .body("routes[0].extras.suitability.values[18][0]", is(521))
-                .body("routes[0].extras.steepness.values[10][1]", is(326))
+                .body("routes[0].extras.surface.values[18][1]", is(181))
+                .body("routes[0].extras.suitability.values[18][0]", is(237))
+                .body("routes[0].extras.steepness.values[10][1]", is(220))
                 .statusCode(200);
 
         checkExtraConsistency(response);
