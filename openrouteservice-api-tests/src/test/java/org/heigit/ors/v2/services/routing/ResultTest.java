@@ -3291,7 +3291,8 @@ public class ResultTest extends ServiceTest {
 
     }
 
-    @Test
+    // TODO: revisit after the update is done, this test is to be ignored for now.
+    @Test @Ignore
     public void testRoundTrip() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
@@ -3383,7 +3384,8 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    @Test
+    // TODO: revisit after the update is done, this test is to be ignored for now.
+    @Test @Ignore
     public void testWaypointCount() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
