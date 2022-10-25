@@ -29,8 +29,8 @@ import static com.graphhopper.util.Helper.toLowerCase;
  * to figure out, which parts of ORSWeightingFactory are still needed and which
  * ones are remnants of unmaintained features.
  */
-public class OrsWeightingFactory extends DefaultWeightingFactory {
-    public OrsWeightingFactory(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
+public class ORSWeightingFactory extends DefaultWeightingFactory {
+    public ORSWeightingFactory(GraphHopperStorage ghStorage, EncodingManager encodingManager) {
         super(ghStorage, encodingManager);
     }
 
