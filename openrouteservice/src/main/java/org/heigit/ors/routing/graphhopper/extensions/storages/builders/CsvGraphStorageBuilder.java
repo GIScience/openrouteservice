@@ -33,6 +33,7 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private CsvGraphStorage storage;
     private Map<Long, Integer[]> id2Value = new HashMap<>();
     private static final int MAX_VALUE = 100;
+    private static final int MIN_VALUE = -100;
     private final byte defaultValue = 0; // TODO: make configurable
     private String[] columnNames;
 
@@ -95,9 +96,9 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
         } else {
             int index = 0;
             for (Integer i: gi) {
-                if (i > MAX_VALUE) {
-                    throw new AssertionError("Value too large (way id " + id
-                            + " at index " + index + "):" + i + " > " + MAX_VALUE);
+                if (i > MAX_VALUE || i < MIN_VALUE) {
+                    throw new AssertionError("Value out of range (way id " + id
+                            + " at index " + index + "):" + i + " not in [" + MIN_VALUE + "," + MAX_VALUE + "]");
                 }
                 byteValues[index] = i.byteValue();
                 index++;
