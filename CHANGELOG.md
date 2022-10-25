@@ -35,6 +35,8 @@ RELEASING:
 
 ## [Unreleased]
 
+- add PoC for heat stress routing
+
 ## [6.8.0] - 2022-10-10
 ### Added
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
