@@ -98,9 +98,6 @@ public class GraphEdgeMapFinder {
         TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(weighting.getSpeedCalculator());
         trafficSpeedCalculator.init(graph, encoder);
         weighting.setSpeedCalculator(trafficSpeedCalculator);
-        // TODO: TurnWeighting does not exist any more
-        //  if (HelperORS.getTurnCostExtensions(graph.getExtension()) != null)
-        //    weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
         TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
                 TraversalMode.NODE_BASED);
         tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
