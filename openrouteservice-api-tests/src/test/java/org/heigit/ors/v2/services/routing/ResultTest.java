@@ -1395,7 +1395,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(2968.5, 2)))//once issue#1073 is resolved it should be equal to the reference A* route distance of 2816.7
@@ -1550,7 +1550,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].segments[0].containsKey('steps')", is(true))
@@ -2273,7 +2273,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath("export") + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .statusCode(200);
 
