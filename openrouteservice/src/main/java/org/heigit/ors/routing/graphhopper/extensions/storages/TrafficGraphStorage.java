@@ -418,7 +418,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs node storage is required
      */
-    // TODO: @Override
     public boolean isRequireNodeField() {
         return true;
     }
@@ -426,7 +425,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs edge storage is required
      */
-    // TODO: @Override
     public boolean isRequireEdgeField() {
         return true;
     }
@@ -434,7 +432,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating nodes
      */
-    // TODO: @Override
     public int getDefaultNodeFieldValue() {
         return -1;
     }
@@ -442,7 +439,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating edges
      */
-    // TODO: @Override
     public int getDefaultEdgeFieldValue() {
         return -1;
     }
@@ -481,7 +477,6 @@ public class TrafficGraphStorage implements GraphExtension {
      *
      * @param bytes Size in bytes.
      */
-    // TODO: @Override
     public void setSegmentSize(int bytes) {
         orsEdgesProperties.setSegmentSize(bytes);
         orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
@@ -557,7 +552,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the allocated storage size in bytes
      */
-    // TODO: @Override
+    @Override
     public long getCapacity() {
         return orsEdgesProperties.getCapacity() + orsEdgesTrafficLinkLookup.getCapacity() + orsSpeedPatternLookup.getCapacity();
     }

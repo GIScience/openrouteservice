@@ -68,7 +68,6 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         this.eccentricityPosition = 4;
     }
 
-    // TODO: how to deal with @Override
     public boolean loadExisting() {
         if (eccentricities.loadExisting()) {
             borderNodeCount = eccentricities.getHeader(0);
@@ -189,12 +188,10 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         }
     }
 
-    // TODO: how to deal with @Override
     public EccentricityStorage create(long byteCount) {
         throw new IllegalStateException("Do not call EccentricityStorage.create directly");
     }
 
-    // TODO: how to deal with @Override
     public void flush() {
         eccentricities.flush();
     }

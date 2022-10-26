@@ -62,7 +62,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     /**
      * @return true if successfully loaded from persistent storage.
      */
-    // TODO: how to deal with @Override
+    @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_noiselevel'. corrupt file or directory?");

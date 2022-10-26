@@ -371,7 +371,6 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         return "hiking".equals(sacScale);
     }
 
-    // TODO: how to handle @Override
     public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
         int code = 0;
         if (relation.hasTag(KEY_ROUTE, KEY_BICYCLE)) {

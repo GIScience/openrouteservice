@@ -48,7 +48,6 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         this.cellBytes = 5;
     }
 
-    // TODO: how to deal with @Override
     public boolean loadExisting() {
         if (isochroneNodes.loadExisting()) {
             for (int node = 0; node < nodeCount; node++)
@@ -98,12 +97,10 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         }
     }
 
-    // TODO: how to deal with @Override
     public IsochroneNodeStorage create(long byteCount) {
         throw new IllegalStateException("Do not call IsochroneNodeStorage.create directly");
     }
 
-    // TODO: how to deal with @Override
     public void flush() {
         isochroneNodes.flush();
     }

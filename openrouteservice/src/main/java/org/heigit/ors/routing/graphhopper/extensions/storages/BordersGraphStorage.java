@@ -101,7 +101,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 * @param graph
 	 * @param dir
 	 */
-	// TODO: how to deal with @Override
+	@Override
 	public void init(Graph graph, Directory dir) {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
@@ -123,7 +123,7 @@ public class BordersGraphStorage implements GraphExtension {
 	/**
 	 * @return true if successfully loaded from persistent storage.
 	 */
-	// TODO: how to deal with @Override
+	@Override
 	public boolean loadExisting() {
 		if (!orsEdges.loadExisting())
 			throw new IllegalStateException("Unable to load storage 'ext_borders'. corrupt file or directory?");
@@ -138,7 +138,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 *
 	 * @param initBytes
 	 */
-	// TODO: how to deal with @Override
+	@Override
 	public BordersGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
@@ -149,7 +149,7 @@ public class BordersGraphStorage implements GraphExtension {
 	 * a disc normally has an IO cache so that flush() is (less) probably not save against power
 	 * loses.
 	 */
-	// TODO: how to deal with @Override
+	@Override
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
 		orsEdges.setHeader(4, edgesCount);
