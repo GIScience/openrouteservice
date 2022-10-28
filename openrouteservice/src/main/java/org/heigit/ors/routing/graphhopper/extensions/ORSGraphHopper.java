@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.*;
+import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.reader.osm.OSMReader;
@@ -645,12 +646,11 @@ public class ORSGraphHopper extends GraphHopper {
 		if(corePreparationHandler.isEnabled())
 			corePreparationHandler.setProcessContext(processContext).createPreparations(gs);
 		if (isCorePrepared()) {
-			// TODO aoles
 			// check loaded profiles
-//			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
-//				if (!getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
-//					throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
-//			}
+			for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
+				if (!getProfileVersion(profile.getProfile()).isEmpty() && !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
+					throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+			}
 		} else {
 			prepareCore(closeEarly);
 		}
@@ -719,44 +719,10 @@ public class ORSGraphHopper extends GraphHopper {
 		}
 		return false;
 	}
-//	TODO aoles : check if removing this is ok
-//	/**
-//	 * Enables or disables core calculation.
-//	 */
-//	public GraphHopper setCoreEnabled(boolean enable) {
-//		ensureNotLoaded();
-//		//TODO corePreparationHandler.setEnabled(enable);
-//		return this;
-//	}
 
 	public final boolean isCoreEnabled() {
 		return corePreparationHandler.isEnabled();
 	}
-
-
-// TODO aoles: initialization logic needs to be moved to CorePrepartionHandler.init
-//	public void initCoreAlgoFactoryDecorator() {
-//		if (!coreFactoryDecorator.hasCHProfiles()) {
-//			for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
-//				for (String coreWeightingStr : coreFactoryDecorator.getCHProfileStrings()) {
-//					// ghStorage is null at this point
-//
-//					// extract weighting string and traversal mode
-//					String configStr = "";
-//					if (coreWeightingStr.contains("|")) {
-//						configStr = coreWeightingStr;
-//						coreWeightingStr = coreWeightingStr.split("\\|")[0];
-//					}
-//					PMap config = new PMap(configStr);
-//
-//					TraversalMode traversalMode = config.getBool("edge_based", true) ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED;
-//					Profile profile = null; // TODO: initialize correctly
-//					Weighting weighting = createWeighting(profile, new PMap(coreWeightingStr), false);
-//					coreFactoryDecorator.addCHProfile(new CHProfile(weighting, traversalMode, INFINITE_U_TURN_COSTS, CHProfile.TYPE_CORE));
-//				}
-//			}
-//		}
-//	}
 
 	public final CorePreparationHandler getCorePreparationHandler() {
 		return corePreparationHandler;
@@ -810,23 +776,21 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	protected void prepareCore(boolean closeEarly) {
-		//TODO aoles
-//		for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
-//			if (!getProfileVersion(profile.getProfile()).isEmpty()
-//					&& !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
-//				throw new IllegalArgumentException("CH preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
-//		}
+		for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
+			if (!getProfileVersion(profile.getProfile()).isEmpty()
+					&& !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
+				throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+		}
 		if (isCoreEnabled()) {
 			ensureWriteAccess();
 			GraphHopperStorage ghStorage = getGraphHopperStorage();
 			ghStorage.freeze();
 			corePreparationHandler.prepare(ghStorage.getProperties(), closeEarly);
 			ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
-			//TODO aoles
-//			for (com.graphhopper.config.CHProfile profile : corePreparationHandler.getCHProfiles()) {
-//				// potentially overwrite existing keys from LM
-//				setProfileVersion(profile.getProfile(), profilesByName.get(profile.getProfile()).getVersion());
-//			}
+			for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
+				// potentially overwrite existing keys from CH/LM
+				setProfileVersion(profile.getProfile(), profilesByName.get(profile.getProfile()).getVersion());
+			}
 		}
 	}
 
@@ -835,16 +799,6 @@ public class ORSGraphHopper extends GraphHopper {
                 // remove old property in >0.9
                 || "true".equals(getGraphHopperStorage().getProperties().get("prepare.done"));
     }
-
-//	TODO aoles : check if removing this is ok
-//	/**
-//	 * Enables or disables core calculation.
-//	 */
-//	public GraphHopper setCoreLMEnabled(boolean enable) {
-//		ensureNotLoaded();
-//		//TODO coreLMPreparationHandler.setEnabled(enable);
-//		return this;
-//	}
 
 	public final boolean isCoreLMEnabled() {
 		return coreLMPreparationHandler.isEnabled();

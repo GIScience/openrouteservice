@@ -49,6 +49,7 @@ public class CorePreparationHandler extends CHPreparationHandler {
     }
 
     public void init(ORSGraphHopperConfig ghConfig) {
+        setPreparationThreads(ghConfig.getInt(PREPARE + "threads", getPreparationThreads()));
         setCHProfiles(ghConfig.getCoreProfiles());
         pMap = ghConfig.asPMap();
     }
