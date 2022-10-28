@@ -59,7 +59,7 @@ public class RouteSearchParameters {
     public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
     public static final int DEFAULT_HGV_VEHICLE_TYPE = HeavyVehicleAttributes.HGV;
     private int profileType;
-    private int weightingMethod = WeightingMethod.FASTEST;
+    private int weightingMethod = WeightingMethod.RECOMMENDED;
     private Boolean considerTurnRestrictions = false;
     private Polygon[] avoidAreas;
     private int avoidFeaturesTypes;

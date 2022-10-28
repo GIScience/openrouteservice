@@ -706,8 +706,8 @@ public class RouteRequest extends APIRequest {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
-        if (this.hasRoutePreference())
-            params.setWeightingMethod(convertWeightingMethod(routePreference));
+        APIEnums.RoutePreference preference = this.hasRoutePreference() ? this.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
+        params.setWeightingMethod(convertWeightingMethod(preference));
 
         if (this.hasBearings())
             params.setBearings(convertBearings(bearings, coordinatesLength));
