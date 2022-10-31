@@ -418,4 +418,20 @@ public class ORSOSMReader extends OSMReader {
 		super.finishedReading();
 		procCntx.finish();
 	}
+
+	@Override
+	protected double getElevation(ReaderNode node) {
+		if (getElevationFromPreprocessedData) {
+			double ele = node.getEle();
+			if (Double.isNaN(ele)) {
+				if (!getElevationFromPreprocessedDataErrorLogged) {
+					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					getElevationFromPreprocessedDataErrorLogged = true;
+				}
+				ele = 0;
+			}
+			return ele;
+		}
+		return super.getElevation(node);
+	}
 }

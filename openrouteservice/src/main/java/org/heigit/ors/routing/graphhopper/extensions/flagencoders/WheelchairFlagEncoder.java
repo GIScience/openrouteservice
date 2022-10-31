@@ -565,8 +565,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         long encoded = super.handleNodeTags(node);
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-            // TODO: How to handle the following line?
-            // encoded = getEncoderBit();
+             encoded = getEncoderBit();
         }
         return encoded;
     }
