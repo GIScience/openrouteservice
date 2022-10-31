@@ -416,13 +416,14 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             return edgeFlags;
         }
 
-        Integer priorityFromRelation = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
+        Integer priorityFromRelationInt = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
+        int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt.intValue();
 
         double wayTypeSpeed = getSpeed(way);
         if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, false);//FIXME handleBikeRelated(edgeFlags, way, priorityRelationEnc.getDecimal(false, relationFlags) > UNCHANGED.getValue());
+            handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
@@ -611,9 +612,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
      *
      * @return new priority based on priorityFromRelation and on the tags in ReaderWay.
      */
-    protected int handlePriority(ReaderWay way, double wayTypeSpeed, Integer priorityFromRelation) {
+    protected int handlePriority(ReaderWay way, double wayTypeSpeed, int priorityFromRelation) {
         TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
-        if (priorityFromRelation == null)
+        if (priorityFromRelation == 0)
             weightToPrioMap.put(0d, UNCHANGED.getValue());
         else
             weightToPrioMap.put(110d, priorityFromRelation);

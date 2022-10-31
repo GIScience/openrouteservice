@@ -176,8 +176,6 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         
         yesValues.add("yes");
         yesValues.add("1");
-
-        init(null); // TODO: Need to pass initialized DateRangeParser?
     }
     
     @Override
