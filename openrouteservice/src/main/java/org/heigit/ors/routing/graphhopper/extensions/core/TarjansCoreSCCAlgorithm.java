@@ -19,6 +19,7 @@ import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage.CoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
@@ -56,7 +57,7 @@ public class TarjansCoreSCCAlgorithm {
     private final RoutingCHGraph core;
     private final int coreNodeLevel;
 
-    public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
+    public TarjansCoreSCCAlgorithm(ORSGraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
         this.core = core;
         this.nodeStack = new IntArrayDeque();
         this.onStack = new GHBitSetImpl(ghStorage.getNodes());

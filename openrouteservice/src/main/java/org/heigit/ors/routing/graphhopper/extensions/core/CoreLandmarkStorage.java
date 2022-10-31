@@ -56,7 +56,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     private RoutingCHGraphImpl core;
     private final LMEdgeFilterSequence landmarksFilter;
     private Map<Integer, Integer> coreNodeIdMap;
-    private final GraphHopperStorage graph;
+    private final ORSGraphHopperStorage graph;
     private final CoreLMConfig lmConfig;
 
     public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
@@ -64,7 +64,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     }
 
     //needed primarily for unit tests
-    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, RoutingCHGraph core, final CoreLMConfig lmConfig, int landmarks) {
+    public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, RoutingCHGraph core, final CoreLMConfig lmConfig, int landmarks) {
         super(graph, dir, lmConfig, landmarks);
         this.graph = graph;
         this.lmConfig = lmConfig;
