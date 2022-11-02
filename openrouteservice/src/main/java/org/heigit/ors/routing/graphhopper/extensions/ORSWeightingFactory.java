@@ -53,9 +53,9 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
             }
         } else {
             if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new FastestSafeWeighting(encoder, hints); // TODO: do we need turnCostProvider here?
+                weighting = new FastestSafeWeighting(encoder, hints, turnCostProvider);
             } else {
-                weighting = new FastestWeighting(encoder, hints); // TODO: do we need turnCostProvider here?
+                weighting = new FastestWeighting(encoder, hints, turnCostProvider);
             }
         }
 
