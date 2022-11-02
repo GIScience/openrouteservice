@@ -96,14 +96,11 @@ public class ORSGraphHopper extends GraphHopper {
 	private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
-	private double maximumSpeedLowerBound;
     private MapMatcher mMapMatcher;
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
 		processContext.init(this);
-		maximumSpeedLowerBound = procCntx.getMaximumSpeedLowerBound();
-
     }
 
 
@@ -121,7 +118,6 @@ public class ORSGraphHopper extends GraphHopper {
 			coreLMPreparationHandler.init(orsConfig);
 		}
 
-		//FIXME: coreLMPreparationHandler.init(ghConfig);
 		fastIsochroneFactory.init(ghConfig);
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
@@ -224,230 +220,8 @@ public class ORSGraphHopper extends GraphHopper {
 
 	@Override
 	protected WeightingFactory createWeightingFactory() {
-		// TODO: WeightingFactory was refactored to store GHStorage and EncodingManager instead of getting everything passed in the createWEighting method, need to adjust
 		return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
-
-	// TODO: This override is unnecessary, because the changes are already applied
-//       at the parent class level. The method has been removed in GH.
-//       Keep this commented-out code for reference until upgrade is done.
-//	@Override
-//	public List<Path> calcPaths(GHRequest request, GHResponse ghRsp) {
-//		if (getGraphHopperStorage() == null || !isFullyLoaded())
-//			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
-//
-//		if (getGraphHopperStorage().isClosed())
-//			throw new IllegalStateException("You need to create a new GraphHopper instance as it is already closed");
-//
-//		// default handling
-//		String vehicle = request.getVehicle();
-//		if (vehicle.isEmpty()) {
-//			vehicle = getDefaultVehicle().toString();
-//			request.setVehicle(vehicle);
-//		}
-//
-//		Lock readLock = getReadWriteLock().readLock();
-//		readLock.lock();
-//		try {
-//			if (!getEncodingManager().hasEncoder(vehicle))
-//				throw new IllegalArgumentException(
-//						"Vehicle " + vehicle + " unsupported. " + "Supported are: " + getEncodingManager());
-//
-//			PMap hints = request.getHints();
-//			String tModeStr = hints.getString("traversal_mode", TraversalMode.EDGE_BASED.name());
-//			TraversalMode tMode = TraversalMode.fromString(tModeStr);
-//			if (hints.has(Parameters.Routing.EDGE_BASED))
-//				tMode = hints.getBool(Parameters.Routing.EDGE_BASED, false) ? TraversalMode.EDGE_BASED
-//						: TraversalMode.NODE_BASED;
-//
-//			FlagEncoder encoder = getEncodingManager().getEncoder(vehicle);
-//
-//			boolean disableCH = hints.getBool(Parameters.CH.DISABLE, false);
-//			if (!getCHFactoryDecorator().isDisablingAllowed() && disableCH)
-//				throw new IllegalArgumentException("Disabling CH not allowed on the server-side");
-//
-//			boolean disableLM = hints.getBool(Parameters.Landmark.DISABLE, false);
-//			if (!getLMFactoryDecorator().isDisablingAllowed() && disableLM)
-//				throw new IllegalArgumentException("Disabling LM not allowed on the server-side");
-//
-//			//TODO
-//			boolean disableCore = hints.getBool(ORSParameters.Core.DISABLE, false);
-//
-//			String algoStr = request.getAlgorithm();
-//			if (algoStr.isEmpty())
-//				throw new IllegalStateException("No routing algorithm set.");
-//
-//			List<GHPoint> points = request.getPoints();
-//			// TODO Maybe we should think about a isRequestValid method that checks all that stuff that we could do to fail fast
-//			// For example see #734
-//			checkIfPointsAreInBounds(points);
-//
-//			RoutingTemplate routingTemplate;
-//			if (ROUND_TRIP.equalsIgnoreCase(algoStr))
-//				routingTemplate = new RoundTripRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager(), getMaxRoundTripRetries());
-//			else if (ALT_ROUTE.equalsIgnoreCase(algoStr))
-//				routingTemplate = new AlternativeRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
-//			else
-//				routingTemplate = new ViaRoutingTemplate(request, ghRsp, getLocationIndex(), getEncodingManager());
-//
-//			EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), encoder, getGraphHopperStorage());
-//			routingTemplate.setEdgeFilter(edgeFilter);
-//
-//			for (int c = 0; c < request.getHints().getInt("alternative_route.max_paths", 1); c++) {
-//				ghRsp.addReturnObject(pathProcessorFactory.createPathProcessor(request.getAdditionalHints(), encoder, getGraphHopperStorage()));
-//			}
-//			List<PathProcessor> ppList = new ArrayList<>();
-//			for (Object returnObject : ghRsp.getReturnObjects()) {
-//				if (returnObject instanceof PathProcessor) {
-//					ppList.add((PathProcessor)returnObject);
-//				}
-//			}
-//
-//			List<Path> altPaths = null;
-//			int maxRetries = routingTemplate.getMaxRetries();
-//			Locale locale = request.getLocale();
-//			Translation tr = getTranslationMap().getWithFallBack(locale);
-//			for (int i = 0; i < maxRetries; i++) {
-//				StopWatch sw = new StopWatch().start();
-//				List<QueryResult> qResults = routingTemplate.lookup(points, encoder);
-//				double[] radiuses = request.getMaxSearchDistances();
-//				checkAvoidBorders(request, qResults);
-//				if (points.size() == qResults.size()) {
-//					for (int placeIndex = 0; placeIndex < points.size(); placeIndex++) {
-//						QueryResult qr = qResults.get(placeIndex);
-//						if ((radiuses != null) && qr.isValid() && (qr.getQueryDistance() > radiuses[placeIndex]) && (radiuses[placeIndex] != -1.0)) {
-//							ghRsp.addError(new PointNotFoundException("Cannot find point " + placeIndex + ": " + points.get(placeIndex) + " within a radius of " + radiuses[placeIndex] + " meters.", placeIndex));
-//						}
-//					}
-//				}
-//				ghRsp.addDebugInfo("idLookup:" + sw.stop().getSeconds() + "s");
-//				if (ghRsp.hasErrors())
-//					return Collections.emptyList();
-//
-//				RoutingAlgorithmFactory tmpAlgoFactory = getAlgorithmFactory(hints);
-//				Weighting weighting;
-//				QueryGraph queryGraph;
-//
-//				if (corePreparationHandler.isEnabled() && !disableCore) {
-//					boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
-//					if (!forceCHHeading && request.hasFavoredHeading(0))
-//						throw new IllegalArgumentException(
-//								"Heading is not (fully) supported for CHGraph. See issue #483");
-//
-//					RoutingAlgorithmFactory coreAlgoFactory = corePreparationHandler.getDecoratedAlgorithmFactory(new RoutingAlgorithmFactorySimple(), hints);
-//					CHProfile chProfile = ((PrepareCore) coreAlgoFactory).getCHProfile();
-//
-//					queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(chProfile));
-//					queryGraph.lookup(qResults);
-//
-//					weighting = createWeighting(hints, encoder, queryGraph);
-//					tMode = chProfile.getTraversalMode();
-//				}
-//				else{
-//					if (getCHFactoryDecorator().isEnabled() && !disableCH) {
-//						boolean forceCHHeading = hints.getBool(Parameters.CH.FORCE_HEADING, false);
-//						if (!forceCHHeading && request.hasFavoredHeading(0))
-//							throw new IllegalArgumentException(
-//									"Heading is not (fully) supported for CHGraph. See issue #483");
-//
-//						// if LM is enabled we have the LMFactory with the CH algo!
-//						RoutingAlgorithmFactory chAlgoFactory = tmpAlgoFactory;
-//						if (tmpAlgoFactory instanceof LMAlgoFactoryDecorator.LMRAFactory)
-//							chAlgoFactory = ((LMAlgoFactoryDecorator.LMRAFactory) tmpAlgoFactory).getDefaultAlgoFactory();
-//
-//						if (chAlgoFactory instanceof PrepareContractionHierarchies)
-//							weighting = ((PrepareContractionHierarchies) chAlgoFactory).getWeighting();
-//						else
-//							throw new IllegalStateException(
-//									"Although CH was enabled a non-CH algorithm factory was returned " + tmpAlgoFactory);
-//
-//						tMode = TraversalMode.NODE_BASED;
-//						queryGraph = new QueryGraph(getGraphHopperStorage().getCHGraph(((PrepareContractionHierarchies) chAlgoFactory).getCHProfile()));
-//						queryGraph.lookup(qResults);
-//					} else {
-//						checkNonChMaxWaypointDistance(points);
-//						queryGraph = new QueryGraph(getGraphHopperStorage());
-//						queryGraph.lookup(qResults);
-//						weighting = createWeighting(hints, encoder, queryGraph);
-//						ghRsp.addDebugInfo("tmode:" + tMode.toString());
-//					}
-//				}
-//
-//				int maxVisitedNodesForRequest = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, getMaxVisitedNodes());
-//				if (maxVisitedNodesForRequest > getMaxVisitedNodes())
-//					throw new IllegalArgumentException(
-//							"The max_visited_nodes parameter has to be below or equal to:" + getMaxVisitedNodes());
-//
-//
-//				if (hints.has(RouteRequest.PARAM_MAXIMUM_SPEED)) {
-//					double maximumSpeed = hints.getDouble("maximum_speed", maximumSpeedLowerBound);
-//					weighting.setSpeedCalculator(new MaximumSpeedCalculator(weighting.getSpeedCalculator(), maximumSpeed));
-//				}
-//
-//				if (isRequestTimeDependent(hints)) {
-//					weighting = createTimeDependentAccessWeighting(weighting);
-//
-//					if (weighting.isTimeDependent())
-//						algoStr = TD_ASTAR;
-//
-//					DateTimeHelper dateTimeHelper = new DateTimeHelper(getGraphHopperStorage());
-//					GHPoint3D point, departurePoint = qResults.get(0).getSnappedPoint();
-//					GHPoint3D arrivalPoint = qResults.get(qResults.size() - 1).getSnappedPoint();
-//					ghRsp.getHints().put(KEY_TIMEZONE_DEPARTURE, dateTimeHelper.getZoneId(departurePoint.lat, departurePoint.lon));
-//					ghRsp.getHints().put(KEY_TIMEZONE_ARRIVAL, dateTimeHelper.getZoneId(arrivalPoint.lat, arrivalPoint.lon));
-//
-//					String key;
-//					if (hints.has(RouteRequest.PARAM_DEPARTURE)) {
-//						key = RouteRequest.PARAM_DEPARTURE;
-//						point = departurePoint;
-//					} else {
-//						key = RouteRequest.PARAM_ARRIVAL;
-//						point = arrivalPoint;
-//					}
-//					String time = hints.getString(key, "");
-//					hints.put(key, dateTimeHelper.getZonedDateTime(point.lat, point.lon, time).toInstant());
-//				}
-//
-//				int uTurnCosts = hints.getInt(Parameters.Routing.U_TURN_COSTS, INFINITE_U_TURN_COSTS);
-//				weighting = createTurnWeighting(queryGraph, weighting, tMode, uTurnCosts);
-//				if (weighting instanceof TurnWeighting)
-//					((TurnWeighting)weighting).setInORS(true);
-//
-//				AlgorithmOptions algoOpts = AlgorithmOptions.start().algorithm(algoStr).traversalMode(tMode)
-//						.weighting(weighting).maxVisitedNodes(maxVisitedNodesForRequest).hints(hints).build();
-//
-//				algoOpts.setEdgeFilter(edgeFilter);
-//
-//				altPaths = routingTemplate.calcPaths(queryGraph, tmpAlgoFactory, algoOpts);
-//
-//				String date = getGraphHopperStorage().getProperties().get("datareader.import.date");
-//				if (Helper.isEmpty(date)) {
-//					date = getGraphHopperStorage().getProperties().get("datareader.data.date");
-//				}
-//				ghRsp.getHints().put("data.date", date);
-//
-//				boolean tmpEnableInstructions = hints.getBool(Parameters.Routing.INSTRUCTIONS, getEncodingManager().isEnableInstructions());
-//				boolean tmpCalcPoints = hints.getBool(Parameters.Routing.CALC_POINTS, isCalcPoints());
-//				double wayPointMaxDistance = hints.getDouble(Parameters.Routing.WAY_POINT_MAX_DISTANCE, 1d);
-//				DouglasPeucker peucker = new DouglasPeucker().setMaxDistance(wayPointMaxDistance);
-//				PathMerger pathMerger = new PathMerger().setCalcPoints(tmpCalcPoints).setDouglasPeucker(peucker)
-//                        .setEnableInstructions(tmpEnableInstructions)
-//						.setPathProcessor(ppList.toArray(new PathProcessor[]{}))
-//						.setSimplifyResponse(isSimplifyResponse() && wayPointMaxDistance > 0);
-//
-//				if (routingTemplate.isReady(pathMerger, tr))
-//					break;
-//			}
-//
-//			return altPaths;
-//
-//		} catch (IllegalArgumentException ex) {
-//			ghRsp.addError(ex);
-//			return Collections.emptyList();
-//		} finally {
-//			readLock.unlock();
-//		}
-//	}
 
 	private boolean isRequestTimeDependent(PMap hints) {
 		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);

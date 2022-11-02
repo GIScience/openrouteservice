@@ -19,9 +19,6 @@ import com.graphhopper.storage.*;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +27,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	private static final Logger LOGGER = Logger.getLogger(ORSGraphStorageFactory.class.getName());
 
 	private final List<GraphStorageBuilder> graphStorageBuilders;
-
-	private GraphExtension graphExtension = null;
 
 	public ORSGraphStorageFactory(List<GraphStorageBuilder> graphStorageBuilders) {
 		this.graphStorageBuilders = graphStorageBuilders;
@@ -56,51 +51,10 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			}
 		}
 
-//		TODO : check if removing all this is ok
-
-//		if(gh instanceof ORSGraphHopper) {
-//			if (((ORSGraphHopper) gh).isCoreEnabled()) {
-//			// TODO:	((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-//			}
-//			if (((ORSGraphHopper) gh).isCoreLMEnabled()) {
-//				//TODO: ((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
-//			}
-//		}
-//
-//		// TODO: AlgorithmFactoryDecorators are gone. Do we need to init algos differently?
-////		if (gh.getCHFactoryDecorator().isEnabled())
-////			gh.initCHAlgoFactoryDecorator();
-////
-//		List<CHProfile> profiles = new ArrayList<>();
-////
-////		if (gh.isCHEnabled()) {
-////			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
-////		}
-//		if (((ORSGraphHopper)gh).isCoreEnabled()) {
-//			// TODO: profiles.addAll(((ORSGraphHopper)gh).getCorePreparationHandler().getCHProfiles());
-//		}
-
 		GraphHopperStorage ghs = new ORSGraphHopperStorage(dir, encodingManager, gh.hasElevation(), true, -1);
 		ExtendedStorageSequence extendedStorages = new ExtendedStorageSequence(graphExtensions);
 		extendedStorages.init(ghs.getBaseGraph(), dir);
 		ghs.setExtendedStorages(extendedStorages);
 		return ghs;
-	}
-
-//	TODO Refactoring : can probably be removed
-	private boolean hasGraph(GraphHopper gh) {
-		try {
-			gh.getGraphHopperStorage();
-			return true;
-		} catch (IllegalStateException ex){
-			// do nothing
-		} catch(Exception ex) {
-			LOGGER.error(ex.getStackTrace());
-		}
-		return false;
-	}
-
-	public GraphExtension getGraphExtension() {
-		return graphExtension;
 	}
 }
