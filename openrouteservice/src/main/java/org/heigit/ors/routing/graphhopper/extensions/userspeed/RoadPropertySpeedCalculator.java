@@ -35,11 +35,11 @@ public class RoadPropertySpeedCalculator extends AbstractAdjustedSpeedCalculator
         double speed = this.superSpeedCalculator.getSpeed(edge, reverse, time);
         WaySurfaceDescription wsd = waySurfaceTypeGraphStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
         Double surfaceTypeSpeed = roadPropertySpeedMap.getByTypedOrdinal(SurfaceType.class, wsd.getSurfaceType());
-        if (surfaceTypeSpeed != null && speed > surfaceTypeSpeed)
-            speed = speedFactor * surfaceTypeSpeed;
+        if (surfaceTypeSpeed != null)
+            speed = Math.min(speed, speedFactor * surfaceTypeSpeed);
         Double wayTypeSpeed = roadPropertySpeedMap.getByTypedOrdinal(WayType.class, wsd.getWayType());
-        if (wayTypeSpeed != null && speed > wayTypeSpeed)
-            speed = speedFactor * wayTypeSpeed;
+        if (wayTypeSpeed != null)
+            speed = Math.min(speed, speedFactor * wayTypeSpeed);
         return speed;
     }
 
