@@ -28,6 +28,8 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
     public void setCoreLMProfiles(List<LMProfile> coreLMProfiles) {
         this.coreLMProfiles = coreLMProfiles;
+        if (has("prepare.core.threads"))
+            putObject("prepare.corelm.threads", getInt("prepare.core.threads", 1));
     }
 
     public List<Profile> getFastisochroneProfiles() {
