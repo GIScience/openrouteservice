@@ -59,7 +59,7 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
         AbstractCoreRoutingAlgorithm algo;
-        String algoStr = ASTAR_BI;//FIXME: opts.getAlgorithm();
+        String algoStr = opts.getAlgorithm();
 
         if (ASTAR_BI.equals(algoStr)) {
             CoreALT tmpAlgo = new CoreALT(routingCHGraph, weighting);
@@ -75,7 +75,11 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
             algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
         } else if (TD_ASTAR.equals(algoStr)) {
             CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
-            //FIXME tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
+            if (lms != null) {
+                int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
+                LMApproximator lmApproximator = new LMApproximator(graph, lms.getWeighting(), GraphUtils.getBaseGraph(graph).getNodes(), lms, activeLM, lms.getFactor(), false);
+                tmpAlgo.setApproximation(lmApproximator);
+            }
             algo = tmpAlgo;
         } else {
             throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
