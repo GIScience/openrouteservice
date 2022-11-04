@@ -60,7 +60,7 @@ class CoreNodeContractor implements NodeContractor {
         // no witness path can be found. this is not really what we want, but changing it requires re-optimizing the
         // graph contraction parameters, because it affects the node contraction order.
         // when this is done there should be no need for this method any longer.
-        meanDegree = prepareGraph.getOriginalEdges() / prepareGraph.getNodes();
+        meanDegree = prepareGraph.getOriginalEdges() / (double) prepareGraph.getNodes();
     }
 
     @Override
