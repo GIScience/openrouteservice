@@ -48,7 +48,7 @@ public class AppConfig {
 		// root Logger is not configured properly at this point as AppConfig gets called the first time to read the
 		// path for the Logging configuration file.
 		// Adjusting level to INFO and reset after LOGGER usage
-		// TODO: adjust the log pattern to default spring pattern.
+		// TODO Refactoring: adjust the log pattern to default spring pattern.
 		//  did not work so far. It was not possible to load the default configuration from DEFAULT_LOGGING.json, add an
 		//  Appender, or change the layout of the current default sysOut appender of the root Logger.
 		Level entryLogLevel = LOGGER.getLevel();

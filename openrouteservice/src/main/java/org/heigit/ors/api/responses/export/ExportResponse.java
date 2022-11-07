@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.export.ExportResult;
 
-//TODO: should this include ExportResponseInfo, as does RouteResponse?
+//TODO Refactoring: should this include ExportResponseInfo, as does RouteResponse?
 public class ExportResponse {
     @JsonIgnore
     protected BoundingBox bbox;

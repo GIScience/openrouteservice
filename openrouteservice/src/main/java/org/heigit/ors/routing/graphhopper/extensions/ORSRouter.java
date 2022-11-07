@@ -91,7 +91,7 @@ public class ORSRouter extends Router {
         @Override
         protected void checkRequest() {
             super.checkRequest();
-            // TODO: check request params compatibility with core algo
+            // TODO Refactoring: check request params compatibility with core algo
         }
 
         protected Weighting createWeighting() {

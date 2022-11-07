@@ -367,7 +367,7 @@ public class IsochronesRequest extends APIRequest {
         // request object is built, now check if ors config allows all settings
         List<TravellerInfo> travellers = this.isochroneRequest.getTravellers();
 
-        // TODO where should we put the validation code?
+        // TODO REFACTORING where should we put the validation code?
         validateAgainstConfig(this.isochroneRequest, travellers);
 
         if (!travellers.isEmpty()) {

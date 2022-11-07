@@ -363,7 +363,7 @@ public class Contour {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
         List<Coordinate> coordinates = new ArrayList<>(initialSize);
-        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO: cleanup method chain
+        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO Refactoring: cleanup method chain
 
         EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(edgeFilter);
         EdgeIterator iter;

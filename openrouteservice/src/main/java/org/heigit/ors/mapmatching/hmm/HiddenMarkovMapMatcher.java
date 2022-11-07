@@ -324,7 +324,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
 			List<Integer> roadSegments) {
-		// TODO: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
+		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
 		List<Snap> qResults = Collections.singletonList(locationIndex.findClosest(lat, lon, edgeFilter)); // TODO: this is just a temporary work-around for the previous line
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};

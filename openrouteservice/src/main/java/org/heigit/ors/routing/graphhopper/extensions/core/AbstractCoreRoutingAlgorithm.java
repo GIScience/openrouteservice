@@ -60,7 +60,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         inEdgeExplorer =  chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
 
-        // TODO: remove this unnecessary duplication
+        // TODO Refactoring: remove this unnecessary duplication
         if (weighting.hasTurnCosts()) {
             hasTurnWeighting = true;
         }

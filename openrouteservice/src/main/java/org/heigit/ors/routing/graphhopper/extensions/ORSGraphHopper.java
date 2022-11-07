@@ -242,18 +242,14 @@ public class ORSGraphHopper extends GraphHopper {
         for (int i = 0; i < latitudes.length; i++)
             req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
-		//req.setVehicle(vehicle); // TODO: removed, use Profile instead
 		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("weighting", "fastest"); // TODO: not permitted, use profile instead
-		// TODO add limit of maximum visited nodes
-
+		req.getHints().putObject("weighting", "fastest");
 
         GHResponse resp = new GHResponse();
 
-		// TODO: need to create a router here? Can we maybe remove
-		//  the whole class ORSGraphHopper?
+		// TODO Postponed till MapMatcher implementation: need to create a router here? Can we maybe remove the whole class ORSGraphHopper?
 		// List<Path> paths = this.calcPaths(req, resp);
-		List<Path> paths = new ArrayList<>(); // TODO: this is a temporary work-around for the previous line
+		List<Path> paths = new ArrayList<>(); // stub to make compile temporarily
 
         if (!resp.hasErrors()) {
 
