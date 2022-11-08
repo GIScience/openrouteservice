@@ -26,7 +26,9 @@ import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedParser;
 import org.heigit.ors.util.StringUtility;
+import org.json.simple.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class RouteRequest extends APIRequest {
     public static final String PARAM_DEPARTURE = "departure";
     public static final String PARAM_ARRIVAL = "arrival";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
+    public static final String PARAM_USER_SPEED_LIMITS = "user_speed_limits";
 
     @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
@@ -266,6 +269,15 @@ public class RouteRequest extends APIRequest {
     private double maximumSpeed;
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
+
+    @ApiModelProperty(name = PARAM_USER_SPEED_LIMITS, value = "Speed limits for various road and surface types provided by the user.",
+    example = "{ \"unit\": \"mph\"," +
+            "\"roadSpeeds\": { \"motorway\": 100, \"trunk\": 50 }," +
+            "\"surfaceSpeeds\": { \"paved\": 100, \"cobblestone\": 50, \"gravel\": 75 }}")
+    @JsonProperty(PARAM_USER_SPEED_LIMITS)
+    private JSONObject userSpeedLimits;
+    @JsonIgnore
+    private boolean hasUserSpeedLimits = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -531,6 +543,16 @@ public class RouteRequest extends APIRequest {
         return maximumSpeed;
     }
 
+    public JSONObject getUserSpeedLimits() {
+        return userSpeedLimits;
+    }
+
+    public void setUserSpeedLimits(JSONObject userSpeedLimits) {
+        this.userSpeedLimits = userSpeedLimits;
+        hasUserSpeedLimits = true;
+    }
+
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -609,6 +631,10 @@ public class RouteRequest extends APIRequest {
 
     public boolean hasMaximumSpeed() {
         return hasMaximumSpeed;
+    }
+
+    public boolean hasUserSpeedLimits() {
+        return hasUserSpeedLimits;
     }
 
     public RouteResult[] generateRouteFromRequest() throws StatusCodeException {
@@ -754,6 +780,10 @@ public class RouteRequest extends APIRequest {
 
         if (this.hasMaximumSpeed()) {
             params.setMaximumSpeed(maximumSpeed);
+        }
+        if (this.hasUserSpeedLimits()) {
+            RoadPropertySpeedParser parser = new RoadPropertySpeedParser();
+            params.setRoadPropertySpeedMap(parser.parse(this.getUserSpeedLimits()));
         }
 
         params.setConsiderTurnRestrictions(false);

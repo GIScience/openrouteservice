@@ -71,6 +71,8 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedCalculator;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
@@ -343,6 +345,19 @@ public class ORSGraphHopper extends GraphHopper {
                         weighting = createWeighting(hints, encoder, queryGraph);
                         ghRsp.addDebugInfo("tmode:" + tMode.toString());
                     }
+                }
+
+                try {
+                    if (hints.has("user_speeds")) {
+                        SpeedCalculator baseSpeedCalculator = weighting.getSpeedCalculator();
+                        RoadPropertySpeedCalculator roadPropertySpeedCalculator = new RoadPropertySpeedCalculator(baseSpeedCalculator, getGraphHopperStorage(), encoder);
+                        RoadPropertySpeedMap roadPropertySpeedMap = (RoadPropertySpeedMap) ((ORSPMap) request.getAdditionalHints()).getObj("user_speeds");
+                        roadPropertySpeedCalculator.setRoadPropertySpeedMap(roadPropertySpeedMap);
+                        weighting.setSpeedCalculator(roadPropertySpeedCalculator);
+                    }
+                }
+                catch (IllegalStateException e){
+                    LOGGER.error("Unable to create RoadPropertySpeedMap " + e.getMessage());
                 }
 
                 int maxVisitedNodesForRequest = hints.getInt(Parameters.Routing.MAX_VISITED_NODES, getMaxVisitedNodes());
