@@ -3710,6 +3710,156 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    public void testUserRoadSpeed() {
+        JSONObject body = new JSONObject();
+        JSONArray coords = new JSONArray();
+        JSONArray neuenheim = new JSONArray();
+        neuenheim.put(8.685036);
+        neuenheim.put(49.4201314);
+        JSONArray dossenheim = new JSONArray();
+        dossenheim.put(8.671297);
+        dossenheim.put(49.4436);
+        coords.put(neuenheim);
+        coords.put(dossenheim);
+        body.put("coordinates", coords);
+
+        // since we're testing on the same profile, "shortest" would not be dependent on speed settings
+        // and "recommended" will make too many assumptions on what route could be preferred.
+        body.put("preference", "fastest");
+
+        // request route without specifying user Speed
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3822.6f))
+                .body("routes[0].summary.duration", is(550.0f))
+                .statusCode(200);
+
+        JSONObject userSpeedLimits  = new JSONObject();
+        JSONObject roadSpeedLimits  = new JSONObject();
+        roadSpeedLimits.put("primary", 30);
+        roadSpeedLimits.put("secondary", 30);
+        userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+        body.put("user_speed_limits", userSpeedLimits);
+
+        // request route limiting speed on primary and secondary roads to 30
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3958.0f))
+                .body("routes[0].summary.duration", is(625.7f))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testUserSurfaceSpeed() {
+        JSONObject body = new JSONObject();
+        JSONArray coords = new JSONArray();
+        JSONArray south = new JSONArray();
+        south.put(8.707808);
+        south.put(49.398337);
+        JSONArray north = new JSONArray();
+        north.put(8.710012);
+        north.put(49.405015);
+        coords.put(south);
+        coords.put(north);
+        body.put("coordinates", coords);
+
+        // use "shortest" as "recommended" will make too many assumptions on what route could be preferred.
+        body.put("preference", "shortest");
+
+        // request route without specifying user Speed
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "cycling-mountain")
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1529.7f))
+                .body("routes[0].summary.duration", is(349.2f))
+                .statusCode(200);
+
+        JSONObject userSpeedLimits  = new JSONObject();
+        JSONObject surfaceSpeedLimits  = new JSONObject();
+        surfaceSpeedLimits.put("gravel", 2);
+        surfaceSpeedLimits.put("ground", 2);
+        surfaceSpeedLimits.put("compacted", 2);
+        userSpeedLimits.put("surfaceSpeeds", surfaceSpeedLimits);
+        body.put("user_speed_limits", userSpeedLimits);
+
+        // with modified speeds travel time should increase while the distance is expected to stay the same
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", "cycling-mountain")
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1529.7f))
+                .body("routes[0].summary.duration", is(greaterThan(349.2f)))
+                .statusCode(200);
+    }
+
+    @Test
+    public void testUserSpeedUnit() {
+        JSONObject body = new JSONObject();
+        JSONArray coords = new JSONArray();
+        JSONArray neuenheim = new JSONArray();
+        neuenheim.put(8.685036);
+        neuenheim.put(49.4201314);
+        JSONArray dossenheim = new JSONArray();
+        dossenheim.put(8.671297);
+        dossenheim.put(49.4436);
+        coords.put(neuenheim);
+        coords.put(dossenheim);
+        body.put("coordinates", coords);
+
+        // this is the same query as testUserRoadSpeed uses, but has speeds in mph
+        JSONObject userSpeedLimits  = new JSONObject();
+        JSONObject roadSpeedLimits  = new JSONObject();
+        roadSpeedLimits.put("primary", 18.6412f);
+        roadSpeedLimits.put("secondary", 18.6412f);
+        userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+        userSpeedLimits.put("unit", "mph");
+        body.put("user_speed_limits", userSpeedLimits);
+
+        given()
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(3958.0f))
+                .body("routes[0].summary.duration", is(625.7f))
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

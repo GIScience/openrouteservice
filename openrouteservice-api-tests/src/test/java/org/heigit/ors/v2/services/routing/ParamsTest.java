@@ -1828,4 +1828,215 @@ public class ParamsTest extends ServiceTest {
 				.body("any { it.key == 'routes' }", is(true))
 				.statusCode(200);
 	}
+	// when given a user speed limit on a surface property,
+	// a route should be found and the user speed limit should be present in at least the returned query.
+	@Test
+	public void expectPassOnSurfaceSpeed() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject surfaceSpeedLimits  = new JSONObject();
+		surfaceSpeedLimits.put("gravel", 80);
+		userSpeedLimits.put("roadSpeeds", surfaceSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("metadata.query.containsKey('user_speed_limits')", is(true))
+				.statusCode(200);
+	}
+
+	// when given a user speed limit on a road property,
+	// a route should be found and the user speed limit should be present in at least the returned query.
+	@Test
+	public void expectPassOnRoadSpeed() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject roadSpeedLimits  = new JSONObject();
+		roadSpeedLimits.put("motorway", 80);
+		userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("metadata.query.containsKey('user_speed_limits')", is(true))
+				.statusCode(200);
+	}
+
+	// when given a user speed limit and a custom unit,
+	// a route should be found and the user speed limit should be present in at least the returned query.
+	@Test
+	public void expectPassOnUserUnit() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject roadSpeedLimits  = new JSONObject();
+		roadSpeedLimits.put("motorway", 55);
+		userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+		userSpeedLimits.put("unit", "mph");
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(true))
+				.body("metadata.query.containsKey('user_speed_limits')", is(true))
+				.body("metadata.query.user_speed_limits.containsKey('unit')", is(true))
+				.body("metadata.query.user_speed_limits.unit", is("mph"))
+				.statusCode(200);
+	}
+
+	@Test
+	public void expect2012OnUnknownKey() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject roadSpeedLimits  = new JSONObject();
+		roadSpeedLimits.put("primary", 80);
+		userSpeedLimits.put("unknownKey", roadSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2012))
+				.statusCode(400);
+	}
+
+
+	// when given a non-supported road type, an error should appear
+	@Test
+	public void expect2012onUnknownRoadType() {
+		JSONObject userSpeedLimits  = new JSONObject();
+		JSONObject roadSpeedLimits  = new JSONObject();
+		roadSpeedLimits.put("unknownProperty", 80);
+		userSpeedLimits.put("roadSpeeds", roadSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2012))
+				.statusCode(400);
+	}
+
+	// when given a non-supported surface type, an error should appear
+	@Test
+	public void expect2012onUnknownSurfaceType() {
+		JSONObject userSpeedLimits = new JSONObject();
+		JSONObject surfaceSpeedLimits = new JSONObject();
+		surfaceSpeedLimits.put("unknownProperty", 80);
+		userSpeedLimits.put("surfaceSpeeds", surfaceSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2012))
+				.statusCode(400);
+	}
+
+	// when given an invalid speed, an error should appear
+	@Test
+	public void expect2003onInvalidSpeed() {
+		JSONObject userSpeedLimits = new JSONObject();
+		JSONObject surfaceSpeedLimits = new JSONObject();
+		surfaceSpeedLimits.put("gravel", -80);
+		userSpeedLimits.put("surfaceSpeeds", surfaceSpeedLimits);
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2003))
+				.statusCode(400);
+	}
+
+	// when given an unknown unit, an error should appear
+	@Test
+	public void expect2003onUnknownUnit(){
+		JSONObject userSpeedLimits = new JSONObject();
+		userSpeedLimits.put("unit", "unknownUnit");
+
+		JSONObject body = new JSONObject();
+		body.put("coordinates", getParameter("coordinatesShort"));
+		body.put("user_speed_limits", userSpeedLimits);
+
+		given()
+				.header("Accept", "application/json")
+				.header("Content-Type", "application/json")
+				.pathParam("profile", getParameter("profile"))
+				.body(body.toString())
+				.when()
+				.post(getEndPointPath() + "/{profile}")
+				.then()
+				.assertThat()
+				.body("any { it.key == 'routes' }", is(false))
+				.body("error.code", is(2003))
+				.statusCode(400);
+	}
 }
