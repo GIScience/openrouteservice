@@ -13,10 +13,12 @@ services:
         OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
     user: "${ORS_UID:-0}:${ORS_GID:-0}"
     volumes:
-      - ./ors/data:/ors-core/data
+      - ./graphs:/ors-core/data/graphs
+      - ./elevation_cache:/ors-core/data/elevation_cache
       - ./ors/logs/ors:/var/log/ors
       - ./ors/logs/tomcat:/usr/local/tomcat/logs
       - ./ors/conf:/ors-conf
+      - ./ors/data/karlsruhe-regbez-latest.osm.pbf:/ors-core/data/osm_file.pbf
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
       - BBOX='12.12,12.12'

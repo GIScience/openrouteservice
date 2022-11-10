@@ -28,9 +28,8 @@ fi
 
 if [ "${do_build_graphs}" = "True" ] && [ "${BBOX}" != "False" ]; then
   echo "Cut pbf with given bounding box ${BBOX}"
-
+  #osmium extract --bbox $BBOX --progress /ors-core/data/osm_file.pbf --output /ors-core/data/osm_file_cut.pbf
 fi
-
 
 echo "### openrouteservice configuration ###"
 # if Tomcat built before, copy the mounted ors-config.json to the Tomcat webapp ors-config.json, else copy it from the source
