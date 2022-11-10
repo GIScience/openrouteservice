@@ -13,14 +13,14 @@ services:
         OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
     user: "${ORS_UID:-0}:${ORS_GID:-0}"
     volumes:
-      - ./graphs:/ors-core/data/graphs
-      - ./elevation_cache:/ors-core/data/elevation_cache
+      - ./ors/graphs:/ors-core/data/graphs
+      - ./ors/elevation_cache:/ors-core/data/elevation_cache
       - ./ors/logs/ors:/var/log/ors
       - ./ors/logs/tomcat:/usr/local/tomcat/logs
       - ./ors/conf:/ors-conf
-      - ./ors/data/karlsruhe-regbez-latest.osm.pbf:/ors-core/data/osm_file.pbf
+      - ./germany-latest.osm.pbf:/ors-core/osm_file.pbf:ro
     environment:
-      - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
-      - BBOX='12.12,12.12'
+      - BUILD_GRAPHS=True  # Forces the container to rebuild the graphs, e.g. when PBF is changed
+      - BBOX=9.52,53.341,10.541,53.76
       - "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx8g"
       - "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
