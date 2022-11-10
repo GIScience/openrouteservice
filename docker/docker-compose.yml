@@ -17,7 +17,6 @@ services:
       - ./ors/logs/ors:/var/log/ors
       - ./ors/logs/tomcat:/usr/local/tomcat/logs
       - ./ors/conf:/ors-conf
-      #- ./your_osm.pbf:/ors-core/data/osm_file.pbf - I would remove this.
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
       - BBOX='12.12,12.12'
