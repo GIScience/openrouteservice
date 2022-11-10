@@ -18,7 +18,7 @@ services:
       - ./ors/logs/ors:/var/log/ors
       - ./ors/logs/tomcat:/usr/local/tomcat/logs
       - ./ors/conf:/ors-conf
-      - ./germany-latest.osm.pbf:/ors-core/osm_file.pbf:ro
+      # - ./germany-latest.osm.pbf:/ors-core/osm_file.pbf:ro
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed.
       # - BBOX=9.52,53.341,10.541,53.75 # Cut the given PBF file with a bounding box. If the BBOX changes the graph is rebuild.
