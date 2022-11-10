@@ -6,7 +6,6 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 ARG ORS_CONFIG=./openrouteservice/src/main/resources/ors-config-sample.json
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
 ENV BUILD_GRAPHS="False"
-ENV USE_PREBUILT="False"
 ARG UID=1000
 ARG TOMCAT_VERSION=8.5.69
 
@@ -19,7 +18,7 @@ RUN mkdir -p /usr/local/tomcat /ors-conf /var/log/ors && \
 
 # Install dependencies and locales
 RUN apt-get update -qq && \
-    apt-get install -qq -y locales nano maven moreutils jq md5deep && \
+    apt-get install -qq -y locales nano maven moreutils jq osmosis && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
 
@@ -54,7 +53,7 @@ RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors
 RUN chmod -R go+rwX /ors-core /ors-conf /usr/local/tomcat /var/log/ors
 
 # Define volumes
-VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors", "/ors-core/data/pre-built"]
+VOLUME ["/ors-core/data/graphs", "/ors-core/data/elevation_cache", "/ors-conf", "/usr/local/tomcat/logs", "/var/log/ors"]
 
 # Start the container
 EXPOSE 8080
