@@ -406,13 +406,15 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             super(g, accessFilter, reverse);
         }
 
-        // need to adapt this method
         @Override
         protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+            if (edgeState.isShortcut())
+                return expandEdge(edgeState);
+
             if (super.calcWeight(edgeState, reverse, prevOrNextEdgeId) >= Double.MAX_VALUE)
                 return Double.POSITIVE_INFINITY;
 
-            return edgeState.isShortcut() ? expandEdge(edgeState) : 1;
+            return 1;
         }
 
         private int expandEdge(RoutingCHEdgeIteratorState mainEdgeState) {
