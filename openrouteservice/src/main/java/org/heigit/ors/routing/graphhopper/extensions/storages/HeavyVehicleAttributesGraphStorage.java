@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.*;
-import com.graphhopper.util.BitUtil;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
 public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
@@ -30,8 +29,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	protected int edgesCount;
 
 	private static final double FACTOR = 100.0;
-
-	private final byte[] buffer = new byte[2];
 
 	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) {
 		efVehicleType = nextBlockEntryIndex(1);
@@ -108,8 +105,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 		for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
 			short shortValue = (short) (restrictionValues[i] * FACTOR);
-			BitUtil.LITTLE.fromShort(buffer, shortValue);
-			orsEdges.setBytes(edgePointer + efRestrictions + i * EF_RESTRICTION_BYTES, buffer, 2);
+			orsEdges.setShort(edgePointer + efRestrictions + i * EF_RESTRICTION_BYTES, shortValue);
 		}
 	}
 
@@ -119,7 +115,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		if (efRestrictions == -1)
 			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
-		return getShort(edgeBase + efRestrictions + valueIndex * EF_RESTRICTION_BYTES) / FACTOR;
+		return orsEdges.getShort(edgeBase + efRestrictions + valueIndex * EF_RESTRICTION_BYTES) / FACTOR;
 	}
 
 	public boolean getEdgeRestrictionValues(int edgeId, double[] retValues) {
@@ -129,14 +125,9 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
 		for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
-			retValues[i] = getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) / FACTOR;
+			retValues[i] = orsEdges.getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) / FACTOR;
 
 		return true;
-	}
-
-	private short getShort(long bytePos) {
-		orsEdges.getBytes(bytePos, buffer, 2);
-		return BitUtil.LITTLE.toShort(buffer);
 	}
 
 	public int getEdgeVehicleType(int edgeId, byte[] buffer) {
@@ -161,7 +152,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 		if (efRestrictions > 0)
 			for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
-				if (getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) != 0)
+				if (orsEdges.getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) != 0)
 					return true;
 
 		return false;
