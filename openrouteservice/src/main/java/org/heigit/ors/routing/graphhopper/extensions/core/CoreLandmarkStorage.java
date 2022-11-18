@@ -30,6 +30,8 @@ import com.graphhopper.routing.util.AreaIndex;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import com.graphhopper.util.EdgeExplorer;
+import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
@@ -164,6 +166,13 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         if (logDetails)
             logger.info(configName() + "init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
 
+        int coreNodeLevel = GraphUtils.getBaseGraph(graph).getNodes();
+        EdgeFilter coreAndRequireBothDirectionsFilter = edge -> core.getLevel(edge.getBaseNode()) >= coreNodeLevel
+                && core.getLevel(edge.getAdjNode()) >= coreNodeLevel
+                && edge.get(edgeInSubnetworkEnc)
+                && edge.getReverse(edgeInSubnetworkEnc);;
+        EdgeExplorer tmpExplorer = graph.createEdgeExplorer(coreAndRequireBothDirectionsFilter);
+
         int nodes = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
             nodes += subnetworkIds.size();
@@ -180,14 +189,15 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 // ORS-GH MOD START use node index map
                 if (subnetworks[getIndex(nextStartNode)] == UNSET_SUBNETWORK) {
 // ORS-GH MOD END
-                    if (logDetails) {
-                        GHPoint p = createPoint(graph, nextStartNode);
-                        logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
-                                + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
-                    }
-
-                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter))
+                    if (GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0
+                            && createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter)) {
+                        if (logDetails) {
+                            GHPoint p = createPoint(graph, nextStartNode);
+                            logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
+                                    + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
+                        }
                         break;
+                    }
                 }
             }
             if (index < 0)
