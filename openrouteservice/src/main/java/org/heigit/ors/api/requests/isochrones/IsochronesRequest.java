@@ -37,8 +37,10 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedParser;
 import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.DistanceUnitUtil;
+import org.json.simple.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -63,6 +65,7 @@ public class IsochronesRequest extends APIRequest {
     public static final String PARAM_INTERVAL = "interval";
     public static final String PARAM_SMOOTHING = "smoothing";
     public static final String PARAM_TIME = "time";
+    public static final String PARAM_USER_SPEED_LIMITS = "user_speed_limits";
 
 
     @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs",
@@ -172,6 +175,15 @@ public class IsochronesRequest extends APIRequest {
     private LocalDateTime time;
     @JsonIgnore
     private boolean hasTime = false;
+
+    @ApiModelProperty(name = PARAM_USER_SPEED_LIMITS, value = "Speed limits for various road and surface types provided by the user.",
+            example = "{ \"unit\": \"mph\"," +
+                    "\"roadSpeeds\": { \"motorway\": 100, \"trunk\": 50 }," +
+                    "\"surfaceSpeeds\": { \"paved\": 100, \"cobblestone\": 50, \"gravel\": 75 }}")
+    @JsonProperty(PARAM_USER_SPEED_LIMITS)
+    private JSONObject userSpeedLimits;
+    @JsonIgnore
+    private boolean hasUserSpeedLimits = false;
 
     @JsonIgnore
     private IsochroneMapCollection isoMaps;
@@ -362,6 +374,20 @@ public class IsochronesRequest extends APIRequest {
         return hasTime;
     }
 
+    public boolean hasUserSpeedLimits() {
+        return hasUserSpeedLimits;
+    }
+
+    public JSONObject getUserSpeedLimits() {
+        return userSpeedLimits;
+    }
+
+    public void setUserSpeedLimits(JSONObject userSpeedLimits) {
+        this.userSpeedLimits = userSpeedLimits;
+        hasUserSpeedLimits = true;
+    }
+
+
     public void generateIsochronesFromRequest() throws Exception {
         this.isochroneRequest = this.convertIsochroneRequest();
         // request object is built, now check if ors config allows all settings
@@ -542,6 +568,10 @@ public class IsochronesRequest extends APIRequest {
         if (this.hasTime()) {
             routeSearchParameters.setDeparture(this.getTime());
             routeSearchParameters.setArrival(this.getTime());
+        }
+        if (this.hasUserSpeedLimits()) {
+            RoadPropertySpeedParser parser = new RoadPropertySpeedParser();
+            routeSearchParameters.setRoadPropertySpeedMap(parser.parse(this.getUserSpeedLimits()));
         }
         routeSearchParameters.setConsiderTurnRestrictions(false);
         return routeSearchParameters;
