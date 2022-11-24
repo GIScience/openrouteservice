@@ -279,7 +279,7 @@ public class IsochronesRequestHandlerTest {
         request.setLocations(coordinates);
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         Assert.assertNull(routeSearchParameters.getAvoidAreas());
         Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
@@ -298,7 +298,7 @@ public class IsochronesRequestHandlerTest {
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
 
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
         Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());

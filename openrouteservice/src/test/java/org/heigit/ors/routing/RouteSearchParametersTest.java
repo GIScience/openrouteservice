@@ -38,14 +38,14 @@ public class RouteSearchParametersTest {
     @Test
     public void getWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
     public void setWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
+        routeSearchParameters.setWeightingMethod(WeightingMethod.FASTEST);
+        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
