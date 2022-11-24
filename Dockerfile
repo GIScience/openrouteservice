@@ -7,7 +7,7 @@ ARG ORS_CONFIG=./openrouteservice/src/main/resources/ors-config-sample.json
 ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
 ENV BUILD_GRAPHS="False"
 ARG UID=1000
-ARG TOMCAT_VERSION=8.5.69
+ARG TOMCAT_VERSION=8.5.84
 
 # Create user
 RUN useradd -u $UID -md /ors-core ors
@@ -35,7 +35,10 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v${TOMCAT_VERSION}/b
     cd /tmp && \
     tar xvfz tomcat.tar.gz && \
     cp -R /tmp/apache-tomcat-${TOMCAT_VERSION}/* /usr/local/tomcat/ && \
-    rm -r /tmp/tomcat.tar.gz /tmp/apache-tomcat-${TOMCAT_VERSION}
+    rm -r /tmp/tomcat.tar.gz /tmp/apache-tomcat-${TOMCAT_VERSION} && \
+    echo "org.apache.catalina.level = WARNING" >> /usr/local/tomcat/conf/logging.properties
+
+COPY --chown=ors:ors ./openrouteservice/src/main/resources/log4j.properties /usr/local/tomcat/lib/log4j.properties
 
 # Configure ors config
 RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors-core/openrouteservice/src/main/resources/ors-config.json && \

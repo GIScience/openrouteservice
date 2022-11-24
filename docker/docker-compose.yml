@@ -13,11 +13,11 @@ services:
 #        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
     user: "${ORS_UID:-0}:${ORS_GID:-0}"
     volumes:
-      - ./graphs:/ors-core/data/graphs
-      - ./elevation_cache:/ors-core/data/elevation_cache
-      - ./logs/ors:/var/log/ors
-      - ./logs/tomcat:/usr/local/tomcat/logs
-      - ./conf:/ors-conf
+      - ./data/graphs:/ors-core/data/graphs
+      - ./data/elevation_cache:/ors-core/data/elevation_cache
+      - ./data/logs/ors:/var/log/ors
+      - ./data/logs/tomcat:/usr/local/tomcat/logs
+      - ./data/conf:/ors-conf
       #- ./your_osm.pbf:/ors-core/data/osm_file.pbf
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
