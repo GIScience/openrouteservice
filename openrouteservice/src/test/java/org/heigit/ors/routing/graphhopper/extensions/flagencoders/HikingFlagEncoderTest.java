@@ -110,7 +110,7 @@ public class HikingFlagEncoderTest {
     @Test
     public void testAddPriorityFromRelation() {
         way = generateHikeWay();
-        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 1));
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
     @Test
@@ -146,11 +146,11 @@ public class HikingFlagEncoderTest {
     @Test
     public void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
-        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
         assertEquals(PriorityCode.UNCHANGED.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "none");
-        assertEquals(PriorityCode.REACH_DEST.getValue(), flagEncoder.handlePriority(way, 0));
+        assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
     }
 
     @Test
