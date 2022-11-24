@@ -63,7 +63,8 @@ public class CoreLandmarkStorageTest {
 
         graph =  new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
         graph.addCoreGraph(chConfig);
-        routingCHGraph = graph.getRoutingCHGraph();
+        graph.create(1000);
+        routingCHGraph = graph.getCoreGraph(chConfig.getName());
     }
 
     @After
