@@ -397,7 +397,7 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(406);
 
         given()
-                .headers(geoJsonContent)
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()

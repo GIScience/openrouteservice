@@ -170,7 +170,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         EdgeFilter coreAndRequireBothDirectionsFilter = edge -> core.getLevel(edge.getBaseNode()) >= coreNodeLevel
                 && core.getLevel(edge.getAdjNode()) >= coreNodeLevel
                 && edge.get(edgeInSubnetworkEnc)
-                && edge.getReverse(edgeInSubnetworkEnc);;
+                && edge.getReverse(edgeInSubnetworkEnc);
         EdgeExplorer tmpExplorer = graph.createEdgeExplorer(coreAndRequireBothDirectionsFilter);
 
         int nodes = 0;
@@ -189,13 +189,13 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 // ORS-GH MOD START use node index map
                 if (subnetworks[getIndex(nextStartNode)] == UNSET_SUBNETWORK) {
 // ORS-GH MOD END
+                    if (logDetails) {
+                        GHPoint p = createPoint(graph, nextStartNode);
+                        logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
+                                + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
+                    }
                     if (GHUtility.count(tmpExplorer.setBaseNode(nextStartNode)) > 0
                             && createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter)) {
-                        if (logDetails) {
-                            GHPoint p = createPoint(graph, nextStartNode);
-                            logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
-                                    + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
-                        }
                         break;
                     }
                 }
