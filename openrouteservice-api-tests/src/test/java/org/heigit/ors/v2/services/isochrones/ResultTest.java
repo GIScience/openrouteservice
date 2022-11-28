@@ -26,6 +26,7 @@ import org.junit.Test;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
@@ -115,8 +116,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -144,8 +144,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -168,8 +167,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -189,8 +187,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -222,8 +219,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -235,8 +231,7 @@ public class ResultTest extends ServiceTest {
         body.put("location_type", "destination");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -256,8 +251,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -282,8 +276,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -308,8 +301,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -336,8 +328,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -361,8 +352,7 @@ public class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -386,8 +376,7 @@ public class ResultTest extends ServiceTest {
         body.put("intersections", "true");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -426,8 +415,7 @@ public class ResultTest extends ServiceTest {
 
 
         int lowSmoothingCoordinatesSize = given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -440,8 +428,7 @@ public class ResultTest extends ServiceTest {
         body.put("smoothing", "100");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
@@ -461,8 +448,7 @@ public class ResultTest extends ServiceTest {
         body.put("id", "request123");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()

@@ -11,6 +11,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.jsonContent;
 
 @EndPointAnnotation(name = "centrality")
 @VersionAnnotation(version = "v2")
@@ -85,8 +86,7 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("neuenheimBox"));
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -107,8 +107,7 @@ public class ParamsTest extends ServiceTest {
         // Since node IDs are not consistent over graph builds, they cannot be specified beforehand,
         // but have to be taken from a valid response
         List<Integer> nodeIds =  given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .post(getEndPointPath()+"/{profile}/json")
@@ -128,8 +127,7 @@ public class ParamsTest extends ServiceTest {
         body.put("excludeNodes", excludeNodes);
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -151,8 +149,7 @@ public class ParamsTest extends ServiceTest {
         body.put("excludeNodes", getParameter("invalidNodes"));
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -170,8 +167,7 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("missingCoordinatesBox"));
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -184,8 +180,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("bbox", getParameter("additionalCoordinatesBox"));
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -203,8 +198,7 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("missingComponentCoordinateBox"));
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -217,8 +211,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("bbox", getParameter("additionalComponentCoordinateBox"));
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -236,8 +229,7 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("emptyBox"));
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -258,8 +250,7 @@ public class ParamsTest extends ServiceTest {
         body.put("mode", "edges");
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -280,8 +271,7 @@ public class ParamsTest extends ServiceTest {
         body.put("mode", "nodes");
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -302,8 +292,7 @@ public class ParamsTest extends ServiceTest {
         body.put("mode", "wrongMode");
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
