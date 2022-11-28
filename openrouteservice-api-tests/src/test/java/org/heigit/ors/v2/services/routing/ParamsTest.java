@@ -27,6 +27,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.jsonContent;
 import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
@@ -115,8 +117,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("coordinates", (JSONArray) getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
 		given()
-				.header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+				.headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -135,8 +136,7 @@ public class ParamsTest extends ServiceTest {
         body.put("instructions", "false");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -155,8 +155,7 @@ public class ParamsTest extends ServiceTest {
         body.put("instructions", "true");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -177,8 +176,7 @@ public class ParamsTest extends ServiceTest {
         body.put("instructions_format", "text");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -198,8 +196,7 @@ public class ParamsTest extends ServiceTest {
         body.put("instructions_format", "html");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -218,8 +215,7 @@ public class ParamsTest extends ServiceTest {
         body.put("geometry", "true");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -238,8 +234,7 @@ public class ParamsTest extends ServiceTest {
         body.put("geometry", "false");
         body.put("preference", getParameter("preference"));
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -263,8 +258,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -289,8 +283,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -311,8 +304,7 @@ public class ParamsTest extends ServiceTest {
         body.put("instructions", "false");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -336,8 +328,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -360,8 +351,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -385,8 +375,7 @@ public class ParamsTest extends ServiceTest {
         body.put("extra_info", getParameter("extra_info"));
 
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -411,8 +400,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("profile"))
                 .body(body.toString())
                 .when()
@@ -433,8 +421,7 @@ public class ParamsTest extends ServiceTest {
         body.put("preference", getParameter("preference"));
 
 		given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", "driving-car-123")
                 .body(body.toString())
                 .when()
@@ -488,8 +475,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", getParameter("preference"));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.body(body.toString())
 				.when()
 				.post(getEndPointPath())
@@ -507,8 +493,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", getParameter("preference"));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -528,8 +513,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("language", "yuhd");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -549,8 +533,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", getParameter("preference"));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -574,8 +557,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -601,8 +583,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -634,8 +615,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -668,8 +648,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -700,8 +679,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -724,8 +702,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -746,8 +723,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -781,8 +757,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", "cycling-road")
 				.body(body.toString())
 				.when()
@@ -809,8 +784,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -844,8 +818,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("bearings", bearings);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -872,8 +845,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("bearings", bearings);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -898,8 +870,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("radiuses", radii);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -920,8 +891,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("radiuses", radii);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -956,8 +926,7 @@ public class ParamsTest extends ServiceTest {
 
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -976,8 +945,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("units", "j");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -997,8 +965,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("instructions_format", "blah");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1016,8 +983,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", "blah");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1036,8 +1002,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("language", "blah");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1056,8 +1021,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("attributes", Arrays.asList("blah"));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1070,8 +1034,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("attributes", new JSONArray(Arrays.asList("blah", "percentage")));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1094,8 +1057,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1117,8 +1079,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1136,8 +1097,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", getParameter("preference"));
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1165,8 +1125,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("preference", "shortest");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1182,8 +1141,7 @@ public class ParamsTest extends ServiceTest {
 				.statusCode(200);
 
 		given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1220,8 +1178,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("suppress_warnings", "true");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1241,8 +1198,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("extra_info", getParameter("extra_info"));
 
 		given()
-				.header("Accept", "application/geo+json")
-				.header("Content-Type", "application/json")
+				.headers(geoJsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1271,8 +1227,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("skip_segments", skipSegmentsEmpty);
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1282,8 +1237,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1295,8 +1249,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("skip_segments", skipSegmentsTooHigh);
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1306,8 +1259,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1319,8 +1271,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("skip_segments", skipSegmentsTooSmall);
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1330,8 +1281,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1343,8 +1293,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("skip_segments", skipSegmentsTooMany);
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1354,8 +1303,7 @@ public class ParamsTest extends ServiceTest {
                 .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1377,8 +1325,7 @@ public class ParamsTest extends ServiceTest {
 
         body.put("skip_segments", skipSegments);
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1392,8 +1339,7 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1425,8 +1371,7 @@ public class ParamsTest extends ServiceTest {
         body.put("coordinates", coords);
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", "cycling-mountain")
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1438,8 +1383,7 @@ public class ParamsTest extends ServiceTest {
         body.put("radiuses", new int[]{5, 10});
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", "cycling-mountain")
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1457,8 +1401,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("coordinates", coords);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", "cycling-mountain")
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1471,8 +1414,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("radiuses", new int[]{100, 10});
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", "cycling-mountain")
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1490,8 +1432,7 @@ public class ParamsTest extends ServiceTest {
         body.put("coordinates", coords);
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1504,8 +1445,7 @@ public class ParamsTest extends ServiceTest {
         body.put("radiuses", new int[]{150, 10});
 
         given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
 				.when().log().ifValidationFails()
@@ -1529,8 +1469,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("footProfile"))
 				.body(body.toString())
 				.when()
@@ -1554,8 +1493,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("footProfile"))
 				.body(body.toString())
 				.when()
@@ -1577,8 +1515,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("alternative_routes", ar);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1601,8 +1538,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1630,8 +1566,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1653,8 +1588,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("coordinates", singleCoordinate);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1682,8 +1616,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1711,8 +1644,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("options", options);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when().log().ifValidationFails()
@@ -1732,8 +1664,7 @@ public class ParamsTest extends ServiceTest {
 
 		//Test that the distance of the computed route.
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1754,8 +1685,7 @@ public class ParamsTest extends ServiceTest {
 
 		//Test that the distance of the computed route.
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -1776,8 +1706,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("arrival", "2021-01-31T12:00");
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("profile"))
 				.body(body.toString())
 				.when()
@@ -1799,8 +1728,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("radiuses", 500);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
@@ -1817,8 +1745,7 @@ public class ParamsTest extends ServiceTest {
 		body.put("radiuses", radii);
 
 		given()
-				.header("Accept", "application/json")
-				.header("Content-Type", "application/json")
+				.headers(jsonContent)
 				.pathParam("profile", getParameter("carProfile"))
 				.body(body.toString())
 				.when()
