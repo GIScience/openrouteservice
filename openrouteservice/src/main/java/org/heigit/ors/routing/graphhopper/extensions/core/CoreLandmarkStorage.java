@@ -72,7 +72,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         this.lmConfig = lmConfig;
         this.core = (RoutingCHGraphImpl) core;
         this.landmarksFilter = lmConfig.getEdgeFilter();
-        setMinimumNodes(Math.min(getBaseNodes() / 2, 500000));
+        setMinimumNodes(Math.min(getBaseNodes() / 2, 10000));
     }
 
     public void setCoreNodeIdMap (Map<Integer, Integer> coreNodeIdMap) {
@@ -172,6 +172,10 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
                         + graphComponents.size() + ", minimumNodes:" + minimumNodes + ", current size:" + subnetworkIds.size());
 
+            //TODO: implement a better solution to the issue of picking nodes outside of the component
+            IntHashSet subnetworkNodes = new IntHashSet(subnetworkIds);
+            EdgeFilter subnetworkFilter = edge -> accessFilter.accept(edge) && subnetworkNodes.contains(edge.getAdjNode());
+
             int index = subnetworkIds.size() - 1;
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
@@ -181,7 +185,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                         logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
                                 + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
                     }
-                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter))
+                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, subnetworkFilter))
                         break;
                 }
             }
