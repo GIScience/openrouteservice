@@ -51,4 +51,4 @@ COPY ./docker-entrypoint.sh .
 
 # Start the container
 EXPOSE 8080
-CMD ["bash", "-c", "/ors-core/docker-entrypoint.sh"]
+CMD ["/bin/bash", "/ors-core/docker-entrypoint.sh"]
