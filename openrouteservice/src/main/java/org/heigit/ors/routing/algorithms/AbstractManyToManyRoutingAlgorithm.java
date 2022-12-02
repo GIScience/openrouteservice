@@ -55,12 +55,12 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
         return this;
     }
     
-    protected boolean accept(RoutingCHEdgeIterator iter, int prevOrNextEdgeId) {
+    protected boolean accept(RoutingCHEdgeIterator iter, int prevOrNextEdgeId, boolean reverse) {
         if (MatrixServiceSettings.getUTurnCost() == Weighting.INFINITE_U_TURN_COSTS) {
             if (iter.getEdge() == prevOrNextEdgeId)
                 return false;
             if (iter.isShortcut())
-                return getIncEdge(iter) != prevOrNextEdgeId;
+                return getIncEdge(iter, !reverse) != prevOrNextEdgeId;
         }
         return additionalEdgeFilter == null || additionalEdgeFilter.accept(iter);
     }
@@ -71,9 +71,9 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
      * @param iter The iterator whose edge is incoming
      * @return the incoming edge
      */
-    protected int getIncEdge(RoutingCHEdgeIteratorState iter) {
+    protected int getIncEdge(RoutingCHEdgeIteratorState iter, boolean reverse) {
         if (iter.isShortcut()) {
-            return iter.getOrigEdgeLast();
+            return reverse ? iter.getSkippedEdge1() : iter.getSkippedEdge2();
         }
         else {
             return iter.getOrigEdge();

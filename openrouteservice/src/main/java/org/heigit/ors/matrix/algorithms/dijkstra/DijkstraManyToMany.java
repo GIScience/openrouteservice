@@ -292,7 +292,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             MultiTreeSPEntryItem msptSubItem = entry.getItem(source);
-            if (!accept(iter, currEdgeItem.getIncEdge()))
+            if (!accept(iter, currEdgeItem.getIncEdge(), swap))
                 continue;
 
             double edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
@@ -307,7 +307,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 msptSubItem.setWeight(tmpWeight);
                 msptSubItem.setEdge(iter.getEdge());
                 msptSubItem.setOriginalEdge(iter.getOrigEdge());
-                msptSubItem.setIncEdge(getIncEdge(iter));
+                msptSubItem.setIncEdge(getIncEdge(iter, swap));
                 msptSubItem.setParent(this.currEdge);
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
@@ -395,7 +395,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setWeight(tmpWeight);
                 eeItem.setEdge(iter.getEdge());
                 eeItem.setOriginalEdge(iter.getOrigEdge());
-                eeItem.setIncEdge(getIncEdge(iter));
+                eeItem.setIncEdge(getIncEdge(iter, swap));
                 eeItem.setParent(currEdge);
                 eeItem.setUpdate(true);
                 addToQueue = true;

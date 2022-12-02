@@ -87,7 +87,7 @@ public class CoreMatrixTest {
                 while (iter.next()) {
                     System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
                     if (iter.isShortcut())
-                        System.out.print(" (shortcut)");
+                        System.out.print(" shortcut (" + iter.getSkippedEdge1() + ", " + iter.getSkippedEdge2() + ")");
                     System.out.println(" [weight: " + iter.getWeight(false) + "]");
                 }
             }
