@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.8.0] - 2022-10-10
 ### Added
 - backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
 - python code on decoding polylines including elevation data
@@ -60,6 +62,10 @@ RELEASING:
 - address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
 - fix minor spelling errors in Places.md ([#1196](https://github.com/GIScience/openrouteservice/issues/1196))
 - address matrix failures for HGV profile ([#1198](https://github.com/GIScience/openrouteservice/issues/1198))
+
+## [6.7.1] - 2022-10-05
+### Added
+- optional routing profile parameter `force_turn_costs` ([#1220](https://github.com/GIScience/openrouteservice/pull/1220))
 
 ## [6.7.0] - 2022-01-04
 ### Added
@@ -565,7 +571,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...HEAD
+[6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
+[6.7.1]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...v6.7.1
 [6.7.0]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...v6.7.0
 [6.6.4]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...v6.6.4
 [6.6.3]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...v6.6.3

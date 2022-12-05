@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
@@ -108,8 +109,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -137,8 +137,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -161,8 +160,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -181,8 +179,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -204,8 +201,7 @@ public class ResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -229,8 +225,7 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", getParameter("m"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -254,8 +249,7 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "km");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -281,8 +275,7 @@ public class ResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -305,8 +298,7 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "mi");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -330,8 +322,7 @@ public class ResultTest extends ServiceTest {
         body.put("intersections", "true");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -371,8 +362,7 @@ public class ResultTest extends ServiceTest {
         // so neighbourhood search results in slightly different results
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -380,13 +370,12 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(69))
+                .body("features[0].geometry.coordinates[0].size()", is(69))
                 .statusCode(200);
 
         body.put("smoothing", "100");
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -394,7 +383,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size", is(94))
+                .body("features[0].geometry.coordinates[0].size()", is(94))
                 .statusCode(200);
     }
 
@@ -406,8 +395,7 @@ public class ResultTest extends ServiceTest {
         body.put("id", "request123");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
