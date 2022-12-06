@@ -60,6 +60,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     private Map<Integer, Integer> coreNodeIdMap;
     private final ORSGraphHopperStorage graph;
     private final CoreLMConfig lmConfig;
+    private IntHashSet subnetworkNodes;
 
     public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
         this(dir, graph, (RoutingCHGraphImpl) graph.getCoreGraph(lmConfig.getSuperName()), lmConfig, landmarks);
@@ -172,10 +173,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
                         + graphComponents.size() + ", minimumNodes:" + minimumNodes + ", current size:" + subnetworkIds.size());
 
-            //TODO: implement a better solution to the issue of picking nodes outside of the component
-            IntHashSet subnetworkNodes = new IntHashSet(subnetworkIds);
-            EdgeFilter subnetworkFilter = edge -> accessFilter.accept(edge) && subnetworkNodes.contains(edge.getAdjNode());
-
+            subnetworkNodes = new IntHashSet(subnetworkIds);
             int index = subnetworkIds.size() - 1;
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
@@ -185,7 +183,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                         logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
                                 + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
                     }
-                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, subnetworkFilter))
+                    if (createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter))
                         break;
                 }
             }
@@ -276,12 +274,12 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     @Override
     public LandmarkExplorer getLandmarkExplorer(EdgeFilter accessFilter, Weighting weighting, boolean reverse) {
-        return new CoreLandmarkExplorer(core, accessFilter, reverse);
+        return new CoreLandmarkExplorer(core, accessFilter, reverse, this.subnetworkNodes);
     }
 
     @Override
     public LandmarkExplorer getLandmarkSelector(EdgeFilter accessFilter) {
-        return new CoreLandmarkSelector(core, accessFilter, false);
+        return new CoreLandmarkSelector(core, accessFilter, false, this.subnetworkNodes);
     }
 
     /**
@@ -292,9 +290,14 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         private final boolean reverse;
         private SPTEntry lastEntry;
 
-        public CoreLandmarkExplorer(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
+        public CoreLandmarkExplorer(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse, IntHashSet subnetworkNodes) {
             super(g);
-            this.levelEdgeFilter = new CoreEdgeFilter(g, accessFilter);
+            //TODO: implement a better solution to the issue of picking nodes from outside of the strongly connected
+            // component. Provided that the edge filters are set up properly and work as intended the additional check
+            // shouldn't be in principle neccessary.
+            CHEdgeFilter subnetworkFilter = edge -> subnetworkNodes == null || subnetworkNodes.contains(edge.getAdjNode());
+            CHEdgeFilter coreEdgeFilter = new CoreEdgeFilter(g, accessFilter);
+            this.levelEdgeFilter = edge -> subnetworkFilter.accept(edge) && coreEdgeFilter.accept(edge);
             this.reverse = reverse;
             // set one of the bi directions as already finished
             if (reverse)
@@ -407,8 +410,8 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     private class CoreLandmarkSelector extends CoreLandmarkExplorer {
 
-        public CoreLandmarkSelector(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
-            super(g, accessFilter, reverse);
+        public CoreLandmarkSelector(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse, IntHashSet subnetworkNodes) {
+            super(g, accessFilter, reverse, subnetworkNodes);
         }
 
         @Override
