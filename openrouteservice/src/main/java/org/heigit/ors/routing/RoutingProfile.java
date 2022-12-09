@@ -363,8 +363,13 @@ public class RoutingProfile {
                     }
 
                     if (prepareCore) {
-                        if (coreOpts.hasPath(KEY_THREADS))
-                            ghConfig.putObject("prepare.core.threads", coreOpts.getInt(KEY_THREADS));
+                        if (coreOpts.hasPath(KEY_THREADS)) {
+                            String [] threads = coreOpts.getString(KEY_THREADS).split(",");
+                            int threadsCH = Integer.valueOf(threads[0]);
+                            int threadsLM = threads.length > 1 ? Integer.valueOf(threads[1]) : threadsCH;
+                            ghConfig.putObject("prepare.core.threads", threadsCH);
+                            ghConfig.putObject("prepare.corelm.threads", threadsLM);
+                        }
                         if (coreOpts.hasPath(KEY_WEIGHTINGS)) {
                             List<CHProfile> coreProfiles = new ArrayList<>();
                             List<LMProfile> coreLMProfiles = new ArrayList<>();
