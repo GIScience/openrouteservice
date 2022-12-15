@@ -65,7 +65,7 @@ public class IsochronesRequest extends APIRequest {
     public static final String PARAM_TIME = "time";
 
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs in WGS 84",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)

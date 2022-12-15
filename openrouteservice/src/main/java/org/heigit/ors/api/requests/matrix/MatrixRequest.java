@@ -54,7 +54,7 @@ public class MatrixRequest extends APIRequest {
     public static final String PARAM_OPTIMIZED = "optimized";
     public static final String PARAM_OPTIONS = "options";
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates.",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates in WGS 84",
             example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
