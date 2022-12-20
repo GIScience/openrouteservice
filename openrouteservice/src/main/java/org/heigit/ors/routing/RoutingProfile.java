@@ -1312,9 +1312,10 @@ public class RoutingProfile {
         String profileName = req.getProfile();
 
         //Priority: CH->Core->ALT
+        String profileNameNoTC = profileName.replace("_with_turn_costs", "");
 
         useCH = useCH && mGraphHopper.isCHAvailable(profileNameCH);
-        useCore = useCore && !useCH && mGraphHopper.isCoreAvailable(profileName);
+        useCore = useCore && !useCH && (mGraphHopper.isCoreAvailable(profileName) || mGraphHopper.isCoreAvailable(profileNameNoTC));
         useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(profileName);
 
         req.getHints().putObject(KEY_CH_DISABLE, !useCH);
@@ -1324,6 +1325,11 @@ public class RoutingProfile {
         if (useCH) {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
             req.setProfile(profileNameCH);
+        }
+        if (useCore) {
+            // fallback to a core profile without turn costs if one is available
+            if (!mGraphHopper.isCoreAvailable(profileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
+                req.setProfile(profileNameNoTC);
         }
     }
 
