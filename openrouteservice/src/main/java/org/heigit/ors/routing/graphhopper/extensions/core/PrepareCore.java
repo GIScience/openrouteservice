@@ -180,9 +180,9 @@ public class PrepareCore extends PrepareContractionHierarchies {
         // insert shortcuts connected to core nodes
         CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
         while (!sortedNodes.isEmpty())
-            coreNodeContractor.insertShortcuts(sortedNodes.poll());
+            coreNodeContractor.insertShortcuts(sortedNodes.poll(), false);
         for (int node = 0; node < nodes; node++)
             if (restrictedNodes[node])
-                coreNodeContractor.insertShortcuts(node);
+                coreNodeContractor.insertShortcuts(node, false);
     }
 }
