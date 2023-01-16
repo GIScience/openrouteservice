@@ -34,6 +34,10 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- API documentation on coordinate CRS
+### Fixed
+- Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
 
 ## [6.8.0] - 2022-10-10
 ### Added
