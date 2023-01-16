@@ -648,7 +648,7 @@ public class RoutingProfile {
         } catch (StatusCodeException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
+            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
         }
 
         return mtxResult;
