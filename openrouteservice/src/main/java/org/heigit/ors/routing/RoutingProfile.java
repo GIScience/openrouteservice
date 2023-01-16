@@ -704,7 +704,7 @@ public class RoutingProfile {
         } catch (PointNotFoundException e) {
             throw e;
         } catch (Exception ex) {
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix.");
+            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
         }
     }
 

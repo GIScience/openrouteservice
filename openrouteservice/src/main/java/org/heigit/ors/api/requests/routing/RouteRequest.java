@@ -63,7 +63,7 @@ public class RouteRequest extends APIRequest {
     public static final String PARAM_ARRIVAL = "arrival";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
 
-    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs",
+    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
     @JsonProperty(PARAM_COORDINATES)
