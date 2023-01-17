@@ -23,6 +23,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.MatrixLocations;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -79,7 +80,7 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, destIds);
 
 			if (algorithm.getVisitedNodes() > maxVisitedNodes)
-				throw new Exception("Search exceeds the limit of visited nodes.");
+				throw new MaxVisitedNodesExceededException();
 
 			MultiTreeSPEntry[] originalDestTrees = new MultiTreeSPEntry[dstData.size()];
 			

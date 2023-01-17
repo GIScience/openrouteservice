@@ -30,6 +30,7 @@ import com.graphhopper.storage.CHGraph;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToMany;
@@ -156,7 +157,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
             runPhaseInsideCore();
 
             if (visitedNodes > maxVisitedNodes)
-                throw new Exception("Search exceeds the limit of visited nodes.");
+                throw new MaxVisitedNodesExceededException();
 
             extractMetrics(srcData, dstData, times, distances, weights);
         }

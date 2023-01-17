@@ -20,6 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.SPTEntry;
 
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
@@ -74,7 +75,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 					SPTEntry[] targets = algorithm.calcPaths(sourceId, dstData.getNodeIds());
 
 					if (algorithm.getFoundTargets() != algorithm.getTargetsCount())
-						throw new Exception("Search exceeds the limit of visited nodes.");
+						throw new MaxVisitedNodesExceededException();
 
 					if (targets != null) {
 						pathMetricsExtractor.calcValues(srcIndex, targets, dstData, times, distances, weights);
