@@ -67,15 +67,19 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		} else {
 			RPHASTAlgorithm algorithm = new RPHASTAlgorithm(graph, prepareCH.getPrepareWeighting(),
 					TraversalMode.NODE_BASED);
+			algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
 			
 			int[] srcIds = getValidNodeIds(srcData.getNodeIds());
 			int[] destIds = getValidNodeIds(dstData.getNodeIds());
 
 			mtxResult.setGraphDate(graphHopper.getGraphHopperStorage().getProperties().get("datareader.import.date"));
-			
+
 			algorithm.prepare(srcIds, destIds);
 
 			MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, destIds);
+
+			if (algorithm.getVisitedNodes() > maxVisitedNodes)
+				throw new Exception("Search exceeds the limit of visited nodes.");
 
 			MultiTreeSPEntry[] originalDestTrees = new MultiTreeSPEntry[dstData.size()];
 			

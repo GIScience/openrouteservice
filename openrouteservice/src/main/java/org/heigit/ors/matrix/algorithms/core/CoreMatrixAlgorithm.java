@@ -38,7 +38,6 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreDijkstraFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreMatrixFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,6 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHe
 public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected int coreNodeLevel;
     protected int nodeCount;
-    protected int maxVisitedNodes = Integer.MAX_VALUE;
     protected int visitedNodes;
     private int treeEntrySize;
     private boolean hasTurnWeighting = false;
@@ -93,7 +91,6 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), graph, this.encoder, weighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
-        setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
     }
 
     public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
@@ -157,6 +154,9 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
             this.additionalCoreEdgeFilter.setInCore(true);
             runPhaseInsideCore();
+
+            if (visitedNodes > maxVisitedNodes)
+                throw new Exception("Search exceeds the limit of visited nodes.");
 
             extractMetrics(srcData, dstData, times, distances, weights);
         }
@@ -410,6 +410,7 @@ public class CoreMatrixAlgorithm extends AbstractMatrixAlgorithm {
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
         algorithm.calcPaths(entryPoints, exitPoints);
+        visitedNodes = algorithm.getVisitedNodes();
     }
 
     /**

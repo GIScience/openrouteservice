@@ -27,7 +27,6 @@ import org.heigit.ors.matrix.MatrixLocations;
 import org.heigit.ors.matrix.PathMetricsExtractor;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
 
 public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 	private PathMetricsExtractor pathMetricsExtractor;
@@ -61,7 +60,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
 		} else {
 			DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
 			algorithm.prepare(srcData.getNodeIds(),  dstData.getNodeIds());
-			algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
+			algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
 			
 			int sourceId = -1;
 

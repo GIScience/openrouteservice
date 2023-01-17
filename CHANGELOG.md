@@ -36,6 +36,8 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - API documentation on coordinate CRS
+### Changed
+- Consistent use of maximum number of visited nodes limit across different matrix algorithms ([#1246](https://github.com/GIScience/openrouteservice/issues/1246))
 ### Fixed
 - Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
 
