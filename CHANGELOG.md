@@ -38,6 +38,7 @@ RELEASING:
 - API documentation on coordinate CRS
 ### Fixed
 - Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
+- upgrade com.typesafe:config from 1.4.1 to 1.4.2
 
 ## [6.8.0] - 2022-10-10
 ### Added
