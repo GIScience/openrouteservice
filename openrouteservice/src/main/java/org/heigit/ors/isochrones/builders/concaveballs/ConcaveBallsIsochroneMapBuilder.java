@@ -156,16 +156,16 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 sw.start();
             }
 
-			double maxRadius;
-			double meanRadius;
-			if (isochroneType == TravelRangeType.DISTANCE) {
-				maxRadius = isoValue;
-				meanRadius = isoValue;
-			} else {
-				maxRadius = metersPerSecond * isoValue;
-				meanRadius = meanMetersPerSecond * isoValue;
-				isochronesDifference = metersPerSecond * isochronesDifference;
-			}
+            double maxRadius;
+            double meanRadius;
+            if (isochroneType == TravelRangeType.DISTANCE) {
+                maxRadius = isoValue;
+                meanRadius = isoValue;
+            } else {
+                maxRadius = metersPerSecond * isoValue;
+                meanRadius = meanMetersPerSecond * isoValue;
+                isochronesDifference = metersPerSecond * isochronesDifference;
+            }
 
             Coordinate[] points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 0.85);
 
@@ -413,24 +413,34 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, nodeId);
 
+            // edges that are fully inside the isochrone
+            if (isolineCost >= maxCost) {
+                // This checks for dead end edges, but we need to include those in small areas to provide realistic
+                // results
+                if (goalEdge.edge != -2 || useHighDetail) {
+                    double edgeDist = iter.getDistance();
+                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 200)) {
+                        boolean detailedShape = (edgeDist > 200);
+                        // always use mode=3, since other ones do not provide correct results
+                        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
-			// edges that are fully inside of the isochrone
-			if (isolineCost >= maxCost) {
-				// This checks for dead end edges, but we need to include those in small areas to provide realistic
-				// results
-				if (goalEdge.edge != -2 || useHighDetail) {
-					double edgeDist = iter.getDistance();
-					if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 300))
-					{
-						boolean detailedShape = (edgeDist > 300);
-						// always use mode=3, since other ones do not provide correct results
-						PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-						int size = pl.size();
-						if (size > 0) {
-							double lat0 = pl.getLat(0);
-							double lon0 = pl.getLon(0);
-							double lat1;
-							double lon1;
+                        if (LOGGER.isDebugEnabled()) {
+                            sw.start();
+                        }
+                        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+
+                        for (int i = 0; i < pl.size() - 1; i++)
+                            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
+                        pl.add(expandedPoints);
+                        if (LOGGER.isDebugEnabled()) {
+                            sw.stop();
+                        }
+                        int size = pl.size();
+                        if (size > 0) {
+                            double lat0 = pl.getLat(0);
+                            double lon0 = pl.getLon(0);
+                            double lat1;
+                            double lon1;
 
                             if (detailedShape && BUFFERED_OUTPUT) {
                                 for (int i = 1; i < size; ++i) {
@@ -463,14 +473,25 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
 
-					PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+                    PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
-					int size = pl.size();
-					if (size > 0) {
-						double edgeCost = maxCost - minCost;
-						double edgeDist = iter.getDistance();
-						double costPerMeter = edgeCost / edgeDist;
-						double distPolyline = 0.0;
+                    PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+                    if (LOGGER.isDebugEnabled()) {
+                        sw.start();
+                    }
+                    for (int i = 0; i < pl.size() - 1; i++)
+                        splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
+                    pl.add(expandedPoints);
+                    if (LOGGER.isDebugEnabled()) {
+                        sw.stop();
+                    }
+                    int size = pl.size();
+
+                    if (size > 0) {
+                        double edgeCost = maxCost - minCost;
+                        double edgeDist = iter.getDistance();
+                        double costPerMeter = edgeCost / edgeDist;
+                        double distPolyline = 0.0;
 
                         double lat0 = pl.getLat(0);
                         double lon0 = pl.getLon(0);
