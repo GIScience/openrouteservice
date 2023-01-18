@@ -241,7 +241,7 @@ public class ConcaveHullOpenSphere {
             qeDistances.add(new QuadEdgeLineSegment(qe));
         }
 
-        qeDistances.sort((a, b) -> Double.compare(a.length, b.length));
+        qeDistances.sort((a, b) -> Double.compare(b.length, a.length));
 
         // edges creation
         int i = 0;
