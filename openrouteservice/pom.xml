@@ -120,8 +120,7 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
-                                      tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
@@ -536,7 +535,7 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version><!-- upgrade to 3.0.0 causes app crash -->
+            <version>2.10.0</version><!-- upgrade to 3.0.0 causes app crash -->
         </dependency>
         <dependency>
             <groupId>com.bedatadriven</groupId>
