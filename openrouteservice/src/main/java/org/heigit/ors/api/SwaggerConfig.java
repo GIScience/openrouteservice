@@ -23,11 +23,9 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.paths.RelativePathProvider;
+import springfox.documentation.spring.web.paths.DefaultPathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.servlet.ServletContext;
 
 @Configuration
 @EnableSwagger2
@@ -42,15 +40,10 @@ public class SwaggerConfig {
                 .build();
     }
     @Bean
-    public Docket api(ServletContext servletContext) {
+    public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .host("api.openrouteservice.org")
-                .pathProvider(new RelativePathProvider(servletContext) {
-                    @Override
-                    public String getApplicationBasePath() {
-                        return "/";
-                    }
-                })
+                .pathProvider(new DefaultPathProvider() {})
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.heigit.ors.api"))
                 .paths(PathSelectors.any())
