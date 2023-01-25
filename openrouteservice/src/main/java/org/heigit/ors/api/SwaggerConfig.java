@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api;
 
+import org.heigit.ors.config.AppConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -27,25 +28,26 @@ import springfox.documentation.spring.web.paths.DefaultPathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.servlet.ServletContext;
-
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+    String swagger_documentation_url = AppConfig.getGlobal().getParameter("info", "swagger_documentation_url");
+
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Openrouteservice")
                 .description("This is the openrouteservice API documentation")
                 .license("MIT")
                 .licenseUrl("https://github.com/swagger-api/swagger-ui/blob/master/LICENSE")
-                .contact(new Contact("","", "enquiry@openrouteservice.heigit.org"))
+                .contact(new Contact("", "", "enquiry@openrouteservice.heigit.org"))
                 .build();
     }
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .host("api.openrouteservice.org")
-                .pathProvider(new DefaultPathProvider() {})
+                .host(swagger_documentation_url)
+                .pathProvider(new DefaultPathProvider())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.heigit.ors.api"))
                 .paths(PathSelectors.any())
