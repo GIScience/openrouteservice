@@ -25,12 +25,13 @@ The top level element.
 
 ### ors.info
 
-| key | type | description | example value |
-|-----|------|-------------|-------|
-|  base_url  |  string |            |  `"https://openrouteservice.org"`   |
-|  support_mail  |  string |         | `"support@openrouteservice.org"`     |
-|  author_tag  |  string |           |  `"openrouteservice"`    |
-|  content_licence  |  string |           |  `"LGPL 3.0"`     |
+| key | type | description                                                                          | example value                        |
+|-----|------|--------------------------------------------------------------------------------------|--------------------------------------|
+|  base_url  |  string |                                                                                      | `"https://openrouteservice.org"`     |
+|  swagger_documentation_url  |  string | Define the url for the the swagger documentation. Can be different from the `base_url` | `"https://api.openrouteservice.org"` |
+|  support_mail  |  string |                                                                                      | `"support@openrouteservice.org"`     |
+|  author_tag  |  string |                                                                                      | `"openrouteservice"`                 |
+|  content_licence  |  string |                                                                                      | `"LGPL 3.0"`                         |
 
 ---
 
