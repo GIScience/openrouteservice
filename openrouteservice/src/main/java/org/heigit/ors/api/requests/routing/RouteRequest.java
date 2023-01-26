@@ -245,7 +245,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
-            example = "2020-01-31T12:45:00",  hidden = true)
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_DEPARTURE)
     private LocalDateTime departure;
     @JsonIgnore
@@ -253,7 +253,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
-            example = "2020-01-31T13:15:00",  hidden = true)
+            example = "2020-01-31T13:15:00", hidden = true)
     @JsonProperty(PARAM_ARRIVAL)
     private LocalDateTime arrival;
     @JsonIgnore
