@@ -38,6 +38,7 @@ RELEASING:
 - API documentation on coordinate CRS
 ### Fixed
 - Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
+- update log4j to version 2.19.0 and slf4j to 2.0.6
 
 ## [6.8.0] - 2022-10-10
 ### Added
