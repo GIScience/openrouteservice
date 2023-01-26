@@ -2,6 +2,7 @@
   "ors": {
     "info": {
       "base_url": "https://openrouteservice.org/",
+      "swagger_documentation_url": "https://api.openrouteservice.org/",
       "support_mail": "support@openrouteservice.org",
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
