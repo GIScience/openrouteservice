@@ -38,3 +38,7 @@ nohup.out
 build/
 logs/
 cgiar_cache/
+gradle/
+.gradle
+/gradle/
+/openrouteservice-api-tests/gradle/
