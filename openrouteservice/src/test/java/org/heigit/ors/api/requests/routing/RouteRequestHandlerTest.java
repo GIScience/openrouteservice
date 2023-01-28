@@ -70,7 +70,9 @@ public class RouteRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+                if (System.getProperty("ors_config") == null) {
+            System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        }
 
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});

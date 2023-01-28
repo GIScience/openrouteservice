@@ -12,7 +12,9 @@ import org.junit.Test;
 public class RouteSearchParametersTest {
     @Before
     public void setUp() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+                if (System.getProperty("ors_config") == null) {
+            System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        }
     }
 
     @Test(expected = ParameterValueException.class)

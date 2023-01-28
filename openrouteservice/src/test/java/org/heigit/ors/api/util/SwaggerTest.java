@@ -10,7 +10,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerTest {
     @Test
     public void testGetSwaggerDocs() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        if (System.getProperty("ors_config") == null) {
+            System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        }
         SwaggerConfig swagger_config = new SwaggerConfig();
         Docket api = swagger_config.api();
         Assert.assertEquals(DocumentationType.SWAGGER_2, api.getDocumentationType());

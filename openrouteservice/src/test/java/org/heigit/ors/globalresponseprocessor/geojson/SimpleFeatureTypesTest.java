@@ -40,7 +40,9 @@ public class SimpleFeatureTypesTest {
 
     @BeforeClass
     public static void setUp() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+                if (System.getProperty("ors_config") == null) {
+            System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        }
         simpleFeatureType = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.ROUTE_FEATURE).create();
     }
 
