@@ -30,55 +30,62 @@ repositories {
     }
 }
 
-
-
+ext {
+    log4jVersion = '2.17.2'
+    slf4jVersion = '2.0.6'
+    springBootVersion = '2.5.14'
+    JacksonVersion = '2.13.3'
+    geotoolsVersion = '19.1'
+    graphhopperVersion = 'v0.13.23'
+    kafkaVersion = '2.5.1'
+}
 
 dependencies {
+    api "org.apache.kafka:kafka_2.13:${kafkaVersion}"
+    api "org.apache.kafka:kafka-streams:${kafkaVersion}"
+    api "org.apache.kafka:kafka-clients:${kafkaVersion}"
+    api "com.github.GIScience.graphhopper:graphhopper-core:${graphhopperVersion}"
+    api "com.github.GIScience.graphhopper:graphhopper-reader-osm:${graphhopperVersion}"
+    api "com.github.GIScience.graphhopper:graphhopper-api:${graphhopperVersion}"
+    api "org.geotools:gt-main:${geotoolsVersion}"
+    api "org.geotools:gt-api:${geotoolsVersion}"
+    api "org.geotools:gt-epsg-hsql:${geotoolsVersion}"
+    api "org.geotools:gt-geojson:${geotoolsVersion}"
+    api "org.geotools:gt-swing:${geotoolsVersion}"
+    api "org.geotools:gt-shapefile:${geotoolsVersion}"
+    api "org.apache.logging.log4j:log4j:${log4jVersion}"
+    api "org.apache.logging.log4j:log4j-1.2-api:${log4jVersion}"
+    api "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    api "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    api "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    api "org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}"
+    api "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    api "org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}"
+    api "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    api "org.springframework.boot:spring-boot-maven-plugin:${springBootVersion}"
+    api "com.fasterxml.jackson.core:jackson-core:${JacksonVersion}"
+    api "com.fasterxml.jackson.core:jackson-annotations:${JacksonVersion}"
+    testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+    testImplementation 'org.skyscreamer:jsonassert:1.5.1'
     api 'javax.annotation:javax.annotation-api:1.3.2'
     api 'javax.xml.bind:jaxb-api:2.3.1'
     api 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
     api 'com.vividsolutions:jts:1.13'
-    api 'org.geotools:gt-main:19.1'
-    api 'org.geotools:gt-api:19.1'
-    api 'org.geotools:gt-epsg-hsql:19.1'
-    api 'org.geotools:gt-geojson:19.1'
-    api 'org.geotools:gt-swing:19.1'
-    api 'org.geotools:gt-shapefile:19.1'
-    api 'org.apache.logging.log4j:log4j:2.17.2'
-    api 'org.apache.logging.log4j:log4j-1.2-api:2.17.2'
-    api 'org.apache.logging.log4j:log4j-api:2.17.2'
-    api 'org.apache.logging.log4j:log4j-core:2.17.2'
     api 'me.tongfei:progressbar:0.5.5'
-    api 'com.github.GIScience.graphhopper:graphhopper-core:v0.13.23'
-    api 'com.github.GIScience.graphhopper:graphhopper-reader-osm:v0.13.23'
-    api 'com.github.GIScience.graphhopper:graphhopper-api:v0.13.23'
     api 'com.typesafe:config:1.4.1'
     api 'com.zaxxer:HikariCP:3.4.5'
     api 'org.postgresql:postgresql:42.4.3'
     api 'junit:junit:4.13.2'
-    api 'org.apache.kafka:kafka_2.13:2.5.1'
-    api 'org.apache.kafka:kafka-streams:2.5.1'
-    api 'org.apache.kafka:kafka-clients:2.5.1'
     api 'org.apache.curator:curator-test:4.1.0'
-    api "org.springframework.boot:spring-boot-starter-web:2.5.14"
-    api "org.springframework.boot:spring-boot-starter-tomcat:2.5.14"
-    api "org.springframework.boot:spring-boot-starter-actuator:2.5.14"
-    api("org.springframework.boot:spring-boot-starter-log4j2:2.5.14")
-    api("org.springframework.boot:spring-boot-gradle-plugin:2.5.14")
-    api 'org.springframework.boot:spring-boot-maven-plugin:2.5.14'
     api 'io.micrometer:micrometer-registry-prometheus:1.5.6'
     api 'io.springfox:springfox-swagger2:3.0.0'
     api 'com.bedatadriven:jackson-datatype-jts:2.4'
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3'
     api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.5'
-    api 'com.fasterxml.jackson.core:jackson-core:2.13.3'
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.13.3'
     api 'javax.servlet:javax.servlet-api:4.0.1'
     api 'org.skyscreamer:jsonassert:1.5.0'
     api 'org.apache.commons:commons-compress:1.22'
     api 'us.dustinj.timezonemap:timezonemap:4.5'
-    testImplementation 'org.skyscreamer:jsonassert:1.5.1'
-    testImplementation 'org.slf4j:slf4j-log4j12:2.0.6'
 }
 
 group = 'org.heigit.ors'
@@ -95,7 +102,6 @@ publishing {
 }
 
 
-
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
@@ -107,22 +113,21 @@ tasks.withType(Javadoc) {
 sourceSets {
     test {
         java {
-            srcDirs= ["src/test/java"]
+            srcDirs = ["src/test/java"]
         }
         resources {
-            srcDirs= ["src/main/resources/"]
+            srcDirs = ["src/main/resources/"]
         }
     }
     main {
         java {
-            srcDirs= ["src/main/java"]
+            srcDirs = ["src/main/java"]
         }
         resources {
-            srcDirs= ["src/main/resources/"]
+            srcDirs = ["src/main/resources/"]
         }
     }
 }
-
 
 
 task copyTestResources(type: Copy) {
@@ -137,15 +142,15 @@ tasks.withType(Test).configureEach {
     //environment('ors_config',"${buildDir}/resources/ors-config-test.json")
 }
 
-task printSourceSetInformation(){
-    doLast{
+task printSourceSetInformation() {
+    doLast {
         sourceSets.each { srcSet ->
-            println "["+srcSet.name+"]"
+            println "[" + srcSet.name + "]"
             println "-->Project directory: ${projectDir}"
             println "-->Build directory: ${buildDir}"
-            print "-->Source directories: "+srcSet.allJava.srcDirs+"\n"
-            print "-->Resource directories: "+srcSet.resources.srcDirs+"\n"
-            print "-->Output directories: "+srcSet.output.classesDirs.files+"\n"
+            print "-->Source directories: " + srcSet.allJava.srcDirs + "\n"
+            print "-->Resource directories: " + srcSet.resources.srcDirs + "\n"
+            print "-->Output directories: " + srcSet.output.classesDirs.files + "\n"
             println ""
         }
     }
