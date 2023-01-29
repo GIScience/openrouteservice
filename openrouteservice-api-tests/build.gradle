@@ -48,7 +48,7 @@ dependencies {
 group = 'org.heigit.ors'
 version = '0.0.1-SNAPSHOT'
 description = 'openrouteservice-api-tests'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 publishing {
     publications {
