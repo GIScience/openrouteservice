@@ -5,6 +5,7 @@ plugins {
     id 'war'
     id 'idea'
     id 'jacoco'
+    id 'org.springframework.boot' version '2.3.5.RELEASE'
 }
 
 group = 'org.heigit.ors'
@@ -25,6 +26,15 @@ war {
 
 jar {
     enabled=false
+}
+
+springBoot {
+    mainClassName = 'org.heigit.ors.Application'
+    buildInfo()
+}
+
+bootWar {
+    mainClassName = 'org.heigit.ors.Application'
 }
 
 // Repository and dependencies section
@@ -75,7 +85,7 @@ dependencies {
     api "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     api "org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}"
     api "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-    api "org.springframework.boot:spring-boot-maven-plugin:${springBootVersion}"
+    //api "org.springframework.boot:spring-boot-maven-plugin:${springBootVersion}"
     api "com.fasterxml.jackson.core:jackson-core:${JacksonVersion}"
     api "com.fasterxml.jackson.core:jackson-annotations:${JacksonVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
@@ -193,6 +203,10 @@ task printSourceSetInformation() {
     }
 }
 
+springBoot {
+    mainClassName = 'org.heigit.ors.Application'
+}
+
 
 // This avoids logf4j path duplications and errors.
 configurations.all {
@@ -200,4 +214,9 @@ configurations.all {
     exclude module: "logback-classic"
     exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
 //    exclude group: 'us.dustinj.timezonemap', module: 'timezonemap'
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.slf4j') {
+            details.useVersion "${slf4jVersion}"
+        }
+    }
 }
