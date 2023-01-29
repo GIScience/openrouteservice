@@ -118,10 +118,10 @@ jacoco {
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        csv.enabled false
+        xml.required
+        html.required
         //to create coverage report in html
-        html.destination file("${buildDir}/site/jacoco")
+        html.destination file("${buildDir}/site/jacoco/javoco.html")
         //for XML
         xml.destination file("${buildDir}/site/jacoco/jacoco.xml")
     }
