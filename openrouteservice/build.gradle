@@ -31,7 +31,6 @@ jar {
 
 springBoot {
     mainClassName = 'org.heigit.ors.Application'
-    buildInfo()
 }
 
 bootWar {
@@ -192,10 +191,15 @@ task copyTestResources(type: Copy) {
 }
 processTestResources.dependsOn copyTestResources
 
+task copyMainResources(type: Copy) {
+    from layout.projectDirectory.dir("src/main/resources")
+    into layout.buildDirectory.dir("classes")
+}
+processResources.dependsOn copyMainResources
+
 
 tasks.withType(Test).configureEach {
     systemProperty('ors_config', "${buildDir}/resources/test/ors-config-test.json")
-    //environment('ors_config',"${buildDir}/resources/ors-config-test.json")
 }
 
 task printSourceSetInformation() {
