@@ -158,6 +158,9 @@ jacocoTestReport {
 
 sourceSets {
     test {
+        // Set the java wide resource folders for gradle and jvm
+        output.resourcesDir = file("${buildDir}/resources/test")
+        java.destinationDirectory.set(file("${buildDir}/resources/test"))
         java {
             srcDirs = ["${projectDir}/src/test/java"]
         }
@@ -166,6 +169,9 @@ sourceSets {
         }
     }
     main {
+        // Set the java wide resource folders for gradle and jvm
+        output.resourcesDir = file("${buildDir}/resources/main")
+        java.destinationDirectory.set(file("${buildDir}/resources/main"))
         java {
             srcDirs = ["${projectDir}/src/main/java"]
         }
@@ -191,11 +197,11 @@ task copyTestResources(type: Copy) {
 }
 processTestResources.dependsOn copyTestResources
 
-task copyMainResources(type: Copy) {
+task copyResources(type: Copy) {
     from layout.projectDirectory.dir("src/main/resources")
     into layout.buildDirectory.dir("classes")
 }
-processResources.dependsOn copyMainResources
+processResources.dependsOn copyResources
 
 
 tasks.withType(Test).configureEach {
@@ -211,6 +217,7 @@ task printSourceSetInformation() {
             print "-->Source directories: " + srcSet.allJava.srcDirs + "\n"
             print "-->Resource directories: " + srcSet.resources.srcDirs + "\n"
             print "-->Output directories: " + srcSet.output.classesDirs.files + "\n"
+            print "-->Output directories: " + srcSet+ "\n"
             println ""
         }
     }
