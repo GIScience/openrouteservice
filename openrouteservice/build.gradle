@@ -2,6 +2,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'war'
     id 'idea'
     id 'jacoco'
 }
@@ -16,6 +17,14 @@ idea {
         downloadJavadoc = true
         downloadSources = true
     }
+}
+
+war {
+    enabled=true
+}
+
+jar {
+    enabled=false
 }
 
 // Repository and dependencies section

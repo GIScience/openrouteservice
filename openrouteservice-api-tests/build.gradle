@@ -4,7 +4,6 @@
 
 plugins {
     id 'java-library'
-    id 'maven-publish'
     id 'idea'
 }
 
@@ -13,6 +12,10 @@ idea {
         downloadJavadoc = true
         downloadSources = true
     }
+}
+
+jar {
+    enabled=false
 }
 
 repositories {
@@ -49,14 +52,6 @@ group = 'org.heigit.ors'
 version = '0.0.1-SNAPSHOT'
 description = 'openrouteservice-api-tests'
 java.sourceCompatibility = JavaVersion.VERSION_11
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
-    }
-}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
