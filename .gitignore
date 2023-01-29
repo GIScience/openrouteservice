@@ -67,3 +67,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 **/.mvn/
+
+# Ignore Gradle build output directory
+build

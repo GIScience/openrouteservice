@@ -21,7 +21,8 @@ idea {
 }
 
 war {
-    enabled=true
+    // Use bootWar from springboot
+    enabled=false
 }
 
 jar {
@@ -35,6 +36,7 @@ springBoot {
 
 bootWar {
     mainClassName = 'org.heigit.ors.Application'
+    enabled=true
 }
 
 // Repository and dependencies section
@@ -121,6 +123,16 @@ publishing {
     }
 }
 
+testing {
+    suites {
+        // Configure the built-in test suite
+        test {
+            // Use JUnit4 test framework
+            useJUnit()
+        }
+    }
+}
+
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
@@ -151,18 +163,18 @@ jacocoTestReport {
 sourceSets {
     test {
         java {
-            srcDirs = ["src/test/java"]
+            srcDirs = ["${projectDir}/src/test/java"]
         }
         resources {
-            srcDirs = ["src/main/resources/"]
+            srcDirs = ["${projectDir}/src/main/resources/"]
         }
     }
     main {
         java {
-            srcDirs = ["src/main/java"]
+            srcDirs = ["${projectDir}/src/main/java"]
         }
         resources {
-            srcDirs = ["src/main/resources/"]
+            srcDirs = ["${projectDir}/src/main/resources/"]
         }
     }
 }
