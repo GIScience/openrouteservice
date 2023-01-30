@@ -197,12 +197,6 @@ task copyTestResources(type: Copy) {
 }
 processTestResources.dependsOn copyTestResources
 
-task copyResources(type: Copy) {
-    from layout.projectDirectory.dir("src/main/resources")
-    into layout.buildDirectory.dir("classes")
-}
-processResources.dependsOn copyResources
-
 
 tasks.withType(Test).configureEach {
     systemProperty('ors_config', "${buildDir}/resources/test/ors-config-test.json")
@@ -222,6 +216,29 @@ task printSourceSetInformation() {
         }
     }
 }
+
+// Ant section
+tasks.register('createVersionFile', Copy) {
+    dependsOn tasks.assemble
+    from layout.buildDirectory.file("resources/main/resources/version.properties")
+    into layout.buildDirectory
+    // Substitute property tokens in files
+    expand('project.version': project.version)
+    expand(project.properties)
+//    // Use some of the filters provided by Ant
+//    filter(FixCrLfFilter)
+//    filter(ReplaceTokens, tokens: [copyright: '2009', version: '2.3.1'])
+//    // Use a closure to filter each line
+//    filter { String line ->
+//        "[$line]"
+//    }
+//    // Use a closure to remove lines
+//    filter { String line ->
+//        line.startsWith('-') ? null : line
+//    }
+//    filteringCharset = 'UTF-8'
+}
+
 
 // This avoids logf4j path duplications and errors.
 configurations.all {
