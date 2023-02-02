@@ -52,6 +52,7 @@
         <geotools.version>19.1</geotools.version>
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
+        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -545,21 +546,22 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.13.4.2</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.13.3</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.14.2</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
