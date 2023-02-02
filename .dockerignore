@@ -33,8 +33,10 @@ docker/conf
 cgiar_provider/
 graphs/
 target/
-.python-version
-nohup.out
 build/
 logs/
 cgiar_cache/
+docker/
+docs/
+.github/
+Dockerfile
