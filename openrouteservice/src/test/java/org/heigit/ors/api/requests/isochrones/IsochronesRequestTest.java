@@ -3,14 +3,11 @@ package org.heigit.ors.api.requests.isochrones;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-
-import static org.heigit.ors.util.HelperFunctions.fakeArrayLocations;
 
 public class IsochronesRequestTest {
 
@@ -236,8 +233,8 @@ public class IsochronesRequestTest {
     @Test
     public void setIntervalTest() {
         IsochronesRequest request = new IsochronesRequest();
-        request.setInterval(new Double("0.0"));
-        Assert.assertEquals(new Double("0.0"), request.getInterval());
+        request.setInterval(Double.valueOf("0.0"));
+        Assert.assertEquals(Double.valueOf("0.0"), request.getInterval());
     }
 
     @Test

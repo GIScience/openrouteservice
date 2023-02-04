@@ -23,7 +23,7 @@ public class JSONLocationTest {
     @Test
     public void getSnapped_distance() {
         Assert.assertEquals("foo", jsonLocationWithLocation.name);
-        Assert.assertEquals(new Double(0.0), jsonLocationWithLocation.getSnappedDistance());
+        Assert.assertEquals(Double.valueOf(0.0), jsonLocationWithLocation.getSnappedDistance());
     }
 
     @Test
