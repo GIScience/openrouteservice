@@ -46,7 +46,7 @@ import java.util.List;
 @RequestMapping("/v2/status")
 public class StatusAPI {
     @GetMapping
-    public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> fetchHealth(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
