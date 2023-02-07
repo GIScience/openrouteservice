@@ -28,9 +28,7 @@ import org.apache.juli.logging.LogFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
-@WebListener
 public class ORSInitContextListener implements ServletContextListener {
 	private static final Logger LOGGER = Logger.getLogger("org.heigit.ors.logging");
 

@@ -1,5 +1,8 @@
 package org.heigit.ors;
 
+import org.heigit.ors.servlet.listeners.LoggingStartupContextListener;
+import org.heigit.ors.servlet.listeners.ORSInitContextListener;
+import org.heigit.ors.servlet.listeners.ORSKafkaConsumerInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
@@ -11,11 +14,13 @@ import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoints
 import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.ServletContextListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -56,6 +61,15 @@ public class Application extends SpringBootServletInitializer {
      */
     private boolean shouldRegisterLinksMapping(WebEndpointProperties webEndpointProperties, Environment environment, String basePath) {
         return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
+    }
+
+    @Bean
+    public ServletListenerRegistrationBean<ServletContextListener> customListenerBean() {
+        ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
+        bean.setListener(new LoggingStartupContextListener());
+        bean.setListener(new ORSInitContextListener());
+        bean.setListener(new ORSKafkaConsumerInitContextListener());
+        return bean;
     }
 
     public static void main(String[] args) {
