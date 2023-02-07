@@ -34,13 +34,27 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.8.1] - 2023-02-07
 ### Added
 - API documentation on coordinate CRS
 ### Fixed
 - Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
 - Fix security vulnerability and testing for the swagger docs api ([PR #1257](https://github.com/GIScience/openrouteservice/pull/1257))
-- upgrade com.typesafe:config from 1.4.1 to 1.4.2
+- update com.typesafe:config from 1.4.1 to 1.4.2
 - update log4j to version 2.19.0 and slf4j to 2.0.6
+- update junit:junit from 4.13.1 to 4.13.2
+- update org.postgresql:postgresql from 42.4.3 to 42.5.1
+- update com.fasterxml.jackson bundle from 2.13.3 to 2.14.2
+- update org.glassfish.jaxb:jaxb-runtime from 2.3.1 to 2.3.7
+- update org.apache.kafka bundle from 2.5.1 to 3.3.2
+- update org.apache.curator from 4.1.0 to 5.4.0
+- update me.tongfei.progressbar from 0.5.5 to 0.9.5 
+- update org.springframework.boot:spring-boot-starter-web from 2.5.12 to 2.7.7 
+- update org.springframework.boot:spring-boot-starter-tomcat from 2.3.5.RELEASE to 2.7.7 
+- update com.typesafe:config from 1.4.1 to 1.4.2
+- update springfox-swagger2 to 3.0.0
+- update org.ow2.asm:asm from 9.0 to 9.4
 
 ## [6.8.0] - 2022-10-10
 ### Added
@@ -576,7 +590,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...HEAD
+[6.8.1]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
 [6.7.1]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...v6.7.1
 [6.7.0]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...v6.7.0
