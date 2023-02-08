@@ -41,6 +41,7 @@ RELEASING:
 - Fix security vulnerability and testing for the swagger docs api ([PR #1257](https://github.com/GIScience/openrouteservice/pull/1257))
 - upgrade com.typesafe:config from 1.4.1 to 1.4.2
 - update log4j to version 2.19.0 and slf4j to 2.0.6
+- visibility of csv_factor and csv_column API parameters ([PR #1279](https://github.com/GIScience/openrouteservice/pull/1279))
 
 ## [6.8.0] - 2022-10-10
 ### Added
