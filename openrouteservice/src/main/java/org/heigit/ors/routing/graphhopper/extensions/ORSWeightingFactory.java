@@ -59,8 +59,6 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
             }
         }
 
-        weighting = applySoftWeightings(hints, encoder, weighting);
-
         return weighting;
     }
 
@@ -106,7 +104,8 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
         }
     }
 
-    private Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {
+    @Override
+    protected Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {
         // TODO (cleanup): The term "custom_weighting" is easily confused with GH's custom
         //                 weighting and should be renamed.
         if (hints.getBool("custom_weightings", false))
