@@ -35,7 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 
-## [6.8.1] - 2023-02-07
+## [6.8.1] - 2023-02-08
 ### Added
 - API documentation on coordinate CRS
 ### Fixed
