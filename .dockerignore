@@ -1,0 +1,42 @@
+.metadata/
+.git
+.gitignore
+**/*.pbf
+
+.idea/
+*.iml
+.DS_Store
+nohup.out
+.python-version
+.project
+
+# Ignore all ors and app config files except for the sample ones
+openrouteservice/WebContent/WEB-INF/app.config*
+!openrouteservice/WebContent/WEB-INF/app.config.sample
+openrouteservice/src/main/resources/app.config*
+!openrouteservice/src/main/resources/app.config.sample
+openrouteservice/WebContent/WEB-INF/ors-config*
+!openrouteservice/WebContent/WEB-INF/ors-config-sample.json
+openrouteservice/src/main/resources/ors-config*
+!openrouteservice/src/main/resources/ors-config-sample.json
+
+# no tests
+openrouteservice/src/test
+
+# Ignore folders generated from docker
+docker/elevation_cache
+docker/conf
+
+# Ignore ors.run file
+*ors.run
+
+cgiar_provider/
+graphs/
+target/
+build/
+logs/
+cgiar_cache/
+docker/
+docs/
+.github/
+Dockerfile

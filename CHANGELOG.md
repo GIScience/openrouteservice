@@ -84,6 +84,9 @@ RELEASING:
 - fix minor spelling errors in Places.md ([#1196](https://github.com/GIScience/openrouteservice/issues/1196))
 - address matrix failures for HGV profile ([#1198](https://github.com/GIScience/openrouteservice/issues/1198))
 
+### Changed
+- docker image is multistage now ([#1234](https://github.com/GIScience/openrouteservice/issues/1234))
+
 ## [6.7.1] - 2022-10-05
 ### Added
 - optional routing profile parameter `force_turn_costs` ([#1220](https://github.com/GIScience/openrouteservice/pull/1220))
