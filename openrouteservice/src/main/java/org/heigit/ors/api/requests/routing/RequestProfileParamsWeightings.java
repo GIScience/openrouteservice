@@ -52,11 +52,11 @@ public class RequestProfileParamsWeightings {
     @JsonIgnore
     private boolean hasQuietIndex = false;
 
-    @ApiModelProperty(name = PARAM_CSV_FACTOR, value="Specifies the factor of csv-column (range 0 to 1)")
+    @ApiModelProperty(name = PARAM_CSV_FACTOR, value="Specifies the factor of csv-column (range 0 to 1)", hidden = true)
     @JsonProperty(PARAM_CSV_FACTOR)
     private Float csvFactor;
 
-    @ApiModelProperty(name = PARAM_CSV_COLUMN, value="Specifies the csv column name")
+    @ApiModelProperty(name = PARAM_CSV_COLUMN, value="Specifies the csv column name", hidden = true)
     @JsonProperty(PARAM_CSV_COLUMN)
     private String csvColumnName;
     @JsonIgnore
