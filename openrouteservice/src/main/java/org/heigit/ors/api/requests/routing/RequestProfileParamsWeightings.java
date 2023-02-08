@@ -58,7 +58,7 @@ public class RequestProfileParamsWeightings {
 
     @ApiModelProperty(name = PARAM_CSV_COLUMN, value="Specifies the csv column name", hidden = true)
     @JsonProperty(PARAM_CSV_COLUMN)
-    private String csvColumnName;
+    private String csvColumn;
     @JsonIgnore
     private boolean hasCsv = false;
 
@@ -103,10 +103,10 @@ public class RequestProfileParamsWeightings {
         hasCsv = true;
     }
 
-    public String getCsvColumn() { return csvColumnName; }
+    public String getCsvColumn() { return csvColumn; }
 
     public void setCsvColumn(String csvColumnName) {
-        this.csvColumnName = csvColumnName;
+        this.csvColumn = csvColumnName;
     }
 
     public Float getShadowIndex() {
