@@ -22,6 +22,7 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
+import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -58,12 +59,16 @@ import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Geometry;
@@ -499,6 +504,30 @@ public class ORSGraphHopper extends GraphHopper {
 	}
 
 	@Override
+	protected void initCHPreparationHandler() {
+		CHPreparationHandler chPreparationHandler = getCHPreparationHandler();
+		if (chPreparationHandler.hasCHConfigs()) {
+			return;
+		}
+
+		for (CHProfile chProfile : chPreparationHandler.getCHProfiles()) {
+			Profile profile = profilesByName.get(chProfile.getProfile());
+			Weighting weighting = createWeighting(profile, new PMap());
+
+			if (profile.getVehicle().equals(FlagEncoderNames.HEAVYVEHICLE)) {
+				HeavyVehicleAttributesGraphStorage hgvStorage = GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), HeavyVehicleAttributesGraphStorage.class);
+				EdgeFilter hgvEdgeFilter = new HeavyVehicleEdgeFilter(HeavyVehicleAttributes.HGV, null, hgvStorage);
+				weighting = new HgvAccessWeighting(weighting, hgvEdgeFilter);
+			}
+
+			if (profile.isTurnCosts()) {
+				chPreparationHandler.addCHConfig(CHConfig.edgeBased(profile.getName(), weighting));
+			} else {
+				chPreparationHandler.addCHConfig(CHConfig.nodeBased(profile.getName(), weighting));
+			}
+		}
+	}
+
 	protected void loadORS() {
 		List<CHConfig> chConfigs;
 		if (corePreparationHandler.isEnabled()) {
