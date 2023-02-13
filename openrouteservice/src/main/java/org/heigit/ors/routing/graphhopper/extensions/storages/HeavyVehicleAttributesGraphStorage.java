@@ -93,13 +93,14 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
 	}
 
-	public void setEdgeValue(int edgeId, int vehicleType, double[] restrictionValues) {
+	public void setEdgeValue(int edgeId, int vehicleType, int heavyVehicleDestination, double[] restrictionValues) {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
 
 		long edgePointer = (long) edgeId * edgeEntryBytes;
 
-		orsEdges.setByte(edgePointer + efVehicleType, (byte) vehicleType);
+		byte [] byteValues = {(byte) vehicleType, (byte) heavyVehicleDestination};
+		orsEdges.setBytes(edgePointer + efVehicleType, byteValues, 2);
 
 		if (efRestrictions == -1)
 			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
