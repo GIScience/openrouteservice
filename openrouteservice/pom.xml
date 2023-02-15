@@ -248,10 +248,6 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                        <include>**/*Properties.java</include>
-                    </includes>
                 </configuration>
             </plugin>
 
