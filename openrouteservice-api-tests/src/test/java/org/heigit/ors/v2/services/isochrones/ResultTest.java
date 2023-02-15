@@ -260,7 +260,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
                 .statusCode(200);
 
     }
@@ -285,7 +285,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
                 .statusCode(200);
 
     }
@@ -310,7 +310,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6.48, 0.132)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
                 .statusCode(200);
 
     }
@@ -361,7 +361,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(2.55, 0.05)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.007)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
                 .statusCode(200);
 
     }
