@@ -82,7 +82,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Compile en_US.UTF-8 for alpine
 # hadolint ignore=DL3019,SC2086
-RUN apk add --no-cache --virtual .build-deps curl='7.79.1-r4' binutils='2.35.2-r2' && \
+RUN apk add --no-cache --virtual .build-deps curl='7.79.1-r5' binutils='2.35.2-r2' && \
     GLIBC_VER="2.29-r0" && \
     ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
     GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" && \
