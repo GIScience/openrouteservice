@@ -3,15 +3,17 @@ package org.heigit.ors.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kafka.server.KafkaConfig;
-import kafka.server.KafkaServerStartable;
+import kafka.server.KafkaServer;
 import org.apache.curator.test.TestingServer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.utils.Time;
 import org.apache.log4j.Logger;
 import org.springframework.util.FileSystemUtils;
+import scala.Option;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -24,7 +26,7 @@ import java.util.Set;
 public class ORSKafkaTestCluster {
     private TestingServer zookeeper;
     private ORSKafkaProducerRunner producer;
-    private KafkaServerStartable kafkaServer;
+    private KafkaServer kafkaServer;
     private File kafkaTmpLogsDir;
     private static final Logger LOGGER = Logger.getLogger(ORSKafkaTestCluster.class);
 
@@ -33,13 +35,16 @@ public class ORSKafkaTestCluster {
             FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
             kafkaTmpLogsDir = Files.createTempDirectory("ORSKafkaTemp", attr).toFile();
             zookeeper = new TestingServer(true);
+            LOGGER.debug("Starting zookeeper server on port: " + zookeeper.getPort());
             Properties props = new Properties();
             props.put("zookeeper.connect", zookeeper.getConnectString());
             props.put("port", "9092");
             props.put("broker.id", "0");
             props.put("log.dirs", kafkaTmpLogsDir.getAbsolutePath());
             props.put("offsets.topic.replication.factor", "1");
-            kafkaServer = new KafkaServerStartable(new KafkaConfig(props));
+            KafkaConfig kafkaConfig = new KafkaConfig(props);
+            Option<String> threadNamePrefix = Option.apply("kafka-server");
+            kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, threadNamePrefix, true);
             kafkaServer.startup();
             producer = new ORSKafkaProducerRunner("127.0.0.1:9092");
             new Thread(producer).start();

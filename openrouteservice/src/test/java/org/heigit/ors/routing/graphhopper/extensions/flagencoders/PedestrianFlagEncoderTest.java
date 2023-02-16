@@ -188,6 +188,39 @@ public class PedestrianFlagEncoderTest {
     }
 
     @Test
+    public void testAcceptRestrictedWayAllowedForFoot() {
+        way = generatePedestrianWay();
+        way.setTag("access", "no");
+        way.setTag("foot", "yes");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "designated");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "official");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "permissive");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
+    public void testAccessOfBridleways(){
+        way.setTag("highway", "bridleway");
+        // we shouldn't route over bridleways…
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+
+        way.setTag("foot", "yes");
+        // …unless we're explicitly allowed to
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "yes");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "designated");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "official");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+        way.setTag("foot", "permissive");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
     public void testAcceptSidewalks() {
         way.setTag("highway", "secondary");
         way.setTag("sidewalk", "both");

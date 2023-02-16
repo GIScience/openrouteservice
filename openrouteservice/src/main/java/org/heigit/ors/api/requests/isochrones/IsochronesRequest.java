@@ -165,9 +165,8 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasSmoothing = false;
 
-    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
-            example = "2020-01-31T12:45:00")
+    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone",
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_TIME)
     private LocalDateTime time;
     @JsonIgnore
