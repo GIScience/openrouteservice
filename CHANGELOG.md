@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Fixed
 - visibility of csv_factor and csv_column API parameters ([PR #1279](https://github.com/GIScience/openrouteservice/pull/1279))
+- update outdated dockerfile dependencies ([PR #1284](https://github.com/GIScience/openrouteservice/pull/1284))
 
 ## [6.8.1] - 2023-02-08
 ### Added

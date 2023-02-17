@@ -81,8 +81,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Compile en_US.UTF-8 for alpine
 # hadolint ignore=DL3019,SC2086
-RUN apk add --no-cache --virtual .build-deps curl='7.79.1-r4' binutils='2.35.2-r2' && \
-    GLIBC_VER="2.29-r0" && \
+RUN ln -svf /usr/glibc-compat/lib/ld-2.31.so /usr/glibc-compat/lib/ld-linux-x86-64.so.2 && \
+    apk add --no-cache --virtual .build-deps curl='7.79.1-r5' binutils='2.35.2-r2' && \
+    GLIBC_VER="2.35-r0" && \
     ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
     GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" && \
     GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" && \
@@ -111,12 +112,12 @@ RUN apk add --no-cache --virtual .build-deps curl='7.79.1-r4' binutils='2.35.2-r
     tar -xf /tmp/libz.tar.xz -C /tmp/libz && \
     mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib && \
     apk del --purge .build-deps glibc-i18n && \
+    apk add --no-cache openssl='1.1.1t-r0' && \
     rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* && \
     addgroup -g ${GID} ors && \
     adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
     mkdir -p ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs &&  \
     chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs
-
 WORKDIR ${BASE_FOLDER}
 
 COPY --chown=ors:ors --from=build /ors-core/openrouteservice/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
