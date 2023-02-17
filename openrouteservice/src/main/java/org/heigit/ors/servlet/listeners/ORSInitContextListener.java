@@ -20,17 +20,16 @@
  */
 package org.heigit.ors.servlet.listeners;
 
+import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
-import org.apache.juli.logging.LogFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
-@WebListener
+
 public class ORSInitContextListener implements ServletContextListener {
 	private static final Logger LOGGER = Logger.getLogger("org.heigit.ors.logging");
 
