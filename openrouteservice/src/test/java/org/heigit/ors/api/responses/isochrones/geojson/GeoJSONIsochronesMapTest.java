@@ -1,15 +1,15 @@
 package org.heigit.ors.api.responses.isochrones.geojson;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GeoJSONIsochronesMapTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    public void calculateIsochrones() {
+    void calculateIsochrones() {
     }
 }

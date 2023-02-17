@@ -2,18 +2,19 @@ package org.heigit.ors.api.responses.matrix;
 
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MatrixResponseInfoTest {
     private static MatrixRequest bareMatrixRequest;
     private MatrixResponseInfo responseInformation;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         bareMatrixRequest = new MatrixRequest(new ArrayList<>());
@@ -22,35 +23,35 @@ public class MatrixResponseInfoTest {
     }
 
     @Test
-    public void expectEngineInfoTest() {
-        Assert.assertEquals(MatrixResponseInfo.class, responseInformation.getClass());
+    void expectEngineInfoTest() {
+        assertEquals(MatrixResponseInfo.class, responseInformation.getClass());
     }
 
 
     @Test
-    public void getAttributionTest() {
-        Assert.assertEquals(MatrixResponseInfo.class, responseInformation.getClass());
-        Assert.assertEquals(String.class, responseInformation.getAttribution().getClass());
+    void getAttributionTest() {
+        assertEquals(MatrixResponseInfo.class, responseInformation.getClass());
+        assertEquals(String.class, responseInformation.getAttribution().getClass());
     }
 
     @Test
-    public void getServiceTest() {
-        Assert.assertEquals("matrix", responseInformation.getService());
+    void getServiceTest() {
+        assertEquals("matrix", responseInformation.getService());
     }
 
     @Test
-    public void getTimeStampTest() {
-        Assert.assertTrue(Long.toString(responseInformation.getTimeStamp()).length() > 0);
+    void getTimeStampTest() {
+        assertTrue(Long.toString(responseInformation.getTimeStamp()).length() > 0);
 
     }
 
     @Test
-    public void getRequestTest() {
-        Assert.assertEquals(bareMatrixRequest, responseInformation.getRequest());
+    void getRequestTest() {
+        assertEquals(bareMatrixRequest, responseInformation.getRequest());
     }
 
     @Test
-    public void getEngineInfoTest() {
-        Assert.assertNotNull(responseInformation.getEngineInfo());
+    void getEngineInfoTest() {
+        assertNotNull(responseInformation.getEngineInfo());
     }
 }

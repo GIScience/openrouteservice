@@ -13,9 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BordersGraphStorageTest {
 
@@ -28,7 +28,7 @@ public class BordersGraphStorageTest {
     }
 
     @Test
-    public void TestItemCreation() {
+    void TestItemCreation() {
         _storage.setEdgeValue(1, (short)1, (short)2, (short)3);
 
         assertEquals(1, _storage.getEdgeValue(1, BordersGraphStorage.Property.TYPE));

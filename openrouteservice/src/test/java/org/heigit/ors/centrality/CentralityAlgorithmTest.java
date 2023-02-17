@@ -6,17 +6,21 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
-import junit.framework.TestCase;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-public class CentralityAlgorithmTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class CentralityAlgorithmTest {
     private CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
@@ -123,8 +127,8 @@ public class CentralityAlgorithmTest extends TestCase {
         return g;
     }
 
-       @Test
-    public void testMediumDirectedGraphNodeCentrality() {
+    @Test
+    void testMediumDirectedGraphNodeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -164,7 +168,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testMediumDirectedGraphEdgeCentrality() {
+    void testMediumDirectedGraphEdgeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -188,8 +192,8 @@ public class CentralityAlgorithmTest extends TestCase {
 
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
-        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0,1), new Pair(0,2), new Pair(0,3), new Pair(0,8), new Pair(1,0), new Pair(1,2), new Pair(1,8), new Pair(2,0), new Pair(2,1), new Pair(2,3), new Pair(3,0), new Pair(3,2), new Pair(3,4), new Pair(4,3), new Pair(4,5), new Pair(4,6), new Pair(5,4), new Pair(5,7), new Pair(6,4), new Pair(6,7), new Pair(7,5), new Pair(7,6), new Pair(7,8), new Pair(8,0), new Pair(8,1), new Pair(8,7));
-        List<Double> expectedScores = new ArrayList<>(Arrays.asList(7d/3d, 6.5d, 0d, 47d/6d, 7d/3d, 13d/3d, 4d/3d, 6.5d, 13d/3d, 65d/6d, 0d, 65d/6d, 65d/6d, 65d/6d, 22d/3d, 5.5d, 22d/3d, 20d/3d, 5.5d, 2.5d, 20d/3d, 2.5d, 55d/6d, 47d/6d, 4d/3d, 55d/6d));
+        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0, 1), new Pair(0, 2), new Pair(0, 3), new Pair(0, 8), new Pair(1, 0), new Pair(1, 2), new Pair(1, 8), new Pair(2, 0), new Pair(2, 1), new Pair(2, 3), new Pair(3, 0), new Pair(3, 2), new Pair(3, 4), new Pair(4, 3), new Pair(4, 5), new Pair(4, 6), new Pair(5, 4), new Pair(5, 7), new Pair(6, 4), new Pair(6, 7), new Pair(7, 5), new Pair(7, 6), new Pair(7, 8), new Pair(8, 0), new Pair(8, 1), new Pair(8, 7));
+        List<Double> expectedScores = new ArrayList<>(Arrays.asList(7d / 3d, 6.5d, 0d, 47d / 6d, 7d / 3d, 13d / 3d, 4d / 3d, 6.5d, 13d / 3d, 65d / 6d, 0d, 65d / 6d, 65d / 6d, 65d / 6d, 22d / 3d, 5.5d, 22d / 3d, 20d / 3d, 5.5d, 2.5d, 20d / 3d, 2.5d, 55d / 6d, 47d / 6d, 4d / 3d, 55d / 6d));
         assertEquals(edges.size(), expectedScores.size());
 
         Map<Pair<Integer, Integer>, Double> betweenness = null;
@@ -206,7 +210,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testTwoComponentDirectedGraphNodeCentrality() {
+    void testTwoComponentDirectedGraphNodeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -246,7 +250,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testTwoComponentDirectedGraphEdgeCentrality() {
+    void testTwoComponentDirectedGraphEdgeCentrality() {
         graphHopper = new ORSGraphHopper();
         graphHopper.setCHEnabled(false);
         graphHopper.setCoreEnabled(false);
@@ -269,7 +273,7 @@ public class CentralityAlgorithmTest extends TestCase {
         alg.init(graph, weighting, explorer);
 
         List<Integer> nodes = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8));
-        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0,1), new Pair(0,2), new Pair(0,3), new Pair(0,8), new Pair(1,0), new Pair(1,2), new Pair(1,8), new Pair(2,0), new Pair(2,1), new Pair(2,3), new Pair(3,0), new Pair(3,2),  new Pair(4,5), new Pair(4,6), new Pair(5,4), new Pair(5,7), new Pair(6,4), new Pair(6,7), new Pair(7,5), new Pair(7,6), new Pair(8,0), new Pair(8,1));
+        List<Pair<Integer, Integer>> edges = Arrays.asList(new Pair(0, 1), new Pair(0, 2), new Pair(0, 3), new Pair(0, 8), new Pair(1, 0), new Pair(1, 2), new Pair(1, 8), new Pair(2, 0), new Pair(2, 1), new Pair(2, 3), new Pair(3, 0), new Pair(3, 2), new Pair(4, 5), new Pair(4, 6), new Pair(5, 4), new Pair(5, 7), new Pair(6, 4), new Pair(6, 7), new Pair(7, 5), new Pair(7, 6), new Pair(8, 0), new Pair(8, 1));
         List<Double> expectedScores = new ArrayList<>(Arrays.asList(1.5d, 4.0d, 0.0d, 3.5d, 1.5d, 2.0d, 0.5d, 4.0d, 2.0d, 4.0d, 0.0d, 4.0d, 3.0d, 2.0d, 3.0d, 2.0d, 2.0d, 1.0d, 2.0d, 1.0d, 3.5d, 0.5d));
 
         Map<Pair<Integer, Integer>, Double> betweenness = null;

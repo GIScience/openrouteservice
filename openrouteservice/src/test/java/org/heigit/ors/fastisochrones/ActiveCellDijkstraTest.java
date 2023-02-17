@@ -9,12 +9,12 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ActiveCellDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -53,7 +53,7 @@ public class ActiveCellDijkstraTest {
     }
 
     @Test
-    public void testRun() {
+    void testRun() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);

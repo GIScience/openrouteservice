@@ -24,19 +24,19 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Parameters;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMAlgoFactoryDecorator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreLMAlgoFactoryDecoratorTest {
 
     @Test
-    public void addWeighting() {
+    void addWeighting() {
         CoreLMAlgoFactoryDecorator dec = new CoreLMAlgoFactoryDecorator().setEnabled(true);
         dec.addWeighting("fastest");
         assertEquals(Collections.singletonList("fastest"), dec.getWeightingsAsStrings());
@@ -61,7 +61,7 @@ public class CoreLMAlgoFactoryDecoratorTest {
     }
 
     @Test
-    public void testPrepareWeightingNo() {
+    void testPrepareWeightingNo() {
         CmdArgs args = new CmdArgs();
         args.put(Parameters.Landmark.PREPARE + "weightings", "fastest");
         LMAlgoFactoryDecorator dec = new LMAlgoFactoryDecorator();

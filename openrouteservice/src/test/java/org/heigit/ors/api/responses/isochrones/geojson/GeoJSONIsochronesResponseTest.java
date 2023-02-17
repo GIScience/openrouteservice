@@ -1,23 +1,23 @@
 package org.heigit.ors.api.responses.isochrones.geojson;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GeoJSONIsochronesResponseTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    public void getBBox() {
+    void getBBox() {
     }
 
     @Test
-    public void getIsochrones() {
+    void getIsochrones() {
     }
 
     @Test
-    public void getProperties() {
+    void getProperties() {
     }
 }

@@ -9,12 +9,13 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JSONMatrixResponseTest {
     private Double[][] bareCoordinates = new Double[3][];
@@ -25,8 +26,8 @@ public class JSONMatrixResponseTest {
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixCombinedResponse;
 
-    @Before
-    public void setUp() throws StatusCodeException {
+    @BeforeEach
+    void setUp() throws StatusCodeException {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         MatrixResult matrixResultCombined;
@@ -102,49 +103,49 @@ public class JSONMatrixResponseTest {
     }
 
     @Test
-    public void getMatrix() {
+    void getMatrix() {
         JSONIndividualMatrixResponse durationMatrix = jsonMatrixDurationsResponse.getMatrix();
-        Assert.assertNotNull(durationMatrix.getDurations());
-        Assert.assertNull(durationMatrix.getDistances());
-        Assert.assertEquals(3, durationMatrix.getDestinations().size());
-        Assert.assertEquals(3, durationMatrix.getSources().size());
-        Assert.assertEquals(8.681495, durationMatrix.getSources().get(0).location.x, 0);
-        Assert.assertEquals(49.41461, durationMatrix.getSources().get(0).location.y, 0);
-        Assert.assertEquals(Double.NaN, durationMatrix.getSources().get(0).location.z, 0);
-        Assert.assertNotNull(durationMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, durationMatrix.getSources().get(0).getSnappedDistance(), 0);
+        assertNotNull(durationMatrix.getDurations());
+        assertNull(durationMatrix.getDistances());
+        assertEquals(3, durationMatrix.getDestinations().size());
+        assertEquals(3, durationMatrix.getSources().size());
+        assertEquals(8.681495, durationMatrix.getSources().get(0).location.x, 0);
+        assertEquals(49.41461, durationMatrix.getSources().get(0).location.y, 0);
+        assertEquals(Double.NaN, durationMatrix.getSources().get(0).location.z, 0);
+        assertNotNull(durationMatrix.getSources().get(0).name);
+        assertEquals(0.0, durationMatrix.getSources().get(0).getSnappedDistance(), 0);
 
         JSONIndividualMatrixResponse distanceMatrix = jsonMatrixDistancesResponse.getMatrix();
-        Assert.assertNotNull(distanceMatrix.getDistances());
-        Assert.assertNull(distanceMatrix.getDurations());
-        Assert.assertEquals(3, distanceMatrix.getDestinations().size());
-        Assert.assertEquals(3, distanceMatrix.getSources().size());
-        Assert.assertEquals(8.681495, distanceMatrix.getSources().get(0).location.x, 0);
-        Assert.assertEquals(49.41461, distanceMatrix.getSources().get(0).location.y, 0);
-        Assert.assertEquals(Double.NaN, distanceMatrix.getSources().get(0).location.z, 0);
-        Assert.assertNull(distanceMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, distanceMatrix.getSources().get(0).getSnappedDistance(), 0);
+        assertNotNull(distanceMatrix.getDistances());
+        assertNull(distanceMatrix.getDurations());
+        assertEquals(3, distanceMatrix.getDestinations().size());
+        assertEquals(3, distanceMatrix.getSources().size());
+        assertEquals(8.681495, distanceMatrix.getSources().get(0).location.x, 0);
+        assertEquals(49.41461, distanceMatrix.getSources().get(0).location.y, 0);
+        assertEquals(Double.NaN, distanceMatrix.getSources().get(0).location.z, 0);
+        assertNull(distanceMatrix.getSources().get(0).name);
+        assertEquals(0.0, distanceMatrix.getSources().get(0).getSnappedDistance(), 0);
 
 
         JSONIndividualMatrixResponse combinedMatrix = jsonMatrixCombinedResponse.getMatrix();
-        Assert.assertNotNull(combinedMatrix.getDistances());
-        Assert.assertNotNull(combinedMatrix.getDurations());
-        Assert.assertEquals(3, combinedMatrix.getDestinations().size());
-        Assert.assertEquals(3, combinedMatrix.getSources().size());
-        Assert.assertEquals(8.681495, combinedMatrix.getSources().get(0).location.x, 0);
-        Assert.assertEquals(49.41461, combinedMatrix.getSources().get(0).location.y, 0);
-        Assert.assertEquals(Double.NaN, combinedMatrix.getSources().get(0).location.z, 0);
-        Assert.assertNotNull(combinedMatrix.getSources().get(0).name);
-        Assert.assertEquals(0.0, combinedMatrix.getSources().get(0).getSnappedDistance(), 0);
+        assertNotNull(combinedMatrix.getDistances());
+        assertNotNull(combinedMatrix.getDurations());
+        assertEquals(3, combinedMatrix.getDestinations().size());
+        assertEquals(3, combinedMatrix.getSources().size());
+        assertEquals(8.681495, combinedMatrix.getSources().get(0).location.x, 0);
+        assertEquals(49.41461, combinedMatrix.getSources().get(0).location.y, 0);
+        assertEquals(Double.NaN, combinedMatrix.getSources().get(0).location.z, 0);
+        assertNotNull(combinedMatrix.getSources().get(0).name);
+        assertEquals(0.0, combinedMatrix.getSources().get(0).getSnappedDistance(), 0);
     }
 
     @Test
-    public void getInfo() {
-        Assert.assertEquals(MatrixResponseInfo.class, jsonMatrixDurationsResponse.getInfo().getClass());
-        Assert.assertNotNull(jsonMatrixDurationsResponse.getInfo().getEngineInfo());
-        Assert.assertNotNull(jsonMatrixDurationsResponse.getInfo().getAttribution());
-        Assert.assertNotNull(jsonMatrixDurationsResponse.getInfo().getRequest());
-        Assert.assertNotNull(jsonMatrixDurationsResponse.getInfo().getService());
-        Assert.assertTrue(jsonMatrixDurationsResponse.getInfo().getTimeStamp() > 0);
+    void getInfo() {
+        assertEquals(MatrixResponseInfo.class, jsonMatrixDurationsResponse.getInfo().getClass());
+        assertNotNull(jsonMatrixDurationsResponse.getInfo().getEngineInfo());
+        assertNotNull(jsonMatrixDurationsResponse.getInfo().getAttribution());
+        assertNotNull(jsonMatrixDurationsResponse.getInfo().getRequest());
+        assertNotNull(jsonMatrixDurationsResponse.getInfo().getService());
+        assertTrue(jsonMatrixDurationsResponse.getInfo().getTimeStamp() > 0);
     }
 }

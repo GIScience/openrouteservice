@@ -13,10 +13,10 @@ import com.vividsolutions.jts.geom.Polygon;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AvoidAreasEdgeFilterTest {
     private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
@@ -33,7 +33,7 @@ public class AvoidAreasEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidPolygons() {
+    void TestAvoidPolygons() {
         EdgeIteratorState iter1 = _graphStorage.edge(0, 1, 100, true);
         iter1.setWayGeometry(Helper.createPointList(0, 0, 10, 0));
         EdgeIteratorState iter2 = _graphStorage.edge(0, 2, 200, true);
@@ -42,12 +42,12 @@ public class AvoidAreasEdgeFilterTest {
 
         GeometryFactory gf = new GeometryFactory();
 
-        Polygon poly = gf.createPolygon(new Coordinate[]{ new Coordinate(-1,5),
-                new Coordinate(1,5),
-                new Coordinate(1,6),
-                new Coordinate(-1,5)});
+        Polygon poly = gf.createPolygon(new Coordinate[]{new Coordinate(-1, 5),
+                new Coordinate(1, 5),
+                new Coordinate(1, 6),
+                new Coordinate(-1, 5)});
 
-        AvoidAreasEdgeFilter filter = new AvoidAreasEdgeFilter(new Polygon[] {poly});
+        AvoidAreasEdgeFilter filter = new AvoidAreasEdgeFilter(new Polygon[]{poly});
         assertFalse(filter.accept(iter1));
         assertTrue(filter.accept(iter2));
     }

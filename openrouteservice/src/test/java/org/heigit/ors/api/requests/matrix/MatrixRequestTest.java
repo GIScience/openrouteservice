@@ -4,12 +4,13 @@ import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.services.matrix.MatrixServiceSettings;
 import org.heigit.ors.util.HelperFunctions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class MatrixRequestTest {
@@ -23,8 +24,8 @@ public class MatrixRequestTest {
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         List<Double> bareCoordinatesList = new ArrayList<>();
@@ -56,153 +57,160 @@ public class MatrixRequestTest {
 
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void tooMuchLocationsErrorTest() throws ParameterValueException {
-        matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray);
+    @Test
+    void tooMuchLocationsErrorTest() {
+        assertThrows(ParameterValueException.class, () -> {
+            matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray);
+
+        });
 
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void tooLittleLocationsErrorTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(minimalLocationsArray);
+    @Test
+    void tooLittleLocationsErrorTest() {
+        assertThrows(ParameterValueException.class, () -> {
+            matrixLocationsRequest = new MatrixRequest(minimalLocationsArray);
+        });
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void invalidLocationsErrorTest() throws ParameterValueException {
-        Double[][] listOfFaultyBareCoordinatesList = HelperFunctions.fakeArrayLocations(3, 1);
-        matrixLocationsRequest = new MatrixRequest(listOfFaultyBareCoordinatesList);
+    @Test
+    void invalidLocationsErrorTest() {
+        assertThrows(ParameterValueException.class, () -> {
+            Double[][] listOfFaultyBareCoordinatesList = HelperFunctions.fakeArrayLocations(3, 1);
+            matrixLocationsRequest = new MatrixRequest(listOfFaultyBareCoordinatesList);
+        });
     }
 
 
     @Test
-    public void getIdTest() throws ParameterValueException {
+    void getIdTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
-        Assert.assertNull(matrixLocationsRequest.getId());
-        Assert.assertNull(matrixLocationsListRequest.getId());
+        assertNull(matrixLocationsRequest.getId());
+        assertNull(matrixLocationsListRequest.getId());
     }
 
     @Test
-    public void setIdTest() throws ParameterValueException {
+    void setIdTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setId("foo1");
         matrixLocationsListRequest.setId("foo2");
-        Assert.assertEquals("foo1", matrixLocationsRequest.getId());
-        Assert.assertEquals("foo2", matrixLocationsListRequest.getId());
+        assertEquals("foo1", matrixLocationsRequest.getId());
+        assertEquals("foo2", matrixLocationsListRequest.getId());
 
     }
 
     @Test
-    public void hasIdTest() throws ParameterValueException {
+    void hasIdTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
-        Assert.assertFalse(matrixLocationsRequest.hasId());
-        Assert.assertFalse(matrixLocationsListRequest.hasId());
+        assertFalse(matrixLocationsRequest.hasId());
+        assertFalse(matrixLocationsListRequest.hasId());
         matrixLocationsRequest.setId("foo1");
         matrixLocationsListRequest.setId("foo2");
-        Assert.assertTrue(matrixLocationsRequest.hasId());
-        Assert.assertTrue(matrixLocationsListRequest.hasId());
+        assertTrue(matrixLocationsRequest.hasId());
+        assertTrue(matrixLocationsListRequest.hasId());
     }
 
     @Test
-    public void getProfileTest() throws ParameterValueException {
+    void getProfileTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
-        Assert.assertNull(matrixLocationsRequest.getProfile());
-        Assert.assertNull(matrixLocationsListRequest.getProfile());
+        assertNull(matrixLocationsRequest.getProfile());
+        assertNull(matrixLocationsListRequest.getProfile());
     }
 
     @Test
-    public void setProfileTest() throws ParameterValueException {
+    void setProfileTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
-        Assert.assertEquals(APIEnums.Profile.DRIVING_CAR, matrixLocationsRequest.getProfile());
+        assertEquals(APIEnums.Profile.DRIVING_CAR, matrixLocationsRequest.getProfile());
         matrixLocationsListRequest.setProfile(APIEnums.Profile.DRIVING_HGV);
-        Assert.assertEquals(APIEnums.Profile.DRIVING_HGV, matrixLocationsListRequest.getProfile());
+        assertEquals(APIEnums.Profile.DRIVING_HGV, matrixLocationsListRequest.getProfile());
     }
 
     @Test
-    public void getLocationsTest() throws ParameterValueException {
+    void getLocationsTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
-        Assert.assertEquals(listOfBareCoordinatesList, matrixLocationsRequest.getLocations());
-        Assert.assertEquals(listOfBareCoordinatesList, matrixLocationsListRequest.getLocations());
+        assertEquals(listOfBareCoordinatesList, matrixLocationsRequest.getLocations());
+        assertEquals(listOfBareCoordinatesList, matrixLocationsListRequest.getLocations());
     }
 
     @Test
-    public void setLocationsTest() throws ParameterValueException {
+    void setLocationsTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setLocations(listOfBareCoordinatesList);
         matrixLocationsListRequest.setLocations(listOfBareCoordinatesList);
-        Assert.assertEquals(listOfBareCoordinatesList, matrixLocationsRequest.getLocations());
-        Assert.assertEquals(listOfBareCoordinatesList, matrixLocationsListRequest.getLocations());
+        assertEquals(listOfBareCoordinatesList, matrixLocationsRequest.getLocations());
+        assertEquals(listOfBareCoordinatesList, matrixLocationsListRequest.getLocations());
     }
 
     @Test
-    public void setSourcesTest() throws ParameterValueException {
+    void setSourcesTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setSources(new String[]{"foo"});
         matrixLocationsListRequest.setSources(new String[]{"foo"});
-        Assert.assertArrayEquals(new String[]{"foo"}, matrixLocationsRequest.getSources());
-        Assert.assertArrayEquals(new String[]{"foo"}, matrixLocationsListRequest.getSources());
+        assertArrayEquals(new String[]{"foo"}, matrixLocationsRequest.getSources());
+        assertArrayEquals(new String[]{"foo"}, matrixLocationsListRequest.getSources());
     }
 
     @Test
-    public void setAndGetDestinationsTest() throws ParameterValueException {
+    void setAndGetDestinationsTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setDestinations(new String[]{"all"});
-        matrixLocationsListRequest.setDestinations(new String[]{"1","2"});
-        Assert.assertArrayEquals(new String[]{"all"}, matrixLocationsRequest.getDestinations());
-        Assert.assertArrayEquals(new String[]{"1","2"}, matrixLocationsListRequest.getDestinations());
+        matrixLocationsListRequest.setDestinations(new String[]{"1", "2"});
+        assertArrayEquals(new String[]{"all"}, matrixLocationsRequest.getDestinations());
+        assertArrayEquals(new String[]{"1", "2"}, matrixLocationsListRequest.getDestinations());
     }
 
     @Test
-    public void setAndGetMetricsTest() throws ParameterValueException {
+    void setAndGetMetricsTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION});
         matrixLocationsListRequest.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE});
-        Assert.assertArrayEquals(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION}, matrixLocationsRequest.getMetrics());
-        Assert.assertArrayEquals(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE}, matrixLocationsListRequest.getMetrics());
+        assertArrayEquals(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION}, matrixLocationsRequest.getMetrics());
+        assertArrayEquals(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE}, matrixLocationsListRequest.getMetrics());
     }
 
     @Test
-    public void setAndGetResolveLocationsTest() throws ParameterValueException {
+    void setAndGetResolveLocationsTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setResolveLocations(true);
         matrixLocationsListRequest.setResolveLocations(false);
-        Assert.assertTrue(matrixLocationsRequest.getResolveLocations());
-        Assert.assertFalse(matrixLocationsListRequest.getResolveLocations());
+        assertTrue(matrixLocationsRequest.getResolveLocations());
+        assertFalse(matrixLocationsListRequest.getResolveLocations());
     }
 
     @Test
-    public void setAndGetUnitsTest() {
+    void setAndGetUnitsTest() {
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsListRequest.setUnits(APIEnums.Units.KILOMETRES);
-        Assert.assertEquals(APIEnums.Units.KILOMETRES, matrixLocationsListRequest.getUnits());
+        assertEquals(APIEnums.Units.KILOMETRES, matrixLocationsListRequest.getUnits());
     }
 
     @Test
-    public void setAndGetOptimizedTest() throws ParameterValueException {
+    void setAndGetOptimizedTest() throws ParameterValueException {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setOptimized(true);
         matrixLocationsListRequest.setOptimized(false);
-        Assert.assertTrue(matrixLocationsRequest.getOptimized());
-        Assert.assertFalse(matrixLocationsListRequest.getOptimized());
+        assertTrue(matrixLocationsRequest.getOptimized());
+        assertFalse(matrixLocationsListRequest.getOptimized());
 
     }
 
     @Test
-    public void setAndGetResponseTypeTest() {
+    void setAndGetResponseTypeTest() {
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsListRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        Assert.assertEquals(APIEnums.MatrixResponseType.JSON, matrixLocationsListRequest.getResponseType());
+        assertEquals(APIEnums.MatrixResponseType.JSON, matrixLocationsListRequest.getResponseType());
     }
 }

@@ -18,113 +18,125 @@ package org.heigit.ors.api.requests.routing;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class RouteRequestTest {
     RouteRequest request;
 
-    @Before
-    public void setup() throws ParameterValueException {
-        request = new RouteRequest(new Double[][] {new Double[] {1.0,1.0}, new Double[] {2.0,2.0}});
-    }
-
-    @Test (expected = ParameterValueException.class)
-    public void expectErrorCoordinatesArrayTooFew() throws ParameterValueException {
-        request = new RouteRequest(new Double[][] {new Double[] {1.0,1.0}});
-    }
-
-    @Test (expected = ParameterValueException.class)
-    public void expectErrorCoordinatesArraySingleTooFew() throws ParameterValueException {
-        request = new RouteRequest(new Double[][] {new Double[] {1.0}, new Double[] {1.0}});
-    }
-
-    @Test (expected = ParameterValueException.class)
-    public void expectErrorCoordinatesArraySingleTooMany() throws ParameterValueException {
-        request = new RouteRequest(new Double[][] {new Double[] {1.0, 1.0, 1.0}, new Double[] {1.0, 1.0, 1.0}});
-    }
-
-    @Test (expected = ParameterValueException.class)
-    public void expectErrorNullStart() throws ParameterValueException {
-        request = new RouteRequest(null, new Coordinate());
-    }
-    @Test (expected = ParameterValueException.class)
-    public void expectErrorNullEnd() throws ParameterValueException {
-        request = new RouteRequest(new Coordinate(), null);
+    @BeforeEach
+    void setup() throws ParameterValueException {
+        request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0}, new Double[]{2.0, 2.0}});
     }
 
     @Test
-    public void testHasIncludeRoundaboutExitInfo() {
+    void expectErrorCoordinatesArrayTooFew() {
+        assertThrows(ParameterValueException.class, () -> {
+            request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0}});
+        });
+    }
+
+    @Test
+    void expectErrorCoordinatesArraySingleTooFew() {
+        assertThrows(ParameterValueException.class, () -> {
+            request = new RouteRequest(new Double[][]{new Double[]{1.0}, new Double[]{1.0}});
+        });
+    }
+
+    @Test
+    void expectErrorCoordinatesArraySingleTooMany() {
+        assertThrows(ParameterValueException.class, () -> {
+            request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0, 1.0}, new Double[]{1.0, 1.0, 1.0}});
+        });
+    }
+
+    @Test
+    void expectErrorNullStart() {
+        assertThrows(ParameterValueException.class, () -> {
+            request = new RouteRequest(null, new Coordinate());
+        });
+    }
+
+    @Test
+    void expectErrorNullEnd() {
+        assertThrows(ParameterValueException.class, () -> {
+            request = new RouteRequest(new Coordinate(), null);
+        });
+    }
+
+    @Test
+    void testHasIncludeRoundaboutExitInfo() {
         request.setIncludeRoundaboutExitInfo(true);
-        Assert.assertTrue(request.hasIncludeRoundaboutExitInfo());
+        assertTrue(request.hasIncludeRoundaboutExitInfo());
     }
 
     @Test
-    public void testHasAttributes() {
-        request.setAttributes(new APIEnums.Attributes[] {APIEnums.Attributes.AVERAGE_SPEED});
-        Assert.assertTrue(request.hasAttributes());
+    void testHasAttributes() {
+        request.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.AVERAGE_SPEED});
+        assertTrue(request.hasAttributes());
     }
 
     @Test
-    public void testHasMaximumSearchRadii() {
-        request.setMaximumSearchRadii(new Double[] { 1.0 });
-        Assert.assertTrue(request.hasMaximumSearchRadii());
+    void testHasMaximumSearchRadii() {
+        request.setMaximumSearchRadii(new Double[]{1.0});
+        assertTrue(request.hasMaximumSearchRadii());
     }
 
     @Test
-    public void testHasBearings() {
-        request.setBearings(new Double[][] {new Double[] {0.0, 90.0}});
-        Assert.assertTrue(request.hasBearings());
+    void testHasBearings() {
+        request.setBearings(new Double[][]{new Double[]{0.0, 90.0}});
+        assertTrue(request.hasBearings());
     }
 
     @Test
-    public void testHasUseElevation() {
+    void testHasUseElevation() {
         request.setUseElevation(true);
-        Assert.assertTrue(request.hasUseElevation());
+        assertTrue(request.hasUseElevation());
     }
 
     @Test
-    public void testHasRouteOptions() {
+    void testHasRouteOptions() {
         request.setRouteOptions(new RouteRequestOptions());
-        Assert.assertTrue(request.hasRouteOptions());
+        assertTrue(request.hasRouteOptions());
     }
 
     @Test
-    public void testHasUseContractionHierarchies() {
+    void testHasUseContractionHierarchies() {
         request.setUseContractionHierarchies(true);
-        Assert.assertTrue(request.hasUseContractionHierarchies());
+        assertTrue(request.hasUseContractionHierarchies());
     }
 
     @Test
-    public void testHasExtraInfo() {
-        request.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.SURFACE });
-        Assert.assertTrue(request.hasExtraInfo());
+    void testHasExtraInfo() {
+        request.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.SURFACE});
+        assertTrue(request.hasExtraInfo());
     }
 
     @Test
-    public void testHasSuppressWarnings() {
+    void testHasSuppressWarnings() {
         request.setSuppressWarnings(true);
-        Assert.assertTrue(request.hasSuppressWarnings());
+        assertTrue(request.hasSuppressWarnings());
     }
 
     @Test
-    public void testHasSkipSegments() {
+    void testHasSkipSegments() {
         List<Integer> testSegments = new ArrayList<>();
         testSegments.add(0, 1);
-        Assert.assertFalse(request.hasSkipSegments());
+        assertFalse(request.hasSkipSegments());
         request.setSkipSegments(testSegments);
-        Assert.assertTrue(request.hasSkipSegments());
+        assertTrue(request.hasSkipSegments());
     }
 
     @Test
-    public void testHasAlternativeRoutes() {
+    void testHasAlternativeRoutes() {
         RouteRequestAlternativeRoutes ar = new RouteRequestAlternativeRoutes();
-        Assert.assertFalse(request.hasAlternativeRoutes());
+        assertFalse(request.hasAlternativeRoutes());
         request.setAlternativeRoutes(ar);
-        Assert.assertTrue(request.hasAlternativeRoutes());
+        assertTrue(request.hasAlternativeRoutes());
     }
 }

@@ -11,9 +11,9 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreRangeDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -50,7 +50,7 @@ public class CoreRangeDijkstraTest {
     }
 
     @Test
-    public void testUnreachedBorder() {
+    void testUnreachedBorder() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -86,7 +86,7 @@ public class CoreRangeDijkstraTest {
     }
 
     @Test
-    public void testNextBorderNodes() {
+    void testNextBorderNodes() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -124,7 +124,7 @@ public class CoreRangeDijkstraTest {
     }
 
     @Test
-    public void testHandleAdjBorderNodes() {
+    void testHandleAdjBorderNodes() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph2(encodingManager);
         createMockStorages2(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);

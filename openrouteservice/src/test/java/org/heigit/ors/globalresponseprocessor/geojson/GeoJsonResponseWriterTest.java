@@ -32,8 +32,8 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -59,8 +59,8 @@ public class GeoJsonResponseWriterTest {
     /**
      * This method sets up the test environment.
      */
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         // routingRequest = new RoutingRequestMockup().create(RoutingRequestMockup.routeProfile.standardHeidelberg2d);
@@ -114,7 +114,7 @@ public class GeoJsonResponseWriterTest {
      * @throws Exception If something goes wrong, the function will raise an {@link Exception}.
      */
     @Test
-    public void testAddProperties() throws Exception {
+    void testAddProperties() throws Exception {
         JSONObject expectedJSON = new JSONObject("{\"geometry\":{\"coordinates\":[[1,1],[1,1],[1,1]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[1,1,1,1],\"way_points\":[1,1],\"segments\":[1]}}");
         JSONObject resultJSON = GeoJsonResponseWriter.addProperties(routingFeature, featurePropertiesMap);
         JSONAssert.assertEquals(expectedJSON, resultJSON, JSONCompareMode.NON_EXTENSIBLE);
@@ -126,7 +126,7 @@ public class GeoJsonResponseWriterTest {
      * @throws Exception If something goes wrong, the function will raise an {@link Exception}.
      */
     @Test
-    public void testAddProperties1() throws Exception {
+    void testAddProperties1() throws Exception {
         JSONObject expectedJSON = new JSONObject("{\"features\":[{\"geometry\":{\"coordinates\":[[1,1],[1,1],[1,1]],\"type\":\"LineString\"},\"id\":\"" + routingFeatureID + "\",\"type\":\"Feature\",\"properties\":{\"bbox\":[1,1,1,1],\"way_points\":[1,1],\"segments\":[1]}}],\"bbox\":[1,1,1,1],\"type\":\"FeatureCollection\",\"info\":[1]}");
         JSONObject resultJSON = GeoJsonResponseWriter.addProperties(defaultFeatureCollection, featurePropertiesMap, defaultFeatureCollectionProperties);
         JSONAssert.assertEquals(expectedJSON, resultJSON, JSONCompareMode.NON_EXTENSIBLE);

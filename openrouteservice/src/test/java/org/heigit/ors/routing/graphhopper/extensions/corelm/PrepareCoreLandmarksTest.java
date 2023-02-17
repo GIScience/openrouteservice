@@ -32,14 +32,14 @@ import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.util.DebugUtility;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This code is based on that from GraphHopper GmbH.
@@ -59,8 +59,8 @@ public class PrepareCoreLandmarksTest
     Directory dir = new RAMDirectory();
 
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         encoder = new CarFlagEncoder(5, 5, 3);
         encodingManager = EncodingManager.create(encoder);
         weighting = new FastestWeighting(encoder);
@@ -113,7 +113,7 @@ public class PrepareCoreLandmarksTest
 
 
     @Test
-    public void testLandmarkStorageAndRouting() {
+    void testLandmarkStorageAndRouting() {
         // create graph with lat,lon
         // 0  1  2  ...
         // 15 16 17 ...
@@ -153,7 +153,7 @@ public class PrepareCoreLandmarksTest
         index.prepareIndex();
 
         int lm = 5, activeLM = 2;
-        CoreLandmarkStorage store = new CoreLandmarkStorage(dir, graph, coreNodeIdMap, weighting,new LMEdgeFilterSequence(), lm );
+        CoreLandmarkStorage store = new CoreLandmarkStorage(dir, graph, coreNodeIdMap, weighting, new LMEdgeFilterSequence(), lm );
         store.setMinimumNodes(2);
         store.createLandmarks();
 
@@ -236,7 +236,7 @@ public class PrepareCoreLandmarksTest
     }
 
     @Test
-    public void testStoreAndLoad() {
+    void testStoreAndLoad() {
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         graph.edge(0, 1, 80_000, true);
         graph.edge(1, 2, 80_000, true);

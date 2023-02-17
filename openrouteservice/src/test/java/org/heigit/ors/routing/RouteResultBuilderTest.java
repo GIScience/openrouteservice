@@ -7,13 +7,18 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.api.requests.routing.*;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.util.CoordTools;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RouteResultBuilderTest {
     private RouteRequest request1;
@@ -24,16 +29,16 @@ public class RouteResultBuilderTest {
         init();
     }
 
-    @Before
-    public void init() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         Double[][] coords = new Double[2][2];
-        coords[0] = new Double[] {12.3,45.6};
-        coords[1] = new Double[] {23.4,56.7};
+        coords[0] = new Double[]{12.3, 45.6};
+        coords[1] = new Double[]{23.4, 56.7};
         request1 = new RouteRequest(coords);
 
         request1.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request1.setAttributes(new APIEnums.Attributes[] { APIEnums.Attributes.DETOUR_FACTOR});
-        request1.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.OSM_ID});
+        request1.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.DETOUR_FACTOR});
+        request1.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.OSM_ID});
         request1.setIncludeGeometry(true);
         request1.setIncludeInstructionsInResponse(true);
         request1.setIncludeRoundaboutExitInfo(true);
@@ -46,13 +51,13 @@ public class RouteResultBuilderTest {
         options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
         request1.setRouteOptions(options);
 
-        coords[0] = new Double[] {23.4,56.7};
-        coords[1] = new Double[] {34.5,67.8};
+        coords[0] = new Double[]{23.4, 56.7};
+        coords[1] = new Double[]{34.5, 67.8};
         request2 = new RouteRequest(coords);
 
         request2.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request2.setAttributes(new APIEnums.Attributes[] { APIEnums.Attributes.DETOUR_FACTOR});
-        request2.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.OSM_ID});
+        request2.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.DETOUR_FACTOR});
+        request2.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.OSM_ID});
         request2.setIncludeGeometry(true);
         request2.setIncludeInstructionsInResponse(true);
         request2.setIncludeRoundaboutExitInfo(true);
@@ -113,7 +118,7 @@ public class RouteResultBuilderTest {
     }
 
     @Test
-    public void TestCreateMergedRouteResultFromBestPaths() throws Exception {
+    void TestCreateMergedRouteResultFromBestPaths() throws Exception {
         List<GHResponse> responseList = new ArrayList<>();
 
         RoutingRequest routingRequest = request1.convertRouteRequest();
@@ -122,64 +127,64 @@ public class RouteResultBuilderTest {
 
         RouteResultBuilder builder = new RouteResultBuilder();
         RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
-        Assert.assertEquals("Empty response list should return empty RouteResult (summary.distance = 0.0)", 0.0, result.getSummary().getDistance(), 0.0);
-        Assert.assertEquals("Empty response list should return empty RouteResult (no segments)", 0, result.getSegments().size());
-        Assert.assertEquals("Empty response list should return empty RouteResult (no extra info)", 0, result.getExtraInfo().size());
-        Assert.assertNull("Empty response list should return empty RouteResult (no geometry)", result.getGeometry());
+        assertEquals(0.0, result.getSummary().getDistance(), 0.0, "Empty response list should return empty RouteResult (summary.distance = 0.0)");
+        assertEquals(0, result.getSegments().size(), "Empty response list should return empty RouteResult (no segments)");
+        assertEquals(0, result.getExtraInfo().size(), "Empty response list should return empty RouteResult (no extra info)");
+        assertNull(result.getGeometry(), "Empty response list should return empty RouteResult (no geometry)");
 
         extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
 
         responseList.add(constructResponse(request1));
         result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
-        Assert.assertEquals("Single response should return valid RouteResult (summary.duration = 1452977.2)", 1452977.2, result.getSummary().getDistance(), 0.0);
-        Assert.assertEquals("Single response should return valid RouteResult (summary.bbox = 45.6,56.7,12.3,23.4)", "45.6,56.7,12.3,23.4", result.getSummary().getBBox().toString());
-        Assert.assertEquals("Single response should return valid RouteResult (geometry.length = 2)", 2, result.getGeometry().length);
-        Assert.assertEquals("Single response should return valid RouteResult (geometry[0] = 45.6,12.3,NaN)", "(45.6, 12.3, NaN)", result.getGeometry()[0].toString());
-        Assert.assertEquals("Single response should return valid RouteResult (geometry[1] = 56.7,23.4,NaN)", "(56.7, 23.4, NaN)", result.getGeometry()[1].toString());
-        Assert.assertEquals("Single response should return valid RouteResult (segments.size = 1)", 1, result.getSegments().size());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].distance = 1452977.2)", 1452977.2, result.getSegments().get(0).getDistance(), 0.0);
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].detourFactor = 2)", 0.85, result.getSegments().get(0).getDetourFactor(), 0.0);
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps.size = 2)", 2, result.getSegments().get(0).getSteps().size());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[0].name = 'Instruction 1')", "Instruction 1", result.getSegments().get(0).getSteps().get(0).getName());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[0].type = 11)", 11, result.getSegments().get(0).getSteps().get(0).getType());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[0].maneuver.bearingAfter = 44)", 44, result.getSegments().get(0).getSteps().get(0).getManeuver().getBearingAfter());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[1].name = 'Instruction 2')", "Instruction 2", result.getSegments().get(0).getSteps().get(1).getName());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[1].type = 10)", 10, result.getSegments().get(0).getSteps().get(1).getType());
-        Assert.assertEquals("Single response should return valid RouteResult (segments[0].steps[1].maneuver.bearingAfter = 0)", 0, result.getSegments().get(0).getSteps().get(1).getManeuver().getBearingAfter());
-        Assert.assertEquals("Single response should return valid RouteResult (extrainfo.size = 1)", 1, result.getExtraInfo().size());
-        Assert.assertEquals("Single response should return valid RouteResult (extrainfo[0].name = 'osmid)", APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName());
-        Assert.assertEquals("Single response should return valid RouteResult (waypointindices.size = 2)", 2, result.getWayPointsIndices().size());
+        assertEquals(1452977.2, result.getSummary().getDistance(), 0.0, "Single response should return valid RouteResult (summary.duration = 1452977.2)");
+        assertEquals("45.6,56.7,12.3,23.4", result.getSummary().getBBox().toString(), "Single response should return valid RouteResult (summary.bbox = 45.6,56.7,12.3,23.4)");
+        assertEquals(2, result.getGeometry().length, "Single response should return valid RouteResult (geometry.length = 2)");
+        assertEquals("(45.6, 12.3, NaN)", result.getGeometry()[0].toString(), "Single response should return valid RouteResult (geometry[0] = 45.6,12.3,NaN)");
+        assertEquals("(56.7, 23.4, NaN)", result.getGeometry()[1].toString(), "Single response should return valid RouteResult (geometry[1] = 56.7,23.4,NaN)");
+        assertEquals(1, result.getSegments().size(), "Single response should return valid RouteResult (segments.size = 1)");
+        assertEquals(1452977.2, result.getSegments().get(0).getDistance(), 0.0, "Single response should return valid RouteResult (segments[0].distance = 1452977.2)");
+        assertEquals(0.85, result.getSegments().get(0).getDetourFactor(), 0.0, "Single response should return valid RouteResult (segments[0].detourFactor = 2)");
+        assertEquals(2, result.getSegments().get(0).getSteps().size(), "Single response should return valid RouteResult (segments[0].steps.size = 2)");
+        assertEquals("Instruction 1", result.getSegments().get(0).getSteps().get(0).getName(), "Single response should return valid RouteResult (segments[0].steps[0].name = 'Instruction 1')");
+        assertEquals(11, result.getSegments().get(0).getSteps().get(0).getType(), "Single response should return valid RouteResult (segments[0].steps[0].type = 11)");
+        assertEquals(44, result.getSegments().get(0).getSteps().get(0).getManeuver().getBearingAfter(), "Single response should return valid RouteResult (segments[0].steps[0].maneuver.bearingAfter = 44)");
+        assertEquals("Instruction 2", result.getSegments().get(0).getSteps().get(1).getName(), "Single response should return valid RouteResult (segments[0].steps[1].name = 'Instruction 2')");
+        assertEquals(10, result.getSegments().get(0).getSteps().get(1).getType(), "Single response should return valid RouteResult (segments[0].steps[1].type = 10)");
+        assertEquals(0, result.getSegments().get(0).getSteps().get(1).getManeuver().getBearingAfter(), "Single response should return valid RouteResult (segments[0].steps[1].maneuver.bearingAfter = 0)");
+        assertEquals(1, result.getExtraInfo().size(), "Single response should return valid RouteResult (extrainfo.size = 1)");
+        assertEquals(APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName(), "Single response should return valid RouteResult (extrainfo[0].name = 'osmid)");
+        assertEquals(2, result.getWayPointsIndices().size(), "Single response should return valid RouteResult (waypointindices.size = 2)");
 
         responseList.add(constructResponse(request2));
         result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
-        Assert.assertEquals("Two responses should return merged RouteResult (summary.duration = 2809674.1)", 2809674.1, result.getSummary().getDistance(), 0.0);
-        Assert.assertEquals("Two responses should return merged RouteResult (summary.bbox = 45.6,67.8,12.3,34.5)", "45.6,67.8,12.3,34.5", result.getSummary().getBBox().toString());
-        Assert.assertEquals("Two responses should return merged RouteResult (geometry.length = 3)", 3, result.getGeometry().length);
-        Assert.assertEquals("Two responses should return merged RouteResult (geometry[0] = 45.6,12.3,NaN)", "(45.6, 12.3, NaN)", result.getGeometry()[0].toString());
-        Assert.assertEquals("Two responses should return merged RouteResult (geometry[1] = 56.7,23.4,NaN)", "(56.7, 23.4, NaN)", result.getGeometry()[1].toString());
-        Assert.assertEquals("Two responses should return merged RouteResult (geometry[2] = 67.8,34.5,NaN)", "(67.8, 34.5, NaN)", result.getGeometry()[2].toString());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments.size = 2)", 2, result.getSegments().size());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].distance = 1452977.2)", 1452977.2, result.getSegments().get(0).getDistance(), 0.0);
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].detourFactor = 0.85)", 0.85, result.getSegments().get(0).getDetourFactor(), 0.0);
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps.size = 2)", 2, result.getSegments().get(0).getSteps().size());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[0].name = 'Instruction 1')", "Instruction 1", result.getSegments().get(0).getSteps().get(0).getName());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[0].type = 11)", 11, result.getSegments().get(0).getSteps().get(0).getType());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[0].maneuver.bearingAfter = 44)", 44, result.getSegments().get(0).getSteps().get(0).getManeuver().getBearingAfter());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[1].name = 'Instruction 2')", "Instruction 2", result.getSegments().get(0).getSteps().get(1).getName());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[1].type = 10)", 10, result.getSegments().get(0).getSteps().get(1).getType());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[0].steps[1].maneuver.bearingAfter = 0)", 0, result.getSegments().get(0).getSteps().get(1).getManeuver().getBearingAfter());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].distance = 1356696.9)", 1356696.9, result.getSegments().get(1).getDistance(), 0.0);
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].detourFactor = 0.83)", 0.83, result.getSegments().get(1).getDetourFactor(), 0.0);
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps.size = 2)", 2, result.getSegments().get(1).getSteps().size());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[0].name = 'Instruction 1')", "Instruction 1", result.getSegments().get(1).getSteps().get(0).getName());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[0].type = 11)", 11, result.getSegments().get(1).getSteps().get(0).getType());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[0].maneuver.bearingAfter = 41)", 41, result.getSegments().get(1).getSteps().get(0).getManeuver().getBearingAfter());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[1].name = 'Instruction 2')", "Instruction 2", result.getSegments().get(1).getSteps().get(1).getName());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[1].type = 10)", 10, result.getSegments().get(1).getSteps().get(1).getType());
-        Assert.assertEquals("Two responses should return merged RouteResult (segments[1].steps[1].maneuver.bearingAfter = 0)", 0, result.getSegments().get(1).getSteps().get(1).getManeuver().getBearingAfter());
-        Assert.assertEquals("Two responses should return merged RouteResult (extrainfo.size = 1)", 1, result.getExtraInfo().size());
-        Assert.assertEquals("Two responses should return merged RouteResult (extrainfo[0].name = 'osmid)", APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName());
-        Assert.assertEquals("Two responses should return merged RouteResult (waypointindices.size = 3)", 3, result.getWayPointsIndices().size());
+        assertEquals(2809674.1, result.getSummary().getDistance(), 0.0, "Two responses should return merged RouteResult (summary.duration = 2809674.1)");
+        assertEquals("45.6,67.8,12.3,34.5", result.getSummary().getBBox().toString(), "Two responses should return merged RouteResult (summary.bbox = 45.6,67.8,12.3,34.5)");
+        assertEquals(3, result.getGeometry().length, "Two responses should return merged RouteResult (geometry.length = 3)");
+        assertEquals("(45.6, 12.3, NaN)", result.getGeometry()[0].toString(), "Two responses should return merged RouteResult (geometry[0] = 45.6,12.3,NaN)");
+        assertEquals("(56.7, 23.4, NaN)", result.getGeometry()[1].toString(), "Two responses should return merged RouteResult (geometry[1] = 56.7,23.4,NaN)");
+        assertEquals("(67.8, 34.5, NaN)", result.getGeometry()[2].toString(), "Two responses should return merged RouteResult (geometry[2] = 67.8,34.5,NaN)");
+        assertEquals(2, result.getSegments().size(), "Two responses should return merged RouteResult (segments.size = 2)");
+        assertEquals(1452977.2, result.getSegments().get(0).getDistance(), 0.0, "Two responses should return merged RouteResult (segments[0].distance = 1452977.2)");
+        assertEquals(0.85, result.getSegments().get(0).getDetourFactor(), 0.0, "Two responses should return merged RouteResult (segments[0].detourFactor = 0.85)");
+        assertEquals(2, result.getSegments().get(0).getSteps().size(), "Two responses should return merged RouteResult (segments[0].steps.size = 2)");
+        assertEquals("Instruction 1", result.getSegments().get(0).getSteps().get(0).getName(), "Two responses should return merged RouteResult (segments[0].steps[0].name = 'Instruction 1')");
+        assertEquals(11, result.getSegments().get(0).getSteps().get(0).getType(), "Two responses should return merged RouteResult (segments[0].steps[0].type = 11)");
+        assertEquals(44, result.getSegments().get(0).getSteps().get(0).getManeuver().getBearingAfter(), "Two responses should return merged RouteResult (segments[0].steps[0].maneuver.bearingAfter = 44)");
+        assertEquals("Instruction 2", result.getSegments().get(0).getSteps().get(1).getName(), "Two responses should return merged RouteResult (segments[0].steps[1].name = 'Instruction 2')");
+        assertEquals(10, result.getSegments().get(0).getSteps().get(1).getType(), "Two responses should return merged RouteResult (segments[0].steps[1].type = 10)");
+        assertEquals(0, result.getSegments().get(0).getSteps().get(1).getManeuver().getBearingAfter(), "Two responses should return merged RouteResult (segments[0].steps[1].maneuver.bearingAfter = 0)");
+        assertEquals(1356696.9, result.getSegments().get(1).getDistance(), 0.0, "Two responses should return merged RouteResult (segments[1].distance = 1356696.9)");
+        assertEquals(0.83, result.getSegments().get(1).getDetourFactor(), 0.0, "Two responses should return merged RouteResult (segments[1].detourFactor = 0.83)");
+        assertEquals(2, result.getSegments().get(1).getSteps().size(), "Two responses should return merged RouteResult (segments[1].steps.size = 2)");
+        assertEquals("Instruction 1", result.getSegments().get(1).getSteps().get(0).getName(), "Two responses should return merged RouteResult (segments[1].steps[0].name = 'Instruction 1')");
+        assertEquals(11, result.getSegments().get(1).getSteps().get(0).getType(), "Two responses should return merged RouteResult (segments[1].steps[0].type = 11)");
+        assertEquals(41, result.getSegments().get(1).getSteps().get(0).getManeuver().getBearingAfter(), "Two responses should return merged RouteResult (segments[1].steps[0].maneuver.bearingAfter = 41)");
+        assertEquals("Instruction 2", result.getSegments().get(1).getSteps().get(1).getName(), "Two responses should return merged RouteResult (segments[1].steps[1].name = 'Instruction 2')");
+        assertEquals(10, result.getSegments().get(1).getSteps().get(1).getType(), "Two responses should return merged RouteResult (segments[1].steps[1].type = 10)");
+        assertEquals(0, result.getSegments().get(1).getSteps().get(1).getManeuver().getBearingAfter(), "Two responses should return merged RouteResult (segments[1].steps[1].maneuver.bearingAfter = 0)");
+        assertEquals(1, result.getExtraInfo().size(), "Two responses should return merged RouteResult (extrainfo.size = 1)");
+        assertEquals(APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName(), "Two responses should return merged RouteResult (extrainfo[0].name = 'osmid)");
+        assertEquals(3, result.getWayPointsIndices().size(), "Two responses should return merged RouteResult (waypointindices.size = 3)");
 
         RouteRequest modRequest = request1;
         List<Integer> skipSegments = new ArrayList<>();
@@ -189,8 +194,8 @@ public class RouteResultBuilderTest {
         responseList = new ArrayList<>();
         responseList.add(constructResponse(modRequest));
         result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
-        Assert.assertEquals("Response with SkipSegments should return RouteResult with warning", 1, result.getWarnings().size());
-        Assert.assertEquals("Response with SkipSegments should return RouteResult with warning (code 3)", 3, result.getWarnings().get(0).getWarningCode());
+        assertEquals(1, result.getWarnings().size(), "Response with SkipSegments should return RouteResult with warning");
+        assertEquals(3, result.getWarnings().get(0).getWarningCode(), "Response with SkipSegments should return RouteResult with warning (code 3)");
 
     }
 }

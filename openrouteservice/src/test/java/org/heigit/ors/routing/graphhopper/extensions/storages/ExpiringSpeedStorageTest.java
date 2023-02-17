@@ -2,13 +2,14 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.storage.RAMDirectory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExpiringSpeedStorageTest {
     @Test
-    public void testCreation(){
+    void testCreation() {
         ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
         storage.init(null, new RAMDirectory(""));
         storage.create(4);
@@ -23,7 +24,7 @@ public class ExpiringSpeedStorageTest {
     }
 
     @Test
-    public void testSetGetSpeed() {
+    void testSetGetSpeed() {
         ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
         storage.init(null, new RAMDirectory(""));
         storage.create(4);
@@ -34,11 +35,13 @@ public class ExpiringSpeedStorageTest {
         assertEquals(Byte.MIN_VALUE, storage.getSpeed(0, true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testTooHighSpeed(){
-        ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
-        storage.init(null, new RAMDirectory(""));
-        storage.create(4);
-        storage.setSpeed(0, false, 128);
+    @Test
+    void testTooHighSpeed() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
+            storage.init(null, new RAMDirectory(""));
+            storage.create(4);
+            storage.setSpeed(0, false, 128);
+        });
     }
 }

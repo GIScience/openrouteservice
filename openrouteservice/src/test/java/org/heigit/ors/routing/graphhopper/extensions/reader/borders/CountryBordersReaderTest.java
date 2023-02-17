@@ -15,12 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CountryBordersReaderTest {
     CountryBordersReader _reader;
@@ -87,7 +84,7 @@ public class CountryBordersReaderTest {
      * Test that correct countries are being returned that surround the given point
      */
     @Test
-    public void TestGetCountry() {
+    void TestGetCountry() {
         Coordinate c = new Coordinate(0.5, 0.5);
         CountryBordersPolygon[] polys = _reader.getCountry(c);
 
@@ -99,7 +96,7 @@ public class CountryBordersReaderTest {
      * Test that correct candidate countries (based on bbox) are being returned that surround the given coordinate
      */
     @Test
-    public void TestGetCandidateCountry() {
+    void TestGetCandidateCountry() {
         Coordinate c = new Coordinate(-0.25, -0.25);
         CountryBordersPolygon[] polys = _reader.getCandidateCountry(c);
 
@@ -111,7 +108,7 @@ public class CountryBordersReaderTest {
      * Test that the correct id is returned for a country of the given local name
      */
     @Test
-    public void TestGetCountryId() {
+    void TestGetCountryId() {
         assertEquals("1", _reader.getId("country1"));
     }
 
@@ -119,7 +116,7 @@ public class CountryBordersReaderTest {
      * Test that the correct English name is returned for a country of the given local name
      */
     @Test
-    public void TestGetCountryEnglishName() {
+    void TestGetCountryEnglishName() {
         assertEquals("country1 English", _reader.getEngName("country1"));
     }
 
@@ -127,7 +124,7 @@ public class CountryBordersReaderTest {
      * Test that borders are correctly identified as being open or not
      */
     @Test
-    public void TestGetOpenBorder() {
+    void TestGetOpenBorder() {
         assertTrue(_reader.isOpen("country1", "country2"));
         assertFalse(_reader.isOpen("country1", "country3"));
     }
@@ -136,7 +133,7 @@ public class CountryBordersReaderTest {
      * Test that the correct id is returned for ISO codes
      */
     @Test
-    public void TestGetCountryIdByISOCode() {
+    void TestGetCountryIdByISOCode() {
         assertEquals(1, CountryBordersReader.getCountryIdByISOCode("CT"));
         assertEquals(1, CountryBordersReader.getCountryIdByISOCode("CTR"));
         assertEquals(0, CountryBordersReader.getCountryIdByISOCode("FOO"));

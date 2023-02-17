@@ -1,8 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OsmIdGraphStorageTest {
     private final OsmIdGraphStorage _storage;
@@ -14,7 +14,7 @@ public class OsmIdGraphStorageTest {
     }
 
     @Test
-    public void TestItemCreation() {
+    void TestItemCreation() {
         _storage.setEdgeValue(1, 1234L);
 
         assertEquals(1234, _storage.getEdgeValue(1));

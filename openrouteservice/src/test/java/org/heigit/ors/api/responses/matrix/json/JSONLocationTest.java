@@ -2,17 +2,19 @@ package org.heigit.ors.api.responses.matrix.json;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONLocationTest {
     private ResolvedLocation resolvedLocation;
     private JSONLocation jsonLocationWithLocation;
     private JSONLocation jsonLocationWoLocation;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
 
         Coordinate coordinate = new Coordinate(8.681495, 49.41461);
         resolvedLocation = new ResolvedLocation(coordinate, "foo", 0.0);
@@ -21,14 +23,14 @@ public class JSONLocationTest {
     }
 
     @Test
-    public void getSnapped_distance() {
-        Assert.assertEquals("foo", jsonLocationWithLocation.name);
-        Assert.assertEquals(new Double(0.0), jsonLocationWithLocation.getSnappedDistance());
+    void getSnapped_distance() {
+        assertEquals("foo", jsonLocationWithLocation.name);
+        assertEquals(new Double(0.0), jsonLocationWithLocation.getSnappedDistance());
     }
 
     @Test
-    public void getLocation() {
-        Assert.assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), jsonLocationWithLocation.location);
-        Assert.assertArrayEquals(new Double[0], jsonLocationWithLocation.getLocation());
+    void getLocation() {
+        assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), jsonLocationWithLocation.location);
+        assertArrayEquals(new Double[0], jsonLocationWithLocation.getLocation());
     }
 }

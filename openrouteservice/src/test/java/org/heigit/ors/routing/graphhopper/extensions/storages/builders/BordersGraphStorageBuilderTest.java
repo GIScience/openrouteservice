@@ -19,8 +19,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersHierarchy;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BordersGraphStorageBuilderTest {
     private BordersGraphStorageBuilder _builder;
@@ -97,59 +99,59 @@ public class BordersGraphStorageBuilderTest {
      * Test that the builder successfully adds country information to a way that crosses a border
      */
     @Test
-    public void TestProcessWay() {
+    void TestProcessWay() {
         ReaderWay rw = new ReaderWay(1);
-        Coordinate[] cs = new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(1.5,0.5)
+        Coordinate[] cs = new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(1.5, 0.5)
         };
 
         _builder.processWay(rw, cs, null);
 
-        Assert.assertEquals("c1", rw.getTag("country1"));
-        Assert.assertEquals("c2", rw.getTag("country2"));
+        assertEquals("c1", rw.getTag("country1"));
+        assertEquals("c2", rw.getTag("country2"));
 
         ReaderWay rw2 = new ReaderWay(1);
-        Coordinate[] cs2 = new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(0.75,0.5)
+        Coordinate[] cs2 = new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(0.75, 0.5)
         };
 
         _builder.processWay(rw2, cs2, null);
 
-        Assert.assertEquals("c1", rw2.getTag("country1"));
-        Assert.assertEquals("c1", rw2.getTag("country2"));
+        assertEquals("c1", rw2.getTag("country1"));
+        assertEquals("c1", rw2.getTag("country2"));
     }
 
     /**
      * Test that the builder detects that a linestring crosses a border
      */
     @Test
-    public void TestFindBorderCrossing() {
-        String[] names = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(1.5,0.5)
+    void TestFindBorderCrossing() {
+        String[] names = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(1.5, 0.5)
         });
 
-        Assert.assertEquals(2, names.length);
-        Assert.assertTrue(names[0].equals("c1") || names[1].equals("c1"));
-        Assert.assertTrue(names[0].equals("c2") || names[1].equals("c2"));
+        assertEquals(2, names.length);
+        assertTrue(names[0].equals("c1") || names[1].equals("c1"));
+        assertTrue(names[0].equals("c2") || names[1].equals("c2"));
     }
 
     @Test
-    public void TestOverlappingRegion() {
+    void TestOverlappingRegion() {
         // Overlapping and crossing border - should return the two countries
-        String[] names = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(101.5,101.5),
-                new Coordinate(102.5,101.5)
+        String[] names = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(101.5, 101.5),
+                new Coordinate(102.5, 101.5)
         });
-        Assert.assertEquals(2, names.length);
+        assertEquals(2, names.length);
 
         // Overlapping but not crossing - should return only the one country
-        String[] names2 = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(101.5,101.5),
-                new Coordinate(101.75,101.5)
+        String[] names2 = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(101.5, 101.5),
+                new Coordinate(101.75, 101.5)
         });
-        Assert.assertEquals(1, names2.length);
+        assertEquals(1, names2.length);
     }
 }

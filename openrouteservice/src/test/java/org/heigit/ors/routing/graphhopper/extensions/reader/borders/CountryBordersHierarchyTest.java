@@ -15,11 +15,11 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CountryBordersHierarchyTest {
     private CountryBordersHierarchy cbh;
@@ -71,7 +71,7 @@ public class CountryBordersHierarchyTest {
      * Test that the hierarchies rturn correct bounding boxes that contain all polygon objects within them.
      */
     @Test
-    public void GetBBoxTest() {
+    void GetBBoxTest() {
         double[] bbox = cbh1.getBBox();
         assertEquals(-1.0, bbox[0], 0.0);
         assertEquals(1.0, bbox[1], 0.0);
@@ -89,7 +89,7 @@ public class CountryBordersHierarchyTest {
      * Test that hierarchies determine that a coordinate is within the bounding box containing all polygon objects
      */
     @Test
-    public void InBBoxTest() {
+    void InBBoxTest() {
         assertTrue(cbh1.inBbox(new Coordinate(0.5, 0.5)));
         assertTrue(cbh1.inBbox(new Coordinate(-0.5, 0.5)));
         assertFalse(cbh1.inBbox(new Coordinate(7.5, 7.5)));
@@ -100,7 +100,7 @@ public class CountryBordersHierarchyTest {
      * Test that correct country objects are returned from the hierarchies based on a coordinate given.
      */
     @Test
-    public void GetCountryTest() {
+    void GetCountryTest() {
         List<CountryBordersPolygon> containing = cbh1.getContainingPolygons(new Coordinate(0.9, 0.9));
         assertEquals(1, containing.size());
         assertEquals("name1", containing.get(0).getName());

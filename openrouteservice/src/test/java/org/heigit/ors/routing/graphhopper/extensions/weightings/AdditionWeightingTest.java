@@ -6,9 +6,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.AdditionWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.ConstantWeighting;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AdditionWeightingTest {
     private final EncodingManager encodingManager;
@@ -16,7 +16,7 @@ public class AdditionWeightingTest {
 
     public AdditionWeightingTest() {
         encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
-        flagEncoder = (CarFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
+        flagEncoder = (CarFlagEncoder) encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     }
 
     @Test

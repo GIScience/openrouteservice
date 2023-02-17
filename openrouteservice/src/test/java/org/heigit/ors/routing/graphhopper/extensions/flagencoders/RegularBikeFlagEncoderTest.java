@@ -19,10 +19,10 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegularBikeFlagEncoderTest {
     private final RegularBikeFlagEncoder flagEncoder;
@@ -33,13 +33,13 @@ public class RegularBikeFlagEncoderTest {
         flagEncoder = (RegularBikeFlagEncoder) encodingManager.getEncoder(FlagEncoderNames.BIKE_ORS);
     }
 
-    @Before
-    public void initWay() {
+    @BeforeEach
+    void initWay() {
         way = new ReaderWay(1);
     }
 
     @Test
-    public void acceptBridlewayOnlyWithBicycleTag() {
+    void acceptBridlewayOnlyWithBicycleTag() {
         way.setTag("highway", "bridleway");
         assertTrue(flagEncoder.getAccess(way).canSkip());
 

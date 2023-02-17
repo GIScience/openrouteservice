@@ -4,19 +4,19 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CmdArgs;
-import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.heigit.ors.util.ToyGraphCreationUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FastIsochroneFactoryTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
     }
 
@@ -27,7 +27,7 @@ public class FastIsochroneFactoryTest {
     }
 
     @Test
-    public void testInit() {
+    void testInit() {
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         assertTrue(fastIsochroneFactory.isEnabled());
         assertTrue(fastIsochroneFactory.isDisablingAllowed());
@@ -35,7 +35,7 @@ public class FastIsochroneFactoryTest {
     }
 
     @Test
-    public void testAddPreparation() {
+    void testAddPreparation() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         fastIsochroneFactory.createPreparation(gs, null);
@@ -50,7 +50,7 @@ public class FastIsochroneFactoryTest {
     }
 
     @Test
-    public void testPrepare() {
+    void testPrepare() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         fastIsochroneFactory.createPreparation(gs, null);

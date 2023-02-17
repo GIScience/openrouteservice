@@ -15,45 +15,40 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteRequestAlternativeRoutesTest {
     RouteRequestAlternativeRoutes ar;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         ar = new RouteRequestAlternativeRoutes();
     }
 
     @Test
-    public void testTargetCount() {
-        Assert.assertFalse(ar.hasTargetCount());
+    void testTargetCount() {
+        assertFalse(ar.hasTargetCount());
         ar.setTargetCount(2);
-        Assert.assertTrue(ar.hasTargetCount());
-        Assert.assertEquals((Integer) 2, ar.getTargetCount());
+        assertTrue(ar.hasTargetCount());
+        assertEquals((Integer)2, ar.getTargetCount());
     }
 
     @Test
-    public void testWeightFactor() {
-        Assert.assertFalse(ar.hasWeightFactor());
+    void testWeightFactor() {
+        assertFalse(ar.hasWeightFactor());
         ar.setWeightFactor(1.9);
-        Assert.assertTrue(ar.hasWeightFactor());
-        Assert.assertEquals((Double) 1.9, ar.getWeightFactor());
+        assertTrue(ar.hasWeightFactor());
+        assertEquals((Double)1.9, ar.getWeightFactor());
     }
 
     @Test
-    public void testShareFactor() {
-        Assert.assertFalse(ar.hasShareFactor());
+    void testShareFactor() {
+        assertFalse(ar.hasShareFactor());
         ar.setShareFactor(0.7);
-        Assert.assertTrue(ar.hasShareFactor());
-        Assert.assertEquals((Double) 0.7, ar.getShareFactor());
+        assertTrue(ar.hasShareFactor());
+        assertEquals((Double)0.7, ar.getShareFactor());
     }
 }

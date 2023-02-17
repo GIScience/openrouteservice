@@ -25,11 +25,10 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactor
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AvoidBordersEdgeFilterTest {
     private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
@@ -65,9 +64,9 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidAllBorders() {
+    void TestAvoidAllBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.ALL);
-        _searchParams.setAvoidCountries(new int[] {});
+        _searchParams.setAvoidCountries(new int[]{});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
@@ -82,9 +81,9 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidControlledBorders() {
+    void TestAvoidControlledBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        _searchParams.setAvoidCountries(new int[] {});
+        _searchParams.setAvoidCountries(new int[]{});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
@@ -98,9 +97,9 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidNoBorders() {
+    void TestAvoidNoBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
-        _searchParams.setAvoidCountries(new int[] {});
+        _searchParams.setAvoidCountries(new int[]{});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
@@ -114,9 +113,9 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidSpecificBorders() {
+    void TestAvoidSpecificBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
-        _searchParams.setAvoidCountries(new int[] {1, 5});
+        _searchParams.setAvoidCountries(new int[]{1, 5});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 
@@ -130,9 +129,9 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidSpecificAndControlledBorders() {
+    void TestAvoidSpecificAndControlledBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        _searchParams.setAvoidCountries(new int[] {3});
+        _searchParams.setAvoidCountries(new int[]{3});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
 

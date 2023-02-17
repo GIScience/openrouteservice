@@ -1,15 +1,15 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
 import com.graphhopper.util.PMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ORSPMapTest {
     @Test
-    public void longToByteArrayTest() {
+    void longToByteArrayTest() {
         ORSPMap map = new ORSPMap();
-        int[] obj = {1,2,3};
+        int[] obj = {1, 2, 3};
         map.putObj("some_key", obj);
         PMap parent = map;
         parent.put("another_key", 1);

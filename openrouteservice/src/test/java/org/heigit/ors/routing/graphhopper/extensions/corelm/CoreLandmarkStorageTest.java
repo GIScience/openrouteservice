@@ -23,15 +23,15 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.util.DebugUtility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Andrzej Oles, Hendrik Leuschner
@@ -44,8 +44,8 @@ public class CoreLandmarkStorageTest {
     private final TraversalMode tMode = TraversalMode.NODE_BASED;
     private Directory dir;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         FlagEncoder encoder = new CarFlagEncoder();
         ghStorage = new GraphHopperStorage(new RAMDirectory(),
                 EncodingManager.create(encoder), false, new GraphExtension.NoOpExtension());
@@ -53,8 +53,8 @@ public class CoreLandmarkStorageTest {
         dir = new GHDirectory("", DAType.RAM_INT);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         if (ghStorage != null)
             ghStorage.close();
     }
@@ -128,8 +128,9 @@ public class CoreLandmarkStorageTest {
 
         return lg;
     }
+
     @Test
-    public void testOneSubnetwork() {
+    void testOneSubnetwork() {
         // All edges in medium graph are part of core. Test if landmarks are built
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
@@ -149,7 +150,7 @@ public class CoreLandmarkStorageTest {
         CHGraph g = contractGraph(ghStorage, restrictedEdges);
         HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g);
 
-        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting,new LMEdgeFilterSequence(), 2 );
+        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting, new LMEdgeFilterSequence(), 2 );
         storage.setMinimumNodes(2);
         storage.createLandmarks();
         assertEquals(2, storage.getSubnetworksWithLandmarks());
@@ -157,7 +158,7 @@ public class CoreLandmarkStorageTest {
     }
 
     @Test
-    public void testTwoSubnetworks() {
+    void testTwoSubnetworks() {
         // All edges in medium graph are part of core. Test if landmarks are built
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         CoreTestEdgeFilter passableEdges = new CoreTestEdgeFilter();

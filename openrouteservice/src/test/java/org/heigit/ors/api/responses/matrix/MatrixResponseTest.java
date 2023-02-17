@@ -2,18 +2,20 @@ package org.heigit.ors.api.responses.matrix;
 
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MatrixResponseTest {
     private MatrixResponse bareMatrixResponse;
 
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         MatrixRequest bareMatrixRequest = new MatrixRequest(new ArrayList<>());
@@ -21,9 +23,9 @@ public class MatrixResponseTest {
     }
 
     @Test
-    public void getResponseInformation() {
+    void getResponseInformation() {
 
-        Assert.assertEquals(MatrixResponseInfo.class, bareMatrixResponse.responseInformation.getClass());
-        Assert.assertNotNull(bareMatrixResponse.responseInformation);
+        assertEquals(MatrixResponseInfo.class, bareMatrixResponse.responseInformation.getClass());
+        assertNotNull(bareMatrixResponse.responseInformation);
     }
 }

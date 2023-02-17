@@ -1,19 +1,19 @@
 package org.heigit.ors.api.responses.isochrones;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class IsochronesResponseTest {
+class IsochronesResponseTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    public void getResponseInformation() {
+    void getResponseInformation() {
     }
 
     @Test
-    public void getBbox() {
+    void getBbox() {
     }
 }

@@ -1,35 +1,35 @@
 package org.heigit.ors.api.responses.isochrones.geojson;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GeoJSONIsochronePropertiesTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    public void getGroup_index() {
+    void getGroup_index() {
     }
 
     @Test
-    public void getValue() {
+    void getValue() {
     }
 
     @Test
-    public void getCenter() {
+    void getCenter() {
     }
 
     @Test
-    public void getArea() {
+    void getArea() {
     }
 
     @Test
-    public void getReachfactor() {
+    void getReachfactor() {
     }
 
     @Test
-    public void getTotal_pop() {
+    void getTotal_pop() {
     }
 }

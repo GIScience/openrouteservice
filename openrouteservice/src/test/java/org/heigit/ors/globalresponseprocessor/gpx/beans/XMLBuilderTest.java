@@ -25,15 +25,16 @@
 
 package org.heigit.ors.globalresponseprocessor.gpx.beans;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class XMLBuilderTest {
     // Setup Gpx feature
@@ -42,8 +43,8 @@ public class XMLBuilderTest {
     /**
      * This class initializes the dummy Gpx.class object
      */
-    @BeforeClass
-    public static void setUp() throws DatatypeConfigurationException {
+    @BeforeAll
+    static void setUp() throws DatatypeConfigurationException {
         // Time Element
         XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();
         cal.setTime(0, 0, 0, 0);
@@ -151,10 +152,10 @@ public class XMLBuilderTest {
     }
 
     @Test
-    public void testBuild() throws JAXBException {
+    void testBuild() throws JAXBException {
         XMLBuilder xMLBuilder = new XMLBuilder();
         String result = xMLBuilder.build(gpx);
-        Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<gpx version=\"1.0\" xmlns=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\">\n" +
                 "    <metadata>\n" +
                 "        <name></name>\n" +

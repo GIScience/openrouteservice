@@ -2,11 +2,13 @@ package org.heigit.ors.services.isochrones.requestprocessors.json;
 
 import com.graphhopper.util.shapes.BBox;
 import com.vividsolutions.jts.geom.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class JsonIsochronesRequestProcessorTest {
@@ -15,8 +17,8 @@ public class JsonIsochronesRequestProcessorTest {
     private Envelope positiveEnv;
     private Envelope mixedEnv;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         ArrayList<Double[]> bareNegativeCoordinateList = new ArrayList<>(12);
         Coordinate[] negativeCoordinates = new Coordinate[12];
         bareNegativeCoordinateList.add(new Double[]{-77.033874, -12.122793});
@@ -108,41 +110,41 @@ public class JsonIsochronesRequestProcessorTest {
     }
 
     @Test
-    public void constructNegativeIsochroneBBoxTest() {
+    void constructNegativeIsochroneBBoxTest() {
         BBox bbox = JsonIsochronesRequestProcessor.constructIsochroneBBox(negativeEnv);
         BBox expectedBBox = new BBox(-77.033874, -77.025082, -12.127332, -12.120505);
-        Assert.assertTrue(bbox.isValid());
-        Assert.assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
-        Assert.assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
-        Assert.assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
-        Assert.assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.minEle, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.maxEle, 0.0);
+        assertTrue(bbox.isValid());
+        assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
+        assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
+        assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
+        assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
+        assertEquals(Double.NaN, bbox.minEle, 0.0);
+        assertEquals(Double.NaN, bbox.maxEle, 0.0);
     }
 
     @Test
-    public void constructPositiveIsochroneBBoxTest() {
+    void constructPositiveIsochroneBBoxTest() {
         BBox bbox = JsonIsochronesRequestProcessor.constructIsochroneBBox(positiveEnv);
         BBox expectedBBox = new BBox(2.288033, 2.304801, 48.854886, 48.864247);
-        Assert.assertTrue(bbox.isValid());
-        Assert.assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
-        Assert.assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
-        Assert.assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
-        Assert.assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.minEle, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.maxEle, 0.0);
+        assertTrue(bbox.isValid());
+        assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
+        assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
+        assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
+        assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
+        assertEquals(Double.NaN, bbox.minEle, 0.0);
+        assertEquals(Double.NaN, bbox.maxEle, 0.0);
     }
 
     @Test
-    public void constructMixedIsochroneBBoxTest() {
+    void constructMixedIsochroneBBoxTest() {
         BBox bbox = JsonIsochronesRequestProcessor.constructIsochroneBBox(mixedEnv);
         BBox expectedBBox = new BBox(18.395489, 18.409940, -33.909040, -33.897771);
-        Assert.assertTrue(bbox.isValid());
-        Assert.assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
-        Assert.assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
-        Assert.assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
-        Assert.assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.minEle, 0.0);
-        Assert.assertEquals(Double.NaN, bbox.maxEle, 0.0);
+        assertTrue(bbox.isValid());
+        assertEquals(expectedBBox.maxLat, bbox.maxLat, 0.0);
+        assertEquals(expectedBBox.maxLon, bbox.maxLon, 0.0);
+        assertEquals(expectedBBox.minLat, bbox.minLat, 0.0);
+        assertEquals(expectedBBox.minLon, bbox.minLon, 0.0);
+        assertEquals(Double.NaN, bbox.minEle, 0.0);
+        assertEquals(Double.NaN, bbox.maxEle, 0.0);
     }
 }

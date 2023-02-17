@@ -5,266 +5,269 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteSearchParametersTest {
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
     }
 
-    @Test(expected = ParameterValueException.class)
-    public void expectFailingProfileParamsWithVehicleProfile() throws Exception {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setProfileType(1);
-        routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
+    @Test
+    void expectFailingProfileParamsWithVehicleProfile() {
+        assertThrows(ParameterValueException.class, () -> {
+            RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+            routeSearchParameters.setProfileType(1);
+            routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
+        });
     }
 
     @Test
-    public void getProfileType() {
+    void getProfileType() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(0, routeSearchParameters.getProfileType());
+        assertEquals(0, routeSearchParameters.getProfileType());
     }
 
     @Test
-    public void setProfileType() throws Exception {
+    void setProfileType() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(2);
-        Assert.assertEquals(2, routeSearchParameters.getProfileType());
+        assertEquals(2, routeSearchParameters.getProfileType());
     }
 
     @Test
-    public void getWeightingMethod() {
+    void getWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
+        assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
-    public void setWeightingMethod() {
+    void setWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
+        assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
-    public void getAvoidAreas() {
+    void getAvoidAreas() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertArrayEquals(null, routeSearchParameters.getAvoidAreas());
+        assertArrayEquals(null, routeSearchParameters.getAvoidAreas());
     }
 
     @Test
-    public void setAvoidAreas() {
+    void setAvoidAreas() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidAreas(new Polygon[0]);
-        Assert.assertArrayEquals(new Polygon[0], routeSearchParameters.getAvoidAreas());
+        assertArrayEquals(new Polygon[0], routeSearchParameters.getAvoidAreas());
     }
 
     @Test
-    public void hasAvoidAreas() {
+    void hasAvoidAreas() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.hasAvoidAreas());
+        assertFalse(routeSearchParameters.hasAvoidAreas());
         routeSearchParameters.setAvoidAreas(new Polygon[1]);
-        Assert.assertTrue(routeSearchParameters.hasAvoidAreas());
+        assertTrue(routeSearchParameters.hasAvoidAreas());
     }
 
     @Test
-    public void getAvoidFeatureTypes() {
+    void getAvoidFeatureTypes() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
+        assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
 
     }
 
     @Test
-    public void setAvoidFeatureTypes() {
+    void setAvoidFeatureTypes() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidFeatureTypes(1);
-        Assert.assertEquals(1, routeSearchParameters.getAvoidFeatureTypes());
+        assertEquals(1, routeSearchParameters.getAvoidFeatureTypes());
     }
 
     @Test
-    public void hasAvoidFeatures() {
+    void hasAvoidFeatures() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.hasAvoidFeatures());
+        assertFalse(routeSearchParameters.hasAvoidFeatures());
         routeSearchParameters.setAvoidFeatureTypes(1);
-        Assert.assertTrue(routeSearchParameters.hasAvoidFeatures());
+        assertTrue(routeSearchParameters.hasAvoidFeatures());
     }
 
     @Test
-    public void getAvoidCountries() {
+    void getAvoidCountries() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertNull(routeSearchParameters.getAvoidCountries());
+        assertNull(routeSearchParameters.getAvoidCountries());
     }
 
     @Test
-    public void setAvoidCountries() {
+    void setAvoidCountries() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidCountries(new int[1]);
-        Assert.assertArrayEquals(new int[1], routeSearchParameters.getAvoidCountries());
+        assertArrayEquals(new int[1], routeSearchParameters.getAvoidCountries());
     }
 
     @Test
-    public void hasAvoidCountries() {
+    void hasAvoidCountries() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.hasAvoidCountries());
+        assertFalse(routeSearchParameters.hasAvoidCountries());
         routeSearchParameters.setAvoidCountries(new int[1]);
-        Assert.assertTrue(routeSearchParameters.hasAvoidCountries());
+        assertTrue(routeSearchParameters.hasAvoidCountries());
     }
 
     @Test
-    public void hasAvoidBorders() {
+    void hasAvoidBorders() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.hasAvoidBorders());
+        assertFalse(routeSearchParameters.hasAvoidBorders());
         routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        Assert.assertTrue(routeSearchParameters.hasAvoidBorders());
+        assertTrue(routeSearchParameters.hasAvoidBorders());
     }
 
     @Test
-    public void setAvoidBorders() {
+    void setAvoidBorders() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
+        assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
     }
 
     @Test
-    public void getAvoidBorders() {
+    void getAvoidBorders() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
+        assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
     }
 
     @Test
-    public void getConsiderTurnRestrictions() {
+    void getConsiderTurnRestrictions() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
+        assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
     }
 
     @Test
-    public void setConsiderTurnRestrictions() {
+    void setConsiderTurnRestrictions() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setConsiderTurnRestrictions(true);
-        Assert.assertTrue(routeSearchParameters.getConsiderTurnRestrictions());
+        assertTrue(routeSearchParameters.getConsiderTurnRestrictions());
     }
 
     @Test
-    public void getVehicleType() {
+    void getVehicleType() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(HeavyVehicleAttributes.UNKNOWN, routeSearchParameters.getVehicleType());
+        assertEquals(HeavyVehicleAttributes.UNKNOWN, routeSearchParameters.getVehicleType());
     }
 
     @Test
-    public void setVehicleType() {
+    void setVehicleType() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setVehicleType(HeavyVehicleAttributes.AGRICULTURE);
-        Assert.assertEquals(HeavyVehicleAttributes.AGRICULTURE, routeSearchParameters.getVehicleType());
+        assertEquals(HeavyVehicleAttributes.AGRICULTURE, routeSearchParameters.getVehicleType());
 
     }
 
     @Test
-    public void getOptions() {
+    void getOptions() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertNull(routeSearchParameters.getOptions());
+        assertNull(routeSearchParameters.getOptions());
     }
 
     @Test
-    public void hasParameters() throws Exception {
+    void hasParameters() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.hasParameters(routeSearchParameters.getClass()));
+        assertFalse(routeSearchParameters.hasParameters(routeSearchParameters.getClass()));
         routeSearchParameters.setProfileType(2);
         routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
-        Assert.assertTrue(routeSearchParameters.hasParameters(VehicleParameters.class));
+        assertTrue(routeSearchParameters.hasParameters(VehicleParameters.class));
     }
 
     @Test
-    public void getProfileParameters() {
+    void getProfileParameters() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertNull(routeSearchParameters.getProfileParameters());
+        assertNull(routeSearchParameters.getProfileParameters());
     }
 
     @Test
-    public void getFlexibleMode() {
+    void getFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        assertFalse(routeSearchParameters.getFlexibleMode());
     }
 
     @Test
-    public void setFlexibleMode() {
+    void setFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setFlexibleMode(true);
-        Assert.assertTrue(routeSearchParameters.getFlexibleMode());
+        assertTrue(routeSearchParameters.getFlexibleMode());
     }
 
     @Test
-    public void getMaximumRadiuses() {
+    void getMaximumRadiuses() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertNull(routeSearchParameters.getMaximumRadiuses());
+        assertNull(routeSearchParameters.getMaximumRadiuses());
     }
 
     @Test
-    public void setMaximumRadiuses() {
+    void setMaximumRadiuses() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setMaximumRadiuses(new double[0]);
-        Assert.assertNotNull(routeSearchParameters.getMaximumRadiuses());
-        Assert.assertSame(routeSearchParameters.getMaximumRadiuses().getClass(), double[].class);
-        Assert.assertEquals(0, routeSearchParameters.getMaximumRadiuses().length);
+        assertNotNull(routeSearchParameters.getMaximumRadiuses());
+        assertSame(double[].class, routeSearchParameters.getMaximumRadiuses().getClass());
+        assertEquals(0, routeSearchParameters.getMaximumRadiuses().length);
     }
 
     @Test
-    public void getBearings() {
+    void getBearings() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertNull(routeSearchParameters.getBearings());
+        assertNull(routeSearchParameters.getBearings());
     }
 
     @Test
-    public void setBearings() {
+    void setBearings() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setBearings(new WayPointBearing[]{});
-        Assert.assertArrayEquals(new WayPointBearing[]{}, routeSearchParameters.getBearings());
+        assertArrayEquals(new WayPointBearing[]{}, routeSearchParameters.getBearings());
     }
 
     @Test
-    public void requiresDynamicPreprocessedWeights() throws Exception {
+    void requiresDynamicPreprocessedWeights() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidAreas(new Polygon[1]);
-        Assert.assertTrue("avoid areas", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid areas");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidFeatureTypes(1);
-        Assert.assertTrue("avoid features", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid features");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        Assert.assertTrue("avoid borders", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid borders");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidCountries(new int[1]);
-        Assert.assertTrue("avoid countries", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid countries");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setConsiderTurnRestrictions(true);
-        Assert.assertTrue("turn restrictions", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "turn restrictions");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
-        Assert.assertFalse("default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights(), "default vehicle type");
         routeSearchParameters.setVehicleType(HeavyVehicleAttributes.BUS);
-        Assert.assertTrue("non-default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "non-default vehicle type");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
-        Assert.assertTrue("profile param", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
     }
 
     @Test
-    public void alternativeRoutesParams() throws Exception {
+    void alternativeRoutesParams() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setOptions("{\"alternative_routes_count\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
-        Assert.assertEquals(2, routeSearchParameters.getAlternativeRoutesCount());
-        Assert.assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
-        Assert.assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
+        assertEquals(2, routeSearchParameters.getAlternativeRoutesCount());
+        assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
+        assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
     }
 }

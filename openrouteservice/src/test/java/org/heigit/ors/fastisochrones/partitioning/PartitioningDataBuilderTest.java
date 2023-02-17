@@ -4,18 +4,18 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.junit.Test;
+import org.heigit.ors.util.ToyGraphCreationUtil;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PartitioningDataBuilderTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
     @Test
-    public void testPartitioningDataBuilder() {
+    void testPartitioningDataBuilder() {
         GraphHopperStorage ghStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         PartitioningData pData = new PartitioningData();
         EdgeFilter edgeFilter = new EdgeFilterSequence();

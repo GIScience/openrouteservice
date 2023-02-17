@@ -23,12 +23,12 @@ import com.graphhopper.util.Helper;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BordersExtractorTest {
     private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
@@ -63,7 +63,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectAnyBorder() {
+    void TestDetectAnyBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -75,7 +75,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectControlledBorder() {
+    void TestDetectControlledBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -87,7 +87,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectOpenBorder() {
+    void TestDetectOpenBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -99,24 +99,24 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestAvoidCountry() {
+    void TestAvoidCountry() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
+        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
         assertEquals(true, be.restrictedCountry(1));
         assertEquals(true, be.restrictedCountry(2));
         assertEquals(false, be.restrictedCountry(3));
     }
 
     @Test
-    public void TestIsSameCountry() {
+    void TestIsSameCountry() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
+        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
         List<Integer> countries = new ArrayList<>();
         countries.add(1);
         countries.add(2);

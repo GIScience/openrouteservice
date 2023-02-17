@@ -27,29 +27,30 @@ package org.heigit.ors.globalresponseprocessor.geojson;
 
 import com.vividsolutions.jts.geom.LineString;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryType;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class SimpleFeatureTypesTest {
     private static SimpleFeatureType simpleFeatureType;
 
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
         simpleFeatureType = new SimpleFeatureTypes(SimpleFeatureTypes.RouteFeatureType.ROUTE_FEATURE).create();
     }
 
     @Test
-    public void testCreateRouteFeatureType() {
-        Assert.assertEquals(SimpleFeatureTypeImpl.class, simpleFeatureType.getClass());
-        Assert.assertNotNull(simpleFeatureType.getName());
-        Assert.assertNotSame(-1, simpleFeatureType.indexOf("geometry"));
+    void testCreateRouteFeatureType() {
+        assertEquals(SimpleFeatureTypeImpl.class, simpleFeatureType.getClass());
+        assertNotNull(simpleFeatureType.getName());
+        assertNotSame(-1, simpleFeatureType.indexOf("geometry"));
         GeometryType type = simpleFeatureType.getGeometryDescriptor().getType();
-        Assert.assertEquals(LineString.class.getName(), type.getBinding().getName());
+        assertEquals(LineString.class.getName(), type.getBinding().getName());
     }
 }
