@@ -20,13 +20,12 @@
  */
 package org.heigit.ors.services.helper;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.is;
-
-import org.junit.Test;
-
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name="status")
 public class StatusServiceTest extends ServiceTest {
@@ -34,14 +33,14 @@ public class StatusServiceTest extends ServiceTest {
 	public StatusServiceTest() {
 	}
 
-	@Test
-	public void pingTest() {
+    @Test
+    void pingTest() {
 
-		given()
-				.when()
-				.get(getEndPointName())
-				.then()
-				.body("any { it.key == 'profiles' }", is(true))
-				.statusCode(200);
-	}
+        given()
+                .when()
+                .get(getEndPointName())
+                .then()
+                .body("any { it.key == 'profiles' }", is(true))
+                .statusCode(200);
+    }
 }

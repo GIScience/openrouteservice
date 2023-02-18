@@ -18,8 +18,7 @@ import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,6 +40,8 @@ import java.io.StringReader;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EndPointAnnotation(name = "routes")
 public class ResultTest extends ServiceTest {
@@ -59,7 +60,7 @@ public class ResultTest extends ServiceTest {
 	}
 
     @Test
-    public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
+    void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
         Response response = given()
                 .param("coordinates", getParameter("coordinatesShort"))
                 .param("preference", getParameter("preference"))
@@ -106,9 +107,9 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
+        assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
-        Assert.assertTrue(doc_length > 0);
+        assertTrue(doc_length > 0);
         boolean gpxMetadata = false;
         boolean gpxRte = false;
         boolean gpxExtensions = false;
@@ -167,14 +168,14 @@ public class ResultTest extends ServiceTest {
                                                         linkType = true;
                                                 }
                                             }
-                                            Assert.assertTrue(linkText);
-                                            Assert.assertTrue(linkType);
+                                            assertTrue(linkText);
+                                            assertTrue(linkType);
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(authorName);
-                                Assert.assertTrue(authorEmail);
-                                Assert.assertTrue(authorLink);
+                                assertTrue(authorName);
+                                assertTrue(authorEmail);
+                                assertTrue(authorLink);
                                 break;
                             case "copyright":
                                 metadataCopyright = true;
@@ -193,8 +194,8 @@ public class ResultTest extends ServiceTest {
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(copyrightYear);
-                                Assert.assertTrue(copyrightLicense);
+                                assertTrue(copyrightYear);
+                                assertTrue(copyrightLicense);
                                 break;
                             case "time":
                                 metadataTime = true;
@@ -209,20 +210,20 @@ public class ResultTest extends ServiceTest {
                                         metadataExtensionsSystemMessage = true;
                                     }
                                 }
-                                Assert.assertTrue(metadataExtensionsSystemMessage);
+                                assertTrue(metadataExtensionsSystemMessage);
                                 break;
                             case "bounds":
                                 metadataBounds = true;
                                 break;
                         }
                     }
-                    Assert.assertTrue(metadataName);
-                    Assert.assertTrue(metadataDescription);
-                    Assert.assertTrue(metadataAuthor);
-                    Assert.assertTrue(metadataCopyright);
-                    Assert.assertTrue(metadataTime);
-                    Assert.assertTrue(metadataBounds);
-                    Assert.assertTrue(metadataExtensions);
+                    assertTrue(metadataName);
+                    assertTrue(metadataDescription);
+                    assertTrue(metadataAuthor);
+                    assertTrue(metadataCopyright);
+                    assertTrue(metadataTime);
+                    assertTrue(metadataBounds);
+                    assertTrue(metadataExtensions);
                     break;
                 case "rte":
                     gpxRte = true;
@@ -273,15 +274,15 @@ public class ResultTest extends ServiceTest {
                                                             break;
                                                     }
                                                 }
-                                                Assert.assertTrue(distance);
-                                                Assert.assertTrue(duration);
-                                                Assert.assertTrue(type);
-                                                Assert.assertTrue(step);
+                                                assertTrue(distance);
+                                                assertTrue(duration);
+                                                assertTrue(type);
+                                                assertTrue(step);
                                         }
                                     }
-                                    Assert.assertTrue(rteptName);
-                                    Assert.assertTrue(rteptDescription);
-                                    Assert.assertTrue(rteptextensions);
+                                    assertTrue(rteptName);
+                                    assertTrue(rteptDescription);
+                                    assertTrue(rteptextensions);
                                 }
                                 break;
                             case "extensions":
@@ -320,18 +321,18 @@ public class ResultTest extends ServiceTest {
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(rteExtensionsDistance);
-                                Assert.assertTrue(rteExtensionsDuration);
-                                Assert.assertTrue(rteExtensionsDistanceActual);
-                                Assert.assertTrue(rteExtensionsAscent);
-                                Assert.assertTrue(rteExtensionsDescent);
-                                Assert.assertTrue(rteExtensionsAvgSpeed);
-                                Assert.assertTrue(rteExtensionsBounds);
+                                assertTrue(rteExtensionsDistance);
+                                assertTrue(rteExtensionsDuration);
+                                assertTrue(rteExtensionsDistanceActual);
+                                assertTrue(rteExtensionsAscent);
+                                assertTrue(rteExtensionsDescent);
+                                assertTrue(rteExtensionsAvgSpeed);
+                                assertTrue(rteExtensionsBounds);
                                 break;
                         }
                     }
-                    Assert.assertTrue(rtept);
-                    Assert.assertTrue(routeExtension);
+                    assertTrue(rtept);
+                    assertTrue(routeExtension);
                     break;
                 case "extensions":
                     gpxExtensions = true;
@@ -374,20 +375,20 @@ public class ResultTest extends ServiceTest {
                                 break;
                         }
                     }
-                    Assert.assertTrue(gpxExtensionattribution);
-                    Assert.assertTrue(gpxExtensionengine);
-                    Assert.assertTrue(gpxExtensionbuild_date);
-                    Assert.assertTrue(gpxExtensionprofile);
-                    Assert.assertTrue(gpxExtensionpreference);
-                    Assert.assertTrue(gpxExtensionlanguage);
-                    Assert.assertTrue(gpxExtensioninstructions);
-                    Assert.assertTrue(gpxExtensionelevation);
+                    assertTrue(gpxExtensionattribution);
+                    assertTrue(gpxExtensionengine);
+                    assertTrue(gpxExtensionbuild_date);
+                    assertTrue(gpxExtensionprofile);
+                    assertTrue(gpxExtensionpreference);
+                    assertTrue(gpxExtensionlanguage);
+                    assertTrue(gpxExtensioninstructions);
+                    assertTrue(gpxExtensionelevation);
                     break;
             }
         }
-        Assert.assertTrue(gpxMetadata);
-        Assert.assertTrue(gpxRte);
-        Assert.assertTrue(gpxExtensions);
+        assertTrue(gpxMetadata);
+        assertTrue(gpxRte);
+        assertTrue(gpxExtensions);
     }
 
     /**
@@ -523,84 +524,84 @@ public class ResultTest extends ServiceTest {
     }
 
     /**
-	 * The function validates the whole GeoJson export except segments.
-	 * Segments hold the instructions and are not necessary for our valid GeoJson-export.
-	 */
-	@Test
-	public void testGeoJsonExport(){
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("format", "geojson")
-				.param("extra_info", getParameter("extra_info"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'features' }", is(true))
-				.body("any { it.key == 'bbox' }", is(true))
-				.body("any { it.key == 'type' }", is(true))
-				.body("any { it.key == 'info' }", is(true))
-				.body("features[0].containsKey('geometry')", is(true))
-				.body("features[0].containsKey('type')", is(true))
-				.body("features[0].containsKey('properties')", is(true))
-				.body("features[0].properties.containsKey('summary')", is(true))
-				.body("features[0].properties.containsKey('bbox')", is(true))
-				.body("features[0].properties.containsKey('way_points')", is(true))
-				.body("features[0].properties.containsKey('segments')", is(true))
-				.body("features[0].properties.containsKey('extras')", is(true))
-				.body("features[0].geometry.containsKey('coordinates')", is(true))
-				.body("features[0].geometry.containsKey('type')", is(true))
-				.body("features[0].geometry.type", is("LineString"))
-				.body("features[0].type", is("Feature"))
-				.body("type", is("FeatureCollection"))
+     * The function validates the whole GeoJson export except segments.
+     * Segments hold the instructions and are not necessary for our valid GeoJson-export.
+     */
+    @Test
+    void testGeoJsonExport() {
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("format", "geojson")
+                .param("extra_info", getParameter("extra_info"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("any { it.key == 'bbox' }", is(true))
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'info' }", is(true))
+                .body("features[0].containsKey('geometry')", is(true))
+                .body("features[0].containsKey('type')", is(true))
+                .body("features[0].containsKey('properties')", is(true))
+                .body("features[0].properties.containsKey('summary')", is(true))
+                .body("features[0].properties.containsKey('bbox')", is(true))
+                .body("features[0].properties.containsKey('way_points')", is(true))
+                .body("features[0].properties.containsKey('segments')", is(true))
+                .body("features[0].properties.containsKey('extras')", is(true))
+                .body("features[0].geometry.containsKey('coordinates')", is(true))
+                .body("features[0].geometry.containsKey('type')", is(true))
+                .body("features[0].geometry.type", is("LineString"))
+                .body("features[0].type", is("Feature"))
+                .body("type", is("FeatureCollection"))
                 .body("info.containsKey('system_message')", is(true))
 
-				.statusCode(200);
-	}
-
-	@Test
-	public void expectCarToRejectProfileParams() {
-
-		// options for cycling profiles
-		JSONObject options = new JSONObject();
-		JSONObject profileParams = new JSONObject();
-		options.put("profile_params", profileParams);
-
-		given()
-				.param("coordinates", getParameter("coordinatesShort"))
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", getParameter("carProfile"))
-				.param("options", options.toString())
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.statusCode(400);
-	}
-
-	@Test
-	public void expectSegmentsToMatchCoordinates() {
-
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('segments')", is(true))
-				.body("routes[0].segments.size()", is(2))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
     @Test
-    public void testSummary() {
+    void expectCarToRejectProfileParams() {
+
+        // options for cycling profiles
+        JSONObject options = new JSONObject();
+        JSONObject profileParams = new JSONObject();
+        options.put("profile_params", profileParams);
+
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", getParameter("preference"))
+                .param("geometry", "true")
+                .param("profile", getParameter("carProfile"))
+                .param("options", options.toString())
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .statusCode(400);
+    }
+
+    @Test
+    void expectSegmentsToMatchCoordinates() {
+
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].segments.size()", is(2))
+                .statusCode(200);
+    }
+
+    @Test
+    void testSummary() {
 
         given()
                 .param("coordinates", getParameter("coordinatesLong"))
@@ -623,7 +624,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSegmentDistances() {
+    void testSegmentDistances() {
 
         given()
                 .param("coordinates", getParameter("coordinatesLong"))
@@ -646,7 +647,7 @@ public class ResultTest extends ServiceTest {
 
 
     @Test
-    public void testEncodedPolyline() {
+    void testEncodedPolyline() {
 
         given()
                 .param("coordinates", getParameter("coordinatesLong"))
@@ -667,7 +668,7 @@ public class ResultTest extends ServiceTest {
 
 
     @Test
-    public void testWaypoints() {
+    void testWaypoints() {
 
         given()
                 .param("coordinates", getParameter("coordinatesLong"))
@@ -683,88 +684,88 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-	@Test
-	public void testBbox() {
+    @Test
+    void testBbox() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 8.719662f, 49.424603f))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
-	@Test
-	public void testManeuver() {
+    @Test
+    void testManeuver() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("maneuvers", "true")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("maneuvers", "true")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].bbox", hasItems(8.678615f, 49.388405f, 8.719662f, 49.424603f))
-				.body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
-				//.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
+                .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
+                //.body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(260))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
-				.body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
-				//.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
+                .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
+                //.body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(298))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_before", is(175))
-				//.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
+                //.body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(4))
                 .body("routes[0].segments[0].steps[1].maneuver.bearing_after", is(80))
-				//.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
+                //.body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.673925f, 49.411283f))
                 .body("routes[0].segments[0].steps[1].maneuver.location", hasItems(8.678618f, 49.411697f))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
-	@Test
-	public void testExtras() {
+    @Test
+    void testExtras() {
 
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("extra_info", getParameter("extra_info"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.containsKey('surface')", is(true))
-				.body("routes[0].extras.containsKey('suitability')", is(true))
-				.body("routes[0].extras.containsKey('steepness')", is(true))
-				.statusCode(200);
-	}
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("extra_info", getParameter("extra_info"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('surface')", is(true))
+                .body("routes[0].extras.containsKey('suitability')", is(true))
+                .body("routes[0].extras.containsKey('steepness')", is(true))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testExtrasDetails() {
+    @Test
+    void testExtrasDetails() {
 
-		Response response = given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("extra_info", getParameter("extra_info"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+        Response response = given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("extra_info", getParameter("extra_info"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.surface.values.size()", is(38))
                 .body("routes[0].extras.surface.values[18][1]", is(258))
                 .body("routes[0].extras.suitability.values[18][0]", is(521))
@@ -772,89 +773,89 @@ public class ResultTest extends ServiceTest {
 
                 .statusCode(200);
 
-		checkExtraConsistency(response);
-	}
+        checkExtraConsistency(response);
+    }
 
-	@Test
-	public void testExtrasConsistency() {
+    @Test
+    void testExtrasConsistency() {
 
-		Response response = given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.param("extra_info", "surface|suitability|avgspeed|steepness")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+        Response response = given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .param("extra_info", "surface|suitability|avgspeed|steepness")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
 
-		checkExtraConsistency(response);
-	}
+        checkExtraConsistency(response);
+    }
 
-	@Test
-	public void testTrailDifficultyExtraDetails() {
-		Response response = given()
-				.param("coordinates", "8.763442,49.388882|8.762927,49.397541")
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", "cycling-regular")
-				.param("extra_info", "suitability|traildifficulty")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+    @Test
+    void testTrailDifficultyExtraDetails() {
+        Response response = given()
+                .param("coordinates", "8.763442,49.388882|8.762927,49.397541")
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", "cycling-regular")
+                .param("extra_info", "suitability|traildifficulty")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.traildifficulty.values.size()", is(3))
-				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
-				.body("routes[0].extras.traildifficulty.values[0][1]", is(2))
-				.body("routes[0].extras.traildifficulty.values[0][2]", is(2))
-				.body("routes[0].extras.traildifficulty.values[1][0]", is(2))
-				//.body("routes[0].extras.traildifficulty.values[1][1]", is(20))
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.traildifficulty.values.size()", is(3))
+                .body("routes[0].extras.traildifficulty.values[0][0]", is(0))
+                .body("routes[0].extras.traildifficulty.values[0][1]", is(2))
+                .body("routes[0].extras.traildifficulty.values[0][2]", is(2))
+                .body("routes[0].extras.traildifficulty.values[1][0]", is(2))
+                //.body("routes[0].extras.traildifficulty.values[1][1]", is(20))
                 .body("routes[0].extras.traildifficulty.values[1][1]", is(6))
-				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
-				.statusCode(200);
+                .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+                .statusCode(200);
 
-		checkExtraConsistency(response);
+        checkExtraConsistency(response);
 
-		response = given()
-				.param("coordinates", "8.724174,49.390223|8.716536,49.399622")
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", "foot-hiking")
-				.param("extra_info", "traildifficulty")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+        response = given()
+                .param("coordinates", "8.724174,49.390223|8.716536,49.399622")
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", "foot-hiking")
+                .param("extra_info", "traildifficulty")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.traildifficulty.values.size()", is(3))
-				.body("routes[0].extras.traildifficulty.values[0][0]", is(0))
-				.body("routes[0].extras.traildifficulty.values[0][1]", is(12))
-				.body("routes[0].extras.traildifficulty.values[0][2]", is(0))
-				.body("routes[0].extras.traildifficulty.values[1][0]", is(12))
-				.body("routes[0].extras.traildifficulty.values[1][1]", is(27))
-				.body("routes[0].extras.traildifficulty.values[1][2]", is(1))
-				.body("routes[0].extras.traildifficulty.values[2][0]", is(27))
-				.body("routes[0].extras.traildifficulty.values[2][1]", is(30))
-				.body("routes[0].extras.traildifficulty.values[2][2]", is(0))
-				.statusCode(200);
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.traildifficulty.values.size()", is(3))
+                .body("routes[0].extras.traildifficulty.values[0][0]", is(0))
+                .body("routes[0].extras.traildifficulty.values[0][1]", is(12))
+                .body("routes[0].extras.traildifficulty.values[0][2]", is(0))
+                .body("routes[0].extras.traildifficulty.values[1][0]", is(12))
+                .body("routes[0].extras.traildifficulty.values[1][1]", is(27))
+                .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+                .body("routes[0].extras.traildifficulty.values[2][0]", is(27))
+                .body("routes[0].extras.traildifficulty.values[2][1]", is(30))
+                .body("routes[0].extras.traildifficulty.values[2][2]", is(0))
+                .statusCode(200);
 
-		checkExtraConsistency(response);
-	}
+        checkExtraConsistency(response);
+    }
 
-	@Test
-	public void testTollwaysExtraDetails() {
-		// Test that the response indicates that the whole route is tollway free. The first two tests check that the waypoint ids
-		// in the extras.tollways.values match the final waypoint of the route
-		Response response = given()
-				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
+    @Test
+    void testTollwaysExtraDetails() {
+        // Test that the response indicates that the whole route is tollway free. The first two tests check that the waypoint ids
+        // in the extras.tollways.values match the final waypoint of the route
+        Response response = given()
+                .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
                 .param("profile", "driving-car")
                 .param("extra_info", "suitability|tollways")
                 .when().log().ifValidationFails()
@@ -877,166 +878,166 @@ public class ResultTest extends ServiceTest {
                 .param("instructions", "true")
                 .param("preference", getParameter("preference"))
                 .param("profile", "driving-hgv")
-				.param("extra_info", "suitability|tollways")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+                .param("extra_info", "suitability|tollways")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(3))
-				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(52))
-				.body("routes[0].extras.tollways.values[0][2]", is(0))
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.tollways.values.size()", is(3))
+                .body("routes[0].extras.tollways.values[0][0]", is(0))
+                .body("routes[0].extras.tollways.values[0][1]", is(52))
+                .body("routes[0].extras.tollways.values[0][2]", is(0))
                 .body("routes[0].extras.tollways.values[1][0]", is(52))
                 .body("routes[0].extras.tollways.values[1][1]", is(66))
                 .body("routes[0].extras.tollways.values[1][2]", is(1))
                 .body("routes[0].extras.tollways.values[2][0]", is(66))
                 .body("routes[0].extras.tollways.values[2][1]", is(101))
                 .body("routes[0].extras.tollways.values[2][2]", is(0))
-				.statusCode(200);
+                .statusCode(200);
 
-		checkExtraConsistency(response);
+        checkExtraConsistency(response);
 
-		response = given()
-				.param("coordinates", "8.676281,49.414715|8.6483,49.413291")
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", "driving-hgv")
-				.param("continue_straight", "false")
-				.param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
-				.param("extra_info", "suitability|tollways")
-				.when().log().ifValidationFails()
-				.get(getEndPointName());
+        response = given()
+                .param("coordinates", "8.676281,49.414715|8.6483,49.413291")
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", "driving-hgv")
+                .param("continue_straight", "false")
+                .param("options", "{\"profile_params\":{\"width\":\"2\",\"height\":\"2\",\"weight\":\"14\"},\"vehicle_type\":\"hgv\"}")
+                .param("extra_info", "suitability|tollways")
+                .when().log().ifValidationFails()
+                .get(getEndPointName());
 
-		response.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].containsKey('extras')", is(true))
-				.body("routes[0].extras.tollways.values.size()", is(3))
-				.body("routes[0].extras.tollways.values[0][0]", is(0))
-				.body("routes[0].extras.tollways.values[0][1]", is(52))
-				.body("routes[0].extras.tollways.values[0][2]", is(0))
-				.body("routes[0].extras.tollways.values[1][0]", is(52))
-				.body("routes[0].extras.tollways.values[1][1]", is(66))
-				.body("routes[0].extras.tollways.values[1][2]", is(1))
-				.body("routes[0].extras.tollways.values[2][0]", is(66))
-				.body("routes[0].extras.tollways.values[2][1]", is(101))
-				.body("routes[0].extras.tollways.values[2][2]", is(0))
-				.statusCode(200);
+        response.then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.tollways.values.size()", is(3))
+                .body("routes[0].extras.tollways.values[0][0]", is(0))
+                .body("routes[0].extras.tollways.values[0][1]", is(52))
+                .body("routes[0].extras.tollways.values[0][2]", is(0))
+                .body("routes[0].extras.tollways.values[1][0]", is(52))
+                .body("routes[0].extras.tollways.values[1][1]", is(66))
+                .body("routes[0].extras.tollways.values[1][2]", is(1))
+                .body("routes[0].extras.tollways.values[2][0]", is(66))
+                .body("routes[0].extras.tollways.values[2][1]", is(101))
+                .body("routes[0].extras.tollways.values[2][2]", is(0))
+                .statusCode(200);
 
-		checkExtraConsistency(response);
-	}
-
-	@Test
-	public void testOptimizedAndTurnRestrictions() {
-		// Test that the "right turn only" restriction at the juntion is taken into account
-		given()
-				.param("coordinates", "8.684081,49.398155|8.684703,49.397359")
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", "driving-car")
-				.param("optimized", "false")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(693.8f))
-				.statusCode(200);
-	}
+        checkExtraConsistency(response);
+    }
 
     @Test
-	public void testNoBearings() {
-		given()
-				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", "cycling-regular")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				//.body("routes[0].summary.distance", is(620.1f))
+    void testOptimizedAndTurnRestrictions() {
+        // Test that the "right turn only" restriction at the juntion is taken into account
+        given()
+                .param("coordinates", "8.684081,49.398155|8.684703,49.397359")
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", "driving-car")
+                .param("optimized", "false")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(693.8f))
+                .statusCode(200);
+    }
+
+    @Test
+    void testNoBearings() {
+        given()
+                .param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+                .param("preference", getParameter("preference"))
+                .param("geometry", "true")
+                .param("profile", "cycling-regular")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                //.body("routes[0].summary.distance", is(620.1f))
                 .body("routes[0].summary.distance", is(617.1f))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
-	@Test
-	public void testBearingsForStartAndEndPoints() {
-		given()
-				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", "cycling-road")
-				.param("bearings", "25,30|90,20")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(804.9f))
-				.statusCode(200);
-	}
+    @Test
+    void testBearingsForStartAndEndPoints() {
+        given()
+                .param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+                .param("preference", getParameter("preference"))
+                .param("geometry", "true")
+                .param("profile", "cycling-road")
+                .param("bearings", "25,30|90,20")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(804.9f))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testBearingsExceptLastPoint() {
-		given()
-				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", "cycling-road")
-				.param("bearings", "25,30")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(647.2f))
-				.statusCode(200);
-	}
+    @Test
+    void testBearingsExceptLastPoint() {
+        given()
+                .param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+                .param("preference", getParameter("preference"))
+                .param("geometry", "true")
+                .param("profile", "cycling-road")
+                .param("bearings", "25,30")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(647.2f))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testBearingsSkipwaypoint() {
-		given()
-				.param("coordinates", "8.688694,49.399374|8.686495,49.40349")
-				.param("preference", getParameter("preference"))
-				.param("geometry", "true")
-				.param("profile", "cycling-regular")
-				.param("bearings", "|90,20")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				//.body("routes[0].summary.distance", is(714.7f))
+    @Test
+    void testBearingsSkipwaypoint() {
+        given()
+                .param("coordinates", "8.688694,49.399374|8.686495,49.40349")
+                .param("preference", getParameter("preference"))
+                .param("geometry", "true")
+                .param("profile", "cycling-regular")
+                .param("bearings", "|90,20")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                //.body("routes[0].summary.distance", is(714.7f))
                 .body("routes[0].summary.distance", is(751.5f))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
-	@Test
-	public void testSteps() {
-		given()
-				.param("coordinates", getParameter("coordinatesLong"))
-				.param("instructions", "true")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("bikeProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].containsKey('steps')", is(true))
-				.body("routes[0].segments[1].containsKey('steps')", is(true))
+    @Test
+    void testSteps() {
+        given()
+                .param("coordinates", getParameter("coordinatesLong"))
+                .param("instructions", "true")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("bikeProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].segments[0].containsKey('steps')", is(true))
+                .body("routes[0].segments[1].containsKey('steps')", is(true))
                 .body("routes[0].segments[0].steps.size()", is(34))
                 .body("routes[0].segments[1].steps.size()", is(17))
-				.statusCode(200);
-	}
+                .statusCode(200);
+    }
 
     @Test
-    public void testStepsDetails() {
+    void testStepsDetails() {
 
         given()
                 .param("coordinates", getParameter("coordinatesLong"))
@@ -1078,15 +1079,15 @@ public class ResultTest extends ServiceTest {
 			JSONArray jValues = jExtraValues.getJSONArray(0);
 			int fromValue = jValues.getInt(0);
 			int toValue = jValues.getInt(1);
-			Assert.assertTrue(fromValue < toValue);
+			assertTrue(fromValue < toValue);
 
 			for (int j = 1; j < jExtraValues.length(); j++) {
 				jValues = jExtraValues.getJSONArray(j);
 				int fromValue1 = jValues.getInt(0);
 				int toValue1 = jValues.getInt(1);
 
-				Assert.assertTrue(fromValue1 < toValue1);
-				Assert.assertEquals(fromValue1, toValue);
+				assertTrue(fromValue1 < toValue1);
+				assertEquals(fromValue1, toValue);
 
 				toValue = toValue1;
 			}
@@ -1102,84 +1103,84 @@ public class ResultTest extends ServiceTest {
 				amount += jSummaryValues.getDouble("amount");
 			}
 
-			Assert.assertTrue(Math.abs(routeDistance - distance) < 0.5);
+			assertTrue(Math.abs(routeDistance - distance) < 0.5);
 
-			Assert.assertTrue(Math.abs(amount - 100.0) < 0.1);
+			assertTrue(Math.abs(amount - 100.0) < 0.1);
 		}
 	}
 
-	@Test
-	public void testHGVWidthRestriction() {
-		given()
-				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", "driving-hgv")
-				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"3\"}},\"vehicle_type\":\"hgv\"}")
-				.param("units", "m")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(809.3f))
-				.body("routes[0].summary.duration", is(239.1f))
-				.statusCode(200);
+    @Test
+    void testHGVWidthRestriction() {
+        given()
+                .param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"3\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(809.3f))
+                .body("routes[0].summary.duration", is(239.1f))
+                .statusCode(200);
 
-		given()
-				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", "driving-hgv")
-				.param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"2\"}},\"vehicle_type\":\"hgv\"}")
-				.param("units", "m")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(270))
-				.statusCode(200);
-	}
-
-	@Test
-	public void testHGVHeightRestriction() {
-		given()
-				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", "driving-hgv")
-				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"4\"}},\"vehicle_type\":\"hgv\"}")
-				.param("units", "m")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(549))
-				.body("routes[0].summary.duration", is(185.4f))
-				.statusCode(200);
-
-		given()
-				.param("coordinates", "8.687992,49.426312|8.691315,49.425962")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", "driving-hgv")
-				.param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"2\"}},\"vehicle_type\":\"hgv\"}")
-				.param("units", "m")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(376.5f))
-				.body("routes[0].summary.duration", is(184.2f))
-				.statusCode(200);
-	}
+        given()
+                .param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"width\":\"2\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(379.5f))
+                .body("routes[0].summary.duration", is(270))
+                .statusCode(200);
+    }
 
     @Test
-    public void testHGVAxleLoadRestriction() {
+    void testHGVHeightRestriction() {
+        given()
+                .param("coordinates", "8.687992,49.426312|8.691315,49.425962")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"4\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(549))
+                .body("routes[0].summary.duration", is(185.4f))
+                .statusCode(200);
+
+        given()
+                .param("coordinates", "8.687992,49.426312|8.691315,49.425962")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", "driving-hgv")
+                .param("options", "{\"profile_params\":{\"restrictions\":{\"height\":\"2\"}},\"vehicle_type\":\"hgv\"}")
+                .param("units", "m")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(376.5f))
+                .body("routes[0].summary.duration", is(184.2f))
+                .statusCode(200);
+    }
+
+    @Test
+    void testHGVAxleLoadRestriction() {
         given()
                 .param("coordinates", "8.686849,49.406093|8.687525,49.405437")
                 .param("instructions", "false")
@@ -1213,87 +1214,87 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-	@Test
-	public void testCarDistanceAndDuration() {
-		// Generic test to ensure that the distance and duration dont get changed
-		given()
-				.param("coordinates", "8.690915,49.430117|8.68834,49.427758")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(379.5f))
-				.body("routes[0].summary.duration", is(270))
-				.statusCode(200);
-	}
+    @Test
+    void testCarDistanceAndDuration() {
+        // Generic test to ensure that the distance and duration dont get changed
+        given()
+                .param("coordinates", "8.690915,49.430117|8.68834,49.427758")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(379.5f))
+                .body("routes[0].summary.duration", is(270))
+                .statusCode(200);
+    }
 
-	// test fitness params bike..
+    // test fitness params bike..
 
-	@Test
-	public void testBordersAvoid() {
-		// Test that providing border control in avoid_features works
-		given()
-				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_borders\":\"controlled\"}")
+    @Test
+    void testBordersAvoid() {
+        // Test that providing border control in avoid_features works
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_borders\":\"controlled\"}")
                 .param("optimized", false)
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1404))
-				.statusCode(200);
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1404))
+                .statusCode(200);
 
-		// Option 1 signifies that the route should not cross any borders
-		given()
-				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_borders\":\"all\"}")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(false))
-				.body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
-				.statusCode(404);
-	}
+        // Option 1 signifies that the route should not cross any borders
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_borders\":\"all\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
+                .statusCode(404);
+    }
 
-	@Test
-	public void testCountryExclusion() {
-		given()
-				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_countries\":\"3\"}")
+    @Test
+    void testCountryExclusion() {
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"3\"}")
                 .param("optimized", false)
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(1156.6f))
-				.statusCode(200);
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1156.6f))
+                .statusCode(200);
 
-		given()
-				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
-				.param("instructions", "false")
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_countries\":\"1|3\"}")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_countries\":\"1|3\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(3172.4f))
                 .statusCode(200);
@@ -1327,63 +1328,63 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(3172.4f))
                 .statusCode(200);
-	}
+    }
 
-	@Test
-	public void testBordersAndCountry() {
-		// Test that routing avoids crossing into borders specified
-		given()
-				.param("coordinates", "8.684682,49.401961|8.690518,49.405326")
-				.param("instructions", "false")
-				.param("preference", getParameter("preference"))
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_borders\":\"controlled\",\"avoid_countries\":\"1\"}")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(false))
-				.body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
-				.statusCode(404);
-	}
+    @Test
+    void testBordersAndCountry() {
+        // Test that routing avoids crossing into borders specified
+        given()
+                .param("coordinates", "8.684682,49.401961|8.690518,49.405326")
+                .param("instructions", "false")
+                .param("preference", getParameter("preference"))
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_borders\":\"controlled\",\"avoid_countries\":\"1\"}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
+                .statusCode(404);
+    }
 
-	@Test
-	public void testDetourFactor() {
-		// Test that a detourfactor is returned when requested
-		given()
-				.param("coordinates",getParameter("coordinatesShort"))
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.param("attributes", "detourfactor")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].segments[0].detourfactor", is(1.3f))
-				.statusCode(200);
-	}
+    @Test
+    void testDetourFactor() {
+        // Test that a detourfactor is returned when requested
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("attributes", "detourfactor")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].segments[0].detourfactor", is(1.3f))
+                .statusCode(200);
+    }
 
-	@Test
-	public void testAvoidArea() {
-		given()
-				.param("coordinates",getParameter("coordinatesShort"))
-				.param("preference", "shortest")
-				.param("profile", getParameter("carProfile"))
-				.param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.680\",\"49.421\"],[\"8.687\",\"49.421\"],[\"8.687\",\"49.418\"],[\"8.680\",\"49.418\"],[\"8.680\",\"49.421\"]]]}}")
-				.when().log().ifValidationFails()
-				.get(getEndPointName())
-				.then()
-				.assertThat()
-				.body("any { it.key == 'routes' }", is(true))
-				.body("routes[0].summary.distance", is(2181.7f))
-				.body("routes[0].summary.duration", is(433.2f))
-				.statusCode(200);
-	}
+    @Test
+    void testAvoidArea() {
+        given()
+                .param("coordinates", getParameter("coordinatesShort"))
+                .param("preference", "shortest")
+                .param("profile", getParameter("carProfile"))
+                .param("options", "{\"avoid_polygons\":{\"type\":\"Polygon\",\"coordinates\":[[[\"8.680\",\"49.421\"],[\"8.687\",\"49.421\"],[\"8.687\",\"49.418\"],[\"8.680\",\"49.418\"],[\"8.680\",\"49.421\"]]]}}")
+                .when().log().ifValidationFails()
+                .get(getEndPointName())
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(2181.7f))
+                .body("routes[0].summary.duration", is(433.2f))
+                .statusCode(200);
+    }
 
 
-	@Test
-    public void testOsmIdExtras() {
+    @Test
+    void testOsmIdExtras() {
         given()
                 .param("coordinates", "8.676730,49.421513|8.678545,49.421117")
                 .param("preference", "shortest")
@@ -1400,7 +1401,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAccessRestrictionsWarnings() {
+    void testAccessRestrictionsWarnings() {
         given()
                 .param("coordinates", "8.675154,49.407727|8.675863,49.407162")
                 .param("preference", "shortest")
@@ -1419,7 +1420,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSimplifyHasLessWayPoints() {
+    void testSimplifyHasLessWayPoints() {
 
         given()
                 .param("coordinates", getParameter("coordinatesShort"))
@@ -1443,10 +1444,10 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("features[0].geometry.coordinates.size()", is(34))
                 .statusCode(200);
-	}
+    }
 
     @Test
-    public void testAlternativeRoutes() {
+    void testAlternativeRoutes() {
         given()
                 .param("coordinates", getParameter("coordinatesAR"))
                 .param("instructions", "true")
@@ -1461,7 +1462,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes.size()", is(2))
                 .body("routes[0].summary.distance", is(5942.2f))
                 .body("routes[0].summary.duration", is(776.1f))
-                .body("routes[1].summary.distance", is( 6435.1f))
+                .body("routes[1].summary.distance", is(6435.1f))
                 .body("routes[1].summary.duration", is(801.5f))
                 .statusCode(200);
 
@@ -1477,7 +1478,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 6435.1f))
+                .body("routes[0].summary.distance", is(6435.1f))
                 .body("routes[0].summary.duration", is(801.5f))
                 .statusCode(200);
     }

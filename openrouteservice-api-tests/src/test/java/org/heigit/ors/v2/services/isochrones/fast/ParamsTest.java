@@ -19,7 +19,7 @@ import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.heigit.ors.v2.services.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -94,7 +94,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testObligatoryParams() {
+    void testObligatoryParams() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -113,7 +113,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testNotEnoughParams() {
+    void testNotEnoughParams() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -130,7 +130,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testParamSpelling() {
+    void testParamSpelling() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -148,7 +148,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRangeInput() {
+    void testRangeInput() {
 
         JSONArray rangesFaulty = new JSONArray();
         rangesFaulty.put("1800sdf");
@@ -169,7 +169,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testWrongLocationType() {
+    void testWrongLocationType() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -191,7 +191,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testTooManyIntervals() {
+    void testTooManyIntervals() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -212,7 +212,7 @@ public class ParamsTest extends ServiceTest {
 
     // too many locations
     @Test
-    public void testTooManyLocations() {
+    void testTooManyLocations() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_3"));
@@ -233,7 +233,7 @@ public class ParamsTest extends ServiceTest {
 
     // unknown units
     @Test
-    public void testUnknownUnits() {
+    void testUnknownUnits() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -255,7 +255,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testUnknownLocationType() {
+    void testUnknownLocationType() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
         body.put("range", getParameter("ranges_1800"));
@@ -275,7 +275,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testUnknownRangeType() {
+    void testUnknownRangeType() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
         body.put("range", getParameter("ranges_1800"));
@@ -294,7 +294,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testUnknownAttributes() {
+    void testUnknownAttributes() {
         JSONArray ranges = new JSONArray();
         ranges.put(400);
 
@@ -309,7 +309,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
@@ -322,7 +322,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
@@ -330,7 +330,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void expectUnknownAvoidFeatures() {
+    void expectUnknownAvoidFeatures() {
         JSONObject options = new JSONObject();
         JSONArray avoids = new JSONArray(Arrays.asList("blah", "ferries", "highways"));
         options.put("avoid_features", avoids);
@@ -347,7 +347,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
@@ -355,7 +355,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void expectUnknownAvoidBorders() {
+    void expectUnknownAvoidBorders() {
         JSONObject options = new JSONObject();
         options.put("avoid_borders", "blah");
 
@@ -371,7 +371,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
@@ -379,7 +379,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void expectInvalidResponseFormat() {
+    void expectInvalidResponseFormat() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -390,7 +390,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/blah")
+                .post(getEndPointPath() + "/{profile}/blah")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
@@ -401,7 +401,7 @@ public class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
                 .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
@@ -409,7 +409,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testDestination() {
+    void testDestination() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -429,7 +429,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testStart() {
+    void testStart() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -449,7 +449,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRangetypeUnitsKm() {
+    void testRangetypeUnitsKm() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -471,7 +471,7 @@ public class ParamsTest extends ServiceTest {
 
     // m
     @Test
-    public void testRangetypeUnitsM() {
+    void testRangetypeUnitsM() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -494,7 +494,7 @@ public class ParamsTest extends ServiceTest {
 
     // mi
     @Test
-    public void testRangetypeUnitsMi() {
+    void testRangetypeUnitsMi() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -516,7 +516,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRanges() {
+    void testRanges() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(600);
@@ -544,7 +544,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRangesUserUnits() {
+    void testRangesUserUnits() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(200);
@@ -567,7 +567,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRangeRestrictionTime() {
+    void testRangeRestrictionTime() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(23700);
@@ -590,7 +590,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testRangeRestrictionDistance() {
+    void testRangeRestrictionDistance() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(1100000);
@@ -612,7 +612,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testAttributes() {
+    void testAttributes() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(400);
@@ -638,7 +638,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testWrongAttributes() {
+    void testWrongAttributes() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(400);
@@ -662,7 +662,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testSmoothingFactor() {
+    void testSmoothingFactor() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(2000);
@@ -685,7 +685,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testSmoothingInvalidValue() {
+    void testSmoothingInvalidValue() {
 
         JSONArray ranges = new JSONArray();
         ranges.put(2000);

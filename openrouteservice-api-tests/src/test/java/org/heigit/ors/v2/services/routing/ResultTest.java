@@ -22,8 +22,7 @@ import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,11 +46,11 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
-import io.restassured.RestAssured;
-import io.restassured.path.json.config.JsonPathConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.v2.services.utils.CommonHeaders.*;
 import static org.heigit.ors.v2.services.utils.HelperFunctions.constructCoords;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -112,7 +111,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSimpleGetRoute() {
+    void testSimpleGetRoute() {
         given()
                 .param("start", "8.686581,49.403154")
                 .param("end", "8.688126,49.409074")
@@ -130,7 +129,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
+    void testGpxExport() throws IOException, SAXException, ParserConfigurationException {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -180,9 +179,9 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
+        assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
-        Assert.assertTrue(doc_length > 0);
+        assertTrue(doc_length > 0);
         boolean gpxRte = false;
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
@@ -190,22 +189,22 @@ public class ResultTest extends ServiceTest {
                 gpxRte = true;
                 NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                 int rteSize = rteChildren.getLength();
-                Assert.assertEquals(76, rteSize);
-                Assert.assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()), 0);
-                Assert.assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()), 0);
-                Assert.assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()), 0);
-                Assert.assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()), 0);
-                Assert.assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue()), 0); // The last item (-1) is the extension pack
-                Assert.assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue()), 0); // The last item (-1) is the extension pack
+                assertEquals(76, rteSize);
+                assertEquals(49.41172f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                assertEquals(8.678615f, Float.parseFloat(rteChildren.item(0).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                assertEquals(49.42208f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lat").getNodeValue()), 0);
+                assertEquals(8.677165f, Float.parseFloat(rteChildren.item(rteSize / 2).getAttributes().getNamedItem("lon").getNodeValue()), 0);
+                assertEquals(49.424603f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lat").getNodeValue()), 0); // The last item (-1) is the extension pack
+                assertEquals(8.687809f, Float.parseFloat(rteChildren.item(rteSize - 2).getAttributes().getNamedItem("lon").getNodeValue()), 0); // The last item (-1) is the extension pack
                 Node extensions = rteChildren.item(rteSize - 1);
-                Assert.assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()), 0);
-                Assert.assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()), 0);
-                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()), 0);
-                Assert.assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()), 0);
-                Assert.assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()), 0);
+                assertEquals(2362.2f, Float.parseFloat(extensions.getChildNodes().item(0).getTextContent()), 0);
+                assertEquals(273.5f, Float.parseFloat(extensions.getChildNodes().item(1).getTextContent()), 0);
+                assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(2).getTextContent()), 0);
+                assertEquals(0.0f, Float.parseFloat(extensions.getChildNodes().item(3).getTextContent()), 0);
+                assertEquals(31.1f, Float.parseFloat(extensions.getChildNodes().item(4).getTextContent()), 0);
             }
         }
-        Assert.assertTrue(gpxRte);
+        assertTrue(gpxRte);
     }
 
     /**
@@ -224,9 +223,9 @@ public class ResultTest extends ServiceTest {
         String body = response.body().asString();
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document doc = db.parse(new InputSource(new StringReader(body)));
-        Assert.assertEquals("gpx", doc.getDocumentElement().getTagName());
+        assertEquals("gpx", doc.getDocumentElement().getTagName());
         int doc_length = doc.getDocumentElement().getChildNodes().getLength();
-        Assert.assertTrue(doc_length > 0);
+        assertTrue(doc_length > 0);
         boolean gpxMetadata = false;
         boolean gpxRte = false;
         boolean gpxExtensions = false;
@@ -287,14 +286,14 @@ public class ResultTest extends ServiceTest {
                                                         linkType = true;
                                                 }
                                             }
-                                            Assert.assertTrue(linkText);
-                                            Assert.assertTrue(linkType);
+                                            assertTrue(linkText);
+                                            assertTrue(linkType);
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(authorName);
-                                Assert.assertTrue(authorEmail);
-                                Assert.assertTrue(authorLink);
+                                assertTrue(authorName);
+                                assertTrue(authorEmail);
+                                assertTrue(authorLink);
                                 break;
                             case "copyright":
                                 metadataCopyright = true;
@@ -313,8 +312,8 @@ public class ResultTest extends ServiceTest {
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(copyrightYear);
-                                Assert.assertTrue(copyrightLicense);
+                                assertTrue(copyrightYear);
+                                assertTrue(copyrightLicense);
                                 break;
                             case "time":
                                 metadataTime = true;
@@ -329,21 +328,21 @@ public class ResultTest extends ServiceTest {
                                         metadataExtensionsSystemMessage = true;
                                     }
                                 }
-                                Assert.assertTrue(metadataExtensionsSystemMessage);
+                                assertTrue(metadataExtensionsSystemMessage);
                                 break;
                             case "bounds":
                                 metadataBounds = true;
                                 break;
                         }
                     }
-                    Assert.assertTrue(metadataName);
-                    Assert.assertEquals("ORSRouting", gpxMetadataNode.getTextContent());
-                    Assert.assertTrue(metadataDescription);
-                    Assert.assertTrue(metadataAuthor);
-                    Assert.assertTrue(metadataCopyright);
-                    Assert.assertTrue(metadataTime);
-                    Assert.assertTrue(metadataBounds);
-                    Assert.assertTrue(metadataExtensions);
+                    assertTrue(metadataName);
+                    assertEquals("ORSRouting", gpxMetadataNode.getTextContent());
+                    assertTrue(metadataDescription);
+                    assertTrue(metadataAuthor);
+                    assertTrue(metadataCopyright);
+                    assertTrue(metadataTime);
+                    assertTrue(metadataBounds);
+                    assertTrue(metadataExtensions);
                     break;
                 case "rte":
                     gpxRte = true;
@@ -394,15 +393,15 @@ public class ResultTest extends ServiceTest {
                                                             break;
                                                     }
                                                 }
-                                                Assert.assertTrue(distance);
-                                                Assert.assertTrue(duration);
-                                                Assert.assertTrue(type);
-                                                Assert.assertTrue(step);
+                                                assertTrue(distance);
+                                                assertTrue(duration);
+                                                assertTrue(type);
+                                                assertTrue(step);
                                         }
                                     }
-                                    Assert.assertTrue(rteptName);
-                                    Assert.assertTrue(rteptDescription);
-                                    Assert.assertTrue(rteptextensions);
+                                    assertTrue(rteptName);
+                                    assertTrue(rteptDescription);
+                                    assertTrue(rteptextensions);
                                 }
                                 break;
                             case "extensions":
@@ -437,17 +436,17 @@ public class ResultTest extends ServiceTest {
                                             break;
                                     }
                                 }
-                                Assert.assertTrue(rteExtensionsDistance);
-                                Assert.assertTrue(rteExtensionsDuration);
-                                Assert.assertTrue(rteExtensionsAscent);
-                                Assert.assertTrue(rteExtensionsDescent);
-                                Assert.assertTrue(rteExtensionsAvgSpeed);
-                                Assert.assertTrue(rteExtensionsBounds);
+                                assertTrue(rteExtensionsDistance);
+                                assertTrue(rteExtensionsDuration);
+                                assertTrue(rteExtensionsAscent);
+                                assertTrue(rteExtensionsDescent);
+                                assertTrue(rteExtensionsAvgSpeed);
+                                assertTrue(rteExtensionsBounds);
                                 break;
                         }
                     }
-                    Assert.assertTrue(rtept);
-                    Assert.assertTrue(routeExtension);
+                    assertTrue(rtept);
+                    assertTrue(routeExtension);
                     break;
                 case "extensions":
                     gpxExtensions = true;
@@ -490,20 +489,20 @@ public class ResultTest extends ServiceTest {
                                 break;
                         }
                     }
-                    Assert.assertTrue(gpxExtensionattribution);
-                    Assert.assertTrue(gpxExtensionengine);
-                    Assert.assertTrue(gpxExtensionbuild_date);
-                    Assert.assertTrue(gpxExtensionprofile);
-                    Assert.assertTrue(gpxExtensionpreference);
-                    Assert.assertTrue(gpxExtensionlanguage);
-                    Assert.assertTrue(gpxExtensioninstructions);
-                    Assert.assertTrue(gpxExtensionelevation);
+                    assertTrue(gpxExtensionattribution);
+                    assertTrue(gpxExtensionengine);
+                    assertTrue(gpxExtensionbuild_date);
+                    assertTrue(gpxExtensionprofile);
+                    assertTrue(gpxExtensionpreference);
+                    assertTrue(gpxExtensionlanguage);
+                    assertTrue(gpxExtensioninstructions);
+                    assertTrue(gpxExtensionelevation);
                     break;
             }
         }
-        Assert.assertTrue(gpxMetadata);
-        Assert.assertTrue(gpxRte);
-        Assert.assertTrue(gpxExtensions);
+        assertTrue(gpxMetadata);
+        assertTrue(gpxRte);
+        assertTrue(gpxExtensions);
     }
 
 
@@ -644,7 +643,7 @@ public class ResultTest extends ServiceTest {
      * Segments hold the instructions and are not necessary for our valid GeoJson-export.
      */
     @Test
-    public void testGeoJsonExport() {
+    void testGeoJsonExport() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -681,7 +680,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIdInSummary() {
+    void testIdInSummary() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("id", "request123");
@@ -717,7 +716,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCompleteMetadata() {
+    void testCompleteMetadata() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("id", "request123");
@@ -754,7 +753,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectSegmentsToMatchCoordinates() {
+    void expectSegmentsToMatchCoordinates() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -775,7 +774,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSummary() {
+    void testSummary() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -801,7 +800,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSegmentDistances() {
+    void testSegmentDistances() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -828,7 +827,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testEncodedPolyline() {
+    void testEncodedPolyline() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -851,7 +850,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWaypoints() {
+    void testWaypoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -872,7 +871,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBbox() {
+    void testBbox() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -893,7 +892,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testManeuver() {
+    void testManeuver() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -921,7 +920,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testExtras() {
+    void testExtras() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -946,7 +945,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testExtrasDetails() {
+    void testExtrasDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -974,7 +973,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testExtrasConsistency() {
+    void testExtrasConsistency() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -988,13 +987,13 @@ public class ResultTest extends ServiceTest {
                 .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}");
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
 
         checkExtraConsistency(response);
     }
 
     @Test
-    public void testTrailDifficultyExtraDetails() {
+    void testTrailDifficultyExtraDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.763442,49.388882|8.762927,49.397541"));
         body.put("preference", getParameter("preference"));
@@ -1056,7 +1055,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testTollwaysExtraDetails() {
+    void testTollwaysExtraDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676281,49.414715|8.6483,49.413291"));
         body.put("preference", getParameter("preference"));
@@ -1148,7 +1147,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testGreenExtraInfo() {
+    void testGreenExtraInfo() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
         body.put("extra_info", constructExtras("green"));
@@ -1174,7 +1173,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testNoiseExtraInfo() {
+    void testNoiseExtraInfo() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
         body.put("extra_info", constructExtras("noise"));
@@ -1200,7 +1199,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCsvExtraInfo() {
+    void testCsvExtraInfo() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
         body.put("extra_info", constructExtras("csv"));
@@ -1228,8 +1227,9 @@ public class ResultTest extends ServiceTest {
 
                 .statusCode(200);
     }
+
     @Test
-    public void testInvalidExtraInfoWarning() {
+    void testInvalidExtraInfoWarning() {
         JSONObject body = new JSONObject();
         body.put("preference", "recommended");
         body.put("coordinates", new JSONArray("[[8.682386, 49.417412],[8.690583, 49.413347]]"));
@@ -1259,7 +1259,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testOptimizedAndTurnRestrictions() {
+    void testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
@@ -1281,7 +1281,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testMaximumSpeed() {
+    void testMaximumSpeed() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
@@ -1317,7 +1317,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testTurnRestrictions() {
+    void testTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
@@ -1341,7 +1341,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testUTurnRestrictions() {
+    void testUTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.698302,49.412282|8.698801,49.41223"));
         body.put("preference", getParameter("preference"));
@@ -1365,7 +1365,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testNoBearings() {
+    void testNoBearings() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
@@ -1385,7 +1385,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBearingsForStartAndEndPoints() {
+    void testBearingsForStartAndEndPoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
@@ -1406,7 +1406,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBearingsExceptLastPoint() {
+    void testBearingsExceptLastPoint() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
@@ -1427,7 +1427,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBearingsSkipwaypoint() {
+    void testBearingsSkipwaypoint() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
@@ -1448,7 +1448,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testContinueStraightNoBearings() {
+    void testContinueStraightNoBearings() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("continue_straight", true);
@@ -1467,7 +1467,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSteps() {
+    void testSteps() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -1490,7 +1490,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testStepsDetails() {
+    void testStepsDetails() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
         body.put("preference", getParameter("preference"));
@@ -1535,15 +1535,15 @@ public class ResultTest extends ServiceTest {
             JSONArray jValues = jExtraValues.getJSONArray(0);
             int fromValue = jValues.getInt(0);
             int toValue = jValues.getInt(1);
-            Assert.assertTrue(fromValue < toValue);
+            assertTrue(fromValue < toValue);
 
             for (int j = 1; j < jExtraValues.length(); j++) {
                 jValues = jExtraValues.getJSONArray(j);
                 int fromValue1 = jValues.getInt(0);
                 int toValue1 = jValues.getInt(1);
 
-                Assert.assertTrue(fromValue1 < toValue1);
-                Assert.assertEquals(fromValue1, toValue);
+                assertTrue(fromValue1 < toValue1);
+                assertEquals(fromValue1, toValue);
 
                 toValue = toValue1;
             }
@@ -1559,13 +1559,13 @@ public class ResultTest extends ServiceTest {
                 amount += jSummaryValues.getDouble("amount");
             }
 
-            Assert.assertEquals(routeDistance, distance, 0.5);
-            Assert.assertEquals(100, amount, 0.1);
+            assertEquals(routeDistance, distance, 0.5);
+            assertEquals(100, amount, 0.1);
         }
     }
 
     @Test
-    public void testVehicleType() {
+    void testVehicleType() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.71189,49.41165|8.71128,49.40971"));
         body.put("preference", "shortest");
@@ -1605,7 +1605,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testHGVWidthRestriction() {
+    void testHGVWidthRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.690915,49.430117|8.68834,49.427758"));
         body.put("preference", "shortest");
@@ -1658,7 +1658,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testHGVHeightRestriction() {
+    void testHGVHeightRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.687992,49.426312|8.691315,49.425962"));
         body.put("preference", "shortest");
@@ -1711,7 +1711,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCarDistanceAndDuration() {
+    void testCarDistanceAndDuration() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.690915,49.430117|8.68834,49.427758"));
         body.put("preference", "shortest");
@@ -1735,7 +1735,7 @@ public class ResultTest extends ServiceTest {
     // test fitness params bike..
 
     @Test
-    public void testBordersAvoid() {
+    void testBordersAvoid() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
@@ -1779,7 +1779,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCountryExclusion() {
+    void testCountryExclusion() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
@@ -1850,7 +1850,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBordersAndCountry() {
+    void testBordersAndCountry() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
@@ -1877,7 +1877,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testDetourFactor() {
+    void testDetourFactor() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", "shortest");
@@ -1898,7 +1898,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAvoidArea() {
+    void testAvoidArea() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", "shortest");
@@ -1924,7 +1924,7 @@ public class ResultTest extends ServiceTest {
 
 
     @Test
-    public void testWheelchairWidthRestriction() {
+    void testWheelchairWidthRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.708605,49.410688|8.709844,49.411160"));
         body.put("preference", "shortest");
@@ -1975,7 +1975,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairInclineRestriction() {
+    void testWheelchairInclineRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.670290,49.418041|8.667490,49.418376"));
         body.put("preference", "shortest");
@@ -2026,7 +2026,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairKerbRestriction() {
+    void testWheelchairKerbRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.681125,49.403070|8.681434,49.402991"));
         body.put("preference", "shortest");
@@ -2076,7 +2076,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairSurfaceRestriction() {
+    void testWheelchairSurfaceRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.686388,49.412449|8.690858,49.413009"));
         body.put("preference", "shortest");
@@ -2127,7 +2127,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairSmoothnessRestriction() {
+    void testWheelchairSmoothnessRestriction() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676730,49.421513|8.678545,49.421117"));
         body.put("preference", "shortest");
@@ -2177,7 +2177,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairSurfaceQualityKnown() {
+    void testWheelchairSurfaceQualityKnown() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
         body.put("preference", "recommended");
@@ -2217,7 +2217,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWheelchairAllowUnsuitable() {
+    void testWheelchairAllowUnsuitable() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.668277,49.377836|8.664753,49.376104"));
         body.put("preference", "shortest");
@@ -2257,7 +2257,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testOsmIdExtras() {
+    void testOsmIdExtras() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676730,49.421513|8.678545,49.421117"));
         body.put("preference", "shortest");
@@ -2279,7 +2279,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAccessRestrictionsWarnings() {
+    void testAccessRestrictionsWarnings() {
         JSONObject body = new JSONObject();
 
         JSONArray coordinates = new JSONArray();
@@ -2334,7 +2334,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSimplifyHasLessWayPoints() {
+    void testSimplifyHasLessWayPoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
 
@@ -2364,7 +2364,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSkipSegmentWarning() {
+    void testSkipSegmentWarning() {
         List<Integer> skipSegments = new ArrayList<>(1);
         skipSegments.add(1);
 
@@ -2406,7 +2406,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSkipSegments() {
+    void testSkipSegments() {
         List<Integer> skipSegments = new ArrayList<>(1);
         skipSegments.add(1);
 
@@ -2648,7 +2648,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAvgSpeedValues() {
+    void testAvgSpeedValues() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         JSONArray attributes = new JSONArray();
@@ -2716,7 +2716,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testPreferGreen() {
+    void testPreferGreen() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
 
@@ -2758,8 +2758,9 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.duration", is(closeTo(1662.0, 2)))
                 .statusCode(200);
     }
+
     @Test
-    public void testPreferShadow() {
+    void testPreferShadow() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
 
@@ -2803,7 +2804,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testPreferQuiet() {
+    void testPreferQuiet() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
 
@@ -2847,7 +2848,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testRouteMergeIndexing() {
+    void testRouteMergeIndexing() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
@@ -2876,7 +2877,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIdenticalCoordinatesIndexing() {
+    void testIdenticalCoordinatesIndexing() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
@@ -2896,7 +2897,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testRouteMergeInstructionsWithoutGeometry() {
+    void testRouteMergeInstructionsWithoutGeometry() {
         JSONObject body = new JSONObject();
         body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
@@ -2927,7 +2928,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCountryTraversalNoBorderCrossing(){
+    void testCountryTraversalNoBorderCrossing() {
         JSONObject body = new JSONObject();
         JSONArray noBorderCrossing = new JSONArray();
         JSONArray coord = new JSONArray();
@@ -2967,7 +2968,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCountryTraversalOuterBorder() {
+    void testCountryTraversalOuterBorder() {
         JSONObject body = new JSONObject();
         JSONArray outerBorder = new JSONArray();
         JSONArray coord = new JSONArray();
@@ -3002,7 +3003,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCoutryTraversalCloseToBorder() {
+    void testCoutryTraversalCloseToBorder() {
         JSONObject body = new JSONObject();
         JSONArray closeToBorder = new JSONArray();
         JSONArray coord = new JSONArray();
@@ -3042,7 +3043,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCountryTraversalWithBorderCrossing() {
+    void testCountryTraversalWithBorderCrossing() {
         JSONObject body = new JSONObject();
         JSONArray borderCrossing = new JSONArray();
         JSONArray coord = new JSONArray();
@@ -3088,7 +3089,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAlternativeRoutes() {
+    void testAlternativeRoutes() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
@@ -3108,24 +3109,24 @@ public class ResultTest extends ServiceTest {
         body.put("alternative_routes", ar);
         body.put("extra_info", getParameter("extra_info"));
         given()
-            .headers(jsonContent)
-            .pathParam("profile", getParameter("carProfile"))
-            .body(body.toString())
-            .when()
-            .post(getEndPointPath() + "/{profile}")
-            .then()
-            .assertThat()
-            .body("any { it.key == 'routes' }", is(true))
-            .body("routes.size()", is(2))
-            .body("routes[0].summary.distance", is(5942.2f))
-            .body("routes[0].summary.duration", is(776.1f))
-            .body("routes[1].summary.distance", is( 6435.1f))
-            .body("routes[1].summary.duration", is(801.5f))
-            .body("routes[0].way_points[-1]", is(223))
-            .body("routes[0].extras.surface.values[0][1]", is(3))
-            .body("routes[1].way_points[-1]", is(202))
-            .body("routes[1].extras.surface.values[4][1]", is(202))
-            .statusCode(200);
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes.size()", is(2))
+                .body("routes[0].summary.distance", is(5942.2f))
+                .body("routes[0].summary.duration", is(776.1f))
+                .body("routes[1].summary.distance", is(6435.1f))
+                .body("routes[1].summary.duration", is(801.5f))
+                .body("routes[0].way_points[-1]", is(223))
+                .body("routes[0].extras.surface.values[0][1]", is(3))
+                .body("routes[1].way_points[-1]", is(202))
+                .body("routes[1].extras.surface.values[4][1]", is(202))
+                .statusCode(200);
 
         JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.685873,49.414421], [8.688169,49.403978], [8.702095,49.407762], [8.695185,49.416013], [8.685873,49.414421]]]}}");
         JSONObject options = new JSONObject();
@@ -3142,7 +3143,7 @@ public class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(1))
-                .body("routes[0].summary.distance", is( 6435.1f))
+                .body("routes[0].summary.distance", is(6435.1f))
                 .body("routes[0].summary.duration", is(801.5f))
                 .statusCode(200);
 
@@ -3150,7 +3151,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testRoundTrip() {
+    void testRoundTrip() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
@@ -3234,7 +3235,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testWaypointCount() {
+    void testWaypointCount() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
@@ -3284,7 +3285,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectNoInterpolationOfBridgesAndTunnels() {
+    void expectNoInterpolationOfBridgesAndTunnels() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
         body.put("preference", getParameter("preference"));
@@ -3306,7 +3307,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectElevationSmoothing() {
+    void expectElevationSmoothing() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -3328,7 +3329,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDepartureAndArrival() {
+    void expectDepartureAndArrival() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -3350,8 +3351,8 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testConditionalAccess() {
-        JSONArray coordinates =  new JSONArray();
+    void testConditionalAccess() {
+        JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.645178);
         coord1.put(49.399496);
@@ -3427,8 +3428,8 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testConditionalSpeed() {
-        JSONArray coordinates =  new JSONArray();
+    void testConditionalSpeed() {
+        JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.689993);
         coord1.put(49.399208);
@@ -3505,8 +3506,8 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectZoneMaxpeed() {
-        JSONArray coordinates =  new JSONArray();
+    void expectZoneMaxpeed() {
+        JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.676031);
         coord1.put(49.417011);
@@ -3549,8 +3550,8 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectMaxpeedHgvForward() {
-        JSONArray coordinates =  new JSONArray();
+    void expectMaxpeedHgvForward() {
+        JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.696237);
         coord1.put(49.37186);

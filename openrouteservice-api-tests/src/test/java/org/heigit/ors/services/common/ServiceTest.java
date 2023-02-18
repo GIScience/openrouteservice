@@ -21,12 +21,11 @@
 package org.heigit.ors.services.common;
 
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.BeforeClass;
 
 public abstract class ServiceTest {
 	private final Map<String, Object> dictUrlParams;
@@ -56,7 +55,7 @@ public abstract class ServiceTest {
 		return endPointName;
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		String port = System.getProperty("server.port");
 		RestAssured.port = (port == null) ? 8082 : Integer.valueOf(port);

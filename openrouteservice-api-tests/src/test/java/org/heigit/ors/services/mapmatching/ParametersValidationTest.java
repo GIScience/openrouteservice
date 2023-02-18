@@ -20,12 +20,6 @@
  */
 package org.heigit.ors.services.mapmatching;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-
-import org.junit.Test;
-import org.json.JSONObject;
-
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
 

@@ -16,7 +16,7 @@ package org.heigit.ors.v2.services.status;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 public class ResultTest extends ServiceTest {
 
     @Test
-    public void testGetStatus() {
+    void testGetStatus() {
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()

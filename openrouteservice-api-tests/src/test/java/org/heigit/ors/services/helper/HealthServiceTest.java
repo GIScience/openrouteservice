@@ -20,12 +20,11 @@
  */
 package org.heigit.ors.services.helper;
 
-import static io.restassured.RestAssured.*;
-
-import org.junit.Test;
-
 import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
 
 @EndPointAnnotation(name="health")
 public class HealthServiceTest extends ServiceTest {
@@ -33,13 +32,13 @@ public class HealthServiceTest extends ServiceTest {
 	public HealthServiceTest() {
 	}
 
-	@Test
-	public void pingTest() {
+    @Test
+    void pingTest() {
 
-		given()
-				.when()
-				.get(getEndPointName())
-				.then()
-				.statusCode(200);
-	}
+        given()
+                .when()
+                .get(getEndPointName())
+                .then()
+                .statusCode(200);
+    }
 }

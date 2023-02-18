@@ -25,11 +25,12 @@ import org.heigit.ors.services.common.EndPointAnnotation;
 import org.heigit.ors.services.common.ServiceTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @EndPointAnnotation(name = "matrix")
@@ -72,7 +73,7 @@ public class ResultsValidationTest extends ServiceTest {
     }
 
     @Test
-    public void emptySourcesAndDestinationsTest() {
+    void emptySourcesAndDestinationsTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("metrics", "distance")
@@ -82,48 +83,49 @@ public class ResultsValidationTest extends ServiceTest {
 
         response.then().assertThat().body("info.containsKey('system_message')", is(true));
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "distances", 3, 3);
     }
+
     /*
-	@Test
-	public void nonExistingLocationEntryTest() {
-		Response response = given()
-				.param("locations", "8.690733,49.387283|8.686409,49.426272|18.686409,49.426272")
-				.param("sources", "0")
-				.param("destinations", "1,2")
-				.param("metrics", "distance")
-				.param("profile", "driving-car") 
-				.when()
-				.get(getEndPointName());
+    @Test
+    public void nonExistingLocationEntryTest() {
+        Response response = given()
+                .param("locations", "8.690733,49.387283|8.686409,49.426272|18.686409,49.426272")
+                .param("sources", "0")
+                .param("destinations", "1,2")
+                .param("metrics", "distance")
+                .param("profile", "driving-car") 
+                .when()
+                .get(getEndPointName());
 
-		Assert.assertEquals(response.getStatusCode(), 200);
-		JSONObject jResponse = new JSONObject(response.body().asString());
-		checkTableDimensions(jResponse, "distances", 1, 2);
-		JSONArray jDistances = jResponse.getJSONArray("distances").getJSONArray(0);
-		Assert.assertEquals(jDistances.get(1), JSONObject.NULL);
-	}*/
-/*	 
-	@Test
-	public void emptyLocationEntryTest() {
-		Response response = given()
-				.param("locations", "8.690733,49.387283|8.686409,49.426272")
-				.param("sources", "0")
-				.param("destinations", "1")
-				.param("metrics", "duration|distance")
-				.param("profile", "driving-car") 
-				.when()
-				.get(getEndPointName());
+        Assert.assertEquals(response.getStatusCode(), 200);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        checkTableDimensions(jResponse, "distances", 1, 2);
+        JSONArray jDistances = jResponse.getJSONArray("distances").getJSONArray(0);
+        Assert.assertEquals(jDistances.get(1), JSONObject.NULL);
+    }*/
+/*     
+    @Test
+    public void emptyLocationEntryTest() {
+        Response response = given()
+                .param("locations", "8.690733,49.387283|8.686409,49.426272")
+                .param("sources", "0")
+                .param("destinations", "1")
+                .param("metrics", "duration|distance")
+                .param("profile", "driving-car") 
+                .when()
+                .get(getEndPointName());
 
-		Assert.assertEquals(response.getStatusCode(), 200);
-		JSONObject jResponse = new JSONObject(response.body().asString());
-		checkTableDimensions(jResponse, "distances", 2, 1);
-	}
-	*/
+        Assert.assertEquals(response.getStatusCode(), 200);
+        JSONObject jResponse = new JSONObject(response.body().asString());
+        checkTableDimensions(jResponse, "distances", 2, 1);
+    }
+    */
 
     @Test
-    public void distanceTableTest() {
+    void distanceTableTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("sources", getParameter("sources1"))
@@ -133,13 +135,13 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "distances", 2, 1);
     }
 
     @Test
-    public void durationTableTest() {
+    void durationTableTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("sources", getParameter("sources1"))
@@ -149,13 +151,13 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "durations", 2, 1);
     }
 
     @Test
-    public void durationAndDistanceTablesTest() {
+    void durationAndDistanceTablesTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("sources", getParameter("sources1"))
@@ -165,14 +167,14 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         checkTableDimensions(jResponse, "durations", 2, 1);
         checkTableDimensions(jResponse, "distances", 2, 1);
     }
 
     @Test
-    public void idParameterTest() {
+    void idParameterTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("sources", getParameter("sources1"))
@@ -182,13 +184,13 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
-        Assert.assertEquals("34629723410", jResponse.getJSONObject("info").getJSONObject("query").get("id"));
+        assertEquals("34629723410", jResponse.getJSONObject("info").getJSONObject("query").get("id"));
     }
 
     @Test
-    public void resolveNamesParameterTest() {
+    void resolveNamesParameterTest() {
         Response response = given()
                 .param("locations", getParameter("locations"))
                 .param("sources", getParameter("sources1"))
@@ -198,18 +200,19 @@ public class ResultsValidationTest extends ServiceTest {
                 .when()
                 .get(getEndPointName());
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
-        Assert.assertTrue(jResponse.getJSONArray("sources").getJSONObject(0).has("name"));
+        assertTrue(jResponse.getJSONArray("sources").getJSONObject(0).has("name"));
     }
 
     private void checkTableDimensions(JSONObject json, String tableName, int rows, int columns) {
-        Assert.assertTrue(json.has(tableName));
+        assertTrue(json.has(tableName));
 
         JSONArray jTable = json.getJSONArray(tableName);
-        Assert.assertEquals(jTable.length(), rows);
-        Assert.assertEquals(jTable.getJSONArray(0).length(), columns);
+        assertEquals(jTable.length(), rows);
+        assertEquals(jTable.getJSONArray(0).length(), columns);
     }
+
     /**
      * Queries the matrix API with 12x12 symmetrical matrix. Queries the routing API
      * with the same 12x12 single queries. Compares results. If results are within .2m of
@@ -217,12 +220,12 @@ public class ResultsValidationTest extends ServiceTest {
      * the same as the routing API
      */
     @Test
-    public void distanceTest() {
+    void distanceTest() {
         //Query Matrix API
         Response response = given()
                 .param("locations", getParameter("manyLocations"))
                 .param("sources", "all")
-                .param("destinations","all")
+                .param("destinations", "all")
                 .param("metrics", "distance")
                 .param("profile", "driving-car")
                 .param("resolve_locations", "true")
@@ -231,11 +234,11 @@ public class ResultsValidationTest extends ServiceTest {
 
         String[] locations = (String[]) getParameter("manyLocationsArray");
 
-        Assert.assertEquals(200, response.getStatusCode());
+        assertEquals(200, response.getStatusCode());
         JSONObject jResponse = new JSONObject(response.body().asString());
         JSONArray jDistances = jResponse.getJSONArray("distances");
         //Query Routing API 12x12 times
-        for(int i = 0; i < 12; i++) {
+        for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 Response response2 = given()
                         .param("coordinates", locations[i] + "|" + locations[j])
@@ -249,8 +252,8 @@ public class ResultsValidationTest extends ServiceTest {
                 JSONObject jRoute = (jResponseRouting.getJSONArray("routes")).getJSONObject(0);
                 double routeDistance = jRoute.getJSONObject("summary").getDouble("distance");
                 double matrixDistance = jDistances.getJSONArray(i).getDouble(j);
-                Assert.assertTrue( matrixDistance - .1 < routeDistance);
-                Assert.assertTrue( matrixDistance + .1 > routeDistance);
+                assertTrue(matrixDistance - .1 < routeDistance);
+                assertTrue(matrixDistance + .1 > routeDistance);
 
             }
         }
