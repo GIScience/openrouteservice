@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class APIMatrixRequestProfileConverterTest {
     private APIEnums.Profile cyclingElectric;
@@ -45,6 +45,6 @@ public class APIMatrixRequestProfileConverterTest {
         assertEquals(footWalking, apiRequestProfileConverter.convert("foot-walking"));
         assertEquals(footHiking, apiRequestProfileConverter.convert("foot-hiking"));
         assertEquals(wheelchair, apiRequestProfileConverter.convert("wheelchair"));
-        assertNull(apiRequestProfileConverter.convert("flying-foo"));
+        assertThrows(RuntimeException.class, () -> apiRequestProfileConverter.convert("flying-foo"));
     }
 }
