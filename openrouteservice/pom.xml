@@ -52,7 +52,7 @@
         <geotools.version>19.1</geotools.version>
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
-        <kafka.version>3.3.2</kafka.version>
+        <kafka.version>3.4.0</kafka.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
@@ -560,7 +560,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>2.7.7</version>
+            <version>2.7.8</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -572,7 +572,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.7.7</version>
+            <version>2.7.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
