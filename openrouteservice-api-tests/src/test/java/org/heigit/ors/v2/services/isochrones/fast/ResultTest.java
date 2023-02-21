@@ -31,6 +31,7 @@ import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
+    private static float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
 
     public ResultTest() {
 
@@ -214,7 +215,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(18000000d))))
-                .body("features[0].properties.reachfactor", is(closeTo(0.0663f, 0.01)))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -239,7 +240,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(15000000d))))
-                .body("features[0].properties.reachfactor", is(closeTo(0.0663f, 0.01)))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -264,7 +265,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(8.0d)).and(lessThan(15.0d))))
-                .body("features[0].properties.reachfactor", is(closeTo(0.0663f, 0.01)))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -314,7 +315,7 @@ public class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(3.0d)).and(lessThan(6.0d))))
-                .body("features[0].properties.reachfactor", is(closeTo(0.0663f, 0.01)))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }

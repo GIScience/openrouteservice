@@ -79,6 +79,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         hasConditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
         hasConditionalSpeed = properties.getBool(ConditionalEdges.SPEED, false);
         this.blockFords(properties.getBool("block_fords", true));
+        this.blockBarriers(properties.getBool("block_barriers", true));
         speedTwoDirections = properties.getBool("speed_two_directions", true);
         useAcceleration = properties.getBool("use_acceleration", false);
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
