@@ -733,4 +733,30 @@ public class ParamsTest extends ServiceTest {
 
     }
 
+    @Test
+    void expectUnknownProfile() {
+
+        JSONArray ranges = new JSONArray();
+        ranges.put(600);
+        ranges.put(400);
+        ranges.put(300);
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", ranges);
+        body.put("range_type", "time");
+        body.put("interval", getParameter("interval_200"));
+        body.put("location_type", "destination");
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", "wrongProfile")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(400)
+                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT));
+
+    }
+
 }
