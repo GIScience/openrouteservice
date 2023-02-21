@@ -9,13 +9,14 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CellPropertiesTest {
+class CellPropertiesTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -97,16 +98,14 @@ public class CellPropertiesTest {
 
     @Test
     void testGetEccentricityOfNonBorderNode() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
-            createMockStorages(graphHopperStorage);
-            Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
-            Weighting shortestWeighting = new ShortestWeighting(carEncoder);
-
-            ecc.loadExisting(shortestWeighting);
-            ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
-            ecc.getEccentricityStorage(shortestWeighting).getEccentricity(5);
-        });
+        GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
+        createMockStorages(graphHopperStorage);
+        Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
+        Weighting shortestWeighting = new ShortestWeighting(carEncoder);
+        ecc.loadExisting(shortestWeighting);
+        ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
+        EccentricityStorage eccentricityStorage = ecc.getEccentricityStorage(shortestWeighting);
+        assertThrows(IllegalArgumentException.class, () -> eccentricityStorage.getEccentricity(5));
     }
 
     @Test

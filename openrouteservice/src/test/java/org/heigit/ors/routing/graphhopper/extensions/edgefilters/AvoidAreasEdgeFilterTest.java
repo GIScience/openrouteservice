@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AvoidAreasEdgeFilterTest {
+class AvoidAreasEdgeFilterTest {
     private final EncodingManager encoder = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
 
     private final RouteSearchParameters _searchParams;

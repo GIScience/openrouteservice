@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class InertialFlowTest {
+class InertialFlowTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -33,7 +33,6 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
-        assertNotNull(cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0}, nodeToCell);
     }
 
@@ -55,11 +54,11 @@ public class InertialFlowTest {
         //Check for partitioning. Cell numbers are not too relevant.
         int cellId0 = nodeToCell[0];
         int cellId1 = nodeToCell[4];
-        assertNotNull(cellId1);
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId0, cellId1, cellId1, cellId1, cellId1, cellId0}, nodeToCell);
     }
 
     @Test
+    @SuppressWarnings("java:S5845")
     void testSingleEdgeGraph() {
         GraphHopperStorage ghStorage = ToyGraphCreationUtil.createSingleEdgeGraph(encodingManager);
         int[] nodeToCell = new int[ghStorage.getNodes()];
@@ -75,6 +74,7 @@ public class InertialFlowTest {
         }
         threadPool.shutdown();
         //Check for partitioning. Cell numbers are not too relevant.
+        //noinspection ObviousNullCheck
         assertNotNull(nodeToCell[1]);
     }
 
@@ -98,9 +98,9 @@ public class InertialFlowTest {
         }
         threadPool.shutdown();
         //Check for partitioning. Cell numbers are not too relevant.
-        int cellId0 = nodeToCell[0];
-        int cellId1 = nodeToCell[3];
-        int cellId2 = nodeToCell[6];
+        Integer cellId0 = nodeToCell[0];
+        Integer cellId1 = nodeToCell[3];
+        Integer cellId2 = nodeToCell[6];
         assertArrayEquals(new int[]{cellId0, cellId0, cellId0, cellId1, cellId1, cellId0, cellId2, cellId2, cellId2, cellId2, cellId1, cellId1}, nodeToCell);
         assertNotNull(cellId1);
         assertNotNull(cellId2);

@@ -28,15 +28,9 @@ import java.util.List;
 @ServletComponentScan("org.heigit.ors.servlet.listeners")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
-
-//    /**
-//     * To correctly configure the war file by spring.
-//     */
-//    @Override
-//    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-//        return application.sources(Application.class);
-//    }
-
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 
     /**
      * This is a workaround for the unmaintained springfox-swagger2.
@@ -70,9 +64,5 @@ public class Application extends SpringBootServletInitializer {
         bean.setListener(new ORSInitContextListener());
         bean.setListener(new ORSKafkaConsumerInitContextListener());
         return bean;
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
     }
 }

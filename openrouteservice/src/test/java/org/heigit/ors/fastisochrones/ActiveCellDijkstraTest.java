@@ -16,7 +16,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ActiveCellDijkstraTest {
+class ActiveCellDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -31,7 +31,7 @@ public class ActiveCellDijkstraTest {
     }
 
     @Test
-    public void testAddInitialBorderNode() {
+    void testAddInitialBorderNode() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);

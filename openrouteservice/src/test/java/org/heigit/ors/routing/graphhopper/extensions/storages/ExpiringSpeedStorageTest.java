@@ -7,9 +7,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ExpiringSpeedStorageTest {
+class ExpiringSpeedStorageTest {
     @Test
     void testCreation() {
+        //noinspection resource
         ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
         storage.init(null, new RAMDirectory(""));
         storage.create(4);
@@ -25,6 +26,7 @@ public class ExpiringSpeedStorageTest {
 
     @Test
     void testSetGetSpeed() {
+        //noinspection resource
         ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
         storage.init(null, new RAMDirectory(""));
         storage.create(4);
@@ -37,11 +39,10 @@ public class ExpiringSpeedStorageTest {
 
     @Test
     void testTooHighSpeed() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
-            storage.init(null, new RAMDirectory(""));
-            storage.create(4);
-            storage.setSpeed(0, false, 128);
-        });
+        //noinspection resource
+        ExpiringSpeedStorage storage = new ExpiringSpeedStorage(new CarFlagEncoder());
+        storage.init(null, new RAMDirectory(""));
+        storage.create(4);
+        assertThrows(IllegalArgumentException.class, () -> storage.setSpeed(0, false, 128));
     }
 }

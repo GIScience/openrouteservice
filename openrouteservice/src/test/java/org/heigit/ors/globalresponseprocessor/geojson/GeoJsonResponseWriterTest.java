@@ -49,7 +49,7 @@ import java.util.Map;
  *
  * @author Julian Psotta, julian@openrouteservice.org
  */
-public class GeoJsonResponseWriterTest {
+class GeoJsonResponseWriterTest {
     private static Map<String, Map<String, Object>> featurePropertiesMap;
     private static HashMap<String, Object> defaultFeatureCollectionProperties;
     private static DefaultFeatureCollection defaultFeatureCollection;
@@ -63,8 +63,6 @@ public class GeoJsonResponseWriterTest {
     static void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
-        // routingRequest = new RoutingRequestMockup().create(RoutingRequestMockup.routeProfile.standardHeidelberg2d);
-        // routeResult = RouteResultMockup.create(RouteResultMockup.routeResultProfile.standardHeidelberg);
         // Create Line coordinate
         Coordinate[] coords2d = new Coordinate[3];
         // Fill the two-dimensional coordinate

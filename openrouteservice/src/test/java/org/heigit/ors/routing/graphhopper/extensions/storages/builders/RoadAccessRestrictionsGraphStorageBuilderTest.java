@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RoadAccessRestrictionsGraphStorageBuilderTest {
+class RoadAccessRestrictionsGraphStorageBuilderTest {
 
     private RoadAccessRestrictionsGraphStorageBuilder builder;
 

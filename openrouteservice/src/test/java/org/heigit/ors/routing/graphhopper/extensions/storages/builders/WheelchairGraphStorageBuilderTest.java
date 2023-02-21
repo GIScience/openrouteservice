@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WheelchairGraphStorageBuilderTest {
+class WheelchairGraphStorageBuilderTest {
     private WheelchairGraphStorageBuilder builder;
 
     public WheelchairGraphStorageBuilderTest() {

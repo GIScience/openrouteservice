@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AvoidBordersEdgeFilterTest {
+class AvoidBordersEdgeFilterTest {
     private EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
     private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphStorage;

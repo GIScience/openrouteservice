@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteSearchParametersTest {
+class RouteSearchParametersTest {
     @BeforeEach
     void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");

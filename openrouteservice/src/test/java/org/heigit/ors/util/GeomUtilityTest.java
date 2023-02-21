@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GeomUtilityTest {
+class GeomUtilityTest {
     private static PointList pointList3D = new PointList(14, true);
     private static PointList pointList2D = new PointList(14, false);
     private static PointList emptyPointList = new PointList(14, false);

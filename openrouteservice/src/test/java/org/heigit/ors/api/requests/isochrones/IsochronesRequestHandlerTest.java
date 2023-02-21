@@ -26,7 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IsochronesRequestHandlerTest {
+class IsochronesRequestHandlerTest {
     IsochronesRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;

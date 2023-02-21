@@ -29,7 +29,7 @@ import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HikingFlagEncoderTest {
+class HikingFlagEncoderTest {
     private EncodingManager encodingManager;
     private HikingFlagEncoder flagEncoder;
     private ReaderWay way;

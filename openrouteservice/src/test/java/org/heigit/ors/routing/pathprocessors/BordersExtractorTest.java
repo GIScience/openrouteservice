@@ -30,7 +30,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BordersExtractorTest {
+class BordersExtractorTest {
     private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
     private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
     private final BordersGraphStorage _graphstorage;

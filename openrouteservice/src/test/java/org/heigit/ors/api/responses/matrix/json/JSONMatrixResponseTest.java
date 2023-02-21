@@ -17,11 +17,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JSONMatrixResponseTest {
-    private Double[][] bareCoordinates = new Double[3][];
-    private Double[] bareCoordinate1 = new Double[2];
-    private Double[] bareCoordinate2 = new Double[2];
-    private Double[] bareCoordinate3 = new Double[2];
+class JSONMatrixResponseTest {
+    private final Double[][] bareCoordinates = new Double[3][];
+    private final Double[] bareCoordinate1 = new Double[2];
+    private final Double[] bareCoordinate2 = new Double[2];
+    private final Double[] bareCoordinate3 = new Double[2];
     private JSONMatrixResponse jsonMatrixDurationsResponse;
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixCombinedResponse;
@@ -103,7 +103,7 @@ public class JSONMatrixResponseTest {
     }
 
     @Test
-    void getMatrix() {
+    void getMatrixDurationsResponse() {
         JSONIndividualMatrixResponse durationMatrix = jsonMatrixDurationsResponse.getMatrix();
         assertNotNull(durationMatrix.getDurations());
         assertNull(durationMatrix.getDistances());
@@ -114,7 +114,10 @@ public class JSONMatrixResponseTest {
         assertEquals(Double.NaN, durationMatrix.getSources().get(0).location.z, 0);
         assertNotNull(durationMatrix.getSources().get(0).name);
         assertEquals(0.0, durationMatrix.getSources().get(0).getSnappedDistance(), 0);
+    }
 
+    @Test
+    void getMatrixDistancesResponse() {
         JSONIndividualMatrixResponse distanceMatrix = jsonMatrixDistancesResponse.getMatrix();
         assertNotNull(distanceMatrix.getDistances());
         assertNull(distanceMatrix.getDurations());
@@ -125,8 +128,10 @@ public class JSONMatrixResponseTest {
         assertEquals(Double.NaN, distanceMatrix.getSources().get(0).location.z, 0);
         assertNull(distanceMatrix.getSources().get(0).name);
         assertEquals(0.0, distanceMatrix.getSources().get(0).getSnappedDistance(), 0);
+    }
 
-
+    @Test
+    void getMatrixCombinedResponse() {
         JSONIndividualMatrixResponse combinedMatrix = jsonMatrixCombinedResponse.getMatrix();
         assertNotNull(combinedMatrix.getDistances());
         assertNotNull(combinedMatrix.getDurations());

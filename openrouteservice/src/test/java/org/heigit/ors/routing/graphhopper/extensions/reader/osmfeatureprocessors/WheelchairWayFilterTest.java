@@ -7,7 +7,7 @@ import java.io.InvalidObjectException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WheelchairWayFilterTest {
+class WheelchairWayFilterTest {
     WheelchairWayFilter filter;
 
     public WheelchairWayFilterTest() {

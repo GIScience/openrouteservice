@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AdditionWeightingTest {
+class AdditionWeightingTest {
     private final EncodingManager encodingManager;
     private final CarFlagEncoder flagEncoder;
 
@@ -20,7 +20,7 @@ public class AdditionWeightingTest {
     }
 
     @Test
-    public void sumOfConstants () {
+    void sumOfConstants () {
         ConstantWeighting const1 = new ConstantWeighting(1, 10);
         ConstantWeighting const2 = new ConstantWeighting(2, 20);
         ConstantWeighting const3 = new ConstantWeighting(3, 30);

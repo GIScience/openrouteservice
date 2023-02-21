@@ -35,8 +35,10 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 @RestController
+@SuppressWarnings("java:S1874")
 @Api(value = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance", tags = "Matrix")
 @RequestMapping("/v2/matrix")
 @ApiResponses({
@@ -65,7 +67,7 @@ public class MatrixAPI {
     }
 
     // Matches any response type that has not been defined
-    @PostMapping(value="/{profile}/*")
+    @PostMapping(value = "/{profile}/*")
     @ApiOperation(value = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
@@ -80,7 +82,7 @@ public class MatrixAPI {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
     public JSONMatrixResponse getDefault(@ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                         @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest request) throws Exception {
+                                         @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest request) throws StatusCodeException {
         return getJsonMime(profile, request);
     }
 
@@ -89,6 +91,7 @@ public class MatrixAPI {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
+    @SuppressWarnings("java:S1135")
     public JSONMatrixResponse getJsonMime(
             //TODO Flexible mode???
             @ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -113,8 +116,8 @@ public class MatrixAPI {
         } else if (cause instanceof InvalidFormatException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof ConversionFailedException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((ConversionFailedException) cause).getValue().toString()));
-        }  else if (cause instanceof InvalidDefinitionException) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, Objects.requireNonNull(((ConversionFailedException) cause).getValue()).toString()));
+        } else if (cause instanceof InvalidDefinitionException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));

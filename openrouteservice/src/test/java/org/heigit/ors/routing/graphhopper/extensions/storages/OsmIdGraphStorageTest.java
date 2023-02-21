@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OsmIdGraphStorageTest {
+class OsmIdGraphStorageTest {
     private final OsmIdGraphStorage _storage;
 
     public OsmIdGraphStorageTest() {

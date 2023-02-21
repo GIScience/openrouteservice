@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Hendrik Leuschner
  */
 
-public class PrepareCoreLandmarksTest
+class PrepareCoreLandmarksTest
 /* extends AbstractRoutingAlgorithmTester */ {
     private GraphHopperStorage graph;
     private FlagEncoder encoder;

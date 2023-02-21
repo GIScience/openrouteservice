@@ -27,12 +27,14 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactor
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PedestrianFlagEncoderTest {
+class PedestrianFlagEncoderTest {
     private final EncodingManager encodingManager = EncodingManager.create(
             new ORSDefaultFlagEncoderFactory(),
             FlagEncoderNames.PEDESTRIAN_ORS + "|conditional_access=true", // Added conditional access for time restriction testing
@@ -67,10 +69,15 @@ public class PedestrianFlagEncoderTest {
         return way;
     }
 
-    @Test
-    void rejectDifficultSacScale() {
+    @ParameterizedTest
+    @CsvSource({
+            "sac_scale, alpine_hiking",
+            "motorroad, yes",
+            "ford, yes",
+    })
+    void rejectDifficultSacScale(String name, String value) {
         way = generatePedestrianWay();
-        way.setTag("sac_scale", "alpine_hiking");
+        way.setTag(name, value);
 
         // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
         assertTrue(flagEncoder.getAccess(way).canSkip());
@@ -295,22 +302,6 @@ public class PedestrianFlagEncoderTest {
     }
 
     @Test
-    void testRejectMotorRoad() {
-        way = generatePedestrianWay();
-        way.setTag("motorroad", "yes");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
-        assertTrue(flagEncoder.getAccess(way).canSkip());
-    }
-
-    @Test
-    void testDefaultFords() {
-        way = generatePedestrianWay();
-        way.setTag("ford", "yes");
-        // TODO GH0.10: assertEquals(0, flagEncoder.acceptWay(way));
-        assertTrue(flagEncoder.getAccess(way).canSkip());
-    }
-
-    @Test
     void testTunnelValues() {
         TreeMap<Double, Integer> priorityMap = new TreeMap<>();
         way.setTag("highway", "residential");
@@ -342,6 +333,7 @@ public class PedestrianFlagEncoderTest {
 
     @Disabled // TODO: What is this test meant to test?
     @Test
+    @SuppressWarnings("java:S1607")
     void testSpeed() {
         // TODO GH0.10: assertEquals(5.0, flagEncoder.getSpeed(683), 0.0);
         // TODO GH0.10: assertEquals(20.0, flagEncoder.getSpeed(635), 0.0);
@@ -356,6 +348,7 @@ public class PedestrianFlagEncoderTest {
 
     @Disabled // TODO: What is this test meant to test?
     @Test
+    @SuppressWarnings("java:S1607")
     void getWeighting() {
         fail("TODO: find out how to test this.");
 // TODO GH0.10:

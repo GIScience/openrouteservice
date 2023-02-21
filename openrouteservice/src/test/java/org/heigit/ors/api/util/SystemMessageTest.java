@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SystemMessageTest {
+class SystemMessageTest {
     @Test
     void testGetSystemMessage() throws ParameterValueException {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");

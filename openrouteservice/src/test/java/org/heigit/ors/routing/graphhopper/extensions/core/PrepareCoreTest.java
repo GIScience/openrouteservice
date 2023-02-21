@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Hendrik Leuschner, Andrzej Oles, Djime Gueye
  */
-public class PrepareCoreTest {
+class PrepareCoreTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);

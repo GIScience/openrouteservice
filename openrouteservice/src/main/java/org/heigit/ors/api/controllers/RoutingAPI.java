@@ -38,8 +38,10 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 @RestController
+@SuppressWarnings("java:S1874")
 @Api(value = "Directions Service", description = "Get directions for different modes of transport", tags = "Directions")
 @RequestMapping("/v2/directions")
 @ApiResponses({
@@ -63,7 +65,7 @@ public class RoutingAPI {
 
     @PostMapping
     @ApiOperation(value = "", hidden = true)
-    public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
+    public String getPostMapping(@SuppressWarnings("unused") @RequestBody RouteRequest request) throws MissingParameterException {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }
 
@@ -174,7 +176,7 @@ public class RoutingAPI {
         } else if (cause instanceof InvalidFormatException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof ConversionFailedException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((ConversionFailedException) cause).getValue().toString()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, Objects.requireNonNull(((ConversionFailedException) cause).getValue()).toString()));
         } else if (cause instanceof InvalidDefinitionException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {

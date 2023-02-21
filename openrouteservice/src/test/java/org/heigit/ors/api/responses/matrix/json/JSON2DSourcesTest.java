@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class JSON2DSourcesTest {
+class JSON2DSourcesTest {
     private ResolvedLocation resolvedLocation;
 
 

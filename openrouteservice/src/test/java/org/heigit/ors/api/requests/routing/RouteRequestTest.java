@@ -26,7 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteRequestTest {
+class RouteRequestTest {
     RouteRequest request;
 
     @BeforeEach

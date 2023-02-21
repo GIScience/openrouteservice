@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Andrzej Oles, Hendrik Leuschner
  */
-public class CoreLandmarkStorageTest {
+class CoreLandmarkStorageTest {
     private GraphHopperStorage ghStorage;
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);

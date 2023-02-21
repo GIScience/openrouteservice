@@ -21,7 +21,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CountryBordersHierarchyTest {
+class CountryBordersHierarchyTest {
     private CountryBordersHierarchy cbh;
 
     GeometryFactory gf = new GeometryFactory();

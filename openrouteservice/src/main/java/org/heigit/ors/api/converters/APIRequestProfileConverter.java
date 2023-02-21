@@ -20,9 +20,10 @@ import org.springframework.core.convert.converter.Converter;
 
 public class APIRequestProfileConverter implements Converter<String, APIEnums.Profile> {
     @Override
+    @SuppressWarnings("java:S112")
     public APIEnums.Profile convert(String s) {
-        for(APIEnums.Profile profile : APIEnums.Profile.values()) {
-            if(profile.toString().equals(s)) {
+        for (APIEnums.Profile profile : APIEnums.Profile.values()) {
+            if (profile.toString().equals(s)) {
                 return profile;
             }
         }

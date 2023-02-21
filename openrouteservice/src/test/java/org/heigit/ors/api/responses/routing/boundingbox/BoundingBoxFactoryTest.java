@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BoundingBoxFactoryTest {
+class BoundingBoxFactoryTest {
     @Test
     void testCorrectTypeCreated() throws Exception {
         /*List<Double[]> coords = new ArrayList<>();

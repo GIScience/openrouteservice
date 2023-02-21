@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BordersGraphStorageTest {
+class BordersGraphStorageTest {
 
     private final BordersGraphStorage _storage;
 

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BordersGraphStorageBuilderTest {
+class BordersGraphStorageBuilderTest {
     private BordersGraphStorageBuilder _builder;
 
     private CountryBordersReader _cbr;

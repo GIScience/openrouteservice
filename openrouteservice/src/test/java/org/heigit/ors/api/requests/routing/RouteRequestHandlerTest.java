@@ -38,7 +38,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteRequestHandlerTest {
+class RouteRequestHandlerTest {
     RouteRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;

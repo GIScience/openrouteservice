@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WheelchairSidewalkWayTest {
+class WheelchairSidewalkWayTest {
     @Test
     void TestShowAsPedestrian() {
         WheelchairSidewalkWay way = new WheelchairSidewalkWay(new ReaderWay(1));

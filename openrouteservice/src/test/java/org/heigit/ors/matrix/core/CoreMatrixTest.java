@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CoreMatrixTest {
+class CoreMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5,5.0D,1);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);

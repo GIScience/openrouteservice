@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class SwaggerTest {
+class SwaggerTest {
     @Test
     void testGetSwaggerDocs() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");

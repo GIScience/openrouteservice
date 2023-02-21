@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class APIRequestProfileConverterTest {
+class APIRequestProfileConverterTest {
     private APIEnums.Profile cyclingElectric;
     private APIEnums.Profile cyclingMountain;
     private APIEnums.Profile cyclingRegular;

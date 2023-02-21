@@ -8,11 +8,13 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static com.graphhopper.util.GHUtility.createMockedEdgeIteratorState;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TrafficSpeedCalculatorTest {
+class TrafficSpeedCalculatorTest {
     private CarFlagEncoder carEncoder;
     private EncodingManager encodingManager;
     private TrafficSpeedCalculator trafficSpeedCalculator;
@@ -45,60 +47,31 @@ public class TrafficSpeedCalculatorTest {
         assertEquals(originalEdgeSpeed, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    @Test
-    void testOriginalSmallerThan45AndTrafficSlower() {
+
+    /**
+     * Parametrized test for the following former test scenarios:
+     * testOriginalSmallerThan45AndTrafficSlower
+     * testOriginalLargerThan45AndTrafficSlower
+     * testOriginalSmallerThan45AndTrafficFaster
+     * testOriginalLargerThan45AndTrafficMuchFaster
+     * testOriginalLargerThan45AndTrafficFaster
+     */
+    @ParameterizedTest
+    @CsvSource({
+            "40.0, 2, 38",
+            "60.0, 3, 50",
+            "40.0, 4, 40",
+            "60.0, 5, 60",
+            "60.0, 6, 65"
+    })
+    void testGetConvertedSpeedFromEdges(Double originalEdgeSpeed, Integer edgeId, Integer expectedEdgeSpeed) {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
-        double originalEdgeSpeed = 40.0;
-        int edgeId = 2;
         carEncoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, originalEdgeSpeed);
         EdgeIteratorState edgeIteratorState = createMockedEdgeIteratorState(10, edgeFlags, 0, 1, edgeId, 2, 3);
-        assertEquals(38, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
+        assertEquals(expectedEdgeSpeed, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    @Test
-    void testOriginalLargerThan45AndTrafficSlower() {
-        IntsRef edgeFlags = encodingManager.createEdgeFlags();
-        double originalEdgeSpeed = 60.0;
-        int edgeId = 3;
-        carEncoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, originalEdgeSpeed);
-        EdgeIteratorState edgeIteratorState = createMockedEdgeIteratorState(10, edgeFlags, 0, 1, edgeId, 2, 3);
-        assertEquals(50, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
-    }
-
-    //Do not overwrite speeds slower than 45 in case traffic is faster
-    @Test
-    void testOriginalSmallerThan45AndTrafficFaster() {
-        IntsRef edgeFlags = encodingManager.createEdgeFlags();
-        double originalEdgeSpeed = 40.0;
-        int edgeId = 4;
-        carEncoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, originalEdgeSpeed);
-        EdgeIteratorState edgeIteratorState = createMockedEdgeIteratorState(10, edgeFlags, 0, 1, edgeId, 2, 3);
-        assertEquals(40, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
-    }
-
-    //Do not overwrite speed data if traffic data is much faster than 110% of original speed
-    @Test
-    void testOriginalLargerThan45AndTrafficMuchFaster() {
-        IntsRef edgeFlags = encodingManager.createEdgeFlags();
-        double originalEdgeSpeed = 60.0;
-        int edgeId = 5;
-        carEncoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, originalEdgeSpeed);
-        EdgeIteratorState edgeIteratorState = createMockedEdgeIteratorState(10, edgeFlags, 0, 1, edgeId, 2, 3);
-        assertEquals(60, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
-    }
-
-    //Increase speed only within 110% of original speed
-    @Test
-    void testOriginalLargerThan45AndTrafficFaster() {
-        IntsRef edgeFlags = encodingManager.createEdgeFlags();
-        double originalEdgeSpeed = 60.0;
-        int edgeId = 6;
-        carEncoder.getAverageSpeedEnc().setDecimal(false, edgeFlags, originalEdgeSpeed);
-        EdgeIteratorState edgeIteratorState = createMockedEdgeIteratorState(10, edgeFlags, 0, 1, edgeId, 2, 3);
-        assertEquals(65, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
-    }
-
-    private class MockTrafficStorage extends TrafficGraphStorage {
+    private static class MockTrafficStorage extends TrafficGraphStorage {
 
         @Override
         public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {

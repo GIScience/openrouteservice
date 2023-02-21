@@ -20,7 +20,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CentralityAlgorithmTest {
+class CentralityAlgorithmTest {
     private CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);

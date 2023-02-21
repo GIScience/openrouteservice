@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class MatrixRequestTest {
+class MatrixRequestTest {
     private MatrixRequest matrixLocationsRequest;
     private MatrixRequest matrixLocationsListRequest;
     private List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();

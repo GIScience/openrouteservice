@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JSONIndividualMatrixResponseTest {
+class JSONIndividualMatrixResponseTest {
     private Double[][] bareCoordinates = new Double[3][];
     private Double[] bareCoordinate1 = new Double[2];
     private Double[] bareCoordinate2 = new Double[2];

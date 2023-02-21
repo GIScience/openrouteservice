@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EncodeUtilsTest {
+class EncodeUtilsTest {
     @Test
     void longToByteArrayTest() {
         long value = 1234L;

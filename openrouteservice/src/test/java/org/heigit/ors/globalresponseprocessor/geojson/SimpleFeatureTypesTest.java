@@ -35,7 +35,7 @@ import org.opengis.feature.type.GeometryType;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class SimpleFeatureTypesTest {
+class SimpleFeatureTypesTest {
     private static SimpleFeatureType simpleFeatureType;
 
 

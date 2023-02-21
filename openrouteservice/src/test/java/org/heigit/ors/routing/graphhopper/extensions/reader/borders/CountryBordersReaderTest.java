@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CountryBordersReaderTest {
+class CountryBordersReaderTest {
     CountryBordersReader _reader;
 
     CountryBordersHierarchy[] hierarchies;

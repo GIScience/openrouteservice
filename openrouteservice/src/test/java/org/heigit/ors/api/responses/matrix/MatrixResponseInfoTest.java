@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MatrixResponseInfoTest {
+class MatrixResponseInfoTest {
     private static MatrixRequest bareMatrixRequest;
     private MatrixResponseInfo responseInformation;
 

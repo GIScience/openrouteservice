@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class JsonIsochronesRequestProcessorTest {
+class JsonIsochronesRequestProcessorTest {
 
     private Envelope negativeEnv;
     private Envelope positiveEnv;

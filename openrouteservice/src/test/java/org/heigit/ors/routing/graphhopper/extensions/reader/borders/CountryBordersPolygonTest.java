@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CountryBordersPolygonTest {
+class CountryBordersPolygonTest {
     GeometryFactory gf = new GeometryFactory();
 
     CountryBordersPolygon cbp;

@@ -20,6 +20,7 @@ import org.springframework.core.convert.converter.Converter;
 
 public class APIRequestSingleCoordinateConverter implements Converter<String, Coordinate> {
     @Override
+    @SuppressWarnings("java:S112")
     public Coordinate convert(String coordinatePair) {
 
         Coordinate coordinate = null;

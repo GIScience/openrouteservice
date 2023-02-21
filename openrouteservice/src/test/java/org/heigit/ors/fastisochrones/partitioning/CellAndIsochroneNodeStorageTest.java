@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CellAndIsochroneNodeStorageTest {
+class CellAndIsochroneNodeStorageTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -69,39 +69,33 @@ public class CellAndIsochroneNodeStorageTest {
 
     @Test
     void testUnfilledCells() {
-        assertThrows(IllegalStateException.class, () -> {
-            GraphHopperStorage ghStorage = createGHStorage();
-            IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
-            CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
-            cs.init();
-            //Storage not filled, should throw exception
-            cs.getNodesOfCell(2);
-        });
+        GraphHopperStorage ghStorage = createGHStorage();
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
+        cs.init();
+        //Storage not filled, should throw exception
+        assertThrows(IllegalStateException.class, () -> cs.getNodesOfCell(2));
     }
 
     @Test
     void testUnfilledContour() {
-        assertThrows(IllegalStateException.class, () -> {
-            GraphHopperStorage ghStorage = createGHStorage();
-            IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        GraphHopperStorage ghStorage = createGHStorage();
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
 
-            CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
-            cs.init();
-            //Storage not filled, should throw exception
-            cs.getCellContourOrder(2);
-        });
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
+        cs.init();
+        //Storage not filled, should throw exception
+        assertThrows(IllegalStateException.class, () -> cs.getCellContourOrder(2));
     }
 
     @Test
     void testUnfilledSuperCell() {
-        assertThrows(IllegalStateException.class, () -> {
-            GraphHopperStorage ghStorage = createGHStorage();
-            IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
-            CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
-            cs.init();
-            //Storage not filled, should throw exception
-            cs.getCellsOfSuperCellAsList(2);
-        });
+        GraphHopperStorage ghStorage = createGHStorage();
+        IsochroneNodeStorage isochroneNodeStorage = initIsochroneNodeStorage(ghStorage);
+        CellStorage cs = new CellStorage(5, ghStorage.getDirectory(), isochroneNodeStorage);
+        cs.init();
+        //Storage not filled, should throw exception
+        assertThrows(IllegalStateException.class, () -> cs.getCellsOfSuperCellAsList(2));
     }
 
     @Test

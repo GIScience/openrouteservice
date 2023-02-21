@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxCellNodesNumber;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RangeDijkstraTest {
+class RangeDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 

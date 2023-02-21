@@ -15,7 +15,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ProjectorTest {
+class ProjectorTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -89,11 +89,9 @@ public class ProjectorTest {
 
     @Test
     void testCalculateProjectionsWithoutLatLon() {
-        assertThrows(IllegalStateException.class, () -> {
-            //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
-            Projector projector = new Projector();
-            projector.setGHStorage(ToyGraphCreationUtil.createSimpleGraphWithoutLatLon(encodingManager));
-            projector.calculateProjections();
-        });
+        //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
+        Projector projector = new Projector();
+        projector.setGHStorage(ToyGraphCreationUtil.createSimpleGraphWithoutLatLon(encodingManager));
+        assertThrows(IllegalStateException.class, projector::calculateProjections);
     }
 }
