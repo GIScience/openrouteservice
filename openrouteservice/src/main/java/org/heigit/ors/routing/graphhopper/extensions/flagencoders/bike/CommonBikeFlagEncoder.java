@@ -686,7 +686,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
         double maxSpeed = getMaxSpeed(way);
         if (preferHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 30) {
-            if (maxSpeed < avoidSpeedLimit) {
+            if (Double.isNaN(maxSpeed) || maxSpeed < avoidSpeedLimit) {
                 weightToPrioMap.put(40d, PREFER.getValue());
                 if (way.hasTag("tunnel", intendedValues)) {
                     weightToPrioMap.put(40d, UNCHANGED.getValue());
