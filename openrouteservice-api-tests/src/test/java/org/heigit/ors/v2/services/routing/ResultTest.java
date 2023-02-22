@@ -972,7 +972,7 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.surface.values.size()", is(38))
                 .body("routes[0].extras.surface.values[18][1]", is(181))
-                .body("routes[0].extras.suitability.values[18][0]", is(237))
+                .body("routes[0].extras.suitability.values[18][0]", is(359))
                 .body("routes[0].extras.steepness.values[10][1]", is(220))
                 .statusCode(200);
 
