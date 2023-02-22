@@ -38,6 +38,7 @@ RELEASING:
 - visibility of csv_factor and csv_column API parameters ([PR #1279](https://github.com/GIScience/openrouteservice/pull/1279))
 - update org.apache.kafka:kafka_2.13 and related packages from 3.3.2 to 3.4.0
 - update outdated dockerfile dependencies ([PR #1284](https://github.com/GIScience/openrouteservice/pull/1284))
+- fix the dockerbuild by reducing the glibc version to 2.29-r0 ([PR #1287](https://github.com/GIScience/openrouteservice/pull/1287))
 
 ## [6.8.1] - 2023-02-08
 ### Added
