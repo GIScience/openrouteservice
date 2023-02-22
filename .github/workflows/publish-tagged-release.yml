@@ -1,15 +1,12 @@
-name: Build and publish Docker image with version
+name: Build and publish the newest version and latest Docker image
 on:
-  pull_request:
-    branches: [ master ]
-  push:
-    branches: [ master ]
-    tags: [ 'v*.*.*' ]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
   build_and_publish_docker:
-    name: Push Docker image to docker hub and github packages
+    name: Build and push the image to docker hub
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,12 +47,10 @@ jobs:
           DOCKER_PLATFORMS=linux/amd64
           BUILD_VERSION=true
 
-          # We should the latest and highest tag via https://github.com/WyriHaximus/github-action-next-semvers
           TAGS_LATEST_VERSION="${DOCKER_IMAGE}:${LATEST_IMAGE_VERSION}"
           TAGS_HIGHEST_VERSION="${DOCKER_IMAGE}:${HIGHEST_IMAGE_VERSION}"
           echo "HIGHEST MAYOR VERSION: $TAGS_HIGHEST_VERSION"
           TAGS_LATEST="${DOCKER_IMAGE}:latest"
-          TAGS_NIGHTLY="${DOCKER_IMAGE}:nightly"
 
           # Test if the latest published version is already in the versions at docker hub. If so skip the version build.
           if [[ $CURRENT_VERSIONS =~ $LATEST_IMAGE_VERSION ]]; then
@@ -67,32 +62,12 @@ jobs:
           echo ::set-output name=build_args::--platform ${DOCKER_PLATFORMS}
             echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
           echo ::set-output name=buildx_tags_latest::${TAGS_LATEST}
-          echo ::set-output name=buildx_tags_nightly::${TAGS_NIGHTLY}
-      - name: Build nightly
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: false
-          tags: ${{ steps.prepare.outputs.buildx_tags_nightly }}
-          build-args: ${{ steps.prepare.outputs.build_args }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Login to DockerHub
-        if: ${{ success() && github.ref == 'refs/heads/master' }}
+        if: ${{ steps.prepare.outputs.build_version == 'true' }}
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Publish nightly
-        if: ${{ github.ref == 'refs/heads/master' }}
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.prepare.outputs.buildx_tags_nightly }}
-          build-args: ${{ steps.prepare.outputs.build_args }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Checkout version if needed
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
         uses: actions/checkout@v2
