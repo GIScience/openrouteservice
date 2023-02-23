@@ -34,10 +34,13 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.8.2] - 2023-02-22
 ### Fixed
 - visibility of csv_factor and csv_column API parameters ([PR #1279](https://github.com/GIScience/openrouteservice/pull/1279))
 - update org.apache.kafka:kafka_2.13 and related packages from 3.3.2 to 3.4.0
 - update outdated dockerfile dependencies ([PR #1284](https://github.com/GIScience/openrouteservice/pull/1284))
+- fix the docker build by reducing the glibc version to 2.29-r0 ([PR #1287](https://github.com/GIScience/openrouteservice/pull/1287))
 
 ## [6.8.1] - 2023-02-08
 ### Added
@@ -599,7 +602,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...HEAD
+[6.8.2]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...v6.8.2
 [6.8.1]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
 [6.7.1]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...v6.7.1
