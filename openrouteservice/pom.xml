@@ -48,12 +48,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.target>11</maven.compiler.target>
         <geotools.version>19.1</geotools.version>
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
         <kafka.version>3.4.0</kafka.version>
-        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.13.3</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -624,14 +624,17 @@
             <artifactId>jackson-annotations</artifactId>
             <version>${fasterxml.jackson.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-        <!-- <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>6.0.5</version>
-            </dependency>
-         -->
+        <dependency>
+            <groupId>com.graphhopper.external</groupId>
+            <artifactId>jackson-datatype-jts</artifactId>
+            <version>2.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <!-- mvn deploy -DperformRelease=true -->
