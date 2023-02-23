@@ -306,29 +306,31 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
-        ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size());
-        pb.start();
-        for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
-            storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
-            pb.step();
+        try (ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size())) {
+            for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
+                storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
+                pb.step();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error processing here traffic patterns with error: " + e);
         }
-        pb.stop();
     }
 
     private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
-        ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size()); // name, initial max
-        pb.start();
-        int counter = 0;
-        for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
-            processLink(graphHopper, trafficLink.value);
-            counter += 1;
-            if (!outputLog) {
-                links.put(trafficLink.index, null);
+        try (ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size())) {
+            int counter = 0;
+            for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
+                processLink(graphHopper, trafficLink.value);
+                counter += 1;
+                if (!outputLog) {
+                    links.put(trafficLink.index, null);
+                }
+                if (counter % 2000 == 0)
+                    pb.stepBy(2000);
             }
-            if (counter % 2000 == 0)
-                pb.stepBy(2000);
+        } catch (Exception e) {
+            LOGGER.error("Error processing here traffic links with error: " + e);
         }
-        pb.stop();
     }
 
     private void processLink(ORSGraphHopper graphHopper, TrafficLink hereTrafficLink) {
