@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.matrix;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.NamedLocation;
 
 public class ResolvedLocation extends NamedLocation {

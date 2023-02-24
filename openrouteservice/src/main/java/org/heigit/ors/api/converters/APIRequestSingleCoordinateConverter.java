@@ -15,7 +15,7 @@
 
 package org.heigit.ors.api.converters;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.springframework.core.convert.converter.Converter;
 
 public class APIRequestSingleCoordinateConverter implements Converter<String, Coordinate> {

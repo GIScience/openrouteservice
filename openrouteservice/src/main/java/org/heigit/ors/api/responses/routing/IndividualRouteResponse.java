@@ -15,7 +15,7 @@
 
 package org.heigit.ors.api.responses.routing;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.RouteResult;
 

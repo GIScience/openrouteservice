@@ -27,7 +27,7 @@ package org.opensphere.geometry.triangulation.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vividsolutions.jts.geom.LineSegment;
+import org.locationtech.jts.geom.LineSegment;
 
 /**
  * Edge.

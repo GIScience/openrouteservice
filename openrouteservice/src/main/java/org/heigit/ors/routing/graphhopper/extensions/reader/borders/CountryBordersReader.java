@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.util.CSVUtility;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;

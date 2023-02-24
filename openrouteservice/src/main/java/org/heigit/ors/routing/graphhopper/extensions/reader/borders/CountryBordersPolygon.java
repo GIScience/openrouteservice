@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;
