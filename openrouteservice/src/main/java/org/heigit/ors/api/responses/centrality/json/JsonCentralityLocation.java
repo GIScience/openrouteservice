@@ -2,7 +2,7 @@ package org.heigit.ors.api.responses.centrality.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.util.FormatUtility;
 

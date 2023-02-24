@@ -1,6 +1,6 @@
 package org.heigit.ors.routing;
 
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;

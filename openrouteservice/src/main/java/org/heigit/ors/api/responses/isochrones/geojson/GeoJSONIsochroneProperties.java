@@ -2,7 +2,7 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.AttributeValue;
 import org.heigit.ors.isochrones.Isochrone;
 import io.swagger.annotations.ApiModelProperty;

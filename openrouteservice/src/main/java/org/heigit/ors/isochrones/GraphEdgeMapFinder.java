@@ -25,7 +25,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint3D;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RouteSearchContext;

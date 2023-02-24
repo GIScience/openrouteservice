@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.util;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import static java.lang.Math.*;
 

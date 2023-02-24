@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;

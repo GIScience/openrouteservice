@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.routing.RoutingProfileType;

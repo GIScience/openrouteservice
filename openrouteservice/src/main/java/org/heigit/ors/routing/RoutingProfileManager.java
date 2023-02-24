@@ -17,8 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.*;
-import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.lang.NotImplementedException;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -236,7 +235,7 @@ public class RoutingProfileManager {
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
         LOGGER.error("mapmatching not implemented. " + req);
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("mapmatching not implemented. " + req);
     }
 
     public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {

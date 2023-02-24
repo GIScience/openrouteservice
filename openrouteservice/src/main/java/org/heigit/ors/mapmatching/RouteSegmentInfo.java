@@ -15,9 +15,9 @@ package org.heigit.ors.mapmatching;
 
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.util.*;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.heigit.ors.util.FrechetDistance;
 
 import java.awt.geom.Point2D;

@@ -33,7 +33,7 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 import org.heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 import java.util.*;

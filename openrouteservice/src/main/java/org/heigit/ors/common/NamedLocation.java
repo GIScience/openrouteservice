@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.common;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class NamedLocation {
    private final Coordinate coordinate;

@@ -15,7 +15,7 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.junit.Assert;

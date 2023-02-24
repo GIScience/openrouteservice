@@ -19,7 +19,7 @@ import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import org.heigit.ors.routing.parameters.VehicleParameters;
