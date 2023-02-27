@@ -17,11 +17,10 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.EdgeFilterFactory;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
@@ -115,6 +114,14 @@ public class ORSRouter extends Router {
                 algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage));
 
             return algoOpts;
+        }
+
+        @Override
+        protected EdgeFilter getSnapFilter() {
+            EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, lookup.getBooleanEncodedValue(Subnetwork.key(profile.getName())));
+            if (edgeFilterFactory != null)
+                return edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage, defaultSnapFilter);
+            return defaultSnapFilter;
         }
 
         private RoutingCHGraph getRoutingCHGraph(String profileName) {
