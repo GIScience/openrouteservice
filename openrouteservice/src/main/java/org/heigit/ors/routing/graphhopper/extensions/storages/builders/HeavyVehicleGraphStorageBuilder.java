@@ -101,9 +101,11 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			if (way.hasTag(motorVehicleRestrictions, motorVehicleHgvValues)) {
 				int flag = 0;
 				for (String key : motorVehicleRestrictions) {
-					String val = way.getTag(key);
-					if (motorVehicleHgvValues.contains(val))
-						flag |= HeavyVehicleAttributes.getFromString(val);
+					String [] values = way.getTagValues(key);
+					for (String val: values) {
+						if (motorVehicleHgvValues.contains(val))
+							flag |= HeavyVehicleAttributes.getFromString(val);
+					}
 				}
 				hgvType = HeavyVehicleAttributes.ANY & ~flag;
 			}
