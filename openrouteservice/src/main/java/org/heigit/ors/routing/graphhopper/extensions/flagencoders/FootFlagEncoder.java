@@ -371,7 +371,7 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
 
-        if (safeHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 20) {
+        if (safeHighwayTags.contains(highway) || isValidSpeed(maxSpeed) && maxSpeed <= 20) {
             if (preferredWayTags.contains(highway))
                 weightToPrioMap.put(40d, VERY_NICE.getValue());
             else {

@@ -404,7 +404,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
-        if (maxSpeed > 0 && maxSpeed < speed) {
+        if (isValidSpeed(maxSpeed) && maxSpeed < speed) {
             return maxSpeed;
         }
         return speed;
@@ -685,8 +685,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         // MARQ24 MOD END
 
         double maxSpeed = getMaxSpeed(way);
-        if (preferHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 30) {
-            if (Double.isNaN(maxSpeed) || maxSpeed < avoidSpeedLimit) {
+        if (preferHighwayTags.contains(highway) || this.isValidSpeed(maxSpeed) && maxSpeed <= 30) {
+            if (!this.isValidSpeed(maxSpeed) || maxSpeed < avoidSpeedLimit) {
                 weightToPrioMap.put(40d, PREFER.getValue());
                 if (way.hasTag("tunnel", intendedValues)) {
                     weightToPrioMap.put(40d, UNCHANGED.getValue());

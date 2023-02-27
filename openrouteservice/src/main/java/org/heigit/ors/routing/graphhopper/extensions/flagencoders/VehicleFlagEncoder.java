@@ -350,6 +350,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         String highwayValue = getHighway(way);
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
 
+        // Note that Math.round(NaN) == 0
         int maxSpeed = (int) Math.round(getMaxSpeed(way));
         if (maxSpeed <= 0)
             maxSpeed = speedLimitHandler.getMaxSpeed(way);
@@ -383,7 +384,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = this.getMaxSpeed(way);
-        return maxSpeed > 0.0D ? maxSpeed * 0.9D : speed;
+        return isValidSpeed(maxSpeed) ? maxSpeed * 0.9D : speed;
     }
 
     /**

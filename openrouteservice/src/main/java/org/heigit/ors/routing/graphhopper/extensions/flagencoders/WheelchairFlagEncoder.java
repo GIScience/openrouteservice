@@ -579,7 +579,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
         
-        if (maxSpeed > 0) {
+        if (isValidSpeed(maxSpeed)) {
         	 if (maxSpeed > 50) {
              	negativeFeatures++;
              	if (maxSpeed > 60) {
@@ -590,10 +590,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
              	}
              }
              
-             if (maxSpeed > 0 && maxSpeed <= 20) {
+             if (maxSpeed <= 20) {
              	positiveFeatures+=1;
              }
         }
+
 
         if (way.hasTag("tunnel", intendedValues)) {
         	negativeFeatures+=4;

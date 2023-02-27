@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
@@ -194,7 +195,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 		String maxspeedTag = way.getTag("maxspeed:hgv");
 		if (Helper.isEmpty(maxspeedTag))
 			maxspeedTag = way.getTag("maxspeed");
-		double maxSpeed = parseSpeed(maxspeedTag);
+		double maxSpeed = OSMValueExtractor.stringToKmh(maxspeedTag);
 		
         String highway = way.getTag(KEY_HIGHWAY);
         double defaultSpeed = speedLimitHandler.getSpeed(highway);
