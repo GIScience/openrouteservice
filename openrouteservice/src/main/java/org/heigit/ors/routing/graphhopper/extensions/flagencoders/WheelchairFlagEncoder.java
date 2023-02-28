@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
-
-import org.heigit.ors.routing.graphhopper.extensions.WayType;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
