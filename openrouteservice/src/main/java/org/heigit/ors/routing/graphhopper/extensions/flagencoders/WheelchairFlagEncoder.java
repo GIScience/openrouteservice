@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.graphhopper.routing.util.PriorityCode.*;
+
+import org.heigit.ors.routing.graphhopper.extensions.WayType;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
@@ -231,7 +233,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         
         // highways that are not suitable for wheelchair users
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
-        
+        nonWheelchairAccessibleHighways.add("construction"); // Baustellen
+
         // attributes to be checked for limited wheelchair accessible highways
         accessibilityRelatedAttributes.add(KEY_SURFACE);
         accessibilityRelatedAttributes.add(KEY_SMOOTHNESS);
