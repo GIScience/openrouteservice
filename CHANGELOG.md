@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Fixed
+- wheelchair profile excludes ways tagged highway:construction ([#1295](https://github.com/GIScience/openrouteservice/issues/1295))
 - Support access restriction tags listing multiple vehicles ([#1219](https://github.com/GIScience/openrouteservice/issues/1219))
 
 ## [6.8.2] - 2023-02-22
