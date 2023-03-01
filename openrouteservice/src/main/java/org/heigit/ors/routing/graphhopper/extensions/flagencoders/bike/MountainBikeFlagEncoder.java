@@ -24,6 +24,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 import java.util.TreeMap;
 
 import static com.graphhopper.routing.ev.RouteNetwork.MTB;
+import static com.graphhopper.routing.ev.RouteNetwork.OTHER;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
@@ -125,7 +126,8 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         passByDefaultBarriers.add("kissing_gate");
         setSpecificClassBicycle("mtb");
 
-        routeMap.put(MTB, PREFER.getValue());
+        routeMap.put(OTHER, PREFER.getValue());
+        routeMap.put(MTB, BEST.getValue());
     }
 
     public double getMeanSpeed() {
