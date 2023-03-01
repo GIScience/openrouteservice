@@ -375,8 +375,8 @@ public class ORSOSMReader extends OSMReader {
     }
 
     @Override
-	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-		super.recordWayDistance(way, osmNodeIds);
+	protected void recordExactWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
+		super.recordExactWayDistance(way, osmNodeIds);
 
 		// compute exact way distance for ferries in order to improve travel time estimate, see #1037
 		if (way.hasTag("route", "ferry", "shuttle_train")) {
