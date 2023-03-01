@@ -17,12 +17,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
@@ -31,6 +29,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
@@ -82,9 +81,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     private final Set<String> roadValues = new HashSet<>();
     private final Map<String, SpeedValue> highwaySpeeds = new HashMap<>();
     // convert network tag of bicycle routes into a way route code
-    private final Map<String, Integer> bikeNetworkToCode = new HashMap<>();
     DecimalEncodedValue priorityWayEncoder;
-    DecimalEncodedValue priorityRelationEnc;
     BooleanEncodedValue unpavedEncoder;
     private IntEncodedValue wayTypeEncoder;
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
@@ -249,18 +246,13 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         setHighwaySpeed(KEY_BRIDLEWAY, 6);
         avoidHighwayTags.add(KEY_BRIDLEWAY);
 
-        setCyclingNetworkPreference("icn", BEST.getValue());
-        setCyclingNetworkPreference("ncn", BEST.getValue());
-        setCyclingNetworkPreference("rcn", VERY_NICE.getValue());
-        setCyclingNetworkPreference("lcn", PREFER.getValue());
-        setCyclingNetworkPreference("mtb", UNCHANGED.getValue());
-
-        setCyclingNetworkPreference("deprecated", REACH_DEST.getValue());
-
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());
         routeMap.put(REGIONAL, VERY_NICE.getValue());
         routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(DEPRECATED, REACH_DEST.getValue());
+        routeMap.put(MTB, UNCHANGED.getValue());
+        routeMap.put(FERRY, AVOID_IF_POSSIBLE.getValue());
 
         setAvoidSpeedLimit(71);
     }
@@ -369,26 +361,6 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     boolean isSacScaleAllowed(String sacScale) {
         // other scales are nearly impossible by an ordinary bike, see http://wiki.openstreetmap.org/wiki/Key:sac_scale
         return "hiking".equals(sacScale);
-    }
-
-    public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(KEY_ROUTE, KEY_BICYCLE)) {
-            Integer val = bikeNetworkToCode.get(relation.getTag("network"));
-            if (val != null) {
-                code = val;
-            }else {
-                code = PriorityCode.PREFER.getValue();  // Assume priority of network "lcn" as bicycle route default
-            }
-        } else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = AVOID_IF_POSSIBLE.getValue();
-        }
-
-        int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
-        if (oldCode < code) {
-             priorityRelationEnc.setDecimal(false, oldRelationFlags, PriorityCode.getFactor(code));
-        }
-        return code;
     }
 
     /**
@@ -844,10 +816,6 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
     SpeedValue getSurfaceSpeed(String key) {
         return surfaceSpeeds.get(key);
-    }
-
-    void setCyclingNetworkPreference(String network, int code) {
-        bikeNetworkToCode.put(network, code);
     }
 
     void addPushingSection(String highway) {

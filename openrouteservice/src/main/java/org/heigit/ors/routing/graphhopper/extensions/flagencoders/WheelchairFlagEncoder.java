@@ -14,22 +14,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderNode;
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
-import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
-
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.graphhopper.routing.ev.RouteNetwork.*;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_HORSE = "horse";
@@ -275,6 +273,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         problematicTracktypes.add("grade3");
         inaccessibleTracktypes.add("grade4");
         inaccessibleTracktypes.add("grade5");
+
+        routeMap.put(INTERNATIONAL, PREFER.getValue());
+        routeMap.put(NATIONAL, PREFER.getValue());
+        routeMap.put(REGIONAL, PREFER.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(OTHER , PREFER.getValue());
     }
 
     @Override
@@ -450,28 +454,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(KEY_ROUTE, "hiking")
-                || relation.hasTag(KEY_ROUTE, "foot")
-                || relation.hasTag(KEY_ROUTE, KEY_BICYCLE)
-                || relation.hasTag(KEY_ROUTE, "inline_skates")
-        ) {
-            code = PriorityCode.PREFER.getValue();
-        } 
-        else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = AVOID_IF_POSSIBLE.getValue();
-        }
-
-        double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
-        if (oldCode < code) {
-            priorityRelationEnc.setDecimal(false, oldRelationRef, PriorityCode.getFactor(code));
-        }
-        return code;
-
-    }
-
-    @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
 
         if (access.canSkip())
@@ -539,11 +521,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             
-            int priorityFromRelation = 0;
-            if (relationFlags != null)
-                priorityFromRelation = (int) priorityRelationEnc.getDecimal(false, relationFlags);
-
-            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+            Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
         } 
         else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);

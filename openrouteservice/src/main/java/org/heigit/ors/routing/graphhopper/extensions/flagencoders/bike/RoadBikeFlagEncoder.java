@@ -18,12 +18,12 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderWay;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
+import static com.graphhopper.routing.ev.RouteNetwork.LOCAL;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
@@ -140,11 +140,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("steps");
         addPushingSection(KEY_BRIDLEWAY);
 
-        setCyclingNetworkPreference("icn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("ncn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("rcn", PriorityCode.VERY_NICE.getValue());
-        setCyclingNetworkPreference("lcn", PriorityCode.UNCHANGED.getValue());
-        setCyclingNetworkPreference("mtb", PriorityCode.UNCHANGED.getValue());
+        routeMap.put(LOCAL, UNCHANGED.getValue());
 
         blockByDefaultBarriers.add("kissing_gate");
 

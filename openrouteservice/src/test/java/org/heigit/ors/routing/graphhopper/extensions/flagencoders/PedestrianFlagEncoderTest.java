@@ -15,20 +15,19 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
-import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PedestrianFlagEncoderTest {
     private final EncodingManager encodingManager = EncodingManager.create(
@@ -70,15 +69,6 @@ public class PedestrianFlagEncoderTest {
         way.setTag("sac_scale", "alpine_hiking");
 
         assertTrue(flagEncoder.getAccess(way).canSkip());
-    }
-
-    @Test
-    public void handleRelationTags() {
-        ReaderRelation rel = new ReaderRelation(1);
-
-        rel.setTag("route", "ferry");
-        IntsRef ref = new IntsRef(2);
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(ref, rel));
     }
 
     @Test

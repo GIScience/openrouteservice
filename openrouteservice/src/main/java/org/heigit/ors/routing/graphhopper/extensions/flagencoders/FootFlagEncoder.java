@@ -15,17 +15,16 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EncodingManager;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
@@ -55,14 +54,11 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     private final Set<String> avoidUnlessSidewalkTags = new HashSet<>();
     Set<String> suitableSacScales = new HashSet<>();
     // convert network tag of hiking routes into a way route code
-    final Map<String, Integer> hikingNetworkToCode = new HashMap<>();
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
-    protected DecimalEncodedValue priorityRelationEnc;
-    private EnumEncodedValue<RouteNetwork> footRouteEnc;
+    protected EnumEncodedValue<RouteNetwork> footRouteEnc;
     Map<RouteNetwork, Integer> routeMap = new HashMap<>();
-
     private BooleanEncodedValue conditionalAccessEncoder;
 
     protected void setProperties(PMap properties) {
@@ -146,15 +142,11 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
                 "road"
         ));
 
-        hikingNetworkToCode.put("iwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("nwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("rwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
-
         routeMap.put(INTERNATIONAL, UNCHANGED.getValue());
         routeMap.put(NATIONAL, UNCHANGED.getValue());
         routeMap.put(REGIONAL, UNCHANGED.getValue());
         routeMap.put(LOCAL, UNCHANGED.getValue());
+        routeMap.put(FERRY, AVOID_IF_POSSIBLE.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
     }
@@ -171,8 +163,6 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
         registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
-        priorityRelationEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "relation_code"), 4, PriorityCode.getFactor(1), false);
-        registerNewEncodedValue.add(priorityRelationEnc);
         if (properties.getBool(ConditionalEdges.ACCESS, false)) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
             registerNewEncodedValue.add(conditionalAccessEncoder);
@@ -215,25 +205,6 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
             return EncodingManager.Access.CAN_SKIP;
 
         return isPermittedWayConditionallyRestricted(way);
-    }
-
-    public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
-            Integer val = hikingNetworkToCode.get(relation.getTag("network"));
-            if (val != null)
-                code = val;
-            else
-                code = hikingNetworkToCode.get("lwn");
-        } else if (relation.hasTag(OSMTags.Keys.ROUTE, "ferry")) {
-            code = AVOID_IF_POSSIBLE.getValue();
-        }
-
-        double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
-        if (oldCode < code) {
-            priorityRelationEnc.setDecimal(false, oldRelationRef, PriorityCode.getFactor(code));
-        }
-        return code;
     }
 
     @Override

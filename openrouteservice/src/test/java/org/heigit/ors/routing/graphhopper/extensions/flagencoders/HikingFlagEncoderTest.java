@@ -15,23 +15,18 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.IntEncodedValue;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class HikingFlagEncoderTest {
     private final EncodingManager encodingManager;
@@ -63,48 +58,6 @@ public class HikingFlagEncoderTest {
         way = generateHikeWay();
         way.getTags().put("sac_scale", "alpine_hiking");
         assertTrue(flagEncoder.getAccess(way).isWay());
-    }
-
-    @Test
-    public void handleRelationTags() {
-        ReaderRelation rel = new ReaderRelation(1);
-        IntsRef ref = new IntsRef(2);
-        rel.getTags().put("route", "hiking");
-
-        rel.getTags().put("network", "iwn");
-        assertEquals(PriorityCode.BEST.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "nwn");
-        assertEquals(PriorityCode.BEST.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "rwn");
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "lwn");
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-
-        rel.getTags().put("route","foot");rel.getTags().put("network", "iwn");
-        assertEquals(PriorityCode.BEST.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "nwn");
-        assertEquals(PriorityCode.BEST.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "rwn");
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-        rel.getTags().put("network", "lwn");
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-
-        rel.getTags().put("network", "unknown");
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-
-        rel.getTags().put("route", "ferry");
-        assertEquals(PriorityCode.AVOID_IF_POSSIBLE.getValue(), flagEncoder.handleRelationTags(ref, rel));
-
-    }
-
-    @Test
-    public void testOldRelationValueMaintained() {
-        ReaderRelation rel = new ReaderRelation(1);
-        rel.setTag("route", "hiking");
-
-        rel.setTag("network", "rwn");
-        IntsRef ref = new IntsRef(2);
-        assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handleRelationTags(ref, rel));
     }
 
     @Test
