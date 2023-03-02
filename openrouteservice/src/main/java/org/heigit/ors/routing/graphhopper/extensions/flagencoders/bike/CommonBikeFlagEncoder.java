@@ -31,6 +31,8 @@ import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
@@ -93,6 +95,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     private String classBicycleKey;
 
     private BooleanEncodedValue conditionalAccessEncoder;
+
+    private static final boolean DEBUG_OUTPUT = false;
+    FileWriter logWriter;
 
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
@@ -255,6 +260,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         routeMap.put(FERRY, AVOID_IF_POSSIBLE.getValue());
 
         setAvoidSpeedLimit(71);
+
+        if (DEBUG_OUTPUT) {
+            try {
+                File file = new File("CommonBikeFlagEncoder.log");
+                logWriter = new FileWriter(file);
+            } catch (Exception ex) {
+                LOGGER.warn("Failed to write log file.");
+            }
+        }
     }
 
     @Override
@@ -407,7 +421,16 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             handleSpeed(edgeFlags, way, ferrySpeed);
         }
 
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, wayTypeSpeed, priorityFromRelation)));
+        int priority = handlePriority(way, wayTypeSpeed, priorityFromRelation);
+        if (DEBUG_OUTPUT) {
+            try {
+                logWriter.write(String.format("WayID %d RelationPrio %d FinalPrio %d %n", way.getId(), priorityFromRelation, priority));
+                logWriter.flush();
+            } catch (Exception ex) {
+                LOGGER.warn("Failed to write log file.");
+            }
+        }
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(priority));
         return edgeFlags;
     }
 
