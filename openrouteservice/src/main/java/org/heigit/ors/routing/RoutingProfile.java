@@ -773,6 +773,12 @@ public class RoutingProfile {
                 props.put("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
         }
 
+        /* User defined road property dependent speeds */
+        if (searchParams.hasRoadPropertySpeedMap()) {
+            props.put("user_speeds", true);
+            props.putObj("user_speeds", searchParams.getRoadPropertySpeedMap());
+        }
+
         if (profileParams != null && profileParams.hasWeightings()) {
             props.put(KEY_CUSTOM_WEIGHTINGS, true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
@@ -998,7 +1004,7 @@ public class RoutingProfile {
      * @param profileType      Necessary for HGV
      * @return Weighting as int
      */
-    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeedorAccess) {
+    private void setWeighting(HintsMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeedOrAccess){
         //Defaults
         String weighting = VAL_RECOMMENDED;
         String weightingMethod = VAL_RECOMMENDED;
@@ -1021,7 +1027,7 @@ public class RoutingProfile {
         map.put(KEY_WEIGHTING, weighting);
         map.put(KEY_WEIGHTING_METHOD, weightingMethod);
 
-        if (hasTimeDependentSpeedorAccess)
+        if (hasTimeDependentSpeedOrAccess)
             map.put(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
     }
 

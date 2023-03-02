@@ -28,6 +28,7 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.userspeed.RoadPropertySpeedMap;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
@@ -91,6 +92,8 @@ public class RouteSearchParameters {
 
     private LocalDateTime departure;
     private LocalDateTime arrival;
+
+    private RoadPropertySpeedMap roadPropertySpeedMap;
 
     public int getProfileType() {
         return profileType;
@@ -599,7 +602,8 @@ public class RouteSearchParameters {
             || hasBearings()
             || hasContinueStraight()
             || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-            || getAlternativeRoutesCount() > 0;
+            || getAlternativeRoutesCount() > 0
+            || hasRoadPropertySpeedMap();
     }
 
     // time-dependent stuff
@@ -629,4 +633,15 @@ public class RouteSearchParameters {
         return (hasDeparture() || hasArrival());
     }
 
+    public RoadPropertySpeedMap getRoadPropertySpeedMap() {
+        return roadPropertySpeedMap;
+    }
+
+    public void setRoadPropertySpeedMap(RoadPropertySpeedMap map) {
+        this.roadPropertySpeedMap = map;
+    }
+
+    public boolean hasRoadPropertySpeedMap() {
+        return this.roadPropertySpeedMap != null;
+    }
 }
