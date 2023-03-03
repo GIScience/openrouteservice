@@ -32,13 +32,12 @@ public class APIRequestSingleCoordinateConverter implements Converter<String, Co
             coordinate.x = Double.parseDouble(coordValues[0]);
             coordinate.y = Double.parseDouble(coordValues[1]);
             return coordinate;
-        } else {
-            // This is a workaround for the breaking change: https://github.com/spring-projects/spring-framework/issues/26679
-            // This is fixed with a "missingAfterConversion" flag in spring-boot 3.x.x.
-            // Required parameters raised a HttpMessageConversionException before spring 2.7.x. when present but wrong.
-            // With spring boot 2.7.x it raises a MissingServletRequestParameterException.
-            // By throwing a RuntimeException in the custom converter spring itself now raises a HttpMessageConversionException.
-            throw new RuntimeException("");
-        }
+}
+// This is a workaround for the breaking change: https://github.com/spring-projects/spring-framework/issues/26679
+        // This is fixed with a "missingAfterConversion" flag in spring-boot 3.x.x.
+        // Required parameters raised a HttpMessageConversionException before spring 2.7.x. when present but wrong.
+        // With spring boot 2.7.x it raises a MissingServletRequestParameterException.
+        // By throwing a RuntimeException in the custom converter spring itself now raises a HttpMessageConversionException.
+        throw new IllegalArgumentException("could not parse coordinates");
     }
 }
