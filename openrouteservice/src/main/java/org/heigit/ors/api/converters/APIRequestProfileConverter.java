@@ -32,6 +32,6 @@ public class APIRequestProfileConverter implements Converter<String, APIEnums.Pr
         // Required parameters raised a HttpMessageConversionException before spring 2.7.x. when present but wrong.
         // With spring boot 2.7.x it raises a MissingServletRequestParameterException.
         // By throwing a RuntimeException in the custom converter spring itself now raises a HttpMessageConversionException.
-        throw new RuntimeException("");
+throw new IllegalArgumentException("unsupported profile");
     }
 }
