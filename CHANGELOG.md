@@ -35,6 +35,15 @@ RELEASING:
 
 ## [Unreleased]
 
+## [7.0.0] - 2023-03-03
+upgrade to GraphHopper 4.0 [#1217](https://github.com/GIScience/openrouteservice/pull/1217) which introduces (amongst other things):
+- faster build time
+- faster route/reachability/matrix calculations
+- improved osm tag logic for all profiles
+- increased test coverage
+- security fixes
+- stability fixes
+
 ## [6.8.3] - 2023-03-02
 ### Fixed
 - wheelchair profile excludes ways tagged highway:construction ([#1295](https://github.com/GIScience/openrouteservice/issues/1295))
@@ -609,7 +618,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
 [6.8.3]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...v6.8.3
 [6.8.2]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...v6.8.2
 [6.8.1]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...v6.8.1
