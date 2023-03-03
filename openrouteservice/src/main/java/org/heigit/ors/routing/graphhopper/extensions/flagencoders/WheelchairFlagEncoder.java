@@ -227,7 +227,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         
         // highways that are not suitable for wheelchair users
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
-        
+        nonWheelchairAccessibleHighways.add("construction"); // Baustellen
+
         // attributes to be checked for limited wheelchair accessible highways
         accessibilityRelatedAttributes.add(KEY_SURFACE);
         accessibilityRelatedAttributes.add(KEY_SMOOTHNESS);

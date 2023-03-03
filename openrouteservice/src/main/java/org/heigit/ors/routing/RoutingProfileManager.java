@@ -112,9 +112,12 @@ public class RoutingProfileManager {
                     nCompletedTasks++;
                     rp.close();
                     LOGGER.info("Graph preparation done.");
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     LOGGER.error(e);
                     throw e;
+                } catch (InterruptedException e) {
+                    LOGGER.error(e);
+                    Thread.currentThread().interrupt();
                 }
             }
             executor.shutdown();
@@ -178,9 +181,12 @@ public class RoutingProfileManager {
                             nCompletedTasks++;
                             if (!routeProfiles.add(rp))
                                 LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException | InterruptedException e) {
+                        } catch (ExecutionException e) {
                             LOGGER.error(e);
                             throw e;
+                        } catch (InterruptedException e) {
+                            LOGGER.error(e);
+                            Thread.currentThread().interrupt();
                         }
                     }
 
