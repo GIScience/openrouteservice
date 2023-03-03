@@ -3,14 +3,14 @@ package org.heigit.ors.fastisochrones;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.LocationIndex;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
@@ -38,12 +38,12 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class Eccentricity extends AbstractEccentricity {
     //This value determines how many nodes of a cell need to be reached in order for the cell to count as fully reachable.
     //Some nodes might be part of a cell but unreachable (disconnected, behind infinite weight, ...)
-    private static final double acceptedFullyReachablePercentage = 0.995;
+    private static final double ACCEPTED_FULLY_REACHABLE_PERCENTAGE = 0.995;
     //This factor determines how far the Dijkstra should search for a path to find the eccentricity if it cannot be found inside the cell.
     //A factor of 10 means that the Dijkstra will search an area of 10 * maxCellNodesNumber.
     //This is needed to get a better estimate on the eccentricity, but not run a Dijkstra on the whole graph to find it.
-    private static final int eccentricityDijkstraLimitFactor = 10;
-    private LocationIndex locationIndex;
+    private static final int ECCENTRICITY_DIJKSTRA_LIMIT_FACTOR = 10;
+    private final LocationIndex locationIndex;
 
     public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         super(graphHopperStorage);
@@ -64,7 +64,7 @@ public class Eccentricity extends AbstractEccentricity {
 
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
-        EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
+        EdgeFilter defaultEdgeFilter = AccessFilter.outEdges(flagEncoder.getAccessEnc());
 
         IntObjectHashMap<IntHashSet> relevantNodesSets = new IntObjectHashMap<>(isochroneNodeStorage.getCellIds().size());
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
@@ -86,16 +86,16 @@ public class Eccentricity extends AbstractEccentricity {
                 edgeFilterSequence.add(fixedCellEdgeFilter);
                 edgeFilterSequence.add(additionalEdgeFilter);
                 RangeDijkstra rangeDijkstra = new RangeDijkstra(graph, weighting);
-                rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
+                rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * ECCENTRICITY_DIJKSTRA_LIMIT_FACTOR);
                 rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                 rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
                 double eccentricity = rangeDijkstra.calcMaxWeight(node, relevantNodesSets.get(isochroneNodeStorage.getCellId(node)));
                 int cellNodeCount = cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)).size();
                 //Rerun outside of cell if not enough nodes were found in first run, but try to find almost all
                 //Sometimes nodes in a cell cannot be found, but we do not want to search the entire graph each time, so we limit the Dijkstra
-                if (((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount < acceptedFullyReachablePercentage) {
+                if (((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount < ACCEPTED_FULLY_REACHABLE_PERCENTAGE) {
                     rangeDijkstra = new RangeDijkstra(graph, weighting);
-                    rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * eccentricityDijkstraLimitFactor);
+                    rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * ECCENTRICITY_DIJKSTRA_LIMIT_FACTOR);
                     rangeDijkstra.setEdgeFilter(edgeFilterSequence);
                     rangeDijkstra.setCellNodes(cellStorage.getNodesOfCell(isochroneNodeStorage.getCellId(node)));
                     edgeFilterSequence = new EdgeFilterSequence();
@@ -105,7 +105,7 @@ public class Eccentricity extends AbstractEccentricity {
                 }
 
                 //TODO Maybe implement a logic smarter than having some high percentage for acceptedFullyReachable
-                boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= acceptedFullyReachablePercentage;
+                boolean isFullyReachable = ((double) rangeDijkstra.getFoundCellNodeSize()) / cellNodeCount >= ACCEPTED_FULLY_REACHABLE_PERCENTAGE;
                 eccentricityStorage.setFullyReachable(node, isFullyReachable);
 
                 eccentricityStorage.setEccentricity(node, eccentricity);
@@ -162,7 +162,7 @@ public class Eccentricity extends AbstractEccentricity {
     private void calculateBorderNodeDistances(BorderNodeDistanceStorage borderNodeDistanceStorage, EdgeFilter additionalEdgeFilter, int cellId, Weighting weighting, FlagEncoder flagEncoder) {
         int[] cellBorderNodes = getBorderNodesOfCell(cellId, cellStorage, isochroneNodeStorage).toArray();
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        EdgeFilter defaultEdgeFilter = DefaultEdgeFilter.outEdges(flagEncoder);
+        EdgeFilter defaultEdgeFilter = AccessFilter.outEdges(flagEncoder.getAccessEnc());
         edgeFilterSequence.add(defaultEdgeFilter);
         edgeFilterSequence.add(additionalEdgeFilter);
         Graph graph = ghStorage.getBaseGraph();

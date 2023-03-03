@@ -51,7 +51,7 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         // TODO Check if the shadow index file exists
         String csvFile = parameters.get("filepath");
-        System.out.print("Shadow Index File: " + csvFile + "\n");
+        LOGGER.info("Shadow Index File: " + csvFile);
         readShadowIndicesFromCSV(csvFile);
         _storage = new ShadowIndexGraphStorage();
 
@@ -113,7 +113,7 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return (byte) no_data;
 
         if (shadow_index > max_level) {
-            System.out.print("\nThe shadow index value of osm way, id = " + id + " is " + shadow_index
+            LOGGER.warn("\nThe shadow index value of osm way, id = " + id + " is " + shadow_index
                 + ", which is larger than than max level!");
             return (byte) max_level;
         }

@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.util;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 
 import java.math.RoundingMode;
@@ -55,5 +55,9 @@ public class FormatUtility {
 
 	public static double roundToDecimalsForUnits(double d, DistanceUnit unit) {
 		return roundToDecimals(d, getUnitDecimals(unit));
+	}
+
+	public static void unload(){
+		nfCoordRound.remove();
 	}
 }

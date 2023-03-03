@@ -74,38 +74,6 @@ import java.util.Arrays;
         }
 
         /**
-         * @return true, if and only if, if an additional field at the graphs node storage is required
-         */
-        @Override// TODO: true or false?
-        public boolean isRequireNodeField() {
-            return true;
-        }
-
-        /**
-         * @return true, if and only if, if an additional field at the graphs edge storage is required
-         */
-        @Override
-        public boolean isRequireEdgeField() {
-            return true;
-        }
-
-        /**
-         * @return the default field value which will be set for default when creating nodes
-         */
-        @Override
-        public int getDefaultNodeFieldValue() {
-            return -1;
-        }
-
-        /**
-         * @return the default field value which will be set for default when creating edges
-         */
-        @Override
-        public int getDefaultEdgeFieldValue() {
-            return -1;
-        }
-
-        /**
          * initializes the extended storage by giving the base graph
          *
          * @param graph
@@ -117,33 +85,6 @@ import java.util.Arrays;
                 throw new AssertionError("The ORS storage must be initialized only once.");
 
             this.orsEdges = dir.find("ext_csv");
-        }
-
-        /**
-         * sets the segment size in all additional data storages
-         *
-         * @param bytes
-         */
-        @Override // TODO
-        public void setSegmentSize(int bytes) { orsEdges.setSegmentSize(bytes); }
-
-        /**
-         * creates a copy of this extended storage
-         *
-         * @param clonedStorage
-         */
-        @Override // TODO
-        public GraphExtension copyTo(GraphExtension clonedStorage) {
-            if (!(clonedStorage instanceof org.heigit.ors.routing.graphhopper.extensions.storages.CsvGraphStorage)) {
-                throw new IllegalStateException("the extended storage to clone must be the same");
-            }
-
-            CsvGraphStorage clonedTC = (CsvGraphStorage) clonedStorage;
-
-            orsEdges.copyTo(clonedTC.orsEdges);
-            clonedTC.edgesCount = edgesCount;
-
-            return clonedStorage;
         }
 
         /**

@@ -13,14 +13,11 @@
  */
 package org.heigit.ors.mapmatching;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.util.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.heigit.ors.util.FrechetDistance;
 
 import java.awt.geom.Point2D;
@@ -28,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RouteSegmentInfo {
-	private List<EdgeIteratorState> edges;
-	private Geometry geometry;
-	private long time;
-	private double distance;
+	private final List<EdgeIteratorState> edges;
+	private final Geometry geometry;
+	private final long time;
+	private final double distance;
 
 	public RouteSegmentInfo(List<EdgeIteratorState> edges, double distance, long time, Geometry geom) {
 		this.edges = edges;
@@ -119,8 +116,8 @@ public class RouteSegmentInfo {
 			if (Helper.isEmpty(edgeName))
 				continue;
 
-			PointList pl = edge.fetchWayGeometry(3);
-			if (pl.getSize() <= 1)
+			PointList pl = edge.fetchWayGeometry(FetchMode.ALL);
+			if (pl.size() <= 1)
 				continue;
 
 			if (ignoreAdjacency && arePolylinesAdjacent(points, pl))
@@ -145,12 +142,12 @@ public class RouteSegmentInfo {
 	}
 
 	private Point2D[] getPoints(PointList points) {
-		List<Point2D> res = new ArrayList<>(points.getSize());
+		List<Point2D> res = new ArrayList<>(points.size());
 		double lon0 = 0;
 		double lat0 = 0;
 		double lon1;
 		double lat1;
-		for (int i = 0; i < points.getSize(); i++) {
+		for (int i = 0; i < points.size(); i++) {
 			lon1 = points.getLon(i);
 			lat1 = points.getLat(i);
 			if (i > 0 && (lon0 == lon1 || lat0 == lat1))
@@ -165,11 +162,11 @@ public class RouteSegmentInfo {
 	}
 
 	private boolean arePolylinesAdjacent(PointList pl1, PointList pl2) {
-		for (int i = 0; i < pl1.getSize(); i++) {
+		for (int i = 0; i < pl1.size(); i++) {
 			double lon0 = pl1.getLon(i);
 			double lat0 = pl1.getLat(i);
 
-			for (int j = 0; j < pl2.getSize(); j++) {
+			for (int j = 0; j < pl2.size(); j++) {
 				double lon1 = pl2.getLon(j);
 				double lat1 = pl2.getLat(j);
 

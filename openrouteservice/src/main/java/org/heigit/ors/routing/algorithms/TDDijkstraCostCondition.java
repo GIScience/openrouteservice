@@ -18,7 +18,7 @@ import com.graphhopper.routing.TDDijkstra;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 
 public class TDDijkstraCostCondition extends TDDijkstra {
     private double weightLimit = -1;

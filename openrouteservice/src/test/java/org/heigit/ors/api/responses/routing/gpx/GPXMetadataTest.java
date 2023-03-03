@@ -4,7 +4,7 @@ import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.util.mockuputil.RouteResultMockup;
 
 public class GPXMetadataTest {
-    RouteResult routeResult[];
+    RouteResult[] routeResult;
 
     public GPXMetadataTest() {
         try {

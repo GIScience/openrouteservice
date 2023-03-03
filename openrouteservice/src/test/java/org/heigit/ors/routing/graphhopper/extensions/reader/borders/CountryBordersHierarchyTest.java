@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.junit.Test;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public class CountryBordersHierarchyTest {
             cbh2 = new CountryBordersHierarchy();
             cbh2.add(cbp3);
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println(e);
         }
     }
 

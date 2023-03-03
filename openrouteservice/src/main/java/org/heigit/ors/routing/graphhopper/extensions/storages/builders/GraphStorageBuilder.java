@@ -17,11 +17,10 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.plugins.Plugin;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public interface GraphStorageBuilder extends Plugin {
@@ -29,7 +28,7 @@ public interface GraphStorageBuilder extends Plugin {
 
 	void processWay(ReaderWay way);
 
-	void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String, String>> nodeTags);
+	void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags);
 	
 	void processEdge(ReaderWay way, EdgeIteratorState edge);
 

@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class RouteStepManeuver {
 	private Coordinate location;

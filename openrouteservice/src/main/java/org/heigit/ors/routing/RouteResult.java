@@ -18,26 +18,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 
 public class RouteResult {
-	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
-	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
 
-	private RouteSummary summary;
 	private Coordinate[] geometry;
 	private List<RouteSegment> segments;
 	private List<RouteExtraInfo> extraInfo;
-	private List<Integer> wayPointsIndices;
-	private List<RouteWarning> routeWarnings;
 	private PointList pointlist;
 	private String graphDate = "";
+	private final List<Integer> wayPointsIndices;
+	private final List<RouteWarning> routeWarnings;
+	private final RouteSummary summary;
 
 	private ZonedDateTime departure;
 	private ZonedDateTime arrival;
+	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
+	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();
@@ -133,7 +133,7 @@ public class RouteResult {
 
 	public void addPointlist(PointList pointlistToAdd) {
 		if (pointlist == null) {
-			pointlist = new PointList(pointlistToAdd.getSize(), pointlistToAdd.is3D());
+			pointlist = new PointList(pointlistToAdd.size(), pointlistToAdd.is3D());
 		}
 		pointlist.add(pointlistToAdd);
 	}

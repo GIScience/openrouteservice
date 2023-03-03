@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.util.FormatUtility;
@@ -27,10 +27,10 @@ import org.heigit.ors.util.UnitsConverter;
 import org.heigit.ors.common.Pair;
 
 public class IsochronesIntersection {
-	private Geometry geometry;
+	private final Geometry geometry;
 	private Envelope envelope;
 	private double area = 0.0;
-	private List<Pair<Integer, Integer>> contourRefs;
+	private final List<Pair<Integer, Integer>> contourRefs;
 
 	public IsochronesIntersection(Geometry geometry) {
 		this.geometry = geometry;

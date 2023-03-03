@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.routing.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.routing.RouteStepManeuver;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,10 +35,10 @@ public class JSONStepManeuver {
     private Double[] location;
     @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.", example = "24")
     @JsonProperty("bearing_before")
-    private Integer bearingBefore;
+    private final Integer bearingBefore;
     @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.", example = "96")
     @JsonProperty("bearing_after")
-    private Integer bearingAfter;
+    private final Integer bearingAfter;
 
     public JSONStepManeuver(RouteStepManeuver maneuver) {
         Coordinate coordinate = maneuver.getLocation();

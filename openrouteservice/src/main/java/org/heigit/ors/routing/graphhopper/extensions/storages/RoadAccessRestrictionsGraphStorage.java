@@ -32,7 +32,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
     protected int edgeEntryIndex = 0;
     protected int edgeEntryBytes;
     protected int edgesCount;
-    private byte[] byteData;
+    private final byte[] byteData;
 
     public RoadAccessRestrictionsGraphStorage() {
         efRestrictions = nextBlockEntryIndex(1);
@@ -83,14 +83,14 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.setSegmentSize(bytes);
     }
 
-    public GraphExtension create(long initBytes) {
+    public RoadAccessRestrictionsGraphStorage create(long initBytes) {
         edges.create(initBytes * edgeEntryBytes);
         return this;
     }
 
     public void flush() {
         edges.setHeader(0, edgeEntryBytes);
-        edges.setHeader(1 * 4, edgesCount);
+        edges.setHeader(4, edgesCount);
         edges.flush();
     }
 
@@ -98,6 +98,7 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.close();
     }
 
+    @Override
     public long getCapacity() {
         return edges.getCapacity();
     }
@@ -119,36 +120,6 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         edges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
     }
 
-    public boolean isRequireNodeField() {
-        return true;
-    }
-
-    public boolean isRequireEdgeField() {
-        // we require the additional field in the graph to point to the first
-        // entry in the node table
-        return true;
-    }
-
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof RoadAccessRestrictionsGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        RoadAccessRestrictionsGraphStorage clonedTC = (RoadAccessRestrictionsGraphStorage) clonedStorage;
-
-        edges.copyTo(clonedTC.edges);
-        clonedTC.edgesCount = edgesCount;
-
-        return clonedStorage;
-    }
 
     @Override
     public boolean isClosed() {

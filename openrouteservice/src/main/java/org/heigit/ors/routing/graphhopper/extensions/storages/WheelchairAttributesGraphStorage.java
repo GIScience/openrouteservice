@@ -13,12 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.routing.util.EncodedValueOld;
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.EncodedValueOld;
 
 public class WheelchairAttributesGraphStorage implements GraphExtension {
 	protected static final int WIDTH_MAX_VALUE = 300;
@@ -36,20 +33,20 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private byte[] buffer;
+	private final byte[] buffer;
 
 	// bit encoders
-	private EncodedValueOld surfaceEncoder;
-	private EncodedValueOld smoothnessEncoder;
-	private EncodedValueOld trackTypeEncoder;
-	private EncodedValueOld inclineEncoder;
-	private EncodedValueOld kerbHeightEncoder;
-	private EncodedValueOld widthEncoder;
-	private EncodedValueOld sideFlagEncoder;
-	private EncodedValueOld hasKerbHeightEncoder;
-	private EncodedValueOld hasInclineEncoder;
-	private EncodedValueOld surfaceQualityKnownEncoder;
-	private EncodedValueOld pedestrianisedEncoder;
+	private final EncodedValueOld surfaceEncoder;
+	private final EncodedValueOld smoothnessEncoder;
+	private final EncodedValueOld trackTypeEncoder;
+	private final EncodedValueOld sideFlagEncoder;
+	private final EncodedValueOld kerbHeightEncoder;
+	private final EncodedValueOld hasKerbHeightEncoder;
+	private final EncodedValueOld inclineEncoder;
+	private final EncodedValueOld hasInclineEncoder;
+	private final EncodedValueOld widthEncoder;
+	private final EncodedValueOld surfaceQualityKnownEncoder;
+	private final EncodedValueOld pedestrianisedEncoder;
 
 	public static final int BYTE_COUNT = 5;
 
@@ -102,11 +99,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_wheelchair");
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
-
-	public GraphExtension create(long initBytes) {
+	public WheelchairAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -121,6 +114,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		orsEdges.close();
 	}
 
+	@Override
 	public long getCapacity() {
 		return orsEdges.getCapacity();
 	}
@@ -167,7 +161,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		if (attrs.hasValues()) {
 			long encodedValue = 0;
 			// set first bit to 1 to mark that we have wheelchair specific attributes for this edge
-			encodedValue |= (1L << 0);
+			encodedValue |= (1L);
 			if (attrs.getSurfaceType() > 0)
 				encodedValue = surfaceEncoder.setValue(encodedValue, attrs.getSurfaceType());
 
@@ -309,21 +303,9 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		return -1;
 	}
 
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof WheelchairAttributesGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		WheelchairAttributesGraphStorage clonedTC = (WheelchairAttributesGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
-	}
-
 	@Override
 	public boolean isClosed() {
 		return false;
 	}
+
 }

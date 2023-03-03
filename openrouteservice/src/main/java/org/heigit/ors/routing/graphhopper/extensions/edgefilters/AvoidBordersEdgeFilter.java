@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -32,7 +32,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
         init(searchParams, extBorders);
     }
 
-    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, GraphStorage graphStorage) {
+    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, GraphHopperStorage graphStorage) {
         BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         init(searchParams, extBorders);
     }

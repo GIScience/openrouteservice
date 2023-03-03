@@ -1,6 +1,6 @@
 package org.heigit.ors.routing;
 
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -38,14 +38,14 @@ public class RouteSearchParametersTest {
     @Test
     public void getWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
     public void setWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
+        routeSearchParameters.setWeightingMethod(WeightingMethod.FASTEST);
+        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
@@ -184,14 +184,14 @@ public class RouteSearchParametersTest {
     @Test
     public void getFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
     }
 
     @Test
     public void setFlexibleMode() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setFlexibleMode(true);
-        Assert.assertTrue(routeSearchParameters.getFlexibleMode());
+        Assert.assertTrue(routeSearchParameters.hasFlexibleMode());
     }
 
     @Test

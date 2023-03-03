@@ -104,23 +104,13 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         avoidHighwayTags.add("secondary");
         avoidHighwayTags.add("secondary_link");
 
-        absoluteBarriers.add("kissing_gate");
+        blockByDefaultBarriers.add("kissing_gate");
 
         setSpecificClassBicycle("touring");
-
-        // MARQ24 -> till here this will just overwite the default values of the common bike flag encoder...
-
-        this.init();
     }
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    public int getVersion()
-    {
-        return 2;
     }
 
     @Override

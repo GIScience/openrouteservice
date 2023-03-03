@@ -1,6 +1,6 @@
 package org.heigit.ors.centrality;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.Pair;
 
 import java.util.HashMap;
@@ -11,7 +11,6 @@ public class CentralityResult {
     private Map<Integer, Double> nodeCentralityScores;
     private Map<Pair<Integer, Integer>, Double> edgeCentralityScores;
     private CentralityWarning warning;
-
 
     public CentralityResult() {
         this.locations = new HashMap<>();

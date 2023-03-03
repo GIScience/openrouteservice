@@ -1,7 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 public class FlagEncoderNames {
-    private static final String ORS_SUFFIX      = "-ors";
+    private static final String ORS_SUFFIX      = "_ors";
+
+    public static final String UNKNOWN          = "UNKNOWN";
 
     public static final String CAR_ORS          = "car" + ORS_SUFFIX;
     public static final String HEAVYVEHICLE     = "heavyvehicle";

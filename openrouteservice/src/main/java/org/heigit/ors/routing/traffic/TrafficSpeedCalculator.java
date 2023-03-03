@@ -1,6 +1,6 @@
 package org.heigit.ors.routing.traffic;
 
-import com.graphhopper.routing.EdgeKeys;
+import com.graphhopper.routing.querygraph.EdgeKeys;
 import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;

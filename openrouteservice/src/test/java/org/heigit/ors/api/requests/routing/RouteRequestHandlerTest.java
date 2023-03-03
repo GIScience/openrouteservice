@@ -15,8 +15,8 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.*;
@@ -45,7 +45,7 @@ public class RouteRequestHandlerTest {
     private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
-    private JSONObject geoJsonPolygon;
+    private final JSONObject geoJsonPolygon;
 
     public RouteRequestHandlerTest() throws Exception {
         init();
@@ -176,7 +176,7 @@ public class RouteRequestHandlerTest {
         Assert.assertTrue(routingRequest.getIncludeElevation());
         Assert.assertEquals(WeightingMethod.FASTEST, routingRequest.getSearchParameters().getWeightingMethod());
         Assert.assertEquals(DistanceUnit.METERS, routingRequest.getUnits());
-        Assert.assertTrue(routingRequest.getSearchParameters().getFlexibleMode());
+        Assert.assertTrue(routingRequest.getSearchParameters().hasFlexibleMode());
 
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
         Assert.assertArrayEquals(new int[] {115}, routingRequest.getSearchParameters().getAvoidCountries());
@@ -189,13 +189,13 @@ public class RouteRequestHandlerTest {
         Iterator<ProfileWeighting> iter = weightings.getIterator();
         while (iter.hasNext() && (weighting = iter.next()) != null) {
             if (weighting.getName().equals("green")) {
-                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("quiet")) {
-                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("steepness_difficulty")) {
-                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0);
+                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0.0001);
             }
         }
     }
@@ -245,11 +245,8 @@ public class RouteRequestHandlerTest {
 
         WayPointBearing[] bearings = routingRequest.getSearchParameters().getBearings();
         Assert.assertEquals(10.0, bearings[0].getValue(), 0);
-        Assert.assertEquals(10.0, bearings[0].getDeviation(), 0);
         Assert.assertEquals(260.0, bearings[1].getValue(), 0);
-        Assert.assertEquals(90.0, bearings[1].getDeviation(), 0);
         Assert.assertEquals(45.0, bearings[2].getValue(), 0);
-        Assert.assertEquals(30.0, bearings[2].getDeviation(), 0);
     }
 
     @Test

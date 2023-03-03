@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.matrix.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,7 +42,7 @@ public class JSONLocation {
     @ApiModelProperty(value = "Distance between the `source/destination` Location and the used point on the routing graph.", example = "1.2")
     @JsonProperty(value = "snapped_distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
-    private Double snappedDistance;
+    private final Double snappedDistance;
 
     JSONLocation(ResolvedLocation location, boolean includeResolveLocations) {
         this.snappedDistance = location.getSnappedDistance();

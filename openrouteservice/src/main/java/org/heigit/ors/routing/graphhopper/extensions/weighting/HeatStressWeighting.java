@@ -1,9 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.CsvGraphStorage;
@@ -17,18 +17,18 @@ public class HeatStressWeighting extends FastestWeighting {
     private final String columnName;
     private final int columnIndex; // Caches index of columnName for performance reasons
 
-    public HeatStressWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public HeatStressWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
         heatStressStorage = GraphStorageUtils.getGraphExtension(graphStorage, CsvGraphStorage.class);
         buffer = new byte[heatStressStorage.numEntries()];
 
         weightingFactor = map.getDouble("factor", 1);
-        this.columnName = map.get("column", "");
+        this.columnName = map.getString("column", "");
         this.columnIndex = heatStressStorage.columnIndex(columnName);
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         if (heatStressStorage != null) {
             int stressLevel = heatStressStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), columnIndex, buffer);
             return stressLevel * weightingFactor / 100;

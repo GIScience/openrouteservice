@@ -14,9 +14,9 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -59,7 +59,7 @@ public class RouteSearchParameters {
     public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
     public static final int DEFAULT_HGV_VEHICLE_TYPE = HeavyVehicleAttributes.HGV;
     private int profileType;
-    private int weightingMethod = WeightingMethod.FASTEST;
+    private int weightingMethod = WeightingMethod.RECOMMENDED;
     private Boolean considerTurnRestrictions = false;
     private Polygon[] avoidAreas;
     private int avoidFeaturesTypes;
@@ -365,7 +365,7 @@ public class RouteSearchParameters {
                 }
 
                 if (jRestrictions.has("surface_quality_known")) {
-                    wheelchairParams.setSurfaceQualityKnown((boolean) jRestrictions.getBoolean("surface_quality_known"));
+                    wheelchairParams.setSurfaceQualityKnown(jRestrictions.getBoolean("surface_quality_known"));
                 }
 
                 profileParams = wheelchairParams;
@@ -487,7 +487,7 @@ public class RouteSearchParameters {
         this.profileParams = profileParams;
     }
 
-    public boolean getFlexibleMode() {
+    public boolean hasFlexibleMode() {
         return flexibleMode;
     }
 
@@ -588,7 +588,8 @@ public class RouteSearchParameters {
             || getConsiderTurnRestrictions()
             || hasNonDefaultVehicleType()
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed();
+            || hasMaximumSpeed()
+            || hasFlexibleMode();
     }
 
     /**

@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.configuration;
 
@@ -18,51 +18,53 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.typesafe.config.Config;
-import com.vividsolutions.jts.geom.Envelope;
+import org.locationtech.jts.geom.Envelope;
 
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration {
-	private String name = "";
-	private boolean enabled = true;
-	private String profiles; // comma separated
-	private String graphPath;
-	private Map<String, Map<String, String>> extStorages;
-	private Map<String, Map<String, String>> graphBuilders;
-	private Double maximumDistance = 0.0;
-	private Double maximumDistanceDynamicWeights = 0.0;
-	private Double maximumDistanceAvoidAreas = 0.0;
-	private Double maximumDistanceAlternativeRoutes = 0.0;
-	private Double maximumDistanceRoundTripRoutes = 0.0;
-	private Integer maximumWayPoints = 0;
-	private boolean instructions = true;
-	private boolean optimize = false;
-	
-	private int encoderFlagsSize = 4;
-	private String encoderOptions = null;
-	
-	private Config isochronePreparationOpts;
-	private Config preparationOpts;
-	private Config executionOpts;
-	
-	private String elevationProvider = null;
-	private String elevationCachePath = null;
-	private String elevationDataAccess = "MMAP";
-	private boolean elevationCacheClear = true;
-	private boolean elevationSmoothing = true;
-	private boolean interpolateBridgesAndTunnels = true;
-	private int maximumSnappingRadius = 350;
+    private String name = "";
+    private boolean enabled = true;
+    private String profiles = ""; // comma separated
+    private String graphPath;
+    private Map<String, Map<String, String>> extStorages;
+    private Map<String, Map<String, String>> graphBuilders;
+    private Double maximumDistance = 0.0;
+    private Double maximumDistanceDynamicWeights = 0.0;
+    private Double maximumDistanceAvoidAreas = 0.0;
+    private Double maximumDistanceAlternativeRoutes = 0.0;
+    private Double maximumDistanceRoundTripRoutes = 0.0;
+    private Integer maximumWayPoints = 0;
+    private boolean instructions = true;
+    private boolean optimize = false;
 
-	private Envelope extent;
-	private boolean hasMaximumSnappingRadius = false;
+    private int encoderFlagsSize = 4;
+    private String encoderOptions = null;
 
-	private int locationIndexResolution = 500;
-	private int locationIndexSearchIterations = 4;
+    private Config isochronePreparationOpts;
+    private Config preparationOpts;
+    private Config executionOpts;
 
-	private double maximumSpeedLowerBound = 80;
+    private String elevationProvider = null;
+    private String elevationCachePath = null;
+    private String elevationDataAccess = "MMAP";
+    private boolean elevationCacheClear = true;
+    private boolean elevationSmoothing = true;
+    private boolean interpolateBridgesAndTunnels = true;
+    private int maximumSnappingRadius = 350;
 
-	private int trafficExpirationMin = 15;
+    private Envelope extent;
+    private boolean hasMaximumSnappingRadius = false;
 
+    private int locationIndexResolution = 500;
+    private int locationIndexSearchIterations = 4;
+
+    private double maximumSpeedLowerBound = 80;
+
+    private int trafficExpirationMin = 15;
+
+    private boolean turnCostEnabled = false;
 	private boolean enforceTurnCosts = false;
 
 	public RouteProfileConfiguration() {
@@ -70,342 +72,327 @@ public class RouteProfileConfiguration {
 		graphBuilders = new HashMap<>();
 	}
 
-	public RouteProfileConfiguration(RouteProfileConfiguration rpc) {
-		name = rpc.name;
-		enabled = rpc.enabled;
-		profiles = rpc.profiles;
-		graphPath = rpc.graphPath;
+    public RouteProfileConfiguration(RouteProfileConfiguration rpc) {
+        name = rpc.name;
+        enabled = rpc.enabled;
+        profiles = rpc.profiles;
+        graphPath = rpc.graphPath;
 
-		maximumDistance = rpc.maximumDistance;
-		maximumDistanceDynamicWeights = rpc.maximumDistanceDynamicWeights;
-		maximumDistanceAvoidAreas = rpc.maximumDistanceAvoidAreas;
-		maximumWayPoints = rpc.maximumWayPoints;
-		optimize = rpc.optimize;
-		instructions = rpc.instructions;
+        maximumDistance = rpc.maximumDistance;
+        maximumDistanceDynamicWeights = rpc.maximumDistanceDynamicWeights;
+        maximumDistanceAvoidAreas = rpc.maximumDistanceAvoidAreas;
+        maximumWayPoints = rpc.maximumWayPoints;
+        optimize = rpc.optimize;
+        instructions = rpc.instructions;
 
-		encoderFlagsSize = rpc.encoderFlagsSize;
-		encoderOptions = rpc.encoderOptions;
+        encoderFlagsSize = rpc.encoderFlagsSize;
+        encoderOptions = rpc.encoderOptions;
+        turnCostEnabled = hasTurnCosts(rpc.encoderOptions);
 		enforceTurnCosts = rpc.enforceTurnCosts;
 
-		isochronePreparationOpts = rpc.isochronePreparationOpts;
-		preparationOpts = rpc.preparationOpts;
-		executionOpts = rpc.executionOpts;
+        isochronePreparationOpts = rpc.isochronePreparationOpts;
+        preparationOpts = rpc.preparationOpts;
+        executionOpts = rpc.executionOpts;
 
-		extStorages = rpc.extStorages;
-		graphBuilders = rpc.graphBuilders;
+        extStorages = rpc.extStorages;
+        graphBuilders = rpc.graphBuilders;
 
-		elevationCachePath = rpc.elevationCachePath;
-		elevationCacheClear = rpc.elevationCacheClear;
-		elevationProvider = rpc.elevationProvider;
-		elevationDataAccess = rpc.elevationDataAccess;
-		elevationSmoothing = rpc.elevationSmoothing;
-		interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
+        elevationCachePath = rpc.elevationCachePath;
+        elevationCacheClear = rpc.elevationCacheClear;
+        elevationProvider = rpc.elevationProvider;
+        elevationDataAccess = rpc.elevationDataAccess;
+        elevationSmoothing = rpc.elevationSmoothing;
+        interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
 
-		maximumSnappingRadius = rpc.maximumSnappingRadius;
-		hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
+        maximumSnappingRadius = rpc.maximumSnappingRadius;
+        hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
 
-		extent = rpc.extent;
+        extent = rpc.extent;
 
-		maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
+        maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 
-		trafficExpirationMin = rpc.trafficExpirationMin;
-	}
+        trafficExpirationMin = rpc.trafficExpirationMin;
+    }
 
-	public Integer[] getProfilesTypes() {
-		ArrayList<Integer> list = new ArrayList<>();
-		
-		String[] elements = profiles.split("\\s*,\\s*");
-		
-		for (int i = 0; i< elements.length; i++) {
-			int profileType = RoutingProfileType.getFromString(elements[i]);
-			
-			if (profileType != RoutingProfileType.UNKNOWN) {
-				list.add(profileType);
-			}
-		}
-		
-		return list.toArray(new Integer[list.size()]);
-	}
-	
-	public void setName(String value)
-	{
-		name = value;
-	}
-	
-	public String getName()
-	{
-		return name;
-	}
-	
-	public void setEnabled(Boolean value)
-	{
-		enabled = value;
-	}
-	
-	public boolean getEnabled()
-	{
-		return enabled;
-	}
-	
-	public void setProfiles(String value)
-	{
-		profiles = value;
-	}
-	
-	public String getProfiles()
-	{
-		return profiles;
-	}
-	
-	public void setGraphPath(String value)
-	{
-		graphPath = value;
-	}
-	
-	public String getGraphPath()
-	{
-		return graphPath;
-	}
-	
-	public void setExtStorages(Map<String, Map<String, String>> value)
-	{
-		extStorages = value;
-	}
-	
-	public Map<String, Map<String, String>> getExtStorages()
-	{
-		return extStorages;
-	}
-	
-	public void setGraphBuilders(Map<String, Map<String, String>> value)
-	{
-		graphBuilders = value;
-	}
-	
-	public Map<String, Map<String, String>> getGraphBuilders()
-	{
-		return graphBuilders;
-	}
-	
-	public void setInstructions(Boolean value)
-	{
-		instructions = value;
-	}
-	
-	public boolean getInstructions()
-	{
-		return instructions;
-	}
-	
-	public void setMaximumDistance(Double value)
-	{
-		maximumDistance = value;
-	}
-	
-	public Double getMaximumDistance()
-	{
-		return maximumDistance;
-	}
-	
-	public void setMaximumDistanceDynamicWeights(Double value)
-	{
-		maximumDistanceDynamicWeights = value;
-	}
-	
-	public Double getMaximumDistanceDynamicWeights()
-	{
-		return maximumDistanceDynamicWeights;
-	}
+    private static boolean hasTurnCosts(String encoderOptions) {
+        for (String option : encoderOptions.split("\\|")) {
+            String[] keyValuePair = option.split("=");
+            if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {
+                return keyValuePair[1].equals("true");
+            }
+        }
+        return false;
+    }
 
-	public void setMaximumDistanceAvoidAreas(Double value)
-	{
-		maximumDistanceAvoidAreas = value;
-	}
+    public Integer[] getProfilesTypes() {
+        ArrayList<Integer> list = new ArrayList<>();
 
-	public Double getMaximumDistanceAvoidAreas()
-	{
-		return maximumDistanceAvoidAreas;
-	}
-	public Double getMaximumDistanceAlternativeRoutes() {
-		return maximumDistanceAlternativeRoutes;
-	}
+        String[] elements = profiles.split("\\s*,\\s*");
 
-	public void setMaximumDistanceAlternativeRoutes(Double maximumDistanceAlternativeRoutes) {
-		this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
-	}
+        for (String element : elements) {
+            int profileType = RoutingProfileType.getFromString(element);
 
-	public Double getMaximumDistanceRoundTripRoutes() {
-		return maximumDistanceRoundTripRoutes;
-	}
+            if (profileType != RoutingProfileType.UNKNOWN) {
+                list.add(profileType);
+            }
+        }
 
-	public void setMaximumDistanceRoundTripRoutes(Double maximumDistanceRoundTripRoutes) {
-		this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
-	}
+        return list.toArray(new Integer[list.size()]);
+    }
 
-	public void setMaximumWayPoints(Integer value)
-	{
-		maximumWayPoints = value;
-	}
-	
-	public Integer getMaximumWayPoints()
-	{
-		return maximumWayPoints;
-	}
-	
-	public void setEncoderFlagsSize(Integer value)
-	{
-		encoderFlagsSize = value;
-	}
-	
-	public Integer getEncoderFlagsSize()
-	{
-		return encoderFlagsSize;
-	}
-	
-	public void setEncoderOptions(String value)
-	{
-		encoderOptions = value;
-	}
-	
-	public String getEncoderOptions()
-	{
-		return encoderOptions;
-	}
-	
-	public void setExtent(Envelope value)
-	{
-		extent = value;
-	}
-	
-	public Envelope getExtent()
-	{
-		return extent;
-	}
-	
-	public void setElevationProvider(String value)
-	{
-		elevationProvider = value;
-	}
-	
-	public String getElevationProvider()
-	{
-		return elevationProvider;
-	}
-	
-	public void setElevationCachePath(String value)
-	{
-		elevationCachePath = value;
-	}
-	
-	public String getElevationCachePath()
-	{
-		return elevationCachePath;
-	}
-	
-	public void setElevationDataAccess(String value)
-	{
-		elevationDataAccess = value;
-	}
-	
-	public String getElevationDataAccess()
-	{
-		return elevationDataAccess;
-	}
-	
-	public void setElevationCacheClear(Boolean value)
-	{
-		elevationCacheClear = value;
-	}
-	
-	public boolean getElevationCacheClear()
-	{
-		return elevationCacheClear;
-	}
+    public void setName(String value) {
+        name = value;
+    }
 
-	public boolean getElevationSmoothing() {
-		return elevationSmoothing;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setElevationSmoothing(boolean elevationSmoothing) {
-		this.elevationSmoothing = elevationSmoothing;
-	}
+    public void setEnabled(Boolean value) {
+        enabled = value;
+    }
 
-	public boolean getInterpolateBridgesAndTunnels() {
-		return interpolateBridgesAndTunnels;
-	}
+    public boolean getEnabled() {
+        return enabled;
+    }
 
-	public void setInterpolateBridgesAndTunnels(boolean interpolateBridgesAndTunnels) {
-		this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
-	}
+    public void setProfiles(String value) {
+        profiles = value;
+    }
 
-	public Config getIsochronePreparationOpts() {
-		return isochronePreparationOpts;
-	}
+    public String getProfiles() {
+        return profiles;
+    }
 
-	public void setIsochronePreparationOpts(Config isochronePreparationOpts) {
-		this.isochronePreparationOpts = isochronePreparationOpts;
-	}
+    public void setGraphPath(String value) {
+        graphPath = value;
+    }
 
-	public Config getPreparationOpts() {
-		return preparationOpts;
-	}
+    public String getGraphPath() {
+        return graphPath;
+    }
 
-	public void setPreparationOpts(Config preparationOpts) {
-		this.preparationOpts = preparationOpts;
-	}
+    public void setExtStorages(Map<String, Map<String, String>> value) {
+        extStorages = value;
+    }
 
-	public Config getExecutionOpts() {
-		return executionOpts;
-	}
+    public Map<String, Map<String, String>> getExtStorages() {
+        return extStorages;
+    }
 
-	public void setExecutionOpts(Config executionOpts) {
-		this.executionOpts = executionOpts;
-	}
+    public void setGraphBuilders(Map<String, Map<String, String>> value) {
+        graphBuilders = value;
+    }
 
-	public boolean getOptimize() {
-		return optimize;
-	}
+    public Map<String, Map<String, String>> getGraphBuilders() {
+        return graphBuilders;
+    }
 
-	public void setOptimize(boolean optimize) {
-		this.optimize = optimize;
-	}
+    public void setInstructions(Boolean value) {
+        instructions = value;
+    }
 
-	public boolean hasMaximumSnappingRadius() {
-		return hasMaximumSnappingRadius;
-	}
+    public boolean getInstructions() {
+        return instructions;
+    }
 
-	public int getMaximumSnappingRadius() {
-		return maximumSnappingRadius;
-	}
+    public void setMaximumDistance(Double value) {
+        maximumDistance = value;
+    }
 
-	public void setMaximumSnappingRadius(int maximumSnappingRadius) {
-		this.maximumSnappingRadius = maximumSnappingRadius;
-		this.hasMaximumSnappingRadius = true;
-	}
+    public Double getMaximumDistance() {
+        return maximumDistance;
+    }
 
-	public int getLocationIndexResolution() {
-		return locationIndexResolution;
-	}
+    public void setMaximumDistanceDynamicWeights(Double value) {
+        maximumDistanceDynamicWeights = value;
+    }
 
-	public void setLocationIndexResolution(int locationIndexResolution) {
-		this.locationIndexResolution = locationIndexResolution;
-	}
+    public Double getMaximumDistanceDynamicWeights() {
+        return maximumDistanceDynamicWeights;
+    }
 
-	public int getLocationIndexSearchIterations() {
-		return locationIndexSearchIterations;
-	}
+    public void setMaximumDistanceAvoidAreas(Double value) {
+        maximumDistanceAvoidAreas = value;
+    }
 
-	public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
-		this.locationIndexSearchIterations = locationIndexSearchIterations;
-	}
+    public Double getMaximumDistanceAvoidAreas() {
+        return maximumDistanceAvoidAreas;
+    }
 
-	public void setMaximumSpeedLowerBound(double maximumSpeedLowerBound){
-		this.maximumSpeedLowerBound = maximumSpeedLowerBound;
-	}
+    public Double getMaximumDistanceAlternativeRoutes() {
+        return maximumDistanceAlternativeRoutes;
+    }
 
-	public double getMaximumSpeedLowerBound(){
-		return maximumSpeedLowerBound;
-	}
+    public void setMaximumDistanceAlternativeRoutes(Double maximumDistanceAlternativeRoutes) {
+        this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
+    }
+
+    public Double getMaximumDistanceRoundTripRoutes() {
+        return maximumDistanceRoundTripRoutes;
+    }
+
+    public void setMaximumDistanceRoundTripRoutes(Double maximumDistanceRoundTripRoutes) {
+        this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
+    }
+
+    public void setMaximumWayPoints(Integer value) {
+        maximumWayPoints = value;
+    }
+
+    public Integer getMaximumWayPoints() {
+        return maximumWayPoints;
+    }
+
+    public void setEncoderFlagsSize(Integer value) {
+        encoderFlagsSize = value;
+    }
+
+    public Integer getEncoderFlagsSize() {
+        return encoderFlagsSize;
+    }
+
+    public void setEncoderOptions(String value) {
+        encoderOptions = value;
+        turnCostEnabled = hasTurnCosts(encoderOptions);
+    }
+
+    public String getEncoderOptions() {
+        return encoderOptions;
+    }
+
+    public void setExtent(Envelope value) {
+        extent = value;
+    }
+
+    public Envelope getExtent() {
+        return extent;
+    }
+
+    public void setElevationProvider(String value) {
+        elevationProvider = value;
+    }
+
+    public String getElevationProvider() {
+        return elevationProvider;
+    }
+
+    public void setElevationCachePath(String value) {
+        elevationCachePath = value;
+    }
+
+    public String getElevationCachePath() {
+        return elevationCachePath;
+    }
+
+    public void setElevationDataAccess(String value) {
+        elevationDataAccess = value;
+    }
+
+    public String getElevationDataAccess() {
+        return elevationDataAccess;
+    }
+
+    public void setElevationCacheClear(Boolean value) {
+        elevationCacheClear = value;
+    }
+
+    public boolean getElevationCacheClear() {
+        return elevationCacheClear;
+    }
+
+    public boolean getElevationSmoothing() {
+        return elevationSmoothing;
+    }
+
+    public void setElevationSmoothing(boolean elevationSmoothing) {
+        this.elevationSmoothing = elevationSmoothing;
+    }
+
+    public boolean getInterpolateBridgesAndTunnels() {
+        return interpolateBridgesAndTunnels;
+    }
+
+    public void setInterpolateBridgesAndTunnels(boolean interpolateBridgesAndTunnels) {
+        this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
+    }
+
+    public Config getIsochronePreparationOpts() {
+        return isochronePreparationOpts;
+    }
+
+    public void setIsochronePreparationOpts(Config isochronePreparationOpts) {
+        this.isochronePreparationOpts = isochronePreparationOpts;
+    }
+
+    public Config getPreparationOpts() {
+        return preparationOpts;
+    }
+
+    public void setPreparationOpts(Config preparationOpts) {
+        this.preparationOpts = preparationOpts;
+    }
+
+    public Config getExecutionOpts() {
+        return executionOpts;
+    }
+
+    public void setExecutionOpts(Config executionOpts) {
+        this.executionOpts = executionOpts;
+    }
+
+    public boolean getOptimize() {
+        return optimize;
+    }
+
+    public void setOptimize(boolean optimize) {
+        this.optimize = optimize;
+    }
+
+    public boolean hasMaximumSnappingRadius() {
+        return hasMaximumSnappingRadius;
+    }
+
+    public int getMaximumSnappingRadius() {
+        return maximumSnappingRadius;
+    }
+
+    public void setMaximumSnappingRadius(int maximumSnappingRadius) {
+        this.maximumSnappingRadius = maximumSnappingRadius;
+        this.hasMaximumSnappingRadius = true;
+    }
+
+    public int getLocationIndexResolution() {
+        return locationIndexResolution;
+    }
+
+    public void setLocationIndexResolution(int locationIndexResolution) {
+        this.locationIndexResolution = locationIndexResolution;
+    }
+
+    public int getLocationIndexSearchIterations() {
+        return locationIndexSearchIterations;
+    }
+
+    public void setLocationIndexSearchIterations(int locationIndexSearchIterations) {
+        this.locationIndexSearchIterations = locationIndexSearchIterations;
+    }
+
+    public void setMaximumSpeedLowerBound(double maximumSpeedLowerBound) {
+        this.maximumSpeedLowerBound = maximumSpeedLowerBound;
+    }
+
+    public double getMaximumSpeedLowerBound() {
+        return maximumSpeedLowerBound;
+    }
+
+    public boolean isTurnCostEnabled() {
+        return turnCostEnabled;
+    }
+
+    public void setTurnCostEnabled(boolean turnCostEnabled) {
+        this.turnCostEnabled = turnCostEnabled;
+    }
 
 	public void setEnforceTurnCosts(boolean enforceTurnCosts) {
 		this.enforceTurnCosts = enforceTurnCosts;
@@ -419,7 +406,7 @@ public class RouteProfileConfiguration {
 		this.trafficExpirationMin = trafficExpirationMin;
 	}
 
-	public int getTrafficExpirationMin() {
-		return this.trafficExpirationMin;
-	}
+    public int getTrafficExpirationMin() {
+        return this.trafficExpirationMin;
+    }
 }

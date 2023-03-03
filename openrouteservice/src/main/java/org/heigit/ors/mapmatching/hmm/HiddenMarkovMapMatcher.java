@@ -16,22 +16,23 @@ package org.heigit.ors.mapmatching.hmm;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.PathWrapper;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.ResponsePath;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.LocationIndexTree;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
-import org.heigit.ors.mapmatching.LocationIndexMatch;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -42,11 +43,11 @@ import java.util.List;
  * */
 public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
-    private static double sigmaZ = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
-    private static double beta = 0.00959442; // beta(z, x)
-    private static double denom = Math.sqrt(2 * Math.PI) * sigmaZ; // see Equation 1
+    private static final double SIGMA_Z = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
+    private static final double BETA =  0.00959442; // beta(z, x)
+    private static final double DENOM = Math.sqrt(2 * Math.PI) * SIGMA_Z; // see Equation 1
     private DistanceCalc distCalcEarth = new DistanceCalcEarth(); // DistancePlaneProjection
-    private LocationIndexMatch locationIndex;
+    private LocationIndexTree locationIndex;
     private FlagEncoder encoder;
     private List<MatchPoint> matchPoints = new ArrayList<>(2);
     private List<Integer> roadSegments = new ArrayList<>();
@@ -54,30 +55,44 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
     private double[] longitudes = new double[2];
     private double[] latitudes = new double[2];
 
-    static double exponentialDistribution(double beta, double x) {
-        return 1.0 / beta * Math.exp(-x / beta);
-    }
 
-    @Override
-    public void setSearchRadius(double radius) {
-        searchRadius = radius;
-        if (locationIndex != null)
-            locationIndex.setGpxAccuracy(radius);
-    }
+	@SuppressWarnings("serial")
+	private static class MatchPoint extends Coordinate {
+		int segmentId;
+		double distanceVal;
+		int measuredPointIndex;
 
-    @Override
-    public void setGraphHopper(GraphHopper gh) {
-        graphHopper = gh;
+		MatchPoint(double lat, double lon) {
+			super(lat, lon);
+		}
 
-        encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
-        GraphHopperStorage graph = gh.getGraphHopperStorage();
-        locationIndex = new LocationIndexMatch(graph,
-                (com.graphhopper.storage.index.LocationIndexTree) gh.getLocationIndex(), (int) searchRadius);
-    }
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			final MatchPoint other = (MatchPoint) obj;
+			return toString().equals(other.toString());
+		}
+
+		@Override
+		public int hashCode() {
+			return ("MatchPoint" + this).hashCode();
+		}
+	}
+
+	@Override
+	public void setGraphHopper(GraphHopper gh) {
+		graphHopper = gh;
+
+		encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
+		locationIndex = (LocationIndexTree) gh.getLocationIndex();
+	}
 
     @Override
     public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
-        EdgeFilter edgeFilter = this.edgeFilter == null ? DefaultEdgeFilter.allEdges(encoder) : this.edgeFilter;
+		EdgeFilter edgeFilter = this.edgeFilter == null ? AccessFilter.allEdges(encoder.getAccessEnc()) : this.edgeFilter;
 
         boolean bPreciseMode = false;
         int nPoints = locations.length;
@@ -189,61 +204,61 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
                 if (dist > distThreshold)
                     emissionProbs[ri][t] = defaultProbability;
                 else {
-                    v = dist / sigmaZ;
-                    emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / denom;
+                    v = dist / SIGMA_Z;
+                    emissionProbs[ri][t] = Math.exp(-0.5 * v * v) / DENOM;
                 }
 
-                if (startProbs[ri] == 0.0) {
-                    dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / sigmaZ;
-                    if (dist > distThreshold || xi.measuredPointIndex != 0)
-                        startProbs[ri] = defaultProbability;
-                    else {
-                        v = dist / sigmaZ;
-                        startProbs[ri] = Math.exp(-0.5 * v * v) / denom;
-                    }
-                }
-            }
-        }
+				if (startProbs[ri] == 0.0) {
+					dist = distCalcEarth.calcDist(z0.y, z0.x, xi.y, xi.x) / SIGMA_Z;
+					if (dist > distThreshold || xi.measuredPointIndex != 0)
+						startProbs[ri] = defaultProbability;
+					else {
+						v = dist / SIGMA_Z;
+						startProbs[ri] = Math.exp(-0.5 * v * v) / DENOM;
+					}
+				}
+			}
+		}
 
-        if (z.length > distances.length)
-            distances = new double[z.length];
+		if (z.length > distances.length)
+			distances = new double[z.length];
 
-        for (int i = 0; i < z.length - 1; i++) {
-            Coordinate zt = z[i];
-            Coordinate zt1 = z[i + 1];
-            distances[i] = distCalcEarth.calcDist(zt.y, zt.x, zt1.y, zt1.x);
-        }
+		for (int i = 0; i < z.length - 1 ; i++) {
+			Coordinate zt = z[i];
+			Coordinate zt1 = z[i+1];
+			distances[i] = distCalcEarth.calcDist(zt.y, zt.x, zt1.y, zt1.x);
+		}
 
-        distances[z.length - 1] = distances[0];
+		distances[z.length - 1] = distances[0];
 
-        double perfTime = (distances[0] / encoder.getMaxSpeed()) * 3600;
+		double perfTime = (distances[0]/encoder.getMaxSpeed())*3600;
 
-        for (int i = 0; i < nR; i++) {
-            MatchPoint xi = matchPoints.get(i);
+		for (int i = 0; i < nR; i++) {
+		    MatchPoint xi = matchPoints.get(i);
 
-            for (int j = 0; j < nR; j++) {
+			for (int j = 0; j < nR; j++) {
 
-                double value = defaultProbability;
+				double value = defaultProbability;
 
-                if (i != j) {
-                    MatchPoint xj = matchPoints.get(j);
+				if (i != j) {
+					MatchPoint xj = matchPoints.get(j);
 
-                    // check the order of points from 0 -> 1
-                    if (xi.measuredPointIndex < xj.measuredPointIndex) {
-                        //Point zt = z[xi.measuredPointIndex]
-                        //Point zt1 = z[xj.measuredPointIndex]
-                        double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
+					// check the order of points from 0 -> 1
+					if (xi.measuredPointIndex < xj.measuredPointIndex) {
+						//Point zt = z[xi.measuredPointIndex]
+						//Point zt1 = z[xj.measuredPointIndex]
+						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
 
-                        GHRequest req = new GHRequest(xi.y, xi.x, xj.y, xj.x);
-                        req.getHints().put("ch.disable", true);
-                        req.getHints().put("lm.disable", true);
-                        req.setAlgorithm("dijkstrabi");
+						GHRequest req = new GHRequest(xi.y, xi.x, xj.y, xj.x);
+						req.getHints().putObject("ch.disable", true);
+						req.getHints().putObject("lm.disable", true);
+						req.setAlgorithm("dijkstrabi");
 
-                        try {
-                            GHResponse resp = graphHopper.route(req);
+						try {
+							GHResponse resp = graphHopper.route(req);
 
-                            if (!resp.hasErrors()) {
-                                PathWrapper path = resp.getBest();
+							if (!resp.hasErrors()) {
+								ResponsePath path = resp.getBest();
 								/*
 								double dx = resp.getDistance()
 								double dt = Math.abs(dz - dx)
@@ -254,21 +269,21 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
                                 double dx = path.getDistance();
                                 double dt = Math.abs(dz - dx) / distances[0]; // normalize
 
-                                double time = path.getTime();
-                                //(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
-                                double dt2 = Math.abs(time - perfTime) / perfTime;
+								double time = path.getTime();
+								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
+                                double dt2 = Math.abs(time - perfTime)/perfTime;
 
-                                value = exponentialDistribution(beta, 0.2 * dt + 0.8 * dt2);
-                            }
-                        } catch (Exception ex) {
-                            // do nothing
-                        }
-                    }
-                }
+								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
+							}
+						} catch(Exception ex) {
+							// do nothing
+						}
+					}
+				}
 
-                transProbs[i][j] = value;
-            }
-        }
+				transProbs[i][j] = value;
+			}
+		}
 
         // Phase III: Apply Viterbi algorithm to find the path through the
         // lattice that maximizes the product of the measurement probabilities
@@ -298,21 +313,26 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
             }
         }
 
-        res = gh.getRouteSegment(latitudes, longitudes, encoder.toString());
+		res = gh.getRouteSegment(latitudes, longitudes, encoder.toString());
 
-        return res;
+		return res;
+	}
+
+	static double exponentialDistribution(double beta, double x) {
+        return 1.0 / beta * Math.exp(-x / beta);
     }
 
-    private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
-                                           List<Integer> roadSegments) {
-        List<QueryResult> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
-        if (qResults.isEmpty())
-            return new MatchPoint[]{};
+	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
+			List<Integer> roadSegments) {
+		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
+		List<Snap> qResults = Collections.singletonList(locationIndex.findClosest(lat, lon, edgeFilter)); // TODO: this is just a temporary work-around for the previous line
+		if (qResults.isEmpty())
+			return new MatchPoint[] {};
 
         int nMatchPoints = matchPoints.size();
 
-        for (int matchIndex = 0; matchIndex < qResults.size(); matchIndex++) {
-            QueryResult qr = qResults.get(matchIndex);
+		for (int matchIndex = 0; matchIndex < qResults.size(); matchIndex++) {
+			Snap qr = qResults.get(matchIndex);
 
             double spLat = qr.getSnappedPoint().getLat();
             double spLon = qr.getSnappedPoint().getLon();
@@ -353,31 +373,5 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         this.latitudes = new double[2];
         this.matchPoints = new ArrayList<>(2);
         this.roadSegments = new ArrayList<>();
-    }
-
-    @SuppressWarnings("serial")
-    private static class MatchPoint extends Coordinate {
-        int segmentId;
-        double distanceVal;
-        int measuredPointIndex;
-
-        MatchPoint(double lat, double lon) {
-            super(lat, lon);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            final MatchPoint other = (MatchPoint) obj;
-            return toString().equals(other.toString());
-        }
-
-        @Override
-        public int hashCode() {
-            return ("MatchPoint" + toString()).hashCode();
-        }
     }
 }

@@ -13,10 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 
 public class TollwaysGraphStorage implements GraphExtension {
 	/* pointer for no entry */
@@ -25,15 +22,13 @@ public class TollwaysGraphStorage implements GraphExtension {
 	protected DataAccess edges;
 	protected int edgeEntryIndex = 0;
 	protected int edgeEntryBytes;
-	protected int edgesCount; 
-	private byte[] byteValue;
+	protected int edgesCount;
 
 	public TollwaysGraphStorage()  {
 		efTollways = nextBlockEntryIndex (1);
 
 		edgeEntryBytes = edgeEntryIndex;
 		edgesCount = 0;
-		byteValue = new byte[1];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -53,7 +48,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 		edges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public TollwaysGraphStorage create(long initBytes) {
 		edges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -68,6 +63,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 		edges.close();
 	}
 
+	@Override
 	public long getCapacity() {
 		return edges.getCapacity();
 	}
@@ -93,15 +89,14 @@ public class TollwaysGraphStorage implements GraphExtension {
 		edgesCount++;
 		ensureEdgesIndex(edgeId);
  
-		byteValue[0] = (byte) value;
+		byte byteValue = (byte) value;
 
-		edges.setBytes((long) edgeId * edgeEntryBytes + efTollways, byteValue, 1);
+		edges.setByte((long) edgeId * edgeEntryBytes + efTollways, byteValue);
 	}
 
 	public int getEdgeValue(int edgeId) {
-		edges.getBytes((long) edgeId * edgeEntryBytes + efTollways, byteValue, 1);
-		
-		return byteValue[0] & 0xFF;
+		byte byteValue = edges.getByte((long) edgeId * edgeEntryBytes + efTollways);
+		return byteValue & 0xFF;
 	}
 
 	public boolean isRequireNodeField() {
@@ -120,19 +115,6 @@ public class TollwaysGraphStorage implements GraphExtension {
 
 	public int getDefaultEdgeFieldValue() {
 		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof TollwaysGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		TollwaysGraphStorage clonedTC = (TollwaysGraphStorage) clonedStorage;
-
-		edges.copyTo(clonedTC.edges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

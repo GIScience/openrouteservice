@@ -14,9 +14,9 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.PathWrapper;
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.*;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.common.DistanceUnit;
@@ -35,8 +35,8 @@ import static org.heigit.ors.routing.RouteResult.*;
 
 class RouteResultBuilder
 {
-	private AngleCalc angleCalc;
-	private DistanceCalc distCalc;
+	private final AngleCalc angleCalc;
+	private final DistanceCalc distCalc;
 	private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
     private int startWayPointIndex = 0;
 
@@ -81,7 +81,7 @@ class RouteResultBuilder
 
             handleResponseWarnings(result, response);
 
-            PathWrapper path = response.getBest();
+            ResponsePath path = response.getBest();
 
             result.addPointlist(path.getPoints());
 
@@ -91,14 +91,14 @@ class RouteResultBuilder
             }
 
             result.addSegment(createRouteSegment(path, request, getNextResponseFirstStepPoints(responses, ri)));
-            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().getString("data.date", "0000-00-00T00:00:00Z"));
         }
 
         result.calculateRouteSummary(request);
 
         if (request.getSearchParameters().isTimeDependent()) {
-            String timezoneDeparture = responses.get(0).getHints().get(KEY_TIMEZONE_DEPARTURE, "");
-            String timezoneArrival = responses.get(responses.size()-1).getHints().get(KEY_TIMEZONE_ARRIVAL, "");
+            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
+            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -121,7 +121,7 @@ class RouteResultBuilder
         RouteResult[] resultSet = new RouteResult[response.getAll().size()];
 
         int pathIndex = 0;
-        for (PathWrapper path : response.getAll()) {
+        for (ResponsePath path : response.getAll()) {
             RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
 
             handleResponseWarnings(result, response);
@@ -139,12 +139,12 @@ class RouteResultBuilder
                 result.resetSegments();
             }
 
-            result.setGraphDate(response.getHints().get("data.date", "0000-00-00T00:00:00Z"));
+            result.setGraphDate(response.getHints().getString("data.date", "0000-00-00T00:00:00Z"));
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().get(KEY_TIMEZONE_DEPARTURE, "");
-                String timezoneArrival = response.getHints().get(KEY_TIMEZONE_ARRIVAL, "");
+                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
+                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }
@@ -186,7 +186,7 @@ class RouteResultBuilder
 
     }
 
-    private RouteSegment createRouteSegment(PathWrapper path, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
+    private RouteSegment createRouteSegment(ResponsePath path, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
         RouteSegment seg = new RouteSegment(path, request.getUnits());
 
         if (request.getIncludeInstructions()) {
@@ -285,12 +285,12 @@ class RouteResultBuilder
         return seg;
     }
 
-    private double calculateDetourFactor(PathWrapper path) {
+    private double calculateDetourFactor(ResponsePath path) {
         PointList pathPoints = path.getPoints();
         double lat0 = pathPoints.getLat(0);
         double lon0 = pathPoints.getLon(0);
-        double lat1 = pathPoints.getLat(pathPoints.getSize() - 1);
-        double lon1 = pathPoints.getLon(pathPoints.getSize() - 1);
+        double lat1 = pathPoints.getLat(pathPoints.size() - 1);
+        double lon1 = pathPoints.getLon(pathPoints.size() - 1);
         double distanceDirect = distCalc.calcDist(lat0, lon0, lat1, lon1);
         if (distanceDirect == 0) return 0;
         return path.getDistance() / distanceDirect;
@@ -394,9 +394,7 @@ class RouteResultBuilder
 		}
 
 		switch (instr.getSign()){
-			case Instruction.CONTINUE_ON_STREET:
-				return InstructionType.CONTINUE;
-			case Instruction.TURN_LEFT:
+            case Instruction.TURN_LEFT:
 				return InstructionType.TURN_LEFT;
 			case Instruction.TURN_RIGHT:
 				return InstructionType.TURN_RIGHT;
@@ -418,7 +416,8 @@ class RouteResultBuilder
 				return InstructionType.KEEP_LEFT;
 			case Instruction.KEEP_RIGHT:
 				return InstructionType.KEEP_RIGHT;
-			default:
+            case Instruction.CONTINUE_ON_STREET:
+            default:
 				return InstructionType.CONTINUE;
 		}
 	}
@@ -434,7 +433,7 @@ class RouteResultBuilder
 	}
 
     private void handleResponseWarnings(RouteResult result, GHResponse response) {
-        String skippedExtras = response.getHints().get("skipped_extra_info", "");
+        String skippedExtras = response.getHints().getString("skipped_extra_info", "");
         if (!skippedExtras.isEmpty()) {
             result.addWarning(new RouteWarning(RouteWarning.SKIPPED_EXTRAS, skippedExtras));
         }

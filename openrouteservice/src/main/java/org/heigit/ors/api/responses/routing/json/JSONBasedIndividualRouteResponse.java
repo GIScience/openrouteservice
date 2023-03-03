@@ -58,7 +58,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
             double routeLength = routeResult.getSummary().getDistance();
             DistanceUnit units = DistanceUnit.METERS;
             if (routeRequest.hasUnits())
-                DistanceUnitUtil.getFromString(routeRequest.getUnits().toString(), DistanceUnit.UNKNOWN);
+                units = DistanceUnitUtil.getFromString(routeRequest.getUnits().toString(), DistanceUnit.UNKNOWN);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
 

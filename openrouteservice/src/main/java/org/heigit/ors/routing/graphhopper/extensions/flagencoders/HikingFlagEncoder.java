@@ -19,8 +19,9 @@ import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
 
-import static com.graphhopper.routing.util.PriorityCode.BEST;
-import static com.graphhopper.routing.util.PriorityCode.VERY_NICE;
+import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.BEST;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.VERY_NICE;
 
 public class HikingFlagEncoder extends FootFlagEncoder {
 
@@ -33,10 +34,10 @@ public class HikingFlagEncoder extends FootFlagEncoder {
     private HikingFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor);
 
-        hikingNetworkToCode.put("iwn", BEST.getValue());
-        hikingNetworkToCode.put("nwn", BEST.getValue());
-        hikingNetworkToCode.put("rwn", VERY_NICE.getValue());
-        hikingNetworkToCode.put("lwn", VERY_NICE.getValue());
+        routeMap.put(INTERNATIONAL, BEST.getValue());
+        routeMap.put(NATIONAL, BEST.getValue());
+        routeMap.put(REGIONAL, VERY_NICE.getValue());
+        routeMap.put(LOCAL, VERY_NICE.getValue());
 
         suitableSacScales.addAll(Arrays.asList(
                 "hiking",
@@ -50,13 +51,6 @@ public class HikingFlagEncoder extends FootFlagEncoder {
                 "path",
                 "footway"
         ));
-
-        init();
-    }
-
-    @Override
-    public int getVersion() {
-        return 3;
     }
 
     @Override

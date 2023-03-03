@@ -16,7 +16,7 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.*;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -706,8 +706,8 @@ public class RouteRequest extends APIRequest {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
-        if (this.hasRoutePreference())
-            params.setWeightingMethod(convertWeightingMethod(routePreference));
+        APIEnums.RoutePreference preference = this.hasRoutePreference() ? this.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
+        params.setWeightingMethod(convertWeightingMethod(preference));
 
         if (this.hasBearings())
             params.setBearings(convertBearings(bearings, coordinatesLength));
@@ -807,7 +807,7 @@ public class RouteRequest extends APIRequest {
         return params;
     }
 
-    // TODO: can this be merged with processRequestOptions in MatrixRequestHandler?
+    // TODO Refactoring: can this be merged with processRequestOptions in MatrixRequestHandler?
 
     private boolean convertIncludeGeometry() throws IncompatibleParameterException {
         if (!includeGeometry && responseType != APIEnums.RouteResponseType.JSON) {
@@ -870,9 +870,9 @@ public class RouteRequest extends APIRequest {
             Double[] singleBearingIn = bearingsIn[i];
 
             if (singleBearingIn.length == 0) {
-                bearingsList[i] = new WayPointBearing(Double.NaN, Double.NaN);
+                bearingsList[i] = new WayPointBearing(Double.NaN);
             } else if (singleBearingIn.length == 1) {
-                bearingsList[i] = new WayPointBearing(singleBearingIn[0], Double.NaN);
+                bearingsList[i] = new WayPointBearing(singleBearingIn[0]);
             } else {
                 bearingsList[i] = new WayPointBearing(singleBearingIn[0], singleBearingIn[1]);
             }
@@ -940,6 +940,8 @@ public class RouteRequest extends APIRequest {
     }
 
     private int convertWeightingMethod(APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
+        if (profile.equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED))
+            return WeightingMethod.FASTEST;
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PREFERENCE, preferenceIn.toString());

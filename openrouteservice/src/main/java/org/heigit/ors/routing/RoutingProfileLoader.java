@@ -18,10 +18,14 @@ import java.util.concurrent.Callable;
 
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
+/**
+ * Callable creating a {@link RoutingProfile} from an OSM-file,
+ * a {@link RouteProfileConfiguration} and a {@link RoutingProfileLoadContext}.
+ */
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
-	private String osmFile;
-	private RouteProfileConfiguration rpc;
-	private RoutingProfileLoadContext loadCntx;
+	private final String osmFile;
+	private final RouteProfileConfiguration rpc;
+	private final RoutingProfileLoadContext loadCntx;
 
 	public RoutingProfileLoader(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
 		this.osmFile = osmFile;

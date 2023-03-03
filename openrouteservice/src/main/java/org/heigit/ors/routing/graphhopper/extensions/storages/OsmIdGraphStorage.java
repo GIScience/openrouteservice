@@ -12,7 +12,7 @@ public class OsmIdGraphStorage implements GraphExtension {
     protected int edgeEntryBytes;
     protected int edgesCount; // number of edges with custom values
 
-    private byte[] byteValues;
+    private final byte[] byteValues;
 
     public OsmIdGraphStorage() {
         efOsmid = 0;
@@ -39,11 +39,7 @@ public class OsmIdGraphStorage implements GraphExtension {
         this.orsEdges = d.find("");
     }
 
-    public void setSegmentSize(int bytes) {
-        orsEdges.setSegmentSize(bytes);
-    }
-
-    public GraphExtension create(long initBytes) {
+    public OsmIdGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
@@ -58,6 +54,7 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.close();
     }
 
+    @Override
     public long getCapacity() {
         return orsEdges.getCapacity();
     }
@@ -109,37 +106,6 @@ public class OsmIdGraphStorage implements GraphExtension {
         orsEdges.getBytes(edgePointer + efOsmid, buffer, 4);
 
         return EncodeUtils.byteArrayToLong(buffer);
-    }
-
-    public boolean isRequireNodeField() {
-        return false;
-    }
-
-    public boolean isRequireEdgeField() {
-        // we require the additional field in the graph to point to the first
-        // entry in the node table
-        return true;
-    }
-
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof OsmIdGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        OsmIdGraphStorage clonedTC = (OsmIdGraphStorage) clonedStorage;
-
-        orsEdges.copyTo(clonedTC.orsEdges);
-        clonedTC.edgesCount = edgesCount;
-
-        return clonedStorage;
     }
 
     @Override

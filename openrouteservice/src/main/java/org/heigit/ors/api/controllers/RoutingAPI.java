@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
@@ -39,7 +39,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Directions Service", description = "Get directions for different modes of transport", tags = "Directions")
+@Api(value = "Directions Service", tags = "Directions")
+@SwaggerDefinition(tags = {
+        @Tag(name = "Directions", description = "Get directions for different modes of transport")
+})
 @RequestMapping("/v2/directions")
 @ApiResponses({
         @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),

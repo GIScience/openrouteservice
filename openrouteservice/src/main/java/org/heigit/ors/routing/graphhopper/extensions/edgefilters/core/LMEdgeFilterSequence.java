@@ -15,9 +15,12 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
 
@@ -32,8 +35,9 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	 * */
 	public boolean isFilter(PMap pmap){
 		//true if the avoidFeaturespart fits the query
-		boolean avoidFeatures = isAvoidFeature(pmap.getInt("avoid_features", 0));
-		boolean avoidCountries = isAvoidCountry(pmap.get("avoid_countries", ""));
+		RouteSearchParameters routeSearchParameters = pmap.getObject("avoid_features", new RouteSearchParameters());
+		boolean avoidFeatures = isAvoidFeature(routeSearchParameters.getAvoidFeatureTypes());
+		boolean avoidCountries = isAvoidCountry(pmap.getString("avoid_countries", ""));
 		return avoidFeatures && avoidCountries;
 
 
@@ -58,12 +62,10 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 		//Check if the avoidBordersFilter has the same countries or a subset
 		for (EdgeFilter edgeFilter: filters) {
 			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter){
-				ArrayList<Integer> filterCountries =
-						new ArrayList<Integer>() {{ for (int i : ((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()) add(i); }};
 				//There are no countries queried, but there are some in the lmset
 				if(queryCountries.isEmpty())
 					return false;
-				return queryCountries.containsAll(filterCountries);
+				return queryCountries.containsAll(Arrays.stream(((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()).boxed().collect(Collectors.toList()));
 			}
 		}
 

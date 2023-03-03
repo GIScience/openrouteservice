@@ -20,10 +20,10 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
  */
 public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
-	protected int adjNode;
+	private int adjNode;
 	protected int edge;
-	protected boolean visited = false;
-	protected MultiTreeSPEntryItem[] items;
+	private boolean visited = false;
+	private final MultiTreeSPEntryItem[] items;
 	private double totalWeight = 0.0;
 
 	public MultiTreeSPEntry(int adjNode, int edgeId, double edgeWeight, boolean updated, MultiTreeSPEntry parent, int numTrees) {
@@ -103,6 +103,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + 0 + ") weights: " + totalWeight; // TODO
+		return "adjNode: " + adjNode +  ", totalWeight: " + totalWeight; // TODO
 	}
 }

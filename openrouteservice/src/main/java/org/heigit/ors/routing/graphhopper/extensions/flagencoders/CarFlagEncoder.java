@@ -20,7 +20,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
 import com.graphhopper.reader.osm.conditional.ConditionalParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
@@ -40,7 +42,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     private static final int MEAN_SPEED = 100;
 
     public CarFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speed_bits", 5),
+        this(properties.getInt("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
 
@@ -55,17 +57,15 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         restrictedValues.add("delivery");
         restrictedValues.add("emergency");
 
-        absoluteBarriers.add("bus_trap");
-        absoluteBarriers.add("sump_buster");
+        blockByDefaultBarriers.add("bus_trap");
+        blockByDefaultBarriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
-
-        init();
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void init(DateRangeParser dateRangeParser) {
+        super.init(dateRangeParser);
         ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
         conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
         setConditionalSpeedInspector(conditionalOSMSpeedInspector);
@@ -144,7 +144,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public int getVersion() {
-        return 1;
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.CAR;
     }
 }

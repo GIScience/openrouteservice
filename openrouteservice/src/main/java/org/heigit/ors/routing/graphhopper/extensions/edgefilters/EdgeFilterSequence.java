@@ -34,8 +34,8 @@ public class EdgeFilterSequence implements EdgeFilter {
 	}
 
 	public void appendName(String name){
-		if (this.name == null)
-			this.name = ("_" + name);
+		if (this.name.isEmpty())
+			this.name = name;
 		else
 			this.name += ("_" + name);
 	}

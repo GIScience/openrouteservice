@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.common.Pair;
@@ -30,10 +30,10 @@ import java.util.*;
 
 public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
     @JsonIgnore
-    private IsochronesIntersection intersection;
+    private final IsochronesIntersection intersection;
 
     @JsonProperty("properties")
-    private Map<String, Object> properties;
+    private final Map<String, Object> properties;
 
     public GeoJSONIsochronesIntersection(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException {
         this.intersection = intersection;

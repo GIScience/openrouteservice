@@ -21,7 +21,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
@@ -40,28 +40,28 @@ public class ORSOSMReader extends OSMReader {
 
 	private static final Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
 
-	private GraphProcessContext procCntx;
+	private final GraphProcessContext procCntx;
 	private boolean processNodeTags;
-	private OSMDataReaderContext readerCntx;
+	private final OSMDataReaderContext readerCntx;
 
-	private HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
+	private final HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
 	private boolean processGeom = false;
 	private boolean processSimpleGeom = false;
 	private boolean processWholeGeom = false;
 	private boolean detachSidewalksFromRoad = false;
 
-	private boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
+	private final boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
 	private boolean getElevationFromPreprocessedDataErrorLogged = false;
 
-	private List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
+	private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
-	private HashSet<String> extraTagKeys;
+	private final HashSet<String> extraTagKeys;
 
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
 
-		setCalcDistance3D(false);
+		enforce2D();
 		this.procCntx = procCntx;
 		this.procCntx.initArrays();
 		this.readerCntx = new OSMDataReaderContext(this);
@@ -105,15 +105,6 @@ public class ORSOSMReader extends OSMReader {
 				extraTagKeys.add("motorcycle");
 			}
 		}
-	}
-
-	@Override
-	protected boolean isInBounds(ReaderNode node) {
-		if (procCntx != null) {
-			return procCntx.isValidPoint(node.getLon(), node.getLat());
-		}
-
-		return super.isInBounds(node);
 	}
 
 	@Override
@@ -183,7 +174,7 @@ public class ORSOSMReader extends OSMReader {
 	@Override
 	public void onProcessWay(ReaderWay way) {
 
-		HashMap<Integer, HashMap<String,String>> tags = new HashMap<>();
+		Map<Integer, Map<String,String>> tags = new HashMap<>();
 		ArrayList<Coordinate> coords = new ArrayList<>();
 		ArrayList<Coordinate> allCoordinates = new ArrayList<>();
 
@@ -278,14 +269,14 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return getNodeAccess().getLatitude(id);
+			return getNodeAccess().getLat(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
 			if(onlyTower) {
 				return Double.NaN;
 			} else {
-				return pillarInfo.getLatitude(id);
+				return pillarInfo.getLat(id);
 			}
 		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
@@ -306,14 +297,14 @@ public class ORSOSMReader extends OSMReader {
 		if (id < TOWER_NODE) {
 			// tower node
 			id = -id - 3;
-			return getNodeAccess().getLongitude(id);
+			return getNodeAccess().getLon(id);
 		} else if (id > -TOWER_NODE) {
 			// pillar node
 			// Do we want to return it if it is not a tower node?
 			if(onlyTower) {
 				return Double.NaN;
 			} else {
-				return pillarInfo.getLatitude(id);
+				return pillarInfo.getLat(id);
 			}
 		} else {
 			// e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
@@ -384,8 +375,8 @@ public class ORSOSMReader extends OSMReader {
     }
 
     @Override
-	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-		super.recordWayDistance(way, osmNodeIds);
+	protected void recordExactWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
+		super.recordExactWayDistance(way, osmNodeIds);
 
 		// compute exact way distance for ferries in order to improve travel time estimate, see #1037
 		if (way.hasTag("route", "ferry", "shuttle_train")) {
@@ -409,7 +400,7 @@ public class ORSOSMReader extends OSMReader {
 					latSum = latSum + nextLat;
 					lonSum = lonSum + nextLon;
 					sumCount++;
-					totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+					totalDist = totalDist + getDistanceCalc().calcDist(currLat, currLon, nextLat, nextLon);
 
 					currLat = nextLat;
 					currLon = nextLon;

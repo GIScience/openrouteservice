@@ -18,7 +18,7 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
-import com.vividsolutions.jts.geom.Envelope;
+import org.locationtech.jts.geom.Envelope;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;

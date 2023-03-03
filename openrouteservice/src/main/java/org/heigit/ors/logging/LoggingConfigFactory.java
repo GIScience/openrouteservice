@@ -18,6 +18,7 @@ import java.io.IOException;
         category = ConfigurationFactory.CATEGORY
 )
 @Order(50)
+// Class is loaded by LOG4J automagically due to the annotation above
 public class LoggingConfigFactory extends ConfigurationFactory{
     protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 

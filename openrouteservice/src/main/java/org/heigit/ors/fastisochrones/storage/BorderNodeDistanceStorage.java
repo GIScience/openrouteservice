@@ -23,12 +23,12 @@ import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
-import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.util.FileUtility;
 
 import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
@@ -39,18 +39,18 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
  */
 public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceStorage> {
     private final DataAccess borderNodes;
-    private int byteCount;
+    private final int byteCount;
     private int borderNodeIndexOffset;
-    private int nodeCount;
+    private final int nodeCount;
     private int borderNodeCount;
     private int necessaryCapacity = 0;
     private long borderNodePointer;
-    private IsochroneNodeStorage isochroneNodeStorage;
+    private final IsochroneNodeStorage isochroneNodeStorage;
     private IntLongHashMap borderNodeToPointerMap;
-    private Weighting weighting;
+    private final Weighting weighting;
 
     public BorderNodeDistanceStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
-        final String name = AbstractWeighting.weightingToFileName(weighting);
+        final String name = FileUtility.weightingToFileName(weighting);
         this.isochroneNodeStorage = isochroneNodeStorage;
         borderNodes = dir.find("bordernodes_" + name);
         this.weighting = weighting;
@@ -58,7 +58,6 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
         this.nodeCount = nodeCount;
     }
 
-    @Override
     public boolean loadExisting() {
         if (borderNodes.loadExisting()) {
             borderNodeCount = borderNodes.getHeader(0);
@@ -157,12 +156,10 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
         }
     }
 
-    @Override
     public BorderNodeDistanceStorage create(long byteCount) {
         throw new IllegalStateException("Do not call BorderNodeDistanceStorage.create directly");
     }
 
-    @Override
     public void flush() {
         borderNodes.flush();
     }
@@ -186,11 +183,9 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     }
 
     public boolean hasWeighting(Weighting weighting) {
-        if (getWeighting().getName() != null
+        return getWeighting().getName() != null
                 && getWeighting().getName().equals(weighting.getName())
                 && getWeighting().getFlagEncoder().toString() != null
-                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
-            return true;
-        return false;
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString());
     }
 }

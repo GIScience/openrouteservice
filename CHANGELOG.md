@@ -81,6 +81,8 @@ RELEASING:
 - link to YouTube docker setup guide to docs (thanks to SyntaxByte)
 - prototype of generic CSV-based routing to be used for heat stress
 - Shadow Routing 
+### Removed
+- old v1 API code and related classes
 ### Fixed
 - allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
 - improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 

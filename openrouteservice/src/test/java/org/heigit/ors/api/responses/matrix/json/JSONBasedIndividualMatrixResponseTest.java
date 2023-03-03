@@ -1,6 +1,6 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.matrix.MatrixMetricsType;
@@ -16,11 +16,11 @@ import java.util.List;
 
 public class JSONBasedIndividualMatrixResponseTest {
 
-    private MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
+    private final MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
     private MatrixResult matrixResult;
     private JSONBasedIndividualMatrixResponse jsonBasedIndividualMatrixResponse;
 
-    private Coordinate[] coordinates = new Coordinate[3];
+    private final Coordinate[] coordinates = new Coordinate[3];
 
     @Before
     public void setUp() {

@@ -30,23 +30,24 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 import org.heigit.ors.routing.graphhopper.extensions.DataReaderContext;
 
 import java.util.*;
 
 public class InFieldGraphBuilder extends AbstractGraphBuilder {
 
-	private GeometryFactory geometryFactory = new GeometryFactory();
-	private Map<Integer, Integer> intId2idx = new HashMap<>();
-	private Map<Integer, Integer> idx2intId =  new HashMap<>();
-	private Map<Integer, Long> intId2osmId = new HashMap<>();
-	private ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
+	private final GeometryFactory geometryFactory = new GeometryFactory();
+	private final Map<Integer, Integer> intId2idx = new HashMap<>();
+	private final Map<Integer, Integer> idx2intId =  new HashMap<>();
+	private final Map<Integer, Long> intId2osmId = new HashMap<>();
+	private final ArrayList<Integer> internalTowerNodeIds = new ArrayList<>();
 	private Coordinate[] coordinates;
-	private Set<ArrayList<Integer>> edges = new HashSet<>();
-	private ArrayList<Integer> tmpEdge = new ArrayList<>();
+	private final Set<ArrayList<Integer>> edges = new HashSet<>();
+	private final ArrayList<Integer> tmpEdge = new ArrayList<>();
 	private List<Weighting> weightings;
 	private EncodingManager encodingManager;
 
@@ -85,8 +86,8 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 			}      
 		}
 
-		DistanceCalc distCalc = Helper.DIST_EARTH;
-		try (GraphHopperStorage graphStorage = new GraphHopperStorage(weightings,  new RAMDirectory(), encodingManager, false,  new GraphExtension.NoOpExtension()).create(20)) {
+		DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
+		try (GraphHopperStorage graphStorage = new GraphHopperStorage(new RAMDirectory(), encodingManager, false).create(20)) {
 			for (int idxMain = 0; idxMain < osmNodeIds.size() - 1; idxMain++) {
 				long mainOsmId = osmNodeIds.get(idxMain);
 				int internalMainId = nodeMap.get(mainOsmId);
@@ -100,7 +101,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 				double latNeighbor = readerCntx.getNodeLatitude(internalNeighborId);
 				double lonNeighbor = readerCntx.getNodeLongitude(internalNeighborId);
 				double distance = distCalc.calcDist(latMain, lonMain, latNeighbor, lonNeighbor);
-				graphStorage.edge(idxMain, idxNeighbor, distance, true);
+				graphStorage.edge(idxMain, idxNeighbor).setDistance(distance);
 				// iterate through remaining nodes,
 				// but not through the direct neighbors
 				for (int idxPartner = idxMain + 2; idxPartner < osmNodeIds.size() - 1; idxPartner++) {
@@ -124,7 +125,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 						idx2intId.put(idxMain, internalMainId);
 						idx2intId.put(idxPartner, internalPartnerId);
 						// add edge to local graph
-						graphStorage.edge(idxMain, idxPartner, distance, true);
+						graphStorage.edge(idxMain, idxPartner).setDistance(distance);
 					}
 				}
 			}

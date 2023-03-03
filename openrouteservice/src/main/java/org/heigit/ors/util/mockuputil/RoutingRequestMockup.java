@@ -25,7 +25,7 @@
 
 package org.heigit.ors.util.mockuputil;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.routing.RouteInstructionsFormat;
 import org.heigit.ors.routing.RoutingRequest;
@@ -42,7 +42,7 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
  */
 public class RoutingRequestMockup {
 
-    private RoutingRequest routingRequest;
+    private final RoutingRequest routingRequest;
 
 
     // For now only two profiles are integrated. Both referring to a Heidelberg graph!
@@ -54,8 +54,8 @@ public class RoutingRequestMockup {
         STANDARD_CAR_SEARCH_PROFILE
     }
 
-    private Coordinate[] coords2d = new Coordinate[3];
-    private Coordinate[] coords3d = new Coordinate[3];
+    private final Coordinate[] coords2d = new Coordinate[3];
+    private final Coordinate[] coords3d = new Coordinate[3];
 
     public RoutingRequestMockup() {
         routingRequest = new RoutingRequest();

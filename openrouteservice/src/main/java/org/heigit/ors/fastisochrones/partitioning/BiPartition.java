@@ -8,8 +8,8 @@ import com.carrotsearch.hppc.IntHashSet;
  * @author Hendrik Leuschner
  */
 class BiPartition {
-    private IntHashSet partition0;
-    private IntHashSet partition1;
+    private final IntHashSet partition0;
+    private final IntHashSet partition1;
 
     public BiPartition() {
         this.partition0 = new IntHashSet(0);

@@ -23,9 +23,8 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 
-import java.util.BitSet;
-
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToInteger;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.intToByteArray;
 
 /**
  * Storage that maps nodeIds to their respective cells and borderness.
@@ -35,9 +34,9 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
  */
 public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private final DataAccess isochroneNodes;
-    private int cellBytes;
-    private int nodeCount;
-    private IntSet cellIdsSet = new IntHashSet();
+    private final int cellBytes;
+    private final int nodeCount;
+    private final IntSet cellIdsSet = new IntHashSet();
 
     public IsochroneNodeStorage(int nodeCount, Directory dir) {
         isochroneNodes = dir.find("isochronenodes");
@@ -49,7 +48,6 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         this.cellBytes = 5;
     }
 
-    @Override
     public boolean loadExisting() {
         if (isochroneNodes.loadExisting()) {
             for (int node = 0; node < nodeCount; node++)
@@ -99,12 +97,10 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
         }
     }
 
-    @Override
     public IsochroneNodeStorage create(long byteCount) {
         throw new IllegalStateException("Do not call IsochroneNodeStorage.create directly");
     }
 
-    @Override
     public void flush() {
         isochroneNodes.flush();
     }

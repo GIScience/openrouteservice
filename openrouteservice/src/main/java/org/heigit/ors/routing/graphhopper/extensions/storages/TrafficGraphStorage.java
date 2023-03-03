@@ -418,7 +418,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs node storage is required
      */
-    @Override
     public boolean isRequireNodeField() {
         return true;
     }
@@ -426,7 +425,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs edge storage is required
      */
-    @Override
     public boolean isRequireEdgeField() {
         return true;
     }
@@ -434,7 +432,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating nodes
      */
-    @Override
     public int getDefaultNodeFieldValue() {
         return -1;
     }
@@ -442,7 +439,6 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating edges
      */
-    @Override
     public int getDefaultEdgeFieldValue() {
         return -1;
     }
@@ -481,33 +477,10 @@ public class TrafficGraphStorage implements GraphExtension {
      *
      * @param bytes Size in bytes.
      */
-    @Override
     public void setSegmentSize(int bytes) {
         orsEdgesProperties.setSegmentSize(bytes);
         orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
         orsSpeedPatternLookup.setSegmentSize(bytes);
-    }
-
-    /**
-     * creates a copy of this extended storage
-     *
-     * @param clonedStorage The storage to clone.
-     */
-    @Override
-    public GraphExtension copyTo(GraphExtension clonedStorage) {
-        if (!(clonedStorage instanceof TrafficGraphStorage)) {
-            throw new IllegalStateException("the extended storage to clone must be the same");
-        }
-
-        TrafficGraphStorage clonedTC = (TrafficGraphStorage) clonedStorage;
-
-        orsEdgesProperties.copyTo(clonedTC.orsEdgesProperties);
-        orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);
-        orsSpeedPatternLookup.copyTo(clonedTC.orsSpeedPatternLookup);
-        clonedTC.edgesCount = edgesCount;
-        clonedTC.maxEdgeId = maxEdgeId;
-
-        return clonedStorage;
     }
 
     /**

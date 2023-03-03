@@ -15,7 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
@@ -44,7 +46,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         this(properties.getInt("speed_bits", 5),
         		properties.getDouble("speed_factor", 5),
         		properties.getBool("turn_costs", false) ? 3 : 0);
-        setBlockFords(false);
+        blockFords(false);
     }
 
     public EmergencyFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -62,17 +64,17 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         
         hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", KEY_AGRICULTURAL, KEY_FORESTRY, "delivery"));
 
-        potentialBarriers.add("gate");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("kissing_gate");
-        potentialBarriers.add("swing_gate");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("lift_gate");
+        passByDefaultBarriers.add("kissing_gate");
+        passByDefaultBarriers.add("swing_gate");
 
-        absoluteBarriers.add("bollard");
-        absoluteBarriers.add("stile");
-        absoluteBarriers.add("turnstile");
-        absoluteBarriers.add("cycle_barrier");
-        absoluteBarriers.add("motorcycle_barrier");
-        absoluteBarriers.add("block");
+        blockByDefaultBarriers.add("bollard");
+        blockByDefaultBarriers.add("stile");
+        blockByDefaultBarriers.add("turnstile");
+        blockByDefaultBarriers.add("cycle_barrier");
+        blockByDefaultBarriers.add("motorcycle_barrier");
+        blockByDefaultBarriers.add("block");
 
         Map<String, Integer> trackTypeSpeedMap = new HashMap<>();
         trackTypeSpeedMap.put("grade1", 25); // paved
@@ -175,8 +177,6 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         
         yesValues.add("yes");
         yesValues.add("1");
-
-        init();
     }
     
     @Override
@@ -195,7 +195,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 		String maxspeedTag = way.getTag("maxspeed:hgv");
 		if (Helper.isEmpty(maxspeedTag))
 			maxspeedTag = way.getTag("maxspeed");
-		double maxSpeed = parseSpeed(maxspeedTag);
+		double maxSpeed = OSMValueExtractor.stringToKmh(maxspeedTag);
 		
         String highway = way.getTag(KEY_HIGHWAY);
         double defaultSpeed = speedLimitHandler.getSpeed(highway);
@@ -214,7 +214,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
          }
          Integer speed = speedLimitHandler.getSpeed(highwayValue);
          if (speed == null)
-             throw new IllegalStateException(toString() + ", no speed found for: " + highwayValue + ", tags: " + way);
+             throw new IllegalStateException(this + ", no speed found for: " + highwayValue + ", tags: " + way);
 
          if (highwayValue.equals(KEY_TRACK)) {
              String tt = way.getTag("tracktype");
@@ -260,7 +260,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         // check access restrictions
         // Amandus
         if (way.hasTag("lanes:psv") || way.hasTag("lanes:bus") || way.hasTag("lanes:taxi") || way.hasTag("busway, lane") || way.hasTag("busway:left, lane") || way.hasTag("busway:right, lane"))
-            return EncodingManager.Access.WAY;
+            return EncodingManager.Access.WAY; // TODO: this result is equal to the final return; can the if be removed?
 
         return EncodingManager.Access.WAY;
     }
@@ -278,7 +278,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
             boolean isRoundabout = way.hasTag("junction", "roundabout");
             if (isRoundabout)
-                roundaboutEnc.setBool(true, edgeFlags, true);
+                roundaboutEnc.setBool(false, edgeFlags, true);
 
             setSpeed(false, edgeFlags, speed);
             setSpeed(true, edgeFlags, speed);
@@ -294,7 +294,8 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
             }
 
         } else {
-            double ferrySpeed = getFerrySpeed(way);accessEnc.setBool(false, edgeFlags, true);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
+            accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             setSpeed(false, edgeFlags, ferrySpeed);
             setSpeed(true, edgeFlags, ferrySpeed);
@@ -372,7 +373,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("EmergencyFlagEncoder" + toString()).hashCode();
+        return ("EmergencyFlagEncoder" + this).hashCode();
     }
 
     @Override
@@ -381,8 +382,8 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         return FlagEncoderNames.EMERGENCY;
     }
 
-	@Override
-	public int getVersion() {
-		return 2;
-	}
+    @Override
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.PSV;
+    }
 }

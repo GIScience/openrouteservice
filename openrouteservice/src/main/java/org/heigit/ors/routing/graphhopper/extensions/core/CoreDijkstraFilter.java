@@ -14,48 +14,47 @@
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.CHGraph;
-import com.graphhopper.util.CHEdgeIteratorState;
-import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.storage.CHEdgeFilter;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
+
 /**
  * Only certain nodes are accepted and therefor the others are ignored.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
  * @author Andrzej Oles, Hendrik Leuschner
  */
-public class CoreDijkstraFilter implements EdgeFilter {
-    protected final CHGraph graph;
+public class CoreDijkstraFilter implements CHEdgeFilter {
+    protected final RoutingCHGraph graph;
     protected final int maxNodes;
     protected final int coreNodeLevel;
     protected EdgeFilter restrictions;
 
     protected boolean inCore = false;
 
+    /**
+     * @param graph
+     */
+    public CoreDijkstraFilter(RoutingCHGraph graph) {
+        this.graph = graph;
+        maxNodes = GraphUtils.getBaseGraph(graph).getNodes();
+        coreNodeLevel = maxNodes;
+    }
+
     public void setInCore(boolean inCore) {
         this.inCore = inCore;
     }
 
     /**
-     *
-     * @param graph
-     */
-    public CoreDijkstraFilter(CHGraph graph) {
-        this.graph = graph;
-        maxNodes = graph.getNodes();
-        coreNodeLevel = maxNodes + 1;
-    }
-
-    /**
-     *
      * @param edgeIterState iterator pointing to a given edge
      * @return true iff the edge is virtual or is a shortcut or the level of the base node is greater/equal than
      * the level of the adjacent node
      */
     @Override
-
-    public boolean accept(EdgeIteratorState edgeIterState) {
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
         int base = edgeIterState.getBaseNode();
         int adj = edgeIterState.getAdjNode();
 
@@ -64,22 +63,21 @@ public class CoreDijkstraFilter implements EdgeFilter {
             if (base >= maxNodes || adj >= maxNodes)
                 return true;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
             else
                 return graph.getLevel(base) <= graph.getLevel(adj);
-        }
-        else {
+        } else {
             if (adj >= maxNodes)
                 return false;
             // minor performance improvement: shortcuts in wrong direction are already disconnected, so no need to check them
-            if (((CHEdgeIteratorState) edgeIterState).isShortcut())
+            if (edgeIterState.isShortcut())
                 return true;
 
             // do not follow virtual edges, and stay within core
             if (isCoreNode(adj))
                 // if edge is in the core check for restrictions
-                return restrictions == null || restrictions.accept(edgeIterState);
+                return restrictions == null || restrictions.accept(graph.getBaseGraph().getEdgeIteratorState(edgeIterState.getEdge(), adj));
             else
                 return false;
         }
@@ -89,7 +87,7 @@ public class CoreDijkstraFilter implements EdgeFilter {
         return graph.getLevel(node) >= coreNodeLevel;
     }
 
-    public void addRestrictionFilter (EdgeFilter restrictions) {
+    public void addRestrictionFilter(EdgeFilter restrictions) {
         this.restrictions = restrictions;
     }
 }

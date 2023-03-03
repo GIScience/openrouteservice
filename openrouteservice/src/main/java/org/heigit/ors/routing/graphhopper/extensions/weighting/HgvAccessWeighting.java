@@ -14,10 +14,10 @@ public class HgvAccessWeighting extends AbstractAdjustedWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edge, boolean reverse, int prevOrNextEdgeId, long time) {
+    public double calcEdgeWeight(EdgeIteratorState edge, boolean reverse) {
         if (!hgvAccessFilter.accept(edge))
             return Double.POSITIVE_INFINITY;
-        return superWeighting.calcWeight(edge, reverse, prevOrNextEdgeId, time);
+        return superWeighting.calcEdgeWeight(edge, reverse);
     }
 
     @Override

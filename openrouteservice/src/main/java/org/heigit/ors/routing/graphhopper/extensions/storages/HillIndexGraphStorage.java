@@ -15,10 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import java.util.Map;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 
 public class HillIndexGraphStorage implements GraphExtension {
 	private final int efHillIndex;
@@ -30,7 +27,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 	private int maxHillIndex = 15;
 
-	private byte[] byteValues;
+	private final byte[] byteValues;
 
 	public HillIndexGraphStorage(Map<String, String> parameters) {
 		efHillIndex = 0;
@@ -50,11 +47,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 		this.orsEdges = dir.find("ext_hillindex");
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
-
-	public GraphExtension create(long initBytes) {
+	public HillIndexGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -65,12 +58,13 @@ public class HillIndexGraphStorage implements GraphExtension {
 		orsEdges.flush();
 	}
 
-	public void close() {
-		orsEdges.close();
-	}
-
+	@Override
 	public long getCapacity() {
 		return orsEdges.getCapacity();
+	}
+
+	public void close() {
+		orsEdges.close();
 	}
 
 	public int entries() {
@@ -132,37 +126,6 @@ public class HillIndexGraphStorage implements GraphExtension {
 
 			return reverse ? buffer[1] : buffer[0];
 		}
-	}
-
-	public boolean isRequireNodeField() {
-		return true;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1; //throw new UnsupportedOperationException("Not supported by this storage")
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof HillIndexGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		HillIndexGraphStorage clonedTC = (HillIndexGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

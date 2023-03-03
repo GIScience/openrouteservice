@@ -67,7 +67,7 @@
               "weightings": "recommended",
               "maxcellnodes": 5000
             },
-            "profile-hgv": {
+            "hgv": {
               "enabled": false,
               "threads": 12,
               "weightings": "recommended, shortest",
@@ -135,7 +135,6 @@
             "execution": {
               "methods": {
                 "lm": {
-                  "disabling_allowed": true,
                   "active_landmarks": 8
                 }
               }
@@ -175,11 +174,7 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "lm": {
-                    "disabling_allowed": true,
                     "active_landmarks": 6
                   },
                   "core": {
@@ -225,9 +220,6 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "core": {
                     "disabling_allowed": true,
                     "active_landmarks": 6

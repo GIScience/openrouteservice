@@ -20,12 +20,13 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import com.graphhopper.util.FetchMode;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import me.tongfei.progressbar.ProgressBar;
 import org.apache.log4j.Logger;
 import org.geotools.data.DataUtilities;
@@ -166,7 +167,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     @Override
-    public void processEdge(ReaderWay way, EdgeIteratorState edge, com.vividsolutions.jts.geom.Coordinate[] coords) {
+    public void processEdge(ReaderWay way, EdgeIteratorState edge, org.locationtech.jts.geom.Coordinate[] coords) {
         if (enabled) {
             short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
             storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);
@@ -197,7 +198,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             matchedOSMLinks.forEach((value) -> {
                 try {
                     SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(finalTYPE);
-                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(value);
+                    org.locationtech.jts.geom.Geometry linestring = reader.read(value);
                     featureBuilder.add(linestring);
                     SimpleFeature feature = featureBuilder.buildFeature(null);
                     matchedOSMCollection.add(feature);
@@ -209,7 +210,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 try {
                     String hereLinkGeometry = hereTrafficData.getLink(linkID.value).getLinkGeometry().toString();
                     SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
-                    com.vividsolutions.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
+                    org.locationtech.jts.geom.Geometry linestring = reader.read(hereLinkGeometry);
                     featureBuilder.add(linestring);
                     SimpleFeature feature = featureBuilder.buildFeature(null);
                     matchedHereCollection.add(feature);
@@ -395,7 +396,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, edge.getDistance()));
             }
             if (outputLog) {
-                LineString lineString = edge.fetchWayGeometry(3).toLineString(false);
+                LineString lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
                 addOSMGeometryForLogging(lineString.toString());
                 addHereSegmentForLogging(trafficLinkId);
             }

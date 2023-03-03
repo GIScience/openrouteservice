@@ -13,21 +13,21 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
 
 public class QuietWeighting extends FastestWeighting {
-    private NoiseIndexGraphStorage gsNoiseIndex;
-    private byte[] buffer;
+    private final NoiseIndexGraphStorage gsNoiseIndex;
+    private final byte[] buffer;
     private double weightingFactor = 1;
 
-    public QuietWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public QuietWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
         buffer = new byte[1];
         gsNoiseIndex = GraphStorageUtils.getGraphExtension(graphStorage, NoiseIndexGraphStorage.class);
@@ -48,7 +48,7 @@ public class QuietWeighting extends FastestWeighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         if (gsNoiseIndex != null) {
             int noiseLevel = gsNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), buffer);
             return calcNoiseWeightFactor(noiseLevel);
@@ -69,6 +69,6 @@ public class QuietWeighting extends FastestWeighting {
 
     @Override
     public int hashCode() {
-        return ("QuietWeighting" + toString()).hashCode();
+        return ("QuietWeighting" + this).hashCode();
     }
 }

@@ -13,11 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
+import com.graphhopper.routing.ch.NodeOrderingProvider;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.ShortestWeighting;
-import com.graphhopper.routing.weighting.TurnWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import com.graphhopper.util.GHUtility;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
@@ -27,107 +32,115 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler.createCoreNodeIdMap;
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreLandmarkStorageTest {
-    private GraphHopperStorage ghStorage;
-    private final CarFlagEncoder carEncoder = new CarFlagEncoder();
-    private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-    private final Weighting weighting = new ShortestWeighting(carEncoder);
-    private final TraversalMode tMode = TraversalMode.NODE_BASED;
-    private Directory dir;
+    private ORSGraphHopperStorage graph;
+    private FlagEncoder encoder;
+    private EncodingManager encodingManager;
+    private BooleanEncodedValue subnetworkEnc;
+
+    private Weighting weighting;
+    private Directory dir = new GHDirectory("", DAType.RAM_INT);
+    private RoutingCHGraph routingCHGraph;
+    private CHConfig chConfig;
 
     @Before
     public void setUp() {
-        FlagEncoder encoder = new CarFlagEncoder();
-        ghStorage = new GraphHopperStorage(new RAMDirectory(),
-                EncodingManager.create(encoder), false, new GraphExtension.NoOpExtension());
-        ghStorage.create(1000);
-        dir = new GHDirectory("", DAType.RAM_INT);
+        encoder = new CarFlagEncoder();
+        subnetworkEnc = Subnetwork.create(encoder.toString());
+        encodingManager = new EncodingManager.Builder().add(encoder).add(subnetworkEnc).build();
+
+        weighting = new ShortestWeighting(encoder);
+        chConfig = new CHConfig(encoder.toString(), weighting, false, CHConfig.TYPE_CORE);
+
+        graph =  new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        graph.addCoreGraph(chConfig);
+        graph.create(1000);
+        routingCHGraph = graph.getCoreGraph(chConfig.getName());
     }
 
     @After
     public void tearDown() {
-        if (ghStorage != null)
-            ghStorage.close();
+        if (graph != null)
+            graph.close();
     }
 
-    private GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCHProfiles(new ArrayList<>()).setCoreGraph(weighting).create();
+    private void addEdge(int a, int b, double distance) {
+        GHUtility.setSpeed(60, true, true, encoder, graph.edge(a, b).setDistance(distance));
     }
 
-
-    private GraphHopperStorage createMediumGraph() {
+    public void createMediumGraph() {
         //    3---4--5
         //   /\   |  |
         //  2--0  6--7
         //  | / \   /
         //  |/   \ /
         //  1-----8
-        GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true); // restricted in #1 and #2
-        g.edge(0, 2, 1, true);
-        g.edge(0, 3, 5, true);
-        g.edge(0, 8, 1, true);
-        g.edge(1, 2, 1, true);
-        g.edge(1, 8, 2, true);
-        g.edge(2, 3, 2, true); // restricted in #2 and #3
-        g.edge(3, 4, 2, true); // restricted in #4
-        g.edge(4, 5, 1, true);
-        g.edge(4, 6, 1, true);
-        g.edge(5, 7, 1, true);
-        g.edge(6, 7, 2, true);
-        g.edge(7, 8, 3, true); // restricted in #3 and #4
-        return g;
+        addEdge(0, 1, 1); // restricted in #1 and #2
+        addEdge(0, 2, 1);
+        addEdge(0, 3, 5);
+        addEdge(0, 8, 1);
+        addEdge(1, 2, 1);
+        addEdge(1, 8, 2);
+        addEdge(2, 3, 2); // restricted in #2 and #3
+        addEdge(3, 4, 2); // restricted in #4
+        addEdge(4, 5, 1);
+        addEdge(4, 6, 1);
+        addEdge(5, 7, 1);
+        addEdge(6, 7, 2);
+        addEdge(7, 8, 3); // restricted in #3 and #4
     }
 
-    private HashMap<Integer, Integer> createCoreNodeIdMap(CHGraph core) {
-       HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
-        int maxNode = core.getNodes();
-        int coreNodeLevel = maxNode + 1;
-        int index = 0;
-        for (int i = 0; i < maxNode; i++){
-            if (core.getLevel(i) < coreNodeLevel)
-                continue;
-            coreNodeIdMap.put(i, index);
-            index++;
-        }
-        return coreNodeIdMap;
+    private void contractGraph(CoreTestEdgeFilter restrictedEdges) {
+        contractGraph(restrictedEdges, null);
     }
 
-    private CHGraph contractGraph(GraphHopperStorage g, CoreTestEdgeFilter restrictedEdges) {
-        CHGraph lg = g.getCHGraph(new CHProfile(weighting, tMode, TurnWeighting.INFINITE_U_TURN_COSTS, "core"));
-        PrepareCore prepare = new PrepareCore(dir, g, lg, restrictedEdges);
+    private void contractGraph(CoreTestEdgeFilter restrictedEdges, int[] nodeOrdering) {
+        graph.freeze();
+
+        PrepareCore prepare = new PrepareCore(graph, chConfig, restrictedEdges);
+
+        if (nodeOrdering!=null)
+            prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked
-        prepare.setPeriodicUpdates(20);
-        prepare.setLazyUpdates(10);
-        prepare.setNeighborUpdates(20);
-        prepare.setContractedNodes(100);
+        //prepare.setParams(new PMap(CONTRACTED_NODES+"=100"));
 
         prepare.doWork();
 
         if (DebugUtility.isDebug()) {
-            for (int i = 0; i < lg.getNodes(); i++)
-                System.out.println("nodeId " + i + " level: " + lg.getLevel(i));
-            AllCHEdgesIterator iter = lg.getAllEdges();
-            while (iter.next()) {
-                System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
-                if (iter.isShortcut())
-                    System.out.print(" (shortcut)");
-                System.out.println(" [weight: " + iter.getDistance()+ "]");
+            for (int i = 0; i < routingCHGraph.getNodes(); i++)
+                System.out.println("nodeId " + i + " level: " + routingCHGraph.getLevel(i));
+            for (int i = 0; i < routingCHGraph.getNodes(); i++) {
+                RoutingCHEdgeIterator iter = routingCHGraph.createOutEdgeExplorer().setBaseNode(i);
+                while (iter.next()) {
+                    System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
+                    if (iter.isShortcut())
+                        System.out.print(" (shortcut)");
+                    System.out.println(" [weight: " + iter.getWeight(false) + "]");
+                }
             }
         }
-
-        return lg;
     }
+
+    private CoreLandmarkStorage createLandmarks(LMEdgeFilterSequence lmEdgeFilter) {
+        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(routingCHGraph);
+        CoreLMConfig coreLMConfig = new CoreLMConfig(encoder.toString(), weighting).setEdgeFilter(lmEdgeFilter);
+        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, routingCHGraph, coreLMConfig, 2);
+        storage.setCoreNodeIdMap(coreNodeIdMap);
+        storage.setMinimumNodes(2);
+        storage.createLandmarks();
+        return storage;
+    }
+
     @Test
     public void testOneSubnetwork() {
         // All edges in medium graph are part of core. Test if landmarks are built
@@ -145,13 +158,12 @@ public class CoreLandmarkStorageTest {
         restrictedEdges.add(10);
         restrictedEdges.add(11);
         restrictedEdges.add(12);
-        ghStorage = createMediumGraph();
-        CHGraph g = contractGraph(ghStorage, restrictedEdges);
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g);
 
-        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting,new LMEdgeFilterSequence(), 2 );
-        storage.setMinimumNodes(2);
-        storage.createLandmarks();
+        createMediumGraph();
+        contractGraph(restrictedEdges);
+
+        CoreLandmarkStorage storage = createLandmarks(new LMEdgeFilterSequence());
+
         assertEquals(2, storage.getSubnetworksWithLandmarks());
         assertEquals("[6, 2]", Arrays.toString(storage.getLandmarks(1)));
     }
@@ -160,7 +172,6 @@ public class CoreLandmarkStorageTest {
     public void testTwoSubnetworks() {
         // All edges in medium graph are part of core. Test if landmarks are built
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
-        CoreTestEdgeFilter passableEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(1);
         restrictedEdges.add(2);
@@ -168,29 +179,24 @@ public class CoreLandmarkStorageTest {
         restrictedEdges.add(4);
         restrictedEdges.add(5);
         restrictedEdges.add(6);
-        restrictedEdges.add(7);
         restrictedEdges.add(8);
         restrictedEdges.add(9);
         restrictedEdges.add(10);
         restrictedEdges.add(11);
-        restrictedEdges.add(12);
 
+        CoreTestEdgeFilter passableEdges = new CoreTestEdgeFilter();
         passableEdges.add(7);
         passableEdges.add(12);
 
-        ghStorage = createMediumGraph();
-        CHGraph g = contractGraph(ghStorage, restrictedEdges);
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(g);
+        createMediumGraph();
+        contractGraph(restrictedEdges);
 
+        LMEdgeFilterSequence lmEdgeFilter = new LMEdgeFilterSequence();
+        lmEdgeFilter.add(passableEdges);
+        CoreLandmarkStorage storage = createLandmarks(lmEdgeFilter);
 
-        LMEdgeFilterSequence lmEdgeFilterSequence = new LMEdgeFilterSequence();
-        lmEdgeFilterSequence.add(passableEdges);
-        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, ghStorage, coreNodeIdMap, weighting, lmEdgeFilterSequence, 2 );
-        storage.setMinimumNodes(2);
-        storage.createLandmarks();
         assertEquals(3, storage.getSubnetworksWithLandmarks());
         assertEquals("[3, 8]", Arrays.toString(storage.getLandmarks(1)));
         assertEquals("[7, 4]", Arrays.toString(storage.getLandmarks(2)));
     }
-
 }

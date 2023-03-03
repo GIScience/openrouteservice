@@ -13,12 +13,12 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.services.ServiceRequest;
+import org.heigit.ors.common.ServiceRequest;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 public class IsochroneRequest extends ServiceRequest {
-    private List<TravellerInfo> travellers;
+    private final List<TravellerInfo> travellers;
     private String calcMethod;
     private String units = null;
     private String areaUnits = null;

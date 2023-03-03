@@ -14,21 +14,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderNode;
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
-
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
+import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_HORSE = "horse";
@@ -132,7 +131,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     /**
      * Barriers (nodes) that are not accessible. Routes that would these nodes are not possible.
      */
-    private Set<String> inaccessibleBarriers = new HashSet<>(5);
+    private final Set<String> inaccessibleBarriers = new HashSet<>(5);
     
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
@@ -163,32 +162,29 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
-        absoluteBarriers.add("fence");
-        absoluteBarriers.add("wall");
-        absoluteBarriers.add("hedge");
-        absoluteBarriers.add("retaining_wall");
-        absoluteBarriers.add("city_wall");
-        absoluteBarriers.add("ditch");
-        absoluteBarriers.add("hedge_bank");
-        absoluteBarriers.add("guard_rail");
-        absoluteBarriers.add("wire_fence");
-        absoluteBarriers.add("embankment");
+        blockByDefaultBarriers.add("fence");
+        blockByDefaultBarriers.add("wall");
+        blockByDefaultBarriers.add("hedge");
+        blockByDefaultBarriers.add("retaining_wall");
+        blockByDefaultBarriers.add("city_wall");
+        blockByDefaultBarriers.add("ditch");
+        blockByDefaultBarriers.add("hedge_bank");
+        blockByDefaultBarriers.add("guard_rail");
+        blockByDefaultBarriers.add("wire_fence");
+        blockByDefaultBarriers.add("embankment");
 
-        // specify whether potential barriers block a route if no further information is available
-        setBlockByDefault(false);
-        
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
         // potential barriers do not block, if no further information is available
-        potentialBarriers.add("gate");
-        potentialBarriers.add("bollard");
-        potentialBarriers.add("lift_gate");
-        potentialBarriers.add("cycle_barrier");
-        potentialBarriers.add("entrance");
-        potentialBarriers.add("cattle_grid");
-        potentialBarriers.add("swing_gate");
-        potentialBarriers.add("chain");
-        potentialBarriers.add("bump_gate");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("bollard");
+        passByDefaultBarriers.add("lift_gate");
+        passByDefaultBarriers.add("cycle_barrier");
+        passByDefaultBarriers.add("entrance");
+        passByDefaultBarriers.add("cattle_grid");
+        passByDefaultBarriers.add("swing_gate");
+        passByDefaultBarriers.add("chain");
+        passByDefaultBarriers.add("bump_gate");
 
         // add these to absolute barriers
         inaccessibleBarriers.add("stile");
@@ -279,7 +275,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         inaccessibleTracktypes.add("grade4");
         inaccessibleTracktypes.add("grade5");
 
-        init();
+        routeMap.put(INTERNATIONAL, PREFER.getValue());
+        routeMap.put(NATIONAL, PREFER.getValue());
+        routeMap.put(REGIONAL, PREFER.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(OTHER , PREFER.getValue());
     }
 
     @Override
@@ -287,14 +287,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         return MEAN_SPEED;
     }
     
-    @Override
-    public int defineNodeBits(int index, int shift) {
-        shift = super.defineNodeBits(index, shift);
-
-        return shift;
-    }
-
-
     /**
      * Some ways are okay but not separate for pedestrians.
      *
@@ -463,29 +455,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(KEY_ROUTE, "hiking")
-                || relation.hasTag(KEY_ROUTE, "foot")
-                || relation.hasTag(KEY_ROUTE, KEY_BICYCLE)
-                || relation.hasTag(KEY_ROUTE, "inline_skates")
-        ) {
-            code = PriorityCode.PREFER.getValue();
-        } 
-        else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
-        }
-
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
-        if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
-    }
-
-    //public long handleWayTags(ReaderWay way, long allowed, long relationFlags )
-
-    @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
 
         if (access.canSkip())
             return edgeFlags;
@@ -547,19 +517,16 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
             // *****************************************
         	
-            speedEncoder.setDecimal(false, edgeFlags, speed);
+            avgSpeedEnc.setDecimal(false, edgeFlags, speed);
 
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             
-            int priorityFromRelation = 0;
-            if (relationFlags != 0)
-                priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
-
-            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+            Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
         } 
         else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
@@ -578,7 +545,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         long encoded = super.handleNodeTags(node);
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-            encoded = getEncoderBit();
+             encoded = getEncoderBit();
         }
         return encoded;
     }
@@ -592,7 +559,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
         
-        if (maxSpeed > 0) {
+        if (isValidSpeed(maxSpeed)) {
         	 if (maxSpeed > 50) {
              	negativeFeatures++;
              	if (maxSpeed > 60) {
@@ -603,10 +570,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
              	}
              }
              
-             if (maxSpeed > 0 && maxSpeed <= 20) {
+             if (maxSpeed <= 20) {
              	positiveFeatures+=1;
              }
         }
+
 
         if (way.hasTag("tunnel", intendedValues)) {
         	negativeFeatures+=4;
@@ -693,11 +661,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         return FlagEncoderNames.WHEELCHAIR;
     }
 
-	@Override
-	public int getVersion() {
-		return 2;
-	}
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -710,6 +673,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("WheelchairFlagEncoder" + toString()).hashCode();
+        return ("WheelchairFlagEncoder" + this).hashCode();
     }
 }

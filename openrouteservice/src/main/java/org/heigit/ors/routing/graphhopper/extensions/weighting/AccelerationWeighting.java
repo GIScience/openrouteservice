@@ -13,24 +13,21 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.AngleCalc;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
 
+// TODO: this class seems to be unfinished since years. Can it be removed?
 public class AccelerationWeighting extends FastestWeighting {
-	private GraphHopperStorage ghStorage;
-	private AngleCalc angleCalc = new AngleCalc();
-	private long maxEdges;
+	private final GraphHopperStorage ghStorage;
+	private final AngleCalc angleCalc = new AngleCalc();
+	private final long maxEdges;
 
-	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+	public AccelerationWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
 		super(encoder, map);
-		ghStorage = (GraphHopperStorage)graphStorage;
+		ghStorage = graphStorage;
 		maxEdges = ghStorage.getEdges();
 	}
 
@@ -58,7 +55,6 @@ public class AccelerationWeighting extends FastestWeighting {
 		return 0.0;	
 	}
 
-	@Override
 	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
 		if (prevOrNextEdgeId == -1 )
 			return 1.0;
@@ -73,13 +69,13 @@ public class AccelerationWeighting extends FastestWeighting {
 		PointList prevEdgeGeom;
 		if (reverse)
 		{
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(3);
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(3);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(FetchMode.ALL);
 		}
 		else
 		{
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(3);
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(3);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(FetchMode.ALL);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
 		}
  
 		double turnAngle = getTurnAngle(currEdgeGeom, prevEdgeGeom);
@@ -98,7 +94,6 @@ public class AccelerationWeighting extends FastestWeighting {
 		return angle > 50 && angle <= 140;
 	}
 
-	@Override
 	public long calcMillis(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
 		if (prevOrNextEdgeId == -1 )
 			return 0;
@@ -113,13 +108,13 @@ public class AccelerationWeighting extends FastestWeighting {
 		PointList prevEdgeGeom;
 		if (reverse)
 		{
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(3);
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(3);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).detach(true).fetchWayGeometry(FetchMode.ALL);
 		}
 		else
 		{
-			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(3);
-			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(3);
+			currEdgeGeom =  ghStorage.getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()).fetchWayGeometry(FetchMode.ALL);
+			prevEdgeGeom =  ghStorage.getEdgeIteratorState(prevOrNextEdgeId, edgeState.getBaseNode()).fetchWayGeometry(FetchMode.ALL);
 		}
 
 		double turnAngle = getTurnAngle(currEdgeGeom, prevEdgeGeom);
@@ -143,6 +138,6 @@ public class AccelerationWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("AccWeighting" + toString()).hashCode();
+		return ("AccWeighting" + this).hashCode();
 	}
 }

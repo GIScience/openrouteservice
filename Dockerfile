@@ -3,6 +3,7 @@ FROM maven:3.8-jdk-11-slim as base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+
 # hadolint ignore=DL3002
 USER root
 

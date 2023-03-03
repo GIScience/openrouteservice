@@ -29,7 +29,7 @@ public class RegularBikeFlagEncoderTest {
     private ReaderWay way;
 
     public RegularBikeFlagEncoderTest() {
-        EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.BIKE_ORS, 4);
+        EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.BIKE_ORS);
         flagEncoder = (RegularBikeFlagEncoder) encodingManager.getEncoder(FlagEncoderNames.BIKE_ORS);
     }
 

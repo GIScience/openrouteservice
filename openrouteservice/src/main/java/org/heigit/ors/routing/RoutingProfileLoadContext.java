@@ -15,6 +15,10 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.reader.dem.ElevationProvider;
 
+/**
+ * Holds resources shared between instances of {@link RoutingProfile}.
+ * An example of such a shared resource is {@link ElevationProvider}.
+ */
 public class RoutingProfileLoadContext {
 	// add here any other shared resources
 	private ElevationProvider elevationProvider = null;
