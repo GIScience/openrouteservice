@@ -116,7 +116,7 @@ public class MatrixAPI {
         } else if (cause instanceof InvalidFormatException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
         } else if (cause instanceof ConversionFailedException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, Objects.requireNonNull(((ConversionFailedException) cause).getValue()).toString()));
+return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((ConversionFailedException) cause).getValue().toString()));
         } else if (cause instanceof InvalidDefinitionException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {
