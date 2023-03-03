@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.8.3</version>
+    <version>7.0.0</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
