@@ -34,8 +34,13 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [6.8.3] - 2023-03-02
 ### Fixed
+- wheelchair profile excludes ways tagged highway:construction ([#1295](https://github.com/GIScience/openrouteservice/issues/1295))
 - Support access restriction tags listing multiple vehicles ([#1219](https://github.com/GIScience/openrouteservice/issues/1219))
+- upgrade org.glassfish.jaxb:jaxb-runtime from 2.3.7 to 2.3.8
+- upgrade org.postgresql:postgresql from 42.5.1 to 42.5.2
 
 ## [6.8.2] - 2023-02-22
 ### Fixed
@@ -602,7 +607,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...HEAD
+[6.8.3]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...v6.8.3
 [6.8.2]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...v6.8.2
 [6.8.1]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...v6.8.1
 [6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
