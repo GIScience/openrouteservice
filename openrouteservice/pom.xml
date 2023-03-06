@@ -53,7 +53,7 @@
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
         <kafka.version>3.4.0</kafka.version>
-        <fasterxml.jackson.version>2.13.3</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
