@@ -2,6 +2,13 @@
 
 echo "Running container as user $(whoami) with id $(id -u)"
 
+if [[ -d /ors-core ]] || [[ -d /ors-conf ]]; then
+  echo "You're mounting old paths. Remove them and migrate to the new docker setup: https://github.com/GIScience/openrouteservice/blob/master/docker/docker-compose.yml"
+  echo "Exit setup due to old folders /ors-core or /ors-conf being mounted"
+  sleep 5
+  exit 1
+fi
+
 ors_base=${1}
 catalina_base=${ors_base}/tomcat
 echo "ORS Path: ${ors_base}"
