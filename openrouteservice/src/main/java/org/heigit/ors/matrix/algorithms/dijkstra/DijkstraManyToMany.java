@@ -39,8 +39,6 @@ import java.util.ListIterator;
 import java.util.PriorityQueue;
 
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
 /**
  * A Core and Dijkstra based algorithm that runs a many to many search in the core and downwards.
@@ -187,6 +185,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                     targetItem.setWeight(updateWeight);
                     targetItem.setEdge(msptSubItem.getEdge());
                     targetItem.setOriginalEdge(msptSubItem.getOriginalEdge());
+                    targetItem.setIncEdge(msptSubItem.getIncEdge());
                     targetItem.setParent(msptSubItem.getParent());
                     targetItem.setUpdate(true);
                     updated = true;
@@ -293,12 +292,10 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             MultiTreeSPEntryItem msptSubItem = entry.getItem(source);
-            if (!accept(iter, currEdgeItem.getEdge()))
+            if (!accept(iter, currEdgeItem.getIncEdge(), swap))
                 continue;
 
-            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
             double edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
-            resetTurnWeighting(hasTurnWeighting);
             if (edgeWeight == Double.POSITIVE_INFINITY)
                 continue;
 
@@ -310,6 +307,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 msptSubItem.setWeight(tmpWeight);
                 msptSubItem.setEdge(iter.getEdge());
                 msptSubItem.setOriginalEdge(iter.getOrigEdge());
+                msptSubItem.setIncEdge(getIncEdge(iter, swap));
                 msptSubItem.setParent(this.currEdge);
                 msptSubItem.setUpdate(true);
                 addToQueue = true;
@@ -397,11 +395,11 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 eeItem.setWeight(tmpWeight);
                 eeItem.setEdge(iter.getEdge());
                 eeItem.setOriginalEdge(iter.getOrigEdge());
+                eeItem.setIncEdge(getIncEdge(iter, swap));
                 eeItem.setParent(currEdge);
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting);
         }
         return addToQueue;
     }
@@ -535,7 +533,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         return Parameters.Algorithms.DIJKSTRA;
     }
 
-    //TODO Move to helper class the weighting stuff
+    //TODO Refactoring : Move the weighting stuff to helper class
     double calcPathWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
         return calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
     }

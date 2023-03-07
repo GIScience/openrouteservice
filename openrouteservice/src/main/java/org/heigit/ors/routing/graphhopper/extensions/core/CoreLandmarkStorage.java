@@ -33,11 +33,14 @@ import com.graphhopper.storage.*;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -51,24 +54,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Andrzej Oles
  */
 public class CoreLandmarkStorage extends LandmarkStorage {
+    private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
     private RoutingCHGraphImpl core;
     private final LMEdgeFilterSequence landmarksFilter;
     private Map<Integer, Integer> coreNodeIdMap;
-    private final GraphHopperStorage graph;
+    private final ORSGraphHopperStorage graph;
     private final CoreLMConfig lmConfig;
+    private IntHashSet subnetworkNodes;
 
     public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
         this(dir, graph, (RoutingCHGraphImpl) graph.getCoreGraph(lmConfig.getSuperName()), lmConfig, landmarks);
     }
 
     //needed primarily for unit tests
-    public CoreLandmarkStorage(Directory dir, GraphHopperStorage graph, RoutingCHGraph core, final CoreLMConfig lmConfig, int landmarks) {
+    public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, RoutingCHGraph core, final CoreLMConfig lmConfig, int landmarks) {
         super(graph, dir, lmConfig, landmarks);
         this.graph = graph;
         this.lmConfig = lmConfig;
         this.core = (RoutingCHGraphImpl) core;
         this.landmarksFilter = lmConfig.getEdgeFilter();
-        setMinimumNodes(Math.min(getBaseNodes() / 2, 500000));
+        setMinimumNodes(Math.min(getBaseNodes() / 2, 10000));
     }
 
     public void setCoreNodeIdMap (Map<Integer, Integer> coreNodeIdMap) {
@@ -91,7 +96,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         DataAccess landmarkWeightDA = getLandmarkWeightDA();
         List<int[]> landmarkIDs = getLandmarkIDs();
         AreaIndex<SplitArea> areaIndex = getAreaIndex();
-        boolean logDetails = isLogDetails();
+        boolean logDetails = true;//isLogDetails();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
         int coreNodes = getBaseNodes();
 
@@ -128,12 +133,11 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             StopWatch sw = new StopWatch().start();
             blockedEdges = findBorderEdgeIds(areaIndex);
             if (logDetails)
-                LOGGER.info("Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+                logger.info(configName() + "Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
         } else {
             blockedEdges = new IntHashSet();
         }
 
-        //FIXME these filters need to be adapted - see CoreAndBlockedEdgesFilter in previous impl
         EdgeFilter blockedEdgesFilter = edge -> !edge.get(edgeInSubnetworkEnc) && !blockedEdges.contains(edge.getEdge());
         EdgeFilter accessFilter = edge -> blockedEdgesFilter.accept(edge) && landmarksFilter.accept(edge);
 
@@ -141,7 +145,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         TarjansCoreSCCAlgorithm tarjanAlgo = new TarjansCoreSCCAlgorithm(graph, core, accessFilter, false);
         List<IntArrayList> graphComponents = tarjanAlgo.findComponents();
         if (logDetails)
-            LOGGER.info("Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+            logger.info(configName() + "Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
 
         String additionalInfo = "";
         // guess the factor
@@ -158,7 +162,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         double factor = getFactor();
 
         if (logDetails)
-            LOGGER.info("init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
+            logger.info(configName() + "init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
 
         int nodes = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
@@ -169,25 +173,22 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
                         + graphComponents.size() + ", minimumNodes:" + minimumNodes + ", current size:" + subnetworkIds.size());
 
+            subnetworkNodes = new IntHashSet(subnetworkIds);
             int index = subnetworkIds.size() - 1;
-            // ensure start node is reachable from both sides and no subnetwork is associated
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
-// ORS-GH MOD START use node index map
                 if (subnetworks[getIndex(nextStartNode)] == UNSET_SUBNETWORK) {
-// ORS-GH MOD END
                     if (logDetails) {
                         GHPoint p = createPoint(graph, nextStartNode);
-                        LOGGER.info("start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
+                        logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
                                 + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
                     }
-
                     if (createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter))
                         break;
                 }
             }
             if (index < 0)
-                LOGGER.warn("next start node not found in big enough network of size " + subnetworkIds.size() + ", first element is " + subnetworkIds.get(0) + ", " + createPoint(graph, subnetworkIds.get(0)));
+                logger.warn("next start node not found in big enough network of size " + subnetworkIds.size() + ", first element is " + subnetworkIds.get(0) + ", " + createPoint(graph, subnetworkIds.get(0)));
         }
 
         int subnetworkCount = landmarkIDs.size();
@@ -217,8 +218,12 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         }
 
         if (logDetails)
-            LOGGER.info("Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes " + coreNodes);
+            logger.info(configName() + "Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes " + coreNodes);
         setInitialized(true);
+    }
+
+    private String configName() {
+        return "[" + lmConfig.getName() + "] ";
     }
 
     @Override
@@ -269,12 +274,12 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     @Override
     public LandmarkExplorer getLandmarkExplorer(EdgeFilter accessFilter, Weighting weighting, boolean reverse) {
-        return new CoreLandmarkExplorer(core, accessFilter, reverse);
+        return new CoreLandmarkExplorer(core, accessFilter, reverse, this.subnetworkNodes);
     }
 
     @Override
     public LandmarkExplorer getLandmarkSelector(EdgeFilter accessFilter) {
-        return new CoreLandmarkSelector(core, accessFilter, false);
+        return new CoreLandmarkSelector(core, accessFilter, false, this.subnetworkNodes);
     }
 
     /**
@@ -285,9 +290,14 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         private final boolean reverse;
         private SPTEntry lastEntry;
 
-        public CoreLandmarkExplorer(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
+        public CoreLandmarkExplorer(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse, IntHashSet subnetworkNodes) {
             super(g);
-            this.levelEdgeFilter = new CoreEdgeFilter(g, accessFilter);
+            //TODO: implement a better solution to the issue of picking nodes from outside of the strongly connected
+            // component. Provided that the edge filters are set up properly and work as intended the additional check
+            // shouldn't be in principle neccessary.
+            CHEdgeFilter subnetworkFilter = edge -> subnetworkNodes == null || subnetworkNodes.contains(edge.getAdjNode());
+            CHEdgeFilter coreEdgeFilter = new CoreEdgeFilter(g, accessFilter);
+            this.levelEdgeFilter = edge -> subnetworkFilter.accept(edge) && coreEdgeFilter.accept(edge);
             this.reverse = reverse;
             // set one of the bi directions as already finished
             if (reverse)
@@ -315,6 +325,14 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         @Override
         public void runAlgo() {
             super.runAlgo();
+        }
+
+        // Need to override the DijkstraBidirectionCHNoSOD method as it uses the graphs weighting instead of the CoreLandmarkStorage one.
+        // The graph uses a turn cost based weighting, though, which is not allowed for LM distance calculation.
+        @Override
+        protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+            double edgeWeight = edgeState.getWeight(reverse);
+            return edgeWeight;
         }
 
         @Override
@@ -350,7 +368,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                     if (sn != subnetworkId) {
                         if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
                             // this is ugly but can happen in real world, see testWithOnewaySubnetworks
-                            LOGGER.error("subnetworkId for node " + nodeId
+                            logger.error("subnetworkId for node " + nodeId
                             + " (" + createPoint(graph.getBaseGraph(), nodeId) + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
 
                             failed.set(true);
@@ -383,7 +401,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             });
 
             if ((double) maxedout.get() / map.size() > 0.1) {
-                LOGGER.warn("landmark " + lmIdx + " (" + nodeAccess.getLat(lmNodeId) + "," + nodeAccess.getLon(lmNodeId) + "): " +
+                logger.warn("landmark " + lmIdx + " (" + nodeAccess.getLat(lmNodeId) + "," + nodeAccess.getLon(lmNodeId) + "): " +
                         "too many weights were maxed out (" + maxedout.get() + "/" + map.size() + "). Use a bigger factor than " + getFactor()
                         + ". For example use maximum_lm_weight: " + finalMaxWeight.getValue() * 1.2 + " in your LM profile definition");
             }
@@ -392,17 +410,19 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     private class CoreLandmarkSelector extends CoreLandmarkExplorer {
 
-        public CoreLandmarkSelector(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse) {
-            super(g, accessFilter, reverse);
+        public CoreLandmarkSelector(RoutingCHGraph g, EdgeFilter accessFilter, boolean reverse, IntHashSet subnetworkNodes) {
+            super(g, accessFilter, reverse, subnetworkNodes);
         }
 
-        // need to adapt this method
         @Override
         protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+            if (edgeState.isShortcut())
+                return expandEdge(edgeState);
+
             if (super.calcWeight(edgeState, reverse, prevOrNextEdgeId) >= Double.MAX_VALUE)
                 return Double.POSITIVE_INFINITY;
 
-            return edgeState.isShortcut() ? expandEdge(edgeState) : 1;
+            return 1;
         }
 
         private int expandEdge(RoutingCHEdgeIteratorState mainEdgeState) {

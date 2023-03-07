@@ -79,6 +79,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         hasConditionalAccess = properties.getBool(ConditionalEdges.ACCESS, false);
         hasConditionalSpeed = properties.getBool(ConditionalEdges.SPEED, false);
         this.blockFords(properties.getBool("block_fords", true));
+        this.blockBarriers(properties.getBool("block_barriers", true));
         speedTwoDirections = properties.getBool("speed_two_directions", true);
         useAcceleration = properties.getBool("use_acceleration", false);
         maxTrackGradeLevel = properties.getInt("maximum_grade_level", maxTrackGradeLevel);
@@ -349,6 +350,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         String highwayValue = getHighway(way);
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
 
+        // Note that Math.round(NaN) == 0
         int maxSpeed = (int) Math.round(getMaxSpeed(way));
         if (maxSpeed <= 0)
             maxSpeed = speedLimitHandler.getMaxSpeed(way);
@@ -382,7 +384,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = this.getMaxSpeed(way);
-        return maxSpeed > 0.0D ? maxSpeed * 0.9D : speed;
+        return isValidSpeed(maxSpeed) ? maxSpeed * 0.9D : speed;
     }
 
     /**

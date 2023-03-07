@@ -19,9 +19,6 @@ import com.graphhopper.storage.*;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,20 +35,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 	@Override
 	public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
 		EncodingManager encodingManager = gh.getEncodingManager();
-		GraphExtension geTurnCosts = null;
 		ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
-
-		if (encodingManager.needsTurnCostsSupport()) {
-			Path path = Paths.get(dir.getLocation(), "turn_costs");
-			File fileEdges  = Paths.get(dir.getLocation(), "edges").toFile();
-			File fileTurnCosts = path.toFile();
-
-			// TODO: Clarify what this is about. TurnCost are handled differently now.
-			// First we need to check if turncosts are available. This check is required when we introduce a new feature, but an existing graph does not have it yet.
-			if ((!hasGraph(gh) && !fileEdges.exists()) || (fileEdges.exists() && fileTurnCosts.exists())) {
-				//	geTurnCosts =  new TurnCostExtension();
-			}
-		}
 
 		if (graphStorageBuilders != null) {
 			List<GraphStorageBuilder> iterateGraphStorageBuilders = new ArrayList<>(graphStorageBuilders);
@@ -67,44 +51,10 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
 			}
 		}
 
-		if(gh instanceof ORSGraphHopper) {
-			if (((ORSGraphHopper) gh).isCoreEnabled()) {
-			// TODO:	((ORSGraphHopper) gh).initCoreAlgoFactoryDecorator();
-			}
-			if (((ORSGraphHopper) gh).isCoreLMEnabled()) {
-				//TODO: ((ORSGraphHopper) gh).initCoreLMAlgoFactoryDecorator();
-			}
-		}
-
-		// TODO: AlgorithmFactoryDecorators are gone. Do we need to init algos differently?
-//		if (gh.getCHFactoryDecorator().isEnabled())
-//			gh.initCHAlgoFactoryDecorator();
-//
-		List<CHProfile> profiles = new ArrayList<>();
-//
-//		if (gh.isCHEnabled()) {
-//			profiles.addAll(gh.getCHFactoryDecorator().getCHProfiles());
-//		}
-		if (((ORSGraphHopper)gh).isCoreEnabled()) {
-			// TODO: profiles.addAll(((ORSGraphHopper)gh).getCorePreparationHandler().getCHProfiles());
-		}
-
 		GraphHopperStorage ghs = new ORSGraphHopperStorage(dir, encodingManager, gh.hasElevation(), true, -1);
 		ExtendedStorageSequence extendedStorages = new ExtendedStorageSequence(graphExtensions);
 		extendedStorages.init(ghs.getBaseGraph(), dir);
 		ghs.setExtendedStorages(extendedStorages);
 		return ghs;
-	}
-
-	private boolean hasGraph(GraphHopper gh) {
-		try {
-			gh.getGraphHopperStorage();
-			return true;
-		} catch (IllegalStateException ex){
-			// do nothing
-		} catch(Exception ex) {
-			LOGGER.error(ex.getStackTrace());
-		}
-		return false;
 	}
 }

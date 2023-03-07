@@ -21,7 +21,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
@@ -61,7 +61,7 @@ public class ORSOSMReader extends OSMReader {
 	public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
 		super(storage);
 
-		setCalcDistance3D(false);
+		enforce2D();
 		this.procCntx = procCntx;
 		this.procCntx.initArrays();
 		this.readerCntx = new OSMDataReaderContext(this);
@@ -356,8 +356,7 @@ public class ORSOSMReader extends OSMReader {
 
 			procCntx.processEdge(way, edge, new Coordinate[] {baseCoord, adjCoordinate});
 		} catch (Exception ex) {
-			//TODO ORS: re-enable warnings once external storages are fixed
-			//LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
+			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 	}
 
@@ -369,16 +368,15 @@ public class ORSOSMReader extends OSMReader {
 			return procCntx.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
 		}
 		catch (Exception ex) {
-			//TODO ORS: re-enable warnings once external storages are fixed
-			//LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
+			LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
 		}
 
 		return false;
     }
 
     @Override
-	protected void recordWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-		super.recordWayDistance(way, osmNodeIds);
+	protected void recordExactWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
+		super.recordExactWayDistance(way, osmNodeIds);
 
 		// compute exact way distance for ferries in order to improve travel time estimate, see #1037
 		if (way.hasTag("route", "ferry", "shuttle_train")) {
@@ -402,7 +400,7 @@ public class ORSOSMReader extends OSMReader {
 					latSum = latSum + nextLat;
 					lonSum = lonSum + nextLon;
 					sumCount++;
-					totalDist = totalDist + getDistanceCalc(false).calcDist(currLat, currLon, nextLat, nextLon);
+					totalDist = totalDist + getDistanceCalc().calcDist(currLat, currLon, nextLat, nextLon);
 
 					currLat = nextLat;
 					currLon = nextLon;
@@ -419,5 +417,21 @@ public class ORSOSMReader extends OSMReader {
 	protected void finishedReading() {
 		super.finishedReading();
 		procCntx.finish();
+	}
+
+	@Override
+	protected double getElevation(ReaderNode node) {
+		if (getElevationFromPreprocessedData) {
+			double ele = node.getEle();
+			if (Double.isNaN(ele)) {
+				if (!getElevationFromPreprocessedDataErrorLogged) {
+					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					getElevationFromPreprocessedDataErrorLogged = true;
+				}
+				ele = 0;
+			}
+			return ele;
+		}
+		return super.getElevation(node);
 	}
 }

@@ -1,6 +1,6 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.matrix.MatrixMetricsType;

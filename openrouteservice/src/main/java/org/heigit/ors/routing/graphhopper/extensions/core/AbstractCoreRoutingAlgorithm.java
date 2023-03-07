@@ -60,7 +60,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         inEdgeExplorer =  chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
 
-        // TODO: remove this unnecessary duplication
+        // TODO Refactoring: remove this unnecessary duplication
         if (weighting.hasTurnCosts()) {
             hasTurnWeighting = true;
         }
@@ -243,7 +243,9 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        double edgeWeight = edgeState.getWeight(reverse);
+        double edgeWeight = (edgeState.isShortcut() || !inCore) ?
+                edgeState.getWeight(reverse) :
+                weighting.calcEdgeWeight(graph.getBaseGraph().getEdgeIteratorState(edgeState.getEdge(), edgeState.getAdjNode()), reverse);
         double turnCost = getTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), edgeState.getOrigEdge(), reverse);
         return edgeWeight + turnCost;
     }

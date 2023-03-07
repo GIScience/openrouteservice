@@ -14,8 +14,8 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
@@ -363,7 +363,7 @@ public class Contour {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
         List<Coordinate> coordinates = new ArrayList<>(initialSize);
-        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO: cleanup method chain
+        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO Refactoring: cleanup method chain
 
         EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(edgeFilter);
         EdgeIterator iter;

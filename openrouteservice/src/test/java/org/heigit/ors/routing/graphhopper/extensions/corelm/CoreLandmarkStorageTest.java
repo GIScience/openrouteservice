@@ -21,6 +21,7 @@ import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.GHUtility;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertEquals;
  * @author Andrzej Oles, Hendrik Leuschner
  */
 public class CoreLandmarkStorageTest {
-    private GraphHopperStorage graph;
+    private ORSGraphHopperStorage graph;
     private FlagEncoder encoder;
     private EncodingManager encodingManager;
     private BooleanEncodedValue subnetworkEnc;
@@ -60,8 +61,10 @@ public class CoreLandmarkStorageTest {
         weighting = new ShortestWeighting(encoder);
         chConfig = new CHConfig(encoder.toString(), weighting, false, CHConfig.TYPE_CORE);
 
-        graph = new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
-        routingCHGraph = graph.getRoutingCHGraph();
+        graph =  new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        graph.addCoreGraph(chConfig);
+        graph.create(1000);
+        routingCHGraph = graph.getCoreGraph(chConfig.getName());
     }
 
     @After

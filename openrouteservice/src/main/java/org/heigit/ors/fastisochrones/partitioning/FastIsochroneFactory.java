@@ -152,4 +152,8 @@ public class FastIsochroneFactory {
     public void setCellStorage(CellStorage cellStorage) {
         this.cellStorage = cellStorage;
     }
+
+    public long getCapacity() {
+        return cellStorage.getCapacity() + isochroneNodeStorage.getCapacity();
+    }
 }

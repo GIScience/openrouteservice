@@ -16,14 +16,10 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.AngleCalc;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
-import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.lang.NotImplementedException;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -120,9 +116,12 @@ public class RoutingProfileManager {
                     nCompletedTasks++;
                     rp.close();
                     LOGGER.info("Graph preparation done.");
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     LOGGER.error(e);
                     throw e;
+                } catch (InterruptedException e) {
+                    LOGGER.error(e);
+                    Thread.currentThread().interrupt();
                 }
             }
             executor.shutdown();
@@ -186,9 +185,12 @@ public class RoutingProfileManager {
                             nCompletedTasks++;
                             if (!routeProfiles.add(rp))
                                 LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException | InterruptedException e) {
+                        } catch (ExecutionException e) {
                             LOGGER.error(e);
                             throw e;
+                        } catch (InterruptedException e) {
+                            LOGGER.error(e);
+                            Thread.currentThread().interrupt();
                         }
                     }
 
@@ -243,7 +245,7 @@ public class RoutingProfileManager {
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
         LOGGER.error("mapmatching not implemented. " + req);
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("mapmatching not implemented. " + req);
     }
 
     public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {

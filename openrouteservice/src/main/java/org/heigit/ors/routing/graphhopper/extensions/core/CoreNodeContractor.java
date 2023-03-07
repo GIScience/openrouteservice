@@ -60,7 +60,7 @@ class CoreNodeContractor implements NodeContractor {
         // no witness path can be found. this is not really what we want, but changing it requires re-optimizing the
         // graph contraction parameters, because it affects the node contraction order.
         // when this is done there should be no need for this method any longer.
-        meanDegree = prepareGraph.getOriginalEdges() / prepareGraph.getNodes();
+        meanDegree = prepareGraph.getOriginalEdges() / (double) prepareGraph.getNodes();
     }
 
     @Override
@@ -109,7 +109,7 @@ class CoreNodeContractor implements NodeContractor {
     @Override
     public IntContainer contractNode(int node) {
         long degree = findAndHandleShortcuts(node, this::addOrUpdateShortcut);
-        insertShortcuts(node);
+        insertShortcuts(node, true);
         // put weight factor on meanDegree instead of taking the average => meanDegree is more stable
         meanDegree = (meanDegree * 2 + degree) / 3;
         return prepareGraph.disconnect(node);
@@ -120,20 +120,22 @@ class CoreNodeContractor implements NodeContractor {
      * these edges and shortcuts will be removed from the prepare graph, so this method offers the last chance to deal
      * with them.
      */
-    protected void insertShortcuts(int node) {
+    protected void insertShortcuts(int node, boolean outsideCore) {
         shortcuts.clear();
         insertOutShortcuts(node);
         insertInShortcuts(node);
         int origEdges = prepareGraph.getOriginalEdges();
         for (Shortcut sc : shortcuts) {
             int shortcut = chBuilder.addShortcutCore(sc.from, sc.to, sc.flags, sc.weight, sc.skippedEdge1, sc.skippedEdge2, sc.time);
-            if (sc.flags == PrepareEncoder.getScFwdDir()) {
-                prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeFwd, origEdges + shortcut);
-            } else if (sc.flags == PrepareEncoder.getScBwdDir()) {
-                prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeBwd, origEdges + shortcut);
-            } else {
-                prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeFwd, origEdges + shortcut);
-                prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeBwd, origEdges + shortcut);
+            if (outsideCore) {
+                if (sc.flags == PrepareEncoder.getScFwdDir()) {
+                    prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeFwd, origEdges + shortcut);
+                } else if (sc.flags == PrepareEncoder.getScBwdDir()) {
+                    prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeBwd, origEdges + shortcut);
+                } else {
+                    prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeFwd, origEdges + shortcut);
+                    prepareGraph.setShortcutForPrepareEdge(sc.prepareEdgeBwd, origEdges + shortcut);
+                }
             }
         }
         addedShortcutsCount += shortcuts.size();

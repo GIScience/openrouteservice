@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.heigit.ors.common.AttributeValue;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;

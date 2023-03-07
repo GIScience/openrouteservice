@@ -66,6 +66,10 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		orsEdges.close();
 	}
 
+	@Override
+	public long getCapacity() {
+		return orsEdges.getCapacity();
+	}
 	public int entries() {
 		return edgesCount;
 	}

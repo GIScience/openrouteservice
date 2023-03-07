@@ -17,10 +17,10 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
@@ -64,12 +64,12 @@ public class ORSRouter extends Router {
     }
 
     @Override
-    protected Router.Solver createSolver(GHRequest request) {
+    protected Router.Solver createSolver(GHRequest request, EdgeFilterFactory edgeFilterFactory) {
         boolean disableCore = getDisableCore(request.getHints());
         if (!disableCore) {
-            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks);
+            return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks).setEdgeFilterFactory(edgeFilterFactory);
         } else {
-            return super.createSolver(request);
+            return super.createSolver(request, edgeFilterFactory);
         }
     }
 
@@ -87,9 +87,10 @@ public class ORSRouter extends Router {
             this.landmarks = landmarks;
         }
 
+        @Override
         protected void checkRequest() {
             super.checkRequest();
-            //check request params compatibility with core algo
+            // TODO Refactoring: check request params compatibility with core algo
         }
 
         protected Weighting createWeighting() {
@@ -113,6 +114,14 @@ public class ORSRouter extends Router {
                 algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage));
 
             return algoOpts;
+        }
+
+        @Override
+        protected EdgeFilter getSnapFilter() {
+            EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, lookup.getBooleanEncodedValue(Subnetwork.key(profile.getName())));
+            if (edgeFilterFactory != null)
+                return edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage, defaultSnapFilter);
+            return defaultSnapFilter;
         }
 
         private RoutingCHGraph getRoutingCHGraph(String profileName) {

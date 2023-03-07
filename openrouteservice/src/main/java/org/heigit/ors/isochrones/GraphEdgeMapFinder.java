@@ -25,7 +25,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint3D;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RouteSearchContext;
@@ -98,9 +98,6 @@ public class GraphEdgeMapFinder {
         TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(weighting.getSpeedCalculator());
         trafficSpeedCalculator.init(graph, encoder);
         weighting.setSpeedCalculator(trafficSpeedCalculator);
-        // TODO: TurnWeighting does not exist any more
-        //  if (HelperORS.getTurnCostExtensions(graph.getExtension()) != null)
-        //    weighting = new TurnWeighting(weighting, HelperORS.getTurnCostExtensions(graph.getExtension()));
         TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
                 TraversalMode.NODE_BASED);
         tdDijkstraCostCondition.setEdgeFilter(edgeFilter);

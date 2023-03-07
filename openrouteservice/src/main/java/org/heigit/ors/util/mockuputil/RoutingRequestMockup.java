@@ -25,7 +25,7 @@
 
 package org.heigit.ors.util.mockuputil;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.routing.RouteInstructionsFormat;
 import org.heigit.ors.routing.RoutingRequest;

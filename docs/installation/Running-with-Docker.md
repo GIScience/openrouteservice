@@ -8,6 +8,8 @@ title: Running with Docker
 
 ## Install and run openrouteservice with docker
 
+> For a step by step guide check out [this YouTube video](https://www.youtube.com/watch?v=VQXlbqKArFk) (Thanks a lot SyntaxByte <3).
+
 Installing the openrouteservice backend service with Docker is quite straightforward. All you need is an OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de), and a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker).
 
 Use [Dockerhub's hosted Openrouteservice image](https://hub.docker.com/r/openrouteservice/openrouteservice) or build your own image

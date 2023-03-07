@@ -43,8 +43,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.configureTurnWeighting;
-import static org.heigit.ors.routing.graphhopper.extensions.util.TurnWeightingHelper.resetTurnWeighting;
 
 /**
  * A Core and Dijkstra based algorithm that calculates the weights from multiple start to multiple goal nodes.
@@ -72,10 +70,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private CoreDijkstraFilter additionalCoreEdgeFilter;
     private SubGraph targetGraph;
 
-    //TODO
-    // 3. getOriginalEdge not working
-    // 4. Check why all the edge calc weight stuff needs to be here in the algorithm and not in the weighting or iterator
-    // 5. TurnWeightingHelper needs to be checked. Is it still necessary?
 
     @Override
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
@@ -327,7 +321,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
             if (!additionalCoreEdgeFilter.accept(iter)) {
                 continue;
             }
-            configureTurnWeighting(hasTurnWeighting, iter, currEdgeItem);
 
             edgeWeight = calcWeight(iter, swap, currEdgeItem.getOriginalEdge());
             if (Double.isInfinite(edgeWeight))
@@ -343,7 +336,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
                 eeItem.setUpdate(true);
                 addToQueue = true;
             }
-            resetTurnWeighting(hasTurnWeighting);
         }
 
         return addToQueue;
@@ -509,6 +501,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         return calcWeight(iter, reverse, currEdge.originalEdge) + currEdge.getWeightOfVisitedPath();
     }
 
+    // TODO Refactoring : Check why all the edge calc weight stuff needs to be here in the algorithm and not in the weighting or iterator
     double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
         double edgeWeight = edgeState.getWeight(reverse);
         double turnCost = getTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), edgeState.getOrigEdge(), reverse);

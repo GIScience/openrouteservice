@@ -21,12 +21,14 @@ public class RouteSearchContext {
 	private final GraphHopper graphhopper;
 	private final FlagEncoder encoder;
 	private final String profileName;
+	private final String profileNameCH;
 	private PMap properties;
 
-	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder, String profileName) {
+	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder, String profileName, String profileNameCH) {
 		graphhopper = gh;
 		this.encoder = encoder;
 		this.profileName = profileName;
+		this.profileNameCH = profileNameCH;
 	}
 
 	public FlagEncoder getEncoder() {
@@ -49,5 +51,9 @@ public class RouteSearchContext {
 
 	public String profileName() {
 		return profileName;
+	}
+
+	public String profileNameCH() {
+		return profileNameCH;
 	}
 }

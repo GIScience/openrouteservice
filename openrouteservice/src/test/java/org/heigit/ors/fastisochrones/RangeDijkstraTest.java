@@ -29,7 +29,7 @@ public class RangeDijkstraTest {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1).setDistance(1); // TODO: do we need to set both directions=true on each?
+        g.edge(0, 1).setDistance(1);
         g.edge(0, 2).setDistance(1);
         g.edge(0, 4).setDistance(3);
         g.edge(1, 2).setDistance(2);

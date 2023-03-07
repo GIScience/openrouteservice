@@ -15,9 +15,9 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -59,8 +59,9 @@ public class RouteSearchParameters {
     public static final String KEY_AVOID_POLYGONS = "avoid_polygons";
     public static final String KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR = "alternative_routes_weight_factor";
     public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
+    public static final int DEFAULT_HGV_VEHICLE_TYPE = HeavyVehicleAttributes.HGV;
     private int profileType;
-    private int weightingMethod = WeightingMethod.FASTEST;
+    private int weightingMethod = WeightingMethod.RECOMMENDED;
     private Boolean considerTurnRestrictions = false;
     private Polygon[] avoidAreas;
     private int avoidFeaturesTypes;
@@ -110,6 +111,9 @@ public class RouteSearchParameters {
             throw new Exception("Routing profile is unknown.");
 
         this.profileType = profileType;
+
+        if (RoutingProfileType.isHeavyVehicle(profileType))
+            setVehicleType(DEFAULT_HGV_VEHICLE_TYPE);
     }
 
     public int getWeightingMethod() {
@@ -314,34 +318,34 @@ public class RouteSearchParameters {
 
                 if (json.has("vehicle_type")) {
                     String type = json.getString("vehicle_type");
-                    this.vehicleType = HeavyVehicleAttributes.getFromString(type);
-
-                    // Since 4.2, all restrictions are packed in its own element
-                    if (jRestrictions == null)
-                        jRestrictions = jProfileParams;
-
-                    if (jRestrictions.has("length"))
-                        vehicleParams.setLength(jRestrictions.getDouble("length"));
-
-                    if (jRestrictions.has("width"))
-                        vehicleParams.setWidth(jRestrictions.getDouble("width"));
-
-                    if (jRestrictions.has("height"))
-                        vehicleParams.setHeight(jRestrictions.getDouble("height"));
-
-                    if (jRestrictions.has("weight"))
-                        vehicleParams.setWeight(jRestrictions.getDouble("weight"));
-
-                    if (jRestrictions.has("axleload"))
-                        vehicleParams.setAxleload(jRestrictions.getDouble("axleload"));
-
-                    int loadCharacteristics = 0;
-                    if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat"))
-                        loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
-
-                    if (loadCharacteristics != 0)
-                        vehicleParams.setLoadCharacteristics(loadCharacteristics);
+                    setVehicleType(HeavyVehicleAttributes.getFromString(type));
                 }
+
+                // Since 4.2, all restrictions are packed in its own element
+                if (jRestrictions == null)
+                    jRestrictions = jProfileParams;
+
+                if (jRestrictions.has("length"))
+                    vehicleParams.setLength(jRestrictions.getDouble("length"));
+
+                if (jRestrictions.has("width"))
+                    vehicleParams.setWidth(jRestrictions.getDouble("width"));
+
+                if (jRestrictions.has("height"))
+                    vehicleParams.setHeight(jRestrictions.getDouble("height"));
+
+                if (jRestrictions.has("weight"))
+                    vehicleParams.setWeight(jRestrictions.getDouble("weight"));
+
+                if (jRestrictions.has("axleload"))
+                    vehicleParams.setAxleload(jRestrictions.getDouble("axleload"));
+
+                int loadCharacteristics = 0;
+                if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat"))
+                    loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
+
+                if (loadCharacteristics != 0)
+                    vehicleParams.setLoadCharacteristics(loadCharacteristics);
 
                 profileParams = vehicleParams;
             } else if (profileType == RoutingProfileType.WHEELCHAIR) {
@@ -582,13 +586,17 @@ public class RouteSearchParameters {
         return RoutingProfileType.isHeavyVehicle(this.getProfileType());
     }
 
+    public boolean hasNonDefaultVehicleType() {
+        return isProfileTypeHeavyVehicle() && getVehicleType() != DEFAULT_HGV_VEHICLE_TYPE;
+    }
+
     public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
             || hasAvoidFeatures()
             || hasAvoidBorders()
             || hasAvoidCountries()
             || getConsiderTurnRestrictions()
-            || isProfileTypeHeavyVehicle() && getVehicleType() > 0
+            || hasNonDefaultVehicleType()
             || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
             || hasMaximumSpeed()
             || hasFlexibleMode();

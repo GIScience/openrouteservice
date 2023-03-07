@@ -47,4 +47,9 @@ public class CoreLMConfig extends LMConfig {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        return (getSuperName() + edgeFilter.toString()).hashCode();
+    }
 }

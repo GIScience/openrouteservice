@@ -53,7 +53,7 @@ To run the project from within your IDE, you have to:
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
   2. Configure your IDE to run `tomcat7:run-war` as the maven goal, setting the
-     environment variable `ORS_CONIFG=ors-config-test.json`.
+     environment variable `ORS_CONFIG=ors-config-test.json`.
 
   3. You can run API tests via JUnit.
 

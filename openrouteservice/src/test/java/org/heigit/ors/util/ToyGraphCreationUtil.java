@@ -22,7 +22,6 @@ public class ToyGraphCreationUtil {
         //  | / \   /
         //  |/   \ /
         //  1-----8
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1), //0
                 g.edge(0, 2).setDistance(1), //1
@@ -62,7 +61,6 @@ public class ToyGraphCreationUtil {
         //  | / \   /
         //  |/   \ /
         //  1-----8
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -102,7 +100,6 @@ public class ToyGraphCreationUtil {
         //  | / \   /
         //  |/   \ /
         //  1-----8
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -138,12 +135,10 @@ public class ToyGraphCreationUtil {
     }
 
     public static GraphHopperStorage createSingleEdgeGraph(GraphHopperStorage g, EncodingManager encodingManager) {
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"), g.edge(0, 1).setDistance(1));
 
         g.getBaseGraph().getNodeAccess().setNode(0, 0, 0);
         g.getBaseGraph().getNodeAccess().setNode(1, 1, 1);
-
         return g;
     }
 
@@ -157,7 +152,6 @@ public class ToyGraphCreationUtil {
         //      0 |
         //     /  |
         //    4---3
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -167,7 +161,6 @@ public class ToyGraphCreationUtil {
                 g.edge(4, 3).setDistance(2),
                 g.edge(5, 1).setDistance(2)
         );
-
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
         g.getBaseGraph().getNodeAccess().setNode(2, 3, 3);
@@ -187,7 +180,6 @@ public class ToyGraphCreationUtil {
         //      0
         //     /
         //    4--6--3
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -197,7 +189,6 @@ public class ToyGraphCreationUtil {
                 g.edge(6, 3).setDistance(2),
                 g.edge(5, 1).setDistance(2)
         );
-
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
         g.getBaseGraph().getNodeAccess().setNode(2, 3, 3);
@@ -218,7 +209,6 @@ public class ToyGraphCreationUtil {
         //      0 |
         //     /  |
         //    4---3
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -247,7 +237,6 @@ public class ToyGraphCreationUtil {
         //  4---3
         //  |   |
         //  11  10
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1),
                 g.edge(0, 2).setDistance(1),
@@ -261,7 +250,6 @@ public class ToyGraphCreationUtil {
                 g.edge(3, 10).setDistance(1),
                 g.edge(4, 11).setDistance(1)
         );
-
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);
         g.getBaseGraph().getNodeAccess().setNode(2, 3, 3);
@@ -274,7 +262,6 @@ public class ToyGraphCreationUtil {
         g.getBaseGraph().getNodeAccess().setNode(9, 1.2, 2);
         g.getBaseGraph().getNodeAccess().setNode(10, 0.8, 2.2);
         g.getBaseGraph().getNodeAccess().setNode(11, 0.8, 2);
-
         return g;
     }
 
@@ -289,7 +276,6 @@ public class ToyGraphCreationUtil {
         //   \   /
         //    \ /
         //     1
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 2).setDistance(1), // 0
                 g.edge(0, 3).setDistance(3), // 1
@@ -311,7 +297,6 @@ public class ToyGraphCreationUtil {
         //0---1---3  5---6---7
         //       / \/
         //      2  4
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1), // 0
                 g.edge(1, 3).setDistance(1), // 1
@@ -324,16 +309,6 @@ public class ToyGraphCreationUtil {
                 g.edge(6, 7).setDistance(1), // 8
                 g.edge(8, 9).setDistance(1) // 9
         );
-//        g.edge(0, 1, 1, true); //0
-//        g.edge(1, 3, 1, true); //1
-//        g.edge(2, 3, 1, true); //2
-//        g.edge(3, 4, 1, true); //3
-//        g.edge(3, 8, 5, true); //4
-//        g.edge(4, 5, 1, true); //5
-//        g.edge(5, 6, 1, true); //6
-//        g.edge(5, 9, 5, true); //7
-//        g.edge(6, 7, 1, true); //8
-//        g.edge(8, 9, 1, true); //9
         return g;
     }
 
@@ -351,7 +326,6 @@ public class ToyGraphCreationUtil {
         // 6-----7-------8
         // |
         // 9
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         FlagEncoder carEncoder = encodingManager.getEncoder("car");
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 2).setDistance(1).setReverse(carEncoder.getAccessEnc(), false), //0
@@ -367,19 +341,6 @@ public class ToyGraphCreationUtil {
                 g.edge(8, 1).setDistance(1), //10
                 g.edge(1, 0).setDistance(1).setReverse(carEncoder.getAccessEnc(), false) //11
         );
-// TODO: create edges
-//        g.edge(0, 2, 1, false); //0
-//        g.edge(1, 0, 1, false); //1
-//        g.edge(2, 3, 1, false); //2
-//        g.edge(3, 4, 1, false); //3
-//        g.edge(4, 5, 1, true); //4
-//        g.edge(3, 6, 1, true); //5
-//        g.edge(7, 8, 1, true); //6
-//        g.edge(6, 9, 1, true); //7
-//        g.edge(6, 7, 10, true); //8
-//        g.edge(8, 1, 1, true); //9
-//        g.edge(8, 1, 1, true); //10 Just to put 8, 1 and 0 in core
-//        g.edge(1, 0, 1, false); //11  Just to put 8, 1 and 0 in core
         return g;
     }
 
@@ -393,19 +354,12 @@ public class ToyGraphCreationUtil {
         //   1  |
         //    \ |
         //     0
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(5), //0
                 g.edge(0, 2).setDistance(1), //1
                 g.edge(1, 2).setDistance(1), //2
                 g.edge(2, 3).setDistance(1) //3
         );
-// TODO: create edges
-//        g.edge(0, 1, 5, true); //0
-//        g.edge(0, 2, 1, true); //1
-//        g.edge(1, 2, 1, true); //2
-//        g.edge(2, 3, 1, true); //3
-
         return g;
     }
 
@@ -417,19 +371,12 @@ public class ToyGraphCreationUtil {
         // 0----->1<-----2
         // |     / \     |
         // |-<--/   \-->-|
-//        GraphHopperStorage g = createGHStorage(encodingManager);
         GHUtility.setSpeed(60, 60, encodingManager.getEncoder("car"),
                 g.edge(0, 1).setDistance(1), //0
                 g.edge(1, 0).setDistance(5), //1
                 g.edge(1, 2).setDistance(6), //2
                 g.edge(2, 1).setDistance(2) //3
         );
-// TODO: create edges
-//        g.edge(0, 1, 1, false); //0
-//        g.edge(1, 0, 5, false); //1
-//        g.edge(1, 2, 6, false); //2
-//        g.edge(2, 1, 2, false); //3
-
         return g;
     }
 }

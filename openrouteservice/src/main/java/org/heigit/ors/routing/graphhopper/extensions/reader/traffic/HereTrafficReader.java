@@ -14,7 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
-import com.vividsolutions.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiLineString;
 import org.apache.log4j.Logger;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;

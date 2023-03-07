@@ -24,14 +24,11 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private final byte[] byteValues;
-
 	public WayCategoryGraphStorage() {
 		efWaytype = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
-		byteValues = new byte[10];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -60,6 +57,11 @@ public class WayCategoryGraphStorage implements GraphExtension {
 		orsEdges.close();
 	}
 
+	@Override
+	public long getCapacity() {
+		return orsEdges.getCapacity();
+	}
+
 	public int entries() {
 		return edgesCount;
 	}
@@ -83,16 +85,15 @@ public class WayCategoryGraphStorage implements GraphExtension {
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)wayType;
-		orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
+		byte byteValue = (byte) wayType;
+		orsEdges.setByte(edgePointer + efWaytype, byteValue);
 	}
 
 	public int getEdgeValue(int edgeId, byte[] buffer) {
-		if (orsEdges==null) return 0;//TODO ORS: circumvent error duriong fastisochrone landmarks preparation; remove this line once ext storages are fixed!
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + efWaytype, buffer, 1);
-		
-		int result = buffer[0];
+		byte byteValue = orsEdges.getByte(edgePointer + efWaytype);
+
+		int result = byteValue;
 	    if (result < 0)
 	    	result = result & 0xff;
 		

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
@@ -54,7 +54,7 @@ public class MatrixRequest extends APIRequest {
     public static final String PARAM_OPTIMIZED = "optimized";
     public static final String PARAM_OPTIONS = "options";
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates.",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates in WGS 84 (EPSG:4326)",
             example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
@@ -173,6 +173,7 @@ public class MatrixRequest extends APIRequest {
         return metrics;
     }
 
+    @JsonIgnore
     public Set<String> getMetricsStrings() {
         Set<String> ret = new HashSet<>();
         if (metrics != null) {

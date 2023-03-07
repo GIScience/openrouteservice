@@ -15,7 +15,7 @@ package org.heigit.ors.routing.configuration;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
-import com.vividsolutions.jts.geom.Envelope;
+import org.locationtech.jts.geom.Envelope;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FileUtility;
@@ -231,6 +231,9 @@ public class RoutingManagerConfiguration  {
 						break;
 					case "traffic_expiration_min":
 						profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
+						break;
+					case "force_turn_costs":
+						profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
 					case "gtfs_file":
 						profile.setGtfsFile(StringUtility.trimQuotes(paramItem.getValue().toString()));

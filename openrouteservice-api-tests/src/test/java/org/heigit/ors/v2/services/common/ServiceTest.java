@@ -56,8 +56,12 @@ public abstract class ServiceTest {
 		dictUrlParams.put(paramName, paramValue);
 	}
 
-	protected String getEndPointName() {
-		return endPointName;
+	protected String getEndPointPath(String altName) {
+		String tmp = endPointName;
+		endPointName = altName;
+		String ret = getEndPointPath();
+		endPointName = tmp;
+		return ret;
 	}
 
 	protected String getEndPointPath() {

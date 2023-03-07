@@ -10,13 +10,15 @@ import org.apache.logging.log4j.core.config.json.JsonConfiguration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Plugin(
         name="CustomConfigurationFactory",
         category = ConfigurationFactory.CATEGORY
 )
-@Order(50) // TODO: check whether this class is in use
+@Order(50)
+// Class is loaded by LOG4J automagically due to the annotation above
 public class LoggingConfigFactory extends ConfigurationFactory{
     protected static final Logger LOGGER = Logger.getLogger(LoggingConfigFactory.class);
 
@@ -31,8 +33,10 @@ public class LoggingConfigFactory extends ConfigurationFactory{
                 ClassPathResource rs = new ClassPathResource("logs/" + settingsFileName);
                 try {
                     source = new ConfigurationSource(rs.getInputStream());
+                } catch (FileNotFoundException fnfe) {
+                    LOGGER.error("LOG SETTINGS FILE " + rs.getPath() + " DOES NOT EXIST!");
                 } catch (IOException ioe) {
-                    LOGGER.error("LOGGING FILE DOES NOT EXIST!");
+                    LOGGER.error("LOG SETTINGS FILE " + rs.getPath() + " CANNOT BE OPENED!");
                 }
             }
 

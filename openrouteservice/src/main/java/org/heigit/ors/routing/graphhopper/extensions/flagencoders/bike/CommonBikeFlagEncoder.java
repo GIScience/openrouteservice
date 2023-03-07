@@ -17,11 +17,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.util.BikeCommonFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
@@ -30,12 +29,15 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Translation;
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 
+import static com.graphhopper.routing.ev.RouteNetwork.*;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Defines bit layout of bicycles (not motorcycles) for speed, access and relations (network).
@@ -45,11 +47,10 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Nop
  * @author ratrun
  */
-public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
+public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     /**
      * Reports whether this edge is unpaved.
      */
-    public static final int K_UNPAVED = 100;
     protected static final int PUSHING_SECTION_SPEED = 4;
     public static final String KEY_BICYCLE = "bicycle";
     public static final String KEY_DESIGNATED = "designated";
@@ -69,8 +70,9 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_JUNCTION = "junction";
     public static final String KEY_SEGREGATED = "segregated";
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
+    public static final String KEY_BRIDLEWAY = "bridleway";
 
-    // Pushing section heighways are parts where you need to get off your bike and push it (German: Schiebestrecke)
+    // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
     protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
     protected final HashSet<String> oppositeLanes = new HashSet<>();
     protected final Set<String> preferHighwayTags = new HashSet<>();
@@ -81,19 +83,21 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     private final Set<String> roadValues = new HashSet<>();
     private final Map<String, SpeedValue> highwaySpeeds = new HashMap<>();
     // convert network tag of bicycle routes into a way route code
-    private final Map<String, Integer> bikeNetworkToCode = new HashMap<>();
-    protected boolean speedTwoDirections;
     DecimalEncodedValue priorityWayEncoder;
-    DecimalEncodedValue priorityRelationEnc;
     BooleanEncodedValue unpavedEncoder;
     private IntEncodedValue wayTypeEncoder;
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
     private int avoidSpeedLimit;
+    EnumEncodedValue<RouteNetwork> bikeRouteEnc;
+    Map<RouteNetwork, Integer> routeMap = new HashMap<>();
     protected boolean conditionalAccess = false;
     // This is the specific bicycle class
     private String classBicycleKey;
 
     private BooleanEncodedValue conditionalAccessEncoder;
+
+    private static final boolean DEBUG_OUTPUT = false;
+    FileWriter logWriter;
 
     // MARQ24 MOD START
     // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
@@ -243,15 +247,28 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         avoidHighwayTags.add(KEY_MOTORWAY);
         avoidHighwayTags.add(KEY_MOTORWAY_LINK);
 
-        setCyclingNetworkPreference("icn", BEST.getValue());
-        setCyclingNetworkPreference("ncn", BEST.getValue());
-        setCyclingNetworkPreference("rcn", VERY_NICE.getValue());
-        setCyclingNetworkPreference("lcn", PREFER.getValue());
-        setCyclingNetworkPreference("mtb", UNCHANGED.getValue());
+        // bridleways are allowed to ride over in some cases
+        setHighwaySpeed(KEY_BRIDLEWAY, 6);
+        avoidHighwayTags.add(KEY_BRIDLEWAY);
 
-        setCyclingNetworkPreference("deprecated", REACH_DESTINATION.getValue());
+        routeMap.put(INTERNATIONAL, BEST.getValue());
+        routeMap.put(NATIONAL, BEST.getValue());
+        routeMap.put(REGIONAL, VERY_NICE.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(DEPRECATED, REACH_DEST.getValue());
+        routeMap.put(MTB, UNCHANGED.getValue());
+        routeMap.put(FERRY, AVOID_IF_POSSIBLE.getValue());
 
         setAvoidSpeedLimit(71);
+
+        if (DEBUG_OUTPUT) {
+            try {
+                File file = new File("CommonBikeFlagEncoder.log");
+                logWriter = new FileWriter(file);
+            } catch (Exception ex) {
+                LOGGER.warn("Failed to write log file.");
+            }
+        }
     }
 
     @Override
@@ -273,6 +290,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }
+        bikeRouteEnc = getEnumEncodedValue(RouteNetwork.key("bike"), RouteNetwork.class);
     }
 
     @Override
@@ -334,7 +352,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         // accept only if explicitly tagged for bike usage
-        if (KEY_MOTORWAY.equals(highwayValue) || KEY_MOTORWAY_LINK.equals(highwayValue)) {
+        if (KEY_MOTORWAY.equals(highwayValue) || KEY_MOTORWAY_LINK.equals(highwayValue) || KEY_BRIDLEWAY.equals(highwayValue)) {
             return EncodingManager.Access.CAN_SKIP;
         }
 
@@ -359,27 +377,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         return "hiking".equals(sacScale);
     }
 
-    // TODO: how to handle @Override
-    public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(KEY_ROUTE, KEY_BICYCLE)) {
-            Integer val = bikeNetworkToCode.get(relation.getTag("network"));
-            if (val != null) {
-                code = val;
-            }else {
-                code = PriorityCode.PREFER.getValue();  // Assume priority of network "lcn" as bicycle route default
-            }
-        } else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = VERY_BAD.getValue();
-        }
-
-        int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
-        if (oldCode < code) {
-             priorityRelationEnc.setDecimal(false, oldRelationFlags, PriorityCode.getFactor(code));
-        }
-        return code;
-    }
-
     /**
      * Apply maxspeed: In contrast to the implementation of the AbstractFlagEncoder, we assume that
      * we can reach the maxspeed for bicycles in case that the road type speed is higher and not
@@ -393,7 +390,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
-        if (maxSpeed > 0 && maxSpeed < speed) {
+        if (isValidSpeed(maxSpeed) && maxSpeed < speed) {
             return maxSpeed;
         }
         return speed;
@@ -405,13 +402,14 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             return edgeFlags;
         }
 
-        IntsRef relationFlags = null;//FIXME: proper transfer the new logic from GH 4.0
+        Integer priorityFromRelationInt = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
+        int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt.intValue();
 
         double wayTypeSpeed = getSpeed(way);
         if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, false);//FIXME handleBikeRelated(edgeFlags, way, priorityRelationEnc.getDecimal(false, relationFlags) > UNCHANGED.getValue());
+            handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
@@ -422,12 +420,17 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             handleSpeed(edgeFlags, way, ferrySpeed);
         }
-        int priorityFromRelation = 0;
-        if (relationFlags != null) {
-            priorityFromRelation = (int) priorityRelationEnc.getDecimal(false,relationFlags);
-        }
 
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, wayTypeSpeed, priorityFromRelation)));
+        int priority = handlePriority(way, wayTypeSpeed, priorityFromRelation);
+        if (DEBUG_OUTPUT) {
+            try {
+                logWriter.write(String.format("WayID %d RelationPrio %d FinalPrio %d %n", way.getId(), priorityFromRelation, priority));
+                logWriter.flush();
+            } catch (Exception ex) {
+                LOGGER.warn("Failed to write log file.");
+            }
+        }
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(priority));
         return edgeFlags;
     }
 
@@ -636,11 +639,11 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             case 0:
                 return UNCHANGED;
             case -1:
-                return VERY_BAD;
+                return AVOID_IF_POSSIBLE;
             case -2:
-                return REACH_DESTINATION;
+                return REACH_DEST;
             case -3:
-                return EXCLUDE;
+                return AVOID_AT_ALL_COSTS;
             default:
                 return UNCHANGED;
         }
@@ -677,23 +680,23 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         // MARQ24 MOD END
 
         double maxSpeed = getMaxSpeed(way);
-        if (preferHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 30) {
-            if (maxSpeed < avoidSpeedLimit) {
+        if (preferHighwayTags.contains(highway) || this.isValidSpeed(maxSpeed) && maxSpeed <= 30) {
+            if (!this.isValidSpeed(maxSpeed) || maxSpeed < avoidSpeedLimit) {
                 weightToPrioMap.put(40d, PREFER.getValue());
                 if (way.hasTag("tunnel", intendedValues)) {
                     weightToPrioMap.put(40d, UNCHANGED.getValue());
                 }
             }
         } else if (avoidHighwayTags.contains(highway) || maxSpeed >= avoidSpeedLimit && !KEY_TRACK.equals(highway)) {
-            weightToPrioMap.put(50d, REACH_DESTINATION.getValue());
+            weightToPrioMap.put(50d, REACH_DEST.getValue());
             if (way.hasTag("tunnel", intendedValues)) {
-                weightToPrioMap.put(50d, EXCLUDE.getValue());
+                weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
             }
         }
 
         if (pushingSectionsHighways.contains(highway)
                 || "parking_aisle".equals(service)) {
-            int pushingSectionPrio = VERY_BAD.getValue();
+            int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
             // MARQ24 MOD START
             if(!isRoadBikeEncoder) {
             // MARQ24 MOD END
@@ -708,7 +711,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
             // MARQ24 MOD END
 
             if (way.hasTag("foot", "yes")) {
-                pushingSectionPrio = Math.max(pushingSectionPrio - 1, EXCLUDE.getValue());
+                pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
                 if (!isRoadBikeEncoder && way.hasTag(KEY_SEGREGATED, "yes")) {
                     pushingSectionPrio = Math.min(pushingSectionPrio + 1, BEST.getValue());
                 }
@@ -717,7 +720,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         if (way.hasTag(KEY_RAILWAY, "tram")) {
-            weightToPrioMap.put(50d, EXCLUDE.getValue());
+            weightToPrioMap.put(50d, AVOID_AT_ALL_COSTS.getValue());
         }
 
         String classBicycleValue = way.getTag(classBicycleKey);
@@ -782,7 +785,7 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         // MARQ24 MOD END
     }
 
-    private void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
+    protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
         avgSpeedEnc.setDecimal(false, edgeFlags, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
@@ -836,10 +839,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
     }
     SpeedValue getSurfaceSpeed(String key) {
         return surfaceSpeeds.get(key);
-    }
-
-    void setCyclingNetworkPreference(String network, int code) {
-        bikeNetworkToCode.put(network, code);
     }
 
     void addPushingSection(String highway) {
@@ -929,4 +928,6 @@ public abstract class CommonBikeFlagEncoder extends ORSAbstractFlagEncoder {
         CommonBikeFlagEncoder cast = (CommonBikeFlagEncoder) obj;
         return toString().equals(cast.toString());
     }
+
+    public abstract double getMeanSpeed();
 }

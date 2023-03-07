@@ -1,6 +1,6 @@
 package org.heigit.ors.routing;
 
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -38,14 +38,14 @@ public class RouteSearchParametersTest {
     @Test
     public void getWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
     public void setWeightingMethod() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setWeightingMethod(WeightingMethod.RECOMMENDED);
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod(), 0.0);
+        routeSearchParameters.setWeightingMethod(WeightingMethod.FASTEST);
+        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod(), 0.0);
     }
 
     @Test
@@ -249,8 +249,9 @@ public class RouteSearchParametersTest {
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
-        routeSearchParameters.setVehicleType(HeavyVehicleAttributes.HGV);
-        Assert.assertTrue("heavy vehicle", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        Assert.assertFalse("default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
+        routeSearchParameters.setVehicleType(HeavyVehicleAttributes.BUS);
+        Assert.assertTrue("non-default vehicle type", routeSearchParameters.requiresDynamicPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);

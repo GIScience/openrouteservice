@@ -87,7 +87,7 @@ public class CoreMatrixTest {
                 while (iter.next()) {
                     System.out.print(iter.getBaseNode() + " -> " + iter.getAdjNode() + " via edge " + iter.getEdge());
                     if (iter.isShortcut())
-                        System.out.print(" (shortcut)");
+                        System.out.print(" shortcut (" + iter.getSkippedEdge1() + ", " + iter.getSkippedEdge2() + ")");
                     System.out.println(" [weight: " + iter.getWeight(false) + "]");
                 }
             }
@@ -1053,7 +1053,7 @@ public class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //TODO this would be the correct result, but the algorithm cannot provide this currently.
+        // TODO Future improvement of algo: this would be the correct result, but the algorithm cannot provide this currently.
 //        assertEquals(13.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
 //        assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
 

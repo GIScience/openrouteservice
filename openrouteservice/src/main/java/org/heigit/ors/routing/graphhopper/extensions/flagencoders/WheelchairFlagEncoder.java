@@ -14,22 +14,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderNode;
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
-
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMPedestrianProcessor;
+import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 public class WheelchairFlagEncoder extends FootFlagEncoder {
     public static final String KEY_HORSE = "horse";
@@ -143,6 +141,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         problematicSpeedFactor = configuration.getDouble("problematic_speed_factor", 1);
         preferredSpeedFactor = configuration.getDouble("preferred_speed_factor", 1);
+        	
+        setProperties(configuration);
     }
 
     /**
@@ -227,7 +227,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         
         // highways that are not suitable for wheelchair users
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
-        
+        nonWheelchairAccessibleHighways.add("construction"); // Baustellen
+
         // attributes to be checked for limited wheelchair accessible highways
         accessibilityRelatedAttributes.add(KEY_SURFACE);
         accessibilityRelatedAttributes.add(KEY_SMOOTHNESS);
@@ -273,6 +274,12 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         problematicTracktypes.add("grade3");
         inaccessibleTracktypes.add("grade4");
         inaccessibleTracktypes.add("grade5");
+
+        routeMap.put(INTERNATIONAL, PREFER.getValue());
+        routeMap.put(NATIONAL, PREFER.getValue());
+        routeMap.put(REGIONAL, PREFER.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(OTHER , PREFER.getValue());
     }
 
     @Override
@@ -448,28 +455,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public int handleRelationTags(IntsRef oldRelationRef, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(KEY_ROUTE, "hiking")
-                || relation.hasTag(KEY_ROUTE, "foot")
-                || relation.hasTag(KEY_ROUTE, KEY_BICYCLE)
-                || relation.hasTag(KEY_ROUTE, "inline_skates")
-        ) {
-            code = PriorityCode.PREFER.getValue();
-        } 
-        else if (relation.hasTag(KEY_ROUTE, "ferry")) {
-            code = VERY_BAD.getValue();
-        }
-
-        double oldCode = priorityRelationEnc.getDecimal(false, oldRelationRef);
-        if (oldCode < code) {
-            priorityRelationEnc.setDecimal(false, oldRelationRef, PriorityCode.getFactor(code));
-        }
-        return code;
-
-    }
-
-    @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
 
         if (access.canSkip())
@@ -537,11 +522,8 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             
-            int priorityFromRelation = 0;
-            if (relationFlags != null)
-                priorityFromRelation = (int) priorityRelationEnc.getDecimal(false, relationFlags);
-
-            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+            Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
         } 
         else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
@@ -563,8 +545,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         long encoded = super.handleNodeTags(node);
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-            // TODO: How to handle the following line?
-            // encoded = getEncoderBit();
+             encoded = getEncoderBit();
         }
         return encoded;
     }
@@ -578,7 +559,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
         
-        if (maxSpeed > 0) {
+        if (isValidSpeed(maxSpeed)) {
         	 if (maxSpeed > 50) {
              	negativeFeatures++;
              	if (maxSpeed > 60) {
@@ -589,10 +570,11 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
              	}
              }
              
-             if (maxSpeed > 0 && maxSpeed <= 20) {
+             if (maxSpeed <= 20) {
              	positiveFeatures+=1;
              }
         }
+
 
         if (way.hasTag("tunnel", intendedValues)) {
         	negativeFeatures+=4;
@@ -664,9 +646,9 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         int sum = positiveFeatures - negativeFeatures;
 
-        if (sum <= -6) return EXCLUDE.getValue();
-        else if (sum <= -3) return REACH_DESTINATION.getValue();
-        else if (sum <= -1) return VERY_BAD.getValue();
+        if (sum <= -6) return AVOID_AT_ALL_COSTS.getValue();
+        else if (sum <= -3) return REACH_DEST.getValue();
+        else if (sum <= -1) return AVOID_IF_POSSIBLE.getValue();
         else if (sum ==0) return UNCHANGED.getValue();
         else if (sum <= 2) return PREFER.getValue();
         else if (sum <= 5) return VERY_NICE.getValue();

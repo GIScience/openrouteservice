@@ -18,13 +18,13 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.routing.ev.RouteNetwork.LOCAL;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Specifies the settings for race biking
@@ -138,12 +138,9 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("footway");
         addPushingSection("pedestrian");
         addPushingSection("steps");
+        addPushingSection(KEY_BRIDLEWAY);
 
-        setCyclingNetworkPreference("icn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("ncn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("rcn", PriorityCode.VERY_NICE.getValue());
-        setCyclingNetworkPreference("lcn", PriorityCode.UNCHANGED.getValue());
-        setCyclingNetworkPreference("mtb", PriorityCode.UNCHANGED.getValue());
+        routeMap.put(LOCAL, UNCHANGED.getValue());
 
         blockByDefaultBarriers.add("kissing_gate");
 
@@ -218,7 +215,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
             if (VAL_GRADE_1.equals(trackType)) {
                 weightToPrioMap.put(110d, PREFER.getValue());
             } else if (trackType == null || trackType.startsWith("grade")) {
-                weightToPrioMap.put(110d, EXCLUDE.getValue());
+                weightToPrioMap.put(110d, AVOID_AT_ALL_COSTS.getValue());
             }
         }
     }

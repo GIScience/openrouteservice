@@ -25,12 +25,12 @@ public class SpeedStorage implements GraphExtension {
         this.flagEncoder = flagEncoder;
     }
 
-    // TODO: how to deal with @Override
+    @Override
     public void init(Graph graph, Directory directory) {
         this.speedData = directory.find("ext_speeds_" + this.flagEncoder.toString());
     }
 
-    // TODO: how to deal with @Override
+    @Override
     public boolean loadExisting() {
         if (!speedData.loadExisting())
             return false;
@@ -44,7 +44,7 @@ public class SpeedStorage implements GraphExtension {
      * @param edgeCount
      * @return The storage
      */
-    // TODO: how to deal with @Override
+    @Override
     public SpeedStorage create(long edgeCount) {
         speedData.create(BYTE_COUNT * edgeCount);
         for (int i = 0; i < edgeCount; i++) {
@@ -74,6 +74,11 @@ public class SpeedStorage implements GraphExtension {
 
     public boolean hasSpeed(int edgeId, boolean reverse) {
         return this.getSpeed(edgeId, reverse) != Byte.MIN_VALUE;
+    }
+
+    @Override
+    public long getCapacity() {
+        return speedData.getCapacity();
     }
 
     @Override

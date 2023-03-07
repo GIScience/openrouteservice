@@ -93,6 +93,7 @@ public class PathMetricsExtractor {
 
 						if (chGraph != null) {
 							RoutingCHEdgeIteratorState iterState = (RoutingCHEdgeIteratorState) graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
+							EdgeIteratorState baseIterator = chGraph.getBaseGraph().getEdgeIteratorState(iterState.getOrigEdge(), iterState.getAdjNode());
 
 							if (calcWeight || calcTime || UNPACK_DISTANCE) {
 								if (iterState.isShortcut()) {
@@ -113,9 +114,8 @@ public class PathMetricsExtractor {
 
 							if (!UNPACK_DISTANCE && calcDistance)
 								edgeDistance = (distUnits == DistanceUnit.METERS)
-										? 0 // TODO: find out where to get this from: iterState.getDistance()
-							            : DistanceUnitUtil.convert(0, // TODO: find out where to get this from: iterState.getDistance(),
-										DistanceUnit.METERS, distUnits);
+										? baseIterator.getDistance()
+							            : DistanceUnitUtil.convert(baseIterator.getDistance(), DistanceUnit.METERS, distUnits);
 						} else {
 							EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
 							if (calcDistance)
@@ -168,8 +168,9 @@ public class PathMetricsExtractor {
 
 			expandEdge(iterState, reverse);  
 		} else {
+			EdgeIteratorState baseIterator = chGraph.getBaseGraph().getEdgeIteratorState(iterState.getOrigEdge(), iterState.getAdjNode());
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance = 0; // TODO: find out where to get this from: iterState.getDistance();
+				edgeDistance = baseIterator.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
 				edgeTime = iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
@@ -179,8 +180,9 @@ public class PathMetricsExtractor {
 
 	private void expandEdge(RoutingCHEdgeIteratorState iterState, boolean reverse) {
 		if (!iterState.isShortcut()) {
+			EdgeIteratorState baseIterator = chGraph.getBaseGraph().getEdgeIteratorState(iterState.getOrigEdge(), iterState.getAdjNode());
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
-				edgeDistance += 0; // TODO: find out where to get this from: iterState.getDistance();
+				edgeDistance += baseIterator.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
 				edgeTime += iterState.getTime(reverse, 0) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))

@@ -34,10 +34,87 @@ RELEASING:
  -->
 
 ## [Unreleased]
-
-## [6.7.0-gtfs] - 2022-07-29
 ### Added
 - GTFS support
+
+## [7.0.0] - 2023-03-03
+upgrade to GraphHopper 4.0 [#1217](https://github.com/GIScience/openrouteservice/pull/1217) which introduces (amongst other things):
+- faster build time
+- faster route/reachability/matrix calculations
+- improved osm tag logic for all profiles
+- increased test coverage
+- security fixes
+- stability fixes
+
+## [6.8.3] - 2023-03-02
+### Fixed
+- wheelchair profile excludes ways tagged highway:construction ([#1295](https://github.com/GIScience/openrouteservice/issues/1295))
+- Support access restriction tags listing multiple vehicles ([#1219](https://github.com/GIScience/openrouteservice/issues/1219))
+- upgrade org.glassfish.jaxb:jaxb-runtime from 2.3.7 to 2.3.8
+- upgrade org.postgresql:postgresql from 42.5.1 to 42.5.2
+
+## [6.8.2] - 2023-02-22
+### Fixed
+- visibility of csv_factor and csv_column API parameters ([PR #1279](https://github.com/GIScience/openrouteservice/pull/1279))
+- update org.apache.kafka:kafka_2.13 and related packages from 3.3.2 to 3.4.0
+- update outdated dockerfile dependencies ([PR #1284](https://github.com/GIScience/openrouteservice/pull/1284))
+- fix the docker build by reducing the glibc version to 2.29-r0 ([PR #1287](https://github.com/GIScience/openrouteservice/pull/1287))
+
+## [6.8.1] - 2023-02-08
+### Added
+- API documentation on coordinate CRS
+### Fixed
+- Way access for walking profiles ([#1227](https://github.com/GIScience/openrouteservice/issues/1227))
+- Fix security vulnerability and testing for the swagger docs api ([PR #1257](https://github.com/GIScience/openrouteservice/pull/1257))
+- update com.typesafe:config from 1.4.1 to 1.4.2
+- update log4j to version 2.19.0 and slf4j to 2.0.6
+- update junit:junit from 4.13.1 to 4.13.2
+- update org.postgresql:postgresql from 42.4.3 to 42.5.1
+- update com.fasterxml.jackson bundle from 2.13.3 to 2.14.2
+- update org.glassfish.jaxb:jaxb-runtime from 2.3.1 to 2.3.7
+- update org.apache.kafka bundle from 2.5.1 to 3.3.2
+- update org.apache.curator from 4.1.0 to 5.4.0
+- update me.tongfei.progressbar from 0.5.5 to 0.9.5 
+- update org.springframework.boot:spring-boot-starter-web from 2.5.12 to 2.7.7 
+- update org.springframework.boot:spring-boot-starter-tomcat from 2.3.5.RELEASE to 2.7.7 
+- update com.typesafe:config from 1.4.1 to 1.4.2
+- update springfox-swagger2 to 3.0.0
+- update org.ow2.asm:asm from 9.0 to 9.4
+
+## [6.8.0] - 2022-10-10
+### Added
+- backend documentation about encoded polylines without elevation data ([#1094](https://github.com/GIScience/openrouteservice/issues/1094))
+- python code on decoding polylines including elevation data
+- Czech language support (thanks to [trendspotter](https://github.com/trendspotter) for the translation)
+- Pedestrian and hiking support for time dependent routing
+- Esperanto language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
+- Romanian language support (thanks to [ecxod](https://github.com/ecxod) for the translation)
+- link to YouTube docker setup guide to docs (thanks to SyntaxByte)
+- prototype of generic CSV-based routing to be used for heat stress
+- Shadow Routing 
+### Removed
+- old v1 API code and related classes
+### Fixed
+- allow bridleways with bicycle=yes for bike profiles ([#1167](https://github.com/GIScience/openrouteservice/issues/1167))
+- improved log file settings error message ([#1110](https://github.com/GIScience/openrouteservice/issues/1110)) 
+- Dockerfile now creates intermediate directories if they are not present ([#1109](https://github.com/GIScience/openrouteservice/issues/1109))
+- internal properties of `IsochronesRequest` model not ignored for swagger file generation
+- remove non-parameter `metricsStrings` from API documentation ([#756](https://github.com/GIScience/openrouteservice/issues/756))
+- set default vehicle type for HGV profile ([#816](https://github.com/GIScience/openrouteservice/issues/816))
+- added missing matchTraffic override ([#1133](https://github.com/GIScience/openrouteservice/issues/1133))
+- typo in docker documentation
+- foot routing via `waterway=lock_gate` ([#1177](https://github.com/GIScience/openrouteservice/issues/1177))
+- graph builder for routing over open areas ([#1186](https://github.com/GIScience/openrouteservice/issues/1186))
+- address data alignment issue in hgv extended storage which occasionally caused `ArrayIndexOutOfBoundsException` ([#1181](https://github.com/GIScience/openrouteservice/issues/1181))
+- fix minor spelling errors in Places.md ([#1196](https://github.com/GIScience/openrouteservice/issues/1196))
+- address matrix failures for HGV profile ([#1198](https://github.com/GIScience/openrouteservice/issues/1198))
+
+### Changed
+- docker image is multistage now ([#1234](https://github.com/GIScience/openrouteservice/issues/1234))
+
+## [6.7.1] - 2022-10-05
+### Added
+- optional routing profile parameter `force_turn_costs` ([#1220](https://github.com/GIScience/openrouteservice/pull/1220))
 
 ## [6.7.0] - 2022-01-04
 ### Added
@@ -73,8 +150,6 @@ RELEASING:
 - `ors_app_config` system property ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `app.config` ors configuration file name ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
 - `ORS_APP_CONF` environment variable ([#1017](https://github.com/GIScience/openrouteservice/issues/1017))
-### Removed
-- old v1 API code and related classes
 ### Fixed
 - Errors in travel speed explanation
 - Failing assertion with CALT routing ([#1047](https://github.com/GIScience/openrouteservice/issues/1047))
@@ -545,7 +620,13 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
+[6.8.3]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...v6.8.3
+[6.8.2]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...v6.8.2
+[6.8.1]: https://github.com/GIScience/openrouteservice/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/GIScience/openrouteservice/compare/v6.7.1...v6.8.0
+[6.7.1]: https://github.com/GIScience/openrouteservice/compare/v6.7.0...v6.7.1
 [6.7.0]: https://github.com/GIScience/openrouteservice/compare/v6.6.4...v6.7.0
 [6.6.4]: https://github.com/GIScience/openrouteservice/compare/v6.6.3...v6.6.4
 [6.6.3]: https://github.com/GIScience/openrouteservice/compare/v6.6.2...v6.6.3

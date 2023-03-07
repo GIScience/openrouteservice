@@ -62,7 +62,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
     /**
      * @return true if successfully loaded from persistent storage.
      */
-    // TODO: how to deal with @Override
+    @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_noiselevel'. corrupt file or directory?");
@@ -77,7 +77,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      *
      * @param initBytes
      */
-    // TODO: how to deal with @Override
+    @Override
     public NoiseIndexGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
@@ -88,7 +88,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      * a disc normally has an IO cache so that flush() is (less) probably not save against power
      * loses.
      */
-    // TODO how to deal with @Override
+    @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
         orsEdges.setHeader(4, edgesCount);
@@ -109,6 +109,11 @@ public class NoiseIndexGraphStorage implements GraphExtension {
      */
     @Override
     public void close() { orsEdges.close(); }
+
+    @Override
+    public long getCapacity() {
+        return orsEdges.getCapacity();
+    }
 
     @Override
     public boolean isClosed() {

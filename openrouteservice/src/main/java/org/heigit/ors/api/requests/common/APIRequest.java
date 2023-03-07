@@ -2,11 +2,10 @@ package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang.StringUtils;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
@@ -395,7 +394,7 @@ public class APIRequest {
 
         if (!invalidParams.isEmpty()) {
             // There are some parameters present that shouldn't be there
-            String invalidParamsString = StringUtils.join(invalidParams, ", ");
+            String invalidParamsString = String.join(", ", invalidParams);
             throw new IncompatibleParameterException(GenericErrorCodes.UNKNOWN_PARAMETER, "restrictions", invalidParamsString, PARAM_PROFILE, RoutingProfileType.getName(profile));
         }
     }
@@ -420,9 +419,24 @@ public class APIRequest {
                 params.add(pw);
             }
 
+            if (weightings.hasShadowIndex()) {
+                ProfileWeighting pw = new ProfileWeighting("shadow");
+                Float shadowFactor = weightings.getShadowIndex();
+                if (shadowFactor > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", shadowFactor), "shadow factor", "1.0");
+                pw.addParameter("factor", shadowFactor);
+                params.add(pw);
+            }
+
             if (weightings.hasSteepnessDifficulty()) {
                 ProfileWeighting pw = new ProfileWeighting("steepness_difficulty");
                 pw.addParameter("level", weightings.getSteepnessDifficulty());
+                params.add(pw);
+            }
+            if (weightings.hasCsv()) {
+                ProfileWeighting pw = new ProfileWeighting("csv");
+                pw.addParameter("column", weightings.getCsvColumn());
+                pw.addParameter("factor", weightings.getCsvFactor());
                 params.add(pw);
             }
         } catch (InternalServerException e) {

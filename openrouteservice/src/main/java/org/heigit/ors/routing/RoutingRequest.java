@@ -14,7 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;

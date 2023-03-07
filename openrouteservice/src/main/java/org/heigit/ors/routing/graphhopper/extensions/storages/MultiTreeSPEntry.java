@@ -103,6 +103,6 @@ public class MultiTreeSPEntry implements Comparable<MultiTreeSPEntry> {
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + 0 + ") weights: " + totalWeight; // TODO
+		return "adjNode: " + adjNode +  ", totalWeight: " + totalWeight; // TODO
 	}
 }

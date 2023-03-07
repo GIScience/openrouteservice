@@ -19,6 +19,7 @@ import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.*;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage.CoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
@@ -45,7 +46,7 @@ import java.util.List;
  */
 public class TarjansCoreSCCAlgorithm {
     private final ArrayList<IntArrayList> components = new ArrayList<>();
-    // TODO use just the Graph interface here
+    // TODO Refactoring : check if this comment might have been taken from GH code, probably irrelevant : "use just the Graph interface here"
     private final IntArrayDeque nodeStack;
     private final GHBitSet onStack;
     private final GHBitSet ignoreSet;
@@ -56,7 +57,7 @@ public class TarjansCoreSCCAlgorithm {
     private final RoutingCHGraph core;
     private final int coreNodeLevel;
 
-    public TarjansCoreSCCAlgorithm(GraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
+    public TarjansCoreSCCAlgorithm(ORSGraphHopperStorage ghStorage, RoutingCHGraph core, final EdgeFilter edgeFilter, boolean ignoreSingleEntries) {
         this.core = core;
         this.nodeStack = new IntArrayDeque();
         this.onStack = new GHBitSetImpl(ghStorage.getNodes());

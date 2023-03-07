@@ -58,7 +58,6 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
         this.nodeCount = nodeCount;
     }
 
-    // TODO: how to deal with @Override
     public boolean loadExisting() {
         if (borderNodes.loadExisting()) {
             borderNodeCount = borderNodes.getHeader(0);
@@ -157,12 +156,10 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
         }
     }
 
-    // TODO: how to deal with @Override
     public BorderNodeDistanceStorage create(long byteCount) {
         throw new IllegalStateException("Do not call BorderNodeDistanceStorage.create directly");
     }
 
-    // TODO: how to deal with @Override
     public void flush() {
         borderNodes.flush();
     }

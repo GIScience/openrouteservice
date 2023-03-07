@@ -19,7 +19,7 @@ import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -30,12 +30,18 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
 
     public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs) {
+        return createEdgeFilter(opts, flagEncoder, gs, null);
+    }
+
+    public EdgeFilter createEdgeFilter(PMap opts, FlagEncoder flagEncoder, GraphHopperStorage gs, EdgeFilter prependFilter) {
         /* Initialize empty edge filter sequence */
         EdgeFilterSequence edgeFilters = new EdgeFilterSequence();
 
+        if (prependFilter != null)
+            edgeFilters.add(prependFilter);
+
         /* Default edge filter which accepts both directions of the specified vehicle */
         edgeFilters.add(AccessFilter.allEdges(flagEncoder.getAccessEnc()));
-
         try {
             if (opts == null) {
                 opts = new PMap();
@@ -43,7 +49,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
             /* Avoid areas */
             if (opts.has("avoid_areas")) {
-                edgeFilters.add(new AvoidAreasEdgeFilter((Polygon[]) opts.getObject("avoid_areas", new Polygon[]{})));
+                edgeFilters.add(new AvoidAreasEdgeFilter(opts.getObject("avoid_areas", new Polygon[]{})));
             }
     
             /* Heavy vehicle filter */

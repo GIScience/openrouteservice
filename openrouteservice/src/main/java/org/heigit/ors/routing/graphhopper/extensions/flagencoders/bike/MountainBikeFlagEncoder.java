@@ -17,16 +17,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.PriorityCode;
-import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Specifies the settings for mountain biking
@@ -110,12 +108,6 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("pedestrian");
         addPushingSection("steps");
 
-        setCyclingNetworkPreference("icn", PREFER.getValue());
-        setCyclingNetworkPreference("ncn", PREFER.getValue());
-        setCyclingNetworkPreference("rcn", PREFER.getValue());
-        setCyclingNetworkPreference("lcn", PREFER.getValue());
-        setCyclingNetworkPreference("mtb", BEST.getValue());
-
         avoidHighwayTags.add("primary");
         avoidHighwayTags.add("primary_link");
         avoidHighwayTags.add("secondary");
@@ -132,6 +124,13 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
 
         passByDefaultBarriers.add("kissing_gate");
         setSpecificClassBicycle("mtb");
+
+        routeMap.put(INTERNATIONAL, PREFER.getValue());
+        routeMap.put(NATIONAL, PREFER.getValue());
+        routeMap.put(REGIONAL, PREFER.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(MTB, BEST.getValue());
+        routeMap.put(OTHER, PREFER.getValue());
     }
 
     public double getMeanSpeed() {
@@ -152,18 +151,6 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
             else if (trackType.startsWith("grade"))
                 weightToPrioMap.put(100d, VERY_NICE.getValue());
         }
-    }
-
-    @Override
-    public int handleRelationTags(IntsRef oldRelationFlags, ReaderRelation relation) {
-        int code = super.handleRelationTags(oldRelationFlags, relation);
-        if (relation.hasTag("route", "mtb"))
-            code = PREFER.getValue();
-
-        int oldCode = (int) priorityRelationEnc.getDecimal(false, oldRelationFlags);
-        if (oldCode < code)
-             priorityRelationEnc.setDecimal(false, oldRelationFlags, PriorityCode.getFactor(code));
-        return code;
     }
 
     @Override

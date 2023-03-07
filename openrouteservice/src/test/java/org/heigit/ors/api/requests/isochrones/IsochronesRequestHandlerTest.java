@@ -1,7 +1,7 @@
 package org.heigit.ors.api.requests.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -279,7 +279,7 @@ public class IsochronesRequestHandlerTest {
         request.setLocations(coordinates);
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         Assert.assertNull(routeSearchParameters.getAvoidAreas());
         Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
@@ -298,7 +298,7 @@ public class IsochronesRequestHandlerTest {
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
 
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
         Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());

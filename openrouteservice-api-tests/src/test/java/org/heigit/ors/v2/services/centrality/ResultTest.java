@@ -12,6 +12,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.jsonContent;
 
 @EndPointAnnotation(name = "centrality")
 @VersionAnnotation(version = "v2")
@@ -54,8 +55,7 @@ public class ResultTest extends ServiceTest {
         // edgeBetweenness-initialization also initialized edges whose to-node wasn't contained in the bbox.
         // this test makes sure that all node ids in edgeScores are also present in locations
         Response response = given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .post(getEndPointPath() + "/{profile}/json");

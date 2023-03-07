@@ -60,7 +60,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
         long randomSeed = random.nextLong();
         // Regenerating a graph on each request is necessary because the underlying
         // graph storage will be closed after each try.
-        // TODO: this code uses an internal jqwik API Shrinkable.supplyUnshrinkable
+        // TODO Future improvement : this code uses an internal jqwik API Shrinkable.supplyUnshrinkable
         // This will be unnecessary if graph generation is done using arbitrary combination
         return Shrinkable.supplyUnshrinkable(() -> {
             GraphHopperStorage sampleGraph = create(randomSeed);
@@ -69,7 +69,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
         });
     }
 
-    // TODO: Make sure graph is fully connected
+    // TODO Future improvement : Make sure graph is fully connected
     public GraphHopperStorage create(long randomSeed) {
         GraphHopperStorage storage = createGHStorage();
         Random random = new Random(randomSeed);

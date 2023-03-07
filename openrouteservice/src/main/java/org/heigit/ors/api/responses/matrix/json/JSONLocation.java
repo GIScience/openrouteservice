@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.matrix.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.util.FormatUtility;
 import io.swagger.annotations.ApiModelProperty;

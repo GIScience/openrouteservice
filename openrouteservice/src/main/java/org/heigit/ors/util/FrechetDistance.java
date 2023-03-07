@@ -1,7 +1,7 @@
 package org.heigit.ors.util;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.util.GeometricShapeFactory;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;

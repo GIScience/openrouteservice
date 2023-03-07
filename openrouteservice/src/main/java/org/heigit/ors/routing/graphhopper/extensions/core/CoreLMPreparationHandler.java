@@ -23,6 +23,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.PMap;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
@@ -40,6 +41,7 @@ import java.util.*;
  * @author Andrzej Oles
  */
 public class CoreLMPreparationHandler extends LMPreparationHandler {
+    private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
 
     private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
@@ -75,6 +77,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
             RoutingCHGraph core = ((ORSGraphHopperStorage) ghStorage).getCoreGraph(lmConfigName);
             Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
+            logger.info("Created core node ID map for " + coreLMConfig.getName() + " of size " + coreNodeIdMap.size());
 
             Double maximumWeight = getMaximumWeights().get(lmConfigName);
             if (maximumWeight == null)

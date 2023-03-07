@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.graphhopper.gtfs.GHLocation;
 import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -77,7 +77,7 @@ public class RouteRequest extends APIRequest {
     public static final String PARAM_WALKING_TIME = "walking_time";
     public static final String PARAM_IGNORE_TRANSFERS = "ignore_transfers";
 
-    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs",
+    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
     @JsonProperty(PARAM_COORDINATES)
@@ -261,7 +261,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
-            example = "2020-01-31T12:45:00",  hidden = true)
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_DEPARTURE)
     private LocalDateTime departure;
     @JsonIgnore
@@ -269,7 +269,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
-            example = "2020-01-31T13:15:00",  hidden = true)
+            example = "2020-01-31T13:15:00", hidden = true)
     @JsonProperty(PARAM_ARRIVAL)
     private LocalDateTime arrival;
     @JsonIgnore
@@ -845,8 +845,8 @@ public class RouteRequest extends APIRequest {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
-        if (this.hasRoutePreference())
-            params.setWeightingMethod(convertWeightingMethod(routePreference));
+        APIEnums.RoutePreference preference = this.hasRoutePreference() ? this.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
+        params.setWeightingMethod(convertWeightingMethod(preference));
 
         if (this.hasBearings())
             params.setBearings(convertBearings(bearings, coordinatesLength));
@@ -971,7 +971,7 @@ public class RouteRequest extends APIRequest {
         return params;
     }
 
-    // TODO: can this be merged with processRequestOptions in MatrixRequestHandler?
+    // TODO Refactoring: can this be merged with processRequestOptions in MatrixRequestHandler?
 
     private boolean convertIncludeGeometry() throws IncompatibleParameterException {
         if (!includeGeometry && responseType != APIEnums.RouteResponseType.JSON) {

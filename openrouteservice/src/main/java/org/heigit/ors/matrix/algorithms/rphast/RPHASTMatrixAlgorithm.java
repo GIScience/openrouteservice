@@ -32,11 +32,10 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
     //        @Override
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
-        //TODO check if base graph necessary. Probably not.
+        //TODO Refactoring : check if base graph necessary. Probably not.
         super.init(req, gh, chGraph.getBaseGraph(), encoder, weighting);
         this.chGraph = chGraph;
 
-        // TODO: prepareCH = graphHopper.getCHFactoryDecorator().getPreparations().get(0);
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, weighting,
                 req.getUnits());
     }

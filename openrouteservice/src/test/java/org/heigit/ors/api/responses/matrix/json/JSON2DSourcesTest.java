@@ -1,6 +1,6 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.matrix.ResolvedLocation;
 import org.junit.Assert;
 import org.junit.Before;

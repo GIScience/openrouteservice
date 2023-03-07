@@ -45,7 +45,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        // TODO Check if the _greenIndexFile exists
+        // TODO Refactoring Check if the _greenIndexFile exists
         String csvFile = parameters.get("filepath");
         readGreenIndicesFromCSV(csvFile);
         prepareGreenIndexSlots();
@@ -129,7 +129,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         // No such @id key in the _greenIndices, or the value of it is null
         // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-        // TODO this DEFAULT_LEVEL should be put in the ors-config.json file and
+        // TODO Refactoring this DEFAULT_LEVEL should be put in the ors-config.json file and
         // injected back in the code
         if (gi == null)
             return (byte) (DEFAULT_LEVEL);

@@ -58,6 +58,11 @@ public class HillIndexGraphStorage implements GraphExtension {
 		orsEdges.flush();
 	}
 
+	@Override
+	public long getCapacity() {
+		return orsEdges.getCapacity();
+	}
+
 	public void close() {
 		orsEdges.close();
 	}

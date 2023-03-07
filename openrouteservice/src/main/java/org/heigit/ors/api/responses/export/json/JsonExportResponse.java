@@ -2,7 +2,7 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import org.heigit.ors.api.responses.export.ExportResponse;
 import org.heigit.ors.api.responses.routing.json.JSONWarning;
@@ -53,7 +53,7 @@ public class JsonExportResponse extends ExportResponse {
 
         if (exportResult.hasEdgeExtras()) {
             edgesExtra = new ArrayList<>();
-            for (Map.Entry<Integer, Map<String, Object>> edge : exportResult.getEdgeExtras().entrySet()) {
+            for (Map.Entry<Pair<Integer, Integer>, Map<String, Object>> edge : exportResult.getEdgeExtras().entrySet()) {
                 edgesExtra.add(new JsonEdgeExtra(edge));
             }
         }

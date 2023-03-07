@@ -26,7 +26,7 @@ public class CentralityRequest extends APIRequest {
     public static final String PARAM_MODE = "mode";
     public static final String PARAM_FORMAT = "format";
 
-    @ApiModelProperty(name = PARAM_BBOX, value = "The bounding box to use for the request as an array of `longitude/latitude` pairs",
+    @ApiModelProperty(name = PARAM_BBOX, value = "The bounding box to use for the request as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[8.681495,49.41461,8.686507,49.41943]",
             required = true)
     @JsonProperty(PARAM_BBOX)
