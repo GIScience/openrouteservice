@@ -35,6 +35,12 @@ RELEASING:
 
 ## [Unreleased]
 
+## [7.0.1] - 2023-03-08
+- fix tomcat config overwrite ([#1311](https://github.com/GIScience/openrouteservice/issues/1311))
+- Upgrade commons-io:commons-io from 2.7 to 2.11.0 ([#1309](https://github.com/GIScience/openrouteservice/issues/1309))
+- Upgrade com.fasterxml.jackson.core:jackson-core from 2.13.3 to 2.14.2 ([#1307](https://github.com/GIScience/openrouteservice/issues/1307))
+- Upgrade commons-io:commons-io from 2.6 to 2.7 ([#1304](https://github.com/GIScience/openrouteservice/issues/1304))
+
 ## [7.0.0] - 2023-03-03
 upgrade to GraphHopper 4.0 [#1217](https://github.com/GIScience/openrouteservice/pull/1217) which introduces (amongst other things):
 - faster build time
