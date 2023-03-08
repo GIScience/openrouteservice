@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- support for API time parameters
 
 ## [7.0.1] - 2023-03-08
 - fix tomcat config overwrite ([#1311](https://github.com/GIScience/openrouteservice/issues/1311))

@@ -97,8 +97,8 @@ class RouteResultBuilder
         result.calculateRouteSummary(request);
 
         if (request.getSearchParameters().isTimeDependent()) {
-            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
-            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
+            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, DEFAULT_TIMEZONE);
+            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -143,8 +143,8 @@ class RouteResultBuilder
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
-                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
+                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, DEFAULT_TIMEZONE);
+                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }
