@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.instructions;
 
 import com.graphhopper.util.Helper;
-import joptsimple.internal.Strings;
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.localization.LanguageResources;
@@ -169,11 +168,11 @@ public class InstructionTranslator {
 	public String getPt(InstructionType type, String name, String headsign) {
 		switch (type){
 			case PT_ENTER:
-				if (!Strings.isNullOrEmpty(headsign))
+				if (!Helper.isEmpty(headsign))
 					return actionPtStartWithHeadsign.replace(STR_NAME, name).replace(STR_HEADSIGN, headsign);
 				return actionPtStart.replace(STR_NAME, name);
 			case PT_TRANSFER:
-				if (!Strings.isNullOrEmpty(headsign))
+				if (!Helper.isEmpty(headsign))
 					return actionPtTransferWithHeadsign.replace(STR_NAME, name).replace(STR_HEADSIGN, headsign);
 				return actionPtTransfer.replace(STR_NAME, name);
 			case PT_EXIT:

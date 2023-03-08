@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.routing.RouteLeg;
 import org.heigit.ors.routing.RoutePtStop;
 import org.heigit.ors.routing.RouteStep;
 import org.heigit.ors.util.PolylineEncoder;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

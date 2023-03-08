@@ -3694,7 +3694,6 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('route_desc')", is(true))
             .body("routes[0].legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
-        System.out.println(res.getTimeIn(TimeUnit.MILLISECONDS));
 
         given()
             .header("Accept", "application/geo+json")

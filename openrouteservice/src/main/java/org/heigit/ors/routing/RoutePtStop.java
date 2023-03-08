@@ -14,9 +14,8 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.Trip;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;

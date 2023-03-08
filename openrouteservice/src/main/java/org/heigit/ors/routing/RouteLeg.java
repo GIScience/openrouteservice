@@ -15,11 +15,11 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.Trip;
-import com.vividsolutions.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

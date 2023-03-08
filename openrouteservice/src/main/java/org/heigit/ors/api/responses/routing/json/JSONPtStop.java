@@ -16,17 +16,12 @@
 package org.heigit.ors.api.responses.routing.json;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.routing.RoutePtStop;
-import org.heigit.ors.routing.RouteStep;
-import org.heigit.ors.util.StringUtility;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
