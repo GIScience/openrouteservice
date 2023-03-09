@@ -15,10 +15,10 @@ package org.heigit.ors.routing.algorithms;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
@@ -116,7 +116,7 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
                     continue;
 
                 int traversalId = traversalMode.createTraversalId(iter, false);
-                double tmpWeight = weighting.calcWeight(iter, false, currEdge.edge) + currEdge.weight;
+                double tmpWeight = weighting.calcEdgeWeight(iter, false, currEdge.edge) + currEdge.weight;
                 if (Double.isInfinite(tmpWeight))
                     continue;
 

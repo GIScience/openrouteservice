@@ -13,10 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 import com.graphhopper.util.BitUtil;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
@@ -25,7 +22,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 	private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
 
 	private final int efVehicleType;
-	private final int efDestinationType;
 	private final int efRestrictions;
 
 	private DataAccess orsEdges;
@@ -35,11 +31,8 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 	private static final double FACTOR = 100.0;
 
-	private final byte[] buffer = new byte[2];
-
 	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) {
 		efVehicleType = nextBlockEntryIndex(1);
-		efDestinationType = nextBlockEntryIndex(1);
 
 		if (includeRestrictions)
 			// first byte indicates whether any restrictions are given 
@@ -68,7 +61,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public HeavyVehicleAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
@@ -81,10 +74,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
 	public void close() {
 		orsEdges.close();
-	}
-
-	public long getCapacity() {
-		return orsEdges.getCapacity();
 	}
 
 	public int entries() {
@@ -116,6 +105,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		if (efRestrictions == -1)
 			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
+		byte[] buffer = new byte[2];
 		for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
 			short shortValue = (short) (restrictionValues[i] * FACTOR);
 			BitUtil.LITTLE.fromShort(buffer, shortValue);
@@ -142,11 +132,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 			retValues[i] = getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) / FACTOR;
 
 		return true;
-	}
-
-	private short getShort(long bytePos) {
-		orsEdges.getBytes(bytePos, buffer, 2);
-		return BitUtil.LITTLE.toShort(buffer);
 	}
 
 	public int getEdgeVehicleType(int edgeId, byte[] buffer) {
@@ -177,35 +162,15 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		return false;
 	}
 
-	public boolean isRequireNodeField() {
-		return true;
+	private short getShort(long bytePos) {
+		byte[] buffer = new byte[2];
+		orsEdges.getBytes(bytePos, buffer, 2);
+		return BitUtil.LITTLE.toShort(buffer);
 	}
 
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof HeavyVehicleAttributesGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		HeavyVehicleAttributesGraphStorage clonedTC = (HeavyVehicleAttributesGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
+	@Override
+	public long getCapacity() {
+		return orsEdges.getCapacity();
 	}
 
 	@Override

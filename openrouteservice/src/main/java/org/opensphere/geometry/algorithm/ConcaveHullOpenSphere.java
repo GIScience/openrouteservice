@@ -27,27 +27,26 @@ package org.opensphere.geometry.algorithm;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.opensphere.geometry.triangulation.DoubleComparator;
 import org.opensphere.geometry.triangulation.model.Edge;
 import org.opensphere.geometry.triangulation.model.Triangle;
 import org.opensphere.geometry.triangulation.model.Vertex;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineSegment;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import com.vividsolutions.jts.operation.linemerge.LineMerger;
-import com.vividsolutions.jts.triangulate.ConformingDelaunayTriangulationBuilder;
-import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
-import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
-import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeTriangle;
-import com.vividsolutions.jts.util.UniqueCoordinateArrayFilter;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineSegment;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.operation.linemerge.LineMerger;
+import org.locationtech.jts.triangulate.ConformingDelaunayTriangulationBuilder;
+import org.locationtech.jts.triangulate.quadedge.QuadEdge;
+import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
+import org.locationtech.jts.triangulate.quadedge.QuadEdgeTriangle;
+import org.locationtech.jts.util.UniqueCoordinateArrayFilter;
 
 /**
  * Computes a concave hull of a {@link Geometry} which is a concave
@@ -66,16 +65,16 @@ import com.vividsolutions.jts.util.UniqueCoordinateArrayFilter;
  */
 public class ConcaveHullOpenSphere {
 
-    private GeometryFactory geomFactory;
-    private GeometryCollection geometries;
-    private double threshold;
-    private Map<LineSegment, Integer> segments = new HashMap<>();
-    private Map<Integer, Edge> edges = new HashMap<>();
-    private Map<Integer, Triangle> triangles = new HashMap<>();
-    private NavigableMap<Integer, Edge> lengths = new TreeMap<>();
-    private Map<Integer, Edge> shortLengths = new HashMap<>();
-    private Map<Coordinate, Integer> coordinates = new HashMap<>();
-    private Map<Integer, Vertex> vertices = new HashMap<>();
+    private final GeometryFactory geomFactory;
+    private final GeometryCollection geometries;
+    private final double threshold;
+    private final Map<LineSegment, Integer> segments = new HashMap<>();
+    private final Map<Integer, Edge> edges = new HashMap<>();
+    private final Map<Integer, Triangle> triangles = new HashMap<>();
+    private final NavigableMap<Integer, Edge> lengths = new TreeMap<>();
+    private final Map<Integer, Edge> shortLengths = new HashMap<>();
+    private final Map<Coordinate, Integer> coordinates = new HashMap<>();
+    private final Map<Integer, Vertex> vertices = new HashMap<>();
 
     /**
      * Create a new concave hull construction for the input {@link Geometry}.
@@ -170,6 +169,20 @@ public class ConcaveHullOpenSphere {
     }
 
     /**
+     * Wrapper around QuadEdge, pre computes linesegment and length.
+     */
+    private static class QuadEdgeLineSegment {
+        private final QuadEdge qe;
+        private final LineSegment ls;
+        private final double length;
+        public QuadEdgeLineSegment(QuadEdge qe) {
+            this.qe = qe;
+            this.ls = qe.toLineSegment();
+            this.length = ls.getLength();
+        }
+    }
+
+    /**
      * Create the concave hull.
      *
      * @return the concave hull
@@ -186,11 +199,11 @@ public class ConcaveHullOpenSphere {
 
         Collection<QuadEdge> quadEdges = qes.getEdges();
         List<QuadEdgeTriangle> qeTriangles = QuadEdgeTriangle.createOn(qes);
-        Collection<com.vividsolutions.jts.triangulate.quadedge.Vertex> qeVertices =
+        Collection<org.locationtech.jts.triangulate.quadedge.Vertex> qeVertices =
                 qes.getVertices(false);
 
         int iV = 0;
-        for (com.vividsolutions.jts.triangulate.quadedge.Vertex v : qeVertices) {
+        for (org.locationtech.jts.triangulate.quadedge.Vertex v : qeVertices) {
             this.coordinates.put(v.getCoordinate(), iV);
             this.vertices.put(iV, new Vertex(iV, v.getCoordinate()));
             iV++;
@@ -223,19 +236,17 @@ public class ConcaveHullOpenSphere {
             qes.delete(qe);
         }
 
-        HashMap<QuadEdge, Double> qeDistances = new HashMap<>(quadEdges.size()); //  Modification by Maxim Rylov: Make use of a constructor with capacity parameter
+        List<QuadEdgeLineSegment> qeDistances = new ArrayList<>(quadEdges.size());
         for (QuadEdge qe : quadEdges) {
-            qeDistances.put(qe, qe.toLineSegment().getLength());
+            qeDistances.add(new QuadEdgeLineSegment(qe));
         }
 
-        DoubleComparator dc = new DoubleComparator(qeDistances);
-        TreeMap<QuadEdge, Double> qeSorted = new TreeMap<>(dc);
-        qeSorted.putAll(qeDistances);
+        qeDistances.sort((a, b) -> Double.compare(b.length, a.length));
 
         // edges creation
         int i = 0;
-        for (QuadEdge qe : qeSorted.keySet()) {
-            LineSegment s = qe.toLineSegment();
+        for (QuadEdgeLineSegment qels : qeDistances) {
+            LineSegment s = qels.ls;
             s.normalize();
 
             Integer idS = this.coordinates.get(s.p0);
@@ -244,11 +255,11 @@ public class ConcaveHullOpenSphere {
             Vertex eV = this.vertices.get(idD);
 
             Edge edge;
-            if (qeBorder.contains(qe)) {
+            if (qeBorder.contains(qels.qe)) {
                 oV.setBorder(true);
                 eV.setBorder(true);
                 edge = new Edge(i, s, oV, eV, true);
-                if (s.getLength() < this.threshold) {
+                if (qels.length < this.threshold) {
                     this.shortLengths.put(i, edge);
                 } else {
                     this.lengths.put(i, edge);

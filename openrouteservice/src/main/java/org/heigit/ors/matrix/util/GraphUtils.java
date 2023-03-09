@@ -1,9 +1,10 @@
 package org.heigit.ors.matrix.util;
 
-import com.graphhopper.storage.CHGraph;
+
+import com.graphhopper.storage.RoutingCHGraph;
 
 public class GraphUtils {
-    public static boolean isCoreNode(CHGraph chGraph, int nodeId, int nodeCount, int coreNodeLevel) {
+    public static boolean isCoreNode(RoutingCHGraph chGraph, int nodeId, int nodeCount, int coreNodeLevel) {
         if (isVirtualNode(nodeId, nodeCount))
             return false;
         return chGraph.getLevel(nodeId) >= coreNodeLevel;

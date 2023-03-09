@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.logging;
 
+import org.apache.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
@@ -36,8 +37,8 @@ public class LoggingUtility {
 				conf.setConfigurationSource(source);
 				conf.addProperty("filename", LoggingSettings.getLocation() + "/ors-logs.log");
 
-				conf.writeXmlConfiguration(System.out);
 				Configurator.initialize(conf.build());
+				Logger.getLogger(LoggingUtility.class.getName()).info(String.format("Logging configuration loaded from %s, logging to file %s", settingsFileName, LoggingSettings.getLocation() + "/ors-logs.log"));
 			}
 		}
 	}

@@ -13,13 +13,13 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.VirtualEdgeIteratorState;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.DAType;
 import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -31,8 +31,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class BordersExtractorTest {
-    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS, 4);
-    private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
+    private PMap properties = new PMap();
+    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
     private final BordersGraphStorage _graphstorage;
 
     public BordersExtractorTest() {
@@ -54,10 +54,7 @@ public class BordersExtractorTest {
 
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
-// TODO GH0.10:
-//        return new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
-//                encoder.setProperties(10, true, true), "test", Helper.createPointList(51,0,51,1));
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, id, 1, 2, 10,
+        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, id, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
         return ve;
     }

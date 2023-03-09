@@ -6,15 +6,16 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
@@ -49,8 +50,8 @@ public class Contour {
     private static final double BUFFER_SIZE = 0.0003;
     protected NodeAccess nodeAccess;
     protected GraphHopperStorage ghStorage;
-    private IsochroneNodeStorage isochroneNodeStorage;
-    private CellStorage cellStorage;
+    private final IsochroneNodeStorage isochroneNodeStorage;
+    private final CellStorage cellStorage;
 
     public Contour(GraphHopperStorage ghStorage, NodeAccess nodeAccess, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         this.ghStorage = ghStorage;
@@ -362,7 +363,7 @@ public class Contour {
         IntHashSet cellNodes = cellStorage.getNodesOfCell(cellId);
         int initialSize = cellNodes.size();
         List<Coordinate> coordinates = new ArrayList<>(initialSize);
-        EdgeFilter edgeFilter = DefaultEdgeFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0));
+        EdgeFilter edgeFilter = AccessFilter.allEdges(ghStorage.getEncodingManager().fetchEdgeEncoders().get(0).getAccessEnc()); // TODO Refactoring: cleanup method chain
 
         EdgeExplorer explorer = ghStorage.getBaseGraph().createEdgeExplorer(edgeFilter);
         EdgeIterator iter;
@@ -381,7 +382,7 @@ public class Contour {
                         || !edgeFilter.accept(iter))
                     continue;
                 visitedEdges.add(iter.getEdge());
-                splitAndAddLatLon(iter.fetchWayGeometry(3), coordinates, MIN_EDGE_LENGTH, MAX_EDGE_LENGTH);
+                splitAndAddLatLon(iter.fetchWayGeometry(FetchMode.ALL), coordinates, MIN_EDGE_LENGTH, MAX_EDGE_LENGTH);
             }
         }
         //Remove duplicates

@@ -13,12 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.profiles.BooleanEncodedValue;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.ConditionalEdges;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 import java.util.ArrayList;
@@ -29,14 +29,14 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 	private BooleanEncodedValue[] conditionalEncoders;
 	private static String[] names = {ConditionalEdges.ACCESS, ConditionalEdges.SPEED};
 
-	public TimeDependentCoreEdgeFilter(GraphStorage graphStorage) {
+	public TimeDependentCoreEdgeFilter(GraphHopperStorage graphStorage) {
 		EncodingManager encodingManager = graphStorage.getEncodingManager();
 
 		List<BooleanEncodedValue> conditionalEncodersList = new ArrayList<>();
 
 		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
 			for (String name : names) {
-				String encoderName = encodingManager.getKey(encoder, name);
+				String encoderName = EncodingManager.getKey(encoder, name);
 				if (encodingManager.hasEncodedValue(encoderName)) {
 					conditionalEncodersList.add(encodingManager.getBooleanEncodedValue(encoderName));
 				}
@@ -49,7 +49,7 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 	public static boolean hasConditionals(EncodingManager encodingManager) {
 		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders())
 			for (String name : names) {
-				String encoderName = encodingManager.getKey(encoder, name);
+				String encoderName = EncodingManager.getKey(encoder, name);
 				if (encodingManager.hasEncodedValue(encoderName)) {
 					return true;
 				}

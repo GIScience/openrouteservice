@@ -13,18 +13,18 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 
 
 public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
-	private HeavyVehicleAttributesGraphStorage storage;
+	private final HeavyVehicleAttributesGraphStorage storage;
 
-	public HeavyVehicleCoreEdgeFilter(GraphStorage graphStorage) {
+	public HeavyVehicleCoreEdgeFilter(GraphHopperStorage graphStorage) {
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class);
 	}
 

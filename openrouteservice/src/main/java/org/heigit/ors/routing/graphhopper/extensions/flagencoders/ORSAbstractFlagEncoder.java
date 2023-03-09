@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
+import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 
 public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
@@ -23,5 +24,45 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     }
 
     public abstract double getMeanSpeed();
+
+    private  boolean blockBarriers = false;
+    /**
+     * Should barriers block when no access limits are given?
+     */
+    public void blockBarriers(boolean blockBarriers) {
+        this.blockBarriers = blockBarriers;
+    }
+
+    @Override
+    public long handleNodeTags(ReaderNode node) {
+        long encoderBit = getEncoderBit();
+        boolean blockFords = isBlockFords();
+
+        boolean blockByDefault = node.hasTag("barrier", blockByDefaultBarriers);
+        if (blockByDefault || node.hasTag("barrier", passByDefaultBarriers)) {
+            boolean locked = false;
+            if (node.hasTag("locked", "yes"))
+                locked = true;
+
+            for (String res : restrictions) {
+                if (!locked && node.hasTag(res, intendedValues))
+                    return 0;
+
+                if (node.hasTag(res, restrictedValues))
+                    return encoderBit;
+            }
+
+            if (blockByDefault || blockBarriers)
+                return encoderBit;
+            return 0;
+        }
+
+        if ((node.hasTag("highway", "ford") || node.hasTag("ford", "yes"))
+                && (blockFords && !node.hasTag(restrictions, intendedValues) || node.hasTag(restrictions, restrictedValues))) {
+            return encoderBit;
+        }
+
+        return 0;
+    }
 
 }

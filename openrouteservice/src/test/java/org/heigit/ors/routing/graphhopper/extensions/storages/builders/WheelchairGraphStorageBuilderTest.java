@@ -1,13 +1,14 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class WheelchairGraphStorageBuilderTest {
     private WheelchairGraphStorageBuilder builder;
@@ -141,8 +142,8 @@ public class WheelchairGraphStorageBuilderTest {
 
         way.setTag("highway", "crossing");
 
-        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
-        HashMap<String, String> tags = new HashMap<>();
+        Map<Integer, Map<String,String>> nodeTags = new HashMap<>();
+        Map<String, String> tags = new HashMap<>();
         tags.put("kerb:height", "0.03");
         nodeTags.put(1, tags);
 
@@ -159,8 +160,8 @@ public class WheelchairGraphStorageBuilderTest {
 
         way.setTag("footway", "crossing");
 
-        HashMap<Integer, HashMap<String,String>> nodeTags = new HashMap<>();
-        HashMap<String, String> tags = new HashMap<>();
+        Map<Integer, Map<String,String>> nodeTags = new HashMap<>();
+        Map<String, String> tags = new HashMap<>();
         tags.put("kerb:height", "0.03");
         nodeTags.put(1, tags);
 

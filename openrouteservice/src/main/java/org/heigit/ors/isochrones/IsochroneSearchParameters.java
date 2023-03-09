@@ -13,13 +13,13 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.RouteSearchParameters;
 
 public class IsochroneSearchParameters {
-    private int travellerId;
+    private final int travellerId;
     private Coordinate location;
     private Boolean reverseDirection = false;
     private TravelRangeType rangeType = TravelRangeType.TIME;

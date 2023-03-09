@@ -20,7 +20,9 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalOSMSpeedInspector;
 import com.graphhopper.reader.osm.conditional.ConditionalParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
@@ -40,7 +42,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     private static final int MEAN_SPEED = 100;
 
     public CarFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speed_bits", 5),
+        this(properties.getInt("speed_bits", 5),
                 properties.getDouble("speed_factor", 5),
                 properties.getBool("turn_costs", false) ? 1 : 0);
 
@@ -55,17 +57,15 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         restrictedValues.add("delivery");
         restrictedValues.add("emergency");
 
-        absoluteBarriers.add("bus_trap");
-        absoluteBarriers.add("sump_buster");
+        blockByDefaultBarriers.add("bus_trap");
+        blockByDefaultBarriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
-
-        init();
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void init(DateRangeParser dateRangeParser) {
+        super.init(dateRangeParser);
         ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
         conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
         setConditionalSpeedInspector(conditionalOSMSpeedInspector);
@@ -75,15 +75,17 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     public EncodingManager.Access getAccess(ReaderWay way) {
         // TODO: Ferries have conditionals, like opening hours or are closed during some time in the year
         String highwayValue = way.getTag("highway");
-        String firstValue = way.getFirstPriorityTag(restrictions);
+        String [] restrictionValues = way.getFirstPriorityTagValues(restrictions);
         if (highwayValue == null) {
             if (way.hasTag("route", ferries)) {
-                if (restrictedValues.contains(firstValue))
-                    return EncodingManager.Access.CAN_SKIP;
-                if (intendedValues.contains(firstValue) ||
-                        // implied default is allowed only if foot and bicycle is not specified:
-                        firstValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
-                    return EncodingManager.Access.FERRY;
+                for (String restrictionValue: restrictionValues) {
+                    if (restrictedValues.contains(restrictionValue))
+                        return EncodingManager.Access.CAN_SKIP;
+                    if (intendedValues.contains(restrictionValue) ||
+                            // implied default is allowed only if foot and bicycle is not specified:
+                            restrictionValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
+                        return EncodingManager.Access.FERRY;
+                }
             }
             return EncodingManager.Access.CAN_SKIP;
         }
@@ -104,11 +106,13 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
-        if (!firstValue.isEmpty()) {
-            if (restrictedValues.contains(firstValue))
-                return isRestrictedWayConditionallyPermitted(way);
-            if (intendedValues.contains(firstValue))
-                return EncodingManager.Access.WAY;
+        for (String restrictionValue: restrictionValues) {
+            if (!restrictionValue.isEmpty()) {
+                if (restrictedValues.contains(restrictionValue))
+                    return isRestrictedWayConditionallyPermitted(way);
+                if (intendedValues.contains(restrictionValue))
+                    return EncodingManager.Access.WAY;
+            }
         }
 
         // do not drive street cars into fords
@@ -140,7 +144,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public int getVersion() {
-        return 1;
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.CAR;
     }
 }

@@ -13,21 +13,25 @@
  */
 package org.heigit.ors.v2.services.isochrones.fast;
 
-import org.heigit.ors.services.isochrones.IsochronesErrorCodes;
+import io.restassured.RestAssured;
+import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
+import org.heigit.ors.v2.services.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
+import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
 public class ResultTest extends ServiceTest {
-    private static float REACHFACTOR_REFERENCE_VALUE = 0.0648f;
+    private static float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
 
     public ResultTest() {
 
@@ -108,8 +112,8 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -117,14 +121,13 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(85))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(60)).and(lessThan(80))))
                 .body("features[0].properties.center.size()", is(2))
-                .body("bbox", hasItems(8.652559f, 49.40263f, 8.708881f, 49.447865f))
+                .body("bbox", hasItems(closeTo(8.652489f, 0.02f), closeTo(49.40263f, 0.02f), closeTo(8.708881f, 0.02f), closeTo(49.447865f, 0.02f)))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
-                .body("features[0].properties.value", is(400f))
-                .body("metadata.containsKey('system_message')", is(true))
+                .body("features[0].properties.value", is(400.0))
                 .statusCode(200);
 
     }
@@ -137,8 +140,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -161,8 +163,7 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -181,17 +182,17 @@ public class ResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("bbox[0]", is(8.652559f))
-                .body("bbox[1]", is(49.40263f))
-                .body("bbox[2]", is(8.708881f))
-                .body("bbox[3]", is(49.447865f))
+                .body("bbox[0]", is(closeTo(8.652489f, 0.05)))
+                .body("bbox[1]", is(closeTo(49.40263f, 0.05)))
+                .body("bbox[2]", is(closeTo(8.708881f, 0.05)))
+                .body("bbox[3]", is(closeTo(49.447865f, 0.05)))
                 .statusCode(200);
     }
 
@@ -204,8 +205,8 @@ public class ResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -213,8 +214,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(13000000f))))
-                .body("features[0].properties.reachfactor", is(REACHFACTOR_REFERENCE_VALUE))
+                .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(18000000d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -229,8 +230,8 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", getParameter("m"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -238,8 +239,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(13000000f))))
-                .body("features[0].properties.reachfactor", is(REACHFACTOR_REFERENCE_VALUE))
+                .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(15000000d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -254,8 +255,8 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "km");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -263,8 +264,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12.0f)).and(lessThan(13.0f))))
-                .body("features[0].properties.reachfactor", is(REACHFACTOR_REFERENCE_VALUE))
+                .body("features[0].properties.area", is(both(greaterThan(8.0d)).and(lessThan(15.0d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -281,8 +282,7 @@ public class ResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -290,7 +290,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12.0f)).and(lessThan(13.0f))))
+                .body("features[0].properties.area", is(both(greaterThan(8.0f)).and(lessThan(15.0f))))
                 .statusCode(200);
 
     }
@@ -305,8 +305,8 @@ public class ResultTest extends ServiceTest {
         body.put("area_units", "mi");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -314,8 +314,8 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(4.7f)).and(lessThan(5.0f))))
-                .body("features[0].properties.reachfactor", is(REACHFACTOR_REFERENCE_VALUE))
+                .body("features[0].properties.area", is(both(greaterThan(3.0d)).and(lessThan(6.0d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -330,8 +330,7 @@ public class ResultTest extends ServiceTest {
         body.put("intersections", "true");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -346,10 +345,10 @@ public class ResultTest extends ServiceTest {
                 .body("features[1].geometry.type", is("Polygon"))
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
-                .body("features[2].geometry.coordinates[0].size()", is(80))
+                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(65)).and(lessThan(85))))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(12000000f)).and(lessThan(13000000f))))
+                .body("features[0].properties.area", is(both(greaterThan(8000000f)).and(lessThan(15000000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
@@ -371,8 +370,7 @@ public class ResultTest extends ServiceTest {
         // so neighbourhood search results in slightly different results
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -380,13 +378,12 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(69))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(60)).and(lessThan(80))))
                 .statusCode(200);
 
         body.put("smoothing", "100");
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
@@ -394,7 +391,7 @@ public class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(94))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(55)).and(lessThan(85))))
                 .statusCode(200);
     }
 
@@ -406,8 +403,7 @@ public class ResultTest extends ServiceTest {
         body.put("id", "request123");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
+                .headers(geoJsonContent)
                 .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()

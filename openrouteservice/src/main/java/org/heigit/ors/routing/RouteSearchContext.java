@@ -18,13 +18,17 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.util.PMap;
 
 public class RouteSearchContext {
-	private GraphHopper graphhopper;
-	private FlagEncoder encoder;
+	private final GraphHopper graphhopper;
+	private final FlagEncoder encoder;
+	private final String profileName;
+	private final String profileNameCH;
 	private PMap properties;
 
-	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder) {
+	public RouteSearchContext(GraphHopper gh, FlagEncoder encoder, String profileName, String profileNameCH) {
 		graphhopper = gh;
 		this.encoder = encoder;
+		this.profileName = profileName;
+		this.profileNameCH = profileNameCH;
 	}
 
 	public FlagEncoder getEncoder() {
@@ -43,5 +47,13 @@ public class RouteSearchContext {
 	public void setProperties(PMap value)
 	{
 		properties = value;
+	}
+
+	public String profileName() {
+		return profileName;
+	}
+
+	public String profileNameCH() {
+		return profileNameCH;
 	}
 }

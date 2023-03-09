@@ -29,7 +29,7 @@ public class SimpleRouteExtraInfoBuilder extends RouteExtraInfoBuilder {
 	}
 
 	public void addSegment(double value, long valueIndex, PointList geom, double dist, boolean lastEdge) {
-		int nPoints = geom.getSize() - 1;
+		int nPoints = geom.size() - 1;
 		if ((prevValue != Double.MAX_VALUE && value != prevValue) || (lastEdge)) {
 			RouteSegmentItem item = null;
 			if (lastEdge) {

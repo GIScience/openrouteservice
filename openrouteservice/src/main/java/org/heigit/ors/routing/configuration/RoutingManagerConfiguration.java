@@ -15,13 +15,12 @@ package org.heigit.ors.routing.configuration;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
-import com.vividsolutions.jts.geom.Envelope;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
+import org.locationtech.jts.geom.Envelope;
+import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,7 @@ public class RoutingManagerConfiguration  {
 	private RouteProfileConfiguration[] profiles;
 
 	private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String,Object> defaultFastIsochroneParams, RouteProfileConfiguration profile){
-		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.profile-" + profile.getName();
+		String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles." + profile.getName();
 		Map<String, Object> profileParams = IsochronesServiceSettings.getParametersMap(profileRef, true);
 
 		if (profileParams == null)
@@ -68,7 +67,7 @@ public class RoutingManagerConfiguration  {
 		profile.setIsochronePreparationOpts(ConfigFactory.parseString(profileParams.toString()));
 	}
 
-	public static RoutingManagerConfiguration loadFromFile(String path) throws IOException, Exception {
+	public static RoutingManagerConfiguration loadFromFile(String path) throws Exception {
 		RoutingManagerConfiguration gc = new RoutingManagerConfiguration();
 
 		if (!Helper.isEmpty(path)) {

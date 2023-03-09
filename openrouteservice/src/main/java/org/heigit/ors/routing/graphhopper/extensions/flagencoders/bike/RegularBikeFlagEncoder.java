@@ -65,19 +65,12 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        absoluteBarriers.add("kissing_gate");
+        blockByDefaultBarriers.add("kissing_gate");
         setSpecificClassBicycle("touring");
-
-        init();
     }
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    public int getVersion() {
-        return 2;
     }
 
     @Override

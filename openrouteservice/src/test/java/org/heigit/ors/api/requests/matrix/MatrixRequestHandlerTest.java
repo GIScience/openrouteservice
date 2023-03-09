@@ -1,6 +1,6 @@
 package org.heigit.ors.api.requests.matrix;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.DistanceUnit;
@@ -11,7 +11,7 @@ import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.util.HelperFunctions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,18 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatrixRequestHandlerTest {
-    private MatrixRequest bareMatrixRequest = new MatrixRequest();
-    private MatrixRequest matrixRequest = new MatrixRequest();
-    private Coordinate[] coordinates = new Coordinate[3];
-    private Double[][] bareCoordinates = new Double[3][];
-    private Double[] bareCoordinate1 = new Double[2];
-    private Double[] bareCoordinate2 = new Double[2];
-    private Double[] bareCoordinate3 = new Double[2];
-    private List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
+    private final MatrixRequest bareMatrixRequest = new MatrixRequest();
+    private final MatrixRequest matrixRequest = new MatrixRequest();
+    private final Coordinate[] coordinates = new Coordinate[3];
+    private final Double[][] bareCoordinates = new Double[3][];
+    private final Double[] bareCoordinate1 = new Double[2];
+    private final Double[] bareCoordinate2 = new Double[2];
+    private final Double[] bareCoordinate3 = new Double[2];
+    private final List<List<Double>> listOfBareCoordinatesList = new ArrayList<>();
 
-    private Coordinate coordinate1 = new Coordinate();
-    private Coordinate coordinate2 = new Coordinate();
-    private Coordinate coordinate3 = new Coordinate();
+    private final Coordinate coordinate1 = new Coordinate();
+    private final Coordinate coordinate2 = new Coordinate();
+    private final Coordinate coordinate3 = new Coordinate();
 
     private List<List<Double>> minimalLocations;
     private int maximumRoutes;

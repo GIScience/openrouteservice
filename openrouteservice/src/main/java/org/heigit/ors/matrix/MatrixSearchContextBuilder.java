@@ -1,92 +1,75 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.matrix;
 
-import com.graphhopper.routing.QueryGraph;
+import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.querygraph.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
+import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.QueryResult;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint3D;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.exceptions.PointNotFoundException;
 
 import java.util.*;
 
 public class MatrixSearchContextBuilder {
+	private final boolean resolveNames;
+	private final LocationIndex locIndex;
+	private final EdgeFilter edgeFilter;
 	private Map<Coordinate, LocationEntry> locationCache;
-	private boolean resolveNames;
-	private LocationIndex locIndex;
-	private EdgeFilter edgeFilter;
+	private GraphHopperStorage graphHopperStorage;
+	private Weighting weighting;
 
-	class LocationEntry {
-		private int nodeId;
-		private ResolvedLocation location;
-		private QueryResult queryResult;
-
-		public int getNodeId() {
-			return nodeId;
-		}
-
-		public void setNodeId(int nodeId) {
-			this.nodeId = nodeId;
-		}
-
-		public ResolvedLocation getLocation() {
-			return location;
-		}
-
-		public void setLocation(ResolvedLocation location) {
-			this.location = location;
-		}
-
-		public QueryResult getQueryResult() {
-			return queryResult;
-		}
-
-		public void setQueryResult(QueryResult queryResult) {
-			this.queryResult = queryResult;
-		}
-	}
-
-	public MatrixSearchContextBuilder(LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames) {
+	public MatrixSearchContextBuilder(GraphHopperStorage graphHopperStorage, LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames) {
 		locIndex = index;
 		this.edgeFilter = edgeFilter;
 		this.resolveNames = resolveNames;
+		this.graphHopperStorage = graphHopperStorage;
 	}
 
-	public MatrixSearchContext create(Graph graph, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
+	public MatrixSearchContext create(Graph graph, RoutingCHGraph chGraph, Weighting weighting, String profileName, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
 		if (locationCache == null)
 			locationCache = new HashMap<>();
 		else
 			locationCache.clear();
 
 		checkBounds(graph.getBounds(), sources, destinations);
+		this.weighting = weighting;
 
-		QueryGraph queryGraph = new QueryGraph(graph);
-		List<QueryResult> queryResults = new ArrayList<>(sources.length + destinations.length);
-		
-		resolveLocations(sources, queryResults, maxSearchRadius);
-		resolveLocations(destinations, queryResults, maxSearchRadius);
+		List<Snap> snaps = new ArrayList<>(sources.length + destinations.length);
 
-		queryGraph.lookup(queryResults);
-		
+		resolveLocations(profileName, sources, snaps, maxSearchRadius);
+		resolveLocations(profileName, destinations, snaps, maxSearchRadius);
+
+		QueryGraph queryGraph = QueryGraph.create(graph, snaps);
+		RoutingCHGraph routingCHGraph = null;
+		if (chGraph != null) {
+			routingCHGraph = new QueryRoutingCHGraph(chGraph, queryGraph);
+		}
+
 		MatrixLocations mlSources = createLocations(sources);
 		MatrixLocations mlDestinations = createLocations(destinations);
-		
-		return new  MatrixSearchContext(queryGraph, mlSources, mlDestinations);
+
+		return new MatrixSearchContext(queryGraph, routingCHGraph, mlSources, mlDestinations);
 	}
 
 	private void checkBounds(BBox bounds, Coordinate[] sources, Coordinate[] destinations) throws PointNotFoundException {
@@ -123,27 +106,27 @@ public class MatrixSearchContextBuilder {
 
 	private int[] pointIdsOutOfBounds(BBox bounds, Coordinate[] coords) {
 		List<Integer> ids = new ArrayList<>();
-		for (int i=0; i<coords.length; i++) {
+		for (int i = 0; i < coords.length; i++) {
 			Coordinate c = coords[i];
 			if (!bounds.contains(c.y, c.x)) {
 				ids.add(i);
 			}
 		}
 		int[] idsArray = new int[ids.size()];
-		for(int i=0; i<ids.size(); i++) {
+		for (int i = 0; i < ids.size(); i++) {
 			idsArray[i] = ids.get(i);
 		}
 		return idsArray;
 	}
-	
-	private void resolveLocations(Coordinate[] coords, List<QueryResult> queryResults, double maxSearchRadius) {
+
+	private void resolveLocations(String profileName, Coordinate[] coords, List<Snap> queryResults, double maxSearchRadius) {
 		for (Coordinate p : coords) {
 			LocationEntry ld = locationCache.get(p);
 			if (ld == null) {
-				QueryResult qr = locIndex.findClosest(p.y, p.x, edgeFilter);
+				Snap qr = locIndex.findClosest(p.y, p.x, getSnapFilter(profileName));
 
 				ld = new LocationEntry();
-				ld.queryResult = qr;
+				ld.snap = qr;
 
 				if (qr.isValid() && qr.getQueryDistance() < maxSearchRadius) {
 					GHPoint3D pt = qr.getSnappedPoint();
@@ -158,17 +141,48 @@ public class MatrixSearchContextBuilder {
 			}
 		}
 	}
- 	
+
+	protected EdgeFilter getSnapFilter(String profileName) {
+		EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, this.graphHopperStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profileName)));
+		//TODO when Matrix supports additional parameters such as avoidables in the future, the corresponding filters need to be added here for snapping
+//		if (edgeFilterFactory != null)
+//			return edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage, defaultSnapFilter);
+		return defaultSnapFilter;
+	}
+
+
 	private MatrixLocations createLocations(Coordinate[] coords) throws Exception {
 		MatrixLocations mlRes = new MatrixLocations(coords.length);
 		for (int i = 0; i < coords.length; i++) {
 			Coordinate p = coords[i];
 			LocationEntry ld = locationCache.get(p);
 			if (ld != null)
-				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.queryResult.getClosestNode(), ld.location);
+				mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.snap.getClosestNode(), ld.location);
 			else
 				throw new Exception("Oops!");
 		}
 		return mlRes;
+	}
+
+	class LocationEntry {
+		private int nodeId;
+		private ResolvedLocation location;
+		private Snap snap;
+
+		public int getNodeId() {
+			return nodeId;
+		}
+
+		public void setNodeId(int nodeId) {
+			this.nodeId = nodeId;
+		}
+
+		public ResolvedLocation getLocation() {
+			return location;
+		}
+
+		public void setLocation(ResolvedLocation location) {
+			this.location = location;
+		}
 	}
 }

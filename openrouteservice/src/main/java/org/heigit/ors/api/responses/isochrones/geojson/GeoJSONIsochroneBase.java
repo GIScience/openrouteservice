@@ -17,8 +17,8 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.geojson.GeometryJSON;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.simple.JSONObject;

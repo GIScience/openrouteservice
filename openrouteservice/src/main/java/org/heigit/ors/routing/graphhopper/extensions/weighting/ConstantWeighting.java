@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HintsMap;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
@@ -21,23 +20,38 @@ public class ConstantWeighting implements Weighting {
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId) {
+    public double calcEdgeWeight(EdgeIteratorState edgeIteratorState, boolean reverse) {
         return weight;
     }
 
     @Override
-    public double calcWeight(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcWeight(edgeIteratorState, reverse, prevOrNextEdgeId);
+    public double calcEdgeWeight(EdgeIteratorState edgeIteratorState, boolean reverse, long edgeEnterTime) {
+        return calcEdgeWeight(edgeIteratorState, reverse);
     }
 
     @Override
-    public long calcMillis(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId) {
+    public long calcEdgeMillis(EdgeIteratorState edgeIteratorState, boolean reverse) {
         return millis;
     }
 
     @Override
-    public long calcMillis(EdgeIteratorState edgeIteratorState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-        return calcMillis(edgeIteratorState, reverse, prevOrNextEdgeId);
+    public long calcEdgeMillis(EdgeIteratorState edgeIteratorState, boolean reverse, long edgeEnterTime) {
+        return calcEdgeMillis(edgeIteratorState, reverse);
+    }
+
+    @Override
+    public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
+        return weight;
+    }
+
+    @Override
+    public long calcTurnMillis(int inEdge, int viaNode, int outEdge) {
+        return millis;
+    }
+
+    @Override
+    public boolean hasTurnCosts() {
+        return false;
     }
 
     @Override
@@ -48,11 +62,6 @@ public class ConstantWeighting implements Weighting {
     @Override
     public String getName() {
         return "constant(" + weight + ")";
-    }
-
-    @Override
-    public boolean matches(HintsMap hintsMap) {
-        return false;
     }
 
     @Override

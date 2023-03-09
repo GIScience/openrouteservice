@@ -13,20 +13,21 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.coll.GHTreeMapComposed;
-import com.graphhopper.routing.*;
-import com.graphhopper.routing.ch.PreparationWeighting;
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntContainer;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.predicates.IntPredicate;
+import com.graphhopper.coll.MinHeapWithUpdate;
+import com.graphhopper.routing.ch.*;
 import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
-import org.apache.log4j.Logger;
-import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 
-import java.util.*;
-
-import static com.graphhopper.util.Parameters.Algorithms.*;
+import static com.graphhopper.routing.ch.CHParameters.*;
+import static com.graphhopper.util.Helper.getMemInfo;
 
 /**
  * Prepare the core graph. The core graph is a contraction hierarchies graph in which specified parts are not contracted
@@ -37,551 +38,151 @@ import static com.graphhopper.util.Parameters.Algorithms.*;
  * @author Peter Karich
  * @author Hendrik Leuschner, Andrzej Oles
  */
-public class PrepareCore extends AbstractAlgoPreparation implements RoutingAlgorithmFactory {
-    private static final Logger LOGGER = Logger.getLogger(PrepareCore.class);
-    private final CHProfile chProfile;
-    private final PreparationWeighting prepareWeighting;
+public class PrepareCore extends PrepareContractionHierarchies {
     private final EdgeFilter restrictionFilter;
-    private final GraphHopperStorage ghStorage;
-    private final CHGraphImpl prepareGraph;
-    private final Random rand = new Random(123);
-    private final StopWatch allSW = new StopWatch();
-    private final Weighting weighting;
-    private final FlagEncoder flagEncoder;
-    private final Directory dir;
-    private CHEdgeExplorer restrictionExplorer;
-
-    private CHEdgeExplorer vehicleAllExplorer;
-    private CHEdgeExplorer vehicleAllTmpExplorer;
-    private EdgeExplorer inEdgeExplorer;
-    private EdgeExplorer outEdgeExplorer;
-    private CHEdgeExplorer calcPrioAllExplorer;
-    private int maxLevel;
-    // the most important nodes comes last
-    private GHTreeMapComposed sortedNodes;
-    private int[] oldPriorities;
     private boolean [] restrictedNodes;
     private int restrictedNodesCount = 0;
-    private int turnRestrictedNodesCount = 0;
 
-    private double meanDegree;
-    private int periodicUpdatesPercentage = 10;
-    private int lastNodesLazyUpdatePercentage = 10;
-    private int neighborUpdatePercentage = 90;
-    private double nodesContractedPercentage = 99;//TODO: needs further investigation and fine tuning
-    private double logMessagesPercentage = 20;
-    private double dijkstraTime;
-    private double periodTime;
-    private double lazyTime;
-    private double neighborTime;
+    private static int nodesContractedPercentage = 99;
 
-    private CoreNodeContractor nodeContractor;
-    private final TurnCostExtension turnCostExtension;
+    IntPredicate isCoreNode = new IntPredicate() {
+        public boolean apply(int node) {
+            return restrictedNodes[node];
+        }
+    };
 
-    private static final int RESTRICTION_PRIORITY = Integer.MAX_VALUE;
-
-    public PrepareCore(Directory dir, GraphHopperStorage ghStorage, CHGraph chGraph, EdgeFilter restrictionFilter) {
-        this.ghStorage = ghStorage;
-        this.prepareGraph = (CHGraphImpl) chGraph;
-        this.chProfile = chGraph.getCHProfile();
-        this.weighting = chProfile.getWeighting();
-        this.flagEncoder = weighting.getFlagEncoder();
+    public PrepareCore(GraphHopperStorage ghStorage, CHConfig chConfig, EdgeFilter restrictionFilter) {
+        super(ghStorage, chConfig);
+        PMap pMap = new PMap(CONTRACTED_NODES+"="+nodesContractedPercentage);
+        setParams(pMap);
         this.restrictionFilter = restrictionFilter;
-        prepareWeighting = new PreparationWeighting(weighting);
-        this.dir = dir;
-        turnCostExtension = GraphStorageUtils.getGraphExtension(ghStorage, TurnCostExtension.class);
-    }
-
-    /**
-     * The higher the values are the longer the preparation takes but the less shortcuts are
-     * produced.
-     * <p>
-     *
-     * @param periodicUpdates specifies how often periodic updates will happen. Use something less
-     *                        than 10.
-     */
-    public PrepareCore setPeriodicUpdates(int periodicUpdates) {
-        if (periodicUpdates < 0)
-            return this;
-        if (periodicUpdates > 100)
-            throw new IllegalArgumentException("periodicUpdates has to be in [0, 100], to disable it use 0");
-
-        this.periodicUpdatesPercentage = periodicUpdates;
-        return this;
-    }
-
-    /**
-     * @param lazyUpdates specifies when lazy updates will happen, measured relative to all existing
-     *                    nodes. 100 means always.
-     */
-    public PrepareCore setLazyUpdates(int lazyUpdates) {
-        if (lazyUpdates < 0)
-            return this;
-
-        if (lazyUpdates > 100)
-            throw new IllegalArgumentException("lazyUpdates has to be in [0, 100], to disable it use 0");
-
-        this.lastNodesLazyUpdatePercentage = lazyUpdates;
-        return this;
-    }
-
-    /**
-     * @param neighborUpdates specifies how often neighbor updates will happen. 100 means always.
-     */
-    public PrepareCore setNeighborUpdates(int neighborUpdates) {
-        if (neighborUpdates < 0)
-            return this;
-
-        if (neighborUpdates > 100)
-            throw new IllegalArgumentException("neighborUpdates has to be in [0, 100], to disable it use 0");
-
-        this.neighborUpdatePercentage = neighborUpdates;
-        return this;
-    }
-
-    /**
-     * Specifies how often a log message should be printed. Specify something around 20 (20% of the
-     * start nodes).
-     */
-    public PrepareCore setLogMessages(double logMessages) {
-        if (logMessages >= 0)
-            this.logMessagesPercentage = logMessages;
-        return this;
-    }
-
-    /**
-     * Define how many nodes (percentage) should be contracted. Less nodes means slower query but
-     * faster contraction duration.
-     */
-    public PrepareCore setContractedNodes(double nodesContracted) {
-        if (nodesContracted < 0)
-            return this;
-
-        if (nodesContracted > 100)
-            throw new IllegalArgumentException("setNodesContracted can be 100% maximum");
-
-        this.nodesContractedPercentage = nodesContracted;
-        return this;
     }
 
     @Override
-    public void doSpecificWork() {
-        if (prepareWeighting == null)
-            throw new IllegalStateException("No weight calculation set.");
-
-        allSW.start();
-
-        initFromGraph();
-        if (!prepareNodes())
-            return;
-        contractNodes();
+    public CHStorage getCHStore (CHConfig chConfig) {
+        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage) {
+            ORSGraphHopperStorage ghStorage = (ORSGraphHopperStorage) graph;
+            CHStorage chStore = ghStorage.getCoreStore(chConfig.getName());
+            if (chStore == null)
+                throw new IllegalArgumentException("There is no Core graph '" + chConfig.getName() + "', existing: " + ghStorage.getCoreGraphNames());
+            return chStore;
+        }
+        return super.getCHStore(chConfig);
     }
 
-    boolean prepareNodes() {
-        int nodes = prepareGraph.getNodes();
-        
-        for (int node = 0; node < nodes; node++) {
-            prepareGraph.setLevel(node, maxLevel);
+    @Override
+    public void initFromGraph() {
+        // todo: this whole chain of initFromGraph() methods is just needed because PrepareContractionHierarchies does
+        // not simply prepare contraction hierarchies, but instead it also serves as some kind of 'container' to give
+        // access to the preparations in the GraphHopper class. If this was not so we could make this a lot cleaner here,
+        // declare variables final and would not need all these close() methods...
+        CorePreparationGraph prepareGraph;
+        if (chConfig.getTraversalMode().isEdgeBased()) {
+            TurnCostStorage turnCostStorage = graph.getTurnCostStorage();
+            if (turnCostStorage == null) {
+                throw new IllegalArgumentException("For edge-based CH you need a turn cost storage");
+            }
+        }
+        logger.info("Creating Core graph, {}", getMemInfo());
+        prepareGraph = CorePreparationGraph.nodeBased(graph.getNodes(), graph.getEdges());
+        nodeContractor = new CoreNodeContractor(prepareGraph, chBuilder, pMap);
+        maxLevel = nodes;
+        // we need a memory-efficient priority queue with an efficient update method
+        // TreeMap is not memory-efficient and PriorityQueue does not support an efficient update method
+        // (and is not memory efficient either)
+        sortedNodes = new MinHeapWithUpdate(prepareGraph.getNodes());
+        logger.info("Building Core graph, {}", getMemInfo());
+        StopWatch sw = new StopWatch().start();
+        Weighting weighting = new RestrictedEdgesWeighting(chConfig.getWeighting(), restrictionFilter);
+        buildFromGraph(prepareGraph, graph, weighting);
+        logger.info("Finished building Core graph, took: {}s, {}", sw.stop().getSeconds(), getMemInfo());
+        nodeContractor.initFromGraph();
+        postInit(prepareGraph);
+    }
 
-            CHEdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);
-            while (edgeIterator.next()) {
-                if (edgeIterator.isShortcut())
-                    throw new IllegalStateException("No shortcuts are expected on an uncontracted graph");
+    public void postInit(CHPreparationGraph prepareGraph) {
+        restrictedNodes = new boolean[nodes];
+        EdgeExplorer restrictionExplorer;
+        restrictionExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES);//FIXME: each edge is probably unnecessarily visited twice
+
+        for (int node = 0; node < nodes; node++) {
+            EdgeIterator edgeIterator = restrictionExplorer.setBaseNode(node);
+            while (edgeIterator.next())
                 if (!restrictionFilter.accept(edgeIterator))
                     restrictedNodes[node] = restrictedNodes[edgeIterator.getAdjNode()] = true;
-            }
         }
 
-        for (int node = 0; node < nodes; node++) {
-            int priority = oldPriorities[node] = calculatePriority(node);
-            sortedNodes.insert(node, priority);
-            if (priority == RESTRICTION_PRIORITY) restrictedNodesCount++;
+        for (int node = 0; node < nodes; node++)
+            if (restrictedNodes[node])
+                restrictedNodesCount++;
+    }
+
+    private class RestrictedEdgesWeighting extends AbstractAdjustedWeighting {
+        private final EdgeFilter restrictionFilter;
+
+        RestrictedEdgesWeighting(Weighting weighting, EdgeFilter restrictionFilter) {
+            super(weighting);
+            this.restrictionFilter = restrictionFilter;
         }
 
-        return !sortedNodes.isEmpty();
-    }
-
-    void contractNodes() {
-        meanDegree = (double)prepareGraph.getAllEdges().length() / prepareGraph.getNodes();
-        int level = 1;
-        long counter = 0;
-        int initSize = sortedNodes.getSize();
-        long logSize = Math.round(Math.max(10, (double)sortedNodes.getSize() / 100 * logMessagesPercentage));
-        if (logMessagesPercentage == 0)
-            logSize = Integer.MAX_VALUE;
-
-        // preparation takes longer but queries are slightly faster with preparation
-        // => enable it but call not so often
-        boolean periodicUpdate = true;
-        StopWatch periodSW = new StopWatch();
-        int updateCounter = 0;
-        long periodicUpdatesCount = Math.round(Math.max(10, sortedNodes.getSize() / 100d * periodicUpdatesPercentage));
-        if (periodicUpdatesPercentage == 0)
-            periodicUpdate = false;
-
-        // disable lazy updates for last x percentage of nodes as preparation is then a lot slower
-        // and query time does not really benefit
-        long lastNodesLazyUpdates = Math.round(sortedNodes.getSize() / 100d * lastNodesLazyUpdatePercentage);
-
-        // according to paper "Polynomial-time Construction of Contraction Hierarchies for Multi-criteria Objectives" by Funke and Storandt
-        // we don't need to wait for all nodes to be contracted
-
-        //Avoid contracting core nodes  +  the additional percentage
-        long nodesToAvoidContract = restrictedNodesCount + Math.round((sortedNodes.getSize() - restrictedNodesCount) * ((100 - nodesContractedPercentage) / 100));
-        StopWatch lazySW = new StopWatch();
-
-        // Recompute priority of uncontracted neighbors.
-        // Without neighbor updates preparation is faster but we need them
-        // to slightly improve query time. Also if not applied too often it decreases the shortcut number.
-        boolean neighborUpdate = true;
-        if (neighborUpdatePercentage == 0)
-            neighborUpdate = false;
-
-        StopWatch neighborSW = new StopWatch();
-        while (!sortedNodes.isEmpty()) {
-            // periodically update priorities of ALL nodes
-            if (periodicUpdate && counter > 0 && counter % periodicUpdatesCount == 0) {
-                periodSW.start();
-                sortedNodes.clear();
-                int len = prepareGraph.getNodes();
-                for (int node = 0; node < len; node++) {
-                    if (isContracted(node))
-                        continue;
-                    int priority = oldPriorities[node];
-                    if (priority != RESTRICTION_PRIORITY) {
-                        priority = oldPriorities[node] = calculatePriority(node);
-                    }
-                    sortedNodes.insert(node, priority);
-                }
-                periodSW.stop();
-                updateCounter++;
-                if (sortedNodes.isEmpty())
-                    throw new IllegalStateException(
-                            "Cannot prepare as no unprepared nodes where found. Called preparation twice?");
-            }
-
-            if (counter % logSize == 0) {
-                dijkstraTime += nodeContractor.getDijkstraSeconds();
-                periodTime += periodSW.getSeconds();
-                lazyTime += lazySW.getSeconds();
-                neighborTime += neighborSW.getSeconds();
-
-                LOGGER.info(Helper.nf(counter) + ", updates:" + updateCounter
-                        + ", nodes: " + Helper.nf(sortedNodes.getSize())
-                        + ", shortcuts:" + Helper.nf(nodeContractor.getAddedShortcutsCount())
-                        + ", dijkstras:" + Helper.nf(nodeContractor.getDijkstraCount())
-                        + ", " + getTimesAsString()
-                        + ", meanDegree:" + (long) meanDegree
-                        + ", algo:" + nodeContractor.getPrepareAlgoMemoryUsage()
-                        + ", " + Helper.getMemInfo());
-
-                nodeContractor.resetDijkstraTime();
-                periodSW = new StopWatch();
-                lazySW = new StopWatch();
-                neighborSW = new StopWatch();
-            }
-
-            counter++;
-            int polledNode = sortedNodes.pollKey();
-
-            if (sortedNodes.getSize() < nodesToAvoidContract) {
-                // skipped nodes are already set to maxLevel
-                prepareGraph.setCoreNodes(sortedNodes.getSize() + 1);
-                //Disconnect all shortcuts that lead out of the core
-                while (!sortedNodes.isEmpty()) {
-                    CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
-                    while (iter.next()) {
-                        if (isCoreNode(iter.getAdjNode()))
-                            continue;
-                        prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
-                    }
-                    setTurnRestrictedLevel(polledNode);
-                    polledNode = sortedNodes.pollKey();
-                }
-                break;
-            }
-
-            if (!sortedNodes.isEmpty() && sortedNodes.getSize() < lastNodesLazyUpdates) {
-                lazySW.start();
-                int priority = oldPriorities[polledNode] = calculatePriority(polledNode);
-                if (priority > sortedNodes.peekValue()) {
-                    // current node got more important => insert as new value and contract it later
-                    sortedNodes.insert(polledNode, priority);
-                    lazySW.stop();
-                    continue;
-                }
-                lazySW.stop();
-            }
-
-            // contract node v!
-            nodeContractor.setMaxVisitedNodes(getMaxVisitedNodesEstimate());
-            long degree = nodeContractor.contractNode(polledNode);
-            // put weight factor on meanDegree instead of taking the average => meanDegree is more stable
-            meanDegree = (meanDegree * 2 + degree) / 3;
-            prepareGraph.setLevel(polledNode, level);
-            level++;
-
-            CHEdgeIterator iter = vehicleAllExplorer.setBaseNode(polledNode);
-            while (iter.next()) {
-
-                if (Thread.currentThread().isInterrupted()) {
-                    throw new RuntimeException("Thread was interrupted");
-                }
-
-                int nn = iter.getAdjNode();
-                if (isContracted(nn))
-                    continue;
-
-                if (neighborUpdate && rand.nextInt(100) < neighborUpdatePercentage) {
-                    neighborSW.start();
-                    int oldPrio = oldPriorities[nn];
-                    int priority = oldPriorities[nn] = calculatePriority(nn);
-                    if (priority != oldPrio)
-                        sortedNodes.update(nn, oldPrio, priority);
-
-                    neighborSW.stop();
-                }
-
-                // Hendrik: PHAST algorithm does not work properly with removed shortcuts
-                prepareGraph.disconnect(vehicleAllTmpExplorer, iter);
-            }
+        public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
+            if (restrictionFilter.accept(edgeState))
+                return superWeighting.calcEdgeWeight(edgeState, reverse);
+            else
+                return Double.POSITIVE_INFINITY;
         }
 
-        // Preparation works only once so we can release temporary data.
-        // The preparation object itself has to be intact to create the algorithm.
-        close();
-
-        dijkstraTime += nodeContractor.getDijkstraSeconds();
-        periodTime += periodSW.getSeconds();
-        lazyTime += lazySW.getSeconds();
-        neighborTime += neighborSW.getSeconds();
-        LOGGER.info("took:" + (int) allSW.stop().getSeconds()
-                + ", new shortcuts: " + Helper.nf(nodeContractor.getAddedShortcutsCount())
-                + ", " + prepareWeighting
-                + ", dijkstras:" + nodeContractor.getDijkstraCount()
-                + ", " + getTimesAsString()
-                + ", meanDegree:" + (long) meanDegree
-                + ", initSize:" + initSize
-                + ", periodic:" + periodicUpdatesPercentage
-                + ", lazy:" + lastNodesLazyUpdatePercentage
-                + ", neighbor:" + neighborUpdatePercentage
-                + ", " + Helper.getMemInfo());
-    }
-
-    private boolean isContracted(int node) {
-        return prepareGraph.getLevel(node) < maxLevel;
-    }
-
-    private boolean isCoreNode(int node) {
-        return prepareGraph.getLevel(node) >= maxLevel;
-    }
-
-    private void setTurnRestrictedLevel(int polledNode) {
-        EdgeIterator edge1 = inEdgeExplorer.setBaseNode(polledNode);
-        if (turnCostExtension != null) {
-            while (edge1.next()) {
-                EdgeIterator edge2 = outEdgeExplorer.setBaseNode(polledNode);
-                while (edge2.next()) {
-                    long turnFlags = turnCostExtension.getTurnCostFlags(edge1.getEdge(), polledNode, edge2.getEdge());
-                    if (flagEncoder.isTurnRestricted(turnFlags)) {
-                        prepareGraph.setLevel(polledNode, maxLevel + 1);
-                        turnRestrictedNodesCount++;
-                    }
-                }
-            }
+        public String getName() {
+            return this.superWeighting.getName();
         }
     }
 
-    public double getLazyTime() {
-        return lazyTime;
-    }
-
-    public double getPeriodTime() {
-        return periodTime;
-    }
-
-    public double getDijkstraTime() {
-        return dijkstraTime;
-    }
-
-    public double getNeighborTime() {
-        return neighborTime;
-    }
-
-    public Weighting getWeighting() {
-        return chProfile.getWeighting();
-    }
-
-    public CHProfile getCHProfile() {
-        return chProfile;
-    }
-
-    private String getTimesAsString() {
-        return "t(dijk):" + Helper.round2(dijkstraTime) + ", t(period):" + Helper.round2(periodTime) + ", t(lazy):"
-                + Helper.round2(lazyTime) + ", t(neighbor):" + Helper.round2(neighborTime);
-    }
-
-
-    /**
-     * Calculates the priority of adjNode v without changing the graph. Warning: the calculated
-     * priority must NOT depend on priority(v) and therefor findShortcuts should also not depend on
-     * the priority(v). Otherwise updating the priority before contracting in contractNodes() could
-     * lead to a slowish or even endless loop.
-     */
-    int calculatePriority(int v) {
-        if (restrictedNodes[v])
-            return RESTRICTION_PRIORITY;
-
-        nodeContractor.setMaxVisitedNodes(getMaxVisitedNodesEstimate());
-        CoreNodeContractor.CalcShortcutsResult calcShortcutsResult = nodeContractor.calcShortcutCount(v);
-
-        // # huge influence: the bigger the less shortcuts gets created and the faster is the preparation
-        //
-        // every adjNode has an 'original edge' number associated. initially it is r=1
-        // when a new shortcut is introduced then r of the associated edges is summed up:
-        // r(u,w)=r(u,v)+r(v,w) now we can define
-        // originalEdgesCount = σ(v) := sum_{ (u,w) ∈ shortcuts(v) } of r(u, w)
-        int originalEdgesCount = calcShortcutsResult.originalEdgesCount;
-
-        // # lowest influence on preparation speed or shortcut creation count
-        // (but according to paper should speed up queries)
-        //
-        // number of already contracted neighbors of v
-        int contractedNeighbors = 0;
-        int degree = 0;
-        CHEdgeIterator iter = calcPrioAllExplorer.setBaseNode(v);
+    public static void buildFromGraph(CorePreparationGraph prepareGraph, Graph graph, Weighting weighting) {
+        if (graph.getNodes() != prepareGraph.getNodes())
+            throw new IllegalArgumentException("Cannot initialize from given graph. The number of nodes does not match: " +
+                    graph.getNodes() + " vs. " + prepareGraph.getNodes());
+        if (graph.getEdges() != prepareGraph.getOriginalEdges())
+            throw new IllegalArgumentException("Cannot initialize from given graph. The number of edges does not match: " +
+                    graph.getEdges() + " vs. " + prepareGraph.getOriginalEdges());
+        AllEdgesIterator iter = graph.getAllEdges();
         while (iter.next()) {
-            degree++;
-            if (iter.isShortcut())
-                contractedNeighbors++;
+            double weightFwd = weighting.calcEdgeWeightWithAccess(iter, false);
+            // use reverse iterator because restrictionFilter.accept in RestrictedEdgesWeighting cannot be queried in reverse direction
+            EdgeIteratorState iterReverse = graph.getEdgeIteratorStateForKey(GHUtility.reverseEdgeKey(iter.getEdgeKey()));
+            double weightBwd = weighting.calcEdgeWeightWithAccess(iterReverse, false);
+            int timeFwd = Double.isFinite(weightFwd) ? (int) weighting.calcEdgeMillis(iter, false) : Integer.MAX_VALUE;
+            int timeBwd = Double.isFinite(weightBwd) ? (int) weighting.calcEdgeMillis(iter, true) : Integer.MAX_VALUE;
+            prepareGraph.addEdge(iter.getBaseNode(), iter.getAdjNode(), iter.getEdge(), weightFwd, weightBwd, timeFwd, timeBwd);
         }
-
-        // from shortcuts we can compute the edgeDifference
-        // # low influence: with it the shortcut creation is slightly faster
-        //
-        // |shortcuts(v)| − |{(u, v) | v uncontracted}| − |{(v, w) | v uncontracted}|
-        // meanDegree is used instead of outDegree+inDegree as if one adjNode is in both directions
-        // only one bucket memory is used. Additionally one shortcut could also stand for two directions.
-        int edgeDifference = calcShortcutsResult.shortcutsCount - degree;
-
-        // according to the paper do a simple linear combination of the properties to get the priority.
-        // this is the current optimum for unterfranken:
-        return 10 * edgeDifference + originalEdgesCount + contractedNeighbors;
-    }
-
-    /**
-     * Finds shortcuts, does not change the underlying graph.
-     */
-
-
-    String getCoords(EdgeIteratorState e, Graph g) {
-        NodeAccess na = g.getNodeAccess();
-        int base = e.getBaseNode();
-        int adj = e.getAdjNode();
-        return base + "->" + adj + " (" + e.getEdge() + "); " + na.getLat(base) + "," + na.getLon(base) + " -> "
-                + na.getLat(adj) + "," + na.getLon(adj);
-    }
-
-    PrepareCore initFromGraph() {
-        ghStorage.freeze();
-        FlagEncoder prepareFlagEncoder = prepareWeighting.getFlagEncoder();
-        final EdgeFilter allFilter = DefaultEdgeFilter.allEdges(prepareFlagEncoder);
-
-        // filter by vehicle and level number
-        final EdgeFilter accessWithLevelFilter = new LevelEdgeFilter(prepareGraph) {
-            @Override
-            public final boolean accept(EdgeIteratorState edgeState) {
-                if (!super.accept(edgeState))
-                    return false;
-
-                return allFilter.accept(edgeState);
-            }
-        };
-
-        maxLevel = prepareGraph.getNodes() + 1;
-        vehicleAllExplorer = prepareGraph.createEdgeExplorer(allFilter);
-        vehicleAllTmpExplorer = prepareGraph.createEdgeExplorer(allFilter);
-        calcPrioAllExplorer = prepareGraph.createEdgeExplorer(accessWithLevelFilter);
-        restrictionExplorer = prepareGraph.createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-        inEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.inEdges(prepareFlagEncoder));
-        outEdgeExplorer = prepareGraph.getBaseGraph().createEdgeExplorer(DefaultEdgeFilter.outEdges(prepareFlagEncoder));
-
-        // Use an alternative to PriorityQueue as it has some advantages:
-        //   1. Gets automatically smaller if less entries are stored => less total RAM used.
-        //      Important because Graph is increasing until the end.
-        //   2. is slightly faster
-        //   but we need the additional oldPriorities array to keep the old value which is necessary for the update method
-        sortedNodes = new GHTreeMapComposed();
-        oldPriorities = new int[prepareGraph.getNodes()];
-        restrictedNodes = new boolean[prepareGraph.getNodes()];
-        nodeContractor = new CoreNodeContractor(dir, ghStorage, prepareGraph, prepareGraph.getCHProfile());
-        nodeContractor.setRestrictionFilter(restrictionFilter);
-        nodeContractor.initFromGraph();
-        return this;
-    }
-
-
-
-    @Override
-    public RoutingAlgorithm createAlgo(Graph graph, AlgorithmOptions opts) {
-        AbstractCoreRoutingAlgorithm algo;
-
-        String algoStr = opts.getAlgorithm();
-
-        if (ASTAR_BI.equals(algoStr)) {
-            CoreALT tmpAlgo = new CoreALT(graph, opts.getWeighting());
-            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts, graph.getNodeAccess()));
-            algo = tmpAlgo;
-        } else if (DIJKSTRA_BI.equals(algoStr)) {
-            algo = new CoreDijkstra(graph, opts.getWeighting());
-        } else if (TD_DIJKSTRA.equals(algoStr)) {
-            algo = new TDCoreDijkstra(graph, opts.getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
-        } else if (TD_ASTAR.equals(algoStr)) {
-            CoreALT tmpAlgo = new TDCoreALT(graph, opts.getWeighting(), opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
-            tmpAlgo.setApproximation(RoutingAlgorithmFactorySimple.getApproximation(ASTAR_BI, opts,graph .getNodeAccess()));
-            algo = tmpAlgo;
-        } else {
-            throw new IllegalArgumentException("Algorithm " + opts.getAlgorithm()
-                    + " not supported for Contraction Hierarchies. Try with ch.disable=true");
-        }
-
-        algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
-
-        // append any restriction filters after node level filter
-        CoreDijkstraFilter levelFilter = new CoreDijkstraFilter(prepareGraph);
-        EdgeFilter ef = opts.getEdgeFilter();
-        if (ef != null)
-            levelFilter.addRestrictionFilter(ef);
-
-        algo.setEdgeFilter(levelFilter);
-
-        return algo;
+        prepareGraph.prepareForContraction();
     }
 
     @Override
-    public String toString() {
-        return "prepare|dijkstrabi|ch";
+    protected boolean doNotContract(int node) {
+        return super.doNotContract(node) || restrictedNodes[node];
     }
 
-    public void close() {
-        nodeContractor.close();
-        sortedNodes = null;
-        oldPriorities = null;
-        restrictedNodes = null;
+    protected IntContainer contractNode(int node, int level) {
+        IntContainer neighbors = super.contractNode(node, level);
+
+        if (neighbors instanceof IntArrayList)
+            ((IntArrayList) neighbors).removeAll(isCoreNode);
+        else
+            throw(new IllegalStateException("Not an isntance of IntArrayList"));
+
+        return neighbors;
     }
 
-    public long getDijkstraCount() {
-        return nodeContractor.getDijkstraCount();
-    }
+    @Override
+    public void finishContractionHook() {
+        chStore.setCoreNodes(sortedNodes.size() + restrictedNodesCount);
 
-    public int getShortcuts() {
-        return nodeContractor.getAddedShortcutsCount();
-    }
-
-
-    private int getMaxVisitedNodesEstimate() {
-        // todo: we return 0 here if meanDegree is < 1, which is not really what we want, but changing this changes
-        // the node contraction order and requires re-optimizing the parameters of the graph contraction
-        return (int) meanDegree * 100;
+        // insert shortcuts connected to core nodes
+        CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
+        while (!sortedNodes.isEmpty())
+            coreNodeContractor.insertShortcuts(sortedNodes.poll(), false);
+        for (int node = 0; node < nodes; node++)
+            if (restrictedNodes[node])
+                coreNodeContractor.insertShortcuts(node, false);
     }
 }

@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.util.RuntimeUtility;
 
 public class RoutingProfilesCollection {
-	private HashMap<Integer, RoutingProfile> routeProfiles;
-	private ArrayList<RoutingProfile> uniqueProfiles;
+	private final HashMap<Integer, RoutingProfile> routeProfiles;
+	private final ArrayList<RoutingProfile> uniqueProfiles;
 
 	public RoutingProfilesCollection() {
 		routeProfiles = new HashMap<>();
@@ -151,9 +151,9 @@ public class RoutingProfilesCollection {
 		int i = 0;
 		for(RoutingProfile profile : getUniqueProfiles()) {
 			i++;
-			long capacity = profile.getCapacity();
-			totalProfilesMemory += capacity;
-			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(capacity), ((double)capacity/totalUsedMemory)*100)); 
+			long profileMemory = profile.getMemoryUsage();
+			totalProfilesMemory += profileMemory;
+			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(profileMemory), ((double)profileMemory/totalUsedMemory)*100));
 		}
 		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100));
 		logger.info("========================================================================");

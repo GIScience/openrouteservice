@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for reading data from a CSV file. Based on code from
@@ -33,7 +34,7 @@ public class CSVUtility {
 
     private CSVUtility() {}
 
-    public static ArrayList<ArrayList<String>> readFile(String file) {
+    public static List<List<String>> readFile(String file) {
         return readFile(file, HAS_HEADER);
     }
 
@@ -41,18 +42,18 @@ public class CSVUtility {
      * Read data from CSV file using the provided filename, seperator, quote character and whether there is a header
      *
      * @param file          CSV file to read from
-     * @param ignoreHeader        Whether to ignore the first row of the CSV
+     * @param header        Whether to ignore the first row of the CSV
      * @return              An ArrayList (rows) of ArrayLists (columns values)
      */
-    public static ArrayList<ArrayList<String>> readFile(String file, boolean ignoreHeader) {
+    public static List<List<String>> readFile(String file, boolean header) {
         // Open the CSV file
         String ln = "";
 
-        ArrayList<ArrayList<String>> lines = new ArrayList<>();
+        List<List<String>> lines = new ArrayList<>();
         boolean headerRead = false;
         try (BufferedReader br = new BufferedReader(new FileReader(file))){
             while ((ln = br.readLine()) != null) {
-                if(ignoreHeader && lines.isEmpty() && !headerRead) {
+                if(header && lines.isEmpty() && !headerRead) {
                     headerRead=true;
                     continue;
                 }

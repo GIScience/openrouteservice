@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>6.8.0</version>
+    <version>7.0.1</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
     <url>openrouteservice.org</url>
@@ -48,10 +48,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <geotools.version>19.1</geotools.version>
-        <slf4j.version>1.7.32</slf4j.version>
-        <log4j.version>2.17.1</log4j.version>
+        <maven.compiler.target>11</maven.compiler.target>
+        <geotools.version>27.2</geotools.version>
+        <slf4j.version>2.0.6</slf4j.version>
+        <log4j.version>2.19.0</log4j.version>
+        <kafka.version>3.4.0</kafka.version>
+        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -120,8 +122,7 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
-                                      tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
@@ -243,8 +244,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>2.22.2</version>
                 <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
@@ -252,7 +254,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.7</version>
                 <executions>
                     <!-- prepare agent for measuring unit tests -->
                     <execution>
@@ -295,7 +297,23 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <!--This will resolve jqwik snapshots-->
+            <id>Sonatype Snapshots</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.8.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <!-- Java 11 upgrade -->
@@ -313,13 +331,7 @@
             <!-- Java 11 upgrade -->
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.13</version>
+            <version>2.3.8</version>
         </dependency>
 
         <dependency>
@@ -330,7 +342,7 @@
 
         <dependency>
             <groupId>org.geotools</groupId>
-            <artifactId>gt-api</artifactId>
+            <artifactId>gt-metadata</artifactId>
             <version>${geotools.version}</version>
         </dependency>
 
@@ -344,6 +356,18 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-geojson</artifactId>
             <version>${geotools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>hppc</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
 
         <dependency>
@@ -385,14 +409,19 @@
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
-            <version>0.5.5</version>
+            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -411,38 +440,50 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v0.13.23</version>
+            <version>v4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-reader-osm</artifactId>
-            <version>v0.13.23</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>v0.13.23</version>
+            <artifactId>graphhopper-web-api</artifactId>
+            <version>v4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>0.13-SNAPSHOT</version>
+            <version>4.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-api</artifactId>
-            <version>0.13-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-reader-osm</artifactId>
-            <version>0.13-SNAPSHOT</version>
+            <artifactId>graphhopper-web-api</artifactId>
+            <version>4.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         -->
 
@@ -462,44 +503,58 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.4.1</version>
+            <version>42.5.3</version>
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik</artifactId>
+            <version>1.6.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.22.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.13</artifactId>
-            <version>2.5.1</version>
+            <version>${kafka.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>2.5.1</version>
+            <version>${kafka.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>2.5.1</version>
+            <version>${kafka.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
-            <version>4.1.0</version>
+            <version>5.4.0</version>
         </dependency>
 
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>2.3.5.RELEASE</version>
+            <version>2.7.8</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -511,7 +566,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.5.12</version>
+            <version>2.7.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -536,40 +591,29 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version><!-- upgrade to 3.0.0 causes app crash -->
+            <version>3.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.bedatadriven</groupId>
-            <artifactId>jackson-datatype-jts</artifactId>
-            <version>2.4</version>
-        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.13.4.1</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.13.3</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.13.3</version>
+            <version>${fasterxml.jackson.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-        <!-- <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>6.0.5</version>
-            </dependency>
-         -->
     </dependencies>
 
     <!-- mvn deploy -DperformRelease=true -->

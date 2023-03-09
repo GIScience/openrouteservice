@@ -19,14 +19,14 @@ import org.locationtech.jts.geom.Coordinate;
 
 
 public interface MapMatcher {
+	
+	void setSearchRadius(double radius);
 
-    void setSearchRadius(double radius);
+	void setEdgeFilter(EdgeFilter edgeFilter);
 
-    void setEdgeFilter(EdgeFilter edgeFilter);
+	void setGraphHopper(GraphHopper gh);
 
-    void setGraphHopper(GraphHopper gh);
+	RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
 
-    RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections);
-
-    void clear();
+	void clear();
 }

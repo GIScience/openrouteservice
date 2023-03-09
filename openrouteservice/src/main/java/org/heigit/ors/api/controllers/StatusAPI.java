@@ -22,10 +22,10 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
-import org.heigit.ors.services.mapmatching.MapMatchingServiceSettings;
-import org.heigit.ors.services.matrix.MatrixServiceSettings;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.MapMatchingServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -108,7 +108,7 @@ public class StatusAPI {
                     if (jProfileLimits.length() > 0)
                         jProfileProps.put("limits", jProfileLimits);
 
-                    jProfiles.put("profile " + Integer.toString(i), jProfileProps);
+                    jProfiles.put("profile " + i, jProfileProps);
 
                     i++;
                 }

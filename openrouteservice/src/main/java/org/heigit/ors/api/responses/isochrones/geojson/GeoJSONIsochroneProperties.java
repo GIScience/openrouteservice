@@ -2,7 +2,7 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.AttributeValue;
 import org.heigit.ors.isochrones.Isochrone;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,15 +11,15 @@ import io.swagger.annotations.ApiModelProperty;
 public class GeoJSONIsochroneProperties {
     @ApiModelProperty(value = "Id of the isochrone based on the position in the `locations` query-parameter. Every location comprises its own group of polygons.", example ="1")
     @JsonProperty(value = "group_index")
-    private Integer groupIndex;
+    private final Integer groupIndex;
 
     @ApiModelProperty(value = "The range value of this isochrone/equidistant in seconds/meters.", example = "90")
     @JsonProperty("value")
-    private Double value;
+    private final Double value;
 
     @ApiModelProperty(value = "The coordinates of the specific analysis location.", example = "[8.676441,49.411648]")
     @JsonProperty("center")
-    private Double[] center;
+    private final Double[] center;
 
     @ApiModelProperty(value = "Area of the polygon in square meters (for attributes=area). CUSTOM_KEYS:{'validWhen':{'ref':'attributes','containsValue':'area'}}",
             example = "567.827")

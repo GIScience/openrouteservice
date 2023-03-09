@@ -17,14 +17,15 @@
  */
 package org.heigit.ors.fastisochrones;
 
+import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.CORERANGEDIJKSTRA;
 
@@ -54,7 +55,7 @@ public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
     }
 
     protected void runAlgo() {
-        EdgeExplorer explorer = outEdgeExplorer;
+        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(weighting.getFlagEncoder().getAccessEnc()));
         while (true) {
             visitedNodes++;
             if (isMaxVisitedNodesExceeded() || finished())
@@ -67,7 +68,7 @@ public class CoreRangeDijkstra extends AbstractIsochroneDijkstra {
                     continue;
                 int traversalId = traversalMode.createTraversalId(iter, false);
                 // Modification by Maxim Rylov: use originalEdge as the previousEdgeId
-                double tmpWeight = weighting.calcWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
+                double tmpWeight = weighting.calcEdgeWeight(iter, reverseDirection, currEdge.originalEdge) + currEdge.weight;
                 // ORS-GH MOD END
                 if (Double.isInfinite(tmpWeight))
                     continue;

@@ -13,10 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.util.EdgeIteratorState;
 
 /**
  * This class includes in the core all edges with speed more than the one set in the ors-config.json file max_speed.
@@ -25,7 +26,7 @@ import com.graphhopper.routing.util.FlagEncoder;
  */
 
 public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
-    private double maximumSpeedLowerBound;
+    private final double maximumSpeedLowerBound;
 
     private final DecimalEncodedValue avSpeedEnc;
 
@@ -36,12 +37,7 @@ public class MaximumSpeedCoreEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState edge) {
-        if ( (edge.get(avSpeedEnc) > maximumSpeedLowerBound) || (edge.getReverse(avSpeedEnc)) > maximumSpeedLowerBound ) {
-            //If the max speed of the road is greater than that of the limit include it in the core.
-            return false;
-        } else {
-            return true;
-        }
+        //If the max speed of the road is greater than that of the limit include it in the core.
+        return edge.get(avSpeedEnc) <= maximumSpeedLowerBound && edge.getReverse(avSpeedEnc) <= maximumSpeedLowerBound;
     }
 }
-

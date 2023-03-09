@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
@@ -30,8 +30,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	public static final String KEY_SLOPED_KERB = "sloped_kerb";
 	public static final String KEY_KERB_HEIGHT = "kerb:height";
 	public static final String KEY_FOOTWAY = "footway";
-	public static final String KEY_RIGHT = "right";
-	public static final String KEY_LEFT = "left";
+	public static final String SW_VAL_RIGHT = "right";
+	public static final String SW_VAL_LEFT = "left";
 	public static final String KEY_BOTH = "both";
 	public static final String KEY_SIDEWALK_BOTH = "sidewalk:both:";
 	public static final String KEY_FOOTWAY_BOTH = "footway:both:";
@@ -44,12 +44,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	}
 
 	private WheelchairAttributesGraphStorage storage;
-	private WheelchairAttributes wheelchairAttributes;
-	private WheelchairAttributes wheelchairAttributesLeftSide;
-	private WheelchairAttributes wheelchairAttributesRightSide;
+	private final WheelchairAttributes wheelchairAttributes;
+	private final WheelchairAttributes wheelchairAttributesLeftSide;
+	private final WheelchairAttributes wheelchairAttributesRightSide;
 
-	private HashMap<Integer, HashMap<String,String>> nodeTagsOnWay;
-	private HashMap<String, Object> cleanedTags;
+	private Map<Integer, Map<String,String>> nodeTagsOnWay;
+	private Map<String, Object> cleanedTags;
 
 	private boolean hasLeftSidewalk = false;
 	private boolean hasRightSidewalk = false;
@@ -75,7 +75,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	/**
 	 * Initiate the wheelchair storage builder
 	 *
-	 * @param graphhopper	The graphhopper instance to run against
+	 * @param graphhopper    The graphhopper instance to run against
 	 * @return				The storage that is created from the builder
 	 * @throws Exception	Thrown when the storage has already been initialized
 	 */
@@ -108,7 +108,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @param nodeTags	Tags that have been stored on nodes of the way that should be used during processing
 	 */
 	@Override
-	public void processWay(ReaderWay way, Coordinate[] coords, HashMap<Integer, HashMap<String,String>> nodeTags)
+	public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags)
 	{
 		// Start by resetting storage variables after the previous way
 		wheelchairAttributes.reset();
@@ -259,10 +259,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case KEY_LEFT:
+				case SW_VAL_LEFT:
 					hasLeftSidewalk = true;
 					break;
-				case KEY_RIGHT:
+				case SW_VAL_RIGHT:
 					hasRightSidewalk = true;
 					break;
 				case KEY_BOTH:
@@ -553,13 +553,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Check for if we have specified which side the processing is for
         if(way.hasTag("ors-sidewalk-side")) {
 		    String side = way.getTag("ors-sidewalk-side");
-		    if(side.equals(KEY_LEFT)) {
+		    if(side.equals(SW_VAL_LEFT)) {
 				// Only get the attributes for the left side
-				at = getAttributes(KEY_LEFT);
+				at = getAttributes(SW_VAL_LEFT);
 				at.setSide(WheelchairAttributes.Side.LEFT);
             }
-            if(side.equals(KEY_RIGHT)) {
-		    	at = getAttributes(KEY_RIGHT);
+            if(side.equals(SW_VAL_RIGHT)) {
+		    	at = getAttributes(SW_VAL_RIGHT);
 		    	at.setSide(WheelchairAttributes.Side.RIGHT);
 			}
         } else {
@@ -605,8 +605,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		// Explicit heights are those provided by the :height tag - these should take precidence
 		List<Integer> explicitKerbHeights = new ArrayList<>();
 
-		for(Map.Entry<Integer, HashMap<String, String>> entry: nodeTagsOnWay.entrySet()) {
-			HashMap<String, String> tags = entry.getValue();
+		for(Map.Entry<Integer, Map<String, String>> entry: nodeTagsOnWay.entrySet()) {
+			Map<String, String> tags = entry.getValue();
 			for (Map.Entry<String,String> tag : tags.entrySet()) {
 				switch (tag.getKey()) {
 					case KEY_SLOPED_CURB:
@@ -688,10 +688,10 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
 		// Now get the specific items
 		switch(side) {
-			case KEY_LEFT:
+			case SW_VAL_LEFT:
 				at = at.merge(wheelchairAttributesLeftSide);
 				break;
-			case KEY_RIGHT:
+			case SW_VAL_RIGHT:
 				at = at.merge(wheelchairAttributesRightSide);
 				break;
 			default:
@@ -823,8 +823,4 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		return "Wheelchair";
 	}
 
-	@Override
-	public void finish() {
-		// do nothing
-	}
 }

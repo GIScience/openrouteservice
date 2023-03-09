@@ -1,6 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
-import com.graphhopper.routing.EdgeKeys;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -19,7 +19,7 @@ public class ExpiringSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     }
 
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
-        int edgeId = EdgeKeys.getOriginalEdge(edge);
+        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edge);
         double modifiedSpeed = expiringSpeedStorage.getSpeed(edgeId, reverse);
         if (modifiedSpeed == Byte.MIN_VALUE)
             return this.superSpeedCalculator.getSpeed(edge, reverse, time);

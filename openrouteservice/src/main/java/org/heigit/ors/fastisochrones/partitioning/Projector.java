@@ -47,7 +47,7 @@ public class Projector {
         for (Projection proj : Projection.values()) {
             //>> sort projected Nodes
             for (int i = 0; i < ids.length; i++) {
-                values[i] = proj.sortValue(ghStorage.getNodeAccess().getLatitude(ids[i]), ghStorage.getNodeAccess().getLongitude(ids[i]));
+                values[i] = proj.sortValue(ghStorage.getNodeAccess().getLat(ids[i]), ghStorage.getNodeAccess().getLon(ids[i]));
             }
             nodeListProjMap.put(proj, sort.sortByValueReturnList(ids, values));
         }
@@ -110,10 +110,10 @@ public class Projector {
 
     private double projIndividualValue(Map<Projection, IntArrayList> projMap, Projection proj, int idx) {
         IntArrayList tmpNodeList = projMap.get(proj);
-        double toLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(idx));
-        double toLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(idx));
-        double fromLat = ghStorage.getNodeAccess().getLatitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
-        double fromLon = ghStorage.getNodeAccess().getLongitude(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+        double toLat = ghStorage.getNodeAccess().getLat(tmpNodeList.get(idx));
+        double toLon = ghStorage.getNodeAccess().getLon(tmpNodeList.get(idx));
+        double fromLat = ghStorage.getNodeAccess().getLat(tmpNodeList.get(tmpNodeList.size() - idx - 1));
+        double fromLon = ghStorage.getNodeAccess().getLon(tmpNodeList.get(tmpNodeList.size() - idx - 1));
 
         return Contour.distance(fromLat, toLat, fromLon, toLon);
     }

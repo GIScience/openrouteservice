@@ -13,18 +13,17 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
-import com.graphhopper.routing.util.AbstractFlagEncoder;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -32,7 +31,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSPMap;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.util.ElevationSmoother;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
@@ -111,9 +109,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private List<Integer> warningExtensions;
 
 	private int profileType = RoutingProfileType.UNKNOWN;
-	private FlagEncoder encoder;
-	private boolean encoderWithPriority;
-	private byte[] buffer;
+	private final FlagEncoder encoder;
+	private final boolean encoderWithPriority;
+	private final byte[] buffer;
 	private static final Logger LOGGER = Logger.getLogger(ExtraInfoProcessor.class.getName());
 
 	private String skippedExtraInfo = "";
@@ -131,14 +129,14 @@ public class ExtraInfoProcessor implements PathProcessor {
 		List<String> skippedExtras = new ArrayList<>();
 
 		try {
-			ORSPMap params = (ORSPMap)opts;
+			PMap params = opts;
 			if (params == null) {
-				params = new ORSPMap();
+				params = new PMap();
 			}
 
 			int extraInfo = params.getInt("routing_extra_info", 0);
 			profileType = params.getInt("routing_profile_type", 0);
-			ProfileParameters profileParameters = (ProfileParameters) params.getObj("routing_profile_params");
+			ProfileParameters profileParameters = params.getObject("routing_profile_params", new ProfileParameters());
 			boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
 			warningExtensions = new ArrayList<>();
@@ -276,7 +274,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 				if (extCsvData != null) {
 					csvInfo = new RouteExtraInfo("csv");
 					csvInfoBuilder = new AppendableRouteExtraInfoBuilder(csvInfo);
-					csvColumn = extCsvData.columnIndex(params.get("weighting_#csv#column", ""));
+					csvColumn = extCsvData.columnIndex(params.getString("weighting_#csv#column", ""));
 				} else {
 					skippedExtras.add("csv");
 				}
@@ -297,7 +295,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 * @param graphHopperStorage the storage containing the warnings
 	 */
 	private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
-		GraphExtension[] extensions = GraphStorageUtils.getGraphExtensions(graphHopperStorage);
+		GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
 		for(GraphExtension ge : extensions) {
 			if (ge instanceof WarningGraphExtension && ((WarningGraphExtension)ge).isUsedForWarning()) {
 				warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
@@ -314,12 +312,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	 *
 	 */
 	private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
-		boolean include = false;
-
-		if(RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag))
-			include = true;
-
-		return include;
+		return RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag);
 	}
 
 	public List<RouteExtraInfo> getExtras() {
@@ -429,7 +422,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 			short country1 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.START);
 			short country2 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.END);
 			// This check will correct the countries of an edge if the starting coordinate of the route lies in a different country than the start of the edge.
-			if (country1 != country2 && geom.getSize() > 0) {
+			if (country1 != country2 && geom.size() > 0) {
 				Coordinate coordinate = new Coordinate();
 				coordinate.x = geom.getLon(0);
 				coordinate.y = geom.getLat(0);
@@ -477,7 +470,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 		}
 
 		if (avgSpeedInfoBuilder != null) {
-		    double speed = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags());
+		    double speed = encoder.getAverageSpeedEnc().getDecimal(false, edge.getFlags());
 		    avgSpeedInfoBuilder.addSegment(speed, (int)Math.round(speed* avgSpeedInfo.getFactor()), geom, dist);
 		}
 
@@ -493,7 +486,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 				priority = edge.get(encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY)));
 				priorityIndex = (int) Math.round(3 + priority * PriorityCode.BEST.getValue()); // normalize values between 3 and 10
 			} else {
-				priority = ((AbstractFlagEncoder) encoder).getSpeed(edge.getFlags()) / encoder.getMaxSpeed();
+				priority = encoder.getAverageSpeedEnc().getDecimal(false, edge.getFlags()) / encoder.getMaxSpeed();
 				if (priority < 0.3)
 					priority = 0.3;
 				priorityIndex = (int) Math.round(priority * 10);

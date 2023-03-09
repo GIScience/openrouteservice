@@ -14,7 +14,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.weighting.TurnCostProvider;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
@@ -27,21 +28,21 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
  * @author Peter Karich
  */
 public class FastestSafeWeighting extends FastestWeighting {
-	private Double thresholdAvoidAtAllCosts = PriorityCode.AVOID_AT_ALL_COSTS.getValue() / (double)PriorityCode.BEST.getValue();
+	private final Double priorityThreshold = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
 	
-	public FastestSafeWeighting(FlagEncoder encoder, PMap map) {
-		super(encoder, map);
+	public FastestSafeWeighting(FlagEncoder encoder, PMap map, TurnCostProvider turnCostProvider) {
+		super(encoder, map, turnCostProvider);
 	}
 
 	@Override
-	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
+	public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
+		double weight = super.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
 		double priority = getFlagEncoder().getDecimalEncodedValue(FlagEncoderKeys.PRIORITY_KEY).getDecimal(reverse, edgeState.getFlags());
 
-		if (priority <= thresholdAvoidAtAllCosts)
+		if (priority <= priorityThreshold)
 			weight *= 2;
 
 		return weight;
@@ -59,6 +60,6 @@ public class FastestSafeWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("FastestSafeWeighting" + toString()).hashCode();
+		return ("FastestSafeWeighting" + this).hashCode();
 	}
 }

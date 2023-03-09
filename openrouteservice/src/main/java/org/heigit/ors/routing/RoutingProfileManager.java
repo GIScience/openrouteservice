@@ -16,17 +16,16 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.Helper;
-import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.Coordinate;
-import org.apache.commons.lang.NotImplementedException;
+import com.graphhopper.util.*;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.export.ExportRequest;
+import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
@@ -39,7 +38,7 @@ import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.services.routing.RoutingServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
@@ -59,7 +58,7 @@ public class RoutingProfileManager {
 
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
-    private static RoutingProfileManager mInstance;
+    private static RoutingProfileManager instance;
     private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
     private long kafkaMessagesProcessed = 0;
@@ -67,11 +66,11 @@ public class RoutingProfileManager {
     public static final boolean KAFKA_DEBUG = false;
 
     public static synchronized RoutingProfileManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new RoutingProfileManager();
-            mInstance.initialize(null);
+        if (instance == null) {
+            instance = new RoutingProfileManager();
+            instance.initialize(null);
         }
-        return mInstance;
+        return instance;
     }
 
     public void prepareGraphs(String graphProps) {
@@ -103,7 +102,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            LOGGER.info("               ");
+            LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
 
             int nCompletedTasks = 0;
             while (nCompletedTasks < nTotalTasks) {
@@ -113,9 +112,12 @@ public class RoutingProfileManager {
                     nCompletedTasks++;
                     rp.close();
                     LOGGER.info("Graph preparation done.");
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (ExecutionException e) {
                     LOGGER.error(e);
                     throw e;
+                } catch (InterruptedException e) {
+                    LOGGER.error(e);
+                    Thread.currentThread().interrupt();
                 }
             }
             executor.shutdown();
@@ -141,8 +143,8 @@ public class RoutingProfileManager {
             if (RoutingServiceSettings.getEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...", RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
-                LOGGER.info("                              ");
+                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
+                        RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
                     prepareGraphs(graphProps);
@@ -168,7 +170,7 @@ public class RoutingProfileManager {
                         }
                     }
 
-                    LOGGER.info("               ");
+                    LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
 
                     int nCompletedTasks = 0;
                     while (nCompletedTasks < nTotalTasks) {
@@ -179,9 +181,12 @@ public class RoutingProfileManager {
                             nCompletedTasks++;
                             if (!routeProfiles.add(rp))
                                 LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException | InterruptedException e) {
+                        } catch (ExecutionException e) {
                             LOGGER.error(e);
                             throw e;
+                        } catch (InterruptedException e) {
+                            LOGGER.error(e);
+                            Thread.currentThread().interrupt();
                         }
                     }
 
@@ -236,7 +241,7 @@ public class RoutingProfileManager {
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
         LOGGER.error("mapmatching not implemented. " + req);
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("mapmatching not implemented. " + req);
     }
 
     public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {
@@ -301,7 +306,7 @@ public class RoutingProfileManager {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor) obj;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
                         }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
@@ -355,12 +360,12 @@ public class RoutingProfileManager {
             if (bearings != null) {
                 bearings[0] = null;
                 if (prevResp != null && req.getContinueStraight()) {
-                    bearings[0] = new WayPointBearing(getHeadingDirection(prevResp), Double.NaN);
+                    bearings[0] = new WayPointBearing(getHeadingDirection(prevResp));
                 }
 
                 if (searchParams.getBearings() != null) {
                     bearings[0] = searchParams.getBearings()[i - 1];
-                    bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN, Double.NaN) : searchParams.getBearings()[i];
+                    bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN) : searchParams.getBearings()[i];
                 }
             }
 
@@ -408,7 +413,7 @@ public class RoutingProfileManager {
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
                                     pointRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
-                                    message.append(String.format("Could not find routable point within the maximum possible radius of specified coordinate %d: %s.",
+                                    message.append(String.format("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.",
                                             pointRadius,
                                             pointReference,
                                             FormatUtility.formatCoordinate(pointCoordinate)));
@@ -448,7 +453,7 @@ public class RoutingProfileManager {
                         extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
                         extraInfoProcessorIndex++;
                         if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                            gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                         }
                     }
                 }
@@ -458,7 +463,7 @@ public class RoutingProfileManager {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = (ExtraInfoProcessor) o;
                             if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                                gr.getHints().put(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
                             }
                         } else {
                             extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);
@@ -540,7 +545,7 @@ public class RoutingProfileManager {
                 lon1 = points.getLon(nPoints - 3);
                 lat1 = points.getLat(nPoints - 3);
             }
-            return Helper.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
+            return AngleCalc.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
         } else
             return 0;
     }
@@ -570,13 +575,13 @@ public class RoutingProfileManager {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
             if (config.getMaximumWayPoints() > 0 && !oneToMany && nCoords > config.getMaximumWayPoints()) {
-                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + Integer.toString(config.getMaximumWayPoints()) + ".");
+                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + config.getMaximumWayPoints() + ".");
             }
 
             if (config.getMaximumDistance() > 0
                     || (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0)
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
-                DistanceCalc distCalc = Helper.DIST_EARTH;
+                DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
 
                 List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
@@ -651,6 +656,14 @@ public class RoutingProfileManager {
         if (rp == null)
             throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeCentrality(req);
+    }
+
+    public ExportResult computeExport(ExportRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeExport(req);
     }
 
     public void initCompleted() {

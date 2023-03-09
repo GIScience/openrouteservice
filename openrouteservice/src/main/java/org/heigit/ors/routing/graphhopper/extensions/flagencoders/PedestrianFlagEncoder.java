@@ -29,14 +29,6 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
         super(speedBits, speedFactor);
 
         suitableSacScales.add("hiking");
-
-        init();
-    }
-
-    @Override
-
-    public int getVersion() {
-        return 4;
     }
 
     @Override

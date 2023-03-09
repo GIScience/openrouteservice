@@ -13,16 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 import org.apache.log4j.Logger;
 
 import java.io.InvalidObjectException;
 
 public class CountryBordersPolygon {
     private static final Logger LOGGER = Logger.getLogger(CountryBordersPolygon.class);
-    private String name;
-    private MultiPolygon boundary;
-    private Geometry boundaryLine;
+    private final String name;
+    private final MultiPolygon boundary;
+    private final Geometry boundaryLine;
     private double area = 0;
     private double minLat = 180f;
     private double minLon = 180f;

@@ -2,6 +2,7 @@
   "ors": {
     "info": {
       "base_url": "https://openrouteservice.org/",
+      "swagger_documentation_url": "https://api.openrouteservice.org/",
       "support_mail": "support@openrouteservice.org",
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
@@ -66,7 +67,7 @@
               "weightings": "recommended",
               "maxcellnodes": 5000
             },
-            "profile-hgv": {
+            "hgv": {
               "enabled": false,
               "threads": 12,
               "weightings": "recommended, shortest",
@@ -134,7 +135,6 @@
             "execution": {
               "methods": {
                 "lm": {
-                  "disabling_allowed": true,
                   "active_landmarks": 8
                 }
               }
@@ -174,11 +174,7 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "lm": {
-                    "disabling_allowed": true,
                     "active_landmarks": 6
                   },
                   "core": {
@@ -224,9 +220,6 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "core": {
                     "disabling_allowed": true,
                     "active_landmarks": 6

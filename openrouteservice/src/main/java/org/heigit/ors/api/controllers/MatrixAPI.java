@@ -36,7 +36,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance", tags = "Matrix")
+@Api(value = "Matrix Service", tags = "Matrix")
+@SwaggerDefinition(tags = {
+        @Tag(name = "Matrix", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance")
+})
 @RequestMapping("/v2/matrix")
 @ApiResponses({
         @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
@@ -89,7 +92,6 @@ public class MatrixAPI {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns JSON.", response = JSONMatrixResponse.class)
     })
     public JSONMatrixResponse getJsonMime(
-            //TODO Flexible mode???
             @ApiParam(value = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @ApiParam(value = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);

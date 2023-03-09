@@ -1,0 +1,85 @@
+name: Build and publish the newest version and latest Docker image
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build_and_publish_docker:
+    name: Build and push the image to docker hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        with:
+          install: true
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: 'Get next minor version'
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+      - name: Prepare
+        id: prepare
+        run: |
+          function test_version() {
+            # Loads all versions ever published under the given namespace (max 1024) and splits them. The result is sorted.
+            curl -s -S "https://registry.hub.docker.com/v2/repositories/openrouteservice/openrouteservice/tags/?page_size=1024" |
+              sed -e 's/,/,\n/g' -e 's/\[/\[\n/g' |
+              grep '"name"' |
+              awk -F\" '{print $4;}' |
+              sort -fu
+          }
+
+          DOCKER_IMAGE=openrouteservice/openrouteservice
+          CURRENT_VERSIONS=$(test_version)
+          LATEST_IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
+          HIGHEST_IMAGE_VERSION=${{ steps.semvers.outputs.v_mayor }}
+          DOCKER_PLATFORMS=linux/amd64
+          BUILD_VERSION=true
+
+          TAGS_LATEST_VERSION="${DOCKER_IMAGE}:${LATEST_IMAGE_VERSION}"
+          TAGS_HIGHEST_VERSION="${DOCKER_IMAGE}:${HIGHEST_IMAGE_VERSION}"
+          echo "HIGHEST MAYOR VERSION: $TAGS_HIGHEST_VERSION"
+          TAGS_LATEST="${DOCKER_IMAGE}:latest"
+
+          # Test if the latest published version is already in the versions at docker hub. If so skip the version build.
+          if [[ $CURRENT_VERSIONS =~ $LATEST_IMAGE_VERSION ]]; then
+            echo "Image version: $LATEST_IMAGE_VERSION present or latest. Skipping it!"
+            BUILD_VERSION=false
+          fi
+
+          echo ::set-output name=build_version::${BUILD_VERSION}
+          echo ::set-output name=build_args::--platform ${DOCKER_PLATFORMS}
+            echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
+          echo ::set-output name=buildx_tags_latest::${TAGS_LATEST}
+      - name: Login to DockerHub
+        if: ${{ steps.prepare.outputs.build_version == 'true' }}
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Checkout version if needed
+        if: ${{ steps.prepare.outputs.build_version == 'true' }}
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.previoustag.outputs.tag }}
+      - name: Build and publish version if needed
+        if: ${{ steps.prepare.outputs.build_version == 'true' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.prepare.outputs.buildx_tags_version }},${{ steps.prepare.outputs.buildx_tags_latest }}
+          build-args: ${{ steps.prepare.outputs.build_args }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

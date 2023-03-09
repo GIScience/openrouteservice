@@ -15,17 +15,18 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 
 import java.io.Serializable;
 
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
 	private Envelope env; 
-	private Polygon[] polys;
+	private final Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
-	private GeometryFactory geomFactory = new GeometryFactory();
+	private final GeometryFactory geomFactory = new GeometryFactory();
 	
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.
@@ -66,16 +67,15 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 			return true;
 
 		boolean inEnv = false;
-		//   PointList pl = iter.fetchWayGeometry(2); // does not work
-		PointList pl = iter.fetchWayGeometry(3);
-		int size = pl.getSize();
+		PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+		int size = pl.size();
 
 		double eMinX = Double.MAX_VALUE;
 		double eMinY = Double.MAX_VALUE;
 		double eMaxX = Double.MIN_VALUE;
 		double eMaxY = Double.MIN_VALUE;
 
-		for (int j = 0; j < pl.getSize(); j++)
+		for (int j = 0; j < pl.size(); j++)
 		{
 			double x = pl.getLon(j);
 			double y = pl.getLat(j);
@@ -171,7 +171,7 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		}
 
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#getDimension()
+		 * @see org.locationtech.jts.geom.CoordinateSequence#getDimension()
 		 */
 		public int getDimension() { return 3; }
 		/**
@@ -199,26 +199,26 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 			return new Coordinate(coordinates[i]);
 		}
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#getX(int)
+		 * @see org.locationtech.jts.geom.CoordinateSequence#getX(int)
 		 */
 		public void getCoordinate(int index, Coordinate coord) {
 			coord.x = coordinates[index].x;
 			coord.y = coordinates[index].y;
 		}
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#getX(int)
+		 * @see org.locationtech.jts.geom.CoordinateSequence#getX(int)
 		 */
 		public double getX(int index) {
 			return coordinates[index].x;
 		}
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#getY(int)
+		 * @see org.locationtech.jts.geom.CoordinateSequence#getY(int)
 		 */
 		public double getY(int index) {
 			return coordinates[index].y;
 		}
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#getOrdinate(int, int)
+		 * @see org.locationtech.jts.geom.CoordinateSequence#getOrdinate(int, int)
 		 */
 		public double getOrdinate(int index, int ordinateIndex)
 		{
@@ -231,7 +231,7 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 			return Double.NaN;
 		}
 		/**
-		 * @see com.vividsolutions.jts.geom.CoordinateSequence#setOrdinate(int, int, double)
+		 * @see org.locationtech.jts.geom.CoordinateSequence#setOrdinate(int, int, double)
 		 */
 		public void setOrdinate(int index, int ordinateIndex, double value) {
 			switch (ordinateIndex) {
@@ -246,12 +246,18 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		 *
 		 * @return The deep copy
 		 */
-		public Object clone() {
-			Coordinate[] cloneCoordinates = new Coordinate[size()];
+		public CoordinateSequence copy() {
+			Coordinate[] cloneCoordinates = new Coordinate[size];
 			for (int i = 0; i < coordinates.length; i++) {
-				cloneCoordinates[i] = (Coordinate) coordinates[i].clone();
+				cloneCoordinates[i] = coordinates[i].copy();
 			}
 			return new DefaultCoordinateSequence(cloneCoordinates, size);
+		}
+
+		@Override
+		@Deprecated
+		public Object clone() {
+			return copy();
 		}
 
 		/**

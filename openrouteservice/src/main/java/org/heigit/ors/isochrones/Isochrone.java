@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.heigit.ors.common.AttributeValue;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Isochrone {
-    private Geometry geometry;
-    private double value;
+    private final Geometry geometry;
+    private final double value;
     private double area = 0.0;
     private boolean hasArea = false;
     private boolean hasReachfactor = false;
     private double reachfactor;
-    private double meanRadius;
+    private final double meanRadius;
     private Envelope envelope;
     private List<AttributeValue> attributes;
 

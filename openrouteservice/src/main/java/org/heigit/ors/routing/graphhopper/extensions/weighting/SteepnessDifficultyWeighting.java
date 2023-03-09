@@ -13,10 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -35,7 +35,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
         {1.6, 1.6, 1.5, 1.5, 0.9, 0.7, 0.5, 0.5, 0.6, 0.7, 0.9, 1.2, 2, 3, 5, 6, 7.7, 7.8, 7.9, 8.0}
       };
 
-    public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
         buffer = new byte[1];
 	    int difficultyLevel = map.getInt("level", -1);
@@ -48,7 +48,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
     }
     
     @Override
-    public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId ) {
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
     	if (gsHillIndex != null) {
     		boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
     		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), revert, buffer);
@@ -75,6 +75,6 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
 	@Override
 	public int hashCode() {
 		// TODO: Clarify whether hashCode should depend on difficulty level.
-		return ("SteepnessDifficultyWeighting" + toString()).hashCode();
+		return ("SteepnessDifficultyWeighting" + this).hashCode();
 	}
 }

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
@@ -29,6 +29,7 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -37,7 +38,6 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.services.isochrones.IsochronesServiceSettings;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.time.LocalDateTime;
@@ -65,7 +65,7 @@ public class IsochronesRequest extends APIRequest {
     public static final String PARAM_TIME = "time";
 
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs",
+    @ApiModelProperty(name = PARAM_LOCATIONS, value = "The locations to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             required = true)
     @JsonProperty(PARAM_LOCATIONS)
@@ -165,9 +165,8 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasSmoothing = false;
 
-    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
-            example = "2020-01-31T12:45:00")
+    @ApiModelProperty(name = PARAM_TIME, value = "Departure date and time provided in local time zone",
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_TIME)
     private LocalDateTime time;
     @JsonIgnore
@@ -367,7 +366,7 @@ public class IsochronesRequest extends APIRequest {
         // request object is built, now check if ors config allows all settings
         List<TravellerInfo> travellers = this.isochroneRequest.getTravellers();
 
-        // TODO where should we put the validation code?
+        // TODO REFACTORING where should we put the validation code?
         validateAgainstConfig(this.isochroneRequest, travellers);
 
         if (!travellers.isEmpty()) {

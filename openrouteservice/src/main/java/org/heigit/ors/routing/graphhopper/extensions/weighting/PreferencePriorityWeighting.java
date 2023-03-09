@@ -13,10 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
@@ -24,7 +25,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class PreferencePriorityWeighting extends FastestWeighting {
-	private static final double THRESHOLD_AVOID_IF_POSSIBLE = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
+	private static final double THRESHOLD_VERY_BAD = PriorityCode.AVOID_IF_POSSIBLE.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_REACH_DEST = PriorityCode.REACH_DEST.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_PREFER = PriorityCode.PREFER.getValue() / (double)PriorityCode.BEST.getValue();
 	private static final double THRESHOLD_VERY_NICE = PriorityCode.VERY_NICE.getValue() / (double)PriorityCode.BEST.getValue();
@@ -35,9 +36,13 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
 	}
 
+	public PreferencePriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
+		super(encoder, map, tcp);
+		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
+	}
 	@Override
-	public double calcWeight( EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId);
+	public double calcEdgeWeight( EdgeIteratorState edgeState, boolean reverse) {
+		double weight = super.calcEdgeWeight(edgeState, reverse);
 		if (Double.isInfinite(weight))
 			weight = 0.0;
 
@@ -45,7 +50,7 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 
 		if (priority <= THRESHOLD_REACH_DEST)
 			priority /= 1.5;
-		else if (priority <= THRESHOLD_AVOID_IF_POSSIBLE)
+		else if (priority <= THRESHOLD_VERY_BAD)
 			priority /= 1.25;
 		else if (priority == THRESHOLD_PREFER)
 			priority *= 1.5;
@@ -72,6 +77,6 @@ public class PreferencePriorityWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("PreferencePriorityWeighting" + toString()).hashCode();
+		return ("PreferencePriorityWeighting" + this).hashCode();
 	}
 }

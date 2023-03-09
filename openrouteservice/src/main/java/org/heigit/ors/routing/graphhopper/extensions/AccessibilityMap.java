@@ -14,13 +14,13 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.shapes.GHPoint3D;
 
 public class AccessibilityMap {
-    private IntObjectMap<SPTEntry> map;
-    private SPTEntry edgeEntry;
-    private GHPoint3D snappedPosition;
+    private final IntObjectMap<SPTEntry> map;
+    private final SPTEntry edgeEntry;
+    private final GHPoint3D snappedPosition;
 
     public AccessibilityMap(IntObjectMap<SPTEntry> map, SPTEntry edgeEntry) {
         this(map, edgeEntry, null);

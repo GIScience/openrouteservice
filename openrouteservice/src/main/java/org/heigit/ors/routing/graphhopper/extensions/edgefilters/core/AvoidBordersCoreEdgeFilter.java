@@ -14,23 +14,23 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.util.CHEdgeIterator;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
-    private BordersGraphStorage storage;
+    private final BordersGraphStorage storage;
     private int[] avoidCountries;
     private boolean isAvoidCountries = false;
 
     //Used to avoid all borders
-    public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage) {
+    public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
     //Used to specify multiple countries to avoid (For a specific LM set)
-    public AvoidBordersCoreEdgeFilter(GraphStorage graphStorage, int[] avoidCountries) {
+    public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage, int[] avoidCountries) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         this.avoidCountries = avoidCountries;
         if(avoidCountries.length > 0) isAvoidCountries = true;
@@ -47,7 +47,7 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     @Override
     public final boolean accept(EdgeIteratorState iter) {
         //If a specific country was given, just check if its one of the country borders
-        if(iter instanceof CHEdgeIterator && ((CHEdgeIterator)iter).isShortcut())
+        if(iter instanceof RoutingCHEdgeIterator && ((RoutingCHEdgeIterator)iter).isShortcut())
             return true;
         if(isAvoidCountries)
             return !restrictedCountry(iter.getEdge());

@@ -15,22 +15,22 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.profiles.*;
-import com.graphhopper.routing.util.EncodedValueOld;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.PriorityCode;
+import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.OSMTags;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
+import static com.graphhopper.routing.ev.RouteNetwork.*;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * This code has been adapted from the original GraphHopper FootFlagEncoder found at
@@ -41,7 +41,7 @@ import static com.graphhopper.routing.util.PriorityCode.*;
  * @author Nop
  * @author Karl Hübner
  */
-public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
+public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootFlagEncoder {
     static final int SLOW_SPEED = 2;
     private static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
@@ -54,12 +54,11 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     private final Set<String> avoidUnlessSidewalkTags = new HashSet<>();
     Set<String> suitableSacScales = new HashSet<>();
     // convert network tag of hiking routes into a way route code
-    final Map<String, Integer> hikingNetworkToCode = new HashMap<>();
     Set<String> usableSidewalkValues = new HashSet<>(5);
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
-    protected EncodedValueOld relationCodeEncoder;
-
+    protected EnumEncodedValue<RouteNetwork> footRouteEnc;
+    Map<RouteNetwork, Integer> routeMap = new HashMap<>();
     private BooleanEncodedValue conditionalAccessEncoder;
 
     protected void setProperties(PMap properties) {
@@ -68,12 +67,12 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
     protected void setProperties(PMap properties, boolean blockFords) {
         this.properties = properties;
-        this.setBlockFords(properties.getBool("block_fords", blockFords));
+        this.blockFords(properties.getBool("block_fords", blockFords));
     }
 
 
     FootFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor, 0);
+        super(speedBits, speedFactor);
         restrictions.addAll(Arrays.asList("foot", "access"));
 
         restrictedValues.addAll(Arrays.asList(
@@ -105,10 +104,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
                 "right"
         ));
 
-        setBlockByDefault(false);
-        absoluteBarriers.add("fence"); // ORS TODO: added in GH 0.12; do we want it?
-        potentialBarriers.add("gate");
-        potentialBarriers.add("cattle_grid"); // ORS TODO: added in GH 0.12; do we want it?
+        blockByDefaultBarriers.add("fence");
+        passByDefaultBarriers.add("gate");
+        passByDefaultBarriers.add("cattle_grid");
 
         safeHighwayTags.addAll(Arrays.asList(
                 "footway",
@@ -144,14 +142,13 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
                 "road"
         ));
 
-        hikingNetworkToCode.put("iwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("nwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("rwn", UNCHANGED.getValue());
-        hikingNetworkToCode.put("lwn", UNCHANGED.getValue());
+        routeMap.put(INTERNATIONAL, UNCHANGED.getValue());
+        routeMap.put(NATIONAL, UNCHANGED.getValue());
+        routeMap.put(REGIONAL, UNCHANGED.getValue());
+        routeMap.put(LOCAL, UNCHANGED.getValue());
+        routeMap.put(FERRY, AVOID_IF_POSSIBLE.getValue());
 
         maxPossibleSpeed = FERRY_SPEED;
-        speedDefault = MEAN_SPEED; // ORS TODO: added in GH 0.12; do we want it?
-        init();
     }
 
     public double getMeanSpeed() {
@@ -163,55 +160,14 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
-        speedEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false);
-        registerNewEncodedValue.add(speedEncoder);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 3, PriorityCode.getFactor(1), false);
+        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
+        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         if (properties.getBool(ConditionalEdges.ACCESS, false)) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }
-    }
-
-    @Override
-    public int defineRelationBits(int index, int shift) {
-        relationCodeEncoder = new EncodedValueOld("RelationCode", shift, 3, 1, 0, 7);
-        return shift + relationCodeEncoder.getBits();
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     */
-    @Override
-    public int defineTurnBits(int index, int shift) {
-        return shift;
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     * <p>
-     *
-     * @return <code>false</code>
-     */
-    @Override
-    public boolean isTurnRestricted(long flags) {
-        return false;
-    }
-
-    /**
-     * Foot flag encoder does not provide any turn cost / restrictions
-     * <p>
-     *
-     * @return 0
-     */
-    @Override
-    public double getTurnCost(long flag) {
-        return 0;
-    }
-
-    @Override
-    public long getTurnFlags(boolean restricted, double costs) {
-        return 0;
+        footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
     }
 
     @Override
@@ -223,6 +179,10 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
         if (hasTooDifficultSacScale(way))
             return EncodingManager.Access.CAN_SKIP;
+
+        // no need to evaluate ferries or fords - already included here
+        if (way.hasTag(OSMTags.Keys.FOOT, intendedValues))
+            return isPermittedWayConditionallyRestricted(way);
 
         // check access restrictions
         if (way.hasTag(restrictions, restrictedValues))
@@ -248,52 +208,34 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        int code = 0;
-        if (relation.hasTag(OSMTags.Keys.ROUTE, "hiking") || relation.hasTag(OSMTags.Keys.ROUTE, "foot")) {
-            Integer val = hikingNetworkToCode.get(relation.getTag("network"));
-            if (val != null)
-                code = val;
-            else
-                code = hikingNetworkToCode.get("lwn");
-        } else if (relation.hasTag(OSMTags.Keys.ROUTE, "ferry")) {
-            code = PriorityCode.AVOID_IF_POSSIBLE.getValue();
-        }
-
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
-        if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+        return handleWayTags(edgeFlags, way, access, null);
     }
 
-    @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, IntsRef relationFlags) {
         if (access.canSkip())
             return edgeFlags;
 
+        Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
         if (!access.isFerry()) {
             String sacScale = way.getTag(OSMTags.Keys.SAC_SCALE);
             if (sacScale != null && !"hiking".equals(sacScale)) {
-                speedEncoder.setDecimal(false, edgeFlags, SLOW_SPEED);
+                avgSpeedEnc.setDecimal(false, edgeFlags, SLOW_SPEED);
             } else {
-                speedEncoder.setDecimal(false, edgeFlags, MEAN_SPEED);
+                avgSpeedEnc.setDecimal(false, edgeFlags, MEAN_SPEED);
             }
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
             if (access.isConditional() && conditionalAccessEncoder!=null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
-            double ferrySpeed = getFerrySpeed(way);
+            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
-            accessEnc.setBool(false, edgeFlags, true);
-            accessEnc.setBool(true, edgeFlags, true);
         }
+        accessEnc.setBool(false, edgeFlags, true);
+        accessEnc.setBool(true, edgeFlags, true);
 
-        int priorityFromRelation = 0;
-        if (relationFlags != 0)
-            priorityFromRelation = (int) relationCodeEncoder.getValue(relationFlags);
-
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation)));
+        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
         return edgeFlags;
     }
 
@@ -400,7 +342,7 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
 
-        if (safeHighwayTags.contains(highway) || maxSpeed > 0 && maxSpeed <= 20) {
+        if (safeHighwayTags.contains(highway) || isValidSpeed(maxSpeed) && maxSpeed <= 20) {
             if (preferredWayTags.contains(highway))
                 weightToPrioMap.put(40d, VERY_NICE.getValue());
             else {
@@ -474,18 +416,9 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
         return PriorityWeighting.class.isAssignableFrom(feature);
     }
 
-    /*
-     * This method is a current hack, to allow ferries to be actually faster than our current storable maxSpeed.
-     */
     @Override
-    public double getSpeed(boolean reverse, IntsRef edgeFlags) {
-        double speed = super.getSpeed(reverse, edgeFlags);
-        if (speed == getMaxSpeed()) {
-            // We cannot be sure if it was a long or a short trip
-            return SHORT_TRIP_FERRY_SPEED;
-        }
-
-        return speed;
+    public TransportationMode getTransportationMode() {
+        return TransportationMode.FOOT;
     }
 
     @Override
@@ -500,6 +433,6 @@ public abstract class FootFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public int hashCode() {
-        return ("FootFlagEncoder" + toString()).hashCode();
+        return ("FootFlagEncoder" + this).hashCode();
     }
 }

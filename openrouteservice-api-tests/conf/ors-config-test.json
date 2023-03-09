@@ -2,6 +2,7 @@
   "ors": {
     "info": {
       "base_url": "https://openrouteservice.org/",
+      "swagger_documentation_url": "https://api.openrouteservice.org/",
       "support_mail": "support@openrouteservice.org",
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
@@ -65,7 +66,7 @@
               "weightings": "recommended",
               "maxcellnodes": 5000
             },
-            "profile-hgv": {
+            "hgv": {
               "enabled": true,
               "threads": 12,
               "weightings": "recommended, shortest",
@@ -131,7 +132,6 @@
             "execution": {
               "methods": {
                 "lm": {
-                  "disabling_allowed": true,
                   "active_landmarks": 8
                 }
               }
@@ -168,11 +168,7 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "lm": {
-                    "disabling_allowed": true,
                     "active_landmarks": 8
                   },
                   "core": {
@@ -232,11 +228,7 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "lm": {
-                    "disabling_allowed": true,
                     "active_landmarks": 8
                   },
                   "core": {
@@ -348,7 +340,7 @@
                   "filepath": "openrouteservice-api-tests/data/noise_data_hd.csv"
                 },
                 "csv": {
-                     "filepath": "openrouteservice-api-tests/data/csv_data_hd.csv"
+                  "filepath": "openrouteservice-api-tests/data/csv_data_hd.csv"
                 },
                 "ShadowIndex": {
                   "filepath": "openrouteservice-api-tests/data/shadow_index_hd.csv"

@@ -13,10 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphStorage;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.SpeedStorage;
@@ -26,7 +26,7 @@ public class VariableSpeedCoreEdgeFilter implements EdgeFilter {
 	private SpeedStorage storage;
 	private FlagEncoder flagEncoder;
 
-	public VariableSpeedCoreEdgeFilter(GraphStorage graphStorage, FlagEncoder flagEncoder) {
+	public VariableSpeedCoreEdgeFilter(GraphHopperStorage graphStorage, FlagEncoder flagEncoder) {
 		storage = GraphStorageUtils.getGraphExtension(graphStorage, SpeedStorage.class);
 		this.flagEncoder = flagEncoder;
 	}

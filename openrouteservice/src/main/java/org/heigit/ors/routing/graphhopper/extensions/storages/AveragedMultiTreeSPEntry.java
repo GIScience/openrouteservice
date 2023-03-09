@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import java.util.Arrays;
-
 /**
  * Shortest Path Tree with multiple fields for containing multiple source information.
  * The weight is the average of all non-infinite entries for order in priority queue.
@@ -31,8 +29,8 @@ public class AveragedMultiTreeSPEntry extends MultiTreeSPEntry {
 	}
 
 	public void setSubItemOriginalEdgeIds(int newOriginalEdgeId) {
-		for (MultiTreeSPEntryItem item : items) {
-			item.setOriginalEdge(newOriginalEdgeId);
+		for (int i = 0; i < getSize(); i++) {
+			getItem(i).setOriginalEdge(newOriginalEdgeId);
 		}
 	}
 
@@ -41,8 +39,8 @@ public class AveragedMultiTreeSPEntry extends MultiTreeSPEntry {
 	public void updateWeights() {
 		double averageWeight = 0;
 		int numNonInfiniteWeights = 0;
-		for (int i = 0; i < items.length; i++) {
-			MultiTreeSPEntryItem item = items[i];
+		for (int i = 0; i < getSize(); i++) {
+			MultiTreeSPEntryItem item = getItem(i);
 			double itemWeight = item.getWeight();
 			if(itemWeight != Double.POSITIVE_INFINITY) {
 				averageWeight += itemWeight;
@@ -68,6 +66,6 @@ public class AveragedMultiTreeSPEntry extends MultiTreeSPEntry {
 
 	@Override
 	public String toString() {
-		return adjNode + " (" + 0 + ") weights: " + Arrays.toString(items);
+		return "adjNode: " + getAdjNode() + ",  average weight: " + weight;
 	}
 }

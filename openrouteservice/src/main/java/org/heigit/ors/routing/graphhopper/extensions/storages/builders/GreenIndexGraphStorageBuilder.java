@@ -35,17 +35,17 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final Logger LOGGER = Logger.getLogger(GreenIndexGraphStorageBuilder.class.getName());
 
     private GreenIndexGraphStorage storage;
-    private Map<Long, Double> greenIndices = new HashMap<>();
+    private final Map<Long, Double> greenIndices = new HashMap<>();
     private static final int TOTAL_LEVEL = 64;
     private static final int DEFAULT_LEVEL = TOTAL_LEVEL - 1;
-    private Map<Byte, SlotRange> slots = new HashMap<>(TOTAL_LEVEL);
+    private final Map<Byte, SlotRange> slots = new HashMap<>(TOTAL_LEVEL);
 
     @Override
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        // TODO Check if the _greenIndexFile exists
+        // TODO Refactoring Check if the _greenIndexFile exists
         String csvFile = parameters.get("filepath");
         readGreenIndicesFromCSV(csvFile);
         prepareGreenIndexSlots();
@@ -92,7 +92,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         int pos = row.indexOf(separator);
         if (pos > 0) {
         	rowValues[0] = row.substring(0, pos).trim();
-        	rowValues[1] = row.substring(pos+1, row.length()).trim();
+        	rowValues[1] = row.substring(pos+1).trim();
         	// read, check and push "osm_id" and "ungreen_factor" values
             return !Helper.isEmpty(rowValues[0]) && !Helper.isEmpty(rowValues[1]);
         }
@@ -129,7 +129,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         // No such @id key in the _greenIndices, or the value of it is null
         // We set its green level to TOTAL_LEVEL/2 indicating the middle value for such cases
-        // TODO this DEFAULT_LEVEL should be put in the ors-config.json file and
+        // TODO Refactoring this DEFAULT_LEVEL should be put in the ors-config.json file and
         // injected back in the code
         if (gi == null)
             return (byte) (DEFAULT_LEVEL);

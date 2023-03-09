@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.util;
 
+import com.graphhopper.routing.weighting.Weighting;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -24,6 +25,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+
+import static com.graphhopper.util.Helper.toLowerCase;
 
 public class FileUtility {
 	private static final Logger LOGGER = Logger.getLogger(FileUtility.class.getName());
@@ -133,4 +136,9 @@ public class FileUtility {
 		}
 		return filename;
 	}
+
+	public static String weightingToFileName(Weighting w) {
+		return toLowerCase(w.toString()).replaceAll("\\|", "_");
+	}
+
 }

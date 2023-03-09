@@ -13,17 +13,17 @@
  */
 package org.heigit.ors.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class IsochroneMap {
-	private int travellerId;
-	private Envelope envelope;
-	private List<Isochrone> isochrones;
-	private Coordinate center;
+	private final int travellerId;
+	private final Envelope envelope;
+	private final List<Isochrone> isochrones;
+	private final Coordinate center;
 	private String graphDate;
 
     public IsochroneMap(int travellerId, Coordinate center) {

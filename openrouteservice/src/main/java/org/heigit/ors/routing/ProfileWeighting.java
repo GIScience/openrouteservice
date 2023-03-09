@@ -20,7 +20,7 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.util.StringUtility;
 
 public class ProfileWeighting {
-	private String name;
+	private final String name;
 	private PMap params;
 
 	public ProfileWeighting(String name) throws InternalServerException {
@@ -35,7 +35,7 @@ public class ProfileWeighting {
 	}
 
 	public void addParameter(String name, Object value) {
-		getParameters().put(name, value);
+		getParameters().putObject(name, value);
 	}
 
 	public PMap getParameters()

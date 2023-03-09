@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class CountryBordersHierarchy {
     private double minLon = 180f;
     private double maxLat = -180f;
     private double maxLon = -180f;
-    private ArrayList<CountryBordersPolygon> polygons = new ArrayList<>();
+    private final ArrayList<CountryBordersPolygon> polygons = new ArrayList<>();
 
     /**
      * Add a boundary polygon to the hierarchy and update the hiearchies extent.

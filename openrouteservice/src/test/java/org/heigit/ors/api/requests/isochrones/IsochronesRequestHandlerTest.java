@@ -1,7 +1,7 @@
 package org.heigit.ors.api.requests.isochrones;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -279,12 +279,12 @@ public class IsochronesRequestHandlerTest {
         request.setLocations(coordinates);
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         Assert.assertNull(routeSearchParameters.getAvoidAreas());
         Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
         Assert.assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
         Assert.assertNull(routeSearchParameters.getProfileParameters());
         Assert.assertNull(routeSearchParameters.getBearings());
@@ -298,12 +298,12 @@ public class IsochronesRequestHandlerTest {
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
 
         Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.FASTEST, routeSearchParameters.getWeightingMethod());
+        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
         Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());
         Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.getFlexibleMode());
+        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
         Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
         Assert.assertNull(routeSearchParameters.getBearings());
         Assert.assertNull(routeSearchParameters.getMaximumRadiuses());
@@ -315,13 +315,13 @@ public class IsochronesRequestHandlerTest {
         Iterator<ProfileWeighting> iter = weightings.getIterator();
         while (iter.hasNext() && (weighting = iter.next()) != null) {
             if (weighting.getName().equals("green")) {
-                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("quiet")) {
-                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0);
+                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("steepness_difficulty")) {
-                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0);
+                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0.0001);
             }
         }
     }

@@ -18,13 +18,13 @@
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.util.PriorityCode;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.routing.ev.RouteNetwork.LOCAL;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Specifies the settings for race biking
@@ -140,13 +140,9 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("steps");
         addPushingSection(KEY_BRIDLEWAY);
 
-        setCyclingNetworkPreference("icn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("ncn", PriorityCode.BEST.getValue());
-        setCyclingNetworkPreference("rcn", PriorityCode.VERY_NICE.getValue());
-        setCyclingNetworkPreference("lcn", PriorityCode.UNCHANGED.getValue());
-        setCyclingNetworkPreference("mtb", PriorityCode.UNCHANGED.getValue());
+        routeMap.put(LOCAL, UNCHANGED.getValue());
 
-        absoluteBarriers.add("kissing_gate");
+        blockByDefaultBarriers.add("kissing_gate");
 
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
@@ -201,16 +197,10 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
         LOGGER.info("NextGen RoadBike FlagEncoder is active...");
         // MARQ24 MOD END
-        this.init();
     }
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    public int getVersion() {
-        return 2;
     }
 
     @Override

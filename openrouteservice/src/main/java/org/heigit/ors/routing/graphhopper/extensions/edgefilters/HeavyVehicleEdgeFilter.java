@@ -16,15 +16,15 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.routing.Dijkstra;
-import com.graphhopper.routing.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphStorage;
-import com.graphhopper.storage.SPTEntry;
+import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
@@ -50,23 +50,23 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 		} 
 	}
 
-	private int vehicleType;
-	private boolean hasHazmat; 
-	private HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-	private float[] restrictionValues;
-	private double[] retValues;
-	private Integer[] indexValues;
-	private Integer[] indexLocs;
-	private int restCount;
+	private final int vehicleType;
+	private boolean hasHazmat;
+	private final HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
+	private final float[] restrictionValues;
+	private final double[] retValues;
+	private final Integer[] indexValues;
+	private final Integer[] indexLocs;
+	private final int restCount;
 	private int mode = MODE_CLOSEST_EDGE;
 	private	List<Integer> destinationEdges;
-	private byte[] buffer;
+	private final byte[] buffer;
 
 	private static final int MODE_DESTINATION_EDGES = -1;
 	private static final int MODE_CLOSEST_EDGE = -2;
 	private static final int MODE_ROUTE = 0;
 
-	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphStorage graphStorage) {
+	public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
 		this(vehicleType, vehicleParams, GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class));
 	}
 
@@ -81,6 +81,8 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_WEIGHT] = (float) vehicleParams.getWeight();
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_LENGTH] = (float) vehicleParams.getLength();
 			vehicleAttrs[VehicleDimensionRestrictions.MAX_AXLE_LOAD] = (float) vehicleParams.getAxleload();
+		} else {
+			this.hasHazmat = false;
 		}
 
 		ArrayList<Integer> idx = new ArrayList<>();

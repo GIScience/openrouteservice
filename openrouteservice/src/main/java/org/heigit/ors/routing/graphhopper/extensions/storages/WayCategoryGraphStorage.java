@@ -13,10 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
 
 public class WayCategoryGraphStorage implements GraphExtension {
 	/* pointer for no entry */
@@ -27,14 +24,11 @@ public class WayCategoryGraphStorage implements GraphExtension {
 	protected int edgeEntryBytes;
 	protected int edgesCount; // number of edges with custom values
 
-	private byte[] byteValues;
-
 	public WayCategoryGraphStorage() {
 		efWaytype = 0;
 	
 		edgeEntryBytes = edgeEntryIndex + 1;
 		edgesCount = 0;
-		byteValues = new byte[10];
 	}
 
 	public void init(Graph graph, Directory dir) {
@@ -48,14 +42,14 @@ public class WayCategoryGraphStorage implements GraphExtension {
 		orsEdges.setSegmentSize(bytes);
 	}
 
-	public GraphExtension create(long initBytes) {
+	public WayCategoryGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);
 		return this;
 	}
 
 	public void flush() {
 		orsEdges.setHeader(0, edgeEntryBytes);
-		orsEdges.setHeader(1 * 4, edgesCount);
+		orsEdges.setHeader(4, edgesCount);
 		orsEdges.flush();
 	}
 
@@ -63,6 +57,7 @@ public class WayCategoryGraphStorage implements GraphExtension {
 		orsEdges.close();
 	}
 
+	@Override
 	public long getCapacity() {
 		return orsEdges.getCapacity();
 	}
@@ -90,50 +85,19 @@ public class WayCategoryGraphStorage implements GraphExtension {
 
 		// add entry
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		byteValues[0] = (byte)wayType;
-		orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
+		byte byteValue = (byte) wayType;
+		orsEdges.setByte(edgePointer + efWaytype, byteValue);
 	}
 
 	public int getEdgeValue(int edgeId, byte[] buffer) {
 		long edgePointer = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgePointer + efWaytype, buffer, 1);
-		
-		int result = buffer[0];
+		byte byteValue = orsEdges.getByte(edgePointer + efWaytype);
+
+		int result = byteValue;
 	    if (result < 0)
 	    	result = result & 0xff;
 		
 		return result;
-	}
-
-	public boolean isRequireNodeField() {
-		return false;
-	}
-
-	public boolean isRequireEdgeField() {
-		// we require the additional field in the graph to point to the first
-		// entry in the node table
-		return true;
-	}
-
-	public int getDefaultNodeFieldValue() {
-		return -1;
-	}
-
-	public int getDefaultEdgeFieldValue() {
-		return -1;
-	}
-
-	public GraphExtension copyTo(GraphExtension clonedStorage) {
-		if (!(clonedStorage instanceof WayCategoryGraphStorage)) {
-			throw new IllegalStateException("the extended storage to clone must be the same");
-		}
-
-		WayCategoryGraphStorage clonedTC = (WayCategoryGraphStorage) clonedStorage;
-
-		orsEdges.copyTo(clonedTC.orsEdges);
-		clonedTC.edgesCount = edgesCount;
-
-		return clonedStorage;
 	}
 
 	@Override

@@ -13,10 +13,11 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.profiles.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.PriorityCode;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.FastestWeighting;
+import com.graphhopper.routing.weighting.TurnCostProvider;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
@@ -33,9 +34,14 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
 	}
 
+	public OptimizedPriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
+		super(encoder, map, tcp);
+		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
+	}
+
 	@Override
-	public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long edgeEnterTime) {
-		double weight = super.calcWeight(edgeState, reverse, prevOrNextEdgeId, edgeEnterTime);
+	public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
+		double weight = super.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
 		if (Double.isInfinite(weight))
 			return Double.POSITIVE_INFINITY;
 
@@ -60,7 +66,7 @@ public class OptimizedPriorityWeighting extends FastestWeighting {
 
 	@Override
 	public int hashCode() {
-		return ("OptimizedPriorityWeighting" + toString()).hashCode();
+		return ("OptimizedPriorityWeighting" + this).hashCode();
 	}
 
 	@Override

@@ -77,9 +77,8 @@ public class SpeedStorage implements GraphExtension {
     }
 
     @Override
-    public void flush() {
-        speedData.setHeader(0, this.edgeCount);
-        speedData.flush();
+    public long getCapacity() {
+        return speedData.getCapacity();
     }
 
     @Override
@@ -93,43 +92,13 @@ public class SpeedStorage implements GraphExtension {
     }
 
     @Override
-    public long getCapacity() {
-        return speedData.getCapacity();
+    public void flush() {
+        speedData.flush();
     }
 
     protected void checkEdgeInBounds(int edgeId) {
         if (edgeId >= speedData.getCapacity() / BYTE_COUNT) {
             speedData.ensureCapacity(edgeId * BYTE_COUNT);
         }
-    }
-
-    @Override
-    public boolean isRequireNodeField() {
-        return false;
-    }
-
-    @Override
-    public boolean isRequireEdgeField() {
-        return false;
-    }
-
-    @Override
-    public int getDefaultNodeFieldValue() {
-        return -1;
-    }
-
-    @Override
-    public int getDefaultEdgeFieldValue() {
-        return -1;
-    }
-
-    @Override
-    public void setSegmentSize(int bytes) {
-        this.speedData.setSegmentSize(bytes);
-    }
-
-    @Override
-    public GraphExtension copyTo(GraphExtension graphExtension) {
-        return null;
     }
 }

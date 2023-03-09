@@ -17,7 +17,7 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.*;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -32,7 +32,7 @@ import org.opengis.referencing.operation.TransformException;
 
 public class GeomUtility {
 
-	private static GeometryFactory geometryFactory = new GeometryFactory();
+	private static final GeometryFactory geometryFactory = new GeometryFactory();
 	
 	private static MathTransform transformWgs84Sphericalmercator = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
 
@@ -51,7 +51,7 @@ public class GeomUtility {
 	 * @return Returns a graphhopper bounding box
 	 */
 	public static BBox calculateBoundingBox(PointList pointList) {
-		if (pointList == null || pointList.getSize() <= 0) {
+		if (pointList == null || pointList.size() <= 0) {
 			return new BBox(0, 0, 0, 0);
 		} else {
 			double minLon = Double.MAX_VALUE;
@@ -60,7 +60,7 @@ public class GeomUtility {
 			double maxLat = -Double.MAX_VALUE;
 			double minEle = Double.MAX_VALUE;
 			double maxEle = -Double.MAX_VALUE;
-			for (int i = 0; i < pointList.getSize(); ++i) {
+			for (int i = 0; i < pointList.size(); ++i) {
 				minLon = Math.min(minLon, pointList.getLon(i));
 				maxLon = Math.max(maxLon, pointList.getLon(i));
 				minLat = Math.min(minLat, pointList.getLat(i));

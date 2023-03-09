@@ -25,6 +25,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.util.FileUtility;
 
 import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
@@ -56,7 +57,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     public EccentricityStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
         //A map of nodeId to pointer is stored in the first block.
         //The second block stores 2 values for each pointer, full reachability and eccentricity
-        final String name = AbstractWeighting.weightingToFileName(weighting);
+        final String name = FileUtility.weightingToFileName(weighting);
         eccentricities = dir.find("eccentricities_" + name);
         this.weighting = weighting;
         this.isochroneNodeStorage = isochroneNodeStorage;
@@ -67,7 +68,6 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         this.eccentricityPosition = 4;
     }
 
-    @Override
     public boolean loadExisting() {
         if (eccentricities.loadExisting()) {
             borderNodeCount = eccentricities.getHeader(0);
@@ -188,12 +188,10 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         }
     }
 
-    @Override
     public EccentricityStorage create(long byteCount) {
         throw new IllegalStateException("Do not call EccentricityStorage.create directly");
     }
 
-    @Override
     public void flush() {
         eccentricities.flush();
     }
@@ -222,11 +220,9 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
     }
 
     public boolean hasWeighting(Weighting weighting) {
-        if (getWeighting().getName() != null
+        return getWeighting().getName() != null
                 && getWeighting().getName().equals(weighting.getName())
                 && getWeighting().getFlagEncoder().toString() != null
-                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString()))
-            return true;
-        return false;
+                && getWeighting().getFlagEncoder().toString().equals(weighting.getFlagEncoder().toString());
     }
 }

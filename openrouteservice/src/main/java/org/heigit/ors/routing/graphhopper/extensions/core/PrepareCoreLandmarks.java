@@ -13,24 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
-import com.graphhopper.routing.lm.LandmarkSuggestion;
-import com.graphhopper.routing.util.AbstractAlgoPreparation;
-import com.graphhopper.routing.util.spatialrules.SpatialRuleLookup;
+import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import com.graphhopper.util.Parameters;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,155 +32,27 @@ import java.util.Map;
  *
  * This code is based on that from GraphHopper GmbH.
  *
- * @author Hendrik Leuschner
  * @author Peter Karich
+ * @author Andrzej Oles
  */
-public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrepareCoreLandmarks.class);
-    public static final String ERROR_NOT_INITIALIZED = "Initalize landmark storage before creating algorithms";
-    public static final String KEY_EPSILON = ".epsilon";
-    private final Graph graph;
-    private final CoreLandmarkStorage lms;
-    private final Weighting weighting;
-    private int defaultActiveLandmarks;
-    private LMEdgeFilterSequence landmarksFilter;
+public class PrepareCoreLandmarks extends PrepareLandmarks {
+    private final LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, Map<Integer, Integer> coreNodeIdMap, Weighting weighting, LMEdgeFilterSequence landmarksFilter, int landmarks,
-                                int activeLandmarks) {
-        if (activeLandmarks > landmarks)
-            throw new IllegalArgumentException("Default value for active landmarks " + activeLandmarks
-                    + " should be less or equal to landmark count of " + landmarks);
-        this.graph = graph;
-        this.defaultActiveLandmarks = activeLandmarks;
-        this.weighting = weighting;
-        this.landmarksFilter = landmarksFilter;
-        lms = new CoreLandmarkStorage(dir, graph, coreNodeIdMap, weighting, landmarksFilter, landmarks);
-    }
-
-    /**
-     * @see LandmarkStorage#setLandmarkSuggestions(List)
-     */
-    public PrepareCoreLandmarks setLandmarkSuggestions(List<LandmarkSuggestion> landmarkSuggestions) {
-        lms.setLandmarkSuggestions(landmarkSuggestions);
-        return this;
-    }
-
-    /**
-     * @see LandmarkStorage#setSpatialRuleLookup(SpatialRuleLookup)
-     */
-    public PrepareCoreLandmarks setSpatialRuleLookup(SpatialRuleLookup ruleLookup) {
-        lms.setSpatialRuleLookup(ruleLookup);
-        return this;
-    }
-
-    /**
-     * @see LandmarkStorage#setMaximumWeight(double)
-     */
-    public PrepareCoreLandmarks setMaximumWeight(double maximumWeight) {
-        lms.setMaximumWeight(maximumWeight);
-        return this;
-    }
-
-    /**
-     * @see LandmarkStorage#setLMSelectionWeighting(Weighting)
-     */
-    public void setLMSelectionWeighting(Weighting w) {
-        lms.setLMSelectionWeighting(w);
-    }
-
-    /**
-     * @see LandmarkStorage#setMinimumNodes(int)
-     */
-    public void setMinimumNodes(int nodes) {
-        if (nodes < 2)
-            throw new IllegalArgumentException("minimum node count must be at least 2");
-
-        lms.setMinimumNodes(nodes);
-    }
-
-    public PrepareCoreLandmarks setLogDetails(boolean logDetails) {
-        lms.setLogDetails(logDetails);
-        return this;
-    }
-
-    public CoreLandmarkStorage getLandmarkStorage() {
-        return lms;
-    }
-
-    public int getSubnetworksWithLandmarks() {
-        return lms.getSubnetworksWithLandmarks();
-    }
-
-    public Weighting getWeighting() {
-        return weighting;
-    }
-
-    public boolean loadExisting() {
-        return lms.loadExisting();
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, CoreLMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap) {
+        super(dir, graph, lmConfig, landmarks);
+        this.landmarksFilter = lmConfig.getEdgeFilter();
+        CoreLandmarkStorage coreLandmarkStorage = (CoreLandmarkStorage) getLandmarkStorage();
+        coreLandmarkStorage.setCoreNodeIdMap(coreNodeIdMap);
     }
 
     @Override
-    public void doSpecificWork() {
-        if (LOGGER.isInfoEnabled())
-            LOGGER.info(String.format("Start calculating %d landmarks, default active lms:%d, weighting:%s, %s", lms.getLandmarkCount(), defaultActiveLandmarks, lms.getLmSelectionWeighting(), Helper.getMemInfo()));
-        lms.createLandmarks();
-        lms.flush();
-    }
+    public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
+        if (!(lmConfig instanceof CoreLMConfig))
+            throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+        if (!(graph instanceof ORSGraphHopperStorage))
+            throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
-    public RoutingAlgorithm getDecoratedAlgorithm(Graph qGraph, RoutingAlgorithm algo, AlgorithmOptions opts) {
-        int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
-
-        if (algo instanceof CoreALT) {
-            if (!lms.isInitialized())
-                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
-
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
-            CoreALT coreALT = (CoreALT) algo;
-
-            coreALT.setApproximation(
-                    new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
-                            .setEpsilon(epsilon));
-            return algo;
-        }
-        if (algo instanceof AStar) {
-            if (!lms.isInitialized())
-                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
-
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR + KEY_EPSILON, 1);
-            AStar astar = (AStar) algo;
-
-            astar.setApproximation(
-                    new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
-                            .setEpsilon(epsilon));
-            return algo;
-        } else if (algo instanceof AStarBidirection) {
-            if (!lms.isInitialized())
-                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
-
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
-            AStarBidirection astarbi = (AStarBidirection) algo;
-
-            astarbi.setApproximation(
-                    new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
-                            .setEpsilon(epsilon));
-            return algo;
-        } else if (algo instanceof AlternativeRoute) {
-            if (!lms.isInitialized())
-                throw new IllegalStateException(ERROR_NOT_INITIALIZED);
-
-            double epsilon = opts.getHints().getDouble(Parameters.Algorithms.ASTAR_BI + KEY_EPSILON, 1);
-            AlternativeRoute altRoute = (AlternativeRoute) algo;
-            //TODO  //TODO Should work with standard LMApproximator
-
-            altRoute.setApproximation(
-                    new CoreLMApproximator(qGraph, this.graph.getNodes(), lms, activeLM, lms.getFactor(), false)
-                            .setEpsilon(epsilon));
-            // landmark algorithm follows good compromise between fast response and exploring 'interesting' paths so we
-            // can decrease this exploration factor further (1->dijkstra, 0.8->bidir. A*)
-            altRoute.setMaxExplorationFactor(0.6);
-        }
-
-        return algo;
+        return new CoreLandmarkStorage(dir, (ORSGraphHopperStorage) graph, (CoreLMConfig) lmConfig, landmarks);
     }
 
     public boolean matchesFilter(PMap pmap){
@@ -196,21 +60,4 @@ public class PrepareCoreLandmarks extends AbstractAlgoPreparation {
         //Also returns true if the query has no avoidables and the set has no avoidables
         return landmarksFilter.isFilter(pmap);
     }
-
-    /**
-     * This method is for debugging
-     */
-    public void printLandmarksLongLat(){
-        int[] currentSubnetwork;
-        for(int subnetworkId = 1; subnetworkId < lms.getSubnetworksWithLandmarks(); subnetworkId++){
-            if (LOGGER.isInfoEnabled())
-                LOGGER.info(String.format("Subnetwork %d", subnetworkId));
-            currentSubnetwork = lms.getLandmarks(subnetworkId);
-            for(int landmark : currentSubnetwork){
-                if (LOGGER.isInfoEnabled())
-                    LOGGER.info(String.format("[%s, %s],", graph.getNodeAccess().getLon(landmark), graph.getNodeAccess().getLat(landmark)));
-            }
-        }
-    }
-
 }

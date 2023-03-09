@@ -29,13 +29,13 @@ public class RangeDijkstraTest {
         //     /  |
         //    4---3
         GraphHopperStorage g = createGHStorage();
-        g.edge(0, 1, 1, true);
-        g.edge(0, 2, 1, true);
-        g.edge(0, 4, 3, true);
-        g.edge(1, 2, 2, true);
-        g.edge(2, 3, 1, true);
-        g.edge(4, 3, 2, true);
-        g.edge(5, 1, 2, true);
+        g.edge(0, 1).setDistance(1);
+        g.edge(0, 2).setDistance(1);
+        g.edge(0, 4).setDistance(3);
+        g.edge(1, 2).setDistance(2);
+        g.edge(2, 3).setDistance(1);
+        g.edge(4, 3).setDistance(2);
+        g.edge(5, 1).setDistance(2);
 
         g.getBaseGraph().getNodeAccess().setNode(0, 2, 2);
         g.getBaseGraph().getNodeAccess().setNode(1, 3, 2);

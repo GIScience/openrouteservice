@@ -34,14 +34,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 	private int hgvType = 0;
 	private int hgvDestination = 0;
 	private boolean hasRestrictionValues;
-	private double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
-	private List<String> motorVehicleRestrictions = new ArrayList<>(5);
-	private Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
-	private Set<String> motorVehicleHgvValues = new HashSet<>(6);
+	private final double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
+	private final List<String> motorVehicleRestrictions = new ArrayList<>(5);
+	private final Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
+	private final Set<String> motorVehicleHgvValues = new HashSet<>(6);
 
-	private Set<String> noValues = new HashSet<>(5);
-	private Set<String> yesValues = new HashSet<>(5);
-	private Pattern patternDimension;
+	private final Set<String> noValues = new HashSet<>(5);
+	private final Set<String> yesValues = new HashSet<>(5);
+	private final Pattern patternDimension;
 
 	public HeavyVehicleGraphStorageBuilder() {
 		motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
@@ -101,9 +101,11 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 			if (way.hasTag(motorVehicleRestrictions, motorVehicleHgvValues)) {
 				int flag = 0;
 				for (String key : motorVehicleRestrictions) {
-					String val = way.getTag(key);
-					if (motorVehicleHgvValues.contains(val))
-						flag |= HeavyVehicleAttributes.getFromString(val);
+					String [] values = way.getTagValues(key);
+					for (String val: values) {
+						if (motorVehicleHgvValues.contains(val))
+							flag |= HeavyVehicleAttributes.getFromString(val);
+					}
 				}
 				hgvType = HeavyVehicleAttributes.ANY & ~flag;
 			}

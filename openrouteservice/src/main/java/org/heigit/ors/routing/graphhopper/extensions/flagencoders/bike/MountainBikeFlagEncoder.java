@@ -17,14 +17,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.util.PriorityCode.*;
+import static com.graphhopper.routing.ev.RouteNetwork.*;
+import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
  * Specifies the settings for mountain biking
@@ -108,12 +108,6 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("pedestrian");
         addPushingSection("steps");
 
-        setCyclingNetworkPreference("icn", PREFER.getValue());
-        setCyclingNetworkPreference("ncn", PREFER.getValue());
-        setCyclingNetworkPreference("rcn", PREFER.getValue());
-        setCyclingNetworkPreference("lcn", PREFER.getValue());
-        setCyclingNetworkPreference("mtb", BEST.getValue());
-
         avoidHighwayTags.add("primary");
         avoidHighwayTags.add("primary_link");
         avoidHighwayTags.add("secondary");
@@ -128,19 +122,19 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        potentialBarriers.add("kissing_gate");
+        passByDefaultBarriers.add("kissing_gate");
         setSpecificClassBicycle("mtb");
 
-        init();
+        routeMap.put(INTERNATIONAL, PREFER.getValue());
+        routeMap.put(NATIONAL, PREFER.getValue());
+        routeMap.put(REGIONAL, PREFER.getValue());
+        routeMap.put(LOCAL, PREFER.getValue());
+        routeMap.put(MTB, BEST.getValue());
+        routeMap.put(OTHER, PREFER.getValue());
     }
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    public int getVersion() {
-        return 2;
     }
 
     @Override
@@ -157,19 +151,6 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
             else if (trackType.startsWith("grade"))
                 weightToPrioMap.put(100d, VERY_NICE.getValue());
         }
-    }
-
-    @Override
-    public long handleRelationTags(long oldRelationFlags, ReaderRelation relation) {
-        oldRelationFlags = super.handleRelationTags(oldRelationFlags, relation);
-        int code = 0;
-        if (relation.hasTag("route", "mtb"))
-            code = PREFER.getValue();
-
-        int oldCode = (int) relationCodeEncoder.getValue(oldRelationFlags);
-        if (oldCode < code)
-            return relationCodeEncoder.setValue(0, code);
-        return oldRelationFlags;
     }
 
     @Override

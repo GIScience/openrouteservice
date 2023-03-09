@@ -20,7 +20,6 @@
  */
 package org.heigit.ors.v2.services.common;
 
-import org.heigit.ors.services.common.Utils;
 import io.restassured.RestAssured;
 import org.junit.BeforeClass;
 
@@ -57,8 +56,12 @@ public abstract class ServiceTest {
 		dictUrlParams.put(paramName, paramValue);
 	}
 
-	protected String getEndPointName() {
-		return endPointName;
+	protected String getEndPointPath(String altName) {
+		String tmp = endPointName;
+		endPointName = altName;
+		String ret = getEndPointPath();
+		endPointName = tmp;
+		return ret;
 	}
 
 	protected String getEndPointPath() {
