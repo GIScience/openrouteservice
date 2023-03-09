@@ -302,7 +302,7 @@ public class RouteRequest extends APIRequest {
      */
     @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a transit schedule starting at <departure> for the next <schedule_duration> minutes." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true")
+            example = "true", hidden = true)
     @JsonProperty(PARAM_SCHEDULE)
     private boolean schedule;
     @JsonIgnore
@@ -310,7 +310,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window for a transit schedule request." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true")
+            example = "PT30M", hidden = true)
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
@@ -318,7 +318,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The amount of solutions that should be returned." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true")
+            example = "true", hidden = true)
     @JsonProperty(PARAM_SCHEDULE_ROWS)
     private int scheduleRows;
     @JsonIgnore
@@ -326,7 +326,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transit." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true")
+            example = "PT30M", hidden = true)
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
     @JsonIgnore
@@ -334,7 +334,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true")
+            example = "true", hidden = true)
     @JsonProperty(PARAM_IGNORE_TRANSFERS)
     private boolean ignoreTransfers;
     @JsonIgnore
