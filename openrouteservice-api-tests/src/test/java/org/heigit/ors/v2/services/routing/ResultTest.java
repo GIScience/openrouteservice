@@ -3654,7 +3654,7 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
     @Test
-    public void testPT() {
+    public void testPTJSON() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.6729581);
@@ -3694,8 +3694,26 @@ public class ResultTest extends ServiceTest {
             .body("routes[0].legs[1].containsKey('route_desc')", is(true))
             .body("routes[0].legs[1].containsKey('geometry')", is(true))
             .statusCode(200).extract().response();
+    }
 
-        given()
+    @Test
+    public void testPTGeoJSON() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.6729581);
+        coord1.put(49.4468535);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.7067204);
+        coord2.put(49.3786147);
+        coordinates.put(coord2);
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("instructions", true);
+        body.put("elevation", true);
+        body.put("departure", "2022-07-04T13:02:26Z");
+        body.put("walking_time", "PT30M");
+        Response res = given()
             .header("Accept", "application/geo+json")
             .header("Content-Type", "application/json")
             .pathParam("profile", getParameter("ptProfile"))
