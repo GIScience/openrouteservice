@@ -36,6 +36,7 @@ import springfox.documentation.spring.web.scanners.DefaultModelNamesRegistryFact
 import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Set;
 
@@ -59,6 +60,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .host(swagger_documentation_url)
                 .pathProvider(new DefaultPathProvider())
+                .directModelSubstitute(Duration.class, String.class)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.heigit.ors.api"))
                 .paths(PathSelectors.any())

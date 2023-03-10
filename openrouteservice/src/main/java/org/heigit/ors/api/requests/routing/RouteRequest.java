@@ -16,10 +16,8 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.*;
-import com.graphhopper.gtfs.GHLocation;
-import com.graphhopper.gtfs.Request;
-import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Coordinate;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -27,20 +25,15 @@ import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.util.StringUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 @ApiModel(value = "Directions Service", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -302,7 +295,7 @@ public class RouteRequest extends APIRequest {
      */
     @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a transit schedule starting at <departure> for the next <schedule_duration> minutes." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true", hidden = true)
+            example = "true")
     @JsonProperty(PARAM_SCHEDULE)
     private boolean schedule;
     @JsonIgnore
@@ -310,7 +303,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window for a transit schedule request." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "PT30M", hidden = true)
+            example = "PT30M")
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
@@ -318,7 +311,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The amount of solutions that should be returned." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true", hidden = true)
+            example = "3")
     @JsonProperty(PARAM_SCHEDULE_ROWS)
     private int scheduleRows;
     @JsonIgnore
@@ -326,7 +319,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transit." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "PT30M", hidden = true)
+            example = "PT30M")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
     @JsonIgnore
@@ -334,7 +327,7 @@ public class RouteRequest extends APIRequest {
 
     @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
-            example = "true", hidden = true)
+            example = "true")
     @JsonProperty(PARAM_IGNORE_TRANSFERS)
     private boolean ignoreTransfers;
     @JsonIgnore
