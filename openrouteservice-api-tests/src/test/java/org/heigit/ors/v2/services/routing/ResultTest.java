@@ -25,6 +25,8 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,7 +47,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -98,6 +99,34 @@ public class ResultTest extends ServiceTest {
         coordsFoot.put(coordFoot2);
 
         addParameter("coordinatesWalking", coordsFoot);
+
+        JSONArray coordinatesPT = new JSONArray();
+        JSONArray coordinatesPTFlipped = new JSONArray();
+        JSONArray coordPT1 = new JSONArray();
+        coordPT1.put(8.704433);
+        coordPT1.put(49.403378);
+        JSONArray coordPT2 = new JSONArray();
+        coordPT2.put(8.676101);
+        coordPT2.put(49.408324); //
+        coordinatesPT.put(coordPT1);
+        coordinatesPT.put(coordPT2);
+        coordinatesPTFlipped.put(coordPT2);
+        coordinatesPTFlipped.put(coordPT1);
+
+        JSONArray coordinatesPT2 = new JSONArray();
+        JSONArray coordPT3 = new JSONArray();
+        coordPT3.put(8.758935);
+        coordPT3.put(49.337371);
+        JSONArray coordPT4 = new JSONArray();
+        coordPT4.put(8.771123);
+        coordPT4.put(49.511863);
+        coordinatesPT2.put(coordPT3);
+        coordinatesPT2.put(coordPT4);
+
+        addParameter("coordinatesPT", coordinatesPT);
+        addParameter("coordinatesPTFlipped", coordinatesPTFlipped);
+        addParameter("coordinatesPT2", coordinatesPT2);
+
 
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
@@ -3739,54 +3768,21 @@ public class ResultTest extends ServiceTest {
             .statusCode(200).extract().response();
     }
 
-    @Test
-    public void testPTFail() {
-        JSONArray coordinates =  new JSONArray();
-        JSONArray coord1 = new JSONArray();
-        coord1.put(8.704433);
-        coord1.put(49.403378);
-        coordinates.put(coord1);
-        JSONArray coord2 = new JSONArray();
-        coord2.put(8.676101);
-        coord2.put(49.408324); //
-        coordinates.put(coord2);
+    @ParameterizedTest
+    @CsvSource({"coordinatesPT,PT1M,2013,0", "coordinatesPTFlipped,PT1M,2014,1", "coordinatesPTFlipped,PT10S,2015,2", "coordinatesPTFlipped,PT10M,2016,3", "coordinatesPT2,PT4H,2017,4"})
+    public void testPTFail(String coords, String walkingTime, int errorCode, int messageIndex) {
+        String[] messages = {
+            "PT entry point cannot be reached within given street time.",
+            "PT exit point cannot be reached within given street time.",
+            "PT exit point cannot be reached within given street time. PT entry point cannot be reached within given street time.",
+            "PT entry and exit points found but no connecting route. Increase walking time to explore more results.",
+            "Maximum number of nodes exceeded: 15000"
+        };
+
         JSONObject body = new JSONObject();
-        body.put("coordinates", coordinates);
+        body.put("coordinates", getParameter(coords));
         body.put("departure", "2022-09-26T07:30:26Z");
-        body.put("walking_time", "PT1M");
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("ptProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'error' }", is(true))
-                .body("error.code", is(2013))
-                .body("error.message", containsString("PT entry point cannot be reached within given street time."))
-                .statusCode(404).extract().response();
-
-        coordinates = new JSONArray();
-        coordinates.put(coord2);
-        coordinates.put(coord1);
-        body.put("coordinates", coordinates);
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("ptProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'error' }", is(true))
-                .body("error.code", is(2014))
-                .body("error.message", containsString("PT exit point cannot be reached within given street time."))
-                .statusCode(404).extract().response();
-
-        body.put("walking_time", "PT10S");
+        body.put("walking_time", walkingTime);
         given()
             .header("Accept", "application/json")
             .header("Content-Type", "application/json")
@@ -3797,50 +3793,9 @@ public class ResultTest extends ServiceTest {
             .then().log().ifValidationFails()
             .assertThat()
             .body("any { it.key == 'error' }", is(true))
-            .body("error.code", is(2015))
-            .body("error.message", containsString("PT entry point cannot be reached within given street time."))
-            .body("error.message", containsString("PT exit point cannot be reached within given street time."))
-            .statusCode(404).extract().response();
-
-        body.put("walking_time", "PT10M");
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("ptProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'error' }", is(true))
-                .body("error.code", is(2016))
-                .body("error.message", containsString("PT entry and exit points found but no connecting route. Increase walking time to explore more results."))
-                .statusCode(404).extract().response();
-
-        coordinates = new JSONArray();
-        JSONArray coord3 = new JSONArray();
-        coord3.put(8.758935);
-        coord3.put(49.337371);
-        JSONArray coord4 = new JSONArray();
-        coord4.put(8.771123);
-        coord4.put(49.511863);
-        coordinates.put(coord3);
-        coordinates.put(coord4);
-        body.put("coordinates", coordinates);
-        body.put("walking_time", "PT4H");
-        given()
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("ptProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'error' }", is(true))
-                .body("error.code", is(2017))
-                .body("error.message", containsString("Maximum number of nodes exceeded: 15000"))
-                .statusCode(404).extract().response();
+            .body("error.code", is(errorCode))
+            .body("error.message", containsString(messages[messageIndex]))
+            .statusCode(404);
     }
 
     private JSONArray constructBearings(String coordString) {
