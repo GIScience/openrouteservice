@@ -18,15 +18,26 @@ package org.heigit.ors.api;
 import org.heigit.ors.config.AppConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.ModelKey;
+import springfox.documentation.schema.ModelSpecification;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.ModelNamesRegistry;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.ModelNamesRegistryFactoryPlugin;
+import springfox.documentation.spi.service.contexts.ModelSpecificationRegistry;
 import springfox.documentation.spring.web.paths.DefaultPathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.scanners.DefaultModelNamesRegistryFactory;
+import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.Collection;
+import java.util.Set;
 
 @Configuration
 @EnableSwagger2
@@ -53,5 +64,45 @@ public class SwaggerConfig {
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo());
+    }
+    @Bean
+    @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
+    public ModelNamesRegistryFactoryPlugin swaggerFixReqResPostfix() {
+        return new DefaultModelNamesRegistryFactory() {
+            @Override
+            public ModelNamesRegistry modelNamesRegistry(ModelSpecificationRegistry registry) {
+                return super.modelNamesRegistry(hackModelSpecificationRegistry(registry));
+            }
+
+            private ModelSpecificationRegistry hackModelSpecificationRegistry(ModelSpecificationRegistry delegate) {
+                return new ModelSpecificationRegistry() {
+                    @Override
+                    public ModelSpecification modelSpecificationFor(ModelKey key) {
+                        return delegate.modelSpecificationFor(key);
+                    }
+
+                    @Override
+                    public boolean hasRequestResponsePairs(ModelKey test) {
+                        return false;
+                    }
+
+                    @Override
+                    public Collection<ModelKey> modelsDifferingOnlyInValidationGroups(ModelKey test) {
+                        return delegate.modelsDifferingOnlyInValidationGroups(test);
+                    }
+
+                    @Override
+                    public Collection<ModelKey> modelsWithSameNameAndDifferentNamespace(ModelKey test) {
+                        return delegate.modelsWithSameNameAndDifferentNamespace(test);
+                    }
+
+                    @Override
+                    public Set<ModelKey> modelKeys() {
+                        return delegate.modelKeys();
+                    }
+                };
+            }
+
+        };
     }
 }
