@@ -3682,7 +3682,7 @@ public class ResultTest extends ServiceTest {
             .body("any { it.key == 'routes' }", is(true))
             .body("routes.size()", is(3))
             .body("routes[0].summary.transfers", is(2))
-            .body("routes[0].legs.size()", is(5))
+            .body("routes[0].legs.size()", is(6))
             .body("routes[0].legs[0].containsKey('arrival')", is(true))
             .body("routes[0].legs[0].containsKey('departure')", is(true))
             .body("routes[0].legs[0].containsKey('instructions')", is(true))
@@ -3720,12 +3720,12 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}/geojson")
-            .then().log().ifValidationFails()
+            .then().log().all()
             .assertThat()
             .body("any { it.key == 'features' }", is(true))
             .body("features.size()", is(3))
             .body("features[0].properties.transfers", is(2))
-            .body("features[0].properties.legs.size()", is(5))
+            .body("features[0].properties.legs.size()", is(6))
             .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
             .body("features[0].properties.legs[0].containsKey('departure')", is(true))
             .body("features[0].properties.legs[0].containsKey('instructions')", is(true))
@@ -3827,7 +3827,7 @@ public class ResultTest extends ServiceTest {
         coordinates.put(coord3);
         coordinates.put(coord4);
         body.put("coordinates", coordinates);
-        body.put("walking_time", "PT30M");
+        body.put("walking_time", "PT4H");
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")

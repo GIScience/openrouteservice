@@ -35,7 +35,7 @@ jobs:
     - name: Copy ors test config for API tests
       run: cp ./openrouteservice-api-tests/conf/ors-config-test.json ./openrouteservice/src/main/resources/ors-config.json
     - name: Test, build, run API tests
-      run: export MAVEN_OPTS="-Xmx3000m -Xms2500m" && mvn -B -f openrouteservice/pom.xml verify jacoco:report
+      run: mvn -B -f openrouteservice/pom.xml verify jacoco:report
     - name: run SonarLint checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
