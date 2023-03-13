@@ -73,25 +73,6 @@ class ORSGraphHopperTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // This tests loading an OSM dataset preprocessed with ors-preprocessor, as used on our production servers.
-        // For testing purposes, a subset from the Heidelberg graph has been modified with several invalid ele tag
-        // values to demonstrate that the graph will still build, albeit with incorrect but valid elevation values.
-        //  <node id="...">
-        //    <tag k="ele" v="invalid ele tag"/>
-        //  </node>
-        // => NaN, elevation will be set to 0
-        //  <node id="...">
-        //    <tag k="ele" v="198.0.0.4"/>
-        //  </node>
-        // => NaN, elevation will be set to 0
-        //  <node id="...">
-        //    <tag k="ele" v="1,912.1"/>
-        //  </node>
-        // => 1912.1
-        //  <node id="...">
-        //    <tag k="ele" v="1.021,12"/>
-        //  </node>
-        // => 1.02112
     }
 
     private void checkInstructions(InstructionList instructions) {
