@@ -3380,8 +3380,7 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // TODO (refactoring): implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.
-    @Test @Ignore
+    @Test
     public void expectDepartureAndArrival() { // TD routing not implemented yet
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
