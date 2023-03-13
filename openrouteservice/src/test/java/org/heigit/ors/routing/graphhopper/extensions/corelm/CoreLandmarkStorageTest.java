@@ -16,7 +16,9 @@ package org.heigit.ors.routing.graphhopper.extensions.corelm;
 import com.graphhopper.routing.ch.NodeOrderingProvider;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
@@ -28,20 +30,20 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.util.DebugUtility;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler.createCoreNodeIdMap;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Andrzej Oles, Hendrik Leuschner
  */
-public class CoreLandmarkStorageTest {
+class CoreLandmarkStorageTest {
     private ORSGraphHopperStorage graph;
     private FlagEncoder encoder;
     private EncodingManager encodingManager;
@@ -52,8 +54,8 @@ public class CoreLandmarkStorageTest {
     private RoutingCHGraph routingCHGraph;
     private CHConfig chConfig;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         encoder = new CarFlagEncoder();
         subnetworkEnc = Subnetwork.create(encoder.toString());
         encodingManager = new EncodingManager.Builder().add(encoder).add(subnetworkEnc).build();
@@ -67,8 +69,8 @@ public class CoreLandmarkStorageTest {
         routingCHGraph = graph.getCoreGraph(chConfig.getName());
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         if (graph != null)
             graph.close();
     }
@@ -142,7 +144,7 @@ public class CoreLandmarkStorageTest {
     }
 
     @Test
-    public void testOneSubnetwork() {
+    void testOneSubnetwork() {
         // All edges in medium graph are part of core. Test if landmarks are built
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
@@ -169,7 +171,7 @@ public class CoreLandmarkStorageTest {
     }
 
     @Test
-    public void testTwoSubnetworks() {
+    void testTwoSubnetworks() {
         // All edges in medium graph are part of core. Test if landmarks are built
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);

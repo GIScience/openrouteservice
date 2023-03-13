@@ -1,7 +1,5 @@
 package org.heigit.ors.api.requests.isochrones;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -16,16 +14,19 @@ import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class IsochronesRequestHandlerTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class IsochronesRequestHandlerTest {
     IsochronesRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;
@@ -51,8 +52,8 @@ public class IsochronesRequestHandlerTest {
         return geoJsonPolygon;
     }
 
-    @Before
-    public void init() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         geoJsonPolygon = constructGeoJson();
@@ -104,76 +105,84 @@ public class IsochronesRequestHandlerTest {
     }
 
     @Test
-    public void convertSmoothing() throws ParameterValueException {
+    void convertSmoothing() throws ParameterValueException {
         Float smoothing = request.convertSmoothing(10.234);
-        Assert.assertEquals(10.234, smoothing, 0.01);
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void convertSmoothingFailWhenTooHigh() throws ParameterValueException {
-        request.convertSmoothing(105.0);
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void convertSmoothingFailWhenTooLow() throws ParameterValueException {
-        request.convertSmoothing(-5.0);
+        assertEquals(10.234, smoothing, 0.01);
     }
 
     @Test
-    public void convertLocationType() throws ParameterValueException {
+    void convertSmoothingFailWhenTooHigh() throws ParameterValueException {
+        assertThrows(ParameterValueException.class, () -> {
+            request.convertSmoothing(105.0);
+        });
+    }
+
+    @Test
+    void convertSmoothingFailWhenTooLow() throws ParameterValueException {
+        assertThrows(ParameterValueException.class, () -> {
+            request.convertSmoothing(-5.0);
+        });
+    }
+
+    @Test
+    void convertLocationType() throws ParameterValueException {
         String locationType = request.convertLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
-        Assert.assertEquals("destination", locationType);
+        assertEquals("destination", locationType);
         locationType = request.convertLocationType(IsochronesRequestEnums.LocationType.START);
-        Assert.assertEquals("start", locationType);
+        assertEquals("start", locationType);
     }
 
     @Test
-    public void convertRangeType() throws ParameterValueException {
+    void convertRangeType() throws ParameterValueException {
         TravelRangeType rangeType = request.convertRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
-        Assert.assertEquals(TravelRangeType.DISTANCE, rangeType);
+        assertEquals(TravelRangeType.DISTANCE, rangeType);
         rangeType = request.convertRangeType(IsochronesRequestEnums.RangeType.TIME);
-        Assert.assertEquals(TravelRangeType.TIME, rangeType);
+        assertEquals(TravelRangeType.TIME, rangeType);
     }
 
     @Test
-    public void convertAreaUnit() throws ParameterValueException {
+    void convertAreaUnit() throws ParameterValueException {
         String unit = request.convertAreaUnit(APIEnums.Units.KILOMETRES);
-        Assert.assertEquals("km", unit);
+        assertEquals("km", unit);
         unit = request.convertAreaUnit(APIEnums.Units.METRES);
-        Assert.assertEquals("m", unit);
+        assertEquals("m", unit);
         unit = request.convertAreaUnit(APIEnums.Units.MILES);
-        Assert.assertEquals("mi", unit);
+        assertEquals("mi", unit);
     }
 
     @Test
-    public void convertRangeUnit() throws ParameterValueException {
+    void convertRangeUnit() throws ParameterValueException {
         String unit = request.convertRangeUnit(APIEnums.Units.KILOMETRES);
-        Assert.assertEquals("km", unit);
+        assertEquals("km", unit);
         unit = request.convertRangeUnit(APIEnums.Units.METRES);
-        Assert.assertEquals("m", unit);
+        assertEquals("m", unit);
         unit = request.convertRangeUnit(APIEnums.Units.MILES);
-        Assert.assertEquals("mi", unit);
+        assertEquals("mi", unit);
     }
 
     @Test
-    public void convertSingleCoordinate() throws ParameterValueException {
+    void convertSingleCoordinate() throws ParameterValueException {
         Coordinate coord = request.convertSingleCoordinate(new Double[]{123.4, 321.0});
-        Assert.assertEquals(123.4, coord.x, 0.0001);
-        Assert.assertEquals(321.0, coord.y, 0.0001);
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
-        request.convertSingleCoordinate(new Double[]{123.4});
-    }
-
-    @Test(expected = ParameterValueException.class)
-    public void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
-        request.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
+        assertEquals(123.4, coord.x, 0.0001);
+        assertEquals(321.0, coord.y, 0.0001);
     }
 
     @Test
-    public void setRangeAndIntervals() throws ParameterValueException, ParameterOutOfRangeException {
+    void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
+        assertThrows(ParameterValueException.class, () -> {
+            request.convertSingleCoordinate(new Double[]{123.4});
+        });
+    }
+
+    @Test
+    void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
+        assertThrows(ParameterValueException.class, () -> {
+            request.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
+        });
+    }
+
+    @Test
+    void setRangeAndIntervals() throws ParameterValueException, ParameterOutOfRangeException {
         TravellerInfo info = new TravellerInfo();
         List<Double> rangeValues = new ArrayList<>();
         rangeValues.add(20.0);
@@ -181,38 +190,38 @@ public class IsochronesRequestHandlerTest {
 
         request.setRangeAndIntervals(info, rangeValues, intervalValue);
 
-        Assert.assertEquals(10.0, info.getRanges()[0], 0.0f);
-        Assert.assertEquals(20.0, info.getRanges()[1], 0.0f);
+        assertEquals(10.0, info.getRanges()[0], 0.0f);
+        assertEquals(20.0, info.getRanges()[1], 0.0f);
 
         info = new TravellerInfo();
         rangeValues = new ArrayList<>();
         rangeValues.add(15.0);
         rangeValues.add(30.0);
         request.setRangeAndIntervals(info, rangeValues, intervalValue);
-        Assert.assertEquals(15.0, info.getRanges()[0], 0.0f);
-        Assert.assertEquals(30.0, info.getRanges()[1], 0.0f);
+        assertEquals(15.0, info.getRanges()[0], 0.0f);
+        assertEquals(30.0, info.getRanges()[1], 0.0f);
 
     }
 
     @Test
-    public void convertAttributes() {
+    void convertAttributes() {
         IsochronesRequestEnums.Attributes[] atts = new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR, IsochronesRequestEnums.Attributes.TOTAL_POPULATION};
         String[] attStr = request.convertAttributes(atts);
-        Assert.assertEquals("area", attStr[0]);
-        Assert.assertEquals("reachfactor", attStr[1]);
-        Assert.assertEquals("total_pop", attStr[2]);
+        assertEquals("area", attStr[0]);
+        assertEquals("reachfactor", attStr[1]);
+        assertEquals("total_pop", attStr[2]);
     }
 
     @Test
-    public void convertCalcMethod() throws ParameterValueException {
+    void convertCalcMethod() throws ParameterValueException {
         String calcMethod = request.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS);
-        Assert.assertEquals("concaveballs", calcMethod);
+        assertEquals("concaveballs", calcMethod);
         calcMethod = request.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
-        Assert.assertEquals("grid", calcMethod);
+        assertEquals("grid", calcMethod);
     }
 
     @Test
-    public void convertIsochroneRequest() throws Exception {
+    void convertIsochroneRequest() throws Exception {
         IsochronesRequest request = new IsochronesRequest();
         Double[][] locations = {{9.676034, 50.409675}, {9.676034, 50.409675}};
         Coordinate coord0 = new Coordinate();
@@ -226,31 +235,31 @@ public class IsochronesRequestHandlerTest {
         range.add(600.0);
         request.setRange(range);
         IsochroneRequest isochroneRequest = request.convertIsochroneRequest();
-        Assert.assertNotNull(isochroneRequest);
-        Assert.assertFalse(isochroneRequest.getIncludeIntersections());
-        Assert.assertNull(request.getAttributes());
-        Assert.assertFalse(request.hasSmoothing());
-        Assert.assertNull(request.getSmoothing());
-        Assert.assertNull(request.getId());
-        Assert.assertEquals(coord0.x, isochroneRequest.getLocations()[0].x, 0);
-        Assert.assertEquals(coord0.y, isochroneRequest.getLocations()[0].y, 0);
-        Assert.assertEquals(coord0.x, isochroneRequest.getLocations()[1].x, 0);
-        Assert.assertEquals(coord0.y, isochroneRequest.getLocations()[1].y, 0);
-        Assert.assertEquals(2, isochroneRequest.getTravellers().size());
+        assertNotNull(isochroneRequest);
+        assertFalse(isochroneRequest.getIncludeIntersections());
+        assertNull(request.getAttributes());
+        assertFalse(request.hasSmoothing());
+        assertNull(request.getSmoothing());
+        assertNull(request.getId());
+        assertEquals(coord0.x, isochroneRequest.getLocations()[0].x, 0);
+        assertEquals(coord0.y, isochroneRequest.getLocations()[0].y, 0);
+        assertEquals(coord0.x, isochroneRequest.getLocations()[1].x, 0);
+        assertEquals(coord0.y, isochroneRequest.getLocations()[1].y, 0);
+        assertEquals(2, isochroneRequest.getTravellers().size());
         for (int i = 0; i < isochroneRequest.getTravellers().size(); i++) {
             TravellerInfo travellerInfo = isochroneRequest.getTravellers().get(i);
-            Assert.assertEquals(String.valueOf(i), travellerInfo.getId());
-            Assert.assertEquals(coord0, travellerInfo.getLocation());
-            Assert.assertEquals(IsochronesRequestEnums.LocationType.START.toString(), travellerInfo.getLocationType());
-            Assert.assertNotNull(travellerInfo.getRanges());
-            Assert.assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
-            Assert.assertNotNull(travellerInfo.getRouteSearchParameters());
+            assertEquals(String.valueOf(i), travellerInfo.getId());
+            assertEquals(coord0, travellerInfo.getLocation());
+            assertEquals(IsochronesRequestEnums.LocationType.START.toString(), travellerInfo.getLocationType());
+            assertNotNull(travellerInfo.getRanges());
+            assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
+            assertNotNull(travellerInfo.getRouteSearchParameters());
         }
 
     }
 
     @Test
-    public void constructTravellerInfo() throws Exception {
+    void constructTravellerInfo() throws Exception {
         Double[][] coordinates = {{1.0, 3.0}, {1.0, 3.0}};
         Double[] coordinate = {1.0, 3.0};
         Coordinate realCoordinate = new Coordinate();
@@ -264,80 +273,80 @@ public class IsochronesRequestHandlerTest {
         range.add(600.0);
         request.setRange(range);
         TravellerInfo travellerInfo = request.constructTravellerInfo(coordinate);
-        Assert.assertEquals(String.valueOf(0), travellerInfo.getId());
-        Assert.assertEquals(realCoordinate, travellerInfo.getLocation());
-        Assert.assertEquals("start", travellerInfo.getLocationType());
-        Assert.assertEquals(range.toString(), Arrays.toString(travellerInfo.getRanges()));
-        Assert.assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
+        assertEquals(String.valueOf(0), travellerInfo.getId());
+        assertEquals(realCoordinate, travellerInfo.getLocation());
+        assertEquals("start", travellerInfo.getLocationType());
+        assertEquals(range.toString(), Arrays.toString(travellerInfo.getRanges()));
+        assertEquals(TravelRangeType.TIME, travellerInfo.getRangeType());
     }
 
     @Test
-    public void constructRouteSearchParametersTest() throws Exception {
+    void constructRouteSearchParametersTest() throws Exception {
         Double[][] coordinates = {{1.0, 3.0}, {1.0, 3.0}};
         IsochronesRequest request = new IsochronesRequest();
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
         request.setLocations(coordinates);
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
-        Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
-        Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
-        Assert.assertNull(routeSearchParameters.getAvoidAreas());
-        Assert.assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
-        Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
-        Assert.assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
-        Assert.assertNull(routeSearchParameters.getProfileParameters());
-        Assert.assertNull(routeSearchParameters.getBearings());
-        Assert.assertNull(routeSearchParameters.getMaximumRadiuses());
-        Assert.assertNull(routeSearchParameters.getAvoidCountries());
-        Assert.assertNull(routeSearchParameters.getOptions());
+        assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
+        assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
+        assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
+        assertNull(routeSearchParameters.getAvoidAreas());
+        assertEquals(0, routeSearchParameters.getAvoidFeatureTypes());
+        assertEquals(0, routeSearchParameters.getVehicleType());
+        assertFalse(routeSearchParameters.hasFlexibleMode());
+        assertEquals(BordersExtractor.Avoid.NONE, routeSearchParameters.getAvoidBorders());
+        assertNull(routeSearchParameters.getProfileParameters());
+        assertNull(routeSearchParameters.getBearings());
+        assertNull(routeSearchParameters.getMaximumRadiuses());
+        assertNull(routeSearchParameters.getAvoidCountries());
+        assertNull(routeSearchParameters.getOptions());
     }
 
     @Test
-    public void processIsochronesRequestOptionsTest() throws Exception {
+    void processIsochronesRequestOptionsTest() throws Exception {
         RouteSearchParameters routeSearchParameters = request.constructRouteSearchParameters();
 
-        Assert.assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
-        Assert.assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
-        Assert.assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
+        assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
+        assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
+        assertFalse(routeSearchParameters.getConsiderTurnRestrictions());
         checkPolygon(routeSearchParameters.getAvoidAreas(), geoJsonPolygon);
-        Assert.assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());
-        Assert.assertEquals(0, routeSearchParameters.getVehicleType());
-        Assert.assertFalse(routeSearchParameters.hasFlexibleMode());
-        Assert.assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
-        Assert.assertNull(routeSearchParameters.getBearings());
-        Assert.assertNull(routeSearchParameters.getMaximumRadiuses());
-        Assert.assertNull(routeSearchParameters.getOptions());
-        Assert.assertEquals(115, routeSearchParameters.getAvoidCountries()[0]);
+        assertEquals(16, routeSearchParameters.getAvoidFeatureTypes());
+        assertEquals(0, routeSearchParameters.getVehicleType());
+        assertFalse(routeSearchParameters.hasFlexibleMode());
+        assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
+        assertNull(routeSearchParameters.getBearings());
+        assertNull(routeSearchParameters.getMaximumRadiuses());
+        assertNull(routeSearchParameters.getOptions());
+        assertEquals(115, routeSearchParameters.getAvoidCountries()[0]);
 
         ProfileWeightingCollection weightings = routeSearchParameters.getProfileParameters().getWeightings();
         ProfileWeighting weighting;
         Iterator<ProfileWeighting> iter = weightings.getIterator();
         while (iter.hasNext() && (weighting = iter.next()) != null) {
             if (weighting.getName().equals("green")) {
-                Assert.assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0.0001);
+                assertEquals(0.5, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("quiet")) {
-                Assert.assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0.0001);
+                assertEquals(0.2, weighting.getParameters().getDouble("factor", -1), 0.0001);
             }
             if (weighting.getName().equals("steepness_difficulty")) {
-                Assert.assertEquals(3, weighting.getParameters().getInt("level", -1), 0.0001);
+                assertEquals(3, weighting.getParameters().getInt("level", -1), 0.0001);
             }
         }
     }
 
     @Test
-    public void getIsoMapsTest() {
-        Assert.assertNull(request.getIsoMaps());
+    void getIsoMapsTest() {
+        assertNull(request.getIsoMaps());
     }
 
     @Test
-    public void getIsochroneRequestTest() {
-        Assert.assertNull(request.getIsochroneRequest());
+    void getIsochroneRequestTest() {
+        assertNull(request.getIsochroneRequest());
     }
 
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {
-        Assert.assertEquals(1, requestPolys.length);
+        assertEquals(1, requestPolys.length);
 
         JSONArray jsonCoords = (JSONArray) ((JSONArray) apiPolys.get("coordinates")).get(0);
         for (int i = 0; i < jsonCoords.size(); i++) {
@@ -349,8 +358,8 @@ public class IsochronesRequestHandlerTest {
     }
 
     private void compareCoordinates(Coordinate c1, Coordinate c2) {
-        Assert.assertEquals(c1.x, c2.x, 0);
-        Assert.assertEquals(c1.y, c2.y, 0);
+        assertEquals(c1.x, c2.x, 0);
+        assertEquals(c1.y, c2.y, 0);
     }
 
 

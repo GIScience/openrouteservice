@@ -2,13 +2,13 @@ package org.heigit.ors.routing.graphhopper.extensions.weightings;
 
 import org.heigit.ors.routing.graphhopper.extensions.weighting.AdditionWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.ConstantWeighting;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AdditionWeightingTest {
+class AdditionWeightingTest {
     @Test
-    public void sumOfConstants () {
+    void sumOfConstants() {
         ConstantWeighting const1 = new ConstantWeighting(1, 10);
         ConstantWeighting const2 = new ConstantWeighting(2, 20);
         ConstantWeighting const3 = new ConstantWeighting(3, 30);

@@ -1,6 +1,5 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
@@ -8,14 +7,16 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONIndividualMatrixResponseTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class JSONIndividualMatrixResponseTest {
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];
     private final Double[] bareCoordinate2 = new Double[2];
@@ -24,8 +25,8 @@ public class JSONIndividualMatrixResponseTest {
     private JSONIndividualMatrixResponse distancesMatrixResponse;
     private JSONIndividualMatrixResponse combinedMatrixResponse;
 
-    @Before
-    public void setUp() throws StatusCodeException {
+    @BeforeEach
+    void setUp() throws StatusCodeException {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         MatrixResult matrixResultCombined;
@@ -86,47 +87,47 @@ public class JSONIndividualMatrixResponseTest {
 
 
     @Test
-    public void getDistances() {
-        Assert.assertNull(durationsMatrixResponse.getDistances());
-        Assert.assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, distancesMatrixResponse.getDistances()[0]);
+    void getDistances() {
+        assertNull(durationsMatrixResponse.getDistances());
+        assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, distancesMatrixResponse.getDistances()[0]);
 
-        Assert.assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDistances()[1]);
+        assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDistances()[1]);
     }
 
     @Test
-    public void setDistances() {
+    void setDistances() {
         distancesMatrixResponse.setDistances(new Double[][]{{1.0, 2.0, 3.0},{1.0, 2.0, 3.0},{1.0, 2.0, 3.0}});
-        Assert.assertEquals(3, distancesMatrixResponse.getDistances().length);
-        Assert.assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, distancesMatrixResponse.getDistances()[0]);
-        Assert.assertNull(durationsMatrixResponse.getDistances());
+        assertEquals(3, distancesMatrixResponse.getDistances().length);
+        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, distancesMatrixResponse.getDistances()[0]);
+        assertNull(durationsMatrixResponse.getDistances());
     }
 
     @Test
-    public void getDurations() {
-        Assert.assertEquals(3, durationsMatrixResponse.getDurations().length);
-        Assert.assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, durationsMatrixResponse.getDurations()[0]);
-        Assert.assertNull(distancesMatrixResponse.getDurations());
+    void getDurations() {
+        assertEquals(3, durationsMatrixResponse.getDurations().length);
+        assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, durationsMatrixResponse.getDurations()[0]);
+        assertNull(distancesMatrixResponse.getDurations());
 
-        Assert.assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDurations()[1]);
+        assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDurations()[1]);
     }
 
     @Test
-    public void setDurations() {
+    void setDurations() {
         durationsMatrixResponse.setDurations(new Double[][]{{1.0, 2.0, 3.0},{1.0, 2.0, 3.0},{1.0, 2.0, 3.0}});
-        Assert.assertEquals(3, durationsMatrixResponse.getDurations().length);
-        Assert.assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, durationsMatrixResponse.getDurations()[0]);
-        Assert.assertNull(distancesMatrixResponse.getDurations());
+        assertEquals(3, durationsMatrixResponse.getDurations().length);
+        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, durationsMatrixResponse.getDurations()[0]);
+        assertNull(distancesMatrixResponse.getDurations());
 
     }
 
     @Test
-    public void getDestinations() {
-        Assert.assertEquals(3, distancesMatrixResponse.getDestinations().size());
-        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, distancesMatrixResponse.getDestinations().get(0).getLocation());
+    void getDestinations() {
+        assertEquals(3, distancesMatrixResponse.getDestinations().size());
+        assertArrayEquals(new Double[]{8.681495, 49.41461}, distancesMatrixResponse.getDestinations().get(0).getLocation());
     }
 
     @Test
-    public void setDestinations() {
+    void setDestinations() {
         Coordinate coordinate = new Coordinate(9.681495, 50.41461);
         ResolvedLocation resolvedLocation = new ResolvedLocation(coordinate, "foo", 0.0);
 
@@ -138,21 +139,21 @@ public class JSONIndividualMatrixResponseTest {
         durationsMatrixResponse.setDestinations(json2DDestinations);
         distancesMatrixResponse.setDestinations(json2DDestinations);
 
-        Assert.assertEquals(1, durationsMatrixResponse.getDestinations().size());
-        Assert.assertArrayEquals(new Double[]{9.681495, 50.41461}, durationsMatrixResponse.getDestinations().get(0).getLocation());
-        Assert.assertEquals(1, distancesMatrixResponse.getDestinations().size());
-        Assert.assertArrayEquals(new Double[]{9.681495, 50.41461}, distancesMatrixResponse.getDestinations().get(0).getLocation());
+        assertEquals(1, durationsMatrixResponse.getDestinations().size());
+        assertArrayEquals(new Double[]{9.681495, 50.41461}, durationsMatrixResponse.getDestinations().get(0).getLocation());
+        assertEquals(1, distancesMatrixResponse.getDestinations().size());
+        assertArrayEquals(new Double[]{9.681495, 50.41461}, distancesMatrixResponse.getDestinations().get(0).getLocation());
 
     }
 
     @Test
-    public void getSources() {
-        Assert.assertEquals(3, durationsMatrixResponse.getSources().size());
-        Assert.assertArrayEquals(new Double[]{8.681495, 49.41461}, durationsMatrixResponse.getSources().get(0).getLocation());
+    void getSources() {
+        assertEquals(3, durationsMatrixResponse.getSources().size());
+        assertArrayEquals(new Double[]{8.681495, 49.41461}, durationsMatrixResponse.getSources().get(0).getLocation());
     }
 
     @Test
-    public void setSources() {
+    void setSources() {
         Coordinate coordinate = new Coordinate(9.681495, 50.41461);
         ResolvedLocation resolvedLocation = new ResolvedLocation(coordinate, "foo", 0.0);
 
@@ -164,10 +165,10 @@ public class JSONIndividualMatrixResponseTest {
         durationsMatrixResponse.setSources(json2DSources);
         distancesMatrixResponse.setSources(json2DSources);
 
-        Assert.assertEquals(1, durationsMatrixResponse.getSources().size());
-        Assert.assertArrayEquals(new Double[]{9.681495, 50.41461}, durationsMatrixResponse.getSources().get(0).getLocation());
-        Assert.assertEquals(1, distancesMatrixResponse.getSources().size());
-        Assert.assertArrayEquals(new Double[]{9.681495, 50.41461}, distancesMatrixResponse.getSources().get(0).getLocation());
+        assertEquals(1, durationsMatrixResponse.getSources().size());
+        assertArrayEquals(new Double[]{9.681495, 50.41461}, durationsMatrixResponse.getSources().get(0).getLocation());
+        assertEquals(1, distancesMatrixResponse.getSources().size());
+        assertArrayEquals(new Double[]{9.681495, 50.41461}, distancesMatrixResponse.getSources().get(0).getLocation());
 
     }
 }

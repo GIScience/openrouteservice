@@ -1,42 +1,43 @@
 package org.heigit.ors.api.requests.routing;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class RequestProfileParamsTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+class RequestProfileParamsTest {
     RequestProfileParams params;
 
     public RequestProfileParamsTest() {
         init();
     }
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         params = new RequestProfileParams();
     }
 
     @Test
-    public void testWeightings() {
+    void testWeightings() {
         RequestProfileParamsWeightings weightings = new RequestProfileParamsWeightings();
 
-        Assert.assertFalse(params.hasWeightings());
+        assertFalse(params.hasWeightings());
 
         params.setWeightings(weightings);
 
-        Assert.assertEquals(weightings, params.getWeightings());
-        Assert.assertTrue(params.hasWeightings());
+        assertEquals(weightings, params.getWeightings());
+        assertTrue(params.hasWeightings());
     }
 
     @Test
-    public void testRestrictions() {
+    void testRestrictions() {
         RequestProfileParamsRestrictions restrictions = new RequestProfileParamsRestrictions();
 
-        Assert.assertFalse(params.hasRestrictions());
+        assertFalse(params.hasRestrictions());
 
         params.setRestrictions(restrictions);
 
-        Assert.assertEquals(restrictions, params.getRestrictions());
-        Assert.assertTrue(params.hasRestrictions());
+        assertEquals(restrictions, params.getRestrictions());
+        assertTrue(params.hasRestrictions());
     }
 }

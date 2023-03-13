@@ -21,7 +21,7 @@
 package org.heigit.ors.v2.services.common;
 
 import io.restassured.RestAssured;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public abstract class ServiceTest {
 	private String version;
 
 	public ServiceTest() {
-		dictUrlParams = new HashMap<String, Object>();
+		dictUrlParams = new HashMap<>();
 		
 		Annotation[] annotations = getClass().getAnnotations();
 		for(Annotation annotation : annotations){
@@ -73,10 +73,10 @@ public abstract class ServiceTest {
 		return path;
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		String port = System.getProperty("server.port");
-		RestAssured.port = (port == null) ? 8082 : Integer.valueOf(port);
+		RestAssured.port = (port == null) ? 8082 : Integer.parseInt(port);
 
 		String baseHost = System.getProperty("server.host");
 		if (baseHost == null) 

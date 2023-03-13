@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.AStar;
+import com.graphhopper.routing.AlgorithmOptions;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
@@ -22,15 +25,21 @@ import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHConfig;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
-import org.heigit.ors.routing.graphhopper.extensions .core.*;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
+import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.*;
@@ -40,8 +49,8 @@ import static com.graphhopper.util.Parameters.Algorithms.ASTAR;
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
 import static org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler.createCoreNodeIdMap;
 import static org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreTest.contractGraph;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This code is based on that from GraphHopper GmbH.
@@ -50,7 +59,7 @@ import static org.junit.Assert.assertTrue;
  * @author Hendrik Leuschner
  */
 
-public class PrepareCoreLandmarksTest
+class PrepareCoreLandmarksTest
 /* extends AbstractRoutingAlgorithmTester */ {
     private ORSGraphHopperStorage graph;
     private FlagEncoder encoder;
@@ -59,8 +68,8 @@ public class PrepareCoreLandmarksTest
     private Weighting weighting;
     private CHConfig chConfig;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         encoder = new CarFlagEncoder(5, 5, 3);
         encodingManager = new EncodingManager.Builder().add(encoder).add(Subnetwork.create("car")).build();
         weighting = new FastestWeighting(encoder);
@@ -71,7 +80,7 @@ public class PrepareCoreLandmarksTest
     }
 
     @Test
-    public void testLandmarkStorageAndRouting() {
+    void testLandmarkStorageAndRouting() {
         // create graph with lat,lon
         // 0  1  2  ...
         // 15 16 17 ...
@@ -188,7 +197,7 @@ public class PrepareCoreLandmarksTest
     }
 
     @Test
-    public void testStoreAndLoad() {
+    void testStoreAndLoad() {
         GHUtility.setSpeed(60, true, true, encoder, graph.edge(0, 1).setDistance(80_000));
         GHUtility.setSpeed(60, true, true, encoder, graph.edge(1, 2).setDistance(80_000));
         String fileStr = "./target/tmp-lm";

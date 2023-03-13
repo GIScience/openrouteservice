@@ -3,18 +3,15 @@ package org.heigit.ors.fastisochrones;
 import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxCellNodesNumber;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RangeDijkstraTest {
+class RangeDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -48,7 +45,7 @@ public class RangeDijkstraTest {
 
 
     @Test
-    public void testGetMaxWeight() {
+    void testGetMaxWeight() {
         GraphHopperStorage graphHopperStorage = createSimpleGraph();
         RangeDijkstra rangeDijkstra = new RangeDijkstra(graphHopperStorage.getBaseGraph(), new ShortestWeighting(carEncoder));
         rangeDijkstra.setMaxVisitedNodes(getMaxCellNodesNumber() * 10);

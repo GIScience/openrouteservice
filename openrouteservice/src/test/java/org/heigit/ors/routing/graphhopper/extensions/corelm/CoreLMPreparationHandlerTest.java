@@ -16,20 +16,20 @@ import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMOptions;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CoreLMPreparationHandlerTest {
+class CoreLMPreparationHandlerTest {
     private static final String CONF_1 = "conf1";
     private static final String CONF_2 = "conf2";
 
     @Test
-    public void testEnabled() {
+    void testEnabled() {
         CoreLMPreparationHandler instance = new CoreLMPreparationHandler();
         assertFalse(instance.isEnabled());
         instance.setLMProfiles(new LMProfile("myconfig"));
@@ -37,7 +37,7 @@ public class CoreLMPreparationHandlerTest {
     }
 
     @Test
-    public void maximumLMWeight() {
+    void maximumLMWeight() {
         FlagEncoder car = new CarFlagEncoder();
         EncodingManager em = EncodingManager.create(car);
         Weighting shortest = new ShortestWeighting(car);
@@ -67,7 +67,7 @@ public class CoreLMPreparationHandlerTest {
     }
 
     @Test
-    public void testPrepareWeightingNo() {
+    void testPrepareWeightingNo() {
         GraphHopperConfig ghConfig = new GraphHopperConfig();
         ghConfig.setProfiles(Collections.singletonList(new Profile("profile")));
         ghConfig.setLMProfiles(Collections.singletonList(new LMProfile("profile")));

@@ -6,19 +6,19 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.graphhopper.util.GHUtility.createMockedEdgeIteratorState;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TrafficSpeedCalculatorTest {
+class TrafficSpeedCalculatorTest {
     private CarFlagEncoder carEncoder;
     private EncodingManager encodingManager;
     private TrafficSpeedCalculator trafficSpeedCalculator;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         carEncoder = new CarFlagEncoder();
         encodingManager = EncodingManager.create(carEncoder);
         trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
@@ -26,7 +26,7 @@ public class TrafficSpeedCalculatorTest {
     }
 
     @Test
-    public void testNoTrafficData() {
+    void testNoTrafficData() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 80.0;
         int edgeId = 0;
@@ -36,7 +36,7 @@ public class TrafficSpeedCalculatorTest {
     }
 
     @Test
-    public void testOriginalSlowerThanTraffic() {
+    void testOriginalSlowerThanTraffic() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 5.0;
         int edgeId = 1;
@@ -46,7 +46,7 @@ public class TrafficSpeedCalculatorTest {
     }
 
     @Test
-    public void testOriginalSmallerThan45AndTrafficSlower() {
+    void testOriginalSmallerThan45AndTrafficSlower() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 40.0;
         int edgeId = 2;
@@ -56,7 +56,7 @@ public class TrafficSpeedCalculatorTest {
     }
 
     @Test
-    public void testOriginalLargerThan45AndTrafficSlower() {
+    void testOriginalLargerThan45AndTrafficSlower() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 60.0;
         int edgeId = 3;
@@ -65,9 +65,9 @@ public class TrafficSpeedCalculatorTest {
         assertEquals(50, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    @Test
     //Do not overwrite speeds slower than 45 in case traffic is faster
-    public void testOriginalSmallerThan45AndTrafficFaster() {
+    @Test
+    void testOriginalSmallerThan45AndTrafficFaster() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 40.0;
         int edgeId = 4;
@@ -76,9 +76,9 @@ public class TrafficSpeedCalculatorTest {
         assertEquals(40, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    @Test
     //Do not overwrite speed data if traffic data is much faster than 110% of original speed
-    public void testOriginalLargerThan45AndTrafficMuchFaster() {
+    @Test
+    void testOriginalLargerThan45AndTrafficMuchFaster() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 60.0;
         int edgeId = 5;
@@ -87,9 +87,9 @@ public class TrafficSpeedCalculatorTest {
         assertEquals(60, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    @Test
     //Increase speed only within 110% of original speed
-    public void testOriginalLargerThan45AndTrafficFaster() {
+    @Test
+    void testOriginalLargerThan45AndTrafficFaster() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         double originalEdgeSpeed = 60.0;
         int edgeId = 6;

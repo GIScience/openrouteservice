@@ -1,13 +1,13 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
 
 import com.graphhopper.reader.ReaderWay;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InvalidObjectException;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WheelchairWayFilterTest {
+class WheelchairWayFilterTest {
     WheelchairWayFilter filter;
 
     public WheelchairWayFilterTest() {
@@ -15,7 +15,7 @@ public class WheelchairWayFilterTest {
     }
 
     @Test
-    public void TestPedestrianisedWaysAreAccepted() {
+    void TestPedestrianisedWaysAreAccepted() {
         ReaderWay way = createSidewalkedWay(1);
 
         try {

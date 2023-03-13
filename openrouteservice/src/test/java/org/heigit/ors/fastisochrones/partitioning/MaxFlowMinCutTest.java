@@ -7,16 +7,16 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MaxFlowMinCutTest {
+class MaxFlowMinCutTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
     @Test
-    public void testNodes() {
+    void testNodes() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
         //Create mock projection
@@ -39,7 +39,7 @@ public class MaxFlowMinCutTest {
     }
 
     @Test
-    public void testReset() {
+    void testReset() {
         //Create test graph
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
@@ -76,7 +76,7 @@ public class MaxFlowMinCutTest {
     }
 
     @Test
-    public void testGetMaxFlowGoodProjection() {
+    void testGetMaxFlowGoodProjection() {
         //Create test graph
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
@@ -103,7 +103,7 @@ public class MaxFlowMinCutTest {
     }
 
     @Test
-    public void testGetMaxFlowBadProjection() {
+    void testGetMaxFlowBadProjection() {
         //Create test graph
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();
@@ -130,7 +130,7 @@ public class MaxFlowMinCutTest {
     }
 
     @Test
-    public void testSingleEdgeGraph() {
+    void testSingleEdgeGraph() {
         //Create test graph
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSingleEdgeGraph(encodingManager);
         Graph graph = graphHopperStorage.getBaseGraph();

@@ -16,10 +16,11 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class RoadAccessRestrictionGraphStorageTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class RoadAccessRestrictionGraphStorageTest {
     private final RoadAccessRestrictionsGraphStorage storage;
     byte[] buffer;
 
@@ -31,16 +32,16 @@ public class RoadAccessRestrictionGraphStorageTest {
     }
 
     @Test
-    public void testItemCreation() {
+    void testItemCreation() {
         storage.setEdgeValue(0, AccessRestrictionType.DESTINATION);
         storage.setEdgeValue(1, AccessRestrictionType.NONE);
         storage.setEdgeValue(2, AccessRestrictionType.PERMISSIVE);
 
         storage.getEdgeValue(0, buffer);
-        Assert.assertEquals(AccessRestrictionType.DESTINATION, buffer[0]);
+        assertEquals(AccessRestrictionType.DESTINATION, buffer[0]);
         storage.getEdgeValue(1, buffer);
-        Assert.assertEquals(AccessRestrictionType.NONE, buffer[0]);
+        assertEquals(AccessRestrictionType.NONE, buffer[0]);
         storage.getEdgeValue(2, buffer);
-        Assert.assertEquals(AccessRestrictionType.PERMISSIVE, buffer[0]);
+        assertEquals(AccessRestrictionType.PERMISSIVE, buffer[0]);
     }
 }

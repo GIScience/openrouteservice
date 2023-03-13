@@ -17,7 +17,7 @@ import org.heigit.ors.v2.services.common.EndPointAnnotation;
 import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.heigit.ors.v2.services.config.AppConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasToString;
@@ -25,11 +25,11 @@ import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "api-docs")
 @VersionAnnotation(version = "v2")
-public class ResultTest extends ServiceTest {
+class ResultTest extends ServiceTest {
     String expected_swagger_documentation_url = AppConfig.Global().getParameter("info", "swagger_documentation_url");
 
     @Test
-    public void testGetSwagger() {
+    void testGetSwagger() {
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()
