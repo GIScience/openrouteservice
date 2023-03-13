@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class APIMatrixRequestProfileConverterTest {
     private APIEnums.Profile cyclingElectric;
@@ -49,6 +49,6 @@ class APIMatrixRequestProfileConverterTest {
 
     @Test
     void convertProfileFail() {
-        assertNull(apiRequestProfileConverter.convert("flying-foo"));
+        assertThrows(IllegalArgumentException.class, () -> apiRequestProfileConverter.convert("flying-foo"));
     }
 }

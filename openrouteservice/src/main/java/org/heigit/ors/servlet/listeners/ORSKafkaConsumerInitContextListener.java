@@ -31,11 +31,9 @@ import org.heigit.ors.routing.RoutingProfileManager;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebListener
 public class ORSKafkaConsumerInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSKafkaConsumerInitContextListener.class);
     private ORSKafkaConsumer consumer;
