@@ -273,7 +273,7 @@ public class APIEnums {
         FOOT_WALKING("foot-walking"),
         FOOT_HIKING("foot-hiking"),
         WHEELCHAIR("wheelchair"),
-        PUBLIC_TRANSIT("pt");
+        PUBLIC_TRANSPORT("public-transport");
 
         private final String value;
 

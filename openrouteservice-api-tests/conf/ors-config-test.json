@@ -101,7 +101,7 @@
             "walking",
             "hiking",
             "wheelchair",
-            "pt"
+            "public-transport"
           ],
           "default_params": {
             "encoder_flags_size": 4,
@@ -392,8 +392,8 @@
               }
             }
           },
-          "profile-pt": {
-            "profiles": "pt",
+          "profile-public-transport": {
+            "profiles": "public-transport",
             "parameters": {
               "encoder_options": "block_fords=false",
               "elevation": true,

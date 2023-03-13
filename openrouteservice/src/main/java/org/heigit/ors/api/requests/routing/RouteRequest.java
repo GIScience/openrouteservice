@@ -290,8 +290,8 @@ public class RouteRequest extends APIRequest {
     //TODO (GTFS): Maybe refactor these parameters into a different class similar to RequestOptions or RoundTripOptions?
 
     /*
-     * The following parameters are specific to public transit.
-     * Other parameters pt accepts are coordinates and language.
+     * The following parameters are specific to public transport.
+     * Other parameters public-transport accepts are coordinates and language.
      */
     @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a transit schedule starting at <departure> for the next <schedule_duration> minutes." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
