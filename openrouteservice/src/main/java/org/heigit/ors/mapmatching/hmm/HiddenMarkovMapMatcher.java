@@ -21,7 +21,6 @@ import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.DistanceCalc;
@@ -32,7 +31,6 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /*
@@ -325,7 +323,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 	private MatchPoint[] findNearestPoints(double lat, double lon, int measuredPointIndex, EdgeFilter edgeFilter, List<MatchPoint> matchPoints,
 			List<Integer> roadSegments) {
 		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
-		List<Snap> qResults = Collections.singletonList(locationIndex.findClosest(lat, lon, edgeFilter)); // TODO: this is just a temporary work-around for the previous line
+        // TODO: this is just a temporary work-around for the previous line
+		List<Snap> qResults = List.of(locationIndex.findClosest(lat, lon, edgeFilter));
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 

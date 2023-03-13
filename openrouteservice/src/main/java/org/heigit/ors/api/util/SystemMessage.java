@@ -92,7 +92,7 @@ public class SystemMessage {
         params.setApiFormat("json");
         params.setRequestService("matrix");
         params.setRequestProfiles(req.getProfile() != null ? req.getProfile().toString() : "driving-car");
-        params.setRequestPreference(req.getMetricsStrings().isEmpty() ? new HashSet<>(Collections.singletonList("duration")) : req.getMetricsStrings());
+        params.setRequestPreference(req.getMetricsStrings().isEmpty() ? new HashSet<>(List.of("duration")) : req.getMetricsStrings());
     }
 
     private static void extractParams(IsochronesRequest req, RequestParams params) {

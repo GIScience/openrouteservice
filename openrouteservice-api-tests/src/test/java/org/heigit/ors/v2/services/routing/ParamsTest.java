@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -1020,7 +1019,7 @@ class ParamsTest extends ServiceTest {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
-        body.put("attributes", Collections.singletonList("blah"));
+        body.put("attributes", List.of("blah"));
 
         given()
                 .headers(jsonContent)

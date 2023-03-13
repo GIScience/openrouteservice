@@ -26,9 +26,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RoutingProfileManager;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 public class ORSKafkaConsumerRunner implements Runnable {
@@ -46,7 +45,7 @@ public class ORSKafkaConsumerRunner implements Runnable {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(config.getTopic()));
+        consumer.subscribe(List.of(config.getTopic()));
         this.profile = config.getProfile();
         this.pollTimeout = config.hasTimeout() ? config.getTimeout() : POLL_TIMEOUT_DEFAULT;
         this.active = true;

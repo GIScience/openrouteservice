@@ -3380,7 +3380,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDepartureAndArrival() { // TD routing not implemented yet
+    void expectDepartureAndArrival() { // TD routing not implemented yet
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
