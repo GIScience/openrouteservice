@@ -276,49 +276,36 @@ public class RouteRequest extends APIRequest {
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
 
-    /* Graphhopper PT profile parameters:
-     * Name                 Default     Description
-     * pt.profile 	        false 	    If true you request a list of all itineraries where each one is the best way to get from A to B, for some departure time within a specified time window. This profile query is also called "range query". The time window is specified via pt.profile_duration. Limited to 50 by default, change this via pt.limit_solutions.
-     * -> setters/getters!
-     * pt.profile_duration 	PT60M    	The time window for a profile query and so only applicable if pt.profile is true. Duration string e.g. PT200S.
-     * pt.limit_street_time	unlimited 	Maximum duration on street for access or egress of public transit i.e. time outside of public transit. Duration string e.g. PT30M.
-     * pt.ignore_transfers  false 	    Specifies if transfers as criterion should be ignored.
-     * pt.limit_solutions 	unlimited 	The number of maximum solutions that should be searched.
-     */
-
-    //TODO (GTFS): Add defaults to the following public transit parameters as above
-    //TODO (GTFS): Maybe refactor these parameters into a different class similar to RequestOptions or RoundTripOptions?
-
     /*
      * The following parameters are specific to public transport.
      * Other parameters public-transport accepts are coordinates and language.
      */
-    @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a transit schedule starting at <departure> for the next <schedule_duration> minutes." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
+    @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a public transport schedule starting at <departure> for the next <schedule_duration> minutes." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
             example = "true")
     @JsonProperty(PARAM_SCHEDULE)
     private boolean schedule;
     @JsonIgnore
     private boolean hasSchedule = false;
 
-    @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window for a transit schedule request." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
+    @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window when requesting a public transport schedule." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
             example = "PT30M")
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
     private boolean hasScheduleDuration = false;
 
-    @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The amount of solutions that should be returned." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
+    @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The maximum amount of entries that should be returned when requesting a schedule." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
             example = "3")
     @JsonProperty(PARAM_SCHEDULE_ROWS)
     private int scheduleRows;
     @JsonIgnore
     private boolean hasScheduleRows = false;
 
-    @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transit." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
+    @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transport." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': 'PT15M'}",
             example = "PT30M")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
@@ -326,7 +313,7 @@ public class RouteRequest extends APIRequest {
     private boolean hasWalkingTime = false;
 
     @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
             example = "true")
     @JsonProperty(PARAM_IGNORE_TRANSFERS)
     private boolean ignoreTransfers;
