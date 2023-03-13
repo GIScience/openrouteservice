@@ -26,12 +26,9 @@ import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHConfig;
-import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
@@ -43,7 +40,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -227,18 +223,6 @@ public class ORSGraphHopper extends GraphHopper {
 	protected WeightingFactory createWeightingFactory() {
 		return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
-
-	private boolean isRequestTimeDependent(PMap hints) {
-		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
-	}
-
-    public Weighting createTimeDependentAccessWeighting(Weighting weighting) {
-        FlagEncoder flagEncoder = weighting.getFlagEncoder();
-        if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
-            return new TimeDependentAccessWeighting(weighting, getGraphHopperStorage(), flagEncoder);
-        else
-            return weighting;
-    }
 
     public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
         RouteSegmentInfo result = null;
