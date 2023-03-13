@@ -20,15 +20,15 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.TreeMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HikingFlagEncoderTest {
+class HikingFlagEncoderTest {
     private final EncodingManager encodingManager;
     private final HikingFlagEncoder flagEncoder;
     private ReaderWay way;
@@ -38,8 +38,8 @@ public class HikingFlagEncoderTest {
         flagEncoder = (HikingFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.HIKING_ORS);
     }
 
-    @Before
-    public void initWay() {
+    @BeforeEach
+    void initWay() {
         way = new ReaderWay(1);
     }
 
@@ -54,25 +54,25 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void acceptDifficultSacScale() {
+    void acceptDifficultSacScale() {
         way = generateHikeWay();
         way.getTags().put("sac_scale", "alpine_hiking");
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
     @Test
-    public void testAddPriorityFromRelation() {
+    void testAddPriorityFromRelation() {
         way = generateHikeWay();
         assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));
     }
 
     @Test
-    public void testRejectWay() {
+    void testRejectWay() {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
     @Test
-    public void testFerrySpeed() {
+    void testFerrySpeed() {
         way = generateFerryWay();
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way,
                 EncodingManager.Access.FERRY, null);
@@ -80,7 +80,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testHikingFlags() {
+    void testHikingFlags() {
         way = generateHikeWay();
         assertEquals(PriorityCode.VERY_NICE.getValue(), flagEncoder.handlePriority(way, 0));
 
@@ -89,7 +89,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testDifficultHikingFlags() {
+    void testDifficultHikingFlags() {
         way = generateHikeWay();
         way.setTag("sac_scale", "alpine_hiking");
         IntsRef flags = flagEncoder.handleWayTags(encodingManager.createEdgeFlags(), way, EncodingManager.Access.WAY, null);
@@ -97,7 +97,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testAvoidWaysWithoutSidewalks() {
+    void testAvoidWaysWithoutSidewalks() {
         way.setTag("highway", "primary");
         assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 0));
         way.setTag("sidewalk", "both");
@@ -107,7 +107,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testSafeHighwayPriorities() {
+    void testSafeHighwayPriorities() {
         TreeMap<Double, Integer> priorityMap = new TreeMap<>();
         way.setTag("highway", "track");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
@@ -129,13 +129,13 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testAcceptWayFerry() {
+    void testAcceptWayFerry() {
         way = generateFerryWay();
         assertTrue(flagEncoder.getAccess(way).isFerry());
     }
 
     @Test
-    public void testAcceptFootway() {
+    void testAcceptFootway() {
         way = generateHikeWay();
         way.getTags().put("foot", "yes");
         assertTrue(flagEncoder.getAccess(way).isWay());
@@ -148,7 +148,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testRejectRestrictedFootway() {
+    void testRejectRestrictedFootway() {
         way = generateHikeWay();
         way.getTags().put("foot", "no");
         assertTrue(flagEncoder.getAccess(way).canSkip());
@@ -175,7 +175,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testAcceptSidewalks() {
+    void testAcceptSidewalks() {
         way.getTags().put("highway", "secondary");
         way.getTags().put("sidewalk", "both");
         assertTrue(flagEncoder.getAccess(way).isWay());
@@ -188,7 +188,7 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testRejectMotorways() {
+    void testRejectMotorways() {
         way.getTags().put("highway", "motorway");
         assertTrue(flagEncoder.getAccess(way).canSkip());
         way.getTags().put("highway", "motorway_link");
@@ -196,14 +196,14 @@ public class HikingFlagEncoderTest {
     }
 
     @Test
-    public void testRejectMotorRoad() {
+    void testRejectMotorRoad() {
         way = generateHikeWay();
         way.getTags().put("motorroad", "yes");
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
     @Test
-    public void testDefaultFords() {
+    void testDefaultFords() {
         way = generateHikeWay();
         way.getTags().put("ford", "yes");
         assertTrue(flagEncoder.getAccess(way).isWay());

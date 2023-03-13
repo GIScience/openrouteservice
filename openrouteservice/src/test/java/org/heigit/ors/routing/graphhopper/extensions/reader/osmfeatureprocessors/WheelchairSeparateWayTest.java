@@ -1,33 +1,33 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
 
 import com.graphhopper.reader.ReaderWay;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WheelchairSeparateWayTest {
+class WheelchairSeparateWayTest {
     WheelchairSeparateWay way;
 
-    @Before
-    public void reset() {
+    @BeforeEach
+    void reset() {
         ReaderWay readerWay = new ReaderWay(1);
         way = new WheelchairSeparateWay(readerWay);
     }
 
     @Test
-    public void TestShowAsPedestrian() {
+    void TestShowAsPedestrian() {
         assertTrue(way.isPedestrianised());
     }
 
     @Test
-    public void TestInitiallyNotProcessed() {
+    void TestInitiallyNotProcessed() {
         assertFalse(way.hasWayBeenFullyProcessed());
     }
 
     @Test
-    public void TestMarkedAsProcessedOncePrepared() {
+    void TestMarkedAsProcessedOncePrepared() {
         way.prepare();
         assertTrue(way.hasWayBeenFullyProcessed());
     }

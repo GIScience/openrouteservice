@@ -1,25 +1,25 @@
 package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.routing.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FastIsochroneAlgorithmTest {
+class FastIsochroneAlgorithmTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -40,7 +40,7 @@ public class FastIsochroneAlgorithmTest {
     }
 
     @Test
-    public void testExactWeightActiveCell() {
+    void testExactWeightActiveCell() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
@@ -74,7 +74,7 @@ public class FastIsochroneAlgorithmTest {
     }
 
     @Test
-    public void testLimitInBetweenNodesActiveCell() {
+    void testLimitInBetweenNodesActiveCell() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
@@ -114,7 +114,7 @@ public class FastIsochroneAlgorithmTest {
     }
 
     @Test
-    public void testStartCell() {
+    void testStartCell() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);
@@ -154,7 +154,7 @@ public class FastIsochroneAlgorithmTest {
     }
 
     @Test
-    public void testFullyReachableCells() {
+    void testFullyReachableCells() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraphWithAdditionalEdge(encodingManager);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
         createMockStorages(graphHopperStorage);

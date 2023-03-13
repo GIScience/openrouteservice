@@ -40,6 +40,7 @@ public class RouteResult {
 	private ZonedDateTime arrival;
 	public static final String KEY_TIMEZONE_DEPARTURE = "timezone.departure";
 	public static final String KEY_TIMEZONE_ARRIVAL = "timezone.arrival";
+	public static final String DEFAULT_TIMEZONE = "Europe/Berlin";
 
 	public RouteResult(int routeExtras) {
 		segments = new ArrayList<>();

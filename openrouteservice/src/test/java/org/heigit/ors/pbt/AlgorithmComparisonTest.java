@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.heigit.ors.pbt.GraphHopperDomain.carEncoder;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Domain(GraphHopperDomain.class)
 class AlgorithmComparisonTest {
@@ -92,11 +92,11 @@ class AlgorithmComparisonTest {
             MatrixLocations destinations
     ) {
         Map<Integer, String> edgesByIndex = buildEdgesIndex(sources, destinations);
-        assertEquals("number of distances", coreDistances.length, matrixDistances.length);
+        assertEquals(coreDistances.length, matrixDistances.length, "number of distances");
         for (int i = 0; i < coreDistances.length; i++) {
             String edge = edgesByIndex.get(i);
             String errorMessage = String.format("Length mismatch for edge %s: ", edge);
-            assertEquals(errorMessage, coreDistances[i], matrixDistances[i], 0.1);
+            assertEquals(coreDistances[i], matrixDistances[i], 0.1, errorMessage);
         }
     }
 

@@ -4,18 +4,19 @@ import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class InertialFlowTest {
+class InertialFlowTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
     @Test
-    public void testInertialFlowSimpleGraph() {
+    void testInertialFlowSimpleGraph() {
         GraphHopperStorage ghStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         int[] nodeToCell = new int[ghStorage.getNodes()];
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(1);
@@ -37,7 +38,7 @@ public class InertialFlowTest {
     }
 
     @Test
-    public void testInertialFlowMediumGraph() {
+    void testInertialFlowMediumGraph() {
         GraphHopperStorage ghStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         int[] nodeToCell = new int[ghStorage.getNodes()];
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(1);
@@ -59,7 +60,7 @@ public class InertialFlowTest {
     }
 
     @Test
-    public void testSingleEdgeGraph() {
+    void testSingleEdgeGraph() {
         GraphHopperStorage ghStorage = ToyGraphCreationUtil.createSingleEdgeGraph(encodingManager);
         int[] nodeToCell = new int[ghStorage.getNodes()];
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(1);
@@ -78,7 +79,7 @@ public class InertialFlowTest {
     }
 
     @Test
-    public void testDisconnect() {
+    void testDisconnect() {
         //This graph would be split into two cells by pure InertialFlow
         //Additional separation based on connection between nodes is performed.
         //This will split off the part of the graph consisting of nodes 6-7-8-9 from the part that is 3-4-10-11

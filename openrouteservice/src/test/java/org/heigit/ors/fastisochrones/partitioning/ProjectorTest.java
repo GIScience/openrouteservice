@@ -5,21 +5,22 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getSplitValue;
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.setSplitValue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ProjectorTest {
+class ProjectorTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
     @Test
-    public void testCalculateProjections() {
+    void testCalculateProjections() {
         Projector projector = new Projector();
         projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph2(encodingManager));
         Map<Projector.Projection, IntArrayList> projections = projector.calculateProjections();
@@ -38,7 +39,7 @@ public class ProjectorTest {
     }
 
     @Test
-    public void testCalculateProjectionOrder() {
+    void testCalculateProjectionOrder() {
         double originalSplitValue = getSplitValue();
         //Set to 0 to incorporate all nodes for splitting. Useful for a small graph like this
         setSplitValue(0);
@@ -56,7 +57,7 @@ public class ProjectorTest {
     }
 
     @Test
-    public void testPartitionProjection() {
+    void testPartitionProjection() {
         Projector projector = new Projector();
         projector.setGHStorage(ToyGraphCreationUtil.createMediumGraph2(encodingManager));
         //Calculate global projection
@@ -86,11 +87,11 @@ public class ProjectorTest {
         assertEquals(expectedPart1_p45, biPartitionProjection.getProjection(1).get(Projector.Projection.LINE_P45));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testCalculateProjectionsWithoutLatLon() {
+    @Test
+    void testCalculateProjectionsWithoutLatLon() {
         //All projections are the same if there is no data on where the nodes are. This creates no usable projections and throws an exception.
         Projector projector = new Projector();
         projector.setGHStorage(ToyGraphCreationUtil.createSimpleGraphWithoutLatLon(encodingManager));
-        projector.calculateProjections();
+        assertThrows(IllegalStateException.class, projector::calculateProjections);
     }
 }

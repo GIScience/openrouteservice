@@ -18,12 +18,13 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 import com.graphhopper.reader.ReaderWay;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-public class RoadAccessRestrictionsGraphStorageBuilderTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class RoadAccessRestrictionsGraphStorageBuilderTest {
 
     private RoadAccessRestrictionsGraphStorageBuilder builder;
 
@@ -31,60 +32,60 @@ public class RoadAccessRestrictionsGraphStorageBuilderTest {
     }
 
     @Test
-    public void testCarWayCreation() throws Exception {
+    void testCarWayCreation() throws Exception {
         initBuilder(RoutingProfileType.DRIVING_CAR);
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("motorcar", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("motorcar", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     @Test
-    public void testBikeWayCreation() throws Exception {
+    void testBikeWayCreation() throws Exception {
         initBuilder(RoutingProfileType.CYCLING_REGULAR);
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("bicycle", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("bicycle", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     @Test
-    public void testFootWayCreation() throws Exception {
+    void testFootWayCreation() throws Exception {
         initBuilder(RoutingProfileType.FOOT_WALKING);
         ReaderWay way = new ReaderWay(1);
         way.setTag("access", "no");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("foot", "destination");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
 
         way = new ReaderWay(1);
         way.setTag("foot", "yes");
         builder.processWay(way);
-        Assert.assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
+        assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
     }
 
     private void initBuilder(int profileType) throws Exception {

@@ -2,11 +2,12 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.RAMDirectory;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WheelchairAttributesGraphStorageTest {
+class WheelchairAttributesGraphStorageTest {
     private WheelchairAttributesGraphStorage storage;
 
 
@@ -14,7 +15,7 @@ public class WheelchairAttributesGraphStorageTest {
     }
 
     @Test
-    public void WheelchairEdgeCreationTest() {
+    void WheelchairEdgeCreationTest() {
         storage = new WheelchairAttributesGraphStorage();
         storage.init(null, new RAMDirectory(""));
         storage.create(1);

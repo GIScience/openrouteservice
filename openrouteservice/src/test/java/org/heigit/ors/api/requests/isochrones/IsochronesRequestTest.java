@@ -3,246 +3,247 @@ package org.heigit.ors.api.requests.isochrones;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-public class IsochronesRequestTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    @Before
-    public void setUp() {
+class IsochronesRequestTest {
+
+    @BeforeEach
+    void setUp() {
     }
 
     @Test
-    public void idTest() {
+    void idTest() {
         IsochronesRequest request = new IsochronesRequest();
 
-        Assert.assertFalse(request.hasId());
+        assertFalse(request.hasId());
         request.setId("1");
-        Assert.assertTrue(request.hasId());
-        Assert.assertEquals("1", request.getId());
+        assertTrue(request.hasId());
+        assertEquals("1", request.getId());
     }
 
     @Test
-    public void smoothingTest() {
+    void smoothingTest() {
         IsochronesRequest request = new IsochronesRequest();
 
-        Assert.assertFalse(request.hasSmoothing());
+        assertFalse(request.hasSmoothing());
         request.setSmoothing(1.5);
-        Assert.assertTrue(request.hasSmoothing());
-        Assert.assertEquals(1.5, request.getSmoothing(), 0.0);
+        assertTrue(request.hasSmoothing());
+        assertEquals(1.5, request.getSmoothing(), 0.0);
     }
 
     @Test
-    public void attributesTest() {
+    void attributesTest() {
         IsochronesRequest request = new IsochronesRequest();
 
-        Assert.assertFalse(request.hasAttributes());
+        assertFalse(request.hasAttributes());
         request.setAttributes(new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA});
-        Assert.assertTrue(request.hasAttributes());
-        Assert.assertEquals(1, request.getAttributes().length);
-        Assert.assertEquals(IsochronesRequestEnums.Attributes.AREA, request.getAttributes()[0]);
+        assertTrue(request.hasAttributes());
+        assertEquals(1, request.getAttributes().length);
+        assertEquals(IsochronesRequestEnums.Attributes.AREA, request.getAttributes()[0]);
     }
 
     @Test
-    public void getIdTest() {
+    void getIdTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getId());
+        assertNull(request.getId());
     }
 
     @Test
-    public void setIdTest() {
+    void setIdTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setId("foo");
-        Assert.assertEquals("foo", request.getId());
+        assertEquals("foo", request.getId());
     }
 
     @Test
-    public void hasIdTest() {
+    void hasIdTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertFalse(request.hasId());
+        assertFalse(request.hasId());
         request.setId("foo");
-        Assert.assertTrue(request.hasId());
+        assertTrue(request.hasId());
     }
 
     @Test
-    public void setAreaUnitTest() throws ParameterValueException {
+    void setAreaUnitTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
         request.setAreaUnit(APIEnums.Units.forValue("km"));
-        Assert.assertEquals(APIEnums.Units.KILOMETRES, request.getAreaUnit());
+        assertEquals(APIEnums.Units.KILOMETRES, request.getAreaUnit());
     }
 
     @Test
-    public void getSmoothingTest() {
+    void getSmoothingTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getSmoothing());
+        assertNull(request.getSmoothing());
     }
 
     @Test
-    public void setSmoothingTest() {
+    void setSmoothingTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setSmoothing(0.1);
-        Assert.assertEquals(0.1, request.getSmoothing(), 0);
+        assertEquals(0.1, request.getSmoothing(), 0);
     }
 
     @Test
-    public void hasSmoothingTest() {
+    void hasSmoothingTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertFalse(request.hasSmoothing());
+        assertFalse(request.hasSmoothing());
         request.setSmoothing(0.1);
-        Assert.assertTrue(request.hasSmoothing());
+        assertTrue(request.hasSmoothing());
     }
 
     @Test
-    public void getResponseTypeTest() {
+    void getResponseTypeTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(APIEnums.RouteResponseType.GEOJSON, request.getResponseType());
+        assertEquals(APIEnums.RouteResponseType.GEOJSON, request.getResponseType());
     }
 
     @Test
-    public void setResponseTypeTest() {
+    void setResponseTypeTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setResponseType(APIEnums.RouteResponseType.JSON);
-        Assert.assertEquals(APIEnums.RouteResponseType.JSON, request.getResponseType());
+        assertEquals(APIEnums.RouteResponseType.JSON, request.getResponseType());
 
     }
 
     @Test
-    public void setIntersectionTest() {
+    void setIntersectionTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setIntersections(true);
-        Assert.assertTrue(request.getIntersections());
+        assertTrue(request.getIntersections());
     }
 
     @Test
-    public void setRangeUnitsTest() throws ParameterValueException {
+    void setRangeUnitsTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
         request.setRangeUnit(APIEnums.Units.forValue("km"));
-        Assert.assertEquals(APIEnums.Units.KILOMETRES, request.getRangeUnit());
+        assertEquals(APIEnums.Units.KILOMETRES, request.getRangeUnit());
     }
 
     @Test
-    public void getAttributesTest() {
+    void getAttributesTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getAttributes());
+        assertNull(request.getAttributes());
     }
 
     @Test
-    public void setAttributesTest() throws ParameterValueException {
+    void setAttributesTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
         IsochronesRequestEnums.Attributes[] attributes = new IsochronesRequestEnums.Attributes[1];
         attributes[0] = IsochronesRequestEnums.Attributes.forValue("reachfactor");
         request.setAttributes(attributes);
-        Assert.assertNotNull(request.getAttributes());
-        Assert.assertEquals(IsochronesRequestEnums.Attributes.REACH_FACTOR, request.getAttributes()[0]);
+        assertNotNull(request.getAttributes());
+        assertEquals(IsochronesRequestEnums.Attributes.REACH_FACTOR, request.getAttributes()[0]);
     }
 
     @Test
-    public void hasAttributesTest() throws ParameterValueException {
+    void hasAttributesTest() throws ParameterValueException {
         IsochronesRequest request = new IsochronesRequest();
         IsochronesRequestEnums.Attributes[] attributes = new IsochronesRequestEnums.Attributes[1];
         attributes[0] = IsochronesRequestEnums.Attributes.forValue("reachfactor");
-        Assert.assertFalse(request.hasAttributes());
+        assertFalse(request.hasAttributes());
         request.setAttributes(attributes);
-        Assert.assertTrue(request.hasAttributes());
+        assertTrue(request.hasAttributes());
     }
 
     @Test
-    public void getLocationTest() {
+    void getLocationTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertEquals(Double[][].class, request.getLocations().getClass());
+        assertEquals(Double[][].class, request.getLocations().getClass());
     }
 
     @Test
-    public void setLocationTest() {
+    void setLocationTest() {
         IsochronesRequest request = new IsochronesRequest();
         Double[][] double_array = {{1.0, 2.0}, {1.0, 3.0}};
         request.setLocations(double_array);
-        Assert.assertArrayEquals(double_array, request.getLocations());
+        assertArrayEquals(double_array, request.getLocations());
     }
 
     @Test
-    public void setLocationTypeTest() {
+    void setLocationTypeTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
-        Assert.assertEquals(IsochronesRequestEnums.LocationType.DESTINATION, request.getLocationType());
+        assertEquals(IsochronesRequestEnums.LocationType.DESTINATION, request.getLocationType());
     }
 
     @Test
-    public void getProfileTest() {
+    void getProfileTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getProfile());
+        assertNull(request.getProfile());
     }
 
     @Test
-    public void setProfileTest() {
+    void setProfileTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
-        Assert.assertEquals(APIEnums.Profile.DRIVING_CAR, request.getProfile());
+        assertEquals(APIEnums.Profile.DRIVING_CAR, request.getProfile());
     }
 
     @Test
-    public void getIsochronesOptionsTest() {
+    void getIsochronesOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getIsochronesOptions());
+        assertNull(request.getIsochronesOptions());
     }
 
     @Test
-    public void setIsochronesOptionsTest() {
-        IsochronesRequest request = new IsochronesRequest();
-        request.setIsochronesOptions(new RouteRequestOptions());
-        Assert.assertEquals(RouteRequestOptions.class, request.getIsochronesOptions().getClass());
-
-    }
-
-    @Test
-    public void hasIsochronesOptionsTest() {
+    void setIsochronesOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setIsochronesOptions(new RouteRequestOptions());
-        Assert.assertTrue(request.hasOptions());
+        assertEquals(RouteRequestOptions.class, request.getIsochronesOptions().getClass());
+
     }
 
     @Test
-    public void getRangeTest() {
+    void hasIsochronesOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getRange());
+        request.setIsochronesOptions(new RouteRequestOptions());
+        assertTrue(request.hasOptions());
     }
 
     @Test
-    public void setRangeTest() {
+    void getRangeTest() {
+        IsochronesRequest request = new IsochronesRequest();
+        assertNull(request.getRange());
+    }
+
+    @Test
+    void setRangeTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setRange(new ArrayList<>());
-        Assert.assertNotNull(request.getRange());
+        assertNotNull(request.getRange());
     }
 
     @Test
-    public void setRangeTypeTest() {
+    void setRangeTypeTest() {
         IsochronesRequest request = new IsochronesRequest();
         request.setRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
-        Assert.assertEquals(IsochronesRequestEnums.RangeType.DISTANCE, request.getRangeType());
+        assertEquals(IsochronesRequestEnums.RangeType.DISTANCE, request.getRangeType());
     }
 
     @Test
-    public void getIntervalTest() {
+    void getIntervalTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertNull(request.getInterval());
+        assertNull(request.getInterval());
     }
 
     @Test
-    public void setIntervalTest() {
+    void setIntervalTest() {
         IsochronesRequest request = new IsochronesRequest();
-        request.setInterval(new Double("0.0"));
-        Assert.assertEquals(new Double("0.0"), request.getInterval());
+        request.setInterval(Double.valueOf("0.0"));
+        assertEquals(Double.valueOf("0.0"), request.getInterval());
     }
 
     @Test
-    public void detailedOptionsTest() {
+    void detailedOptionsTest() {
         IsochronesRequest request = new IsochronesRequest();
-        Assert.assertFalse(request.hasOptions());
+        assertFalse(request.hasOptions());
         RouteRequestOptions opts = new RouteRequestOptions();
         request.setIsochronesOptions(opts);
-        Assert.assertTrue(request.hasOptions());
+        assertTrue(request.hasOptions());
     }
 }

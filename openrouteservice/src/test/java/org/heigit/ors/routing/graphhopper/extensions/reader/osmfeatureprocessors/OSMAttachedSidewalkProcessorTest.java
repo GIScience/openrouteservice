@@ -1,13 +1,11 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
 
 import com.graphhopper.reader.ReaderWay;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class OSMAttachedSidewalkProcessorTest {
+class OSMAttachedSidewalkProcessorTest {
     OSMAttachedSidewalkProcessor processor;
 
     public OSMAttachedSidewalkProcessorTest() {
@@ -15,7 +13,7 @@ public class OSMAttachedSidewalkProcessorTest {
     }
 
     @Test
-    public void TestDetectSidewalkInfoFromTags() {
+    void TestDetectSidewalkInfoFromTags() {
         ReaderWay way = new ReaderWay(1);
         way.setTag("sidewalk:left:surface", "asphalt");
 
@@ -30,7 +28,7 @@ public class OSMAttachedSidewalkProcessorTest {
     }
 
     @Test
-    public void TestIdentificationOfSidesWithSidewalkInfo() {
+    void TestIdentificationOfSidesWithSidewalkInfo() {
         ReaderWay way = new ReaderWay(1);
         way.setTag("sidewalk:left:surface", "asphalt");
         assertEquals(OSMAttachedSidewalkProcessor.Side.LEFT, processor.identifySidesWhereSidewalkIsPresent(way));
@@ -49,7 +47,7 @@ public class OSMAttachedSidewalkProcessorTest {
     }
 
     @Test
-    public void TestAttachingORSSidewalkSideTagForWayWithSingleSide() {
+    void TestAttachingORSSidewalkSideTagForWayWithSingleSide() {
         ReaderWay way = new ReaderWay(1);
 
         way = processor.attachSidewalkTag(way, OSMAttachedSidewalkProcessor.Side.LEFT);
@@ -69,7 +67,7 @@ public class OSMAttachedSidewalkProcessorTest {
     }
 
     @Test
-    public void TestAttchingNoSidewalkRemovesAnyAlreadyAttachedORSSidewalkTags() {
+    void TestAttchingNoSidewalkRemovesAnyAlreadyAttachedORSSidewalkTags() {
         ReaderWay way = new ReaderWay(1);
 
         way = processor.attachSidewalkTag(way, OSMAttachedSidewalkProcessor.Side.NONE);
@@ -82,7 +80,7 @@ public class OSMAttachedSidewalkProcessorTest {
     }
 
     @Test
-    public void TestAttachingORSSidealkTagsWhenBothSidesHaveValues() {
+    void TestAttachingORSSidealkTagsWhenBothSidesHaveValues() {
         ReaderWay way = new ReaderWay(1);
 
         way = processor.attachSidewalkTag(way, OSMAttachedSidewalkProcessor.Side.BOTH);

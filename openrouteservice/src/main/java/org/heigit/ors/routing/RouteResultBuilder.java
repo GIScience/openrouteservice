@@ -17,7 +17,6 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.Trip;
 import com.graphhopper.util.*;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.common.DistanceUnit;
@@ -27,6 +26,7 @@ import org.heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import org.heigit.ors.routing.instructions.InstructionType;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 
 import java.time.ZoneId;
@@ -34,8 +34,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_ARRIVAL;
-import static org.heigit.ors.routing.RouteResult.KEY_TIMEZONE_DEPARTURE;
+import static org.heigit.ors.routing.RouteResult.*;
 
 class RouteResultBuilder
 {
@@ -101,8 +100,8 @@ class RouteResultBuilder
         result.calculateRouteSummary(request);
 
         if (request.getSearchParameters().isTimeDependent()) {
-            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, "");
-            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, "");
+            String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, DEFAULT_TIMEZONE);
+            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -152,8 +151,8 @@ class RouteResultBuilder
             resultSet[response.getAll().indexOf(path)] = result;
 
             if (request.getSearchParameters().isTimeDependent()) {
-                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, "UTC");
-                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, "UTC");
+                String timezoneDeparture = response.getHints().getString(KEY_TIMEZONE_DEPARTURE, DEFAULT_TIMEZONE);
+                String timezoneArrival = response.getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
 
                 setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
             }

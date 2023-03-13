@@ -21,7 +21,7 @@ import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.heigit.ors.v2.services.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -30,8 +30,8 @@ import static org.heigit.ors.v2.services.utils.CommonHeaders.geoJsonContent;
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
-public class ResultTest extends ServiceTest {
-    private static float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
+class ResultTest extends ServiceTest {
+    private static final float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
 
     public ResultTest() {
 
@@ -74,10 +74,10 @@ public class ResultTest extends ServiceTest {
         JSONArray ranges_2000 = new JSONArray();
         ranges_2000.put(2000);
 
-        Integer interval_100 = new Integer(100);
-        Integer interval_200 = new Integer(200);
-        Integer interval_400 = new Integer(400);
-        Integer interval_900 = new Integer(900);
+        Integer interval_100 = 100;
+        Integer interval_200 = 200;
+        Integer interval_400 = 400;
+        Integer interval_900 = 900;
 
         JSONArray attributesReachfactorArea = new JSONArray();
         attributesReachfactorArea.put("area");
@@ -105,7 +105,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testPolygon() {
+    void testPolygon() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -133,7 +133,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testGroupIndices() {
+    void testGroupIndices() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -156,7 +156,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testUnknownLocation() {
+    void testUnknownLocation() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1_unknown"));
@@ -175,7 +175,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testBoundingBox() {
+    void testBoundingBox() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -197,7 +197,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testReachfactorAndArea() {
+    void testReachfactorAndArea() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -221,7 +221,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testReachfactorAndAreaAreaUnitsM() {
+    void testReachfactorAndAreaAreaUnitsM() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -246,7 +246,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testReachfactorAndAreaAreaUnitsKM() {
+    void testReachfactorAndAreaAreaUnitsKM() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -271,7 +271,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAreaUnitsOverridesUnits() {
+    void testAreaUnitsOverridesUnits() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -296,7 +296,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testReachfactorAndAreaAreaUnitsMI() {
+    void testReachfactorAndAreaAreaUnitsMI() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -321,7 +321,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIntersections() {
+    void testIntersections() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
@@ -358,7 +358,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testSmoothingFactor() {
+    void testSmoothingFactor() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -396,7 +396,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIdInSummary() {
+    void testIdInSummary() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));

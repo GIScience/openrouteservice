@@ -35,7 +35,11 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 - GTFS support for routing  ([#1316](https://github.com/GIScience/openrouteservice/pull/1316))
+- support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
+### Fixed
+- change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
 
 ## [7.0.1] - 2023-03-08
 - fix tomcat config overwrite ([#1311](https://github.com/GIScience/openrouteservice/issues/1311))

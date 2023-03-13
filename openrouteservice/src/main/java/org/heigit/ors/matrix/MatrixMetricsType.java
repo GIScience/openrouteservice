@@ -16,8 +16,8 @@ package org.heigit.ors.matrix;
 import com.graphhopper.util.Helper;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MatrixMetricsType {
@@ -83,15 +83,15 @@ public class MatrixMetricsType {
 	public static Set<String> getMetricsNamesFromInt(int metric) {
 		switch (metric) {
 			case MatrixMetricsType.DURATION:
-				return new HashSet<>(Collections.singletonList(KEY_DURATION)) ;
+				return new HashSet<>(List.of(KEY_DURATION)) ;
 			case MatrixMetricsType.DISTANCE:
-				return new HashSet<>(Collections.singletonList(KEY_DISTANCE)) ;
+				return new HashSet<>(List.of(KEY_DISTANCE)) ;
 			case MatrixMetricsType.WEIGHT:
-				return new HashSet<>(Collections.singletonList(KEY_WEIGHT)) ;
+				return new HashSet<>(List.of(KEY_WEIGHT)) ;
 			case MatrixMetricsType.DURATION | MatrixMetricsType.DISTANCE:
 				return new HashSet<>(Arrays.asList(KEY_DURATION, KEY_DISTANCE)) ;
 			default:
-				return new HashSet<>(Collections.singletonList(KEY_UNKNOWN)) ;
+				return new HashSet<>(List.of(KEY_UNKNOWN)) ;
 		}
 	}
 }

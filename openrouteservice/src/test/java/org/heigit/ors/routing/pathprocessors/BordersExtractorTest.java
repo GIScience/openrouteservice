@@ -23,14 +23,14 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class BordersExtractorTest {
+class BordersExtractorTest {
     private PMap properties = new PMap();
     private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
     private final BordersGraphStorage _graphstorage;
@@ -60,7 +60,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectAnyBorder() {
+    void TestDetectAnyBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -72,7 +72,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectControlledBorder() {
+    void TestDetectControlledBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -84,7 +84,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestDetectOpenBorder() {
+    void TestDetectOpenBorder() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -96,7 +96,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestAvoidCountry() {
+    void TestAvoidCountry() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
@@ -108,7 +108,7 @@ public class BordersExtractorTest {
     }
 
     @Test
-    public void TestIsSameCountry() {
+    void TestIsSameCountry() {
         VirtualEdgeIteratorState ve1 = generateEdge(1);
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);

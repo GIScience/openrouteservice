@@ -9,13 +9,14 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CellPropertiesTest {
+class CellPropertiesTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -36,7 +37,7 @@ public class CellPropertiesTest {
     }
 
     @Test
-    public void testLoadExisting() {
+    void testLoadExisting() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -51,7 +52,7 @@ public class CellPropertiesTest {
     }
 
     @Test
-    public void testCalcEccentricities() {
+    void testCalcEccentricities() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
@@ -66,14 +67,14 @@ public class CellPropertiesTest {
     }
 
     @Test
-    public void testCalcBorderNodeDistances() {
+    void testCalcBorderNodeDistances() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
 
         ecc.loadExisting(shortestWeighting);
-        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(),  carEncoder);
+        ecc.calcBorderNodeDistances(shortestWeighting, new EdgeFilterSequence(), carEncoder);
         BorderNodeDistanceSet borderNodeDistanceSet = ecc.getBorderNodeDistanceStorage(shortestWeighting).getBorderNodeDistanceSet(0);
         assertEquals(1, borderNodeDistanceSet.getAdjBorderNodeIds().length);
         assertEquals(2, borderNodeDistanceSet.getAdjBorderNodeIds()[0]);
@@ -95,20 +96,20 @@ public class CellPropertiesTest {
         assertEquals(2.0, borderNodeDistanceSet.getAdjBorderNodeDistances()[0], 1e-10);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetEccentricityOfNonBorderNode() {
+    @Test
+    void testGetEccentricityOfNonBorderNode() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Eccentricity ecc = new Eccentricity(graphHopperStorage, null, ins, cs);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
-
         ecc.loadExisting(shortestWeighting);
         ecc.calcEccentricities(shortestWeighting, new EdgeFilterSequence(), carEncoder);
-        ecc.getEccentricityStorage(shortestWeighting).getEccentricity(5);
+        EccentricityStorage eccentricityStorage = ecc.getEccentricityStorage(shortestWeighting);
+        assertThrows(IllegalArgumentException.class, () -> eccentricityStorage.getEccentricity(5));
     }
 
     @Test
-    public void testDistance() {
+    void testDistance() {
         double distance = Contour.distance(1, 1, 1, 2);
         assertEquals(111177.99068882648, distance, 1e-10);
         double distance2 = Contour.distance(1, 1, 0.5, -0.5);

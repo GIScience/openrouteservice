@@ -6,13 +6,13 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ContourTest {
+class ContourTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -33,7 +33,7 @@ public class ContourTest {
     }
 
     @Test
-    public void testCalculateContour() {
+    void testCalculateContour() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createSimpleGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Contour contour = new Contour(graphHopperStorage, graphHopperStorage.getBaseGraph().getNodeAccess(), ins, cs);
@@ -47,7 +47,7 @@ public class ContourTest {
     }
 
     @Test
-    public void testDistance() {
+    void testDistance() {
         double distance = Contour.distance(1, 1, 1, 2);
         assertEquals(111177.99068882648, distance, 1e-10);
         double distance2 = Contour.distance(1, 1, 0.5, -0.5);

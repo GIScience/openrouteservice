@@ -41,6 +41,7 @@ import org.heigit.ors.centrality.CentralityWarning;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
+import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.IncompatibleParameterException;
@@ -165,6 +166,7 @@ public class RoutingProfile {
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
+        gpc.setGetElevationFromPreprocessedData("true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed")));
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
 
@@ -435,7 +437,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
-        ghConfig.setProfiles(new ArrayList<Profile>(profiles.values()));
+        ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
     }

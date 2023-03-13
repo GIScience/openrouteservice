@@ -14,10 +14,7 @@
 package org.heigit.ors.routing.util.extrainfobuilders;
 
 import com.graphhopper.util.DistanceCalc3D;
-import com.graphhopper.util.DistanceCalcEarth;
-import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
-
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteSegmentItem;
 import org.heigit.ors.routing.util.SteepnessUtil;
@@ -102,8 +99,7 @@ public class SteepnessExtraInfoBuilder extends RouteExtraInfoBuilder {
 					if (zn != Double.MIN_VALUE) {
 						double elevGap = segLength/30;
 						if ((
-								elevSign > 0 /* && Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/ && prevGradientCat > 0
-								|| /*Math.Abs(prevSplit.Gradient - gradient) < gradientDiff)//*/prevGradientCat < 0
+								elevSign > 0 && prevGradientCat > 0 || prevGradientCat < 0
 							)
 							&& Math.abs(zn - z1) < elevGap)
 							bApply = false;

@@ -13,17 +13,15 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CountryBordersPolygonTest {
+class CountryBordersPolygonTest {
     GeometryFactory gf = new GeometryFactory();
 
     CountryBordersPolygon cbp;
@@ -47,7 +45,7 @@ public class CountryBordersPolygonTest {
      * Test that the object successfully stores and returns the name given to the boundary object.
      */
     @Test
-    public void TestName() {
+    void TestName() {
         assertEquals("name", cbp.getName());
     }
 
@@ -55,7 +53,7 @@ public class CountryBordersPolygonTest {
      * Test that the object correctly stores and returns geometry of the boundary
      */
     @Test
-    public void TestBoundaryGeometry() {
+    void TestBoundaryGeometry() {
         MultiPolygon boundary = cbp.getBoundary();
         Coordinate[] cbpCoords = boundary.getCoordinates();
         assertEquals(country1Geom.length, cbpCoords.length);
@@ -67,7 +65,7 @@ public class CountryBordersPolygonTest {
      * Test that the object generates a corect bounding box for the contained geometry
      */
     @Test
-    public void TestBBox() {
+    void TestBBox() {
         double[] bbox = cbp.getBBox();
         assertEquals(-1.0, bbox[0], 0.0);
         assertEquals(1.0, bbox[1], 0.0);
@@ -79,7 +77,7 @@ public class CountryBordersPolygonTest {
      * Test that the object correctly identifies if the given linestring crosses the boundary designated by the geometry
      */
     @Test
-    public void TestIntersection() {
+    void TestIntersection() {
         LineString ls = gf.createLineString(new Coordinate[] {
                 new Coordinate(0.5, 0.5),
                 new Coordinate(-10.5, -10.5)
@@ -99,7 +97,7 @@ public class CountryBordersPolygonTest {
      * Test that the object determines correctly if the given coordinate is within the bounding box of its geometry
      */
     @Test
-    public void TestBBoxContains() {
+    void TestBBoxContains() {
         assertTrue(cbp.inBbox(new Coordinate(0.5, 0.5)));
         assertFalse(cbp.inBbox(new Coordinate(10.0, 0.5)));
     }
@@ -108,7 +106,7 @@ public class CountryBordersPolygonTest {
      * Test that the object detects if a coordinate is definitely within the polygon
      */
     @Test
-    public void TestPolygonContains() {
+    void TestPolygonContains() {
         assertTrue(cbp.inArea(new Coordinate(0.5, 0.5)));
         assertFalse(cbp.inArea(new Coordinate(-0.5, -0.5)));
     }
