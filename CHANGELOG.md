@@ -37,6 +37,7 @@ RELEASING:
 ### Added
 - support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
+- upgrade to spring-boot 2.7.9 and dependency alignment for the api-tests [#1310](https://github.com/GIScience/openrouteservice/pull/1310)
 ### Fixed
 - change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
 
