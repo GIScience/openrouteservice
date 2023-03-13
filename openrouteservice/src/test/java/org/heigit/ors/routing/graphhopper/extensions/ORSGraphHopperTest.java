@@ -51,7 +51,7 @@ class ORSGraphHopperTest {
     }
 
     @Test
-    public void buildGraphWithPreprocessedData() {
+    void buildGraphWithPreprocessedData() {
         RouteProfileConfiguration rpc = new RouteProfileConfiguration();
         rpc.setName("whocares");
         rpc.setEnabled(true);
