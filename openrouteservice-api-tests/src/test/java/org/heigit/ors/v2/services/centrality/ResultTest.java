@@ -6,7 +6,7 @@ import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import static org.heigit.ors.v2.services.utils.CommonHeaders.jsonContent;
 
 @EndPointAnnotation(name = "centrality")
 @VersionAnnotation(version = "v2")
-public class ResultTest extends ServiceTest {
+class ResultTest extends ServiceTest {
 
     public ResultTest() {
         // set up coordinates for testing later
@@ -47,7 +47,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testAllEdgeBetweennessNodeIdsInLocations() {
+    void testAllEdgeBetweennessNodeIdsInLocations() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "edges");

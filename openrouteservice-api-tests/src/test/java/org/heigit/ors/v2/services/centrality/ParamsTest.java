@@ -5,7 +5,7 @@ import org.heigit.ors.v2.services.common.ServiceTest;
 import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import static org.heigit.ors.v2.services.utils.CommonHeaders.jsonContent;
 
 @EndPointAnnotation(name = "centrality")
 @VersionAnnotation(version = "v2")
-public class ParamsTest extends ServiceTest {
+class ParamsTest extends ServiceTest {
 
     public ParamsTest() {
         // set up coordinates for testing later
@@ -81,7 +81,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testCentralityEndpointIsAvailable() {
+    void testCentralityEndpointIsAvailable() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
 
@@ -91,7 +91,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("$", hasKey("locations"))
@@ -100,17 +100,17 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testExcludeNodesGetExcluded() {
+    void testExcludeNodesGetExcluded() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
 
         // Since node IDs are not consistent over graph builds, they cannot be specified beforehand,
         // but have to be taken from a valid response
-        List<Integer> nodeIds =  given()
+        List<Integer> nodeIds = given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .jsonPath().getList("locations.nodeId");
 
         // save three nodes that should be excluded and one that should still be present
@@ -132,7 +132,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("locations.nodeId", not(hasItem(node0)))
@@ -143,7 +143,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testNotFailingOnInvalidExcludeNodes() {
+    void testNotFailingOnInvalidExcludeNodes() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("excludeNodes", getParameter("invalidNodes"));
@@ -154,7 +154,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("nodeIds", not(contains(123456789)))
@@ -162,7 +162,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testErrorOnWrongSizeBBox() {
+    void testErrorOnWrongSizeBBox() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("missingCoordinatesBox"));
 
@@ -172,7 +172,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
@@ -185,7 +185,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
@@ -193,7 +193,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testErrorOnWrongSizeCoordinates() {
+    void testErrorOnWrongSizeCoordinates() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("missingComponentCoordinateBox"));
 
@@ -203,7 +203,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
@@ -216,7 +216,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))
@@ -224,7 +224,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testWarningAndEmptyLocationsOnEmptyBbox() {
+    void testWarningAndEmptyLocationsOnEmptyBbox() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("emptyBox"));
 
@@ -234,7 +234,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("$", hasKey("locations"))
@@ -244,7 +244,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testEdgeCentralityCalculationIfEdgeModeSpecified() {
+    void testEdgeCentralityCalculationIfEdgeModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "edges");
@@ -255,7 +255,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("$", hasKey("locations")) // $ yields the JSON root
@@ -265,7 +265,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testNodeScoreCalculationIfNodeModeSpecified() {
+    void testNodeScoreCalculationIfNodeModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "nodes");
@@ -276,7 +276,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("$", hasKey("locations"))
@@ -286,7 +286,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    public void testErrorIfWrongModeSpecified() {
+    void testErrorIfWrongModeSpecified() {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("neuenheimBox"));
         body.put("mode", "wrongMode");
@@ -297,7 +297,7 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .log().ifValidationFails()
                 .body("error.code", is(CentralityErrorCodes.INVALID_PARAMETER_VALUE))

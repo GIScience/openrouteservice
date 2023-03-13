@@ -22,7 +22,7 @@ import org.heigit.ors.v2.services.common.VersionAnnotation;
 import org.heigit.ors.v2.services.utils.HelperFunctions;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -205,7 +205,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectTrueResolveLocations() {
+    void expectTrueResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -231,7 +231,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectNoResolveLocations() {
+    void expectNoResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -249,7 +249,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDurations() {
+    void expectDurations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -281,7 +281,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDistances() {
+    void expectDistances() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -311,7 +311,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectAllMetrics() {
+    void expectAllMetrics() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -354,7 +354,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectAllMetricsInKM() {
+    void expectAllMetricsInKM() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -401,7 +401,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectInfoItems() {
+    void expectInfoItems() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -422,7 +422,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectQueryItems() {
+    void expectQueryItems() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("destinations", getParameter("destination1"));
@@ -471,7 +471,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectLongQueryLocations() {
+    void expectLongQueryLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locationsLong"));
         given()
@@ -497,7 +497,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDifferentQueryProfile() {
+    void expectDifferentQueryProfile() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -515,7 +515,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectKMQueryUnit() {
+    void expectKMQueryUnit() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("units", "km");
@@ -534,7 +534,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectJSONResponseType() {
+    void expectJSONResponseType() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -552,7 +552,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDestinationsWithoutResolveLocations() {
+    void expectDestinationsWithoutResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -572,7 +572,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDestinationsWithResolveLocations() {
+    void expectDestinationsWithResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -594,7 +594,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDestinationItemsWithoutResolveLocations() {
+    void expectDestinationItemsWithoutResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -635,7 +635,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectDestinationItemsWithResolveLocations() {
+    void expectDestinationItemsWithResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -683,7 +683,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectSourcesItemsWithoutResolveLocations() {
+    void expectSourcesItemsWithoutResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         given()
@@ -724,7 +724,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectSourcesItemsWithResolveLocations() {
+    void expectSourcesItemsWithResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("resolve_locations", true);
@@ -772,7 +772,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testIdInSummary() {
+    void testIdInSummary() {
         JSONObject body = new JSONObject();body.put("locations", getParameter("locations"));
         body.put("id", "request123");
 
@@ -791,7 +791,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testDefinedSources() {
+    void testDefinedSources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("sources", new JSONArray(new int[] {1,2}));
@@ -819,7 +819,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testDefinedDestinations() {
+    void testDefinedDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
         body.put("destinations", new JSONArray(new int[] {1,2}));
@@ -847,7 +847,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testDefinedSourcesAndDestinations() {
+    void testDefinedSourcesAndDestinations() {
 
         JSONObject body = new JSONObject();
 
@@ -877,7 +877,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void expectTurnRestrictionDurations() {
+    void expectTurnRestrictionDurations() {
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
         body.put("locations", getParameter("locations6"));
@@ -906,7 +906,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    public void testCrossVirtualNode() {
+    void testCrossVirtualNode() {
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
         body.put("locations", getParameter("locations7"));
