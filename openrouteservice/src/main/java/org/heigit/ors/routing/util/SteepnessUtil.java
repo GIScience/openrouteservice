@@ -12,7 +12,7 @@ public class SteepnessUtil {
     private SteepnessUtil() {
         throw new IllegalStateException("Utility class should not be instantiated.");
     }
-    
+
     public static int getCategory(double value) {
         if (Double.isNaN(value))
             return 0;
@@ -112,10 +112,8 @@ public class SteepnessUtil {
                         double elevGap = length/30;
                         if (
                             (
-                                elevSign > 0 /* && Math.Abs(prevSplit.gradient - gradient) < gradientDiff)//*/ && prevGC > 0
-                                || 
-                                /*Math.Abs(prevSplit.gradient - gradient) < gradientDiff)//*/prevGC < 0
-                            ) 
+                                elevSign > 0 && prevGC > 0 || prevGC < 0
+                            )
                             && Math.abs(zn - z1) < elevGap) {
                                 bApply = false;
                         }

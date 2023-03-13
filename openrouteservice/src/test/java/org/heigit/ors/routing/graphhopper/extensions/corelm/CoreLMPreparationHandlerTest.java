@@ -69,8 +69,8 @@ class CoreLMPreparationHandlerTest {
     @Test
     void testPrepareWeightingNo() {
         GraphHopperConfig ghConfig = new GraphHopperConfig();
-        ghConfig.setProfiles(Collections.singletonList(new Profile("profile")));
-        ghConfig.setLMProfiles(Collections.singletonList(new LMProfile("profile")));
+        ghConfig.setProfiles(List.of(new Profile("profile")));
+        ghConfig.setLMProfiles(List.of(new LMProfile("profile")));
         CoreLMPreparationHandler handler = new CoreLMPreparationHandler();
         handler.init(ghConfig);
         assertTrue(handler.isEnabled());

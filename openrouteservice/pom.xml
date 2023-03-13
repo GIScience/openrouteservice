@@ -27,10 +27,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <prerequisites>
-        <!-- Java 11 upgrade -->
-        <maven>3.0</maven>
-    </prerequisites>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
@@ -44,11 +40,13 @@
         <url>https://github.com/GIScience/openrouteservice/issues</url>
     </issueManagement>
     <properties>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <maven.compiler.target>11</maven.compiler.target>
         <geotools.version>27.2</geotools.version>
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.19.0</log4j.version>
@@ -99,8 +97,27 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
-
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.6</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <!-- Java 11 upgrade -->
                 <groupId>org.codehaus.mojo</groupId>
@@ -122,23 +139,22 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
+                                      tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+                <version>3.10.1</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.3.2</version>
                 <configuration>
                     <warSourceDirectory>WebContent</warSourceDirectory>
                     <webXml>WebContent/WEB-INF/web.xml</webXml>
@@ -220,8 +236,6 @@
             <plugin><!-- clean up from war:inplace  -->
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -243,11 +257,10 @@
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.8</version>
                 <executions>
                     <!-- prepare agent for measuring unit tests -->
                     <execution>
@@ -271,7 +284,6 @@
             </plugin>
         </plugins>
     </build>
-
     <repositories>
         <repository>
             <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
@@ -298,22 +310,18 @@
     </repositories>
     <dependencies>
         <dependency>
-            <!-- Java 11 upgrade -->
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
+
         <dependency>
-            <!-- Java 11 upgrade -->
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
+
         <dependency>
-            <!-- Java 11 upgrade -->
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.8</version>
         </dependency>
 
         <dependency>
@@ -392,6 +400,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
             <version>${slf4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -400,16 +409,14 @@
             <version>0.9.5</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -472,7 +479,6 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
@@ -559,25 +565,24 @@
             </exclusions>
         </dependency>
         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-actuator</artifactId>
-          <exclusions>
-            <exclusion>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-starter-logging</artifactId>
-            </exclusion>
-          </exclusions>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-          <groupId>io.micrometer</groupId>
-          <artifactId>micrometer-registry-prometheus</artifactId>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>3.0.0</version>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -599,8 +604,6 @@
             <version>${fasterxml.jackson.version}</version>
         </dependency>
     </dependencies>
-
-    <!-- mvn deploy -DperformRelease=true -->
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
