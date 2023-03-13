@@ -1,20 +1,21 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.matrix.MatrixMetricsType;
-import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONBasedIndividualMatrixResponseTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class JSONBasedIndividualMatrixResponseTest {
 
     private final MatrixRequest matrixRequest = new MatrixRequest(new ArrayList<>());
     private MatrixResult matrixResult;
@@ -22,8 +23,8 @@ public class JSONBasedIndividualMatrixResponseTest {
 
     private final Coordinate[] coordinates = new Coordinate[3];
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         matrixRequest.setResolveLocations(true);
         matrixRequest.setMetrics(new MatrixRequestEnums.Metrics[] {MatrixRequestEnums.Metrics.DISTANCE});
         matrixRequest.setSources(new String[] {"all"});
@@ -45,26 +46,26 @@ public class JSONBasedIndividualMatrixResponseTest {
     }
 
     @Test
-    public void constructDestinations() {
+    void constructDestinations() {
         List<JSON2DDestinations> json2DDestinations = jsonBasedIndividualMatrixResponse.constructDestinations(matrixResult);
-        Assert.assertEquals(1, json2DDestinations.size());
-        Assert.assertEquals("foo", json2DDestinations.get(0).name);
-        Assert.assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), json2DDestinations.get(0).location);
+        assertEquals(1, json2DDestinations.size());
+        assertEquals("foo", json2DDestinations.get(0).name);
+        assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), json2DDestinations.get(0).location);
         Double[] location = json2DDestinations.get(0).getLocation();
-        Assert.assertEquals(2, location.length);
-        Assert.assertEquals(0, location[0].compareTo(8.681495));
-        Assert.assertEquals(0, location[1].compareTo(49.41461));
+        assertEquals(2, location.length);
+        assertEquals(0, location[0].compareTo(8.681495));
+        assertEquals(0, location[1].compareTo(49.41461));
     }
 
     @Test
-    public void constructSources() {
+    void constructSources() {
         List<JSON2DSources> json2DSources = jsonBasedIndividualMatrixResponse.constructSources(matrixResult);
-        Assert.assertEquals(1, json2DSources.size());
-        Assert.assertEquals("foo", json2DSources.get(0).name);
-        Assert.assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), json2DSources.get(0).location);
+        assertEquals(1, json2DSources.size());
+        assertEquals("foo", json2DSources.get(0).name);
+        assertEquals(new Coordinate(8.681495, 49.41461, Double.NaN), json2DSources.get(0).location);
         Double[] location = json2DSources.get(0).getLocation();
-        Assert.assertEquals(2, location.length);
-        Assert.assertEquals(0, location[0].compareTo(8.681495));
-        Assert.assertEquals(0, location[1].compareTo(49.41461));
+        assertEquals(2, location.length);
+        assertEquals(0, location[0].compareTo(8.681495));
+        assertEquals(0, location[1].compareTo(49.41461));
     }
 }

@@ -7,20 +7,20 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FastIsochroneFactoryTest {
+class FastIsochroneFactoryTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
     }
 
@@ -42,14 +42,14 @@ public class FastIsochroneFactoryTest {
     }
 
     @Test
-    public void testInit() {
+    void testInit() {
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         assertTrue(fastIsochroneFactory.isEnabled());
         assertTrue(fastIsochroneFactory.isDisablingAllowed());
     }
 
     @Test
-    public void testAddPreparation() {
+    void testAddPreparation() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         fastIsochroneFactory.createPreparation(gs, null);
@@ -64,7 +64,7 @@ public class FastIsochroneFactoryTest {
     }
 
     @Test
-    public void testPrepare() {
+    void testPrepare() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         FastIsochroneFactory fastIsochroneFactory = intitFastIsochroneFactory();
         fastIsochroneFactory.createPreparation(gs, null);

@@ -1,12 +1,12 @@
 package org.heigit.ors.routing.graphhopper.extensions.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EncodeUtilsTest {
+class EncodeUtilsTest {
     @Test
-    public void longToByteArrayTest() {
+    void longToByteArrayTest() {
         long value = 1234L;
         byte[] byteValue = EncodeUtils.longToByteArray(value);
 
@@ -16,7 +16,7 @@ public class EncodeUtilsTest {
     }
 
     @Test
-    public void byteArrayToLongTest() {
+    void byteArrayToLongTest() {
         // 01001001 10010110 00000010 11010010
         byte[] byteArr = {0,0,0,0,73,-106,2,-46};
         long value = EncodeUtils.byteArrayToLong(byteArr);

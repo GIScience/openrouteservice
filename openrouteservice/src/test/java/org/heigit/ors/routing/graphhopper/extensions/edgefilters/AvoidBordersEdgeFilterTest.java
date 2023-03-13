@@ -27,13 +27,12 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactor
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AvoidBordersEdgeFilterTest {
+class AvoidBordersEdgeFilterTest {
     private PMap properties = new PMap();
     private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS,properties));
     private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
@@ -66,7 +65,7 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidAllBorders() {
+    void TestAvoidAllBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.ALL);
         _searchParams.setAvoidCountries(new int[] {});
 
@@ -83,7 +82,7 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidControlledBorders() {
+    void TestAvoidControlledBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
         _searchParams.setAvoidCountries(new int[] {});
 
@@ -99,7 +98,7 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidNoBorders() {
+    void TestAvoidNoBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
         _searchParams.setAvoidCountries(new int[] {});
 
@@ -115,7 +114,7 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidSpecificBorders() {
+    void TestAvoidSpecificBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
         _searchParams.setAvoidCountries(new int[] {1, 5});
 
@@ -131,7 +130,7 @@ public class AvoidBordersEdgeFilterTest {
     }
 
     @Test
-    public void TestAvoidSpecificAndControlledBorders() {
+    void TestAvoidSpecificAndControlledBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
         _searchParams.setAvoidCountries(new int[] {3});
 

@@ -10,17 +10,18 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.GHUtility;
-import junit.framework.TestCase;
 import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
 import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class CentralityAlgorithmTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class CentralityAlgorithmTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
@@ -130,8 +131,8 @@ public class CentralityAlgorithmTest extends TestCase {
         return g;
     }
 
-       @Test
-    public void testMediumDirectedGraphNodeCentrality() {
+    @Test
+    void testMediumDirectedGraphNodeCentrality() {
         GraphHopperStorage graphHopperStorage = createMediumDirectedGraph();
         Weighting weighting = new FastestWeighting(carEncoder);
 
@@ -159,7 +160,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testMediumDirectedGraphEdgeCentrality() {
+    void testMediumDirectedGraphEdgeCentrality() {
         GraphHopperStorage graphHopperStorage = createMediumDirectedGraph();
         Weighting weighting = new FastestWeighting(carEncoder);
 
@@ -189,7 +190,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testTwoComponentDirectedGraphNodeCentrality() {
+    void testTwoComponentDirectedGraphNodeCentrality() {
         GraphHopperStorage graphHopperStorage = createTwoComponentDirectedGraph();
         Weighting weighting = new FastestWeighting(carEncoder);
 
@@ -217,7 +218,7 @@ public class CentralityAlgorithmTest extends TestCase {
     }
 
     @Test
-    public void testTwoComponentDirectedGraphEdgeCentrality() {
+    void testTwoComponentDirectedGraphEdgeCentrality() {
         GraphHopperStorage graphHopperStorage = createTwoComponentDirectedGraph();
         Weighting weighting = new FastestWeighting(carEncoder);
 

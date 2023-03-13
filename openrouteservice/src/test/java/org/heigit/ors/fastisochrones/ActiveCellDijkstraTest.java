@@ -1,22 +1,22 @@
 package org.heigit.ors.fastisochrones;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.routing.SPTEntry;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ActiveCellDijkstraTest {
+class ActiveCellDijkstraTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private IsochroneNodeStorage ins;
@@ -31,7 +31,7 @@ public class ActiveCellDijkstraTest {
     }
 
     @Test
-    public void testAddInitialBorderNode() {
+    void testAddInitialBorderNode() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);
@@ -53,7 +53,7 @@ public class ActiveCellDijkstraTest {
     }
 
     @Test
-    public void testRun() {
+    void testRun() {
         GraphHopperStorage graphHopperStorage = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         createMockStorages(graphHopperStorage);
         Weighting shortestWeighting = new ShortestWeighting(carEncoder);

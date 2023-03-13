@@ -21,13 +21,13 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.TurnRestrictionsCoreEdgeFilter;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CoreMatrixTest {
+class CoreMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private Weighting weighting = new ShortestWeighting(carEncoder);
@@ -48,8 +48,8 @@ public class CoreMatrixTest {
                 cost);
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).withTurnCosts(true).create();
         routingCHGraph = g.getRoutingCHGraph();
     }
@@ -96,7 +96,7 @@ public class CoreMatrixTest {
 
 
     @Test
-    public void testOneToManyAllEdgesInCore() {
+    void testOneToManyAllEdgesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -136,7 +136,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testManyToManyAllEdgesInCore() {
+    void testManyToManyAllEdgesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -179,11 +179,11 @@ public class CoreMatrixTest {
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * All start and goal nodes are in core
      */
-    public void testOneToManySomeEdgesInCore() {
+    @Test
+    void testOneToManySomeEdgesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -216,11 +216,11 @@ public class CoreMatrixTest {
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
 
-    @Test
     /**
      * All start and goal nodes are in core
      */
-    public void testManyToManySomeEdgesInCore() {
+    @Test
+    void testManyToManySomeEdgesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -256,11 +256,11 @@ public class CoreMatrixTest {
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * Not all start and goal nodes are in core
      */
-    public void testOneToManySomeNodesInCore() {
+    @Test
+    void testOneToManySomeNodesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -293,11 +293,11 @@ public class CoreMatrixTest {
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
 
-    @Test
     /**
      * Not all start and goal nodes are in core
      */
-    public void testManyToManySomeNodesInCore() {
+    @Test
+    void testManyToManySomeNodesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -332,11 +332,11 @@ public class CoreMatrixTest {
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * Not all start and goal nodes are in core
      */
-    public void testOneToManyNoNodesInCore() {
+    @Test
+    void testOneToManyNoNodesInCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -371,11 +371,11 @@ public class CoreMatrixTest {
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * There is no core
      */
-    public void testOneToManyNoCore() {
+    @Test
+    void testOneToManyNoCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -406,11 +406,11 @@ public class CoreMatrixTest {
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testConnectionOutsideCoreFromHighestNode() {
+    @Test
+    void testConnectionOutsideCoreFromHighestNode() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -439,11 +439,11 @@ public class CoreMatrixTest {
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testConnectionOutsideCoreFromLowestNode() {
+    @Test
+    void testConnectionOutsideCoreFromLowestNode() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -472,11 +472,11 @@ public class CoreMatrixTest {
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testConnectionOutsideCoreManyToMany() {
+    @Test
+    void testConnectionOutsideCoreManyToMany() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -508,11 +508,11 @@ public class CoreMatrixTest {
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * There is no core
      */
-    public void testAllToAll() {
+    @Test
+    void testAllToAll() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -570,11 +570,11 @@ public class CoreMatrixTest {
         assertArrayEquals(expected, result.getTable(MatrixMetricsType.DISTANCE), 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testStartAndTargetSameNodeOutsideCore() {
+    @Test
+    void testStartAndTargetSameNodeOutsideCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -601,11 +601,11 @@ public class CoreMatrixTest {
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testStartAndTargetManyToManySameNodeOutsideCore() {
+    @Test
+    void testStartAndTargetManyToManySameNodeOutsideCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -637,11 +637,11 @@ public class CoreMatrixTest {
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * The connection is found already outside the core
      */
-    public void testStartAndTargetSameNodeInsideCore() {
+    @Test
+    void testStartAndTargetSameNodeInsideCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -669,7 +669,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testStartAndTargetManyToManySameNodeInsideCore() {
+    void testStartAndTargetManyToManySameNodeInsideCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -702,7 +702,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testStartAndTargetManyToManySameNodeAllNodesInsideCore() {
+    void testStartAndTargetManyToManySameNodeAllNodesInsideCore() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -734,11 +734,11 @@ public class CoreMatrixTest {
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[3], 0);
     }
 
-    @Test
     /**
      * All start and goal nodes are in core. Tests a special case in a diamond shaped graph where only the correct stopping criterion will find all shortest paths
      */
-    public void testStoppingCriterion() {
+    @Test
+    void testStoppingCriterion() {
         ToyGraphCreationUtil.createDiamondGraph(g, encodingManager);
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
 
@@ -773,7 +773,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testOneToOneTurnRestrictions() {
+    void testOneToOneTurnRestrictions() {
         setUpTurnRestrictions();
 
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
@@ -807,7 +807,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testManyToOneTurnRestrictions() {
+    void testManyToOneTurnRestrictions() {
         setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
@@ -841,7 +841,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testManyToManyTurnRestrictions() {
+    void testManyToManyTurnRestrictions() {
         setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
@@ -878,7 +878,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testManyToManyMultipleTurnRestrictions() {
+    void testManyToManyMultipleTurnRestrictions() {
         setUpTurnRestrictions();
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         addRestrictedTurn(g, 1, 2, 6);
@@ -917,7 +917,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testOneToManyRestrictedEdges() {
+    void testOneToManyRestrictedEdges() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -952,7 +952,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testManyToManyRestrictedEdges() {
+    void testManyToManyRestrictedEdges() {
         setUpTurnRestrictions();
 
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
@@ -993,7 +993,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testOneToOneLevelProblemCase() {
+    void testOneToOneLevelProblemCase() {
         ToyGraphCreationUtil.createUpDownGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -1024,7 +1024,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testDownwardPassFasterUTurn() {
+    void testDownwardPassFasterUTurn() {
         ToyGraphCreationUtil.createTwoWayGraph(g, encodingManager);
         addRestrictedTurn(g, 2, 3, 3);
 
@@ -1060,7 +1060,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testUpdateWeight() {
+    void testUpdateWeight() {
         ToyGraphCreationUtil.createUpdatedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -1086,7 +1086,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testSwapStartsGoalsNoCore() {
+    void testSwapStartsGoalsNoCore() {
         ToyGraphCreationUtil.createDirectedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
@@ -1114,7 +1114,7 @@ public class CoreMatrixTest {
     }
 
     @Test
-    public void testSwapStartsGoalsCore() {
+    void testSwapStartsGoalsCore() {
         ToyGraphCreationUtil.createDirectedGraph(g, encodingManager);
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();

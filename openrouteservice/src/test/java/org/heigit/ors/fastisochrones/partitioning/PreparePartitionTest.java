@@ -4,19 +4,19 @@ import com.carrotsearch.hppc.IntHashSet;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.junit.Test;
+import org.heigit.ors.util.ToyGraphCreationUtil;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PreparePartitionTest {
+class PreparePartitionTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
 
     @Test
-    public void testPrepareCellIds() {
+    void testPrepareCellIds() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         PreparePartition partition = new PreparePartition(gs, null);
         partition.prepare();
@@ -33,7 +33,7 @@ public class PreparePartitionTest {
     }
 
     @Test
-    public void testPrepareBorderness() {
+    void testPrepareBorderness() {
         GraphHopperStorage gs = ToyGraphCreationUtil.createMediumGraph(encodingManager);
         PreparePartition partition = new PreparePartition(gs, null);
         partition.prepare();

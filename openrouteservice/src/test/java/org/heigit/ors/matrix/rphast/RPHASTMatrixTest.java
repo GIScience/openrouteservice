@@ -12,12 +12,12 @@ import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RPHASTMatrixTest {
+class RPHASTMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder().setSpeedTwoDirections(true);
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
     private final Weighting weighting = new ShortestWeighting(carEncoder);
@@ -25,8 +25,8 @@ public class RPHASTMatrixTest {
     private GraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         g = createGHStorage();
         routingCHGraph = g.getRoutingCHGraph();
     }
@@ -56,7 +56,7 @@ public class RPHASTMatrixTest {
     }
 
     @Test
-    public void testAddShortcuts() {
+    void testAddShortcuts() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
         prepare.doWork();
@@ -65,7 +65,7 @@ public class RPHASTMatrixTest {
     }
 
     @Test
-    public void testOneToOne() {
+    void testOneToOne() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
         prepare.doWork();
@@ -79,7 +79,7 @@ public class RPHASTMatrixTest {
     }
 
     @Test
-    public void testOneToMany() {
+    void testOneToMany() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
         prepare.doWork();
@@ -96,7 +96,7 @@ public class RPHASTMatrixTest {
     }
 
     @Test
-    public void testManyToOne() {
+    void testManyToOne() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
         prepare.doWork();
@@ -113,7 +113,7 @@ public class RPHASTMatrixTest {
     }
 
     @Test
-    public void testManyToMany() {
+    void testManyToMany() {
         ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
         PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
         prepare.doWork();

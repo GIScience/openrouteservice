@@ -8,12 +8,13 @@ import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
 import org.heigit.ors.api.responses.routing.json.JSON3DBoundingBox;
 import org.heigit.ors.api.responses.routing.json.JSONBoundingBox;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BoundingBoxFactoryTest {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class BoundingBoxFactoryTest {
     @Test
-    public void testCorrectTypeCreated() throws Exception {
+    void testCorrectTypeCreated() throws Exception {
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});
         coords.add(new Double[] {27.4,38.6});
@@ -36,23 +37,23 @@ public class BoundingBoxFactoryTest {
         request.setUseElevation(true);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
         BoundingBox boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
-        Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
+        assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
         request.setUseElevation(false);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
-        Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
+        assertTrue(boundingBox instanceof JSONBoundingBox);
 
         request.setUseElevation(true);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
-        Assert.assertTrue(boundingBox instanceof JSON3DBoundingBox);
+        assertTrue(boundingBox instanceof JSON3DBoundingBox);
 
         request.setUseElevation(false);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
-        Assert.assertTrue(boundingBox instanceof JSONBoundingBox);
+        assertTrue(boundingBox instanceof JSONBoundingBox);
 
         request.setResponseType(APIEnums.RouteResponseType.GPX);
         boundingBox = BoundingBoxFactory.constructBoundingBox(bbox, request);
-        Assert.assertTrue(boundingBox instanceof GPXBounds);
+        assertTrue(boundingBox instanceof GPXBounds);
     }
 }

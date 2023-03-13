@@ -1,27 +1,25 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors;
 
 import com.graphhopper.reader.ReaderWay;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class WheelchairSidewalkWayTest {
+class WheelchairSidewalkWayTest {
     @Test
-    public void TestShowAsPedestrian() {
+    void TestShowAsPedestrian() {
         WheelchairSidewalkWay way = new WheelchairSidewalkWay(new ReaderWay(1));
         assertTrue(way.isPedestrianised());
     }
 
     @Test
-    public void TestInitiallyProcessedIfNoSidewalk() {
+    void TestInitiallyProcessedIfNoSidewalk() {
         WheelchairSidewalkWay way = new WheelchairSidewalkWay(new ReaderWay(1));
         assertTrue(way.hasWayBeenFullyProcessed());
     }
 
     @Test
-    public void TestInitiallyNotProcessedIfSidewalk() {
+    void TestInitiallyNotProcessedIfSidewalk() {
         ReaderWay readerWay = new ReaderWay(1);
         readerWay.setTag("sidewalk", "left");
         WheelchairSidewalkWay way = new WheelchairSidewalkWay(readerWay);
@@ -29,7 +27,7 @@ public class WheelchairSidewalkWayTest {
     }
 
     @Test
-    public void TestThatBothSidesGetProcessed() {
+    void TestThatBothSidesGetProcessed() {
         ReaderWay readerWay = new ReaderWay(1);
         readerWay.setTag("sidewalk", "both");
         WheelchairSidewalkWay way = new WheelchairSidewalkWay(readerWay);

@@ -23,14 +23,14 @@ import com.graphhopper.storage.*;
 import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.util.DebugUtility;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hendrik Leuschner, Andrzej Oles, Djime Gueye
@@ -43,8 +43,8 @@ public class PrepareCoreTest {
     private ORSGraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         g = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
         g.addCoreGraph(chConfig);
         g.create(1000);
@@ -162,7 +162,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testSimpleUnrestrictedFixedContractionOrder() {
+    void testSimpleUnrestrictedFixedContractionOrder() {
         createSimpleGraph();
         contractGraph(new CoreTestEdgeFilter(), new int[]{5, 3, 4, 0, 1, 2});
 
@@ -175,7 +175,7 @@ public class PrepareCoreTest {
 
     // Original GH contraction heuristic does not produce any shortcuts
     @Test
-    public void testSimpleUnrestricted() {
+    void testSimpleUnrestricted() {
         createSimpleGraph();
         contractGraph(new CoreTestEdgeFilter());
 
@@ -185,7 +185,7 @@ public class PrepareCoreTest {
 
     // Original shortcut + one new
     @Test
-    public void testSimpleRestricted1() {
+    void testSimpleRestricted1() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -205,7 +205,7 @@ public class PrepareCoreTest {
 
     // Restricting different edge introduces different shortcuts
     @Test
-    public void testSimpleRestricted2() {
+    void testSimpleRestricted2() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -225,7 +225,7 @@ public class PrepareCoreTest {
 
     // Now 2 shortcuts
     @Test
-    public void testSimpleRestricted3() {
+    void testSimpleRestricted3() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -244,7 +244,7 @@ public class PrepareCoreTest {
 
     // Core consisting of 3 nodes
     @Test
-    public void testSimpleRestricted4() {
+    void testSimpleRestricted4() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -263,7 +263,7 @@ public class PrepareCoreTest {
 
     // Core consisting of 4 nodes connected by 2 shortcuts
     @Test
-    public void testSimpleRestricted5() {
+    void testSimpleRestricted5() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -286,7 +286,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testMediumUnrestricted() {
+    void testMediumUnrestricted() {
         createMediumGraph();
         contractGraph(new CoreTestEdgeFilter());
 
@@ -301,7 +301,7 @@ public class PrepareCoreTest {
 
     // With a single restriction on 0-1
     @Test
-    public void testMediumRestricted1() {
+    void testMediumRestricted1() {
         createMediumGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -325,7 +325,7 @@ public class PrepareCoreTest {
 
     // Restrictions on edges: 0-1, 2-3
     @Test
-    public void testMediumRestricted2() {
+    void testMediumRestricted2() {
         createMediumGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -348,7 +348,7 @@ public class PrepareCoreTest {
 
     // Restrictions on edges: 2-3, 7-8
     @Test
-    public void testMediumRestricted3() {
+    void testMediumRestricted3() {
         createMediumGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -375,7 +375,7 @@ public class PrepareCoreTest {
 
     // Restrictions on edges: 3-4, 7-8 -> Separated graph
     @Test
-    public void testMediumRestricted4() {
+    void testMediumRestricted4() {
         createMediumGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -397,7 +397,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testComplexUnrestricted() {
+    void testComplexUnrestricted() {
         createComplexGraph();
         contractGraph(new CoreTestEdgeFilter());
 
@@ -416,7 +416,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testComplexRestricted() {
+    void testComplexRestricted() {
         createComplexGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -456,7 +456,7 @@ public class PrepareCoreTest {
 
     // Test directed restriction
     @Test
-    public void testSimpleRestrictedReverse() {
+    void testSimpleRestrictedReverse() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -475,7 +475,7 @@ public class PrepareCoreTest {
 
     // Test whole graph is core
     @Test
-    public void testSimpleAllCore() {
+    void testSimpleAllCore() {
         createSimpleGraph();
 
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
@@ -531,7 +531,7 @@ public class PrepareCoreTest {
     }
 
     @Test
-    public void testHelperShortcut() {
+    void testHelperShortcut() {
         // node order does matter
         assertNotEquals(new Shortcut(1, 2, 3), new Shortcut(2, 1, 3));
         // shortcuts must have equal weight
