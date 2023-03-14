@@ -90,6 +90,17 @@
           "default": "そのまま{turn_maneuver}に進みます",
           "name": "そのまま{way_name}上を{turn_maneuver}に進みます"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "{name}に乗車します",
+          "headsign": "{headsign}行の{name}に乗車します"
+        },
+        "transfer": {
+          "default": "{name}へ乗り換えます",
+          "headsign": "{headsign}行の{name}へ乗り換えます"
+        },
+        "end": "{name}で下車します"
       }
     }
   }
