@@ -1190,9 +1190,8 @@ public class RoutingProfile {
                 setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
-                //FIXME: allow TD_ASTAR and TD_CORE once implemented
-                req.setAlgorithm(Parameters.Algorithms.TD_DIJKSTRA);
-                setSpeedups(req, false, false, false, searchCntx.profileNameCH());
+                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
+                setSpeedups(req, false, false, true, searchCntx.profileNameCH());//FIXME: allow TD core routing once implemented
 
                 String key;
                 LocalDateTime time;

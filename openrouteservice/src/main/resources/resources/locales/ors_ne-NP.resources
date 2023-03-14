@@ -90,6 +90,17 @@
           "default": "घुम्नुहोस् {turn_maneuver}",
           "name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
       }
     }
   }
