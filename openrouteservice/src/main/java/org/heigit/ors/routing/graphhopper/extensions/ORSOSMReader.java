@@ -51,7 +51,7 @@ public class ORSOSMReader extends OSMReader {
 	private boolean processWholeGeom = false;
 	private boolean detachSidewalksFromRoad = false;
 
-	private final boolean getElevationFromPreprocessedData = "true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed"));
+	private final boolean getElevationFromPreprocessedData;
 	private boolean getElevationFromPreprocessedDataErrorLogged = false;
 
 	private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
@@ -65,6 +65,7 @@ public class ORSOSMReader extends OSMReader {
 		this.procCntx = procCntx;
 		this.procCntx.initArrays();
 		this.readerCntx = new OSMDataReaderContext(this);
+		getElevationFromPreprocessedData = procCntx.getElevationFromPreprocessedData();
 
 		initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
 		extraTagKeys = new HashSet<>();
@@ -425,7 +426,7 @@ public class ORSOSMReader extends OSMReader {
 			double ele = node.getEle();
 			if (Double.isNaN(ele)) {
 				if (!getElevationFromPreprocessedDataErrorLogged) {
-					LOGGER.error("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
+					LOGGER.warn("elevation_preprocessed set to true in ors config, still found a Node with invalid ele tag! Set this flag only if you use a preprocessed pbf file! Node ID: " + node.getId());
 					getElevationFromPreprocessedDataErrorLogged = true;
 				}
 				ele = 0;

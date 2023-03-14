@@ -3,10 +3,15 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
+import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,6 +48,52 @@ class ORSGraphHopperTest {
         checkPointList(responsePath.getWaypoints());
         checkPointList(responsePath.getPoints());
 
+    }
+
+    /**
+     * This tests loading an OSM dataset preprocessed with ors-preprocessor, as used on our production servers.
+     * For testing purposes, a subset from the Heidelberg graph has been modified with several invalid ele tag
+     * values to demonstrate that the graph will still build, albeit with incorrect but valid elevation values.
+     * <node id="...">
+     *   <tag k="ele" v="invalid ele tag"/>
+     * </node>
+     *=> NaN, elevation will be set to 0
+     * <node id="...">
+     *   <tag k="ele" v="198.0.0.4"/>
+     * </node>
+     *=> NaN, elevation will be set to 0
+     * <node id="...">
+     *   <tag k="ele" v="1,912.1"/>
+     * </node>
+     *=> 1912.1
+     * <node id="...">
+     *   <tag k="ele" v="1.021,12"/>
+     * </node>
+     *=> 1.02112
+     */
+    @Test
+    void buildGraphWithPreprocessedData() {
+        RouteProfileConfiguration rpc = new RouteProfileConfiguration();
+        rpc.setName("whocares");
+        rpc.setEnabled(true);
+        rpc.setProfiles("driving-car");
+        try {
+            GraphProcessContext gpc = new GraphProcessContext(rpc);
+            gpc.setGetElevationFromPreprocessedData(true);
+            ORSGraphHopper gh = new ORSGraphHopper(gpc);
+            ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+            ghConfig.putObject("graph.dataaccess", "RAM");
+            ghConfig.putObject("graph.location", "unittest.testgraph");
+            ghConfig.putObject("datareader.file", "../openrouteservice-api-tests/data/preprocessed_osm_data.pbf");
+            ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
+            gh.init(ghConfig);
+            gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+            gh.importOrLoad();
+            ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
+            assertEquals(419, storage.getNodes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkInstructions(InstructionList instructions) {
