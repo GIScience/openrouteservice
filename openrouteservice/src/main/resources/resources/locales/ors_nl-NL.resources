@@ -90,6 +90,17 @@
           "default": "Keer om {turn_maneuver}",
           "name": "Keer om {turn_maneuver} richting {way_name}"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
       }
     }
   }

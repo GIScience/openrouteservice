@@ -90,6 +90,17 @@
           "default": "Tournez {turn_maneuver}",
           "name": "Tournez {turn_maneuver} sur {way_name}"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
       }
     }
   }

@@ -90,6 +90,17 @@
           "default": "Tartson {turn_maneuver}",
           "name": "Tartson {turn_maneuver} ezen: {way_name}"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
       }
     }
   }

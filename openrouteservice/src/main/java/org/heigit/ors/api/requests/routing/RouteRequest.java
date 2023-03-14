@@ -281,7 +281,7 @@ public class RouteRequest extends APIRequest {
      * Other parameters public-transport accepts are coordinates and language.
      */
     @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a public transport schedule starting at <departure> for the next <schedule_duration> minutes." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': false}",
             example = "true")
     @JsonProperty(PARAM_SCHEDULE)
     private boolean schedule;
@@ -305,7 +305,7 @@ public class RouteRequest extends APIRequest {
     private boolean hasScheduleRows = false;
 
     @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transport." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': 'PT15M'}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': 'PT15M'}",
             example = "PT30M")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
@@ -313,7 +313,7 @@ public class RouteRequest extends APIRequest {
     private boolean hasWalkingTime = false;
 
     @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': false}",
             example = "true")
     @JsonProperty(PARAM_IGNORE_TRANSFERS)
     private boolean ignoreTransfers;
