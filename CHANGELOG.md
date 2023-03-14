@@ -39,6 +39,7 @@ RELEASING:
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 ### Fixed
 - change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
+- update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 
 ## [7.0.1] - 2023-03-08
 - fix tomcat config overwrite ([#1311](https://github.com/GIScience/openrouteservice/issues/1311))
