@@ -83,6 +83,8 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -1188,10 +1190,22 @@ public class RoutingProfile {
                 setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
-                if (searchParams.hasDeparture())
-                    req.getHints().putObject(RouteRequest.PARAM_DEPARTURE, searchParams.getDeparture());
-                else if (searchParams.hasArrival())
-                    req.getHints().putObject(RouteRequest.PARAM_ARRIVAL, searchParams.getArrival());
+                //FIXME: allow TD_ASTAR and TD_CORE once implemented
+                req.setAlgorithm(Parameters.Algorithms.TD_DIJKSTRA);
+                setSpeedups(req, false, false, false, searchCntx.profileNameCH());
+
+                String key;
+                LocalDateTime time;
+                if (searchParams.hasDeparture()) {
+                    key = RouteRequest.PARAM_DEPARTURE;
+                    time = searchParams.getDeparture();
+                }
+                else {
+                    key = RouteRequest.PARAM_ARRIVAL;
+                    time = searchParams.getArrival();
+                }
+
+                req.getHints().putObject(key, time.atZone(ZoneId.of("Europe/Berlin")).toInstant());
             }
 
             if (astarEpsilon != null)

@@ -3411,7 +3411,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    void expectDepartureAndArrival() { // TD routing not implemented yet
+    void expectDepartureAndArrival() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -3432,10 +3432,8 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // TODO (refactoring): implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.
     @Test
-    @Disabled("implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.")
-    void testConditionalAccess() { // TD routing not implemented yet
+    void testConditionalAccess() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.645178);
@@ -3511,10 +3509,8 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // TODO (refactoring): implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.
     @Test
-    @Disabled("implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.")
-    void testConditionalSpeed() { // TD routing not implemented yet
+    void testConditionalSpeed() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.689993);

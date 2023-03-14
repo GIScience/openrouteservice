@@ -35,12 +35,20 @@ public class CorePathCalculator implements PathCalculator {
         this.algoOpts = algoOpts;
     }
 
-    @Override
+    //@Override
     public List<Path> calcPaths(int from, int to, EdgeRestrictions edgeRestrictions) {
         if (!edgeRestrictions.getUnfavoredEdges().isEmpty())
             throw new IllegalArgumentException("Using unfavored edges is currently not supported for CH");
         RoutingAlgorithm algo = createAlgo();
-        return calcPaths(from, to, edgeRestrictions, algo);
+        return calcPaths(from, to, -1, edgeRestrictions, algo);
+    }
+
+    @Override
+    public List<Path> calcPaths(int from, int to, long at, EdgeRestrictions edgeRestrictions) {
+        if (!edgeRestrictions.getUnfavoredEdges().isEmpty())
+            throw new IllegalArgumentException("Using unfavored edges is currently not supported for CH");
+        RoutingAlgorithm algo = createAlgo();
+        return calcPaths(from, to, at, edgeRestrictions, algo);
     }
 
     private RoutingAlgorithm createAlgo() {
@@ -50,7 +58,7 @@ public class CorePathCalculator implements PathCalculator {
         return algo;
     }
 
-    private List<Path> calcPaths(int from, int to, EdgeRestrictions edgeRestrictions, RoutingAlgorithm algo) {
+    private List<Path> calcPaths(int from, int to, long at, EdgeRestrictions edgeRestrictions, RoutingAlgorithm algo) {
         StopWatch sw = new StopWatch().start();
         List<Path> paths;
         /* FIXME
