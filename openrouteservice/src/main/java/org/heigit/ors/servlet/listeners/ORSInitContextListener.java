@@ -31,7 +31,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public class ORSInitContextListener implements ServletContextListener {
-    private static final Logger LOGGER = Logger.getLogger("org.heigit.ors.logging");
+    private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
@@ -51,14 +51,14 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         try {
-            LOGGER.info("Start shutting down ORS and releasing resources.");
+            LOGGER.info("Shutting down ORS and releasing resources.");
             FormatUtility.unload();
             if (RoutingProfileManagerStatus.isReady())
                 RoutingProfileManager.getInstance().destroy();
             StatisticsProviderFactory.releaseProviders();
             LogFactory.release(Thread.currentThread().getContextClassLoader());
         } catch (Exception e) {
-            LOGGER.error(e.getStackTrace());
+            LOGGER.error(e.getMessage());
         }
     }
 } 

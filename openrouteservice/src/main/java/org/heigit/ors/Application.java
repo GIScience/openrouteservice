@@ -58,10 +58,22 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean
-    public ServletListenerRegistrationBean<ServletContextListener> customListenerBean() {
+    public ServletListenerRegistrationBean<ServletContextListener> createLoggingStartupContextListenerBean() {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new LoggingStartupContextListener());
+        return bean;
+    }
+
+    @Bean
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean() {
+        ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new ORSInitContextListener());
+        return bean;
+    }
+
+    @Bean
+    public ServletListenerRegistrationBean<ServletContextListener> createORSKafkaConsumerInitContextListenerBean() {
+        ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new ORSKafkaConsumerInitContextListener());
         return bean;
     }
