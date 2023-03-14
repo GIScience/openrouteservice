@@ -140,7 +140,7 @@ public class ResultTest extends ServiceTest {
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
-        addParameter("ptProfile", "pt");
+        addParameter("ptProfile", "public-transport");
     }
 
     @Test

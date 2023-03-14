@@ -194,7 +194,7 @@ public class RoutingProfileType {
             case "wheelchair":
                 return WHEELCHAIR;
 
-            case "pt":
+            case "public-transport":
                 return PUBLIC_TRANSPORT;
 
             // GH DEFAULTS:
