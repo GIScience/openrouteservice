@@ -23,10 +23,17 @@ public class InstructionTranslator {
 	private static final String STR_WAY_NAME = "{way_name}";
 	private static final String STR_EXIT_NUMBER = "{exit_number}";
 	private static final String STR_DIRECTION = "{direction}";
+	private static final String STR_NAME = "{name}";
+	private static final String STR_HEADSIGN = "{headsign}";
 
 	private final String[] directions;
 	private final String actionDepartDefault;
 	private final String actionDepartName;
+	private final String actionPtStart;
+	private final String actionPtStartWithHeadsign;
+	private final String actionPtTransfer;
+	private final String actionPtTransferWithHeadsign;
+	private final String actionPtEnd;
 	private final String[] actionArriveDefault;
 	private final String[] actionArriveName;
 	private final String actionRoundaboutDefault;
@@ -69,6 +76,11 @@ public class InstructionTranslator {
 
 		actionDepartDefault = resources.getTranslation("instructions.actions.depart.default.default");
 		actionDepartName = resources.getTranslation("instructions.actions.depart.default.name");
+		actionPtStart = resources.getTranslation("instructions.actions.pt.start.default");
+		actionPtStartWithHeadsign = resources.getTranslation("instructions.actions.pt.start.headsign");
+		actionPtTransfer = resources.getTranslation("instructions.actions.pt.transfer.default");
+		actionPtTransferWithHeadsign = resources.getTranslation("instructions.actions.pt.transfer.headsign");
+		actionPtEnd = resources.getTranslation("instructions.actions.pt.end");
 		actionContinueDefault = resources.getTranslation("instructions.actions.continue.default.default");
 		actionContinueName = resources.getTranslation("instructions.actions.continue.default.name");
 		actionKeepDefault = resources.getTranslation("instructions.actions.keep.default.default");
@@ -148,7 +160,28 @@ public class InstructionTranslator {
 		else 
 			return actionDepartName.replace(STR_DIRECTION, directions[direction.ordinal()]).replace(STR_WAY_NAME, wayName);
 	}
-	
+
+	public String getPt(InstructionType type, String name) {
+		return getPt(type, name, null);
+	}
+
+	public String getPt(InstructionType type, String name, String headsign) {
+		switch (type){
+			case PT_ENTER:
+				if (!Helper.isEmpty(headsign))
+					return actionPtStartWithHeadsign.replace(STR_NAME, name).replace(STR_HEADSIGN, headsign);
+				return actionPtStart.replace(STR_NAME, name);
+			case PT_TRANSFER:
+				if (!Helper.isEmpty(headsign))
+					return actionPtTransferWithHeadsign.replace(STR_NAME, name).replace(STR_HEADSIGN, headsign);
+				return actionPtTransfer.replace(STR_NAME, name);
+			case PT_EXIT:
+				return actionPtEnd.replace(STR_NAME, name);
+			default:
+				return "";
+		}
+	}
+
 	public String getArrive(ArrivalDirection direction, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionArriveDefault[direction.ordinal()];

@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -99,6 +101,34 @@ public class ResultTest extends ServiceTest {
 
         addParameter("coordinatesWalking", coordsFoot);
 
+        JSONArray coordinatesPT = new JSONArray();
+        JSONArray coordinatesPTFlipped = new JSONArray();
+        JSONArray coordPT1 = new JSONArray();
+        coordPT1.put(8.704433);
+        coordPT1.put(49.403378);
+        JSONArray coordPT2 = new JSONArray();
+        coordPT2.put(8.676101);
+        coordPT2.put(49.408324); //
+        coordinatesPT.put(coordPT1);
+        coordinatesPT.put(coordPT2);
+        coordinatesPTFlipped.put(coordPT2);
+        coordinatesPTFlipped.put(coordPT1);
+
+        JSONArray coordinatesPT2 = new JSONArray();
+        JSONArray coordPT3 = new JSONArray();
+        coordPT3.put(8.758935);
+        coordPT3.put(49.337371);
+        JSONArray coordPT4 = new JSONArray();
+        coordPT4.put(8.771123);
+        coordPT4.put(49.511863);
+        coordinatesPT2.put(coordPT3);
+        coordinatesPT2.put(coordPT4);
+
+        addParameter("coordinatesPT", coordinatesPT);
+        addParameter("coordinatesPTFlipped", coordinatesPTFlipped);
+        addParameter("coordinatesPT2", coordinatesPT2);
+
+
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
         extraInfo.put("suitability");
@@ -110,6 +140,7 @@ public class ResultTest extends ServiceTest {
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
+        addParameter("ptProfile", "public-transport");
     }
 
     @Test
@@ -3380,7 +3411,7 @@ public class ResultTest extends ServiceTest {
     }
 
     @Test
-    void expectDepartureAndArrival() { // TD routing not implemented yet
+    void expectDepartureAndArrival() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
         body.put("preference", getParameter("preference"));
@@ -3401,10 +3432,8 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // TODO (refactoring): implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.
     @Test
-    @Disabled("implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.")
-    void testConditionalAccess() { // TD routing not implemented yet
+    void testConditionalAccess() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.645178);
@@ -3480,10 +3509,8 @@ public class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // TODO (refactoring): implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.
     @Test
-    @Disabled("implement TD routing. As this was postponed until the update is done, this test is to be ignored for now.")
-    void testConditionalSpeed() { // TD routing not implemented yet
+    void testConditionalSpeed() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.689993);
@@ -3650,6 +3677,121 @@ public class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(497.5f))
                 .body("routes[0].summary.duration", is(81.1f))
                 .statusCode(200);
+    }
+    @Test
+    public void testPTJSON() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.6729581);
+        coord1.put(49.4468535);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.7067204);
+        coord2.put(49.3786147);
+        coordinates.put(coord2);
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("instructions", true);
+        body.put("elevation", true);
+        body.put("departure", "2022-07-04T13:02:26Z");
+        body.put("walking_time", "PT30M");
+        Response res = given()
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}")
+            .then().log().ifValidationFails()
+            .assertThat()
+            .body("any { it.key == 'routes' }", is(true))
+            .body("routes.size()", is(3))
+            .body("routes[0].summary.transfers", is(2))
+            .body("routes[0].legs.size()", is(6))
+            .body("routes[0].legs[0].containsKey('arrival')", is(true))
+            .body("routes[0].legs[0].containsKey('departure')", is(true))
+            .body("routes[0].legs[0].containsKey('instructions')", is(true))
+            .body("routes[0].legs[0].containsKey('geometry')", is(true))
+            .body("routes[0].legs[1].containsKey('feed_id')", is(true))
+            .body("routes[0].legs[1].containsKey('trip_id')", is(true))
+            .body("routes[0].legs[1].containsKey('route_id')", is(true))
+            .body("routes[0].legs[1].containsKey('route_type')", is(true))
+            .body("routes[0].legs[1].containsKey('route_desc')", is(true))
+            .body("routes[0].legs[1].containsKey('geometry')", is(true))
+            .statusCode(200).extract().response();
+    }
+
+    @Test
+    public void testPTGeoJSON() {
+        JSONArray coordinates =  new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.6729581);
+        coord1.put(49.4468535);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.7067204);
+        coord2.put(49.3786147);
+        coordinates.put(coord2);
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("instructions", true);
+        body.put("elevation", true);
+        body.put("departure", "2022-07-04T13:02:26Z");
+        body.put("walking_time", "PT30M");
+        Response res = given()
+            .header("Accept", "application/geo+json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}/geojson")
+            .then().log().all()
+            .assertThat()
+            .body("any { it.key == 'features' }", is(true))
+            .body("features.size()", is(3))
+            .body("features[0].properties.transfers", is(2))
+            .body("features[0].properties.legs.size()", is(6))
+            .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
+            .body("features[0].properties.legs[0].containsKey('departure')", is(true))
+            .body("features[0].properties.legs[0].containsKey('instructions')", is(true))
+            .body("features[0].properties.legs[0].containsKey('geometry')", is(true))
+            .body("features[0].properties.legs[1].containsKey('feed_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('trip_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_id')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_type')", is(true))
+            .body("features[0].properties.legs[1].containsKey('route_desc')", is(true))
+            .body("features[0].properties.legs[1].containsKey('geometry')", is(true))
+            .statusCode(200).extract().response();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"coordinatesPT,PT1M,2013,0", "coordinatesPTFlipped,PT1M,2014,1", "coordinatesPTFlipped,PT10S,2015,2", "coordinatesPTFlipped,PT10M,2016,3", "coordinatesPT2,PT4H,2017,4"})
+    public void testPTFail(String coords, String walkingTime, int errorCode, int messageIndex) {
+        String[] messages = {
+            "PT entry point cannot be reached within given street time.",
+            "PT exit point cannot be reached within given street time.",
+            "PT exit point cannot be reached within given street time. PT entry point cannot be reached within given street time.",
+            "PT entry and exit points found but no connecting route. Increase walking time to explore more results.",
+            "Maximum number of nodes exceeded: 15000"
+        };
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter(coords));
+        body.put("departure", "2022-09-26T07:30:26Z");
+        body.put("walking_time", walkingTime);
+        given()
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .pathParam("profile", getParameter("ptProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}")
+            .then().log().ifValidationFails()
+            .assertThat()
+            .body("any { it.key == 'error' }", is(true))
+            .body("error.code", is(errorCode))
+            .body("error.message", containsString(messages[messageIndex]))
+            .statusCode(404);
     }
 
     private JSONArray constructBearings(String coordString) {

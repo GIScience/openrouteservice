@@ -17,6 +17,7 @@ import com.graphhopper.*;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.gtfs.GraphHopperGtfs;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
@@ -26,12 +27,9 @@ import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.TimeDependentAccessWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHConfig;
-import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
@@ -43,7 +41,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -83,7 +80,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 
-public class ORSGraphHopper extends GraphHopper {
+public class ORSGraphHopper extends GraphHopperGtfs {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
 	public static final String KEY_DEPARTURE = "departure";
 	public static final String KEY_ARRIVAL = "arrival";
@@ -102,6 +99,12 @@ public class ORSGraphHopper extends GraphHopper {
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
     private MapMatcher mMapMatcher;
+
+	public GraphHopperConfig getConfig() {
+		return config;
+	}
+
+	private GraphHopperConfig config;
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
@@ -127,6 +130,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+		config = ghConfig;
 		return ret;
 	}
 
@@ -227,18 +231,6 @@ public class ORSGraphHopper extends GraphHopper {
 	protected WeightingFactory createWeightingFactory() {
 		return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
-
-	private boolean isRequestTimeDependent(PMap hints) {
-		return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
-	}
-
-    public Weighting createTimeDependentAccessWeighting(Weighting weighting) {
-        FlagEncoder flagEncoder = weighting.getFlagEncoder();
-        if (getEncodingManager().hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
-            return new TimeDependentAccessWeighting(weighting, getGraphHopperStorage(), flagEncoder);
-        else
-            return weighting;
-    }
 
     public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
         RouteSegmentInfo result = null;

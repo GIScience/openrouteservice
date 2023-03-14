@@ -17,12 +17,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.*;
+import com.graphhopper.util.exceptions.ConnectionNotFoundException;
+import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
@@ -38,7 +41,6 @@ import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
@@ -50,7 +52,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
@@ -389,13 +393,49 @@ public class RoutingProfileManager {
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
                     if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                        Map<String, Object> details = ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails();
+                        if (!details.isEmpty()) {
+                            int code = RoutingErrorCodes.ROUTE_NOT_FOUND;
+                            if (details.containsKey("entry_not_reached") && details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_NOT_REACHED;
+                            } else if (details.containsKey("entry_not_reached")) {
+                                code = RoutingErrorCodes.PT_ENTRY_NOT_REACHED;
+                            } else if (details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_EXIT_NOT_REACHED;
+                            } else if (details.containsKey("combined_not_reached")) {
+                                code = RoutingErrorCodes.PT_ROUTE_NOT_FOUND;
+                            }
+                            throw new RouteNotFoundException(
+                                code,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1),
+                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                )
+                            );
+                        }
                         throw new RouteNotFoundException(
-                                RoutingErrorCodes.ROUTE_NOT_FOUND,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
-                                        i,
-                                        FormatUtility.formatCoordinate(c0),
-                                        i + 1,
-                                        FormatUtility.formatCoordinate(c1))
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                i,
+                                FormatUtility.formatCoordinate(c0),
+                                i + 1,
+                                FormatUtility.formatCoordinate(c1)
+                            )
+                        );
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
+                        Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
+                        throw new RouteNotFoundException(
+                            RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
+                            String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
+                                i,
+                                FormatUtility.formatCoordinate(c0),
+                                i + 1,
+                                FormatUtility.formatCoordinate(c1),
+                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                            )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();

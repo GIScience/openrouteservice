@@ -22,6 +22,7 @@ import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteExtraInfo;
+import org.heigit.ors.routing.RouteLeg;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.util.DistanceUnitUtil;
@@ -49,6 +50,14 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
         }
 
         return segments;
+    }
+
+    protected List<JSONLeg> constructLegs(RouteResult routeResult) {
+        List<JSONLeg> legs = new ArrayList<>();
+        for(RouteLeg routeLeg : routeResult.getLegs()) {
+            legs.add(new JSONLeg(routeLeg));
+        }
+        return legs;
     }
 
     protected Map<String, JSONExtra> constructExtras(RouteRequest routeRequest, RouteResult routeResult) throws StatusCodeException {

@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
@@ -41,6 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 
@@ -91,6 +93,14 @@ public class RouteSearchParameters {
 
     private LocalDateTime departure;
     private LocalDateTime arrival;
+    private int scheduleRows;
+    private Duration scheduleDuaration;
+    private boolean ignoreTransfers = false;
+    private Duration walkingTime;
+    private boolean schedule;
+    private boolean hasScheduleRows = false;
+    private boolean hasWalkingTime = false;
+    private boolean hasScheduleDuration = false;
 
     public int getProfileType() {
         return profileType;
@@ -630,4 +640,62 @@ public class RouteSearchParameters {
         return (hasDeparture() || hasArrival());
     }
 
+    public void setScheduleDuaration(Duration scheduleDuaration) {
+        this.scheduleDuaration = scheduleDuaration;
+        this.hasScheduleDuration = true;
+    }
+
+    public Duration getScheduleDuaration() {
+        return scheduleDuaration;
+    }
+
+    public void setIgnoreTransfers(boolean ignoreTransfers) {
+        this.ignoreTransfers = ignoreTransfers;
+    }
+
+    public boolean getIgnoreTransfers() {
+        return this.ignoreTransfers;
+    }
+
+    public boolean hasScheduleRows() {
+        return hasScheduleRows;
+    }
+
+    public void setScheduleRows(int scheduleRows) {
+        this.scheduleRows = scheduleRows;
+        this.hasScheduleRows = true;
+    }
+
+    public int getScheduleRows() {
+        return scheduleRows;
+    }
+
+    public void setWalkingTime(Duration walkingTime) {
+        this.walkingTime = walkingTime;
+        this.hasWalkingTime = true;
+    }
+
+    public Duration getWalkingTime() {
+        return walkingTime;
+    }
+
+    public boolean hasWalkingTime() {
+        return this.hasWalkingTime;
+    }
+
+    public void setSchedule(boolean schedule) {
+        this.schedule = schedule;
+    }
+
+    public boolean getSchedule() {
+        return this.schedule;
+    }
+
+    public boolean hasSchedule() {
+        return this.schedule;
+    }
+
+    public boolean hasScheduleDuration() {
+        return this.hasScheduleDuration;
+    }
 }

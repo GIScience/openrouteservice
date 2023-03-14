@@ -19,6 +19,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,12 @@ public class RoutingRequest extends ServiceRequest {
 	private double maximumSpeed;
 
 	private String responseFormat = "json";
+	// Fields specific to GraphHopper GTFS
+	private boolean schedule;
+	private Duration walkingTime;
+	private int scheduleRows;
+	private boolean ignoreTransfers;
+	private Duration scheduleDuration;
 
 	public RoutingRequest()
 	{
@@ -232,5 +239,25 @@ public class RoutingRequest extends ServiceRequest {
 
 	public boolean isRoundTripRequest() {
 		return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
+	}
+
+	public void setSchedule(boolean schedule) {
+		this.schedule = schedule;
+	}
+
+	public void setWalkingTime(Duration walkingTime) {
+		this.walkingTime = walkingTime;
+	}
+
+	public void setScheduleRows(int scheduleRows) {
+		this.scheduleRows = scheduleRows;
+	}
+
+	public void setIgnoreTransfers(boolean ignoreTransfers) {
+		this.ignoreTransfers = ignoreTransfers;
+	}
+
+	public void setScheduleDuaration(Duration scheduleDuration) {
+		this.scheduleDuration = scheduleDuration;
 	}
 }

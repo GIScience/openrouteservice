@@ -42,6 +42,8 @@ public class RoutingProfileType {
     // OTHER STUFF
     public static final int WHEELCHAIR = 30;
 
+    public static final int PUBLIC_TRANSPORT = 31;
+
     // GH default FlagEncoders...
     public static final int GH_CAR = 40;
     public static final int GH_CAR4WD = 41;
@@ -192,6 +194,9 @@ public class RoutingProfileType {
             case "wheelchair":
                 return WHEELCHAIR;
 
+            case "public-transport":
+                return PUBLIC_TRANSPORT;
+
             // GH DEFAULTS:
             case "gh-car":
                 return GH_CAR;
@@ -255,6 +260,8 @@ public class RoutingProfileType {
             case RoutingProfileType.WHEELCHAIR:
                 return FlagEncoderNames.WHEELCHAIR;
 
+            case RoutingProfileType.PUBLIC_TRANSPORT:
+                return FlagEncoderNames.GH_FOOT;
 
             case RoutingProfileType.GH_CAR:
                 return FlagEncoderNames.GH_CAR;

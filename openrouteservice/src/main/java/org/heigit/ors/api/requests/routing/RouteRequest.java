@@ -16,7 +16,8 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.*;
-import org.locationtech.jts.geom.Coordinate;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -24,10 +25,10 @@ import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.util.StringUtility;
+import org.locationtech.jts.geom.Coordinate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,12 +63,20 @@ public class RouteRequest extends APIRequest {
     public static final String PARAM_DEPARTURE = "departure";
     public static final String PARAM_ARRIVAL = "arrival";
     public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
+    // Fields specific to GraphHopper GTFS
+    public static final String PARAM_SCHEDULE = "schedule";
+    public static final String PARAM_SCHEDULE_DURATION = "schedule_duration";
+    public static final String PARAM_SCHEDULE_ROWS = "schedule_rows";
+    public static final String PARAM_WALKING_TIME = "walking_time";
+    public static final String PARAM_IGNORE_TRANSFERS = "ignore_transfers";
 
     @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
             required = true)
     @JsonProperty(PARAM_COORDINATES)
     private List<List<Double>> coordinates;
+
+    //TODO (GTFS): We might need to make a bunch of these parameters only valid if profile pt is selected.
 
     @ApiModelProperty(name = PARAM_PREFERENCE,
             value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
@@ -259,13 +268,57 @@ public class RouteRequest extends APIRequest {
     @JsonIgnore
     private boolean hasArrival = false;
 
-@ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
             example = "90")
     @JsonProperty(PARAM_MAXIMUM_SPEED)
     private double maximumSpeed;
     @JsonIgnore
     private boolean hasMaximumSpeed = false;
+
+    /*
+     * The following parameters are specific to public transport.
+     * Other parameters public-transport accepts are coordinates and language.
+     */
+    @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a public transport schedule starting at <departure> for the next <schedule_duration> minutes." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
+            example = "true")
+    @JsonProperty(PARAM_SCHEDULE)
+    private boolean schedule;
+    @JsonIgnore
+    private boolean hasSchedule = false;
+
+    @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window when requesting a public transport schedule." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
+            example = "PT30M")
+    @JsonProperty(PARAM_SCHEDULE_DURATION)
+    private Duration scheduleDuration;
+    @JsonIgnore
+    private boolean hasScheduleDuration = false;
+
+    @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The maximum amount of entries that should be returned when requesting a schedule." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
+            example = "3")
+    @JsonProperty(PARAM_SCHEDULE_ROWS)
+    private int scheduleRows;
+    @JsonIgnore
+    private boolean hasScheduleRows = false;
+
+    @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transport." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': 'PT15M'}",
+            example = "PT30M")
+    @JsonProperty(PARAM_WALKING_TIME)
+    private Duration walkingTime;
+    @JsonIgnore
+    private boolean hasWalkingTime = false;
+
+    @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['pt']}, 'apiDefault': false}",
+            example = "true")
+    @JsonProperty(PARAM_IGNORE_TRANSFERS)
+    private boolean ignoreTransfers;
+    @JsonIgnore
+    private boolean hasIgnoreTransfers = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -611,6 +664,72 @@ public class RouteRequest extends APIRequest {
         return hasMaximumSpeed;
     }
 
+    public boolean getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(boolean schedule) {
+        this.schedule = schedule;
+        this.hasSchedule = true;
+    }
+
+    public boolean hasSchedule() {
+        return hasSchedule;
+    }
+
+    public Duration getScheduleDuration() {
+        return scheduleDuration;
+    }
+
+    public void setScheduleDuration(Duration scheduleDuration) {
+        this.scheduleDuration = scheduleDuration;
+        this.hasScheduleDuration = true;
+    }
+
+    public boolean hasScheduleDuration() {
+        return hasScheduleDuration;
+    }
+
+    public int getScheduleRows() {
+        return scheduleRows;
+    }
+
+    public void setScheduleRows(int scheduleRows) {
+        this.scheduleRows = scheduleRows;
+        this.hasScheduleRows = true;
+    }
+
+    public boolean hasScheduleRows() {
+        return hasScheduleRows;
+    }
+
+    public Duration getWalkingTime() {
+        return walkingTime;
+    }
+
+    public void setWalkingTime(Duration walkingTime) {
+        this.walkingTime = walkingTime;
+        this.hasWalkingTime = true;
+    }
+
+    public boolean hasWalkingTime() {
+        return hasWalkingTime;
+    }
+
+
+    public boolean isIgnoreTransfers() {
+        return ignoreTransfers;
+    }
+
+    public void setIgnoreTransfers(boolean ignoreTransfers) {
+        this.ignoreTransfers = ignoreTransfers;
+        this.hasIgnoreTransfers = true;
+    }
+
+    public boolean hasIgnoreTransfers() {
+        return hasIgnoreTransfers;
+    }
+
     public RouteResult[] generateRouteFromRequest() throws StatusCodeException {
         RoutingRequest routingRequest = this.convertRouteRequest();
 
@@ -756,11 +875,36 @@ public class RouteRequest extends APIRequest {
             params.setMaximumSpeed(maximumSpeed);
         }
 
+        // propagate GTFS-parameters to params to convert to ptRequest in RoutingProfile.computeRoute
+        if (this.hasSchedule()) {
+            params.setSchedule(schedule);
+        }
+
+        if (this.hasWalkingTime()) {
+            params.setWalkingTime(walkingTime);
+        }
+
+        if (this.hasScheduleRows()) {
+            params.setScheduleRows(scheduleRows);
+        }
+
+        if (this.hasIgnoreTransfers()) {
+            params.setIgnoreTransfers(ignoreTransfers);
+        }
+
+        if (this.hasScheduleDuration()) {
+            params.setScheduleDuaration(scheduleDuration);
+        }
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);
 
         return routingRequest;
+    }
+
+    public boolean isPtRequest(){
+        return convertRouteProfileType(profile) == RoutingProfileType.PUBLIC_TRANSPORT;
     }
 
     private List<Integer> processSkipSegments() throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {

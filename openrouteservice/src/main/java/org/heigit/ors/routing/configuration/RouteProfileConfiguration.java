@@ -24,35 +24,35 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration {
-    private String name = "";
-    private boolean enabled = true;
-    private String profiles = ""; // comma separated
-    private String graphPath;
-    private Map<String, Map<String, String>> extStorages;
-    private Map<String, Map<String, String>> graphBuilders;
-    private Double maximumDistance = 0.0;
-    private Double maximumDistanceDynamicWeights = 0.0;
-    private Double maximumDistanceAvoidAreas = 0.0;
-    private Double maximumDistanceAlternativeRoutes = 0.0;
-    private Double maximumDistanceRoundTripRoutes = 0.0;
-    private Integer maximumWayPoints = 0;
-    private boolean instructions = true;
-    private boolean optimize = false;
-
-    private int encoderFlagsSize = 4;
-    private String encoderOptions = null;
-
-    private Config isochronePreparationOpts;
-    private Config preparationOpts;
-    private Config executionOpts;
-
-    private String elevationProvider = null;
-    private String elevationCachePath = null;
-    private String elevationDataAccess = "MMAP";
-    private boolean elevationCacheClear = true;
-    private boolean elevationSmoothing = true;
-    private boolean interpolateBridgesAndTunnels = true;
-    private int maximumSnappingRadius = 350;
+	private String name = "";
+	private boolean enabled = true;
+	private String profiles = ""; // comma separated
+	private String graphPath;
+	private Map<String, Map<String, String>> extStorages;
+	private Map<String, Map<String, String>> graphBuilders;
+	private Double maximumDistance = 0.0;
+	private Double maximumDistanceDynamicWeights = 0.0;
+	private Double maximumDistanceAvoidAreas = 0.0;
+	private Double maximumDistanceAlternativeRoutes = 0.0;
+	private Double maximumDistanceRoundTripRoutes = 0.0;
+	private Integer maximumWayPoints = 0;
+	private boolean instructions = true;
+	private boolean optimize = false;
+	
+	private int encoderFlagsSize = 4;
+	private String encoderOptions = "";
+	private String gtfsFile = "";
+	private Config isochronePreparationOpts;
+	private Config preparationOpts;
+	private Config executionOpts;
+	
+	private String elevationProvider = null;
+	private String elevationCachePath = null;
+	private String elevationDataAccess = "MMAP";
+	private boolean elevationCacheClear = true;
+	private boolean elevationSmoothing = true;
+	private boolean interpolateBridgesAndTunnels = true;
+	private int maximumSnappingRadius = 350;
 
     private Envelope extent;
     private boolean hasMaximumSnappingRadius = false;
@@ -63,6 +63,8 @@ public class RouteProfileConfiguration {
     private double maximumSpeedLowerBound = 80;
 
     private int trafficExpirationMin = 15;
+
+	private int maximumVisitedNodesPT = 1000000;
 
     private boolean turnCostEnabled = false;
 	private boolean enforceTurnCosts = false;
@@ -112,7 +114,10 @@ public class RouteProfileConfiguration {
         maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
 
         trafficExpirationMin = rpc.trafficExpirationMin;
-    }
+
+		gtfsFile = rpc.gtfsFile;
+		maximumVisitedNodesPT = rpc.maximumVisitedNodesPT;
+	}
 
     private static boolean hasTurnCosts(String encoderOptions) {
         for (String option : encoderOptions.split("\\|")) {
@@ -406,7 +411,23 @@ public class RouteProfileConfiguration {
 		this.trafficExpirationMin = trafficExpirationMin;
 	}
 
-    public int getTrafficExpirationMin() {
-        return this.trafficExpirationMin;
-    }
+	public int getTrafficExpirationMin() {
+		return this.trafficExpirationMin;
+	}
+
+	public void setGtfsFile(String gtfsFile) {
+		this.gtfsFile = gtfsFile;
+	}
+
+	public String getGtfsFile() {
+		return this.gtfsFile;
+	}
+
+	public int getMaximumVisitedNodesPT() {
+		return maximumVisitedNodesPT;
+	}
+
+	public void setMaximumVisitedNodesPT(int maximumVisitedNodesPT) {
+		this.maximumVisitedNodesPT = maximumVisitedNodesPT;
+	}
 }

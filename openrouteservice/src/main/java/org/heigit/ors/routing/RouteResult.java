@@ -13,20 +13,22 @@
  */
 package org.heigit.ors.routing;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouteResult {
 
 	private Coordinate[] geometry;
 	private List<RouteSegment> segments;
+	private List<RouteLeg> legs;
 	private List<RouteExtraInfo> extraInfo;
 	private PointList pointlist;
 	private String graphDate = "";
@@ -47,6 +49,7 @@ public class RouteResult {
 			extraInfo = new ArrayList<>();
 		routeWarnings = new ArrayList<>();
 		wayPointsIndices = new ArrayList<>();
+		legs = new ArrayList<>();
 	}
 	
 	public void addSegment(RouteSegment seg)
@@ -166,6 +169,10 @@ public class RouteResult {
 	 * @param request for parameter lookup (units, include elevation)
 	 */
 	void calculateRouteSummary(RoutingRequest request) {
+		calculateRouteSummary(request, null);
+	}
+
+	void calculateRouteSummary(RoutingRequest request, ResponsePath path) {
 		double distance = 0.0;
 		double duration = 0.0;
 		for (RouteSegment seg : getSegments()) {
@@ -188,6 +195,11 @@ public class RouteResult {
 			}
 			summary.setAscent(FormatUtility.roundToDecimals(ascent, 1));
 			summary.setDescent(FormatUtility.roundToDecimals(descent, 1));
+		}
+		if (path != null) {
+			summary.setTransfers(path.getNumChanges());
+			if (path.getFare() != null)
+				summary.setFare(path.getFare().intValue());
 		}
 	}
 
@@ -218,4 +230,12 @@ public class RouteResult {
 	public void setArrival(ZonedDateTime arrival) {
 	    this.arrival = arrival;
     }
+
+	public void addLeg(RouteLeg leg) {
+		legs.add(leg);
+	}
+
+	public List<RouteLeg> getLegs() {
+		return legs;
+	}
 }
