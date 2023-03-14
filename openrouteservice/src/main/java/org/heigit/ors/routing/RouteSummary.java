@@ -23,6 +23,9 @@ public class RouteSummary {
 	private double avgSpeed;
 	private BBox bbox;
 
+	private int transfers;
+	private int fare;
+
 	public double getDistance() {
 		return distance;
 	}
@@ -38,12 +41,26 @@ public class RouteSummary {
 	public void setDuration(double duration) {
 		this.duration = duration;
 	}
-	
+
+	public int getTransfers() {
+		return transfers;
+	}
+
+	public void setTransfers(int transfers) {
+		this.transfers = transfers;
+	}
+	public int  getFare() {
+		return fare;
+	}
+
+	public void setFare(int fare) {
+		this.fare = fare;
+	}
 	public BBox getBBox()
 	{
 		return bbox;
 	}
-	
+
 	public void setBBox(BBox bbox)
 	{
 		this.bbox = bbox;

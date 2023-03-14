@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.responses.routing.json.JSONExtra;
+import org.heigit.ors.api.responses.routing.json.JSONLeg;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.api.responses.routing.json.JSONSummary;
 import org.heigit.ors.routing.RouteResult;
@@ -38,6 +39,9 @@ public class GeoJSONSummary extends JSONSummary {
     private final List<JSONSegment> segments;
     private final List<Integer> wayPoints;
     private final Map<String, JSONExtra> extras;
+
+    @JsonProperty("legs")
+    private final List<JSONLeg> legs;
     private final List<RouteWarning> warnings;
     @ApiModelProperty(value = "Departure date and time" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
@@ -48,12 +52,13 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
 
-    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map<String, JSONExtra> extras, boolean includeElevation) {
-        super(result, includeElevation);
+    public GeoJSONSummary(RouteResult result, List<JSONSegment> segments, Map<String, JSONExtra> extras, boolean includeElevation, boolean isPtRequest, List<JSONLeg> legs) {
+        super(result, includeElevation, isPtRequest);
         this.segments = segments;
         this.wayPoints = result.getWayPointsIndices();
         this.extras = extras;
         this.warnings = result.getWarnings();
+        this.legs = legs;
 
         if(result.hasDepartureAndArrival()) {
             departure = result.getDeparture();
@@ -63,6 +68,10 @@ public class GeoJSONSummary extends JSONSummary {
 
     public List<JSONSegment> getSegments() {
         return segments;
+    }
+
+    public List<JSONLeg> getLegs() {
+        return legs;
     }
 
     @JsonProperty("way_points")

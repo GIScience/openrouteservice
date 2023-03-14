@@ -17,6 +17,7 @@ import com.graphhopper.*;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.gtfs.GraphHopperGtfs;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
@@ -79,7 +80,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 
-public class ORSGraphHopper extends GraphHopper {
+public class ORSGraphHopper extends GraphHopperGtfs {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
 	public static final String KEY_DEPARTURE = "departure";
 	public static final String KEY_ARRIVAL = "arrival";
@@ -98,6 +99,12 @@ public class ORSGraphHopper extends GraphHopper {
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
     private MapMatcher mMapMatcher;
+
+	public GraphHopperConfig getConfig() {
+		return config;
+	}
+
+	private GraphHopperConfig config;
 
 	public ORSGraphHopper(GraphProcessContext procCntx) {
 		processContext = procCntx;
@@ -123,6 +130,7 @@ public class ORSGraphHopper extends GraphHopper {
 
 		minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
 		minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
+		config = ghConfig;
 		return ret;
 	}
 

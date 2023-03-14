@@ -15,8 +15,8 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
+import com.graphhopper.Trip;
 import com.graphhopper.util.*;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.common.DistanceUnit;
@@ -26,9 +26,12 @@ import org.heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import org.heigit.ors.routing.instructions.InstructionType;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.heigit.ors.routing.RouteResult.*;
@@ -122,7 +125,8 @@ class RouteResultBuilder
 
         int pathIndex = 0;
         for (ResponsePath path : response.getAll()) {
-            RouteResult result = createInitialRouteResult(request, extras[pathIndex]);
+            List<RouteExtraInfo> extraList = extras.length == response.getAll().size() ? extras[pathIndex] : extras[0];
+            RouteResult result = createInitialRouteResult(request, extraList);
 
             handleResponseWarnings(result, response);
 
@@ -134,7 +138,11 @@ class RouteResultBuilder
 
             result.addSegment(createRouteSegment(path, request, null));
 
-            result.calculateRouteSummary(request);
+            if (request.getSearchParameters().getProfileType() == RoutingProfileType.PUBLIC_TRANSPORT) {
+                addLegsToRouteResult(result, request, path.getLegs(), response);
+            }
+
+            result.calculateRouteSummary(request, path);
             if (!request.getIncludeInstructions()) {
                 result.resetSegments();
             }
@@ -160,7 +168,6 @@ class RouteResultBuilder
         ZonedDateTime arrival;
 
         long duration = (long) result.getSummary().getDuration();
-
         if (request.getSearchParameters().hasDeparture()) {
             ZonedDateTime zonedDateTime = request.getSearchParameters().getDeparture().atZone(ZoneId.of(timezoneDeparture));
             departure = zonedDateTime;
@@ -193,96 +200,112 @@ class RouteResultBuilder
             if (request.hasAttribute(RoutingRequest.ATTR_DETOURFACTOR)) {
                 seg.setDetourFactor(FormatUtility.roundToDecimals(calculateDetourFactor(path), 2));
             }
-
-            InstructionList instructions = path.getInstructions();
-
-            int nInstructions = instructions.size();
-            InstructionTranslator instrTranslator = InstructionTranslatorsCache.getInstance().getTranslator(request.getLanguage());
-            for (int ii = 0; ii < nInstructions; ++ii) {
-                RouteStep step = new RouteStep();
-
-                Instruction instr = instructions.get(ii);
-                if (instr instanceof ViaInstruction && request.isRoundTripRequest()) {
-                    // if this is a via instruction, then we don't want to process it in the case of a round trip
-                    continue;
-                }
-                InstructionType instrType = getInstructionType(ii == 0, instr);
-
-                PointList currentStepPoints = instr.getPoints();
-                PointList nextStepPoints = (ii + 1 < nInstructions) ? instructions.get(ii + 1).getPoints() : nextRouteFirstStepPoints;
-                PointList prevStepPoints = ii > 0 ? instructions.get(ii - 1).getPoints() : null;
-
-                step.setName(instr.getName());
-
-                double stepDistance = DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.METERS, request.getUnits());
-                step.setDistance(FormatUtility.roundToDecimalsForUnits(stepDistance, request.getUnits()));
-
-                step.setDuration(FormatUtility.roundToDecimals(instr.getTime() / 1000.0, 1));
-
-                if (request.getIncludeManeuvers() || instrType.isSlightLeftOrRight()) {
-                    RouteStepManeuver maneuver = calcManeuver(instrType, prevStepPoints, currentStepPoints, nextStepPoints);
-                    if (request.getIncludeManeuvers()) {
-                        step.setManeuver(maneuver);
-                    }
-                    if (instrType.isSlightLeftOrRight() && maneuver.isContinue()) {
-                        // see com.graphhopper.routing.InstructionsFromEdges.getTurn(...)
-                        // is generating the TurnInformation - for what EVER reason this
-                        // is not correct from time to time - so I ADJUST THEM!
-                        instrType = InstructionType.CONTINUE;
-                    }
-                }
-
-                step.setType(instrType.ordinal());
-
-                String instrText;
-                String roadName = instr.getName();
-                if (request.getInstructionsFormat() == RouteInstructionsFormat.HTML && !Helper.isEmpty(instr.getName()) )
-                    roadName = "<b>" + instr.getName() + "</b>";
-                if (ii == 0) {
-                    double lat;
-                    double lon;
-                    if (currentStepPoints.size() == 1) {
-                        if (nextStepPoints != null) {
-                            lat = nextStepPoints.getLat(0);
-                            lon = nextStepPoints.getLon(0);
-                        } else {
-                            lat = currentStepPoints.getLat(0);
-                            lon = currentStepPoints.getLon(0);
-                        }
-                    } else {
-                        lat = currentStepPoints.getLat(1);
-                        lon = currentStepPoints.getLon(1);
-                    }
-                    instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
-                } else {
-                    if (instr instanceof RoundaboutInstruction) {
-                        RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;
-                        step.setExitNumber(raInstr.getExitNumber());
-                        instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
-                    } else {
-                        if (isTurnInstruction(instrType)) {
-                            instrText = instrTranslator.getTurn(instrType, roadName);
-                        } else if (isKeepInstruction(instrType)) {
-                            instrText = instrTranslator.getKeep(instrType, roadName);
-                        } else if (instrType == InstructionType.CONTINUE) {
-                            instrText = instrTranslator.getContinue(instrType, roadName);
-                        } else if (instrType == InstructionType.FINISH) {
-                            String lastInstrName = instructions.get(ii - 1).getName();
-                            instrText = instrTranslator.getArrive(getArrivalDirection(path.getPoints(), request.getDestination()), lastInstrName);
-                        } else
-                            instrText = "Unknown instruction type!";
-                    }
-                }
-                step.setInstruction(instrText);
-
-                int endWayPointIndex = getEndWayPointIndex(startWayPointIndex, instrType, instr);
-                step.setWayPoints(new int[]{startWayPointIndex, endWayPointIndex});
-                startWayPointIndex = endWayPointIndex;
-
-                seg.addStep(step);
-            }
+            seg.addSteps(convertRouteSteps(path.getInstructions(), path.getPoints(), request, nextRouteFirstStepPoints));
         }
         return seg;
+    }
+
+    private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs, GHResponse response) throws Exception {
+        for (Trip.Leg leg : legs) {
+            startWayPointIndex = 0;
+            List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : null;
+            result.addLeg(new RouteLeg(leg, instructions, response, request));
+        }
+    }
+
+    private List<RouteStep> convertRouteSteps(InstructionList instructions, PointList points, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception{
+        List<RouteStep> result = new ArrayList<>();
+        int nInstructions = instructions.size();
+        InstructionTranslator instrTranslator = InstructionTranslatorsCache.getInstance().getTranslator(request.getLanguage());
+        for (int ii = 0; ii < nInstructions; ++ii) {
+            RouteStep step = new RouteStep();
+
+            Instruction instr = instructions.get(ii);
+            if (instr instanceof ViaInstruction && request.isRoundTripRequest()) {
+                // if this is a via instruction, then we don't want to process it in the case of a round trip
+                continue;
+            }
+            InstructionType instrType = getInstructionType(ii == 0, instr);
+
+            PointList currentStepPoints = instr.getPoints();
+            PointList nextStepPoints = (ii + 1 < nInstructions) ? instructions.get(ii + 1).getPoints() : nextRouteFirstStepPoints;
+            PointList prevStepPoints = ii > 0 ? instructions.get(ii - 1).getPoints() : null;
+
+            step.setName(instr.getName());
+
+            double stepDistance = DistanceUnitUtil.convert(instr.getDistance(), DistanceUnit.METERS, request.getUnits());
+            step.setDistance(FormatUtility.roundToDecimalsForUnits(stepDistance, request.getUnits()));
+
+            step.setDuration(FormatUtility.roundToDecimals(instr.getTime() / 1000.0, 1));
+
+            if (request.getIncludeManeuvers() || instrType.isSlightLeftOrRight()) {
+                RouteStepManeuver maneuver = calcManeuver(instrType, prevStepPoints, currentStepPoints, nextStepPoints);
+                if (request.getIncludeManeuvers()) {
+                    step.setManeuver(maneuver);
+                }
+                if (instrType.isSlightLeftOrRight() && maneuver.isContinue()) {
+                    // see com.graphhopper.routing.InstructionsFromEdges.getTurn(...)
+                    // is generating the TurnInformation - for what EVER reason this
+                    // is not correct from time to time - so I ADJUST THEM!
+                    instrType = InstructionType.CONTINUE;
+                }
+            }
+
+            step.setType(instrType.ordinal());
+
+            String instrText;
+            String roadName = instr.getName();
+            if (request.getInstructionsFormat() == RouteInstructionsFormat.HTML && !Helper.isEmpty(instr.getName()))
+                roadName = "<b>" + instr.getName() + "</b>";
+            if (ii == 0) {
+                double lat;
+                double lon;
+                if (currentStepPoints.size() == 1) {
+                    if (nextStepPoints != null) {
+                        lat = nextStepPoints.getLat(0);
+                        lon = nextStepPoints.getLon(0);
+                    } else {
+                        lat = currentStepPoints.getLat(0);
+                        lon = currentStepPoints.getLon(0);
+                    }
+                } else {
+                    lat = currentStepPoints.getLat(1);
+                    lon = currentStepPoints.getLon(1);
+                }
+                instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
+            } else {
+                if (instr instanceof RoundaboutInstruction) {
+                    RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;
+                    step.setExitNumber(raInstr.getExitNumber());
+                    instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
+                } else {
+                    if (isTurnInstruction(instrType)) {
+                        instrText = instrTranslator.getTurn(instrType, roadName);
+                    } else if (isKeepInstruction(instrType)) {
+                        instrText = instrTranslator.getKeep(instrType, roadName);
+                    } else if (instrType == InstructionType.PT_ENTER) {
+                        instrText = instrTranslator.getPt(instrType, roadName, instr.getHeadsign());
+                    } else if (instrType == InstructionType.PT_TRANSFER) {
+                        instrText = instrTranslator.getPt(instrType, roadName, instr.getHeadsign());
+                    } else if (instrType == InstructionType.PT_EXIT) {
+                        instrText = instrTranslator.getPt(instrType, roadName);
+                    } else if (instrType == InstructionType.CONTINUE) {
+                        instrText = instrTranslator.getContinue(instrType, roadName);
+                    } else if (instrType == InstructionType.FINISH) {
+                        String lastInstrName = instructions.get(ii - 1).getName();
+                        instrText = instrTranslator.getArrive(getArrivalDirection(points, request.getDestination()), lastInstrName);
+                    } else
+                        instrText = "Unknown instruction type!";
+                }
+            }
+            step.setInstruction(instrText);
+
+            int endWayPointIndex = getEndWayPointIndex(startWayPointIndex, instrType, instr);
+            step.setWayPoints(new int[]{startWayPointIndex, endWayPointIndex});
+            startWayPointIndex = endWayPointIndex;
+            result.add(step);
+        }
+        return result;
     }
 
     private double calculateDetourFactor(ResponsePath path) {
@@ -354,7 +377,7 @@ class RouteResultBuilder
                 lat1  = segPoints.getLat(1);
             }
             maneuver.setBearingAfter((int)Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
-        } else {
+        } else if (prevSegPoints.size() > 0) {
             int locIndex = prevSegPoints.size() - 1;
             double lon0 = prevSegPoints.getLon(locIndex);
             double lat0 = prevSegPoints.getLat(locIndex);
@@ -416,6 +439,12 @@ class RouteResultBuilder
 				return InstructionType.KEEP_LEFT;
 			case Instruction.KEEP_RIGHT:
 				return InstructionType.KEEP_RIGHT;
+            case Instruction.PT_START_TRIP:
+                return InstructionType.PT_ENTER;
+            case Instruction.PT_TRANSFER:
+                return InstructionType.PT_TRANSFER;
+            case Instruction.PT_END_TRIP:
+                return InstructionType.PT_EXIT;
             case Instruction.CONTINUE_ON_STREET:
             default:
 				return InstructionType.CONTINUE;

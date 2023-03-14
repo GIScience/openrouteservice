@@ -235,6 +235,12 @@ public class RoutingManagerConfiguration  {
 					case "force_turn_costs":
 						profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
 						break;
+					case "gtfs_file":
+						profile.setGtfsFile(StringUtility.trimQuotes(paramItem.getValue().toString()));
+						break;
+					case "maximum_visited_nodes":
+						profile.setMaximumVisitedNodesPT(Integer.parseInt(paramItem.getValue().toString()));
+						break;
 					default:
 					}
 				}

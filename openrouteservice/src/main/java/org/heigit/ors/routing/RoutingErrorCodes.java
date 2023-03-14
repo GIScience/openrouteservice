@@ -33,6 +33,14 @@ public class RoutingErrorCodes {
     public static final int POINT_NOT_FOUND = 2010;
     public static final int INCOMPATIBLE_PARAMETERS = 2011;
     public static final int UNKNOWN_PARAMETER = 2012;
+
+    public static final int PT_ENTRY_NOT_REACHED = 2013;
+    public static final int PT_EXIT_NOT_REACHED = 2014;
+    public static final int PT_NOT_REACHED = 2015;
+
+    public static final int PT_ROUTE_NOT_FOUND = 2016;
+
+    public static final int PT_MAX_VISITED_NODES_EXCEEDED = 2017;
     public static final int UNKNOWN = 2099;
     private RoutingErrorCodes() {}
 }

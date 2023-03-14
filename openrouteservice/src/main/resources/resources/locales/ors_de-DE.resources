@@ -90,6 +90,17 @@
           "default": "{turn_maneuver} halten",
           "name": "{turn_maneuver} halten auf {way_name}"
         }
+      },
+      "pt": {
+        "start": {
+          "default": "Einsteigen in {name}",
+          "headsign": "Einsteigen in {name} nach {headsign}"
+        },
+        "transfer": {
+          "default": "Umsteigen in {name}",
+          "headsign": "Umsteigen in {name} nach {headsign}"
+        },
+        "end": "Exit to {name}"
       }
     }
   }

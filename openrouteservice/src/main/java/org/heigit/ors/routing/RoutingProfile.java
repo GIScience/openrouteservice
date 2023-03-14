@@ -19,6 +19,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.gtfs.*;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
@@ -43,6 +44,7 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.export.ExportRequest;
@@ -78,6 +80,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -423,6 +428,9 @@ public class RoutingProfile {
 
         if (config.getOptimize() && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
+
+        if (!config.getGtfsFile().isEmpty())
+            ghConfig.putObject("gtfs.file", config.getGtfsFile());
 
         String flagEncoder = vehicle;
         if(!Helper.isEmpty(config.getEncoderOptions()))
@@ -1123,6 +1131,15 @@ public class RoutingProfile {
 
         try {
             int profileType = searchParams.getProfileType();
+            if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
+                StopWatch stopWatch = (new StopWatch()).start();
+                PtRouter ptRouter = new PtRouterImpl.Factory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper.getGraphHopperStorage(), mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
+                        .createWithoutRealtimeFeed();
+                Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
+                GHResponse res = ptRouter.route(ptRequest);
+                res.addDebugInfo("Request total:" + stopWatch.stop().getSeconds() + "s");
+                return res;
+            }
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
@@ -1230,6 +1247,73 @@ public class RoutingProfile {
         }
 
         return resp;
+    }
+
+    private Request createPTRequest(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters params) throws IncompatibleParameterException {
+        List<GHLocation> points = Arrays.asList(new GHPointLocation(new GHPoint(lat0, lon0)), new GHPointLocation(new GHPoint(lat1, lon1)));
+
+        // GH uses pt.earliest_departure_time for both departure and arrival.
+        // We need to check which is used here (and issue an exception if it's both) and consequently parse it and set arrive_by.
+        Instant departureTime = null;
+        boolean arrive_by = false;
+        if (params.hasDeparture() && params.hasArrival()) {
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+        } else if (params.hasArrival()) {
+            departureTime = params.getArrival().toInstant(ZoneOffset.UTC);
+            arrive_by = true;
+        } else if (params.hasDeparture()) {
+            departureTime = params.getDeparture().toInstant(ZoneOffset.UTC);
+        } else {
+            // pt.earliest_departure_time is @NotNull, we need to emulate that here.
+            departureTime = Instant.now();
+        }
+
+        Request ptRequest = new Request(points, departureTime);
+        ptRequest.setArriveBy(arrive_by);
+
+        // schedule is called profile in GraphHopper
+        if (params.hasSchedule()) {
+            ptRequest.setProfileQuery(params.getSchedule());
+        } else {
+            ptRequest.setProfileQuery(false);
+        }
+
+        // scheduleDuration is called profileDuration accordingly
+        if (params.hasScheduleDuration()) {
+            ptRequest.setMaxProfileDuration(params.getScheduleDuaration());
+        }
+
+        // this will default to false
+        ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
+
+        // TODO: check whether language can be parsed in RouteResultBuilder
+        // language is called locale in GraphHopper
+        // if (params.hasLanguage()) {
+        //    ptRequest.setLocale(Helper.getLocale(params.getLanguage().toString()));
+        // }
+
+        // scheduleRows is called limitSolutions in GraphHopper
+        if (params.hasScheduleRows()) {
+            ptRequest.setLimitSolutions(params.getScheduleRows());
+        }
+
+        // setLimitTripTime missing from documentation
+        // according to GraphHopper
+
+        // walkingTime is called limit_street_time in GraphHopper
+        if (params.hasWalkingTime()) {
+            ptRequest.setLimitStreetTime(params.getWalkingTime());
+        } else {
+            ptRequest.setLimitStreetTime(Duration.ofMinutes(15));
+        }
+
+        // default to foot access and egress
+        ptRequest.setAccessProfile("foot_fastest");
+        ptRequest.setEgressProfile("foot_fastest");
+
+        ptRequest.setMaxVisitedNodes(config.getMaximumVisitedNodesPT());
+
+        return ptRequest;
     }
 
     /**
