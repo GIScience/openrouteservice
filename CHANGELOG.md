@@ -35,12 +35,13 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
-- support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 ### Fixed
-- change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
-- Upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
+- upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
+- time-dependent routing with Dijkstra ([#1322](https://github.com/GIScience/openrouteservice/pull/1322))
+- change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
+- support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 
 ## [7.0.1] - 2023-03-08
 ### Fixed

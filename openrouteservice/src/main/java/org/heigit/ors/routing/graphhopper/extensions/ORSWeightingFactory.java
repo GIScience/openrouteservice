@@ -7,6 +7,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.RouteSearchContext;
@@ -102,6 +103,11 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
             double maximumSpeed = requestHints.getDouble("maximum_speed", maximumSpeedLowerBound);
             weighting.setSpeedCalculator(new MaximumSpeedCalculator(weighting.getSpeedCalculator(), maximumSpeed));
         }
+    }
+
+    @Override
+    protected boolean isRequestTimeDependent(PMap hints) {
+        return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
     }
 
     @Override
