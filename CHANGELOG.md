@@ -39,8 +39,10 @@ RELEASING:
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 ### Fixed
 - change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
+- Upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
 
 ## [7.0.1] - 2023-03-08
+### Fixed
 - fix tomcat config overwrite ([#1311](https://github.com/GIScience/openrouteservice/issues/1311))
 - Upgrade commons-io:commons-io from 2.7 to 2.11.0 ([#1309](https://github.com/GIScience/openrouteservice/issues/1309))
 - Upgrade com.fasterxml.jackson.core:jackson-core from 2.13.3 to 2.14.2 ([#1307](https://github.com/GIScience/openrouteservice/issues/1307))
