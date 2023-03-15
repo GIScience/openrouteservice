@@ -17,6 +17,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
@@ -57,14 +58,15 @@ public class Application extends SpringBootServletInitializer {
         return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
     }
 
-    @Bean
+    @Bean("LoggingStartupContextListenerBean")
     public ServletListenerRegistrationBean<ServletContextListener> createLoggingStartupContextListenerBean() {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new LoggingStartupContextListener());
         return bean;
     }
 
-    @Bean
+    @Bean("ORSInitContextListenerBean")
+    @DependsOn("LoggingStartupContextListenerBean")
     public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean() {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new ORSInitContextListener());
@@ -72,6 +74,7 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean
+    @DependsOn("ORSInitContextListenerBean")
     public ServletListenerRegistrationBean<ServletContextListener> createORSKafkaConsumerInitContextListenerBean() {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new ORSKafkaConsumerInitContextListener());
