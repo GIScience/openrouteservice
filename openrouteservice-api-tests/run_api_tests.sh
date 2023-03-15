@@ -1,5 +1,6 @@
 #!/bin/sh
 while [ ! -f "$1"/ors.run ]; do
+  echo "Waiting for $1/ors.run"
   sleep 5
 done
 port=${2}
