@@ -20,3 +20,4 @@ Though IntelliJ provides functionality to directly clone a repository, the steps
 11. Select to "Import module from external model" and choose Maven.
 12. Click through to Finish and the module will be added.
 13. Repeat this for the Docker and openrouteservice-api-tests modules, but for the Docker module, select "Create module from existing sources" rather than "Import module from external model"
+14. Create a maven run configuration with the following `Run` settings: `spring-boot:run -Dspring-boot.run.fork=false`. This allows for local debugging.

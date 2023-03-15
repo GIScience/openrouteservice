@@ -40,7 +40,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
      the openrouteservice ready for tomcat deployment.
 
 After you have packaged openrouteservice, there are two options for running it.
-One is to run the `mvn tomcat7:run` command which triggers a self contained
+One is to run the `mvn spring-boot:run` command which triggers a spring-boot native
 Tomcat instance running on port `8082`.  This is more restrictive in terms of
 settings for Tomcat. The other is to install and run Tomcat 8 
 
@@ -52,7 +52,7 @@ To run the project from within your IDE, you have to:
      `openrouteservice-api-tests` modules as Maven model.
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
-  2. Configure your IDE to run `tomcat7:run-war` as the maven goal, setting the
+  2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
      environment variable `ORS_CONFIG=ors-config-test.json`.
 
   3. You can run API tests via JUnit.
