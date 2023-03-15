@@ -271,7 +271,7 @@
                                     ${tomcat.http.port}
                                 </argument>
                                 <argument>
-                                    /
+                                    /ors/
                                 </argument>
                             </arguments>
                         </configuration>
