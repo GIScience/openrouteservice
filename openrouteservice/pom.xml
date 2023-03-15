@@ -266,10 +266,13 @@
                             <executable>../openrouteservice-api-tests/run_api_tests.sh</executable>
                             <arguments>
                                 <argument>
-                                    ${basedir}
+                                    http://localhost
                                 </argument>
                                 <argument>
                                     ${tomcat.http.port}
+                                </argument>
+                                <argument>
+                                    /
                                 </argument>
                             </arguments>
                         </configuration>
