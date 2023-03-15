@@ -16,12 +16,11 @@
 package org.heigit.ors.api.converters;
 
 import org.heigit.ors.api.requests.common.APIEnums;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 
 public class APIRequestProfileConverter implements Converter<String, APIEnums.Profile> {
     @Override
-    public APIEnums.Profile convert(@NotNull String s) {
+    public APIEnums.Profile convert(String s) {
         for (APIEnums.Profile profile : APIEnums.Profile.values()) {
             if (profile.toString().equals(s)) {
                 return profile;
