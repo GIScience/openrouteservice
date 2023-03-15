@@ -215,7 +215,6 @@
                 <configuration>
                     <workingDirectory>${basedir}</workingDirectory>
                     <jmxPort>${tomcat.http.jmxPort}</jmxPort>
-                    <fork>false</fork>
                 </configuration>
                 <executions>
                     <execution>
