@@ -95,18 +95,25 @@ public class AppConfig {
 			LOGGER.info("Loading configuration from " + configFile);
 			config = ConfigFactory.parseFile(configFile);
 		} catch (IOException ioe) {
-			LOGGER.error(ioe);
+			LOGGER.error("ORS can not run without a valid configuration, exiting. Message: " + ioe.getMessage());
+			System.exit(1);
 		}
 
 		//Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
-		File graphsDir = new File(getServiceParameter("routing.profiles.default_params", "graphs_root_path"));
-		File[] md5Files = graphsDir.listFiles(pathname -> pathname.getName().endsWith(".md5"));
-		if (md5Files != null && md5Files.length == 1){
-			try {
-				osmMd5Hash = FileUtility.readFile(md5Files[0].toString()).trim();
-			} catch (IOException e) {
-				LOGGER.error(e);
+		String graphPath = getServiceParameter("routing.profiles.default_params", "graphs_root_path");
+		if (graphPath != null) {
+			File graphsDir = new File(graphPath);
+			File[] md5Files = graphsDir.listFiles(pathname -> pathname.getName().endsWith(".md5"));
+			if (md5Files != null && md5Files.length == 1) {
+				try {
+					osmMd5Hash = FileUtility.readFile(md5Files[0].toString()).trim();
+				} catch (IOException e) {
+					LOGGER.error(e);
+				}
 			}
+		} else {
+			LOGGER.error("ORS Configuration is invalid because 'graphs_root_path' is not set, exiting.");
+			System.exit(1);
 		}
 
 		LOGGER.setLevel(entryLogLevel);
