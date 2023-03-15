@@ -3745,7 +3745,7 @@ public class ResultTest extends ServiceTest {
             .body(body.toString())
             .when()
             .post(getEndPointPath() + "/{profile}/geojson")
-            .then().log().all()
+            .then().log().ifValidationFails()
             .assertThat()
             .body("any { it.key == 'features' }", is(true))
             .body("features.size()", is(3))
