@@ -85,7 +85,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "openrouteservice/src/main/files/heidelberg.osm.gz"
+          "src/main/files/heidelberg.osm.gz"
         ],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
@@ -135,6 +135,7 @@
             "execution": {
               "methods": {
                 "lm": {
+                  "disabling_allowed": true,
                   "active_landmarks": 8
                 }
               }
@@ -174,7 +175,11 @@
               },
               "execution": {
                 "methods": {
+                  "ch": {
+                    "disabling_allowed": true
+                  },
                   "lm": {
+                    "disabling_allowed": true,
                     "active_landmarks": 6
                   },
                   "core": {
@@ -220,6 +225,9 @@
               },
               "execution": {
                 "methods": {
+                  "ch": {
+                    "disabling_allowed": true
+                  },
                   "core": {
                     "disabling_allowed": true,
                     "active_landmarks": 6
@@ -344,7 +352,7 @@
     "logging": {
       "enabled": true,
       "level_file": "DEBUG_LOGGING.json",
-      "location": "/var/log/ors",
+      "location": "./ors",
       "stdout": true
     },
     "system_message": [

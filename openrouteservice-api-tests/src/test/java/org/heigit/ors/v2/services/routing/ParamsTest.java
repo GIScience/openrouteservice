@@ -442,7 +442,7 @@ class ParamsTest extends ServiceTest {
                 .get(getEndPointPath() + "/{profile}")
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
         given()
@@ -453,7 +453,7 @@ class ParamsTest extends ServiceTest {
                 .get(getEndPointPath() + "/{profile}")
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
         given()

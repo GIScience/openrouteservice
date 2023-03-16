@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
@@ -27,7 +28,7 @@ import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import io.swagger.annotations.*;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -68,7 +69,7 @@ public class IsochronesAPI {
     }
 
     // Matches any response type that has not been defined
-    @PostMapping(value="/{profile}/*")
+    @PostMapping(value = "/{profile}/*")
     @ApiOperation(value = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
@@ -113,13 +114,15 @@ public class IsochronesAPI {
         return errorHandler.handleStatusCodeException(new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, e.getParameterName()));
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, ConversionFailedException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
         if (cause instanceof UnrecognizedPropertyException) {
             return errorHandler.handleUnknownParameterException(new UnknownParameterException(IsochronesErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
         } else if (cause instanceof InvalidFormatException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "" + ((InvalidFormatException) cause).getValue()));
+        } else if (cause instanceof ConversionFailedException) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "" + ((ConversionFailedException) cause).getValue()));
         } else if (cause instanceof InvalidDefinitionException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {

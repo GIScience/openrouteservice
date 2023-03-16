@@ -47,7 +47,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <geotools.version>27.2</geotools.version>
+        <geotools.version>28.2</geotools.version>
         <slf4j.version>2.0.6</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
         <kafka.version>3.4.0</kafka.version>
@@ -66,7 +66,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.5.RELEASE</version>
+        <version>2.7.9</version>
     </parent>
     <build>
         <finalName>ors</finalName>
@@ -132,6 +132,35 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
+                        <id>cleanup ors.run for failed builds</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete>
+                                    <fileset dir="${basedir}/" includes="ors.run"/>
+                                </delete>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>remove ors.run after integration tests</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete>
+                                    <fileset dir="${basedir}/" includes="ors.run"/>
+                                </delete>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create version file</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
@@ -161,43 +190,61 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <path>/${project.build.finalName}</path>
-                    <port>8082</port>
-                    <addContextWarDependencies>true</addContextWarDependencies>
-                    <addWarDependenciesInClassloader>true</addWarDependenciesInClassloader>
-                    <warSourceDirectory>${project.build.directory}/${project.build.finalName}/</warSourceDirectory>
-                    <uriEncoding>utf-8</uriEncoding>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-core</artifactId>
-                        <version>7.0.107</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>start-tomcat</id>
-                        <phase>pre-integration-test</phase>
+                        <id>reserve-tomcat-port</id>
                         <goals>
-                            <goal>run-war-only</goal>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>tomcat.http.port</portName>
+                                <portName>tomcat.http.jmxPort</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <workingDirectory>${basedir}</workingDirectory>
+                    <jmxPort>${tomcat.http.jmxPort}</jmxPort>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
-                            <fork>true</fork>
+                            <arguments>
+                                <argument>--server.port=${tomcat.http.port}</argument>
+                            </arguments>
+                            <jmxPort>${tomcat.http.jmxPort}</jmxPort>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>stop-tomcat</id>
-                        <phase>post-integration-test</phase>
+                        <id>post-integration-test</id>
                         <goals>
-                            <goal>shutdown</goal>
+                            <goal>stop</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <test.server.port>${tomcat.http.port}</test.server.port>
+                        <test.server.jmxport>${tomcat.http.jmxPort}</test.server.jmxport>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -211,10 +258,19 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <environmentVariables>
+                                <server.port>${tomcat.http.port}</server.port>
+                            </environmentVariables>
                             <executable>../openrouteservice-api-tests/run_api_tests.sh</executable>
                             <arguments>
                                 <argument>
-                                    ${user.dir}
+                                    http://localhost
+                                </argument>
+                                <argument>
+                                    ${tomcat.http.port}
+                                </argument>
+                                <argument>
+                                    /ors/
                                 </argument>
                             </arguments>
                         </configuration>
@@ -222,17 +278,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin><!-- clean up from war:inplace  -->
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
@@ -422,7 +468,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v4.3</version>
+            <version>v4.3.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -434,7 +480,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-gtfs</artifactId>
-            <version>v4.3</version>
+            <version>v4.3.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -446,7 +492,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
-            <version>v4.3</version>
+            <version>v4.3.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -551,9 +597,7 @@
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>2.7.8</version>
-            <scope>provided</scope>
+            <artifactId>spring-boot-starter-actuator</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -579,7 +623,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.7.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -589,13 +632,8 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -626,6 +664,11 @@
             <artifactId>jackson-annotations</artifactId>
             <version>${fasterxml.jackson.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -641,7 +684,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

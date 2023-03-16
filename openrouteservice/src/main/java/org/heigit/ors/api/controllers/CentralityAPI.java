@@ -21,12 +21,13 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
+import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
-import org.heigit.ors.exceptions.*;
-import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.exceptions.*;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -67,7 +68,7 @@ public class CentralityAPI {
     }
 
     // Matches any response type that has not been defined
-    @PostMapping(value="/{profile}/*")
+    @PostMapping(value = "/{profile}/*")
     @ApiOperation(value = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, CentralityErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
@@ -115,6 +116,8 @@ public class CentralityAPI {
             return errorHandler.handleUnknownParameterException(new UnknownParameterException(CentralityErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
         } else if (cause instanceof InvalidFormatException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
+        } else if (cause instanceof ConversionFailedException) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, "" + ((ConversionFailedException) cause).getValue()));
         } else if (cause instanceof InvalidDefinitionException) {
             return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
         } else if (cause instanceof MismatchedInputException) {

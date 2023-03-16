@@ -54,17 +54,6 @@
 		<url-pattern>/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 	</filter-mapping>
-  
-    <!-- LISTENERS -->
-	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.LoggingStartupContextListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.ORSInitContextListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.heigit.ors.servlet.listeners.ORSKafkaConsumerInitContextListener</listener-class>
-	</listener>
 </web-app>
 
 
