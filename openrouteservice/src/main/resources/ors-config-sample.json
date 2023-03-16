@@ -100,8 +100,7 @@
             "bike-electric",
             "walking",
             "hiking",
-            "wheelchair",
-            "public-transport"
+            "wheelchair"
           ],
           "default_params": {
             "encoder_flags_size": 8,
