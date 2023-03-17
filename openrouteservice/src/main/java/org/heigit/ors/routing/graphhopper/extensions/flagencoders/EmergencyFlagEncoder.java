@@ -15,12 +15,12 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
+import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
@@ -69,12 +69,12 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         passByDefaultBarriers.add("kissing_gate");
         passByDefaultBarriers.add("swing_gate");
 
-        blockByDefaultBarriers.add("bollard");
-        blockByDefaultBarriers.add("stile");
-        blockByDefaultBarriers.add("turnstile");
-        blockByDefaultBarriers.add("cycle_barrier");
-        blockByDefaultBarriers.add("motorcycle_barrier");
-        blockByDefaultBarriers.add("block");
+        barriers.add("bollard");
+        barriers.add("stile");
+        barriers.add("turnstile");
+        barriers.add("cycle_barrier");
+        barriers.add("motorcycle_barrier");
+        barriers.add("block");
 
         Map<String, Integer> trackTypeSpeedMap = new HashMap<>();
         trackTypeSpeedMap.put("grade1", 25); // paved
@@ -178,7 +178,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         yesValues.add("yes");
         yesValues.add("1");
     }
-    
+
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
@@ -377,7 +377,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public String toString()
+    public String getName()
     {
         return FlagEncoderNames.EMERGENCY;
     }

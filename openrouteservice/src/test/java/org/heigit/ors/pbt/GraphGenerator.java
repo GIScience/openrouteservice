@@ -38,7 +38,10 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
     private final int maxNodes;
 
     GraphHopperStorage createGHStorage() {
-        return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+//        TODO migration find out how to ste the config
+//        return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
+        return new GraphBuilder(encodingManager).create();
+
     }
 
     private static Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();

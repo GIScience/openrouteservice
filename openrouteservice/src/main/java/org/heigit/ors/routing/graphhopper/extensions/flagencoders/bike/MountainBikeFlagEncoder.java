@@ -161,7 +161,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return FlagEncoderNames.MTB_ORS;
     }
 

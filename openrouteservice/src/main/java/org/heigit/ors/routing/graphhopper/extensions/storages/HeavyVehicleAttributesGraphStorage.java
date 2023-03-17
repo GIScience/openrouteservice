@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.BitUtil;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
@@ -48,7 +51,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ext_hgv storage must be initialized only once.");
 
-		this.orsEdges = dir.find("ext_hgv");
+		this.orsEdges = dir.create("ext_hgv");
 	}
 
 	private int nextBlockEntryIndex(int size) {
@@ -57,9 +60,9 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 		return res;
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
+//	public void setSegmentSize(int bytes) {
+//		orsEdges.setSegmentSize(bytes);
+//	}
 
 	public HeavyVehicleAttributesGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);

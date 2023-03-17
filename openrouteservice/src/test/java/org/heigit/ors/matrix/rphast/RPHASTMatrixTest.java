@@ -36,7 +36,9 @@ class RPHASTMatrixTest {
     }
 
     private GraphHopperStorage createGHStorage(CHConfig c) {
-        return new GraphBuilder(encodingManager).setCHConfigs(c).create();
+//  TODO migration
+//        return new GraphBuilder(encodingManager).setCHConfigs(c).create();
+        return new GraphBuilder(encodingManager).create();
     }
 
     private void printGraph() {

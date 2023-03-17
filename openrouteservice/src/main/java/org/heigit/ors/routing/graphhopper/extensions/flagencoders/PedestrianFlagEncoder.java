@@ -20,19 +20,18 @@ import com.graphhopper.util.PMap;
 public class PedestrianFlagEncoder extends FootFlagEncoder {
 
     public PedestrianFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speedBits", 4),
-                properties.getDouble("speedFactor", 1));
+        this(properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1), properties.getBool("speed_two_directions", false));
         setProperties(properties);
     }
 
-    private PedestrianFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor);
+    private PedestrianFlagEncoder(int speedBits, double speedFactor, boolean speedTwoDirections) {
+        super(speedBits, speedFactor, speedTwoDirections);
 
         suitableSacScales.add("hiking");
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return FlagEncoderNames.PEDESTRIAN_ORS;
     }
 }

@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
 public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 	protected final int efDifficultyScale;
@@ -36,7 +39,7 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ext_traildifficulty storage must be initialized only once.");
 
-		this.edges = dir.find("ext_traildifficulty");
+		this.edges = dir.create("ext_traildifficulty");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -45,9 +48,9 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
 		return res;
 	}
 
-	public void setSegmentSize(int bytes) {
-		edges.setSegmentSize(bytes);
-	}
+//	public void setSegmentSize(int bytes) {
+//		edges.setSegmentSize(bytes);
+//	}
 
 	public TrailDifficultyScaleGraphStorage create(long initBytes) {
 		edges.create(initBytes * edgeEntryBytes);

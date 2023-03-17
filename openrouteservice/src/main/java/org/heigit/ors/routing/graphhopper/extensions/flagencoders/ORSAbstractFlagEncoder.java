@@ -34,35 +34,21 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public long handleNodeTags(ReaderNode node) {
-        long encoderBit = getEncoderBit();
-        boolean blockFords = isBlockFords();
+    public boolean isBarrier(ReaderNode node) {
+        // note that this method will be only called for certain nodes as defined by OSMReader!
+        String firstValue = node.getFirstPriorityTag(restrictions);
+        boolean blockByDefault = node.hasTag("barrier", barriers);
 
-        boolean blockByDefault = node.hasTag("barrier", blockByDefaultBarriers);
         if (blockByDefault || node.hasTag("barrier", passByDefaultBarriers)) {
-            boolean locked = false;
-            if (node.hasTag("locked", "yes"))
-                locked = true;
-
+            boolean locked = restrictedValues.contains(firstValue) || node.hasTag("locked", "yes");
             for (String res : restrictions) {
                 if (!locked && node.hasTag(res, intendedValues))
-                    return 0;
-
+                    return false;
                 if (node.hasTag(res, restrictedValues))
-                    return encoderBit;
+                    return true;
             }
-
-            if (blockByDefault || blockBarriers)
-                return encoderBit;
-            return 0;
+            return blockByDefault || blockBarriers;
         }
-
-        if ((node.hasTag("highway", "ford") || node.hasTag("ford", "yes"))
-                && (blockFords && !node.hasTag(restrictions, intendedValues) || node.hasTag(restrictions, restrictedValues))) {
-            return encoderBit;
-        }
-
-        return 0;
+        else return (node.hasTag("highway", "ford") || node.hasTag("ford", "yes")) && (isBlockFords() && !node.hasTag(restrictions, intendedValues) || node.hasTag(restrictions, restrictedValues));
     }
-
 }

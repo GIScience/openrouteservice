@@ -24,7 +24,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
 
     @Override
     public void init(Graph graph, Directory directory) {
-        this.speedData = directory.find("ext_expiring_speeds_" + this.flagEncoder.toString());
+        this.speedData = directory.create("ext_expiring_speeds_" + this.flagEncoder.toString());
     }
 
     /**

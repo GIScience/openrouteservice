@@ -106,7 +106,7 @@ public class BordersGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("ext_borders");
+		this.orsEdges = dir.create("ext_borders");
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class BordersGraphStorage implements GraphExtension {
 		if(edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 		Directory d = new RAMDirectory();
-		this.orsEdges = d.find("");
+		this.orsEdges = d.create("");
 	}
 
 	/**

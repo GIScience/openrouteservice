@@ -52,7 +52,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public BorderNodeDistanceStorage(Directory dir, Weighting weighting, IsochroneNodeStorage isochroneNodeStorage, int nodeCount) {
         final String name = FileUtility.weightingToFileName(weighting);
         this.isochroneNodeStorage = isochroneNodeStorage;
-        borderNodes = dir.find("bordernodes_" + name);
+        borderNodes = dir.create("bordernodes_" + name);
         this.weighting = weighting;
         byteCount = 12; //adj bordernode id (int 4B) and distance (double 8B)
         this.nodeCount = nodeCount;

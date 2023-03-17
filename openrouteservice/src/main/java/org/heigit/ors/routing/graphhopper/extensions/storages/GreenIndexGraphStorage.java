@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
 public class GreenIndexGraphStorage implements GraphExtension {
     /* pointer for no entry */
@@ -96,7 +99,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_greenindex");
+        this.orsEdges = dir.create("ext_greenindex");
     }
 
     /**

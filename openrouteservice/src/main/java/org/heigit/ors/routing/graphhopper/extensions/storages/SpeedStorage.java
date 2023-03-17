@@ -27,7 +27,7 @@ public class SpeedStorage implements GraphExtension {
 
     @Override
     public void init(Graph graph, Directory directory) {
-        this.speedData = directory.find("ext_speeds_" + this.flagEncoder.toString());
+        this.speedData = directory.create("ext_speeds_" + this.flagEncoder.toString());
     }
 
     @Override

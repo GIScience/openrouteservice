@@ -25,16 +25,14 @@ import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.*;
 import org.heigit.ors.routing.graphhopper.extensions.DataReaderContext;
+import org.locationtech.jts.geom.*;
 
 import java.util.*;
 
@@ -87,7 +85,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
 		}
 
 		DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
-		try (GraphHopperStorage graphStorage = new GraphHopperStorage(new RAMDirectory(), encodingManager, false).create(20)) {
+		try (GraphHopperStorage graphStorage = new GraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1).create(20)) {
 			for (int idxMain = 0; idxMain < osmNodeIds.size() - 1; idxMain++) {
 				long mainOsmId = osmNodeIds.get(idxMain);
 				int internalMainId = nodeMap.get(mainOsmId);

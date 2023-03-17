@@ -23,6 +23,7 @@ import com.graphhopper.reader.osm.conditional.ConditionalParser;
 import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TransportationMode;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.PMap;
 
 import java.util.Arrays;
@@ -57,8 +58,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         restrictedValues.add("delivery");
         restrictedValues.add("emergency");
 
-        blockByDefaultBarriers.add("bus_trap");
-        blockByDefaultBarriers.add("sump_buster");
+        barriers.add("bus_trap");
+        barriers.add("sump_buster");
 
         initSpeedLimitHandler(this.toString());
     }
@@ -69,6 +70,11 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         ConditionalOSMSpeedInspector conditionalOSMSpeedInspector = new ConditionalOSMSpeedInspector(Arrays.asList("maxspeed"));
         conditionalOSMSpeedInspector.addValueParser(ConditionalParser.createDateTimeParser());
         setConditionalSpeedInspector(conditionalOSMSpeedInspector);
+    }
+
+    @Override
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+        return null;
     }
 
     @Override
@@ -134,13 +140,13 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         return isPermittedWayConditionallyRestricted(way);
     }
 
-    public double getMeanSpeed() {
-        return MEAN_SPEED;
+    @Override
+    public String getName() {
+        return FlagEncoderNames.CAR_ORS;
     }
 
-    @Override
-    public String toString() {
-        return FlagEncoderNames.CAR_ORS;
+    public double getMeanSpeed() {
+        return MEAN_SPEED;
     }
 
     @Override

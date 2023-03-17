@@ -15,12 +15,11 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
-import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.IntsRef;
@@ -106,12 +105,12 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         passByDefaultBarriers.add("kissing_gate");
         passByDefaultBarriers.add("swing_gate");
 
-        blockByDefaultBarriers.add("bollard");
-        blockByDefaultBarriers.add("stile");
-        blockByDefaultBarriers.add("turnstile");
-        blockByDefaultBarriers.add("cycle_barrier");
-        blockByDefaultBarriers.add("motorcycle_barrier");
-        blockByDefaultBarriers.add("block");
+        barriers.add("bollard");
+        barriers.add("stile");
+        barriers.add("turnstile");
+        barriers.add("cycle_barrier");
+        barriers.add("motorcycle_barrier");
+        barriers.add("block");
 
         trackTypeSpeedMap = new HashMap<>();
 
@@ -187,10 +186,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
         // first two bits are reserved for route handling in superclass
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
+        super.createEncodedValues(registerNewEncodedValue);
+        String prefix = toString();
+        avgSpeedEnc = new DecimalEncodedValueImpl(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(avgSpeedEnc);
         if (hasConditionalAccess)
             registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
@@ -200,7 +200,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+        EncodingManager.Access access = getAccess(way);
         return handleWayTags(edgeFlags,way,access,0);
     }
 
@@ -381,7 +382,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         return highwayValue;
     }
 
-    @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = this.getMaxSpeed(way);
         return isValidSpeed(maxSpeed) ? maxSpeed * 0.9D : speed;

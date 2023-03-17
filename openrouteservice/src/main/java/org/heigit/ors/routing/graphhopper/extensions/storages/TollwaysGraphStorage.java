@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
 public class TollwaysGraphStorage implements GraphExtension {
 	/* pointer for no entry */
@@ -35,7 +38,7 @@ public class TollwaysGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ext_tolls storage must be initialized only once.");
 
-		this.edges = dir.find("ext_tolls");
+		this.edges = dir.create("ext_tolls");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -44,9 +47,9 @@ public class TollwaysGraphStorage implements GraphExtension {
 		return res;
 	}
 
-	public void setSegmentSize(int bytes) {
-		edges.setSegmentSize(bytes);
-	}
+//	public void setSegmentSize(int bytes) {
+//		edges.setSegmentSize(bytes);
+//	}
 
 	public TollwaysGraphStorage create(long initBytes) {
 		edges.create(initBytes * edgeEntryBytes);

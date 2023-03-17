@@ -13,11 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
 import java.time.ZoneId;
@@ -454,9 +450,9 @@ public class TrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdgesProperties = dir.find("ext_traffic_edge_properties");
-        this.orsEdgesTrafficLinkLookup = dir.find("ext_traffic_edges_traffic_lookup");
-        this.orsSpeedPatternLookup = dir.find("ext_traffic_pattern_lookup");
+        this.orsEdgesProperties = dir.create("ext_traffic_edge_properties");
+        this.orsEdgesTrafficLinkLookup = dir.create("ext_traffic_edges_traffic_lookup");
+        this.orsSpeedPatternLookup = dir.create("ext_traffic_pattern_lookup");
     }
 
     /**
@@ -467,21 +463,22 @@ public class TrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
         Directory d = new RAMDirectory();
-        this.orsEdgesProperties = d.find("");
-        this.orsEdgesTrafficLinkLookup = d.find("");
-        this.orsSpeedPatternLookup = d.find("");
+        this.orsEdgesProperties = d.create("");
+        this.orsEdgesTrafficLinkLookup = d.create("");
+        this.orsSpeedPatternLookup = d.create("");
     }
 
-    /**
-     * sets the segment size in all additional data storages
-     *
-     * @param bytes Size in bytes.
-     */
-    public void setSegmentSize(int bytes) {
-        orsEdgesProperties.setSegmentSize(bytes);
-        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsSpeedPatternLookup.setSegmentSize(bytes);
-    }
+//    /**
+//    TODO migration
+//     * sets the segment size in all additional data storages
+//     *
+//     * @param bytes Size in bytes.
+//     */
+//    public void setSegmentSize(int bytes) {
+//        orsEdgesProperties.setSegmentSize(bytes);
+//        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
+//        orsSpeedPatternLookup.setSegmentSize(bytes);
+//    }
 
     /**
      * @return true if successfully loaded from persistent storage.

@@ -22,7 +22,7 @@ class AvoidAreasEdgeFilterTest {
     private final GraphHopperStorage _graphStorage;
 
     public AvoidAreasEdgeFilterTest() {
-        _graphStorage = new GraphHopperStorage(new GHDirectory("", DAType.RAM_STORE), encoder, false);
+        _graphStorage = new GraphHopperStorage(new GHDirectory("", DAType.RAM_STORE), encoder, false, false, -1);
         _graphStorage.create(3);
     }
 

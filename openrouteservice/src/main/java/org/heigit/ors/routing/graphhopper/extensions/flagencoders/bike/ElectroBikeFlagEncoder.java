@@ -104,7 +104,7 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
         avoidHighwayTags.add("secondary");
         avoidHighwayTags.add("secondary_link");
 
-        blockByDefaultBarriers.add("kissing_gate");
+        barriers.add("kissing_gate");
 
         setSpecificClassBicycle("touring");
     }
@@ -120,7 +120,7 @@ public class ElectroBikeFlagEncoder extends CommonBikeFlagEncoder
 	}
     
     @Override
-    public String toString()
+    public String getName()
     {
         return FlagEncoderNames.BIKE_ELECTRO;
     }

@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 public class WaySurfaceTypeGraphStorage implements GraphExtension {
@@ -39,7 +42,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("ext_waysurface");
+		this.orsEdges = dir.create("ext_waysurface");
 	}
 
 	protected final int nextBlockEntryIndex(int size) {
@@ -47,9 +50,9 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 		return edgeEntryIndex;
 	}
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
+//	public void setSegmentSize(int bytes) {
+//		orsEdges.setSegmentSize(bytes);
+//	}
 
 	public WaySurfaceTypeGraphStorage create(long initBytes) {
 		orsEdges.create(initBytes * edgeEntryBytes);

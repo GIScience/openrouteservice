@@ -65,7 +65,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add("residential");
         preferHighwayTags.add("unclassified");
 
-        blockByDefaultBarriers.add("kissing_gate");
+        barriers.add("kissing_gate");
         setSpecificClassBicycle("touring");
     }
 
@@ -84,7 +84,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         // MARQ24 MOD START
         return FlagEncoderNames.BIKE_ORS;
         // MARQ24 MOD END

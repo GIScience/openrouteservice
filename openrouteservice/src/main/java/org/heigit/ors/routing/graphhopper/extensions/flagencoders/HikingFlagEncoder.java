@@ -26,13 +26,12 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.VE
 public class HikingFlagEncoder extends FootFlagEncoder {
 
     public HikingFlagEncoder(PMap properties) {
-        this((int) properties.getLong("speedBits", 4),
-                properties.getDouble("speedFactor", 1));
+        this(properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1), properties.getBool("speed_two_directions", false));
         setProperties(properties, false);
     }
 
-    private HikingFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor);
+    private HikingFlagEncoder(int speedBits, double speedFactor, boolean speedTwoDirections) {
+        super(speedBits, speedFactor, speedTwoDirections);
 
         routeMap.put(INTERNATIONAL, BEST.getValue());
         routeMap.put(NATIONAL, BEST.getValue());
@@ -54,7 +53,7 @@ public class HikingFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return FlagEncoderNames.HIKING_ORS;
     }
 }

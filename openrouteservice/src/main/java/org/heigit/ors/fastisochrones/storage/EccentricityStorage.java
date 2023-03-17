@@ -19,7 +19,6 @@ package org.heigit.ors.fastisochrones.storage;
 
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.cursors.IntLongCursor;
-import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
@@ -27,7 +26,8 @@ import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.util.FileUtility;
 
-import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.byteArrayToLong;
+import static org.heigit.ors.fastisochrones.storage.ByteConversion.longToByteArray;
 
 /**
  * Stores eccentricities of cell border nodes for fast isochrones. Eccentricities are weighting dependent, therefore they are stored separately from cells.
@@ -58,7 +58,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         //A map of nodeId to pointer is stored in the first block.
         //The second block stores 2 values for each pointer, full reachability and eccentricity
         final String name = FileUtility.weightingToFileName(weighting);
-        eccentricities = dir.find("eccentricities_" + name);
+        eccentricities = dir.create("eccentricities_" + name);
         this.weighting = weighting;
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.nodeCount = nodeCount;

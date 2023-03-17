@@ -13,7 +13,10 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
 /**
  * Created by ZWang on 13/06/2017.
@@ -100,7 +103,7 @@ public class NoiseIndexGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_noiselevel");
+        this.orsEdges = dir.create("ext_noiselevel");
     }
 
     /**

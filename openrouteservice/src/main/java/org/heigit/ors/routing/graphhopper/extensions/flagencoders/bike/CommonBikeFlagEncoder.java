@@ -120,7 +120,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     // MARQ24 MOD START
     protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
     // MARQ24 MOD END
-        super(speedBits, speedFactor, maxTurnCosts);
+//        TODO upgrade: Check if speedTwoDirections is really true here.
+        super(speedBits, speedFactor, maxTurnCosts, true);
         // strict set, usually vehicle and agricultural/forestry are ignored by cyclists
         restrictions.addAll(Arrays.asList(KEY_BICYCLE, "vehicle", "access"));
         restrictedValues.add("private");
@@ -141,8 +142,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         passByDefaultBarriers.add("gate");
         passByDefaultBarriers.add("swing_gate");
 
-        blockByDefaultBarriers.add("stile");
-        blockByDefaultBarriers.add("turnstile");
+        barriers.add("stile");
+        barriers.add("turnstile");
 
         unpavedSurfaceTags.add(KEY_UNPAVED);
         unpavedSurfaceTags.add("gravel");
@@ -277,14 +278,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
+        super.createEncodedValues(registerNewEncodedValue);
+        String prefix = toString();
+        registerNewEncodedValue.add(avgSpeedEnc = new DecimalEncodedValueImpl(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false);
         registerNewEncodedValue.add(unpavedEncoder);
-        wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false);
+        wayTypeEncoder = new IntEncodedValueImpl(getKey(prefix, "waytype"), 2, false);
         registerNewEncodedValue.add(wayTypeEncoder);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
+        priorityWayEncoder = new DecimalEncodedValueImpl(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         if (conditionalAccess) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
@@ -397,7 +399,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+        EncodingManager.Access access = getAccess(way);
         if (access.canSkip()) {
             return edgeFlags;
         }

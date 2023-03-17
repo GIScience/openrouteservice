@@ -50,7 +50,9 @@ class CoreMatrixTest {
 
     @BeforeEach
     void setUp() {
-        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).withTurnCosts(true).create();
+// TODO migration
+//        g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).withTurnCosts(true).create();
+        g = new GraphBuilder(encodingManager).withTurnCosts(true).create();
         routingCHGraph = g.getRoutingCHGraph();
     }
 
@@ -61,7 +63,8 @@ class CoreMatrixTest {
         g = new GraphBuilder(encodingManager).withTurnCosts(true).build();
         Weighting TRWeighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
         CHConfig TRChConfig = new CHConfig("c", TRWeighting, true, CHConfig.TYPE_CORE);
-        g.addCHGraph(TRChConfig).create(1000);
+// TODO migration
+//        g.addCHGraph(TRChConfig).create(1000);
         routingCHGraph = g.getRoutingCHGraph();
     }
 

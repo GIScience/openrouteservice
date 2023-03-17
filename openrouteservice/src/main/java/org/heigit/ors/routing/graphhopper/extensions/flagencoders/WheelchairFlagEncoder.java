@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
@@ -135,25 +134,24 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
-  	public WheelchairFlagEncoder(PMap configuration) {
-		this(configuration.getInt("speed_bits", 4),
-			  configuration.getDouble("speed_factor", 1));
+  	public WheelchairFlagEncoder(PMap properties) {
+        this(properties.getInt("speed_bits", 4), properties.getDouble("speed_factor", 1), properties.getBool("speed_two_directions", false));
 
-        problematicSpeedFactor = configuration.getDouble("problematic_speed_factor", 1);
-        preferredSpeedFactor = configuration.getDouble("preferred_speed_factor", 1);
+        this.problematicSpeedFactor = properties.getDouble("problematic_speed_factor", 1);
+        this.preferredSpeedFactor = properties.getDouble("preferred_speed_factor", 1);
         	
-        setProperties(configuration);
+        setProperties(properties);
     }
 
     /**
      * Should be only instantiated via EncodingManager
      */
     public WheelchairFlagEncoder() {
-        this(4, 1);
+        this(4, 1, false);
     }
 
-    public WheelchairFlagEncoder( int speedBits, double speedFactor ) {
-        super(speedBits, speedFactor);
+    public WheelchairFlagEncoder( int speedBits, double speedFactor, boolean speedTwoDirections) {
+        super(speedBits, speedFactor, speedTwoDirections);
         // test for the following restriction keys
         restrictions.add(KEY_WHEELCHAIR);
 
@@ -162,16 +160,16 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
-        blockByDefaultBarriers.add("fence");
-        blockByDefaultBarriers.add("wall");
-        blockByDefaultBarriers.add("hedge");
-        blockByDefaultBarriers.add("retaining_wall");
-        blockByDefaultBarriers.add("city_wall");
-        blockByDefaultBarriers.add("ditch");
-        blockByDefaultBarriers.add("hedge_bank");
-        blockByDefaultBarriers.add("guard_rail");
-        blockByDefaultBarriers.add("wire_fence");
-        blockByDefaultBarriers.add("embankment");
+        barriers.add("fence");
+        barriers.add("wall");
+        barriers.add("hedge");
+        barriers.add("retaining_wall");
+        barriers.add("city_wall");
+        barriers.add("ditch");
+        barriers.add("hedge_bank");
+        barriers.add("guard_rail");
+        barriers.add("wire_fence");
+        barriers.add("embankment");
 
         // http://wiki.openstreetmap.org/wiki/Key:barrier
         // http://taginfo.openstreetmap.org/keys/?key=barrier#values
@@ -540,15 +538,17 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * strict negative or block access (like a barrier), then the value is strict positive. This
      * method is called in the second parsing step.
      */
-    @Override
-    public long handleNodeTags(ReaderNode node) {
-        long encoded = super.handleNodeTags(node);
-        // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
-        if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-             encoded = getEncoderBit();
-        }
-        return encoded;
-    }
+//    @Override
+//    TODO upgrade: remove? -> In the constructor settings is already settings fords to blocked. encoderBit is also deprecated.
+//    public IntsRef handleNodeTags(IntsRef edgeFlags, Map<String, Object> nodeTags) {
+//        AbstractFlagEncoder encoder = new WheelchairFlagEncoder();
+//        IntsRef intsRef = encoder.handleNodeTags(edgeFlags, nodeTags);
+//        // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
+//        if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
+//             encoded = getEncoderBit();
+//        }
+//        return encoded;
+//    }
 
     @Override
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
@@ -656,7 +656,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     }
 
     @Override
-    public String toString()
+    public String getName()
     {
         return FlagEncoderNames.WHEELCHAIR;
     }

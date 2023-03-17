@@ -67,12 +67,14 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
 
     protected void setProperties(PMap properties, boolean blockFords) {
         this.properties = properties;
-        this.blockFords(properties.getBool("block_fords", blockFords));
+        this.speedTwoDirections = properties.getBool("speed_two_directions", false);
+        blockPrivate(properties.getBool("block_private", true));
+        blockFords(properties.getBool("block_fords", blockFords));
     }
 
 
-    FootFlagEncoder(int speedBits, double speedFactor) {
-        super(speedBits, speedFactor);
+    FootFlagEncoder(int speedBits, double speedFactor, boolean speedTwoDirections) {
+        super(speedBits, speedFactor, speedTwoDirections);
         restrictions.addAll(Arrays.asList("foot", "access"));
 
         restrictedValues.addAll(Arrays.asList(
@@ -104,7 +106,7 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
                 "right"
         ));
 
-        blockByDefaultBarriers.add("fence");
+        barriers.add("fence");
         passByDefaultBarriers.add("gate");
         passByDefaultBarriers.add("cattle_grid");
 
@@ -156,12 +158,13 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
         // first two bits are reserved for route handling in superclass
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+        super.createEncodedValues(registerNewEncodedValue);
         // larger value required - ferries are faster than pedestrians
-        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
+        String prefix = getName();
+        registerNewEncodedValue.add(avgSpeedEnc = new DecimalEncodedValueImpl(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
+        priorityWayEncoder = new DecimalEncodedValueImpl(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         if (properties.getBool(ConditionalEdges.ACCESS, false)) {
             conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
@@ -208,7 +211,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     }
 
     @Override
-    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
+    public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way) {
+        EncodingManager.Access access = getAccess(way);
         return handleWayTags(edgeFlags, way, access, null);
     }
 

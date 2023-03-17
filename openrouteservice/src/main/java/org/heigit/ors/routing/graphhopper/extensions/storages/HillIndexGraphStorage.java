@@ -13,9 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import java.util.Map;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 
-import com.graphhopper.storage.*;
+import java.util.Map;
 
 public class HillIndexGraphStorage implements GraphExtension {
 	private final int efHillIndex;
@@ -44,7 +47,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 		if (edgesCount > 0)
 			throw new AssertionError("The ORS storage must be initialized only once.");
 
-		this.orsEdges = dir.find("ext_hillindex");
+		this.orsEdges = dir.create("ext_hillindex");
 	}
 
 	public HillIndexGraphStorage create(long initBytes) {

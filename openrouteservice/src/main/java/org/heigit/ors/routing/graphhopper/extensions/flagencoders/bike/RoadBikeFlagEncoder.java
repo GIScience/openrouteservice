@@ -142,7 +142,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
 
         routeMap.put(LOCAL, UNCHANGED.getValue());
 
-        blockByDefaultBarriers.add("kissing_gate");
+        barriers.add("kissing_gate");
 
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
@@ -237,7 +237,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return FlagEncoderNames.ROADBIKE_ORS;
     }
 

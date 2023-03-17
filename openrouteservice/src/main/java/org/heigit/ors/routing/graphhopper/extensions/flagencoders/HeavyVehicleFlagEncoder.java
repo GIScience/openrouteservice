@@ -15,16 +15,16 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
 import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
+import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
@@ -114,9 +114,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue) {
+        super.createEncodedValues(registerNewEncodedValue);
+        // define the first 2 bits in flags for access
+        String prefix = toString();
+        priorityWayEncoder = new DecimalEncodedValueImpl(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
     }
 
@@ -317,7 +319,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return FlagEncoderNames.HEAVYVEHICLE;
     }
 

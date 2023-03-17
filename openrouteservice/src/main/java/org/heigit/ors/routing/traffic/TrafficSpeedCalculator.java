@@ -1,6 +1,6 @@
 package org.heigit.ors.routing.traffic;
 
-import com.graphhopper.routing.querygraph.EdgeKeys;
+import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
@@ -39,7 +39,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
 
-        int edgeId = EdgeKeys.getOriginalEdge(edge);
+        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(edge);
         double trafficSpeed;
         if (time == -1)
             trafficSpeed = reverse ?
