@@ -85,7 +85,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "src/main/files/heidelberg.osm.gz"
+          "src/main/files/integrationtests.osm.gz"
         ],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",

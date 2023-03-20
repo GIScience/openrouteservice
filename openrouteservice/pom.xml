@@ -88,15 +88,15 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <testResources>
-            <testResource>
-                <directory>../openrouteservice-api-tests/conf</directory>
-                <includes>
-                    <include>ors-config-test.json</include>
-                </includes>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
+<!--        <testResources>-->
+<!--            <testResource>-->
+<!--                <directory>../openrouteservice-api-tests/conf</directory>-->
+<!--                <includes>-->
+<!--                    <include>ors-config-test.json</include>-->
+<!--                </includes>-->
+<!--                <filtering>true</filtering>-->
+<!--            </testResource>-->
+<!--        </testResources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,7 +1,6 @@
 package org.heigit.ors.integrationtests;
 
 import io.restassured.RestAssured;
-import org.heigit.ors.routing.RoutingProfileManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(InitializeGraphsOnce.class)
-class MyIntegrationTest {
+class ServiceTest {
 
 
 	@Autowired
-	private TestRestTemplate testRestTemplate; // available with Spring Web MVC
+	private TestRestTemplate testRestTemplate;
 
 	@LocalServerPort
 	private Integer port;
@@ -28,20 +27,6 @@ class MyIntegrationTest {
 	public void setup() {
 		RestAssured.port = port;
 		RestAssured.baseURI = testRestTemplate.getRootUri();
-	}
-
-	@Test
-	void restsTemplateExample() {
-		ResponseEntity<String> response = this.testRestTemplate
-				.getForEntity("/v2/status", String.class);
-
-		Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-		// System.out.println("#### " + response.getBody());
-	}
-
-	@Test
-	void restAssuredExample() {
-		RestAssured.given().get("/v2/status").then().statusCode(200);
 	}
 
 	@Test
