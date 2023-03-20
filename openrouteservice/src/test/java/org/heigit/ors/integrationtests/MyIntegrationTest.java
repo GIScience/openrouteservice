@@ -1,7 +1,7 @@
 package org.heigit.ors.integrationtests;
 
 import io.restassured.RestAssured;
-import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.integrationtests.common.InitializeGraphsOnce;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
