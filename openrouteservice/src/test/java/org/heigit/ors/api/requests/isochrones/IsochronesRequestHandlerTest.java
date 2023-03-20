@@ -54,7 +54,7 @@ class IsochronesRequestHandlerTest {
 
     @BeforeEach
     void init() throws Exception {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         geoJsonPolygon = constructGeoJson();
 

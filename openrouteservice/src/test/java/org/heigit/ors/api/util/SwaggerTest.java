@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SwaggerTest {
     @Test
     void testGetSwaggerDocs() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
         SwaggerConfig swagger_config = new SwaggerConfig();
         Docket api = swagger_config.api();
         assertEquals(DocumentationType.SWAGGER_2, api.getDocumentationType());

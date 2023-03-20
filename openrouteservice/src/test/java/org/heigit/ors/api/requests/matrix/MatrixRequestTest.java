@@ -26,7 +26,7 @@ class MatrixRequestTest {
 
     @BeforeEach
     void setUp() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
+        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
