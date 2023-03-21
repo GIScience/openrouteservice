@@ -11,14 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.integrationtests;
+package org.heigit.ors.integrationtests.isochrones.fast;
 
 import io.restassured.RestAssured;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.integrationtests.common.EndPointAnnotation;
 import org.heigit.ors.integrationtests.common.ServiceTest;
 import org.heigit.ors.integrationtests.common.VersionAnnotation;
+import org.heigit.ors.integrationtests.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -30,17 +30,14 @@ import static org.heigit.ors.integrationtests.utils.CommonHeaders.geoJsonContent
 
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
-public class IsochronesResultTest extends ServiceTest {
-    public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
+class ResultTest extends ServiceTest {
+    private static final float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
 
-    public IsochronesResultTest() {
+    public ResultTest() {
 
         // Locations
         addParameter("preference", "fastest");
-        // Use only car and cycling and no HGV.
-        // Making and HGV request results in the usage of fast isochrones, which are covered in their own tests.
-        addParameter("cyclingProfile", "cycling-regular");
-        addParameter("carProfile", "driving-car");
+        addParameter("hgvProfile", "driving-hgv");
 
         JSONArray firstLocation = new JSONArray();
         firstLocation.put(8.684177);
@@ -48,7 +45,7 @@ public class IsochronesResultTest extends ServiceTest {
 
         JSONArray secondLocation = new JSONArray();
         secondLocation.put(8.684177);
-        secondLocation.put(49.410034);
+        secondLocation.put(49.411034);
 
         JSONArray unknownLocation = new JSONArray();
         unknownLocation.put(-18.215332);
@@ -115,23 +112,22 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(48)).and(lessThan(54))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(60)).and(lessThan(80))))
                 .body("features[0].properties.center.size()", is(2))
-                .body("bbox", hasItems(closeTo(8.663323f, 0.001f), closeTo(49.40837f, 0.001f), closeTo(8.700336f, 0.001f), closeTo(49.439884f, 0.001f)))
+                .body("bbox", hasItems(closeTo(8.652489f, 0.02f), closeTo(49.40263f, 0.02f), closeTo(8.708881f, 0.02f), closeTo(49.447865f, 0.02f)))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
                 .body("features[0].properties.value", is(400.0))
-                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
 
     }
@@ -145,7 +141,7 @@ public class IsochronesResultTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -168,7 +164,7 @@ public class IsochronesResultTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -186,58 +182,17 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("range", getParameter("ranges_400"));
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("bbox[0]", is(closeTo(8.663323, 0.08)))
-                .body("bbox[1]", is(closeTo(49.40837, 0.5)))
-                .body("bbox[2]", is(closeTo(8.700336, 0.08)))
-                .body("bbox[3]", is(closeTo(49.439884, 0.5)))
-                .statusCode(200);
-    }
-
-    @Test
-    void testLocationType() {
-
-        JSONArray locations = new JSONArray();
-        JSONArray loc1 = new JSONArray();
-        loc1.put(8.681495);
-        loc1.put(49.41461);
-        locations.put(loc1);
-        JSONArray ranges = new JSONArray();
-        ranges.put(200);
-
-        JSONObject body = new JSONObject();
-        body.put("locations", locations);
-        body.put("range", ranges);
-        body.put("attributes", getParameter("attributesReachfactorArea"));
-        body.put("range_type", "time");
-
-        given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(closeTo(1483816.7f, 34000f)))
-                .statusCode(200);
-
-        body.put("location_type", "destination");
-        given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().ifValidationFails()
-                .body("features[0].properties.area", is(closeTo(1114937.0f, 10000f)))
+                .body("bbox[0]", is(closeTo(8.652489f, 0.05)))
+                .body("bbox[1]", is(closeTo(49.40263f, 0.05)))
+                .body("bbox[2]", is(closeTo(8.708881f, 0.05)))
+                .body("bbox[3]", is(closeTo(49.447865f, 0.05)))
                 .statusCode(200);
     }
 
@@ -250,17 +205,17 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(18000000d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -275,17 +230,17 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("area_units", getParameter("m"));
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.area", is(both(greaterThan(8000000d)).and(lessThan(15000000d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -300,17 +255,17 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("area_units", "km");
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6.48, 0.132)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.area", is(both(greaterThan(8.0d)).and(lessThan(15.0d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -327,16 +282,15 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("attributes", getParameter("attributesReachfactorArea"));
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6.60, 0.132)))
+                .body("features[0].properties.area", is(both(greaterThan(8.0f)).and(lessThan(15.0f))))
                 .statusCode(200);
 
     }
@@ -351,17 +305,17 @@ public class IsochronesResultTest extends ServiceTest {
         body.put("area_units", "mi");
 
         given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(2.55, 0.05)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.area", is(both(greaterThan(3.0d)).and(lessThan(6.0d))))
+                .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
     }
@@ -377,7 +331,7 @@ public class IsochronesResultTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -391,12 +345,10 @@ public class IsochronesResultTest extends ServiceTest {
                 .body("features[1].geometry.type", is("Polygon"))
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
-                //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(38)).and(lessThan(40))))
+                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(65)).and(lessThan(85))))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
-                //.body("features[2].properties.area", is(5824280.5f))
-                .body("features[0].properties.area", is(both(greaterThan(6400000f)).and(lessThan(6600000f))))
+                .body("features[0].properties.area", is(both(greaterThan(8000000f)).and(lessThan(15000000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
@@ -407,41 +359,44 @@ public class IsochronesResultTest extends ServiceTest {
 
     @Test
     void testSmoothingFactor() {
+
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_2000"));
         body.put("smoothing", "10");
         body.put("range_type", "distance");
 
-
-        int lowSmoothingCoordinatesSize = given()
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
-                .body("any { it.key == 'type' }", is(true))
-                .body("any { it.key == 'features' }", is(true))
-                .extract().jsonPath().getInt("features[0].geometry.coordinates[0].size()");
-
-        body.put("smoothing", "100");
+        // Updated in the GH 0.12 update from size = 52 as there is a difference in the order that edges are returned and
+        // so neighbourhood search results in slightly different results
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", lessThan(lowSmoothingCoordinatesSize))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(60)).and(lessThan(80))))
+                .statusCode(200);
+
+        body.put("smoothing", "100");
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("hgvProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(55)).and(lessThan(85))))
                 .statusCode(200);
     }
 
     @Test
-    void testCompleteMetadata() {
+    void testIdInSummary() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -449,7 +404,7 @@ public class IsochronesResultTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("cyclingProfile"))
+                .pathParam("profile", getParameter("hgvProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -458,24 +413,6 @@ public class IsochronesResultTest extends ServiceTest {
                 .body("any {it.key == 'metadata'}", is(true))
                 .body("metadata.containsKey('id')", is(true))
                 .body("metadata.id", is("request123"))
-                .body("metadata.containsKey('attribution')", is(true))
-                .body("metadata.service", is("isochrones"))
-                .body("metadata.containsKey('timestamp')", is(true))
-                .body("metadata.containsKey('query')", is(true))
-                .body("metadata.query.id", is("request123"))
-                .body("metadata.query.containsKey('locations')", is(true))
-                .body("metadata.query.locations.size()", is(1))
-                .body("metadata.query.locations[0][0]", is(8.684177f))
-                .body("metadata.query.locations[0][1]", is(49.423034f))
-                .body("metadata.query.containsKey('range')", is(true))
-                .body("metadata.query.range.size()", is(1))
-                .body("metadata.query.range[0]", is(400.0f))
-                .body("metadata.query.profile", is("cycling-regular"))
-                .body("metadata.query.id", is("request123"))
-                .body("metadata.engine.containsKey('version')", is(true))
-                .body("metadata.engine.containsKey('build_date')", is(true))
-                .body("metadata.engine.containsKey('graph_date')", is(true))
-                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
 }
