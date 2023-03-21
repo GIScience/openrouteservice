@@ -26,7 +26,9 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 		ExtensionContext.Store store = rootStore(extensionContext);
 		boolean graphsFolderAlreadyDeleted = store.getOrDefault(GRAPHS_FOLDER_DELETED, Boolean.class, Boolean.FALSE);
 
-		if (!graphsFolderAlreadyDeleted) {
+		boolean ciPropertySet = System.getProperty("CI") != null && System.getProperty("CI").equalsIgnoreCase("true");
+		boolean deleteGraphsFolder = !graphsFolderAlreadyDeleted && ciPropertySet;
+		if (deleteGraphsFolder ) {
 			try {
 				Path graphsFolder = Paths.get(GRAPHS_FOLDER);
 				// Any lower level will not be displayed sind ORS log configuration is not in place at this stage
@@ -41,7 +43,6 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 	}
 
 	private static ExtensionContext.Store rootStore(ExtensionContext extensionContext) {
-		ExtensionContext.Store store = extensionContext.getRoot().getStore(ExtensionContext.Namespace.create(InitializeGraphsOnce.class));
-		return store;
+		return extensionContext.getRoot().getStore(ExtensionContext.Namespace.create(InitializeGraphsOnce.class));
 	}
 }
