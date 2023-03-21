@@ -47,13 +47,12 @@ public class PathMetricsExtractor {
 		timeWeighting = new FastestWeighting(encoder);
 		distUnits = units;
 
-		if (graph instanceof RoutingCHGraph)
-			chGraph = (RoutingCHGraph)graph;
-		else if (graph instanceof QueryGraph) {
-			QueryGraph qGraph = (QueryGraph)graph;
-			Graph mainGraph = qGraph.getBaseGraph();
-			if (mainGraph instanceof RoutingCHGraph)
-				chGraph = (RoutingCHGraph)mainGraph;
+		if (graph instanceof RoutingCHGraph routingCHGraph)
+			chGraph = routingCHGraph;
+		else if (graph instanceof QueryGraph queryGraph) {
+			Graph mainGraph = queryGraph.getBaseGraph();
+			if (mainGraph instanceof RoutingCHGraph routingCHGraph)
+				chGraph = routingCHGraph;
 		}
 	}
 

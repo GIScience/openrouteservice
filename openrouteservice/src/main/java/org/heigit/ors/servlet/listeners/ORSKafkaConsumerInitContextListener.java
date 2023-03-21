@@ -78,7 +78,7 @@ public class ORSKafkaConsumerInitContextListener implements ServletContextListen
                     long timeout = c.toConfig().hasPath("timeout") ? c.toConfig().getLong("timeout") : 0;
                     configurations.add(new ORSKafkaConsumerConfiguration(cluster, topic, profile, timeout));
                 } catch (ConfigException e) {
-                    LOGGER.warn(String.format("Invalid Kafka consumer configuration: %s", e.getMessage()));
+                    LOGGER.warn("Invalid Kafka consumer configuration: %s".formatted(e.getMessage()));
                 }
             }
         }

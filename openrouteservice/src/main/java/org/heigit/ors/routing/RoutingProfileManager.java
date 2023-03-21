@@ -16,10 +16,12 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -45,6 +47,7 @@ import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -106,7 +109,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
+            LOGGER.info("%d tasks submitted.".formatted(nTotalTasks));
 
             int nCompletedTasks = 0;
             while (nCompletedTasks < nTotalTasks) {
@@ -147,8 +150,8 @@ public class RoutingProfileManager {
             if (RoutingServiceSettings.getEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
-                        RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
+                LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
+                    RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
                     prepareGraphs(graphProps);
@@ -174,7 +177,7 @@ public class RoutingProfileManager {
                         }
                     }
 
-                    LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
+                    LOGGER.info("%d tasks submitted.".formatted(nTotalTasks));
 
                     int nCompletedTasks = 0;
                     while (nCompletedTasks < nTotalTasks) {
@@ -258,7 +261,7 @@ public class RoutingProfileManager {
         if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
             throw new ServerLimitExceededException(
                     RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
-                    String.format("The requested route length must not be greater than %s meters.", config.getMaximumDistanceRoundTripRoutes())
+                "The requested route length must not be greater than %s meters.".formatted(config.getMaximumDistanceRoundTripRoutes())
             );
         }
 
@@ -279,8 +282,8 @@ public class RoutingProfileManager {
                 if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            String.format("Unable to find a route for point (%s).",
-                                    FormatUtility.formatCoordinate(c0))
+                        "Unable to find a route for point (%s).".formatted(
+                            FormatUtility.formatCoordinate(c0))
                     );
                 } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                     StringBuilder message = new StringBuilder();
@@ -298,22 +301,21 @@ public class RoutingProfileManager {
                 // has happened, so return that a route could not be found
                 throw new RouteNotFoundException(
                         RoutingErrorCodes.ROUTE_NOT_FOUND,
-                        String.format("Unable to find a route for point (%s).",
-                                FormatUtility.formatCoordinate(c0)
-                        ));
+                    "Unable to find a route for point (%s).".formatted(
+                        FormatUtility.formatCoordinate(c0)));
             }
         }
 
         try {
             for (Object obj : gr.getReturnObjects()) {
-                if (obj instanceof ExtraInfoProcessor) {
+                if (obj instanceof ExtraInfoProcessor processor) {
                     if (extraInfoProcessor == null) {
-                        extraInfoProcessor = (ExtraInfoProcessor) obj;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
-                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
+                        extraInfoProcessor = processor;
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     } else {
-                        extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
+                        extraInfoProcessor.appendData(processor);
                     }
                 }
             }
@@ -407,43 +409,39 @@ public class RoutingProfileManager {
                             }
                             throw new RouteNotFoundException(
                                 code,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
                                     i,
                                     FormatUtility.formatCoordinate(c0),
                                     i + 1,
                                     FormatUtility.formatCoordinate(c1),
-                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
-                                )
+                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" ")))
                             );
                         }
                         throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
                                 i,
                                 FormatUtility.formatCoordinate(c0),
                                 i + 1,
-                                FormatUtility.formatCoordinate(c1)
-                            )
+                                FormatUtility.formatCoordinate(c1))
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
                         Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
                         throw new RouteNotFoundException(
                             RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
+                            "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
                                 i,
                                 FormatUtility.formatCoordinate(c0),
                                 i + 1,
                                 FormatUtility.formatCoordinate(c1),
-                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
-                            )
+                                details.get(MaximumNodesExceededException.NODES_KEY).toString())
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
                         for (Throwable error : gr.getErrors()) {
                             if (message.length() > 0)
                                 message.append("; ");
-                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
-                                com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException = (com.graphhopper.util.exceptions.PointNotFoundException) error;
+                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException) {
                                 int pointReference = (i - 1) + pointNotFoundException.getPointIndex();
 
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
@@ -453,15 +451,15 @@ public class RoutingProfileManager {
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
                                     pointRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
-                                    message.append(String.format("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.",
-                                            pointRadius,
-                                            pointReference,
-                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                    message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
+                                        pointRadius,
+                                        pointReference,
+                                        FormatUtility.formatCoordinate(pointCoordinate)));
                                 } else {
-                                    message.append(String.format("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.",
-                                            pointRadius,
-                                            pointReference,
-                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                    message.append("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.".formatted(
+                                        pointRadius,
+                                        pointReference,
+                                        FormatUtility.formatCoordinate(pointCoordinate)));
                                 }
 
                             } else {
@@ -477,11 +475,11 @@ public class RoutingProfileManager {
                     // has happened, so return that a route could not be found
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
-                                    i,
-                                    FormatUtility.formatCoordinate(c0),
-                                    i + 1,
-                                    FormatUtility.formatCoordinate(c1))
+                        "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                            i,
+                            FormatUtility.formatCoordinate(c0),
+                            i + 1,
+                            FormatUtility.formatCoordinate(c1))
                     );
                 }
             }
@@ -489,24 +487,24 @@ public class RoutingProfileManager {
             if (numberOfExpectedExtraInfoProcessors > 1) {
                 int extraInfoProcessorIndex = 0;
                 for (Object o : gr.getReturnObjects()) {
-                    if (o instanceof ExtraInfoProcessor) {
-                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
+                    if (o instanceof ExtraInfoProcessor processor) {
+                        extraInfoProcessors[extraInfoProcessorIndex] = processor;
                         extraInfoProcessorIndex++;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     }
                 }
             } else {
                 for (Object o : gr.getReturnObjects()) {
-                    if (o instanceof ExtraInfoProcessor) {
+                    if (o instanceof ExtraInfoProcessor processor) {
                         if (extraInfoProcessors[0] == null) {
-                            extraInfoProcessors[0] = (ExtraInfoProcessor) o;
-                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                            extraInfoProcessors[0] = processor;
+                            if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                             }
                         } else {
-                            extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);
+                            extraInfoProcessors[0].appendData(processor);
                         }
                     }
                 }
@@ -644,13 +642,13 @@ public class RoutingProfileManager {
                 }
 
                 if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters.", config.getMaximumDistance()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters.".formatted(config.getMaximumDistance()));
                 if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.", config.getMaximumDistanceDynamicWeights()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(config.getMaximumDistanceDynamicWeights()));
                 if (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", config.getMaximumDistanceAvoidAreas()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated route distance must not be greater than %s meters.".formatted(config.getMaximumDistanceAvoidAreas()));
                 if (useAlternativeRoutes && config.getMaximumDistanceAlternativeRoutes() > 0 && totalDist > config.getMaximumDistanceAlternativeRoutes())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.", config.getMaximumDistanceAlternativeRoutes()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.".formatted(config.getMaximumDistanceAlternativeRoutes()));
             }
         }
 
@@ -753,7 +751,7 @@ public class RoutingProfileManager {
                     if(storage == null)
                         throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
                     processMessage(msg, storage);
-                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
+                    LOGGER.debug("kafka message for speed update received: %s (%s) => %s, duration: %s".formatted(msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
                 } catch (JsonProcessingException e) {
                     LOGGER.error(e);
@@ -764,7 +762,7 @@ public class RoutingProfileManager {
                 try {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
                     if (KAFKA_DEBUG)
-                        LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
+                        LOGGER.debug("kafka message for speed update received: %s (%s) => %s, duration: %s".formatted(msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
                 } catch (JsonProcessingException e) {
                     LOGGER.error(e);
@@ -772,7 +770,7 @@ public class RoutingProfileManager {
                 }
                 break;
             default:
-                LOGGER.error(String.format("kafka message received for unknown profile %s", profile));
+                LOGGER.error("kafka message received for unknown profile %s".formatted(profile));
                 this.kafkaMessagesFailed++;
                 break;
         }

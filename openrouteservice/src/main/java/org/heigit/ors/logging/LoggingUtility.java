@@ -38,7 +38,7 @@ public class LoggingUtility {
 				conf.addProperty("filename", LoggingSettings.getLocation() + "/ors-logs.log");
 
 				Configurator.initialize(conf.build());
-				Logger.getLogger(LoggingUtility.class.getName()).info(String.format("Logging configuration loaded from %s, logging to file %s", settingsFileName, LoggingSettings.getLocation() + "/ors-logs.log"));
+				Logger.getLogger(LoggingUtility.class.getName()).info("Logging configuration loaded from %s, logging to file %s".formatted(settingsFileName, LoggingSettings.getLocation() + "/ors-logs.log"));
 			}
 		}
 	}

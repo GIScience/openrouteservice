@@ -95,7 +95,7 @@ class AlgorithmComparisonTest {
         assertEquals(coreDistances.length, matrixDistances.length, "number of distances");
         for (int i = 0; i < coreDistances.length; i++) {
             String edge = edgesByIndex.get(i);
-            String errorMessage = String.format("Length mismatch for edge %s: ", edge);
+            String errorMessage = "Length mismatch for edge %s: ".formatted(edge);
             assertEquals(coreDistances[i], matrixDistances[i], 0.1, errorMessage);
         }
     }
@@ -105,7 +105,7 @@ class AlgorithmComparisonTest {
         int index = 0;
         for (int sourceId : sources.getNodeIds()) {
             for (int destinationId : destinations.getNodeIds()) {
-                edgesByIndex.put(index, String.format("%s->%s", sourceId, destinationId));
+                edgesByIndex.put(index, "%s->%s".formatted(sourceId, destinationId));
                 index += 1;
             }
         }

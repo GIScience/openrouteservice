@@ -67,10 +67,9 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
         Throwable cause = exception.getCause();
-        if (cause instanceof ValueInstantiationException) {
-            ValueInstantiationException e = (ValueInstantiationException) cause;
-            if (e.getCause() instanceof StatusCodeException) {
-                StatusCodeException origExc = (StatusCodeException) e.getCause();
+        if (cause instanceof ValueInstantiationException valueInstantiationException) {
+            if (valueInstantiationException.getCause() instanceof StatusCodeException statusCodeException) {
+                StatusCodeException origExc = (StatusCodeException) statusCodeException.getCause();
                 return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);

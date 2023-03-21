@@ -13,18 +13,14 @@
  */
 package org.heigit.ors.routing;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.graphhopper.storage.GraphExtension;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
+
+import java.util.*;
 
 public class RouteExtraInfo {
     private final String name;
@@ -49,8 +45,8 @@ public class RouteExtraInfo {
 	public RouteExtraInfo(String name, GraphExtension extension) {
 		this.name = name;
 		segments = new ArrayList<>();
-		if(extension instanceof WarningGraphExtension) {
-			warningGraphExtension = (WarningGraphExtension) extension;
+		if(extension instanceof WarningGraphExtension warningGraphExtension) {
+			this.warningGraphExtension = warningGraphExtension;
 			usedForWarnings = true;
 		}
 	}

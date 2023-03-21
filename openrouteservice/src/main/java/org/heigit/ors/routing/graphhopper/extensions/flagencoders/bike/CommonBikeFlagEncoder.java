@@ -424,7 +424,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         int priority = handlePriority(way, wayTypeSpeed, priorityFromRelation);
         if (DEBUG_OUTPUT) {
             try {
-                logWriter.write(String.format("WayID %d RelationPrio %d FinalPrio %d %n", way.getId(), priorityFromRelation, priority));
+                logWriter.write("WayID %d RelationPrio %d FinalPrio %d %n".formatted(way.getId(), priorityFromRelation, priority));
                 logWriter.flush();
             } catch (Exception ex) {
                 LOGGER.warn("Failed to write log file.");

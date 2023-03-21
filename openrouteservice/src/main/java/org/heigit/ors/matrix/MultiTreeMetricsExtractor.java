@@ -14,7 +14,6 @@
 package org.heigit.ors.matrix;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
-import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
@@ -48,18 +47,14 @@ public class MultiTreeMetricsExtractor {
                                      DistanceUnit units) {
         this.metrics = metrics;
         this.graph = chGraph.getBaseGraph();
+        this.chGraph = chGraph;
         this.weighting = weighting;
         timeWeighting = new FastestWeighting(encoder);
         distUnits = units;
         edgeMetrics = new GHLongObjectHashMap<>();
 
-        if (chGraph instanceof RoutingCHGraph)
-            this.chGraph = (RoutingCHGraph) chGraph;
-        else if (chGraph instanceof QueryRoutingCHGraph) {
-            QueryGraph qGraph = (QueryGraph) chGraph;
-            Graph mainGraph = qGraph.getBaseGraph();
-            if (mainGraph instanceof RoutingCHGraph)
-                this.chGraph = (RoutingCHGraph) mainGraph;
+        if (chGraph instanceof QueryRoutingCHGraph routingCHGraph && (routingCHGraph.getBaseGraph() instanceof RoutingCHGraph routingCHMainGraph)) {
+            this.chGraph = routingCHMainGraph;
         }
 
         assert this.chGraph != null;

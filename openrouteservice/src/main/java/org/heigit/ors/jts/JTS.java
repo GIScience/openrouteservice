@@ -16,28 +16,16 @@
  */
 package org.heigit.ors.jts;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.metadata.i18n.ErrorKeys;
 import org.geotools.metadata.i18n.Errors;
+import org.geotools.referencing.GeodeticCalculator;
+import org.locationtech.jts.algorithm.CGAlgorithms;
+import org.locationtech.jts.geom.*;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import org.locationtech.jts.algorithm.CGAlgorithms;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
+import java.util.*;
 
 /**
  * JTS Geometry utility methods, bringing Geotools to JTS.
@@ -299,9 +287,9 @@ public final class JTS {
     private static Geometry smoothLineString(GeometryFactory factory, GeometrySmoother smoother,
             Geometry geom, double fit) {
 
-        if (geom instanceof LinearRing) {
+        if (geom instanceof LinearRing linearRing) {
             // Treat as a Polygon
-            Polygon poly = factory.createPolygon((LinearRing) geom, null);
+            Polygon poly = factory.createPolygon(linearRing, null);
             Polygon smoothed = smoother.smooth(poly, fit);
             return smoothed.getExteriorRing();
 
@@ -451,31 +439,30 @@ public final class JTS {
      * For the moment this implementation only accepts, {@link Polygon}, {@link LineString} and {@link MultiPolygon} It will throw an exception if the
      * geometry is not one of those types
      * 
-     * @param g the instance of a {@link Geometry} to remove collinear vertices from.
+     * @param geometry the instance of a {@link Geometry} to remove collinear vertices from.
      * @return a new instance of the provided {@link Geometry} without collinear vertices.
      */
-    public static Geometry removeCollinearVertices(final Geometry g) {
-        if (g == null) {
+    public static Geometry removeCollinearVertices(final Geometry geometry) {
+        if (geometry == null) {
             throw new NullPointerException("The provided Geometry is null");
         }
-        if (g instanceof LineString) {
-            return removeCollinearVertices((LineString) g);
-        } else if (g instanceof Polygon) {
-            return removeCollinearVertices((Polygon) g);
-        } else if (g instanceof MultiPolygon) {
-            MultiPolygon mp = (MultiPolygon) g;
-            Polygon[] parts = new Polygon[mp.getNumGeometries()];
-            for (int i = 0; i < mp.getNumGeometries(); i++) {
-                Polygon part = (Polygon) mp.getGeometryN(i);
+        if (geometry instanceof LineString lineString) {
+            return removeCollinearVertices(lineString);
+        } else if (geometry instanceof Polygon polygon) {
+            return removeCollinearVertices(polygon);
+        } else if (geometry instanceof MultiPolygon multiPolygon) {
+            Polygon[] parts = new Polygon[multiPolygon.getNumGeometries()];
+            for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+                Polygon part = (Polygon) multiPolygon.getGeometryN(i);
                 part = removeCollinearVertices(part);
                 parts[i] = part;
             }
 
-            return g.getFactory().createMultiPolygon(parts);
+            return geometry.getFactory().createMultiPolygon(parts);
         }
 
         throw new IllegalArgumentException(
-                "This method can work on LineString, Polygon and Multipolygon: " + g.getClass());
+                "This method can work on LineString, Polygon and Multipolygon: " + geometry.getClass());
     }
 
     /**
@@ -496,15 +483,14 @@ public final class JTS {
             return geometry;
         }
 
-        if (geometry instanceof LineString) {
-            return removeCollinearVertices((LineString) geometry);
-        } else if (geometry instanceof Polygon) {
-            return removeCollinearVertices((Polygon) geometry);
-        } else if (geometry instanceof MultiPolygon) {
-            MultiPolygon mp = (MultiPolygon) geometry;
-            Polygon[] parts = new Polygon[mp.getNumGeometries()];
-            for (int i = 0; i < mp.getNumGeometries(); i++) {
-                Polygon part = (Polygon) mp.getGeometryN(i);
+        if (geometry instanceof LineString lineString) {
+            return removeCollinearVertices(lineString);
+        } else if (geometry instanceof Polygon polygon) {
+            return removeCollinearVertices(polygon);
+        } else if (geometry instanceof MultiPolygon multiPolygon) {
+            Polygon[] parts = new Polygon[multiPolygon.getNumGeometries()];
+            for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+                Polygon part = (Polygon) multiPolygon.getGeometryN(i);
                 part = removeCollinearVertices(part);
                 parts[i] = part;
             }

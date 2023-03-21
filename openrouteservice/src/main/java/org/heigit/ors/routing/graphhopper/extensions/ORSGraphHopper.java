@@ -38,9 +38,6 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
@@ -68,7 +65,10 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,8 +120,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	public GraphHopper init(GraphHopperConfig ghConfig) {
 		GraphHopper ret = super.init(ghConfig);
 
-		if (ghConfig instanceof ORSGraphHopperConfig) {
-			ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
+		if (ghConfig instanceof ORSGraphHopperConfig orsConfig) {
 			corePreparationHandler.init(orsConfig);
 			coreLMPreparationHandler.init(orsConfig);
 		}
@@ -137,16 +136,16 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	@Override
 	protected void cleanUp() {
 		if (LOGGER.isInfoEnabled())
-			LOGGER.info(String.format("call cleanUp for '%s' ", getGraphHopperLocation()));
+			LOGGER.info("call cleanUp for '%s' ".formatted(getGraphHopperLocation()));
 		GraphHopperStorage ghs = getGraphHopperStorage();
 		if (ghs != null) {
 			if (LOGGER.isInfoEnabled())
-				LOGGER.info(String.format("graph %s, details:%s", ghs, ghs.toDetailsString()));
+				LOGGER.info("graph %s, details:%s".formatted(ghs, ghs.toDetailsString()));
 			int prevNodeCount = ghs.getNodes();
 			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
 			if (LOGGER.isInfoEnabled())
-				LOGGER.info(String.format("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
+				LOGGER.info("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'".formatted(prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
 			);
 			ghs.getProperties().put("elevation", hasElevation());
 		} else {

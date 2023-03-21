@@ -13,16 +13,10 @@
  */
 package org.heigit.ors.plugins;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-
 import org.apache.log4j.Logger;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class PluginManager<T extends Plugin> {
 	private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
@@ -61,7 +55,7 @@ public class PluginManager<T extends Plugin> {
 					result.add(instance);
 				}
 				else
-					LOGGER.warn(String.format("'%s' was not found.", storageEntry.getKey()));
+					LOGGER.warn("'%s' was not found.".formatted(storageEntry.getKey()));
 			}
 		}
 		return result;

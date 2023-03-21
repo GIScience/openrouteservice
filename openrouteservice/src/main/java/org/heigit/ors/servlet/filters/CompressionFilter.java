@@ -13,23 +13,16 @@
  */
 package org.heigit.ors.servlet.filters;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class CompressionFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-		if (req instanceof HttpServletRequest) {
-			HttpServletRequest request = (HttpServletRequest) req;
+		if (req instanceof HttpServletRequest httpServletRequest) {
 			HttpServletResponse response = (HttpServletResponse) res;
-			String acceptEncoding = request.getHeader("accept-encoding");
+			String acceptEncoding = httpServletRequest.getHeader("accept-encoding");
 			
 			if (acceptEncoding != null) {
 				if(acceptEncoding.indexOf(ContentEncodingType.GZIP) != -1) {

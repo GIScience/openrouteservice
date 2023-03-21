@@ -53,8 +53,8 @@ public class JsonUtility {
         } catch (JSONException e) {
             LOGGER.error(e.getStackTrace());
         }
-        if (json instanceof JSONObject) {
-            jsonObject = (JSONObject) json;
+        if (json instanceof JSONObject jsonObject1) {
+            jsonObject = jsonObject1;
         }
         return jsonObject;
     }
@@ -67,8 +67,8 @@ public class JsonUtility {
         } catch (JSONException e) {
             LOGGER.error(e.getStackTrace());
         }
-        if (json instanceof JSONArray) {
-            jsonArray = (JSONArray) json;
+        if (json instanceof JSONArray convertedJsonArray) {
+            jsonArray = convertedJsonArray;
         }
         return jsonArray;
     }
@@ -88,20 +88,20 @@ public class JsonUtility {
             }
             if (json.isNull(key))
                 ret.putNull(key);
-            else if (value instanceof String)
-                ret.put(key, (String) value);
-            else if (value instanceof Integer)
-                ret.put(key, (Integer) value);
-            else if (value instanceof Long)
-                ret.put(key, (Long) value);
-            else if (value instanceof Double)
-                ret.put(key, (Double) value);
-            else if (value instanceof Boolean)
-                ret.put(key, (Boolean) value);
-            else if (value instanceof JSONObject)
-                ret.set(key, convertJsonFormat((JSONObject) value));
-            else if (value instanceof JSONArray)
-                ret.set(key, convertJsonFormat((JSONArray) value));
+            else if (value instanceof String string)
+                ret.put(key, string);
+            else if (value instanceof Integer integer)
+                ret.put(key, integer);
+            else if (value instanceof Long aLong)
+                ret.put(key, aLong);
+            else if (value instanceof Double aDouble)
+                ret.put(key, aDouble);
+            else if (value instanceof Boolean aBoolean)
+                ret.put(key, aBoolean);
+            else if (value instanceof JSONObject jsonObject)
+                ret.set(key, convertJsonFormat(jsonObject));
+            else if (value instanceof JSONArray jsonArray)
+                ret.set(key, convertJsonFormat(jsonArray));
             else
                 throw new RuntimeException("not prepared for converting instance of class " + value.getClass());
         }
@@ -119,20 +119,20 @@ public class JsonUtility {
             }
             if (json.isNull(i))
                 ret.addNull();
-            else if (value instanceof String)
-                ret.add((String) value);
-            else if (value instanceof Integer)
-                ret.add((Integer) value);
-            else if (value instanceof Long)
-                ret.add((Long) value);
-            else if (value instanceof Double)
-                ret.add((Double) value);
-            else if (value instanceof Boolean)
-                ret.add((Boolean) value);
-            else if (value instanceof JSONObject)
-                ret.add(convertJsonFormat((JSONObject) value));
-            else if (value instanceof JSONArray)
-                ret.add(convertJsonFormat((JSONArray) value));
+            else if (value instanceof String string)
+                ret.add(string);
+            else if (value instanceof Integer integer)
+                ret.add(integer);
+            else if (value instanceof Long aLong)
+                ret.add(aLong);
+            else if (value instanceof Double aDouble)
+                ret.add(aDouble);
+            else if (value instanceof Boolean aBoolean)
+                ret.add(aBoolean);
+            else if (value instanceof JSONObject jsonObject)
+                ret.add(convertJsonFormat(jsonObject));
+            else if (value instanceof JSONArray jsonArray)
+                ret.add(convertJsonFormat(jsonArray));
             else
                 throw new RuntimeException("not prepared for converting instance of class " + value.getClass());
         }

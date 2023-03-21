@@ -551,9 +551,8 @@ public class PrepareCoreTest {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof Shortcut) {
-                Shortcut s = (Shortcut) o;
-                return this.first == s.first && this.second == s.second && this.weight == s.weight;
+            if (o instanceof Shortcut shortcut) {
+                return this.first == shortcut.first && this.second == shortcut.second && this.weight == shortcut.weight;
             }
             return false;
         }

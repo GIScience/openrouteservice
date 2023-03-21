@@ -2,9 +2,6 @@ package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -28,8 +25,13 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class APIRequest {
     public static final String PARAM_ID = "id";
@@ -134,10 +136,9 @@ public class APIRequest {
 
         Polygon[] avoidAreas;
 
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
-        } else if (convertedGeom instanceof MultiPolygon) {
-            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
+        if (convertedGeom instanceof Polygon polygon) {
+            avoidAreas = new Polygon[]{polygon};
+        } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
@@ -158,13 +159,13 @@ public class APIRequest {
                 if (areaLimit > 0) {
                     long area = Math.round(GeomUtility.getArea(avoidArea, true));
                     if (area > areaLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, "The area of a polygon to avoid must not exceed %s square meters.".formatted(areaLimit));
                     }
                 }
                 if (extentLimit > 0) {
                     long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
                     if (extent > extentLimit) {
-                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                        throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, "The extent of a polygon to avoid must not exceed %s meters.".formatted(extentLimit));
                     }
                 }
             } catch (InternalServerException e) {
@@ -257,12 +258,12 @@ public class APIRequest {
             applyWeightings(weightings, params);
         }
 
-        if (params instanceof WheelchairParameters) {
+        if (params instanceof WheelchairParameters wheelchairParameters) {
             if (options.getProfileParams().hasSurfaceQualityKnown()) {
-                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+                wheelchairParameters.setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
             }
             if (options.getProfileParams().hasAllowUnsuitable()) {
-                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+                wheelchairParameters.setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
             }
         }
         return params;

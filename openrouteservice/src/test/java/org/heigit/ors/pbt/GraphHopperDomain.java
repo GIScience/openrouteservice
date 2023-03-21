@@ -120,12 +120,10 @@ public class GraphHopperDomain extends DomainContextBase {
                 Map<Integer, String> edges = new HashMap<>();
                 AllEdgesIterator edgesIterator = graph.getAllEdges();
                 while (edgesIterator.next()) {
-                    String edgeString = String.format(
-                            "%s->%s: %s",
+                    String edgeString = "%s->%s: %s".formatted(
                             edgesIterator.getBaseNode(),
                             edgesIterator.getAdjNode(),
-                            edgesIterator.getDistance()
-                    );
+                            edgesIterator.getDistance());
                     edges.put(edgesIterator.getEdge(), edgeString);
                 }
                 attributes.put("edges", edges);

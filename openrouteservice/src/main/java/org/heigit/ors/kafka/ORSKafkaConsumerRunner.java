@@ -49,7 +49,7 @@ public class ORSKafkaConsumerRunner implements Runnable {
         this.profile = config.getProfile();
         this.pollTimeout = config.hasTimeout() ? config.getTimeout() : POLL_TIMEOUT_DEFAULT;
         this.active = true;
-        LOGGER.debug(String.format("Created Kafka consumer thread listening to %s (%s), passing to %s", config.getCluster(), config.getTopic(), config.getProfile()));
+        LOGGER.debug("Created Kafka consumer thread listening to %s (%s), passing to %s".formatted(config.getCluster(), config.getTopic(), config.getProfile()));
     }
 
     private void updateProfile(ConsumerRecord<Long, String> consumerRecord) {

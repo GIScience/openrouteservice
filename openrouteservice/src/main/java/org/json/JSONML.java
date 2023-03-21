@@ -225,8 +225,8 @@ public class JSONML {
                 }
             } else {
                 if (ja != null) {
-                    ja.put(token instanceof String
-                        ? keepStrings ? XML.unescape((String)token) :XML.stringToValue((String)token)
+                    ja.put(token instanceof String string
+                        ? keepStrings ? XML.unescape(string) :XML.stringToValue(string)
                         : token);
                 }
             }
@@ -414,9 +414,9 @@ public class JSONML {
         sb.append(tagName);
 
         object = ja.opt(1);
-        if (object instanceof JSONObject) {
+        if (object instanceof JSONObject jsonObject) {
             i = 2;
-            jo = (JSONObject)object;
+            jo = jsonObject;
 
 // Emit the attributes
 
@@ -452,10 +452,10 @@ public class JSONML {
                 if (object != null) {
                     if (object instanceof String) {
                         sb.append(XML.escape(object.toString()));
-                    } else if (object instanceof JSONObject) {
-                        sb.append(toString((JSONObject)object));
-                    } else if (object instanceof JSONArray) {
-                        sb.append(toString((JSONArray)object));
+                    } else if (object instanceof JSONObject jsonObject) {
+                        sb.append(toString(jsonObject));
+                    } else if (object instanceof JSONArray jsonArray) {
+                        sb.append(toString(jsonArray));
                     } else {
                         sb.append(object);
                     }
@@ -533,10 +533,10 @@ public class JSONML {
                 if (object != null) {
                     if (object instanceof String) {
                         sb.append(XML.escape(object.toString()));
-                    } else if (object instanceof JSONObject) {
-                        sb.append(toString((JSONObject)object));
-                    } else if (object instanceof JSONArray) {
-                        sb.append(toString((JSONArray)object));
+                    } else if (object instanceof JSONObject jsonObject) {
+                        sb.append(toString(jsonObject));
+                    } else if (object instanceof JSONArray jsonArray) {
+                        sb.append(toString(jsonArray));
                     } else {
                         sb.append(object);
                     }

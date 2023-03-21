@@ -13,11 +13,7 @@
  */
 package org.heigit.ors.routing;
 
-import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -40,6 +36,9 @@ import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -395,10 +394,9 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, KEY_AVOID_POLYGONS);
             }
 
-            if (geom instanceof Polygon) {
-                avoidAreas = new Polygon[]{(Polygon) geom};
-            } else if (geom instanceof MultiPolygon) {
-                MultiPolygon multiPoly = (MultiPolygon) geom;
+            if (geom instanceof Polygon polygon) {
+                avoidAreas = new Polygon[]{polygon};
+            } else if (geom instanceof MultiPolygon multiPoly) {
                 avoidAreas = new Polygon[multiPoly.getNumGeometries()];
                 for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                     avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
@@ -415,13 +413,13 @@ public class RouteSearchParameters {
                     if (areaLimit > 0) {
                         long area = Math.round(GeomUtility.getArea(avoidArea, true));
                         if (area > areaLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The area of a polygon to avoid must not exceed %s square meters.".formatted(areaLimit));
                         }
                     }
                     if (extentLimit > 0) {
                         long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
                         if (extent > extentLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The extent of a polygon to avoid must not exceed %s meters.".formatted(extentLimit));
                         }
                     }
                 } catch (InternalServerException e) {

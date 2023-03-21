@@ -31,7 +31,6 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -74,17 +73,14 @@ import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -164,7 +160,7 @@ public class RoutingProfile {
         long startTime = System.currentTimeMillis();
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(String.format("[%d] Profiles: '%s', location: '%s'.", profileId, config.getProfiles(), config.getGraphPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, config.getProfiles(), config.getGraphPath()));
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
@@ -202,9 +198,9 @@ public class RoutingProfile {
 
         if (LOGGER.isInfoEnabled()) {
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            LOGGER.info(String.format("[%d] Edges: %s - Nodes: %s.", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
-            LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
-            LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+            LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
+            LOGGER.info("[%d] Total time: %s.".formatted(profileId, TimeUtility.getElapsedTime(startTime, true)));
+            LOGGER.info("[%d] Finished at: %s.".formatted(profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file.
@@ -823,7 +819,7 @@ public class RoutingProfile {
             }
 
         });
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+        LOGGER.info("Found %d nodes in bbox.".formatted(nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no centrality can be calculated
@@ -888,7 +884,7 @@ public class RoutingProfile {
             }
         });
 
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+        LOGGER.info("Found %d nodes in bbox.".formatted(nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no centrality can be calculated

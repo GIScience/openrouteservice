@@ -28,8 +28,8 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     }
 
     public void init(GraphHopperStorage graphHopperStorage, FlagEncoder flagEncoder) {
-        if (flagEncoder instanceof VehicleFlagEncoder)
-            setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
+        if (flagEncoder instanceof VehicleFlagEncoder vehicleFlagEncoder)
+            setVehicleFlagEncoder(vehicleFlagEncoder);
         if (flagEncoder instanceof HeavyVehicleFlagEncoder)
             isHGV = true;
         setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));

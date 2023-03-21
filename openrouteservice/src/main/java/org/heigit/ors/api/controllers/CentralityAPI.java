@@ -112,16 +112,16 @@ public class CentralityAPI {
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        if (cause instanceof UnrecognizedPropertyException) {
-            return errorHandler.handleUnknownParameterException(new UnknownParameterException(CentralityErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
-        } else if (cause instanceof InvalidFormatException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
-        } else if (cause instanceof ConversionFailedException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, "" + ((ConversionFailedException) cause).getValue()));
-        } else if (cause instanceof InvalidDefinitionException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
-        } else if (cause instanceof MismatchedInputException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.MISMATCHED_INPUT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+        if (cause instanceof UnrecognizedPropertyException exception) {
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(CentralityErrorCodes.UNKNOWN_PARAMETER, exception.getPropertyName()));
+        } else if (cause instanceof InvalidFormatException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_FORMAT, exception.getValue().toString()));
+        } else if (cause instanceof ConversionFailedException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, "" + exception.getValue()));
+        } else if (cause instanceof InvalidDefinitionException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.INVALID_PARAMETER_VALUE, exception.getPath().get(0).getFieldName()));
+        } else if (cause instanceof MismatchedInputException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(CentralityErrorCodes.MISMATCHED_INPUT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
             if (e.getLocalizedMessage().startsWith("Required request body is missing")) {

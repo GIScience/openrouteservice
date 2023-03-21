@@ -14,22 +14,10 @@
 package org.heigit.ors.geojson;
 
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
+import org.heigit.ors.util.FormatUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-
-import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.*;
 
 public class GeometryJSON {
 
@@ -39,14 +27,14 @@ public class GeometryJSON {
 	private GeometryJSON() {}
 
 	public static JSONArray toJSON(Geometry geom) throws Exception {
-		if (geom instanceof Polygon) {
-			return toJSON((Polygon)geom);
-		} else if (geom instanceof LineString) {
-			return toJSON((LineString)geom, false);
-		} else if (geom instanceof Point) {
-			return toJSON((Point)geom);
-		} else if (geom instanceof MultiPolygon) {
-			return toJSON((MultiPolygon)geom);
+		if (geom instanceof Polygon polygon) {
+			return toJSON(polygon);
+		} else if (geom instanceof LineString string) {
+			return toJSON(string, false);
+		} else if (geom instanceof Point point) {
+			return toJSON(point);
+		} else if (geom instanceof MultiPolygon polygon) {
+			return toJSON(polygon);
 		} else {
 			throw new Exception("toJSON function is not implemented for " + geom.getGeometryType());
 		}

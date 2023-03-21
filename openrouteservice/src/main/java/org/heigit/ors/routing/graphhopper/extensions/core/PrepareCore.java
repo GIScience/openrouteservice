@@ -15,18 +15,19 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntContainer;
-import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.graphhopper.coll.MinHeapWithUpdate;
-import com.graphhopper.routing.ch.*;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.ch.CHPreparationGraph;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.util.AllEdgesIterator;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 
-import static com.graphhopper.routing.ch.CHParameters.*;
+import static com.graphhopper.routing.ch.CHParameters.CONTRACTED_NODES;
 import static com.graphhopper.util.Helper.getMemInfo;
 
 /**
@@ -60,8 +61,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     @Override
     public CHStorage getCHStore (CHConfig chConfig) {
-        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage) {
-            ORSGraphHopperStorage ghStorage = (ORSGraphHopperStorage) graph;
+        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage ghStorage) {
             CHStorage chStore = ghStorage.getCoreStore(chConfig.getName());
             if (chStore == null)
                 throw new IllegalArgumentException("There is no Core graph '" + chConfig.getName() + "', existing: " + ghStorage.getCoreGraphNames());
@@ -165,8 +165,8 @@ public class PrepareCore extends PrepareContractionHierarchies {
     protected IntContainer contractNode(int node, int level) {
         IntContainer neighbors = super.contractNode(node, level);
 
-        if (neighbors instanceof IntArrayList)
-            ((IntArrayList) neighbors).removeAll(isCoreNode);
+        if (neighbors instanceof IntArrayList intArrayList)
+            intArrayList.removeAll(isCoreNode);
         else
             throw(new IllegalStateException("Not an isntance of IntArrayList"));
 

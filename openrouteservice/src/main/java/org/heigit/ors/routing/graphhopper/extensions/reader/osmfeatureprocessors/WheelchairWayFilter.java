@@ -17,13 +17,12 @@ public class WheelchairWayFilter implements OSMFeatureFilter {
 
     @Override
     public void assignFeatureForFiltering(ReaderElement element) throws InvalidObjectException {
-        if(element instanceof ReaderWay) {
-            ReaderWay way = (ReaderWay) element;
+        if(element instanceof ReaderWay readerWay) {
 
-            if (osmAttachedSidewalkProcessor.hasSidewalkInfo(way)) {
-                this.osmWay = new WheelchairSidewalkWay(way);
+            if (osmAttachedSidewalkProcessor.hasSidewalkInfo(readerWay)) {
+                this.osmWay = new WheelchairSidewalkWay(readerWay);
             } else {
-                this.osmWay = new WheelchairSeparateWay(way);
+                this.osmWay = new WheelchairSeparateWay(readerWay);
             }
         } else {
             throw new InvalidObjectException("Wheelchair Filtering can only be applied to ways");

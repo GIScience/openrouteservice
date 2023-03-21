@@ -40,7 +40,7 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
 
 	@Override
 	public final boolean accept(EdgeIteratorState iter) {
-		if(iter instanceof RoutingCHEdgeIterator && ((RoutingCHEdgeIterator)iter).isShortcut())
+		if(iter instanceof RoutingCHEdgeIterator routingCHEdgeIterator && routingCHEdgeIterator.isShortcut())
 			return true;
 		return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
 	}

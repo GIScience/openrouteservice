@@ -16,14 +16,13 @@ package org.heigit.ors.routing.pathprocessors;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
-import org.locationtech.jts.geom.Coordinate;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -31,14 +30,15 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.util.ElevationSmoother;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
+import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
-import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
-import org.apache.log4j.Logger;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -297,8 +297,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
 		GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
 		for(GraphExtension ge : extensions) {
-			if (ge instanceof WarningGraphExtension && ((WarningGraphExtension)ge).isUsedForWarning()) {
-				warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
+			if (ge instanceof WarningGraphExtension warningGraphExtension && warningGraphExtension.isUsedForWarning()) {
+				warningExtensions.add(RouteExtraInfoFlag.getFromString(warningGraphExtension.getName()));
 			}
 		}
 	}

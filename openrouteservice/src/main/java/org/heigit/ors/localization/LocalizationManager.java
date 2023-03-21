@@ -81,7 +81,7 @@ public class LocalizationManager {
 				this.langResources.put(langCode, localLangResources);
 			}
 		} catch(Exception ex) {
-			LOGGER.error(String.format("Unable to load resources from file %s", file.getAbsolutePath()));
+			LOGGER.error("Unable to load resources from file %s".formatted(file.getAbsolutePath()));
 		}
 	}
 

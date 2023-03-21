@@ -80,7 +80,7 @@ class RouteResultBuilder
         for (int ri = 0; ri < responses.size(); ++ri) {
             GHResponse response = responses.get(ri);
             if (response.hasErrors())
-                throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri + 1])));
+                throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find a route between points %d (%s) and %d (%s)".formatted(ri, FormatUtility.formatCoordinate(request.getCoordinates()[ri]), ri + 1, FormatUtility.formatCoordinate(request.getCoordinates()[ri + 1])));
 
             handleResponseWarnings(result, response);
 
@@ -119,7 +119,7 @@ class RouteResultBuilder
 
     private RouteResult[] createRouteResultSetFromMultiplePaths(GHResponse response, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         if (response.hasErrors())
-            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, String.format("Unable to find a route between points %d (%s) and %d (%s)", 0, FormatUtility.formatCoordinate(request.getCoordinates()[0]), 1, FormatUtility.formatCoordinate(request.getCoordinates()[1])));
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find a route between points %d (%s) and %d (%s)".formatted(0, FormatUtility.formatCoordinate(request.getCoordinates()[0]), 1, FormatUtility.formatCoordinate(request.getCoordinates()[1])));
 
         RouteResult[] resultSet = new RouteResult[response.getAll().size()];
 
@@ -208,7 +208,7 @@ class RouteResultBuilder
     private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs, GHResponse response) throws Exception {
         for (Trip.Leg leg : legs) {
             startWayPointIndex = 0;
-            List<RouteStep> instructions = leg instanceof Trip.WalkLeg ? convertRouteSteps(((Trip.WalkLeg)leg).instructions, PointList.from((LineString)leg.geometry), request, null) : null;
+            List<RouteStep> instructions = leg instanceof Trip.WalkLeg walkLeg ? convertRouteSteps(walkLeg.instructions, PointList.from((LineString)leg.geometry), request, null) : null;
             result.addLeg(new RouteLeg(leg, instructions, response, request));
         }
     }
@@ -274,10 +274,9 @@ class RouteResultBuilder
                 }
                 instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
             } else {
-                if (instr instanceof RoundaboutInstruction) {
-                    RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;
-                    step.setExitNumber(raInstr.getExitNumber());
-                    instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
+                if (instr instanceof RoundaboutInstruction roundaboutInstruction) {
+                    step.setExitNumber(roundaboutInstruction.getExitNumber());
+                    instrText = instrTranslator.getRoundabout(roundaboutInstruction.getExitNumber(), roadName);
                 } else {
                     if (isTurnInstruction(instrType)) {
                         instrText = instrTranslator.getTurn(instrType, roadName);

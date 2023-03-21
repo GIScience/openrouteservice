@@ -1,11 +1,11 @@
 package org.json;
 
-import static java.lang.String.format;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /*
 Copyright (c) 2002 JSON.org
@@ -186,14 +186,13 @@ public class JSONPointer {
         }
         Object current = document;
         for (String token : refTokens) {
-            if (current instanceof JSONObject) {
-                current = ((JSONObject) current).opt(unescape(token));
+            if (current instanceof JSONObject jsonObject) {
+                current = jsonObject.opt(unescape(token));
             } else if (current instanceof JSONArray) {
                 current = readByIndexToken(current, token);
             } else {
-                throw new JSONPointerException(format(
-                        "value [%s] is not an array or object therefore its key %s cannot be resolved", current,
-                        token));
+                throw new JSONPointerException("value [%s] is not an array or object therefore its key %s cannot be resolved".formatted(current,
+                    token));
             }
         }
         return current;
@@ -211,12 +210,12 @@ public class JSONPointer {
             int index = Integer.parseInt(indexToken);
             JSONArray currentArr = (JSONArray) current;
             if (index >= currentArr.length()) {
-                throw new JSONPointerException(format("index %d is out of bounds - the array has %d elements", index,
-                        currentArr.length()));
+                throw new JSONPointerException("index %d is out of bounds - the array has %d elements".formatted(index,
+                    currentArr.length()));
             }
             return currentArr.get(index);
         } catch (NumberFormatException e) {
-            throw new JSONPointerException(format("%s is not an array index", indexToken), e);
+            throw new JSONPointerException("%s is not an array index".formatted(indexToken), e);
         }
     }
 

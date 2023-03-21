@@ -358,8 +358,8 @@ public class XML {
                     token = x.nextToken();
                 }
                 // attribute = value
-                if (token instanceof String) {
-                    string = (String) token;
+                if (token instanceof String convertedString) {
+                    string = convertedString;
                     token = x.nextToken();
                     if (token == EQ) {
                         token = x.nextToken();
@@ -367,7 +367,7 @@ public class XML {
                             throw x.syntaxError("Missing value");
                         }
                         jsonobject.accumulate(string,
-                                keepStrings ? unescape((String)token) : stringToValue((String) token));
+                                keepStrings ? unescape(string) : stringToValue(string));
                         token = null;
                     } else {
                         jsonobject.accumulate(string, "");
@@ -395,8 +395,8 @@ public class XML {
                                 throw x.syntaxError("Unclosed tag " + tagName);
                             }
                             return false;
-                        } else if (token instanceof String) {
-                            string = (String) token;
+                        } else if (token instanceof String convertedString) {
+                            string = convertedString;
                             if (string.length() > 0) {
                                 jsonobject.accumulate("content",
                                         keepStrings ? unescape(string) : stringToValue(string));
@@ -426,16 +426,13 @@ public class XML {
     }
     
     /**
-     * This method is the same as {@link JSONObject.stringToValue(String)}
-     * except that this also tries to unescape String values.
-     * 
-     * @param string String to convert
+     * @param stringToConvert String to convert
      * @return JSON value of this string or the string
      */
-    public static Object stringToValue(String string) {
-        Object ret = JSONObject.stringToValue(string);
-        if(ret instanceof String){
-            return unescape((String)ret);
+    public static Object stringToValue(String stringToConvert) {
+        Object ret = JSONObject.stringToValue(stringToConvert);
+        if(ret instanceof String string){
+            return unescape(string);
         }
         return ret;
     }
@@ -522,7 +519,7 @@ public class XML {
         String string;
         Object value;
 
-        if (object instanceof JSONObject) {
+        if (object instanceof JSONObject jsonObject) {
 
             // Emit <tagName>
             if (tagName != null) {
@@ -532,7 +529,7 @@ public class XML {
             }
 
             // Loop thru the keys.
-            jo = (JSONObject) object;
+            jo = jsonObject;
             keys = jo.keys();
             while (keys.hasNext()) {
                 key = keys.next();
@@ -542,12 +539,12 @@ public class XML {
                 } else if (value.getClass().isArray()) {
                     value = new JSONArray(value);
                 }
-                string = value instanceof String ? (String) value : null;
+                string = value instanceof String s ? s : null;
 
                 // Emit content in body
                 if ("content".equals(key)) {
-                    if (value instanceof JSONArray) {
-                        ja = (JSONArray) value;
+                    if (value instanceof JSONArray jsonArray) {
+                        ja = jsonArray;
                         int i = 0;
                         for (Object val : ja) {
                             if (i > 0) {
@@ -562,8 +559,8 @@ public class XML {
 
                     // Emit an array of similar keys
 
-                } else if (value instanceof JSONArray) {
-                    ja = (JSONArray) value;
+                } else if (value instanceof JSONArray jsonArray) {
+                    ja = jsonArray;
                     for (Object val : ja) {
                         if (val instanceof JSONArray) {
                             sb.append('<');
@@ -604,8 +601,8 @@ public class XML {
                 object = new JSONArray(object);
             }
 
-            if (object instanceof JSONArray) {
-                ja = (JSONArray) object;
+            if (object instanceof JSONArray jsonArray) {
+                ja = jsonArray;
                 for (Object val : ja) {
                     // XML does not have good support for arrays. If an array
                     // appears in a place where XML is lacking, synthesize an

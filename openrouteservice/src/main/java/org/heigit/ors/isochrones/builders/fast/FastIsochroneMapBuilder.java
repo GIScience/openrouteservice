@@ -28,9 +28,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -56,6 +53,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFla
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
@@ -400,8 +400,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         try {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             concaveHull = ch.getConcaveHull();
-            if (concaveHull instanceof Polygon) {
-                ring = (LinearRing) ((Polygon) concaveHull).getExteriorRing();
+            if (concaveHull instanceof Polygon polygon) {
+                ring = (LinearRing) polygon.getExteriorRing();
                 List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));
@@ -433,8 +433,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
-            if (geom instanceof GeometryCollection) {
-                GeometryCollection geomColl = (GeometryCollection) geom;
+            if (geom instanceof GeometryCollection geomColl) {
                 if (geomColl.isEmpty())
                     return;
             }

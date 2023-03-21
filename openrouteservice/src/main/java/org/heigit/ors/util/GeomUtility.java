@@ -17,11 +17,11 @@ import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
-import org.locationtech.jts.geom.*;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.heigit.ors.exceptions.InternalServerException;
+import org.locationtech.jts.geom.*;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
@@ -142,12 +142,10 @@ public class GeomUtility {
 	public static double getArea(Geometry geom, boolean inMeters) throws InternalServerException {
 		try {
 			if (inMeters) {
-				if (geom instanceof Polygon) {
+				if (geom instanceof Polygon polygon) {
 
 					// https://gis.stackexchange.com/questions/265481/geotools-unexpected-result-reprojecting-bounding-box-to-epsg3035
 					System.setProperty("org.geotools.referencing.forceXY", "true");
-
-					Polygon poly = (Polygon) geom;
 
 					CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
 
@@ -156,7 +154,7 @@ public class GeomUtility {
 					CoordinateReferenceSystem targetCRS = CRS.parseWKT(mollweideProj);
 
 					MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
-					Geometry targetGeometry = JTS.transform(poly, transform);
+					Geometry targetGeometry = JTS.transform(polygon, transform);
 
 					return targetGeometry.getArea();
 				} else {
