@@ -34,7 +34,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Test, build, run API tests
-      run: mvn -B -f openrouteservice/pom.xml verify -Psurefire jacoco:report
+      run: mvn -B -f openrouteservice/pom.xml verify -Psurefire -DCI=true jacoco:report
     - name: run SonarLint checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
