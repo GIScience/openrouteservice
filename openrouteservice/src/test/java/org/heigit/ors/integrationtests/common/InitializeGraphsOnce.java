@@ -1,5 +1,6 @@
 package org.heigit.ors.integrationtests.common;
 
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -12,6 +13,8 @@ import java.nio.file.Paths;
 
 @Order(Integer.MIN_VALUE) // Before even the context is created
 public class InitializeGraphsOnce implements BeforeAllCallback {
+
+	private static final Logger LOGGER = Logger.getLogger(InitializeGraphsOnce.class.getName());
 
 	// This folder's name must also be configured in resources/ors-config.json:
 	// "graphs_root_path": "graphs-integrationtests"
@@ -26,7 +29,8 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 		if (!graphsFolderAlreadyDeleted) {
 			try {
 				Path graphsFolder = Paths.get(GRAPHS_FOLDER);
-				System.out.printf("Deleting folder %s%n", graphsFolder.toAbsolutePath());
+				// Any lower level will not be displayed sind ORS log configuration is not in place at this stage
+				LOGGER.error(String.format("Deleting folder %s to enforce regeneration of graphs%n", graphsFolder.toAbsolutePath()));
 				FileSystemUtils.deleteRecursively(graphsFolder);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
