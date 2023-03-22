@@ -85,5 +85,5 @@ Though there are no concrete rules for code that is contributed, we have a few g
 - **Minimal in-line comments**: code should be self-explanatory. **Never** use comments to comment out blocks of code
 - **Use JDoc** docstrings to provide context for methods and classes
 - **Unit tests!!**
-- **API test** when adding API functionality in the corresponding [`openrouteservice-api-tests`](https://github.com/GIScience/openrouteservice/tree/master/openrouteservice-api-tests) subproject
+- **API test** when adding API functionality in the corresponding `apitests` package
 - Keep **methods modular**: rather short and singular functionality than 100s line of code
