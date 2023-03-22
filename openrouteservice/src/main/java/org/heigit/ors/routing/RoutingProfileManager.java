@@ -46,9 +46,6 @@ import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -708,13 +705,6 @@ public class RoutingProfileManager {
 
     public void initCompleted() {
         initComplete = true;
-        File file = new File("ors.run");
-        try (FileWriter fw = new FileWriter(file)) {
-            fw.write("ORS init complete: " + Instant.now().toString() + "\n");
-            fw.flush();
-        } catch (Exception ex) {
-            LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
-        }
     }
 
     public static boolean isInitComplete() {
