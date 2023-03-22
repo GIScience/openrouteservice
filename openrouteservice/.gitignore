@@ -15,5 +15,5 @@ logs/
 .jqwik-database
 
 # integration tests
-graphs-integrationtests/
+graphs-apitests/
 ors.log

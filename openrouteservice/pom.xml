@@ -215,7 +215,7 @@
                 <version>2.22.2</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/integrationtests/**</exclude>
+                        <exclude>**/apitests/**</exclude>
                     </excludes>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
@@ -624,7 +624,7 @@
                                         <exclude>none</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>**/integrationtests/**/*Test</include>
+                                        <include>**/apitests/**/*Test</include>
                                     </includes>
                                 </configuration>
                             </execution>

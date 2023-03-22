@@ -105,7 +105,7 @@
           ],
           "default_params": {
             "encoder_flags_size": 4,
-            "graphs_root_path": "graphs-integrationtests",
+            "graphs_root_path": "graphs-apitests",
             "elevation_provider": "multi",
             "elevation_cache_clear": false,
             "elevation_cache_path": "./src/test/files/data/elevation",
