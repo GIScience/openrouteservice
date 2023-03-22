@@ -710,7 +710,7 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("error.code", is(2003))
-                .body("error.message", is(String.format("The extent of a polygon to avoid must not exceed %s meters.", Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent")))))
+                .body("error.message", is("The extent of a polygon to avoid must not exceed %s meters.".formatted(Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent")))))
                 .statusCode(400);
 
         body = new JSONObject();
@@ -731,7 +731,7 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("error.code", is(2003))
-                .body("error.message", is(String.format("The area of a polygon to avoid must not exceed %s square meters.", Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area")))))
+                .body("error.message", is("The area of a polygon to avoid must not exceed %s square meters.".formatted(Double.parseDouble(AppConfig.Global().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area")))))
                 .statusCode(400);
     }
 

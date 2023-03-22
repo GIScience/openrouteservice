@@ -37,12 +37,10 @@ public abstract class ServiceTest {
 		
 		Annotation[] annotations = getClass().getAnnotations();
 		for(Annotation annotation : annotations){
-		    if(annotation instanceof EndPointAnnotation){
-		    	EndPointAnnotation epa = (EndPointAnnotation) annotation;
+		    if(annotation instanceof EndPointAnnotation epa){
 		        endPointName = epa.name();
 		    }
-		    if(annotation instanceof VersionAnnotation) {
-		    	VersionAnnotation va = (VersionAnnotation) annotation;
+		    if(annotation instanceof VersionAnnotation va) {
 		    	version = va.version();
 			}
 		}
