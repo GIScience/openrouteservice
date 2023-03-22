@@ -88,15 +88,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-<!--        <testResources>-->
-<!--            <testResource>-->
-<!--                <directory>../openrouteservice-api-tests/conf</directory>-->
-<!--                <includes>-->
-<!--                    <include>ors-config-test.json</include>-->
-<!--                </includes>-->
-<!--                <filtering>true</filtering>-->
-<!--            </testResource>-->
-<!--        </testResources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -134,20 +125,6 @@
                     <execution>
                         <id>cleanup ors.run for failed builds</id>
                         <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <delete>
-                                    <fileset dir="${basedir}/" includes="ors.run"/>
-                                </delete>
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>remove ors.run after integration tests</id>
-                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -216,68 +193,7 @@
                     <workingDirectory>${basedir}</workingDirectory>
                     <jmxPort>${tomcat.http.jmxPort}</jmxPort>
                 </configuration>
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>pre-integration-test</id>-->
-<!--                        <goals>-->
-<!--                            <goal>start</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <arguments>-->
-<!--                                <argument>&#45;&#45;server.port=${tomcat.http.port}</argument>-->
-<!--                            </arguments>-->
-<!--                            <jmxPort>${tomcat.http.jmxPort}</jmxPort>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>post-integration-test</id>-->
-<!--                        <goals>-->
-<!--                            <goal>stop</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
             </plugin>
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-failsafe-plugin</artifactId>-->
-            <!--                <configuration>-->
-            <!--                    <systemPropertyVariables>-->
-            <!--                        <test.server.port>${tomcat.http.port}</test.server.port>-->
-            <!--                        <test.server.jmxport>${tomcat.http.jmxPort}</test.server.jmxport>-->
-            <!--                    </systemPropertyVariables>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
-            <!--            <plugin>-->
-            <!--                <groupId>org.codehaus.mojo</groupId>-->
-            <!--                <artifactId>exec-maven-plugin</artifactId>-->
-            <!--                <version>3.1.0</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <id>API tests</id>-->
-            <!--                        <phase>integration-test</phase>-->
-            <!--                        <goals>-->
-            <!--                            <goal>exec</goal>-->
-            <!--                        </goals>-->
-            <!--                        <configuration>-->
-            <!--                            <environmentVariables>-->
-            <!--                                <server.port>${tomcat.http.port}</server.port>-->
-            <!--                            </environmentVariables>-->
-            <!--                            <executable>../openrouteservice-api-tests/run_api_tests.sh</executable>-->
-            <!--                            <arguments>-->
-            <!--                                <argument>-->
-            <!--                                    http://localhost-->
-            <!--                                </argument>-->
-            <!--                                <argument>-->
-            <!--                                    ${tomcat.http.port}-->
-            <!--                                </argument>-->
-            <!--                                <argument>-->
-            <!--                                    /ors/-->
-            <!--                                </argument>-->
-            <!--                            </arguments>-->
-            <!--                        </configuration>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -349,11 +265,6 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </repository>
-        <repository>
-            <!--This will resolve jqwik snapshots-->
-            <id>Sonatype Snapshots</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
     </repositories>
     <dependencies>
@@ -695,7 +606,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>surefire</id>
+            <id>apitests</id>
             <build>
                 <plugins>
                     <plugin>
