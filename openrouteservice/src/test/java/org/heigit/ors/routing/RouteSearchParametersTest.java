@@ -4,20 +4,15 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Polygon;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RouteSearchParametersTest {
-    @BeforeEach
-    void setUp() {
-        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
-    }
 
     @Test
-    void expectFailingProfileParamsWithVehicleProfile() throws Exception {
+    void expectFailingProfileParamsWithVehicleProfile() {
         assertThrows(ParameterValueException.class, () -> {
             RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
             routeSearchParameters.setProfileType(1);

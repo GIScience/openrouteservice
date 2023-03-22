@@ -26,7 +26,6 @@ class MatrixRequestTest {
 
     @BeforeEach
     void setUp() {
-        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         List<Double> bareCoordinatesList = new ArrayList<>();
         bareCoordinatesList.add(8.681495);
@@ -58,7 +57,7 @@ class MatrixRequestTest {
     }
 
     @Test
-    void tooMuchLocationsErrorTest() throws ParameterValueException {
+    void tooMuchLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
             matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray);
 
@@ -67,14 +66,14 @@ class MatrixRequestTest {
     }
 
     @Test
-    void tooLittleLocationsErrorTest() throws ParameterValueException {
+    void tooLittleLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
             matrixLocationsRequest = new MatrixRequest(minimalLocationsArray);
         });
     }
 
     @Test
-    void invalidLocationsErrorTest() throws ParameterValueException {
+    void invalidLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
             Double[][] listOfFaultyBareCoordinatesList = HelperFunctions.fakeArrayLocations(3, 1);
             matrixLocationsRequest = new MatrixRequest(listOfFaultyBareCoordinatesList);

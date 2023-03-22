@@ -35,7 +35,6 @@ class AlgorithmComparisonTest {
     @BeforeProperty
     public void setUp() {
         // This should be done globally only once
-        // System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
         dir = new GHDirectory("", DAType.RAM_INT);
     }
 
