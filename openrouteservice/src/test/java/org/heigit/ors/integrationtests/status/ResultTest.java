@@ -27,7 +27,9 @@ import static org.hamcrest.Matchers.is;
 class ResultTest extends ServiceTest {
 
     @Test
-    void testGetStatus() {
+    void testGetStatus() throws InterruptedException {
+        //TODO: correctly wait for Kafka topic to be processed
+        Thread.sleep(5_000);
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()
