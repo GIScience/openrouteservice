@@ -160,7 +160,7 @@ public class GeometryJSON {
 
 	private static MultiPoint readMultiPoint(JSONArray value)
 	{
-		return factory.createMultiPoint(readCoordinates(value));
+		return factory.createMultiPointFromCoords(readCoordinates(value));
 	}
 
 	private static LineString readLineString(JSONArray value)

@@ -110,10 +110,9 @@ public class GeomUtility {
 	}
 
 	public static double getLength(Geometry geom, boolean inMeters) throws Exception {
-		if (!(geom instanceof LineString))
+		if (!(geom instanceof LineString ls))
 			throw new Exception("Specified geometry type is not supported.");
 
-		LineString ls = (LineString)geom;
 		if (ls.getNumPoints() == 0)
 			return 0.0;
 

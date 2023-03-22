@@ -48,21 +48,21 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         this.errorCodeBase = errorCodeBase;
     }
 
-    public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
+    public ResponseEntity<Object> handleStatusCodeException(StatusCodeException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
-        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
+        return new ResponseEntity<>(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    public ResponseEntity handleUnknownParameterException(UnknownParameterException exception) {
+    public ResponseEntity<Object> handleUnknownParameterException(UnknownParameterException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
-        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
+        return new ResponseEntity<>(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    public ResponseEntity handleGenericException(Exception exception) {
+    public ResponseEntity<Object> handleGenericException(Exception exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
@@ -70,11 +70,11 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         if (cause instanceof ValueInstantiationException valueInstantiationException) {
             if (valueInstantiationException.getCause() instanceof StatusCodeException statusCodeException) {
                 StatusCodeException origExc = (StatusCodeException) statusCodeException.getCause();
-                return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void logException(Exception exception) {

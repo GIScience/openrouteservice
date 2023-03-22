@@ -87,12 +87,12 @@ public class JSONArray implements Iterable<Object> {
      * Construct an empty JSONArray.
      */
     public JSONArray() {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
     }
 
     // Modification by Maxim Rylov: Added a constructor with capacity parameter. 
     public JSONArray(int capacity) {
-        this.myArrayList = new ArrayList<Object>(capacity);
+        this.myArrayList = new ArrayList<>(capacity);
     }
     
     /**
@@ -155,7 +155,7 @@ public class JSONArray implements Iterable<Object> {
      *            A Collection.
      */
     public JSONArray(Collection<?> collection) {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
         if (collection != null) {
         	for (Object o: collection){
         		this.myArrayList.add(JSONObject.wrap(o));
@@ -345,8 +345,8 @@ public class JSONArray implements Iterable<Object> {
      */
     public JSONArray getJSONArray(int index) throws JSONException {
         Object object = this.get(index);
-        if (object instanceof JSONArray JsonArray) {
-            return JsonArray;
+        if (object instanceof JSONArray jsonArray) {
+            return jsonArray;
         }
         throw new JSONException("JSONArray[" + index + "] is not a JSONArray.");
     }
@@ -596,9 +596,7 @@ public class JSONArray implements Iterable<Object> {
                 return myE;
             }
             return Enum.valueOf(clazz, val.toString());
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException|NullPointerException e) {
             return defaultValue;
         }
     }
@@ -1218,7 +1216,7 @@ public class JSONArray implements Iterable<Object> {
      * @return a java.util.List containing the elements of this array
      */
     public List<Object> toList() {
-        List<Object> results = new ArrayList<Object>(this.myArrayList.size());
+        List<Object> results = new ArrayList<>(this.myArrayList.size());
         for (Object element : this.myArrayList) {
             if (element == null || JSONObject.NULL.equals(element)) {
                 results.add(null);

@@ -539,7 +539,6 @@ public class XML {
                 } else if (value.getClass().isArray()) {
                     value = new JSONArray(value);
                 }
-                string = value instanceof String s ? s : null;
 
                 // Emit content in body
                 if ("content".equals(key)) {

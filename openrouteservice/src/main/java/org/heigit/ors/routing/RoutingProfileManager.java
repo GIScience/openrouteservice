@@ -20,7 +20,6 @@ import com.graphhopper.util.AngleCalc;
 import com.graphhopper.util.DistanceCalc;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.PointList;
-import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -71,6 +70,7 @@ public class RoutingProfileManager {
     private long kafkaMessagesProcessed = 0;
     private long kafkaMessagesFailed = 0;
     public static final boolean KAFKA_DEBUG = false;
+    private static final String NO_APPROPRIATE_ROUTING_PROFILE_FOUND_ERROR_MESSAGE = "Unable to find an appropriate routing profile.";
 
     public static synchronized RoutingProfileManager getInstance() {
         if (instance == null) {
@@ -246,7 +246,7 @@ public class RoutingProfileManager {
         return profileUpdater == null ? null : profileUpdater.getStatus();
     }
 
-    public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
+    public RouteResult matchTrack(MapMatchingRequest req) {
         LOGGER.error("mapmatching not implemented. " + req);
         throw new UnsupportedOperationException("mapmatching not implemented. " + req);
     }
@@ -394,8 +394,8 @@ public class RoutingProfileManager {
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
-                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
-                        Map<String, Object> details = ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails();
+                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException connectionNotFoundException) {
+                        Map<String, Object> details = connectionNotFoundException.getDetails();
                         if (!details.isEmpty()) {
                             int code = RoutingErrorCodes.ROUTE_NOT_FOUND;
                             if (details.containsKey("entry_not_reached") && details.containsKey("exit_not_reached")) {
@@ -425,8 +425,8 @@ public class RoutingProfileManager {
                                 i + 1,
                                 FormatUtility.formatCoordinate(c1))
                         );
-                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
-                        Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException maximumNodesExceededException) {
+                        Map<String, Object> details = maximumNodesExceededException.getDetails();
                         throw new RouteNotFoundException(
                             RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
                             "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
@@ -683,7 +683,7 @@ public class RoutingProfileManager {
         RoutingProfile rp = routeProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
 
         if (rp == null)
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, NO_APPROPRIATE_ROUTING_PROFILE_FOUND_ERROR_MESSAGE);
 
         return rp.computeMatrix(req);
     }
@@ -692,7 +692,7 @@ public class RoutingProfileManager {
         RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, NO_APPROPRIATE_ROUTING_PROFILE_FOUND_ERROR_MESSAGE);
         return rp.computeCentrality(req);
     }
 
@@ -700,7 +700,7 @@ public class RoutingProfileManager {
         RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, NO_APPROPRIATE_ROUTING_PROFILE_FOUND_ERROR_MESSAGE);
         return rp.computeExport(req);
     }
 
@@ -736,19 +736,18 @@ public class RoutingProfileManager {
     public void updateProfile(String profile, String value) {
         switch (profile) {
             // profile specific processing
-            case "driving-car":
-            case "driving-hgv":
+            case "driving-car", "driving-hgv" -> {
                 try {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
                     RoutingProfile rp = null;
                     int profileType = RoutingProfileType.getFromString(profile);
                     rp = getRoutingProfileFromType(rp, profileType);
-                    if(rp == null)
+                    if (rp == null)
                         return;
                     if (!msg.hasDurationMin())
                         msg.setDurationMin(rp.getConfiguration().getTrafficExpirationMin());
                     ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);
-                    if(storage == null)
+                    if (storage == null)
                         throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
                     processMessage(msg, storage);
                     LOGGER.debug("kafka message for speed update received: %s (%s) => %s, duration: %s".formatted(msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
@@ -757,8 +756,8 @@ public class RoutingProfileManager {
                     LOGGER.error(e);
                     this.kafkaMessagesFailed++;
                 }
-                break;
-            case "test":
+            }
+            case "test" -> {
                 try {
                     ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
                     if (KAFKA_DEBUG)
@@ -768,11 +767,11 @@ public class RoutingProfileManager {
                     LOGGER.error(e);
                     this.kafkaMessagesFailed++;
                 }
-                break;
-            default:
+            }
+            default -> {
                 LOGGER.error("kafka message received for unknown profile %s".formatted(profile));
                 this.kafkaMessagesFailed++;
-                break;
+            }
         }
     }
 

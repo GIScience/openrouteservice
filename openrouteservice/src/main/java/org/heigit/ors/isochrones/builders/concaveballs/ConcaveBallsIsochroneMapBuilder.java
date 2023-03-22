@@ -238,9 +238,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
         ConcaveHullOpenSphere concaveHullShell = new ConcaveHullOpenSphere(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
         Geometry shellGeometry = concaveHullShell.getConcaveHull();
-        if (shellGeometry instanceof GeometryCollection geomColl) {
-            if (geomColl.isEmpty())
-                return;
+        if (shellGeometry instanceof GeometryCollection geomColl && (geomColl.isEmpty()))
+                {return;
         }
         Polygon polyShell = (Polygon) shellGeometry;
         copyConvexHullPoints(polyShell);

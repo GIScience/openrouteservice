@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -111,7 +112,7 @@ public class RoutingProfilesUpdater {
 		}
 	}
 
-	public static String downloadFileContent(String url) throws Exception {
+	public static String downloadFileContent(String url) throws IOException {
 		URL website = new URL(url);
 		URLConnection connection = website.openConnection();
 
@@ -167,7 +168,7 @@ public class RoutingProfilesUpdater {
 
 			File fileLastUpdate =  Paths.get(config.getWorkingDirectory(),"last-update.md5").toFile();
 			if (fileLastUpdate.exists())
-				md5Sum =  FileUtils.readFileToString(fileLastUpdate);
+				md5Sum = FileUtils.readFileToString(fileLastUpdate, Charset.defaultCharset());
 
 			if (datasource.contains("http")) {
 				updateStatus = "donwloading data";
@@ -201,7 +202,7 @@ public class RoutingProfilesUpdater {
 				}
 			} else {
 				File file = new File(datasource + ".md5");
-				newMd5Sum = file.exists() ? FileUtils.readFileToString(file) : FileUtility.getMd5OfFile(datasource);
+				newMd5Sum = file.exists() ? FileUtils.readFileToString(file, Charset.defaultCharset()) : FileUtility.getMd5OfFile(datasource);
 
 				if (md5Sum != null && newMd5Sum != null && md5Sum.contains(newMd5Sum))
 					skipUpdate = true;
@@ -248,7 +249,7 @@ public class RoutingProfilesUpdater {
 					Path pathTimestamp = Paths.get(rpc.getGraphPath(), "stamp.txt");
 					File file2 = pathTimestamp.toFile();
 					if (file2.exists()) {
-						String oldFileStamp = FileUtils.readFileToString(file2);
+						String oldFileStamp = FileUtils.readFileToString(file2, Charset.defaultCharset());
 						if (newFileStamp.equals(oldFileStamp))
 							continue;
 					}
@@ -282,7 +283,7 @@ public class RoutingProfilesUpdater {
 
 				loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 				
-				FileUtils.writeStringToFile(fileLastUpdate, md5Sum);
+				FileUtils.writeStringToFile(fileLastUpdate, md5Sum, Charset.defaultCharset());
 
 				long seconds = (System.currentTimeMillis() - startTime) / 1000;
 				if (LOGGER.isLoggable(Level.INFO))

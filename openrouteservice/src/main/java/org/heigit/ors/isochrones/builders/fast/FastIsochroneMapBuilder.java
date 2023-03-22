@@ -265,8 +265,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private double determineMeanSpeed(double maxSpeed) {
         double meanSpeed = maxSpeed;
-        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) searchcontext.getEncoder()).getMeanSpeed();
+        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder orsAbstractFlagEncoder) {
+            meanSpeed = orsAbstractFlagEncoder.getMeanSpeed();
         }
         return meanSpeed;
     }
@@ -325,7 +325,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 continue;
             }
 
-            LinearRing ring = (LinearRing) ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
+            LinearRing ring = ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
             for (int i = 0; i < ring.getNumPoints(); i++) {
                 contourCoordinates.add(ring.getCoordinateN(i).y);
                 contourCoordinates.add(ring.getCoordinateN(i).x);
@@ -401,7 +401,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             concaveHull = ch.getConcaveHull();
             if (concaveHull instanceof Polygon polygon) {
-                ring = (LinearRing) polygon.getExteriorRing();
+                ring = polygon.getExteriorRing();
                 List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));
@@ -433,9 +433,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
-            if (geom instanceof GeometryCollection geomColl) {
-                if (geomColl.isEmpty())
-                    return;
+            if (geom instanceof GeometryCollection geomColl && geomColl.isEmpty()) {
+                return;
             }
 
             poly = (Polygon) geom;
@@ -724,6 +723,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
     }
 
     //DEBUG
+    @SuppressWarnings("unused")
     private String printCell(List<Double> coordinates, int cellId) {
         if (coordinates.size() < 3)
             return "";

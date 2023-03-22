@@ -77,10 +77,12 @@ public class IsochronesAPI {
 
     // Functional request methods
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "Isochrones Service", notes = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.\n" +
-            "This service allows the same range of profile options as the /directions endpoint,\n" +
-            "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json")
+    @ApiOperation(value = "Isochrones Service", notes = """
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.
+            """, httpMethod = "POST", consumes = "application/geo+json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })
@@ -91,10 +93,12 @@ public class IsochronesAPI {
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.\n" +
-            "This service allows the same range of profile options as the /directions endpoint,\n" +
-            "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json", hidden = true)
+    @ApiOperation(value = """
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.
+            """, httpMethod = "POST", consumes = "application/geo+json", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
     })

@@ -531,40 +531,21 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         } else if(highway.speed > surface.speed) {
             // highway = 18 (residential)
             // surface = 4 (gravel)
-            switch (highway.type){
-                case UPGRADE_ONLY:
-                    return highway.speed;
-
-                case DOWNGRADE_ONLY:
-                case BOTH:
-                default:
-                    switch (surface.type){
-                        case UPGRADE_ONLY:
-                            return highway.speed;
-                        case DOWNGRADE_ONLY:
-                        case BOTH:
-                        default:
-                            return surface.speed;
-                    }
+            if (highway.type == UpdateType.UPGRADE_ONLY) {
+                return highway.speed;
             }
+            if (surface.type == UpdateType.UPGRADE_ONLY)
+                return highway.speed;
+            return surface.speed;
         } else {
             // highway = 8 (cycleway)
             // surface = 18 (asphalt)
-            switch (highway.type){
-                case DOWNGRADE_ONLY:
-                    return highway.speed;
-                case UPGRADE_ONLY:
-                case BOTH:
-                default:
-                    switch (surface.type){
-                        case DOWNGRADE_ONLY:
-                            return highway.speed;
-                        case UPGRADE_ONLY:
-                        case BOTH:
-                        default:
-                            return surface.speed;
-                    }
+            if (highway.type == UpdateType.DOWNGRADE_ONLY) {
+                return highway.speed;
             }
+            if (surface.type == UpdateType.DOWNGRADE_ONLY)
+                return highway.speed;
+            return surface.speed;
         }
     }
 
@@ -573,22 +554,12 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         if (pavementType == 1)
             pavementName = tr.tr(KEY_UNPAVED);
 
-        String wayTypeName;
-        switch (wayType) {
-            default:
-            case 0:
-                wayTypeName = "";
-                break;
-            case 1:
-                wayTypeName = tr.tr("off_bike");
-                break;
-            case 2:
-                wayTypeName = tr.tr(KEY_CYCLEWAY);
-                break;
-            case 3:
-                wayTypeName = tr.tr("small_way");
-                break;
-        }
+        String wayTypeName = switch (wayType) {
+            case 1 -> tr.tr("off_bike");
+            case 2 -> tr.tr(KEY_CYCLEWAY);
+            case 3 -> tr.tr("small_way");
+            default -> "";
+        };
 
         if (pavementName.isEmpty()) {
             if (wayType == 0 || wayType == 3)
@@ -750,7 +721,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         String trackType = way.getTag("tracktype");
 
         // Populate unpavedBit
-        if (KEY_TRACK.equals(highway) && (trackType == null || !"grade1".equals(trackType))
+        if (KEY_TRACK.equals(highway) && (!"grade1".equals(trackType))
                 || "path".equals(highway) && surfaceTag == null
                 || unpavedSurfaceTags.contains(surfaceTag)) {
             unpavedEncoder.setBool(false, edgeFlags, true);
@@ -786,14 +757,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
+        String bicycleForwardTag = "bicycle:forward";
         avgSpeedEnc.setDecimal(false, edgeFlags, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
                 || way.hasTag(KEY_ONEWAY_BICYCLE, oneways)
                 || way.hasTag("vehicle:backward")
                 || way.hasTag("vehicle:forward")
-                || way.hasTag("bicycle:forward", "yes")
-                || way.hasTag("bicycle:forward", "no");
+                || way.hasTag(bicycleForwardTag, "yes")
+                || way.hasTag(bicycleForwardTag, "no");
         //MARQ24 MOD START
         if (!way.hasTag(KEY_BICYCLE_ROAD, "yes") && (isOneway || way.hasTag(KEY_JUNCTION, "roundabout"))
         //MARQ24 MOD END
@@ -805,7 +777,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             boolean isBackward = way.hasTag("oneway", "-1")
                     || way.hasTag(KEY_ONEWAY_BICYCLE, "-1")
                     || way.hasTag("vehicle:forward", "no")
-                    || way.hasTag("bicycle:forward", "no");
+                    || way.hasTag(bicycleForwardTag, "no");
             accessEnc.setBool(isBackward, edgeFlags, true);
         } else {
             accessEnc.setBool(false, edgeFlags, true);

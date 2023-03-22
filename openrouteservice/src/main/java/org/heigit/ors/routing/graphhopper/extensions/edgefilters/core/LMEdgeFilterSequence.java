@@ -20,7 +20,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilter {
 
@@ -65,7 +64,7 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 				//There are no countries queried, but there are some in the lmset
 				if(queryCountries.isEmpty())
 					return false;
-				return queryCountries.containsAll(Arrays.stream(avoidBordersCoreEdgeFilter.getAvoidCountries()).boxed().collect(Collectors.toList()));
+				return queryCountries.containsAll(Arrays.stream(avoidBordersCoreEdgeFilter.getAvoidCountries()).boxed().toList());
 			}
 		}
 

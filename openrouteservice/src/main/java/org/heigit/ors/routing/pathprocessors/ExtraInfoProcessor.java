@@ -517,7 +517,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 		if (osmIdInfoBuilder != null) {
 			long osmId = extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
 
-			osmIdInfoBuilder.addSegment((double)osmId, osmId, geom, dist);
+			osmIdInfoBuilder.addSegment(osmId, osmId, geom, dist);
 		}
 
 		if (roadAccessRestrictionsInfoBuilder != null) {

@@ -45,8 +45,8 @@ public class RouteExtraInfo {
 	public RouteExtraInfo(String name, GraphExtension extension) {
 		this.name = name;
 		segments = new ArrayList<>();
-		if(extension instanceof WarningGraphExtension warningGraphExtension) {
-			this.warningGraphExtension = warningGraphExtension;
+		if(extension instanceof WarningGraphExtension convertedWarningGraphExtension) {
+			this.warningGraphExtension = convertedWarningGraphExtension;
 			usedForWarnings = true;
 		}
 	}

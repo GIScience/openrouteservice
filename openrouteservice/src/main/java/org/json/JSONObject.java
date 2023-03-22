@@ -89,6 +89,8 @@ import java.util.Map.Entry;
  * @version 2016-08-15
  */
 public class JSONObject {
+    private static final String JSON_OBJECT_CONSTRUCTION_STRING = "JSONObject[";
+
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
      * whilst Java's null is equivalent to the value that JavaScript calls
@@ -148,11 +150,11 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap<String, Object>();
+        this.map = new HashMap<>();
     }
     
     public JSONObject(int capacity) {
-        this.map = new HashMap<String, Object>(capacity);
+        this.map = new HashMap<>(capacity);
     }
     
     /**
@@ -162,7 +164,7 @@ public class JSONObject {
     	if (ordered)
     		this. map = new LinkedHashMap<>();
     	else
-    		this.map = new HashMap<String, Object>();
+    		this.map = new HashMap<>();
     }
     
     /**
@@ -172,7 +174,7 @@ public class JSONObject {
     	if (ordered)
     		this. map = new LinkedHashMap<>(capacity);
     	else
-    		this.map = new HashMap<String, Object>(capacity);
+    		this.map = new HashMap<>(capacity);
     }
 
     /**
@@ -215,13 +217,14 @@ public class JSONObject {
         for (;;) {
             c = x.nextClean();
             switch (c) {
-            case 0:
-                throw x.syntaxError("A JSONObject text must end with '}'");
-            case '}':
-                return;
-            default:
-                x.back();
-                key = x.nextValue().toString();
+                case 0 -> throw x.syntaxError("A JSONObject text must end with '}'");
+                case '}' -> {
+                    return;
+                }
+                default -> {
+                    x.back();
+                    key = x.nextValue().toString();
+                }
             }
 
 // The key is followed by ':'.
@@ -235,17 +238,16 @@ public class JSONObject {
 // Pairs are separated by ','.
 
             switch (x.nextClean()) {
-            case ';':
-            case ',':
-                if (x.nextClean() == '}') {
+                case ';', ',' -> {
+                    if (x.nextClean() == '}') {
+                        return;
+                    }
+                    x.back();
+                }
+                case '}' -> {
                     return;
                 }
-                x.back();
-                break;
-            case '}':
-                return;
-            default:
-                throw x.syntaxError("Expected a ',' or '}'");
+                default -> throw x.syntaxError("Expected a ',' or '}'");
             }
         }
     }
@@ -258,7 +260,7 @@ public class JSONObject {
      *            the JSONObject.
      */
     public JSONObject(Map<?, ?> map) {
-        this.map = new HashMap<String, Object>();
+        this.map = new HashMap<>();
         if (map != null) {
         	for (final Entry<?, ?> e : map.entrySet()) {
                 final Object value = e.getValue();
@@ -437,7 +439,7 @@ public class JSONObject {
         } else if (object instanceof JSONArray jsonArray) {
             this.put(key, jsonArray.put(value));
         } else {
-            throw new JSONException("JSONObject[" + key
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + key
                     + "] is not a JSONArray.");
         }
         return this;
@@ -486,7 +488,7 @@ public class JSONObject {
         }
         Object object = this.opt(key);
         if (object == null) {
-            throw new JSONException("JSONObject[" + quote(key) + "] not found.");
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key) + "] not found.");
         }
         return object;
     }
@@ -509,7 +511,7 @@ public class JSONObject {
             // JSONException should really take a throwable argument.
             // If it did, I would re-implement this with the Enum.valueOf
             // method and place any thrown exception in the JSONException
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] is not an enum of type " + quote(clazz.getSimpleName())
                     + ".");
         }
@@ -536,7 +538,7 @@ public class JSONObject {
                         .equalsIgnoreCase("true")) {
             return true;
         }
-        throw new JSONException("JSONObject[" + quote(key)
+        throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                 + "] is not a Boolean.");
     }
 
@@ -555,7 +557,7 @@ public class JSONObject {
         try {
             return new BigInteger(object.toString());
         } catch (Exception e) {
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] could not be converted to BigInteger.");
         }
     }
@@ -575,7 +577,7 @@ public class JSONObject {
         try {
             return new BigDecimal(object.toString());
         } catch (Exception e) {
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] could not be converted to BigDecimal.");
         }
     }
@@ -596,7 +598,7 @@ public class JSONObject {
             return object instanceof Number number ? number.doubleValue()
                     : Double.parseDouble((String) object);
         } catch (Exception e) {
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] is not a number.");
         }
     }
@@ -617,7 +619,7 @@ public class JSONObject {
             return object instanceof Number number ? number.intValue()
                     : Integer.parseInt((String) object);
         } catch (Exception e) {
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] is not an int.");
         }
     }
@@ -636,7 +638,7 @@ public class JSONObject {
         if (object instanceof JSONArray jsonArray) {
             return jsonArray;
         }
-        throw new JSONException("JSONObject[" + quote(key)
+        throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                 + "] is not a JSONArray.");
     }
 
@@ -654,7 +656,7 @@ public class JSONObject {
         if (object instanceof JSONObject jsonObject) {
             return jsonObject;
         }
-        throw new JSONException("JSONObject[" + quote(key)
+        throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                 + "] is not a JSONObject.");
     }
 
@@ -674,7 +676,7 @@ public class JSONObject {
             return object instanceof Number number ? number.longValue()
                     : Long.parseLong((String) object);
         } catch (Exception e) {
-            throw new JSONException("JSONObject[" + quote(key)
+            throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key)
                     + "] is not a long.");
         }
     }
@@ -735,7 +737,7 @@ public class JSONObject {
         if (object instanceof String string) {
             return string;
         }
-        throw new JSONException("JSONObject[" + quote(key) + "] not a string.");
+        throw new JSONException(JSON_OBJECT_CONSTRUCTION_STRING + quote(key) + "] not a string.");
     }
 
     /**
@@ -948,9 +950,7 @@ public class JSONObject {
                 return myE;
             }
             return Enum.valueOf(clazz, val.toString());
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException|NullPointerException e) {
             return defaultValue;
         }
     }
@@ -1497,41 +1497,31 @@ public class JSONObject {
             b = c;
             c = string.charAt(i);
             switch (c) {
-            case '\\':
-            case '"':
-                w.write('\\');
-                w.write(c);
-                break;
-            case '/':
-                if (b == '<') {
+                case '\\', '"' -> {
                     w.write('\\');
-                }
-                w.write(c);
-                break;
-            case '\b':
-                w.write("\\b");
-                break;
-            case '\t':
-                w.write("\\t");
-                break;
-            case '\n':
-                w.write("\\n");
-                break;
-            case '\f':
-                w.write("\\f");
-                break;
-            case '\r':
-                w.write("\\r");
-                break;
-            default:
-                if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
-                        || (c >= '\u2000' && c < '\u2100')) {
-                    w.write("\\u");
-                    hhhh = Integer.toHexString(c);
-                    w.write("0000", 0, 4 - hhhh.length());
-                    w.write(hhhh);
-                } else {
                     w.write(c);
+                }
+                case '/' -> {
+                    if (b == '<') {
+                        w.write('\\');
+                    }
+                    w.write(c);
+                }
+                case '\b' -> w.write("\\b");
+                case '\t' -> w.write("\\t");
+                case '\n' -> w.write("\\n");
+                case '\f' -> w.write("\\f");
+                case '\r' -> w.write("\\r");
+                default -> {
+                    if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
+                            || (c >= '\u2000' && c < '\u2100')) {
+                        w.write("\\u");
+                        hhhh = Integer.toHexString(c);
+                        w.write("0000", 0, 4 - hhhh.length());
+                        w.write(hhhh);
+                    } else {
+                        w.write(c);
+                    }
                 }
             }
         }
@@ -1658,11 +1648,10 @@ public class JSONObject {
                     throw new JSONException(
                             "JSON does not allow non-finite numbers.");
                 }
-            } else if (o instanceof Float aFloat) {
-                if (aFloat.isInfinite() || aFloat.isNaN()) {
+            } else if (o instanceof Float aFloat && (aFloat.isInfinite() || aFloat.isNaN())) {
                     throw new JSONException(
                             "JSON does not allow non-finite numbers.");
-                }
+
             }
         }
     }
@@ -1789,10 +1778,10 @@ public class JSONObject {
                 || value instanceof JSONArray) {
             return value.toString();
         }
-        if (value instanceof Map mapObject) {
+        if (value instanceof Map<?,?> mapObject) {
             return new JSONObject(mapObject).toString();
         }
-        if (value instanceof Collection coll) {
+        if (value instanceof Collection<?> coll) {
             return new JSONArray(coll).toString();
         }
         if (value.getClass().isArray()) {
@@ -1832,13 +1821,13 @@ public class JSONObject {
                 return object;
             }
 
-            if (object instanceof Collection coll) {
+            if (object instanceof Collection<?> coll) {
                 return new JSONArray(coll);
             }
             if (object.getClass().isArray()) {
                 return new JSONArray(object);
             }
-            if (object instanceof Map mapObject) {
+            if (object instanceof Map<?,?> mapObject) {
                 return new JSONObject(mapObject);
             }
             Package objectPackage = object.getClass().getPackage();
@@ -1903,9 +1892,9 @@ public class JSONObject {
             jsonObject.write(writer, indentFactor, indent);
         } else if (value instanceof JSONArray jsonArray) {
             jsonArray.write(writer, indentFactor, indent);
-        } else if (value instanceof Map mapObject) {
+        } else if (value instanceof Map<?,?> mapObject) {
             new JSONObject(mapObject).write(writer, indentFactor, indent);
-        } else if (value instanceof Collection coll) {
+        } else if (value instanceof Collection<?> coll) {
             new JSONArray(coll).write(writer, indentFactor, indent);
         } else if (value.getClass().isArray()) {
             new JSONArray(value).write(writer, indentFactor, indent);
@@ -1998,15 +1987,15 @@ public class JSONObject {
      * @return a java.util.Map containing the entries of this object
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         for (Entry<String, Object> entry : this.map.entrySet()) {
             Object value;
             if (entry.getValue() == null || NULL.equals(entry.getValue())) {
                 value = null;
-            } else if (entry.getValue() instanceof JSONObject) {
-                value = ((JSONObject) entry.getValue()).toMap();
-            } else if (entry.getValue() instanceof JSONArray) {
-                value = ((JSONArray) entry.getValue()).toList();
+            } else if (entry.getValue() instanceof JSONObject jsonObject) {
+                value = jsonObject.toMap();
+            } else if (entry.getValue() instanceof JSONArray jsonArray) {
+                value = (jsonArray).toList();
             } else {
                 value = entry.getValue();
             }

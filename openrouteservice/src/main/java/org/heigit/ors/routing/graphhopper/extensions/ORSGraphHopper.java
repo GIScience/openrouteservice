@@ -24,6 +24,7 @@ import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
+import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -75,7 +76,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -466,15 +466,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
 	private boolean hasCoreProfile(String profileName) {
-		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage) {
-			List<String> profiles = ((ORSGraphHopperStorage) getGraphHopperStorage()).getCoreGraphNames();
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage orsGraphHopperStorage) {
+			List<String> profiles = orsGraphHopperStorage.getCoreGraphNames();
 			return contains(profiles, profileName);
 		}
 		return false;
 	}
 
 	private boolean hasLMProfile(String profileName) {
-		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map((lmConfig) -> lmConfig.getName()).collect(Collectors.toList());
+		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).toList();
 		return contains(profiles, profileName);
 	}
 
@@ -528,8 +528,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 			chConfigs = emptyList();
 		}
 
-		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
-			((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
+		if (getGraphHopperStorage() instanceof ORSGraphHopperStorage orsGraphHopperStorage)
+			orsGraphHopperStorage.addCoreGraphs(chConfigs);
 		else
 			throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
 	}
@@ -708,7 +708,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
             // Test a higher functional class based from the original class
-//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
             trafficEdgeFilter.higherFunctionalClass();
             mMapMatcher.setEdgeFilter(trafficEdgeFilter);
             match = mMapMatcher.match(locations, bothDirections);

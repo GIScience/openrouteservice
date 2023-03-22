@@ -60,7 +60,8 @@ public class JSONML {
         JSONObject newjo = null;
         Object     token;
         String     tagName = null;
-
+        String missShapedTagLiteral = "Misshaped tag";
+        String tagNameLiteral = "tagName";
 // Test for and skip past these forms:
 //      <!-- ... -->
 //      <![  ... ]]>
@@ -128,7 +129,7 @@ public class JSONML {
 
                         x.skipPast("?>");
                     } else {
-                        throw x.syntaxError("Misshaped tag");
+                        throw x.syntaxError(missShapedTagLiteral);
                     }
 
 // Open tag <
@@ -146,7 +147,7 @@ public class JSONML {
                             ja.put(newja);
                         }
                     } else {
-                        newjo.put("tagName", tagName);
+                        newjo.put(tagNameLiteral, tagName);
                         if (ja != null) {
                             ja.put(newjo);
                         }
@@ -157,7 +158,7 @@ public class JSONML {
                             token = x.nextToken();
                         }
                         if (token == null) {
-                            throw x.syntaxError("Misshaped tag");
+                            throw x.syntaxError(missShapedTagLiteral);
                         }
                         if (!(token instanceof String)) {
                             break;
@@ -166,7 +167,7 @@ public class JSONML {
 // attribute = value
 
                         attribute = (String)token;
-                        if (!arrayForm && ("tagName".equals(attribute) || "childNode".equals(attribute))) {
+                        if (!arrayForm && (tagNameLiteral.equals(attribute) || "childNode".equals(attribute))) {
                             throw x.syntaxError("Reserved attribute.");
                         }
                         token = x.nextToken();
@@ -189,7 +190,7 @@ public class JSONML {
 
                     if (token == XML.SLASH) {
                         if (x.nextToken() != XML.GT) {
-                            throw x.syntaxError("Misshaped tag");
+                            throw x.syntaxError(missShapedTagLiteral);
                         }
                         if (ja == null) {
                             if (arrayForm) {
@@ -202,7 +203,7 @@ public class JSONML {
 
                     } else {
                         if (token != XML.GT) {
-                            throw x.syntaxError("Misshaped tag");
+                            throw x.syntaxError(missShapedTagLiteral);
                         }
                         closeTag = (String)parse(x, arrayForm, newja, keepStrings);
                         if (closeTag != null) {
@@ -210,7 +211,6 @@ public class JSONML {
                                 throw x.syntaxError("Mismatched '" + tagName +
                                         "' and '" + closeTag + "'");
                             }
-                            tagName = null;
                             if (!arrayForm && newja.length() > 0) {
                                 newjo.put("childNodes", newja);
                             }
@@ -225,9 +225,13 @@ public class JSONML {
                 }
             } else {
                 if (ja != null) {
-                    ja.put(token instanceof String string
-                        ? keepStrings ? XML.unescape(string) :XML.stringToValue(string)
-                        : token);
+                    if (token instanceof String string) {
+                        if (keepStrings)
+                            ja.put(XML.unescape(string));
+                        else
+                            ja.put(XML.stringToValue(string));
+                    } else
+                        ja.put(token);
                 }
             }
         }
@@ -479,6 +483,7 @@ public class JSONML {
      * @throws JSONException Thrown on error converting to a string
      */
     public static String toString(JSONObject jo) throws JSONException {
+        String tagNameLiteral = "tagName";
         StringBuilder sb = new StringBuilder();
         int                 i;
         JSONArray           ja;
@@ -491,7 +496,7 @@ public class JSONML {
 
 //Emit <tagName
 
-        tagName = jo.optString("tagName");
+        tagName = jo.optString(tagNameLiteral);
         if (tagName == null) {
             return XML.escape(jo.toString());
         }
@@ -505,7 +510,7 @@ public class JSONML {
         keys = jo.keys();
         while (keys.hasNext()) {
             key = keys.next();
-            if (!"tagName".equals(key) && !"childNodes".equals(key)) {
+            if (!tagNameLiteral.equals(key) && !"childNodes".equals(key)) {
                 XML.noSpace(key);
                 value = jo.optString(key);
                 if (value != null) {
