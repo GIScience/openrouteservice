@@ -615,7 +615,7 @@
                         <version>2.22.2</version>
                         <executions>
                             <execution>
-                                <phase>integration-test</phase>
+                                <phase>test</phase>
                                 <goals>
                                     <goal>test</goal>
                                 </goals>
