@@ -22,7 +22,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
       cd openrouteservice
       ```
 
-  2. Make sure that you have java 1.11 set as the default Java environment.
+  2. Make sure that you have java 17 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
   5. Copy the `openrouteservice/src/main/resources/ors-config-sample.json` file to
