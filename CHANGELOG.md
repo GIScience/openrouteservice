@@ -39,6 +39,8 @@ RELEASING:
 - GTFS support for routing  ([#1316](https://github.com/GIScience/openrouteservice/pull/1316))
 - support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - upgrade to spring-boot 2.7.9 and dependency alignment for the api-tests [#1310](https://github.com/GIScience/openrouteservice/pull/1310)
+- moved all api tests into `openrouteservice` module [#1352](https://github.com/GIScience/openrouteservice/pull/1352)
+
 ### Fixed
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 - upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
