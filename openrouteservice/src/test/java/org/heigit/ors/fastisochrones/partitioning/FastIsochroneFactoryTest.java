@@ -7,7 +7,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.util.ToyGraphCreationUtil;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,11 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FastIsochroneFactoryTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
     private final EncodingManager encodingManager = EncodingManager.create(carEncoder);
-
-    @BeforeEach
-    void setUp() {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
-    }
 
     private FastIsochroneFactory intitFastIsochroneFactory() {
         FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();

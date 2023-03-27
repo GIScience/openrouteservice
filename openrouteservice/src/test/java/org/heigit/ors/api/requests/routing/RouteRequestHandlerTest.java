@@ -71,7 +71,6 @@ class RouteRequestHandlerTest {
 
     @BeforeEach
     void init() throws Exception {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         /*List<Double[]> coords = new ArrayList<>();
         coords.add(new Double[] {24.5,39.2});

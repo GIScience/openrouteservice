@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SystemMessageTest {
     @Test
     void testGetSystemMessage() throws ParameterValueException {
-        System.setProperty("ors_config", "target/test-classes/ors-config-test.json");
 
         RoutingRequest v1RouteRequest = new RoutingRequest();
         assertEquals("This message would be sent with every request on API v1 from January 2020 until June 2050", SystemMessage.getSystemMessage(v1RouteRequest));

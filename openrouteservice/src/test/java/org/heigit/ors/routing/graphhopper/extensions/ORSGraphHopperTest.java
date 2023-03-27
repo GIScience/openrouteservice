@@ -10,7 +10,6 @@ import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,7 +83,7 @@ class ORSGraphHopperTest {
             ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
             ghConfig.putObject("graph.dataaccess", "RAM");
             ghConfig.putObject("graph.location", "unittest.testgraph");
-            ghConfig.putObject("datareader.file", "../openrouteservice-api-tests/data/preprocessed_osm_data.pbf");
+            ghConfig.putObject("datareader.file", "src/test/files/data/preprocessed_osm_data.pbf");
             ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
             gh.init(ghConfig);
             gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));

@@ -190,19 +190,19 @@ The top level element.
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters**
 
-| key | type | description | example value |
-|-----|------|-------------|-------| 
-|   encoder_options    |  string |      |  `"turn_costs=true\|block_fords=false"` [encoder options](#orsservicesroutingprofilesprofile-xxxparametersencoder_options) |
-|   elevation    |  boolean | This will enable the elevation information in the response   |   `true`  |
-|   maximum_distance | number |  Maximum distance a route can have in meters    | `100000` |
-|   maximum_snapping_radius | number | Maximum distance around a given coordinate to find connectable edges  | `100` |
-|   maximum_distance_round_trip_routes   |  number | The maximum allowed total distance of a route for the round trip route algo      |   `100000`  |
-|   maximum_distance_alternative_routes   |  number | The maximum allowed total distance of a route for the alternative route algo      |   `100000`  |
-|   maximum_alternative_routes   |  number | The maximum number of alternative routes in a request    |   `3`  |
-|   maximum_avoid_polygon_area   |  number | The maximum allowed total area of a polygon in square kilometers, optional      |   `200000000`  |
-|   maximum_avoid_polygon_extent   |  number | The maximum extent (i.e. envelope side length) of a polygon in kilometers, optional    |   `20000`  |
-|   ext_storages    |  object |  Controls which external storages are enabled    |   [external storages](#orsservicesroutingprofilesprofile-xxxparametersext_storages)  |
-|   gtfs_file | string | Only for pt profile: location of gtfs-file used. Can either be a zip-file or the unzipped folder. | `"openrouteservice-api-tests/data/vrn_gtfs_cut.zip"` |
+| key | type | description | example value                                                                     |
+|-----|------|-------------|-----------------------------------------------------------------------------------| 
+|   encoder_options    |  string |      | `"turn_costs=true\                                                                |block_fords=false"` [encoder options](#orsservicesroutingprofilesprofile-xxxparametersencoder_options) |
+|   elevation    |  boolean | This will enable the elevation information in the response   | `true`                                                                            |
+|   maximum_distance | number |  Maximum distance a route can have in meters    | `100000`                                                                          |
+|   maximum_snapping_radius | number | Maximum distance around a given coordinate to find connectable edges  | `100`                                                                             |
+|   maximum_distance_round_trip_routes   |  number | The maximum allowed total distance of a route for the round trip route algo      | `100000`                                                                          |
+|   maximum_distance_alternative_routes   |  number | The maximum allowed total distance of a route for the alternative route algo      | `100000`                                                                          |
+|   maximum_alternative_routes   |  number | The maximum number of alternative routes in a request    | `3`                                                                               |
+|   maximum_avoid_polygon_area   |  number | The maximum allowed total area of a polygon in square kilometers, optional      | `200000000`                                                                       |
+|   maximum_avoid_polygon_extent   |  number | The maximum extent (i.e. envelope side length) of a polygon in kilometers, optional    | `20000`                                                                           |
+|   ext_storages    |  object |  Controls which external storages are enabled    | [external storages](#orsservicesroutingprofilesprofile-xxxparametersext_storages) |
+|   gtfs_file | string | Only for pt profile: location of gtfs-file used. Can either be a zip-file or the unzipped folder. | `"src/test/files/data/vrn_gtfs_cut.zip"`                                          |
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters.encoder_options**
 

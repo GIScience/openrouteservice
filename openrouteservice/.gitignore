@@ -13,3 +13,7 @@ logs/
 .attach_*
 # jqwik
 .jqwik-database
+
+# integration tests
+graphs-apitests/
+ors.log

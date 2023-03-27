@@ -26,8 +26,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
   5. Copy the `openrouteservice/src/main/resources/ors-config-sample.json` file to
-     the same location but renaming it to `ors-config.json`.  For testing, use the
-     `openrouteservice-api-tests/conf/ors-config-test.json`-file.
+     the same location but renaming it to `ors-config.json`.
   6. Update the `ors-config.json` file to reflect the various settings, profiles you
      want to have running, and the locations of various files, in particular
      the source location of the OSM file that will be used and additional files
@@ -38,6 +37,8 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
   7. From within the `openrouteservice` folder (containing the pom file and the
      src folder, amongst others) run the command `mvn package`. This will build
      the openrouteservice ready for tomcat deployment.
+  8. For running both the unit and api tests, add `-Papitests` as a parameter to `mvn`. Note, that the test graphs won't be rebuilt
+     unless the `openrouteservice/graphs-apitests`-folder is being deleted.
 
 After you have packaged openrouteservice, there are two options for running it.
 One is to run the `mvn spring-boot:run` command which triggers a spring-boot native
@@ -48,14 +49,14 @@ settings for Tomcat. The other is to install and run Tomcat 8
 
 To run the project from within your IDE, you have to:
 
-  1. Set up your IDE project and import `openrouteservice` and
-     `openrouteservice-api-tests` modules as Maven model.
+  1. Set up your IDE project and import `openrouteservice`
+     modules as Maven model.
      For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
 
   2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
      environment variable `ORS_CONFIG=ors-config-test.json`.
 
-  3. You can run API tests via JUnit.
+  3. You can run all tests via JUnit.
 
 ## Installing and running tomcat8
 
@@ -153,7 +154,7 @@ repository](https://github.com/GIScience/graphhopper), follow these steps:
    </dependency>
    ```
 
-4. Test your new functionality and run `openrouteservice-api-tests` after
+4. Test your new functionality and run all tests after
    rebasing your feature branch with the latest `development` branch. Adjust
    tests if necessary
 
