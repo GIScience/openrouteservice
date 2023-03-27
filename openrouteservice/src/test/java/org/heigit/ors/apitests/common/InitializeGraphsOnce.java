@@ -28,10 +28,10 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 
 		boolean ciPropertySet = System.getProperty("CI") != null && System.getProperty("CI").equalsIgnoreCase("true");
 		boolean deleteGraphsFolder = !graphsFolderAlreadyDeleted && ciPropertySet;
-		if (deleteGraphsFolder ) {
+		if (deleteGraphsFolder) {
 			try {
 				Path graphsFolder = Paths.get(GRAPHS_FOLDER);
-				// Any lower level will not be displayed sind ORS log configuration is not in place at this stage
+				// Any lower level will not be displayed since ORS log configuration is not in place at this stage
 				LOGGER.error(String.format("Deleting folder %s to enforce regeneration of graphs%n", graphsFolder.toAbsolutePath()));
 				FileSystemUtils.deleteRecursively(graphsFolder);
 			} catch (IOException e) {
