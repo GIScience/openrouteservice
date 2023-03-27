@@ -48,6 +48,7 @@ RELEASING:
 - time-dependent routing with Dijkstra ([#1322](https://github.com/GIScience/openrouteservice/pull/1322))
 - change compile mode from Java 8 to Java 11 and remove old Java 8 API usages ([#1321](https://github.com/GIScience/openrouteservice/pull/1321))
 - support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
+- upgrade spring-boot from 2.7.9 to 2.7.10  ([#1372](https://github.com/GIScience/openrouteservice/pull/1372))
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
