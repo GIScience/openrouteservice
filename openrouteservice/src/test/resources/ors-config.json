@@ -406,7 +406,7 @@
     },
     "logging": {
       "enabled": true,
-      "level_file": "PRODUCTION_LOGGING.json",
+      "level_file": "TEST_LOGGING.json",
       "location": "./logs",
       "stdout": true
     },
