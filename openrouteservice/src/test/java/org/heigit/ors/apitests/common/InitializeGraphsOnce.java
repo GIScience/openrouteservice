@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.util.FileSystemUtils;
 
@@ -11,8 +12,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Order(Integer.MIN_VALUE) // Before even the context is created
-public class InitializeGraphsOnce implements BeforeAllCallback {
+@Order(Integer.MIN_VALUE) // Run before even spring context has been built
+public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallback {
 
 	private static final Logger LOGGER = Logger.getLogger(InitializeGraphsOnce.class.getName());
 
@@ -24,10 +25,24 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 	@Override
 	public void beforeAll(ExtensionContext extensionContext) {
 		ExtensionContext.Store store = rootStore(extensionContext);
-		boolean graphsFolderAlreadyDeleted = store.getOrDefault(GRAPHS_FOLDER_DELETED, Boolean.class, Boolean.FALSE);
+		deleteGraphsFolderOncePerTestRun(store);
+	}
 
+	@Override
+	public void beforeEach(ExtensionContext context) {
+		// Waiting for all graphs being built.
+		// Do it here - instead of beforeAll - because now the Logging configuration has been correctly set up.
+		RoutingProfileManager.getInstance();
+	}
+
+	private synchronized static void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {
+		boolean graphsFolderAlreadyDeleted = store.getOrDefault(GRAPHS_FOLDER_DELETED, Boolean.class, Boolean.FALSE);
 		boolean ciPropertySet = System.getProperty("CI") != null && System.getProperty("CI").equalsIgnoreCase("true");
 		boolean deleteGraphsFolder = !graphsFolderAlreadyDeleted && ciPropertySet;
+
+		// Necessary to allow api tests, if already other spring boot tests have created profiles
+		// RoutingProfileManager.destroyInstance();
+
 		if (deleteGraphsFolder) {
 			try {
 				Path graphsFolder = Paths.get(GRAPHS_FOLDER);
@@ -39,7 +54,6 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 			}
 			store.put(GRAPHS_FOLDER_DELETED, true);
 		}
-		RoutingProfileManager.getInstance(); // Waiting for all graphs being built
 	}
 
 	private static ExtensionContext.Store rootStore(ExtensionContext extensionContext) {
