@@ -192,6 +192,15 @@
                 },
                 "RoadAccessRestrictions": {
                   "use_for_warnings": true
+                },
+                "HereTraffic": {
+                  "enabled": false,
+                  "streets": "src/main/files/here_traffic/germany_traffic/Streets.shp",
+                  "ref_pattern": "src/main/files/here_traffic/germany_traffic/ref_pattern.csv",
+                  "pattern_15min": "src/main/files/here_traffic/germany_traffic/pattern_kph_15min.csv",
+                  "radius": 150,
+                  "output_log": false,
+                  "log_location": "ors/traffic_log"
                 }
               },
               "traffic": false

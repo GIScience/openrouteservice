@@ -38,6 +38,7 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.shapes.GHPoint;
+import org.geotools.feature.SchemaException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -64,6 +65,8 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorag
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
@@ -401,11 +404,29 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return new GeometryFactory().createLineString(coords);
     }
 
+    public void matchTraffic() {
+        // Do the graph extension post processing
+        // Reserved for processes that need a fully initiated graph e.g. for match making
+        if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
+            for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                    try {
+                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                    } catch (SchemaException e) {
+                        LOGGER.error("Error building the here traffic storage.");
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+
     /**
 	 * Does the preparation and creates the location index
 	 */
 	@Override
 	protected void postProcessingHook(boolean closeEarly) {
+		matchTraffic(); // TODO: Must this be moved into GraphHopper like it was originally?
 
         GraphHopperStorage gs = getGraphHopperStorage();
 
