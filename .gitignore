@@ -7,6 +7,8 @@ openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrou
 .recommenders/index/http___download_eclipse_org_recommenders_models_neon_/segments.gen
 .idea/
 *.iml
+*.ipr
+*.iws
 .DS_Store
 nohup.out
 .python-version
@@ -27,11 +29,9 @@ openrouteservice/src/main/resources/ors-config*
 docker/elevation_cache
 docker/conf
 
-# Ignore ors.run file
-*ors.run
-
 cgiar_provider/
 graphs/
+graphs-*/
 target/
 .python-version
 nohup.out
