@@ -70,7 +70,7 @@ public class CorePathCalculator implements PathCalculator {
             paths = algo.calcPaths(from, to);
         }
         */
-        paths = algo.calcPaths(from, to);
+        paths = (at > 0) ? algo.calcPaths(from, to, at) : algo.calcPaths(from, to);
         if (paths.isEmpty())
             throw new IllegalStateException("Path list was empty for " + from + " -> " + to);
         if (algo.getVisitedNodes() >= algoOpts.getMaxVisitedNodes())

@@ -14,6 +14,8 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.DefaultBidirPathExtractor;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.ch.ShortcutUnpacker;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHGraph;
@@ -21,6 +23,10 @@ import com.graphhopper.storage.RoutingCHGraph;
 public class CorePathExtractor extends DefaultBidirPathExtractor {
     private final ShortcutUnpacker shortcutUnpacker;
     private final RoutingCHGraph routingGraph;
+
+    public static Path extractPath(RoutingCHGraph graph, Weighting weighting, SPTEntry fwdEntry, SPTEntry bwdEntry, double weight) {
+        return (new CorePathExtractor(graph, weighting)).extract(fwdEntry, bwdEntry, weight);
+    }
 
     public CorePathExtractor(RoutingCHGraph routingGraph, Weighting weighting) {
         super(routingGraph.getBaseGraph(), weighting);

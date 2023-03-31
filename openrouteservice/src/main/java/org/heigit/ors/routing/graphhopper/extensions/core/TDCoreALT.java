@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.routing.EdgeBasedTDCoreBidirPathExtractor;
+import com.graphhopper.routing.Path;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
@@ -27,13 +29,20 @@ public class TDCoreALT extends CoreALT {
         this.reverse = reverse;
     }
 
-    /*TODO
+    /*TODO: seems obsolete as AccessEdgeFilter is not used anymore in TD algos (was neccessary before e.g. in TDDijkstra)
     @Override
     protected void initPhase2() {
         inEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.inEdges(flagEncoder));
         outEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.outEdges(flagEncoder));
     }
     */
+    @Override
+    protected Path extractPath() {
+        if (finished())
+            return EdgeBasedTDCoreBidirPathExtractor.extractPath(chGraph, weighting, bestFwdEntry, bestBwdEntry, bestWeight);
+
+        return createEmptyPath();
+    }
 
     @Override
     public boolean fillEdgesFromCore() {
@@ -53,12 +62,12 @@ public class TDCoreALT extends CoreALT {
 
     @Override
     double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return calcWeight(iter, reverse, currEdge.originalEdge/*TODO: , currEdge.time*/) + currEdge.getWeightOfVisitedPath();
+        return calcWeight(iter, reverse, currEdge.originalEdge, currEdge.time) + currEdge.getWeightOfVisitedPath();
     }
 
     @Override
-    long calcTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return currEdge.time + (reverse ? -1 : 1) * iter.getTime(reverse, currEdge.time);
+    long calcEdgeTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return currEdge.time + (reverse ? -1 : 1) * calcTime(iter, reverse, currEdge.time);
     }
 
     @Override

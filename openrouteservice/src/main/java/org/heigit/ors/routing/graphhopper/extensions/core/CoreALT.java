@@ -277,7 +277,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                 continue;
 
             aStarEntry.parent = currEdge;
-            aStarEntry.time = calcTime(iter, currEdge, reverse);
+            aStarEntry.time = calcEdgeTime(iter, currEdge, reverse);
             prioQueue.add(aStarEntry);
 
             updateBestPathCH(aStarEntry, traversalId, reverse);
@@ -361,7 +361,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                     }
 
                     aStarEntry.parent = currEdge;
-                    aStarEntry.time = calcTime(iter, currEdge, reverse);
+                    aStarEntry.time = calcEdgeTime(iter, currEdge, reverse);
                     prioQueue.add(aStarEntry);
 
                     updateBestPathCore(aStarEntry, traversalId, reverse);
@@ -386,7 +386,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
                     }
 
                     aStarEntry.parent = currEdge;
-                    aStarEntry.time = calcTime(iter, currEdge, reverse);
+                    aStarEntry.time = calcEdgeTime(iter, currEdge, reverse);
                     prioQueue.add(aStarEntry);
 
                     updateBestPathCH(aStarEntry, traversalId, reverse);
