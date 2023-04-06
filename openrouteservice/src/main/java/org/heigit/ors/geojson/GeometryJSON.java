@@ -25,7 +25,7 @@ public class GeometryJSON {
 	private static final int COORDINATE_PRECISION = 6;
 	private static final GeometryFactory factory = new GeometryFactory();
 
-	private GeometryJSON() {}
+	protected GeometryJSON() {}
 
 	public static org.json.simple.JSONArray toJSON(Polygon poly) {
 		org.json.simple.JSONArray coords = new org.json.simple.JSONArray();
