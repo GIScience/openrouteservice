@@ -13,33 +13,43 @@
  */
 package org.heigit.ors.geojson;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
-import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value = "GeoJSONPolygon", description = "Input GeoJSON specification.")
+@ApiModel(value = "GeoJSONPolygon", description = "GeoJSON Polygon API class.")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class GeoJSONPolygon extends GeometryJSON {
+public class GeoJSONPolygon {
     public static final String PARAM_TYPE = "type";
     public static final String PARAM_COORDINATES = "coordinates";
     private static final GeometryFactory geometryFactory = new GeometryFactory();
-    ObjectMapper mapper = new ObjectMapper();
 
-    @JsonProperty(value = PARAM_TYPE)
+    @JsonProperty(PARAM_TYPE)
     private String type;
 
-    @JsonProperty(value = PARAM_COORDINATES)
+    @JsonProperty(PARAM_COORDINATES)
+    @JsonSerialize(using = CoordinatesSerializer.class)
     private List<List<List<Double>>> coordinates;
+
+
+    @JsonCreator
+    public GeoJSONPolygon(@JsonProperty(PARAM_TYPE) String type, @JsonProperty(PARAM_COORDINATES) List<List<List<Double>>> coordinates) {
+        setType(type);
+        setCoordinates(coordinates);
+    }
 
     public String getType() {
         return type;
@@ -57,9 +67,29 @@ public class GeoJSONPolygon extends GeometryJSON {
         this.coordinates = coordinates;
     }
 
-    public JSONObject toJsonObject() throws JsonProcessingException {
-        String json = mapper.writeValueAsString(this);
-        return new JSONObject(json);
+//    private static class CoordinatesDeserializer extends JsonDeserializer<List<List<List<Double>>>> {
+//        @Override
+//        public List<List<List<Double>>> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+//            return jsonParser.readValueAs(List.class);
+//        }
+//    }
+
+    private static class CoordinatesSerializer extends JsonSerializer<List<List<List<Double>>>> {
+        @Override
+        public void serialize(List<List<List<Double>>> coordinates, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartArray();
+            for (List<List<Double>> polygon : coordinates) {
+                jsonGenerator.writeStartArray();
+                for (List<Double> point : polygon) {
+                    jsonGenerator.writeStartArray();
+                    jsonGenerator.writeNumber(point.get(0));
+                    jsonGenerator.writeNumber(point.get(1));
+                    jsonGenerator.writeEndArray();
+                }
+                jsonGenerator.writeEndArray();
+            }
+            jsonGenerator.writeEndArray();
+        }
     }
 
     public Polygon[] convertToJTS() {

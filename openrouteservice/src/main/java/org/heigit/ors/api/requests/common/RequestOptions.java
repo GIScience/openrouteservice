@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
-import org.json.simple.JSONObject;
+import org.heigit.ors.geojson.GeoJSONPolygon;
 
 @ApiModel(value = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -76,7 +76,7 @@ public class RequestOptions {
 
     @ApiModelProperty(name = PARAM_AVOID_POLYGONS, value = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
     @JsonProperty(PARAM_AVOID_POLYGONS)
-    private JSONObject avoidPolygonFeatures;
+    private GeoJSONPolygon avoidPolygonFeatures;
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
 
@@ -125,11 +125,11 @@ public class RequestOptions {
         hasProfileParams = true;
     }
 
-    public JSONObject getAvoidPolygonFeatures() {
+    public GeoJSONPolygon getAvoidPolygonFeatures() {
         return avoidPolygonFeatures;
     }
 
-    public void setAvoidPolygonFeatures(JSONObject avoidPolygonFeatures) {
+    public void setAvoidPolygonFeatures(GeoJSONPolygon avoidPolygonFeatures) {
         this.avoidPolygonFeatures = avoidPolygonFeatures;
         hasAvoidPolygonFeatures = true;
     }

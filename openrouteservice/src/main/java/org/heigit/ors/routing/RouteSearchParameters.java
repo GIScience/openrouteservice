@@ -13,11 +13,7 @@
  */
 package org.heigit.ors.routing;
 
-import com.graphhopper.gtfs.Request;
 import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -40,6 +36,9 @@ import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 
 import java.text.ParseException;
 import java.time.Duration;

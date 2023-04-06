@@ -9,15 +9,13 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.geojson.GeoJSONPolygon;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,23 +32,18 @@ class IsochronesRequestHandlerTest {
     private RequestProfileParamsRestrictions cyclingParams;
     private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
-    private JSONObject geoJsonPolygon;
+    private GeoJSONPolygon geoJsonPolygon;
 
 
-    private JSONObject constructGeoJson() {
-        JSONObject geoJsonPolygon = new JSONObject();
-        geoJsonPolygon.put("type", "Polygon");
-        JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        coordsArray.add(new Double[] { 49.005, 8.01});
-        coordsArray.add(new Double[] { 49.01, 8.0});
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        JSONArray coordinates = new JSONArray();
-
-        coordinates.add(coordsArray);
-        geoJsonPolygon.put("coordinates", coordinates);
-
-        return geoJsonPolygon;
+    private GeoJSONPolygon constructGeoJson() {
+        List<List<List<Double>>> coordsList = new ArrayList<>();
+        List<List<Double>> coord1 = new ArrayList<>();
+        coord1.add(List.of(8.0, 49.0));
+        coord1.add(List.of(8.01, 49.005));
+        coord1.add(List.of(8.0, 49.01));
+        coord1.add(List.of(8.0, 49.0));
+        coordsList.add(coord1);
+        return new GeoJSONPolygon("Polygon", coordsList);
     }
 
     @BeforeEach

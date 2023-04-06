@@ -2,9 +2,6 @@ package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.errors.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -14,6 +11,7 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.geojson.GeoJSONPolygon;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -28,8 +26,13 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class APIRequest {
     public static final String PARAM_ID = "id";
@@ -112,8 +115,8 @@ public class APIRequest {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
-        Polygon[] avoidAreas = convertAvoidAreas(geoJson);
+    protected Polygon[] convertAndValidateAvoidAreas(GeoJSONPolygon geoJson, int profileType) throws StatusCodeException {
+        Polygon[] avoidAreas = geoJson.convertToJTS();
         validateAreaLimits(avoidAreas, profileType);
         return avoidAreas;
     }

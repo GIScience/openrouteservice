@@ -630,6 +630,8 @@ class ParamsTest extends ServiceTest {
     void expectAvoidpolygonsError() {
 
         // options for avoid polygon faulty
+        // This should throw an INVALID_PARAMETER_VALUE instead of INVALID_JSON_FORMAT.
+        // The GeoJSON input is parsed by a jackson object and there provides more detailed error feedbacks.
         JSONObject options = new JSONObject();
         JSONArray avoids = new JSONArray();
         avoids.put("ferries");
@@ -655,7 +657,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);
     }
 
@@ -664,6 +666,8 @@ class ParamsTest extends ServiceTest {
 
         // options for avoid polygon wrong feature type (can be polygon or
         // linestring)
+        // This should throw an INVALID_PARAMETER_VALUE instead of INVALID_JSON_FORMAT.
+        // The GeoJSON input is parsed by a jackson object and there provides more detailed error feedbacks.
         JSONObject options = new JSONObject();
 
         JSONObject polygon = new JSONObject();
@@ -686,7 +690,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(RoutingErrorCodes.INVALID_JSON_FORMAT))
+                .body("error.code", is(RoutingErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);
     }
 

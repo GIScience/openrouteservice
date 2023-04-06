@@ -18,18 +18,15 @@ package org.heigit.ors.api.requests.routing;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.geojson.GeoJSONPolygon;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +37,7 @@ import static org.heigit.ors.api.util.HelperFunctions.checkPolygon;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RouteRequestHandlerTest {
+    private final GeoJSONPolygon geoJsonPolygon;
     RouteRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;
@@ -47,28 +45,22 @@ class RouteRequestHandlerTest {
     private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
-    private final JSONObject geoJsonPolygon;
-
     public RouteRequestHandlerTest() throws Exception {
         init();
         geoJsonPolygon = constructGeoJson();
     }
 
-    private JSONObject constructGeoJson() {
-        JSONObject geoJsonPolygon = new JSONObject();
-        geoJsonPolygon.put("type", "Polygon");
-        JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        coordsArray.add(new Double[] { 49.005, 8.01});
-        coordsArray.add(new Double[] { 49.01, 8.0});
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        JSONArray coordinates = new JSONArray();
-
-        coordinates.add(coordsArray);
-        geoJsonPolygon.put("coordinates", coordinates);
-
-        return geoJsonPolygon;
+    private GeoJSONPolygon constructGeoJson() {
+        List<List<List<Double>>> coordsList = new ArrayList<>();
+        List<List<Double>> coord1 = new ArrayList<>();
+        coord1.add(List.of(8.0, 49.0));
+        coord1.add(List.of(8.01, 49.005));
+        coord1.add(List.of(8.0, 49.01));
+        coord1.add(List.of(8.0, 49.0));
+        coordsList.add(coord1);
+        return new GeoJSONPolygon("Polygon", coordsList);
     }
+
 
     @BeforeEach
     void init() throws Exception {
@@ -160,7 +152,7 @@ class RouteRequestHandlerTest {
         assertEquals(3, routingRequest.getCoordinates().length);
 
         assertEquals(RoutingProfileType.getFromString("driving-car"), routingRequest.getSearchParameters().getProfileType());
-        assertArrayEquals(new String[] {"avgspeed", "detourfactor"}, routingRequest.getAttributes());
+        assertArrayEquals(new String[]{"avgspeed", "detourfactor"}, routingRequest.getAttributes());
 
         assertTrue(routingRequest.getContinueStraight());
 
@@ -240,7 +232,7 @@ class RouteRequestHandlerTest {
 
     @Test
     void testBearings() throws StatusCodeException {
-        request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
+        request.setBearings(new Double[][]{{10.0, 10.0}, {260.0, 90.0}, {45.0, 30.0}});
 
         RoutingRequest routingRequest = request.convertRouteRequest();
 
@@ -252,7 +244,7 @@ class RouteRequestHandlerTest {
 
     @Test
     void skippedBearingTest() throws Exception {
-        request.setBearings(new Double[][] {{120.0, 90.0}, { , }, {90.0, 30.0}});
+        request.setBearings(new Double[][]{{120.0, 90.0}, {,}, {90.0, 30.0}});
         RoutingRequest routingRequest;
 
         routingRequest = request.convertRouteRequest();
@@ -270,10 +262,10 @@ class RouteRequestHandlerTest {
 
     @Test
     void testRadius() throws StatusCodeException {
-        request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
+        request.setMaximumSearchRadii(new Double[]{50.0, 20.0, 100.0});
 
         RoutingRequest routingRequest = request.convertRouteRequest();
-        assertTrue(Arrays.equals(new double[] { 50.0, 20.0, 100.0 }, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertTrue(Arrays.equals(new double[]{50.0, 20.0, 100.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test
@@ -289,7 +281,7 @@ class RouteRequestHandlerTest {
         request.setMaximumSearchRadii(new Double[]{50d});
 
         RoutingRequest routingRequest = request.convertRouteRequest();
-        assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertTrue(Arrays.equals(new double[]{50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
     }
 
     @Test
@@ -301,7 +293,7 @@ class RouteRequestHandlerTest {
     }
 
     @Test
-    void vehicleType() throws Exception{
+    void vehicleType() throws Exception {
         RouteRequestOptions opts = request.getRouteOptions();
         opts.setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
@@ -380,8 +372,8 @@ class RouteRequestHandlerTest {
     @Test
     void convertRouteRequestTestForAlternativeRoutes() throws Exception {
         Double[][] coords = new Double[2][2];
-        coords[0] = new Double[] {24.5,39.2};
-        coords[1] = new Double[] {26.5,37.2};
+        coords[0] = new Double[]{24.5, 39.2};
+        coords[1] = new Double[]{26.5, 37.2};
         RouteRequest arRequest = new RouteRequest(coords);
         arRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
 

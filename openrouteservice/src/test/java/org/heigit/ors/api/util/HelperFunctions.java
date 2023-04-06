@@ -1,6 +1,6 @@
-  package org.heigit.ors.api.util;
+package org.heigit.ors.api.util;
 
-import org.heigit.ors.geojson.PolygonJSON;
+import org.heigit.ors.geojson.GeoJSONPolygon;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 
@@ -14,9 +14,9 @@ public class HelperFunctions {
         assertEquals(c1.y, c2.y, 0);
     }
 
-    public static void checkPolygon(Polygon[] requestPolys, PolygonJSON apiPolys) {
+    public static void checkPolygon(Polygon[] requestPolys, GeoJSONPolygon apiPolys) {
         assertEquals(1, requestPolys.length);
-        for (List<List<Double>> coordinates: apiPolys.getCoordinates()){
+        for (List<List<Double>> coordinates : apiPolys.getCoordinates()) {
             for (int i = 0; i < coordinates.size(); i++) {
                 List<Double> coordPair = coordinates.get(i);
                 Coordinate c = new Coordinate(coordPair.get(0), coordPair.get(1));
@@ -26,7 +26,6 @@ public class HelperFunctions {
         }
 
     }
-
 
 
 }
