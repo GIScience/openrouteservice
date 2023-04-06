@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.heigit.ors.api.util.HelperFunctions.checkPolygon;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RouteRequestHandlerTest {
@@ -438,22 +439,5 @@ class RouteRequestHandlerTest {
 
         RoutingRequest generatedRoutingRequest = request.convertRouteRequest();
         assertEquals(1, generatedRoutingRequest.getCoordinates().length);
-    }
-
-    private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {
-        assertEquals(1, requestPolys.length);
-
-        JSONArray jsonCoords = (JSONArray)((JSONArray)apiPolys.get("coordinates")).get(0);
-        for (int i=0; i<jsonCoords.size(); i++) {
-            Double[] coordPair = (Double[]) jsonCoords.get(i);
-            Coordinate c = new Coordinate(coordPair[0], coordPair[1]);
-
-            compareCoordinates(c, requestPolys[0].getCoordinates()[i]);
-        }
-    }
-
-    private void compareCoordinates(Coordinate c1, Coordinate c2) {
-        assertEquals(c1.x, c2.x, 0);
-        assertEquals(c1.y, c2.y, 0);
     }
 }
