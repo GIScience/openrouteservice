@@ -7,6 +7,33 @@
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
     },
+    "api_settings": {
+      "cors": {
+        "allowed": {
+          "origins": [
+            "https://example.org",
+            "https://test.com",
+            "http://localhost:8080",
+            "http://127.0.0.1:8082"
+          ],
+          "headers": [
+            "Content-Type",
+            "X-Tested-With",
+            "accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+            "Authorization"
+          ]
+        },
+        "exposed": {
+          "headers": [
+            "Access-Control-Allow-Origin", "X-Requested-With", "Location"
+          ]
+        },
+        "preflight_max_age": 1234
+      }
+    },
     "services": {
       "matrix": {
         "enabled": true,
