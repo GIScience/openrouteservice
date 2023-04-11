@@ -172,7 +172,7 @@ public class PathMetricsExtractor {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
 				edgeDistance = baseIterator.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime = iterState.getTime(reverse, 0) / 1000.0;
+				edgeTime = iterState.getTime(reverse) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
 				edgeWeight = iterState.getWeight(reverse);
 		}
@@ -184,7 +184,7 @@ public class PathMetricsExtractor {
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))
 				edgeDistance += baseIterator.getDistance();
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
-				edgeTime += iterState.getTime(reverse, 0) / 1000.0;
+				edgeTime += iterState.getTime(reverse) / 1000.0;
 			if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT))
 				edgeWeight += iterState.getWeight(reverse);
 			return;

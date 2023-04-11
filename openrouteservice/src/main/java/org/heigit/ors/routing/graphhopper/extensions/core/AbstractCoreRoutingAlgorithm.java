@@ -261,7 +261,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     long calcTime(RoutingCHEdgeIteratorState edgeState, boolean reverse, long time) {
         return (edgeState.isShortcut() || !inCore) ?
-                edgeState.getTime(reverse, time) : //TODO: look into removing the time argument from getTime method
+                edgeState.getTime(reverse) :
                 weighting.calcEdgeMillis(getEdgeIteratorState(edgeState), reverse, time);
     }
 }
