@@ -48,7 +48,7 @@
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
         <geotools.version>28.2</geotools.version>
-        <slf4j.version>2.0.6</slf4j.version>
+        <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
         <kafka.version>3.4.0</kafka.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
