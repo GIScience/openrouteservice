@@ -21,8 +21,9 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHGraph;
 
 public class CorePathExtractor extends DefaultBidirPathExtractor {
-    private final ShortcutUnpacker shortcutUnpacker;
     private final RoutingCHGraph routingGraph;
+    private final ShortcutUnpacker shortcutUnpacker;
+    private final Weighting weighting;
 
     public static Path extractPath(RoutingCHGraph graph, Weighting weighting, SPTEntry fwdEntry, SPTEntry bwdEntry, double weight) {
         return (new CorePathExtractor(graph, weighting)).extract(fwdEntry, bwdEntry, weight);
@@ -31,7 +32,8 @@ public class CorePathExtractor extends DefaultBidirPathExtractor {
     public CorePathExtractor(RoutingCHGraph routingGraph, Weighting weighting) {
         super(routingGraph.getBaseGraph(), weighting);
         this.routingGraph = routingGraph;
-        this.shortcutUnpacker = this.createShortcutUnpacker(weighting);
+        this.shortcutUnpacker = this.createShortcutUnpacker();
+        this.weighting = weighting;
     }
 
     public void onEdge(int edge, int adjNode, boolean reverse, int prevOrNextEdge) {
@@ -40,14 +42,17 @@ public class CorePathExtractor extends DefaultBidirPathExtractor {
         } else {
             this.shortcutUnpacker.visitOriginalEdgesFwd(edge, adjNode, true, prevOrNextEdge);
         }
-
     }
 
-    private ShortcutUnpacker createShortcutUnpacker(Weighting weighting) {
+    private ShortcutUnpacker createShortcutUnpacker() {
         return new ShortcutUnpacker(this.routingGraph, (edge, reverse, prevOrNextEdgeId) -> {
             this.path.addDistance(edge.getDistance());
             this.path.addTime(weighting.calcEdgeMillis(edge, reverse));
             this.path.addEdge(edge.getEdge());
-        }, false);
+        }, false);// Turn restrictions are handled in the core, hence, shortcuts have no turn restrictions and unpacking can be node based.
+    }
+
+    public RoutingCHGraph getRoutingGraph() {
+        return routingGraph;
     }
 }

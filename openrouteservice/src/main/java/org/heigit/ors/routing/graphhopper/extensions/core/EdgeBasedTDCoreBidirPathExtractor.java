@@ -13,53 +13,27 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.DefaultBidirPathExtractor;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.routing.ch.ShortcutUnpacker;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
+import org.heigit.ors.routing.graphhopper.extensions.CorePathExtractor;
 
-public class EdgeBasedTDCoreBidirPathExtractor extends DefaultBidirPathExtractor {
-    private final RoutingCHGraph routingGraph;
-    private final ShortcutUnpacker shortcutUnpacker;
-    private final Weighting weighting;
+public class EdgeBasedTDCoreBidirPathExtractor extends CorePathExtractor {
 
     public static Path extractPath(RoutingCHGraph graph, Weighting weighting, SPTEntry fwdEntry, SPTEntry bwdEntry, double weight) {
         return (new EdgeBasedTDCoreBidirPathExtractor(graph, weighting)).extract(fwdEntry, bwdEntry, weight);
     }
 
     protected EdgeBasedTDCoreBidirPathExtractor(RoutingCHGraph routingGraph, Weighting weighting) {
-        // TODO ORS: this constructor is currently identical to EdgeBasedCHBidirPathExtractor
-        super(routingGraph.getBaseGraph(), weighting);
-        this.routingGraph = routingGraph;
-        this.shortcutUnpacker = createShortcutUnpacker();
-        this.weighting = routingGraph.getBaseGraph().wrapWeighting(routingGraph.getWeighting());//FIXME: just use weighting
-    }
-
-    @Override
-    protected void onEdge(int edge, int adjNode, boolean reverse, int prevOrNextEdge) {
-        // TODO ORS: this method is currently identical to EdgeBasedCHBidirPathExtractor
-        if (reverse)
-            shortcutUnpacker.visitOriginalEdgesBwd(edge, adjNode, true, prevOrNextEdge);
-        else
-            shortcutUnpacker.visitOriginalEdgesFwd(edge, adjNode, true, prevOrNextEdge);
+        super(routingGraph, weighting);
     }
 
     @Override
     protected void onMeetingPoint(int inEdge, int viaNode, int outEdge) {
         // no need to process any turns at meeting point
-    }
-
-    private ShortcutUnpacker createShortcutUnpacker() {
-        return new ShortcutUnpacker(routingGraph, (edge, reverse, prevOrNextEdgeId) -> {
-            path.addDistance(edge.getDistance());
-            path.addTime(GHUtility.calcMillisWithTurnMillis(weighting, edge, reverse, prevOrNextEdgeId));//FIXME: weighting.calcEdgeMillis(edge, reverse) should be enough here
-            path.addEdge(edge.getEdge());
-        }, false); // Turn restrictions are handled in the core, hence, shortcuts
-                             // have no turn restrictions and unpacking can be node based.
     }
 
     @Override
@@ -77,7 +51,7 @@ public class EdgeBasedTDCoreBidirPathExtractor extends DefaultBidirPathExtractor
     private void onTdEdge(SPTEntry currEdge, boolean bwd) {
         int edgeId = currEdge.edge;
         int adjNode = currEdge.adjNode;
-        RoutingCHEdgeIteratorState edgeState = routingGraph.getEdgeIteratorState(edgeId, adjNode);
+        RoutingCHEdgeIteratorState edgeState = getRoutingGraph().getEdgeIteratorState(edgeId, adjNode);
 
         // Shortcuts do only contain valid weight, so first expand before adding
         // to distance and time
@@ -85,7 +59,7 @@ public class EdgeBasedTDCoreBidirPathExtractor extends DefaultBidirPathExtractor
             int edge = currEdge.parent.edge;
             onEdge(edgeId, adjNode, bwd, edge);
         } else {
-            EdgeIteratorState edge = routingGraph.getBaseGraph().getEdgeIteratorState(edgeState.getOrigEdge(), edgeState.getAdjNode());
+            EdgeIteratorState edge = getRoutingGraph().getBaseGraph().getEdgeIteratorState(edgeState.getOrigEdge(), edgeState.getAdjNode());
             path.addDistance(edge.getDistance());
             path.addTime((bwd ? -1 : 1) * (currEdge.time - currEdge.parent.time));
             path.addEdge(edge.getEdge());
