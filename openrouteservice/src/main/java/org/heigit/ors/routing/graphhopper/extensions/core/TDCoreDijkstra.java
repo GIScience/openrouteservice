@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.EdgeBasedTDCoreBidirPathExtractor;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.SPTEntry;
