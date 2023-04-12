@@ -29,15 +29,6 @@ public class TDCoreDijkstra extends CoreDijkstra {
         this.reverse = reverse;
     }
 
-    /*TODO
-    @Override
-    protected void initPhase2() {
-        if (flagEncoder.hasEncodedValue(flagEncoder.toString()+"-conditional_access")) {
-            inEdgeExplorer = graph.createEdgeExplorer(ConditionalAccessEdgeFilter.inEdges(flagEncoder));
-            outEdgeExplorer = graph.createEdgeExplorer(ConditionalAccessEdgeFilter.outEdges(flagEncoder));
-        }
-    }
-    */
     @Override
     protected Path extractPath() {
         if (finished())
@@ -60,11 +51,6 @@ public class TDCoreDijkstra extends CoreDijkstra {
             return true;
 
         return super.fillEdgesToCore();
-    }
-
-    @Override
-    double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return calcWeight(iter, reverse, currEdge.originalEdge, currEdge.time) + currEdge.getWeightOfVisitedPath();
     }
 
     @Override

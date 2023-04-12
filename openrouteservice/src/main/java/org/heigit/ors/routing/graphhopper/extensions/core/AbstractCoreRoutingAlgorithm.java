@@ -234,7 +234,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return calcWeight(iter, reverse, currEdge.originalEdge, -1) + currEdge.getWeightOfVisitedPath();
+        return calcWeight(iter, reverse, currEdge.originalEdge, currEdge.time) + currEdge.getWeightOfVisitedPath();
     }
 
     double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId, long time) {

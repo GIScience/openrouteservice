@@ -29,13 +29,6 @@ public class TDCoreALT extends CoreALT {
         this.reverse = reverse;
     }
 
-    /*TODO: seems obsolete as AccessEdgeFilter is not used anymore in TD algos (was neccessary before e.g. in TDDijkstra)
-    @Override
-    protected void initPhase2() {
-        inEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.inEdges(flagEncoder));
-        outEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.outEdges(flagEncoder));
-    }
-    */
     @Override
     protected Path extractPath() {
         if (finished())
@@ -58,11 +51,6 @@ public class TDCoreALT extends CoreALT {
             return true;
 
         return super.fillEdgesToCore();
-    }
-
-    @Override
-    double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return calcWeight(iter, reverse, currEdge.originalEdge, currEdge.time) + currEdge.getWeightOfVisitedPath();
     }
 
     @Override
