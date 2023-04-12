@@ -51,10 +51,12 @@ jobs:
           build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Start container from image and wait for successful war deployment
+      - name: Start container from image and wait for successful checks
         run: |
           docker run -it -d -p 8080:8080 ${{ needs.prepare_environment.outputs.test_image_name }}
           ./.github/utils/health_check.sh 127.0.0.1 8080 /ors/
+          ./.github/utils/cors_check.sh 127.0.0.1 8082 /ors/v2/isochrones/geojson "https://example.com" 403 10
+          ./.github/utils/cors_check.sh 127.0.0.1 8082 /ors/v2/isochrones/geojson "https://example.org" 200 10
   publish_docker:
     name: Publish the docker image to docker hub
     runs-on: ubuntu-latest
