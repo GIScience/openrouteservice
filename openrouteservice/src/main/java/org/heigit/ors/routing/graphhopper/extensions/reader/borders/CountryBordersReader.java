@@ -47,7 +47,8 @@ public class CountryBordersReader {
 
     private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
-    private static CountryBordersReader currentInstance = null;
+    // Package scoped for testing purposes
+    static CountryBordersReader currentInstance = null;
 
     /**
      * Empty constructor which does not read any data - the user must explicitly pass information

@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -20,6 +22,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CountryBordersReaderTest {
+    CountryBordersReader _oldReaderSingleton;
     CountryBordersReader _reader;
 
     CountryBordersHierarchy[] hierarchies;
@@ -54,8 +57,10 @@ class CountryBordersReaderTest {
 
     GeometryFactory gf = new GeometryFactory();
 
-    public CountryBordersReaderTest() {
+    @BeforeEach
+    void prepareCountryBordersReader() {
 
+        _oldReaderSingleton = CountryBordersReader.currentInstance;
         // Construct the objects
         _reader = new CountryBordersReader();
         hierarchies = new CountryBordersHierarchy[2];
@@ -65,19 +70,24 @@ class CountryBordersReaderTest {
             hierarchies[0].add(new CountryBordersPolygon("country1", gf.createPolygon(country1Geom)));
             hierarchies[0].add(new CountryBordersPolygon("country2", gf.createPolygon(country2Geom)));
 
-            _reader.addHierarchy(1l, hierarchies[0]);
+            _reader.addHierarchy(1L, hierarchies[0]);
 
             hierarchies[1] = new CountryBordersHierarchy();
             hierarchies[1].add(new CountryBordersPolygon("country3", gf.createPolygon(country3Geom)));
             hierarchies[1].add(new CountryBordersPolygon("country4", gf.createPolygon(country4Geom)));
 
-            _reader.addHierarchy(2l, hierarchies[1]);
+            _reader.addHierarchy(2L, hierarchies[1]);
         } catch (Exception e) {
             System.out.println(e);
         }
 
         _reader.addOpenBorder("country1", "country2");
         _reader.addId("1", "country1", "country1 English", "CT", "CTR");
+    }
+
+    @AfterEach
+    void resetCountryBordersReader() {
+        CountryBordersReader.currentInstance = _oldReaderSingleton;
     }
 
     /**
