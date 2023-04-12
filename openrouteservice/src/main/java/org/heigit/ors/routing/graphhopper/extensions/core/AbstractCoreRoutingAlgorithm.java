@@ -21,7 +21,6 @@ import com.graphhopper.storage.*;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.routing.graphhopper.extensions.CorePathExtractor;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 /**

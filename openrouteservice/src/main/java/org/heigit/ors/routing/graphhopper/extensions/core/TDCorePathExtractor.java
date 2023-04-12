@@ -19,15 +19,14 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
-import org.heigit.ors.routing.graphhopper.extensions.CorePathExtractor;
 
-public class EdgeBasedTDCoreBidirPathExtractor extends CorePathExtractor {
+public class TDCorePathExtractor extends CorePathExtractor {
 
     public static Path extractPath(RoutingCHGraph graph, Weighting weighting, SPTEntry fwdEntry, SPTEntry bwdEntry, double weight) {
-        return (new EdgeBasedTDCoreBidirPathExtractor(graph, weighting)).extract(fwdEntry, bwdEntry, weight);
+        return (new TDCorePathExtractor(graph, weighting)).extract(fwdEntry, bwdEntry, weight);
     }
 
-    protected EdgeBasedTDCoreBidirPathExtractor(RoutingCHGraph routingGraph, Weighting weighting) {
+    protected TDCorePathExtractor(RoutingCHGraph routingGraph, Weighting weighting) {
         super(routingGraph, weighting);
     }
 

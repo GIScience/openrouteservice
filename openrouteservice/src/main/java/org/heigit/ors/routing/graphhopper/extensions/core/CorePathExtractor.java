@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.graphhopper.routing.DefaultBidirPathExtractor;
 import com.graphhopper.routing.Path;

@@ -31,7 +31,7 @@ public class TDCoreDijkstra extends CoreDijkstra {
     @Override
     protected Path extractPath() {
         if (finished())
-            return EdgeBasedTDCoreBidirPathExtractor.extractPath(chGraph, weighting, bestFwdEntry, bestBwdEntry, bestWeight);
+            return TDCorePathExtractor.extractPath(chGraph, weighting, bestFwdEntry, bestBwdEntry, bestWeight);
 
         return createEmptyPath();
     }
