@@ -21,7 +21,6 @@ import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -477,25 +476,6 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('build_date')", is(true))
                 .body("metadata.engine.containsKey('graph_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
-                .statusCode(200);
-    }
-
-    @Disabled
-    @Test
-    void testAcceptsTimeParameter() {
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_400"));
-        body.put("time", "2023-03-20T12:18:00");
-
-        given().log().ifValidationFails()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().ifValidationFails()
                 .statusCode(200);
     }
 }

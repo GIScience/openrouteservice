@@ -18,6 +18,7 @@ import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -759,4 +760,21 @@ class ParamsTest extends ServiceTest {
 
     }
 
+    @Disabled("Enable as soon as publishable test data is available") // TODO
+    @Test
+    void testAcceptsTimeParameter() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+        body.put("time", "2023-03-20T12:18:00");
+
+        given().log().ifValidationFails()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .statusCode(200);
+    }
 }
