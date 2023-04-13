@@ -22,7 +22,7 @@ import com.graphhopper.routing.*;
 import com.graphhopper.routing.lm.LMApproximator;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
+import com.graphhopper.routing.querygraph.QueryRoutingCoreGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -49,7 +49,7 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     }
 
     public CoreRoutingAlgorithmFactory(RoutingCHGraph routingCHGraph, QueryGraph queryGraph) {
-        this(new QueryRoutingCHGraph(routingCHGraph, queryGraph));
+        this(new QueryRoutingCoreGraph(routingCHGraph, queryGraph));
     }
 
     public CoreRoutingAlgorithmFactory(RoutingCHGraph routingCHGraph) {

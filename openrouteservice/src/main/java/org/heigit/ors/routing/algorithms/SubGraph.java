@@ -394,8 +394,8 @@ public class SubGraph {
         }
 
         @Override
-        public int getTime(boolean b, long l) {
-            return currState.getTime(b, l);
+        public int getTime(boolean b) {
+            return currState.getTime(b);
         }
 
 //        @Override

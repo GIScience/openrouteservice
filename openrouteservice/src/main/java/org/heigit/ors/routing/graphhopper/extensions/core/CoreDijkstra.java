@@ -260,7 +260,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                     continue;
 
                 ee.parent = currEdge;
-                ee.time = calcTime(iter, currEdge, reverse);
+                ee.time = calcEdgeTime(iter, currEdge, reverse);
                 prioQueue.add(ee);
 
                 updateBestPathCore(ee, traversalId, reverse);
@@ -281,7 +281,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                     continue;
 
                 ee.parent = currEdge;
-                ee.time = calcTime(iter, currEdge, reverse);
+                ee.time = calcEdgeTime(iter, currEdge, reverse);
                 prioQueue.add(ee);
 
                 updateBestPathCH(ee, traversalId, reverse);

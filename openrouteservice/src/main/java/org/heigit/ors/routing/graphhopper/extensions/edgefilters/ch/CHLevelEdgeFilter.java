@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
-import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
