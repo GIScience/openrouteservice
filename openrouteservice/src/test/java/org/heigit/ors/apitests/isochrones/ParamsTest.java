@@ -760,12 +760,13 @@ class ParamsTest extends ServiceTest {
 
     }
 
-    @Disabled("Enable as soon as publishable test data is available") // TODO
     @Test
     void testAcceptsTimeParameter() {
+        JSONArray ranges = new JSONArray();
+        ranges.put(400);
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_400"));
+        body.put("range", ranges);
         body.put("time", "2023-03-20T12:18:00");
 
         given().log().ifValidationFails()

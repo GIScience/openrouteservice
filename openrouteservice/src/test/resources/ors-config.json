@@ -194,7 +194,7 @@
                   "use_for_warnings": true
                 },
                 "HereTraffic": {
-                  "enabled": false,
+                  "enabled": true,
                   "streets": "./src/test/files/data/traffic_data/here/Streets.shp",
                   "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
                   "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
