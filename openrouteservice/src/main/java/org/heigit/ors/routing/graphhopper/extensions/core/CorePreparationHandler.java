@@ -120,6 +120,10 @@ public class CorePreparationHandler extends CHPreparationHandler {
             edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
         }
 
+        if (TrafficSpeedCoreEdgeFilter.hasTrafficGraphStorage(gs)) {
+            edgeFilterSequence.add(new TrafficSpeedCoreEdgeFilter(gs));
+        }
+
         return edgeFilterSequence;
     }
 
