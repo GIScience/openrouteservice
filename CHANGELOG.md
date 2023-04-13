@@ -50,6 +50,7 @@ RELEASING:
 - support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - upgrade spring-boot from 2.7.9 to 2.7.10  ([#1372](https://github.com/GIScience/openrouteservice/pull/1372))
 - upgrade graphhopper version to v4.4 for correct flushing of graph storages [#1378](https://github.com/GIScience/openrouteservice/pull/1378)
+- Handle warning regarding transient dependencies [#1383](https://github.com/GIScience/openrouteservice/issues/1383)
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
