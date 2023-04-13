@@ -192,6 +192,15 @@
                 },
                 "RoadAccessRestrictions": {
                   "use_for_warnings": true
+                },
+                "HereTraffic": {
+                  "enabled": true,
+                  "streets": "./src/test/files/data/traffic_data/here/Streets.shp",
+                  "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
+                  "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
+                  "radius": 150,
+                  "output_log": false,
+                  "log_location": "ors/traffic_log"
                 }
               },
               "traffic": false
