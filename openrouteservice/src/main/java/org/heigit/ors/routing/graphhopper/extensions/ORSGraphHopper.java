@@ -404,8 +404,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return new GeometryFactory().createLineString(coords);
     }
 
+	@Override
     public void matchTraffic() {
-        // Do the graph extension post processing
+        // Do the graph extension post-processing
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
@@ -426,8 +427,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	 */
 	@Override
 	protected void postProcessingHook(boolean closeEarly) {
-		matchTraffic(); // TODO: Must this be moved into GraphHopper like it was originally?
-
         GraphHopperStorage gs = getGraphHopperStorage();
 
 		//Create the core
