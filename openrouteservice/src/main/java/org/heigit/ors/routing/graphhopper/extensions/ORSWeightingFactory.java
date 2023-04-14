@@ -11,9 +11,15 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.MaximumSpeedCalculator;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
+import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +104,12 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
     protected void setSpeedCalculator(Weighting weighting, PMap requestHints) {
         super.setSpeedCalculator(weighting, requestHints);
 
+        if (isRequestTimeDependent(requestHints)) {
+            String time = requestHints.getString(requestHints.has(RouteRequest.PARAM_DEPARTURE) ?
+                    RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
+            addTrafficSpeedCalculator(weighting, ghStorage, time);
+        }
+
         if (requestHints.has("maximum_speed")) {
             double maximumSpeedLowerBound = requestHints.getDouble("maximum_speed_lower_bound", 0);
             double maximumSpeed = requestHints.getDouble("maximum_speed", maximumSpeedLowerBound);
@@ -179,5 +191,26 @@ public class ORSWeightingFactory extends DefaultWeightingFactory {
         }
 
         return res;
+    }
+
+    public static void addTrafficSpeedCalculator(List<Weighting> weightings, GraphHopperStorage ghStorage) {
+        for (Weighting weighting : weightings)
+            addTrafficSpeedCalculator(weighting, ghStorage, "");
+    }
+
+    private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, String time) {
+        TrafficGraphStorage trafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, TrafficGraphStorage.class);
+
+        if (trafficGraphStorage != null) {
+            RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
+
+            if (!time.isEmpty()) {
+                //Use fixed time zone because original implementation was for German traffic data
+                ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
+                routingTrafficSpeedCalculator.setZonedDateTime(zdt);
+            }
+
+            weighting.setSpeedCalculator(routingTrafficSpeedCalculator);
+        }
     }
 }

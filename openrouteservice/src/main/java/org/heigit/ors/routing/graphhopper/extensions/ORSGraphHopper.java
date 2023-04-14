@@ -24,6 +24,7 @@ import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
+import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -404,8 +405,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return new GeometryFactory().createLineString(coords);
     }
 
-	@Override
-    public void matchTraffic() {
+    private void matchTraffic() {
         // Do the graph extension post-processing
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
@@ -422,14 +422,23 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
     }
 
+	private void addTrafficSpeedCalculator(LMPreparationHandler lmPreparationHandler) {
+		if (isTrafficEnabled())
+			ORSWeightingFactory.addTrafficSpeedCalculator(lmPreparationHandler.getWeightings(), getGraphHopperStorage());
+	}
+
     /**
 	 * Does the preparation and creates the location index
 	 */
 	@Override
 	protected void postProcessingHook(boolean closeEarly) {
-        GraphHopperStorage gs = getGraphHopperStorage();
+		matchTraffic();
+
+		if (getLMPreparationHandler().isEnabled())
+			addTrafficSpeedCalculator(getLMPreparationHandler());
 
 		//Create the core
+		GraphHopperStorage gs = getGraphHopperStorage();
 		if(corePreparationHandler.isEnabled())
 			corePreparationHandler.setProcessContext(processContext).createPreparations(gs);
 		if (isCorePrepared()) {
@@ -446,6 +455,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 		if (coreLMPreparationHandler.isEnabled()) {
 			initCoreLMPreparationHandler();
 			coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
+			addTrafficSpeedCalculator(coreLMPreparationHandler);
 		}
 		loadOrPrepareCoreLM();
 
