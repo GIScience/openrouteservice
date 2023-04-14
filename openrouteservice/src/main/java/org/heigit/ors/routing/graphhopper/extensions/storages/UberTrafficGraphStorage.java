@@ -13,47 +13,18 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.storage.*;
 import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficEnums;
 
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class TrafficGraphStorage implements GraphExtension {
+public class UberTrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
-
-    // road types
-    public enum RoadTypes {
-        IGNORE(0),
-        MOTORWAY(1),
-        MOTORWAY_LINK(2),
-        MOTORROAD(3),
-        TRUNK(4),
-        TRUNK_LINK(5),
-        PRIMARY(6),
-        PRIMARY_LINK(7),
-        SECONDARY(8),
-        SECONDARY_LINK(9),
-        TERTIARY(10),
-        TERTIARY_LINK(11),
-        RESIDENTIAL(12),
-        UNCLASSIFIED(13);
-
-        public final byte value;
-
-        RoadTypes(int value) {
-            this.value = (byte) value;
-        }
-    }
 
     /* pointer for road type */
     private static final byte LOCATION_ROAD_TYPE = 0;         // byte location of road type
@@ -67,6 +38,22 @@ public class TrafficGraphStorage implements GraphExtension {
     private static final int LOCATION_BACKWARD_TRAFFIC_PRIORITY = LOCATION_TRAFFIC_PRIORITY + BACKWARD_OFFSET;         // byte location of the to heretraffic link id
     private static final int LOCATION_BACKWARD_TRAFFIC = LOCATION_TRAFFIC + BACKWARD_OFFSET;         // byte location of the to heretraffic link id
 
+    // road types
+    public static final byte IGNORE = 0; // For unimportant edges that are below relevant street types (residential etc.)
+    public static final byte MOTORWAY = 1;
+    public static final byte MOTORWAY_LINK = 2;
+    public static final byte MOTORROAD = 3;
+    public static final byte TRUNK = 4;
+    public static final byte TRUNK_LINK = 5;
+    public static final byte PRIMARY = 6;
+    public static final byte PRIMARY_LINK = 7;
+    public static final byte SECONDARY = 8;
+    public static final byte SECONDARY_LINK = 9;
+    public static final byte TERTIARY = 10;
+    public static final byte TERTIARY_LINK = 11;
+    public static final byte RESIDENTIAL = 12; // Really really seldom this is needed!
+    public static final byte UNCLASSIFIED = 13;
+
     public static final int PROPERTY_BYTE_COUNT = 1;
     public static final int LINK_LOOKUP_BYTE_COUNT = 32; // 2 bytes per day. 7 days per Week. One week forward. One week backwards. + 1 byte per week for value priority + fwd/bwd maxspeed = 2 * 7 * 2 + 2 + 2 = 32
     public static final int DAILY_TRAFFIC_PATTERNS_BYTE_COUNT = 96; // The pattern value is transferred to mph to allow byte storage. 1 byte * 4 (15min per Hour) * 24 hours
@@ -75,8 +62,6 @@ public class TrafficGraphStorage implements GraphExtension {
     private DataAccess orsEdgesProperties; // RAMDataAccess
     private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
     private DataAccess orsSpeedPatternLookup; // RAMDataAccess
-
-    private ZoneId zoneId = ZoneId.of("Europe/Berlin");
 
     private int edgePropertyEntryBytes;
     private int edgeLinkLookupEntryBytes;
@@ -88,7 +73,7 @@ public class TrafficGraphStorage implements GraphExtension {
     private byte[] speedValue;
     private byte[] priorityValue;
 
-    public TrafficGraphStorage() {
+    public UberTrafficGraphStorage() {
         int edgeEntryIndex = 0;
         edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
         edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;
@@ -102,33 +87,33 @@ public class TrafficGraphStorage implements GraphExtension {
     public static byte getWayTypeFromString(String highway) {
         switch (highway.toLowerCase()) {
             case "motorway":
-                return RoadTypes.MOTORWAY.value;
+                return UberTrafficGraphStorage.MOTORWAY;
             case "motorway_link":
-                return RoadTypes.MOTORWAY_LINK.value;
+                return UberTrafficGraphStorage.MOTORWAY_LINK;
             case "motorroad":
-                return RoadTypes.MOTORROAD.value;
+                return UberTrafficGraphStorage.MOTORROAD;
             case "trunk":
-                return RoadTypes.TRUNK.value;
+                return UberTrafficGraphStorage.TRUNK;
             case "trunk_link":
-                return RoadTypes.TRUNK_LINK.value;
+                return UberTrafficGraphStorage.TRUNK_LINK;
             case "primary":
-                return RoadTypes.PRIMARY.value;
+                return UberTrafficGraphStorage.PRIMARY;
             case "primary_link":
-                return RoadTypes.PRIMARY_LINK.value;
+                return UberTrafficGraphStorage.PRIMARY_LINK;
             case "secondary":
-                return RoadTypes.SECONDARY.value;
+                return UberTrafficGraphStorage.SECONDARY;
             case "secondary_link":
-                return RoadTypes.SECONDARY_LINK.value;
+                return UberTrafficGraphStorage.SECONDARY_LINK;
             case "tertiary":
-                return RoadTypes.TERTIARY.value;
+                return UberTrafficGraphStorage.TERTIARY;
             case "tertiary_link":
-                return RoadTypes.TERTIARY_LINK.value;
+                return UberTrafficGraphStorage.TERTIARY_LINK;
             case "residential":
-                return RoadTypes.RESIDENTIAL.value;
+                return UberTrafficGraphStorage.RESIDENTIAL;
             case "unclassified":
-                return RoadTypes.UNCLASSIFIED.value;
+                return UberTrafficGraphStorage.UNCLASSIFIED;
             default:
-                return RoadTypes.IGNORE.value;
+                return UberTrafficGraphStorage.IGNORE;
         }
     }
 
@@ -237,7 +222,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * Store maximum speed value encountered in a daily heretraffic pattern
      *
-     * @param patternId     Id of the heretraffic pattern.
+     * @param patternId  Id of the heretraffic pattern.
      * @param maxSpeedValue Speed value in mph or kph.
      **/
     private void setMaxTrafficSpeed(int patternId, short maxSpeedValue) {
@@ -334,6 +319,7 @@ public class TrafficGraphStorage implements GraphExtension {
 
     /**
      * Maximum speed value encountered in a daily heretraffic pattern
+     *
      **/
     private int getMaxTrafficSpeed(int patternId) {
         byte[] value = new byte[1];
@@ -357,9 +343,9 @@ public class TrafficGraphStorage implements GraphExtension {
      * ## TODO's ##
      * - enhance internal time encoding and harmonize it in the whole ORS backend when more heretraffic data comes in.
      *
-     * @param edgeId           Internal ID of the edge to get values for.
-     * @param baseNode         The baseNode of the edge to define the direction.
-     * @param adjNode          The adjNode of the edge to define the direction.
+     * @param edgeId      Internal ID of the edge to get values for.
+     * @param baseNode    The baseNode of the edge to define the direction.
+     * @param adjNode    The adjNode of the edge to define the direction.
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
@@ -377,6 +363,7 @@ public class TrafficGraphStorage implements GraphExtension {
 
     /**
      * Maximum heretraffic speed value across the whole week
+     *
      **/
     public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
         if (invalidEdgeId(edgeId))
@@ -418,6 +405,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs node storage is required
      */
+    @Override
     public boolean isRequireNodeField() {
         return true;
     }
@@ -425,6 +413,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return true, if and only if, if an additional field at the graphs edge storage is required
      */
+    @Override
     public boolean isRequireEdgeField() {
         return true;
     }
@@ -432,6 +421,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating nodes
      */
+    @Override
     public int getDefaultNodeFieldValue() {
         return -1;
     }
@@ -439,6 +429,7 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * @return the default field value which will be set for default when creating edges
      */
+    @Override
     public int getDefaultEdgeFieldValue() {
         return -1;
     }
@@ -454,9 +445,9 @@ public class TrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdgesProperties = dir.find("ext_traffic_edge_properties");
-        this.orsEdgesTrafficLinkLookup = dir.find("ext_traffic_edges_traffic_lookup");
-        this.orsSpeedPatternLookup = dir.find("ext_traffic_pattern_lookup");
+        this.orsEdgesProperties = dir.find("ext_uber_traffic_edge_properties");
+        this.orsEdgesTrafficLinkLookup = dir.find("ext_uber_traffic_edges_traffic_lookup");
+        this.orsSpeedPatternLookup = dir.find("ext_uber_traffic_pattern_lookup");
     }
 
     /**
@@ -477,10 +468,33 @@ public class TrafficGraphStorage implements GraphExtension {
      *
      * @param bytes Size in bytes.
      */
+    @Override
     public void setSegmentSize(int bytes) {
         orsEdgesProperties.setSegmentSize(bytes);
         orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
         orsSpeedPatternLookup.setSegmentSize(bytes);
+    }
+
+    /**
+     * creates a copy of this extended storage
+     *
+     * @param clonedStorage The storage to clone.
+     */
+    @Override
+    public GraphExtension copyTo(GraphExtension clonedStorage) {
+        if (!(clonedStorage instanceof UberTrafficGraphStorage)) {
+            throw new IllegalStateException("the extended storage to clone must be the same");
+        }
+
+        UberTrafficGraphStorage clonedTC = (UberTrafficGraphStorage) clonedStorage;
+
+        orsEdgesProperties.copyTo(clonedTC.orsEdgesProperties);
+        orsEdgesTrafficLinkLookup.copyTo(clonedTC.orsEdgesTrafficLinkLookup);
+        orsSpeedPatternLookup.copyTo(clonedTC.orsSpeedPatternLookup);
+        clonedTC.edgesCount = edgesCount;
+        clonedTC.maxEdgeId = maxEdgeId;
+
+        return clonedStorage;
     }
 
     /**
@@ -574,7 +588,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * This method finds as stores for each edge the maximum forward and backward heretraffic speed across the whole week.
      */
     public void setMaxTrafficSpeeds() {
-        int[] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
+        int [] directionOffsets = {FORWARD_OFFSET, BACKWARD_OFFSET};
 
         for (int edgeId = 0; edgeId <= maxEdgeId; edgeId++) {
             long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
@@ -597,11 +611,4 @@ public class TrafficGraphStorage implements GraphExtension {
         }
     }
 
-    public void setZoneId(ZoneId zoneId) {
-        this.zoneId = zoneId;
-    }
-
-    public ZoneId getZoneId() {
-        return this.zoneId;
-    }
 }

@@ -94,15 +94,15 @@ public class GraphEdgeMapFinder {
      * @return accessibility map containing all reachable nodes
      */
     private static AccessibilityMap calculateTimeDependentAccessibilityMap(IsochroneSearchParameters parameters, FlagEncoder encoder, GraphHopperStorage graph, EdgeFilter edgeFilter, QueryGraph queryGraph, GHPoint3D snappedPosition, int fromId, Weighting weighting) {
-        //Time-dependent means traffic dependent for isochrones (for now)
+        //Time-dependent means heretraffic dependent for isochrones (for now)
         TrafficSpeedCalculator trafficSpeedCalculator = new TrafficSpeedCalculator(weighting.getSpeedCalculator());
         trafficSpeedCalculator.init(graph, encoder);
         weighting.setSpeedCalculator(trafficSpeedCalculator);
         TDDijkstraCostCondition tdDijkstraCostCondition = new TDDijkstraCostCondition(queryGraph, weighting, parameters.getMaximumRange(), parameters.getReverseDirection(),
                 TraversalMode.NODE_BASED);
         tdDijkstraCostCondition.setEdgeFilter(edgeFilter);
-        //Time is defined to be in UTC + 1 because original implementation was for German traffic data
-        //If changed, this needs to be adapted in the traffic storage, too
+        //Time is defined to be in UTC + 1 because original implementation was for German heretraffic data
+        //If changed, this needs to be adapted in the heretraffic storage, too
         ZonedDateTime zdt = parameters.getRouteParameters().getDeparture().atZone(trafficSpeedCalculator.getZoneId());
         trafficSpeedCalculator.setZonedDateTime(zdt);
         int toId = parameters.getReverseDirection() ? fromId : Integer.MIN_VALUE;

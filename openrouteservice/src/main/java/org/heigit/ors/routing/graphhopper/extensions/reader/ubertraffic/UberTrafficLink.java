@@ -1,4 +1,4 @@
-package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
+package org.heigit.ors.routing.graphhopper.extensions.reader.ubertraffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
 import org.apache.log4j.Logger;
@@ -13,20 +13,20 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class TrafficLink {
-    private static final Logger LOGGER = Logger.getLogger(TrafficLink.class);
+public class UberTrafficLink {
+    private static final Logger LOGGER = Logger.getLogger(UberTrafficLink.class);
 
     private int linkId;
     private double linkLength;
     private boolean isTeardrop;
 
     private LineString linkGeometry;
-    private TrafficLinkMetadata trafficLinkMetadata;
-    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
-    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
+    private UberTrafficLinkMetadata uberTrafficLinkMetadata;
+    private EnumMap<UberTrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
+    private EnumMap<UberTrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
 
     /**
-     * Construct a TrafficLink object used for processing the link traffic data.
+     * Construct a TrafficLink object used for processing the link heretraffic data.
      *
      * @param linkId            Link ID of the link
      * @param linkGeometry      Geometry representing the link
@@ -34,16 +34,16 @@ public class TrafficLink {
      * @param distanceCalcEarth Initialized {@link DistanceCalcEarth} object that can easily be reused to calculate the lengths.
      * @throws InvalidObjectException Provides detailed information when a geometry was invalid.
      */
-    public TrafficLink(int linkId, Geometry linkGeometry, Collection<Property> properties, DistanceCalcEarth distanceCalcEarth) throws InvalidObjectException {
+    public UberTrafficLink(int linkId, Geometry linkGeometry, Collection<Property> properties, DistanceCalcEarth distanceCalcEarth) throws InvalidObjectException {
         this.linkId = linkId;
 
-        this.trafficPatternIdsFrom = new EnumMap<>(TrafficEnums.WeekDay.class);
-        this.trafficPatternIdsTo = new EnumMap<>(TrafficEnums.WeekDay.class);
+        this.trafficPatternIdsFrom = new EnumMap<>(UberTrafficEnums.WeekDay.class);
+        this.trafficPatternIdsTo = new EnumMap<>(UberTrafficEnums.WeekDay.class);
 
         this.setLinkGeometry(linkGeometry);
         this.setLinkLength(distanceCalcEarth);
 
-        trafficLinkMetadata = new TrafficLinkMetadata(properties);
+        uberTrafficLinkMetadata = new UberTrafficLinkMetadata(properties);
 
     }
 
@@ -105,16 +105,16 @@ public class TrafficLink {
         return this.linkGeometry;
     }
 
-    public void setTrafficPatternId(TrafficEnums.TravelDirection travelDirection, TrafficEnums.WeekDay weekDay, Integer trafficPatternId) {
-        if (travelDirection == TrafficEnums.TravelDirection.TO) {
+    public void setTrafficPatternId(UberTrafficEnums.TravelDirection travelDirection, UberTrafficEnums.WeekDay weekDay, Integer trafficPatternId) {
+        if (travelDirection == UberTrafficEnums.TravelDirection.TO) {
             this.trafficPatternIdsTo.put(weekDay, trafficPatternId);
         } else {
             this.trafficPatternIdsFrom.put(weekDay, trafficPatternId);
         }
     }
 
-    public Map<TrafficEnums.WeekDay, Integer> getTrafficPatternIds(TrafficEnums.TravelDirection travelDirection) {
-        if (travelDirection == TrafficEnums.TravelDirection.TO) {
+    public Map<UberTrafficEnums.WeekDay, Integer> getTrafficPatternIds(UberTrafficEnums.TravelDirection travelDirection) {
+        if (travelDirection == UberTrafficEnums.TravelDirection.TO) {
             return this.trafficPatternIdsTo;
         } else {
             return this.trafficPatternIdsFrom;
@@ -124,17 +124,17 @@ public class TrafficLink {
     public boolean isPotentialTrafficSegment() {
         if (isTeardrop) return false;
         if (trafficPatternIdsTo.isEmpty() && trafficPatternIdsFrom.isEmpty()) return false;
-        if (trafficLinkMetadata.isFerry()) return false;
-        if (trafficLinkMetadata.isRoundAbout()) return false;
-        return trafficLinkMetadata.functionalClass() != TrafficEnums.FunctionalClass.CLASS5;
+        if (uberTrafficLinkMetadata.isFerry()) return false;
+        if (uberTrafficLinkMetadata.isRoundAbout()) return false;
+        return uberTrafficLinkMetadata.functionalClass() != UberTrafficEnums.FunctionalClass.CLASS5;
     }
 
     public boolean isBothDirections() {
-        return trafficLinkMetadata.getTravelDirection() == TrafficEnums.LinkTravelDirection.BOTH;
+        return uberTrafficLinkMetadata.getTravelDirection() == UberTrafficEnums.LinkTravelDirection.BOTH;
     }
 
     public int getFunctionalClass() {
-        return this.trafficLinkMetadata.getFunctionalClassWithRamp();
+        return this.uberTrafficLinkMetadata.getFunctionalClassWithRamp();
     }
 
     private boolean checkTearDop(LineString lineString) {
@@ -196,6 +196,6 @@ public class TrafficLink {
     }
 
     public boolean isOnlyFromDirection() {
-        return trafficLinkMetadata.getTravelDirection() == TrafficEnums.LinkTravelDirection.FROM;
+        return uberTrafficLinkMetadata.getTravelDirection() == UberTrafficEnums.LinkTravelDirection.FROM;
     }
 }

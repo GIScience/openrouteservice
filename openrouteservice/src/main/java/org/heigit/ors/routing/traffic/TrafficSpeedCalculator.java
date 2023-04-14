@@ -51,10 +51,10 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
                     : trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
 
         if (trafficSpeed > 0) {
-            //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
+            //TODO: This is a heuristic to provide expected results given heretraffic data and ORS internal speed calculations.
             if (isVehicle) {
                 trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
-                // For heavy vehicles, consider the traffic speeds only up to a predefined speeds
+                // For heavy vehicles, consider the heretraffic speeds only up to a predefined speeds
                 if (!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
                     speed = trafficSpeed;
                 }

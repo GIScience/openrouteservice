@@ -20,7 +20,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 
 /**
- * This class includes in the core all edges which have traffic speed assigned.
+ * This class includes in the core all edges which have heretraffic speed assigned.
  *
  * @author Andrzej Oles
  */

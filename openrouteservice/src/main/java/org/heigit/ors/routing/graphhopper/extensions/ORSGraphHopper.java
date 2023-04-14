@@ -414,7 +414,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                     try {
                         ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
                     } catch (SchemaException e) {
-                        LOGGER.error("Error building the here traffic storage.");
+                        LOGGER.error("Error building the here heretraffic storage.");
                         throw new RuntimeException(e);
                     }
                 }

@@ -22,12 +22,12 @@ public class TrafficRelevantWayType {
         CLASS3(3), // primary | secondary. Definitely needed. Map matching works quite good.
         CLASS4(4), // secondary | tertiary. Definitely needed. Map matching works quite good.
         UNCLASSIFIED(5),
-        CLASS5(6),  // residential | living_street | service... Rarely needed! Streets Here doesn't provide traffic data for anyways.
+        CLASS5(6),  // residential | living_street | service... Rarely needed! Streets Here doesn't provide heretraffic data for anyways.
         CLASS1LINK(7),
         CLASS2LINK(8),
         CLASS3LINK(9),
         CLASS4LINK(10),
-        UNWANTED(0); // Not needed! Streets Here doesn't provide traffic data for anyways.
+        UNWANTED(0); // Not needed! Streets Here doesn't provide heretraffic data for anyways.
 
         public final byte value;
 

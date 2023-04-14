@@ -38,11 +38,11 @@ import org.geotools.geojson.geom.GeometryJSON;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficData;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficPattern;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficData;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficEnums;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficLink;
+import org.heigit.ors.routing.graphhopper.extensions.reader.heretraffic.HereTrafficPattern;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
@@ -174,7 +174,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    private void writeLogFiles(TrafficData hereTrafficData) throws SchemaException {
+    private void writeLogFiles(HereTrafficData hereTrafficData) throws SchemaException {
         if (outputLog) {
             LOGGER.info("Write log files.");
             SimpleFeatureType TYPE = null;
@@ -287,7 +287,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 return;
             }
             if (hereTrafficReader.isInitialized()) {
-                LOGGER.info("Starting MapMatching traffic data");
+                LOGGER.info("Starting MapMatching heretraffic data");
                 processTrafficPatterns(hereTrafficReader.getHereTrafficData().getPatterns());
                 processLinks(graphHopper, hereTrafficReader.getHereTrafficData().getLinks());
                 storage.setMaxTrafficSpeeds();
@@ -297,7 +297,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 writeLogFiles(hereTrafficReader.getHereTrafficData());
                 LOGGER.info("Traffic data successfully processed");
             } else {
-                throw new MissingResourceException("Here traffic is not build, enabled but the Here data sets couldn't be initialized. Make sure the config contains the path variables and they're correct.", this.getClass().toString(), "streets || pattern_15min || ref_pattern");
+                throw new MissingResourceException("Here heretraffic is not build, enabled but the Here data sets couldn't be initialized. Make sure the config contains the path variables and they're correct.", this.getClass().toString(), "streets || pattern_15min || ref_pattern");
             }
         } else if (!enabled) {
             LOGGER.debug("Traffic not enabled or already matched. Skipping match making.");
@@ -306,21 +306,21 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
-        try (ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size())) {
-            for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
+    private void processTrafficPatterns(IntObjectHashMap<HereTrafficPattern> patterns) {
+        try (ProgressBar pb = new ProgressBar("Processing heretraffic patterns", patterns.values().size())) {
+            for (ObjectCursor<HereTrafficPattern> pattern : patterns.values()) {
                 storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
                 pb.step();
             }
         } catch (Exception e) {
-            LOGGER.error("Error processing here traffic patterns with error: " + e);
+            LOGGER.error("Error processing here heretraffic patterns with error: " + e);
         }
     }
 
-    private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
+    private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<HereTrafficLink> links) {
         try (ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size())) {
             int counter = 0;
-            for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
+            for (ObjectCursor<HereTrafficLink> trafficLink : links.values()) {
                 processLink(graphHopper, trafficLink.value);
                 counter += 1;
                 if (!outputLog) {
@@ -330,11 +330,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     pb.stepBy(2000);
             }
         } catch (Exception e) {
-            LOGGER.error("Error processing here traffic links with error: " + e);
+            LOGGER.error("Error processing here heretraffic links with error: " + e);
         }
     }
 
-    private void processLink(ORSGraphHopper graphHopper, TrafficLink hereTrafficLink) {
+    private void processLink(ORSGraphHopper graphHopper, HereTrafficLink hereTrafficLink) {
         if (hereTrafficLink == null || !hereTrafficLink.isPotentialTrafficSegment())
             return;
         RouteSegmentInfo[] matchedSegmentsFrom = new RouteSegmentInfo[]{};
@@ -353,12 +353,12 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
 
-        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
-        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
+        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(HereTrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
+        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(HereTrafficEnums.TravelDirection.TO), matchedSegmentsTo);
     }
 
     private void processSegments(ORSGraphHopper graphHopper, int linkId, Map<
-            TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
+            HereTrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
         if (matchedSegments == null)
             return;
         for (RouteSegmentInfo routeSegment : matchedSegments) {
@@ -367,7 +367,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
     }
 
-    private void processSegment(ORSGraphHopper graphHopper, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds,
+    private void processSegment(ORSGraphHopper graphHopper, Map<HereTrafficEnums.WeekDay, Integer> trafficPatternIds,
                                 int trafficLinkId, RouteSegmentInfo routeSegment) {
         for (EdgeIteratorState edge : routeSegment.getEdgesStates()) {
             if (edge instanceof VirtualEdgeIteratorState) {

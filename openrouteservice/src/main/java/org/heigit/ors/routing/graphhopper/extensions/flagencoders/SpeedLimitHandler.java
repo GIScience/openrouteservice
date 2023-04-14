@@ -71,7 +71,7 @@ public class SpeedLimitHandler {
     	
     	String key = way.getTag("zone:maxspeed");
     	if (key == null)
-    		key = way.getTag("zone:traffic");
+    		key = way.getTag("zone:heretraffic");
     	
     	if (key == null)
     		return -1;

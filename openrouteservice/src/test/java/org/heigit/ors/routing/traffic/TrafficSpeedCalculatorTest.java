@@ -65,7 +65,7 @@ class TrafficSpeedCalculatorTest {
         assertEquals(50, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    //Do not overwrite speeds slower than 45 in case traffic is faster
+    //Do not overwrite speeds slower than 45 in case heretraffic is faster
     @Test
     void testOriginalSmallerThan45AndTrafficFaster() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
@@ -76,7 +76,7 @@ class TrafficSpeedCalculatorTest {
         assertEquals(40, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    //Do not overwrite speed data if traffic data is much faster than 110% of original speed
+    //Do not overwrite speed data if heretraffic data is much faster than 110% of original speed
     @Test
     void testOriginalLargerThan45AndTrafficMuchFaster() {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();

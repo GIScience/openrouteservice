@@ -1,8 +1,9 @@
-package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
+package org.heigit.ors.routing.graphhopper.extensions.reader.ubertraffic;
 
-public class TrafficEnums {
+public class UberTrafficEnums {
     public enum PatternResolution {
-        MINUTES_15(15);
+        MINUTES_15(15),
+        MINUTES_60(60);
 
         private final int value;
 
