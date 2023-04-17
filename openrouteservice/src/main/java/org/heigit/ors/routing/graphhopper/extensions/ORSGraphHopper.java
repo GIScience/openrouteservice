@@ -429,13 +429,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     /**
 	 * Does the preparation and creates the location index
+	 *
+	 * @param closeEarly release resources as early as possible
 	 */
 	@Override
-	protected void postProcessingHook(boolean closeEarly) {
-		matchTraffic();
-
-		if (getLMPreparationHandler().isEnabled())
-			addTrafficSpeedCalculator(getLMPreparationHandler());
+	protected void postProcessing(boolean closeEarly) {
+		super.postProcessing(closeEarly);
 
 		//Create the core
 		GraphHopperStorage gs = getGraphHopperStorage();
@@ -488,7 +487,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 					}
 				}
 			}
-        }
+		}
+	}
+
+	@Override
+	protected void postProcessingHook() {
+		matchTraffic();
+
+		if (getLMPreparationHandler().isEnabled())
+			addTrafficSpeedCalculator(getLMPreparationHandler());
 	}
 
     //TODO Refactoring : This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
