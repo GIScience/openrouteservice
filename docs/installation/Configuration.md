@@ -14,12 +14,13 @@ and adjusted as needed.
 ## ors
 The top level element.
 
-| key | type | description | example value |
-|-----|------|-------------|-------|
-| info  |  object | the topmost element to provide basic information about the service for signing and information purposes           |  [info](#orsinfo)   |
-| services   |  object |   an object comprising the services       |   [services](#orsservices)    |  
-| logging  |  object | the logging properties      |  [logging](#orslogging)   |
-| system_message   |  list |   List of system message objects       |   [system messages](#orssystem_message)    |
+| key               | type   | description                                                                                             | example value                         |
+|-------------------|--------|---------------------------------------------------------------------------------------------------------|---------------------------------------|
+| info              | object | the topmost element to provide basic information about the service for signing and information purposes | [info](#orsinfo)                      |
+| api_settings.cors | object | general api settings (e.g. access control)                                                              | [api settings](#orsapi_settings)      |
+| services          | object | an object comprising the services                                                                       | [services](#orsservices)              |  
+| logging           | object | the logging properties                                                                                  | [logging](#orslogging)                |
+| system_message    | list   | List of system message objects                                                                          | [system messages](#orssystem_message) |
 
 ---
 
@@ -32,6 +33,31 @@ The top level element.
 |  support_mail  |  string |                                                                                      | `"support@openrouteservice.org"`     |
 |  author_tag  |  string |                                                                                      | `"openrouteservice"`                 |
 |  content_licence  |  string |                                                                                      | `"LGPL 3.0"`                         |
+
+---
+
+### ors.api_settings
+Currently only [cors](#orsapi_settingscors) member for api access control
+
+---
+
+### ors.api_settings.cors
+
+| key               | type    | description                                                                         | example value                                         |
+|-------------------|---------|-------------------------------------------------------------------------------------|-------------------------------------------------------|
+| allowed           | object  | CORS settings for origins and headers                                               | [allowed](#orsapi_settingscorsallowed)                |
+| exposed.headers   | list    | Configures the Access-Control-Expose-Headers CORS header                            | `["Access-Control-Allow-Origin", "X-Requested-With"]` |
+| preflight_max_age | integer | Duration in seconds. Specifies how long the OPTIONS response is cached by browsers  | `600`                                                 |
+
+---
+
+
+### ors.api_settings.cors.allowed
+
+| key               | type | description                                                                  | example value                                       |
+|-------------------|------|------------------------------------------------------------------------------|-----------------------------------------------------|
+| origins           | list | Configures the Access-Control-Allow-Origins CORS header. `*` for all origins | `["https://my-app.com","https://my-other-app.com"]` |
+| headers           | list | Configures the Access-Control-Allow-Headers CORS header. `*` for all headers | `["Authorization","X-Requested-With"]`              |
 
 ---
 

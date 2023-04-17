@@ -22,11 +22,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
+import org.heigit.ors.config.AppConfig;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
@@ -45,6 +50,48 @@ public class ApiConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
+    }
+
+    /**
+     * Adds Access Control settings specified in the ors config.
+     * Restricts origins and headers to the allowed ones.
+     * Defines headers to expose and the expiry of the preflight result cache.
+     * Available HTTP Methods are not configurable and default to GET, POST, HEAD and OPTIONS globally.
+     * Credentials are turned off.
+     */
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NotNull CorsRegistry registry) {
+                List<String> allowedMethods = List.of("GET", "POST", "HEAD", "OPTIONS");
+
+                List<String> allowedOrigins = AppConfig.getGlobal().getStringList("ors.api_settings.cors.allowed.origins");
+                if (allowedOrigins.isEmpty()) allowedOrigins.add("*");
+
+                List<String> allowedHeaders = AppConfig.getGlobal().getStringList("ors.api_settings.cors.allowed.headers");
+                if (allowedHeaders.isEmpty()) {
+                    allowedHeaders = List.of("Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization");
+                }
+
+                List<String> exposedHeaders = AppConfig.getGlobal().getStringList("ors.api_settings.cors.exposed.headers");
+                if (exposedHeaders.isEmpty()) {
+                    exposedHeaders = List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+                }
+
+                long maxAge = (long) AppConfig.getGlobal().getDouble("api_settings.cors.preflight_max_age");
+                if (maxAge == 0) {
+                    maxAge = 600;
+                }
+                registry.addMapping("/**")
+                        .allowedMethods(allowedMethods.toArray(new String[0]))
+                        .allowCredentials(false)
+                        .allowedOrigins(allowedOrigins.toArray(new String[0]))
+                        .allowedHeaders(allowedHeaders.toArray(new String[0]))
+                        .exposedHeaders(exposedHeaders.toArray(new String[0]))
+                        .maxAge(maxAge);
+            }
+        };
     }
 
     @Bean

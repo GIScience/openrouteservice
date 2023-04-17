@@ -41,6 +41,11 @@ jobs:
         id: buildx
         with:
           install: true
+      - name: Install jq
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: jq moreutils
+          version: 1.0
       - name: Build image
         uses: docker/build-push-action@v4
         with:
@@ -51,10 +56,24 @@ jobs:
           build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Start container from image and wait for successful war deployment
+      - name: Start container from image and wait for successful checks
         run: |
-          docker run -it -d -p 8080:8080 ${{ needs.prepare_environment.outputs.test_image_name }}
-          ./.github/utils/health_check.sh 127.0.0.1 8080 /ors/
+          mkdir $(pwd)/graphs $(pwd)/conf
+          sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
+          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          # Check for health to turn 200 after the graphs are build and spring-boot completely started         
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 240
+          # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
+          # Adjust the config file and set ORIGIN to https://example.org
+          sudo sh -c 'jq ".ors.api_settings.cors.allowed.origins[0] = \"https://example.org\"" ./conf/ors-config.json | sponge ./conf/ors-config.json'
+          # Restart the container to apply the config changes
+          docker restart ors-instance
+          # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
+          # It should fail with http code 403 for https://example.com since the Origin is not covered.
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
   publish_docker:
     name: Publish the docker image to docker hub
     runs-on: ubuntu-latest
