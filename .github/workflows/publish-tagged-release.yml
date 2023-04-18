@@ -44,7 +44,7 @@ jobs:
           CURRENT_VERSIONS=$(test_version)
           LATEST_IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
           HIGHEST_IMAGE_VERSION=${{ steps.semvers.outputs.v_mayor }}
-          DOCKER_PLATFORMS=linux/amd64
+          DOCKER_PLATFORMS='linux/amd64,linux/arm64'
           BUILD_VERSION=true
 
           TAGS_LATEST_VERSION="${DOCKER_IMAGE}:${LATEST_IMAGE_VERSION}"
@@ -60,7 +60,7 @@ jobs:
 
           echo ::set-output name=build_version::${BUILD_VERSION}
           echo ::set-output name=build_args::--platform ${DOCKER_PLATFORMS}
-            echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
+          echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
           echo ::set-output name=buildx_tags_latest::${TAGS_LATEST}
       - name: Login to DockerHub
         if: ${{ steps.prepare.outputs.build_version == 'true' }}

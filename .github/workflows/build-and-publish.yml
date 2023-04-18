@@ -9,7 +9,7 @@ on:
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   PRODUCTION_IMAGE_NAME: 'openrouteservice/openrouteservice:nightly'
-  BUILD_PLATFORMS: 'linux/amd64'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
