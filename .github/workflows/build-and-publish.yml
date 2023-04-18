@@ -54,7 +54,7 @@ jobs:
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
           #build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
-          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
+          platforms: 'linux/amd64'
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Start container from image and wait for successful checks
