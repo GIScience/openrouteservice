@@ -59,7 +59,8 @@ jobs:
           fi
 
           echo ::set-output name=build_version::${BUILD_VERSION}
-          echo ::set-output name=build_args::--platform ${DOCKER_PLATFORMS}
+          echo ::set-output name=build_args::''
+          echo ::set-output name=build_platforms::${DOCKER_PLATFORMS}
           echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
           echo ::set-output name=buildx_tags_latest::${TAGS_LATEST}
       - name: Login to DockerHub
@@ -80,6 +81,7 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.prepare.outputs.buildx_tags_version }},${{ steps.prepare.outputs.buildx_tags_latest }}
-          build-args: ${{ steps.prepare.outputs.build_args }}
+          #build-args: ${{ steps.prepare.outputs.build_args }}
+          platforms: ${{ steps.prepare.outputs.build_platforms }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

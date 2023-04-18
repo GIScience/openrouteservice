@@ -53,7 +53,8 @@ jobs:
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          #build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Start container from image and wait for successful checks
@@ -105,6 +106,7 @@ jobs:
           context: .
           push: true
           tags: ${{ needs.prepare_environment.outputs.production_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          #build-args: ""
+          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
