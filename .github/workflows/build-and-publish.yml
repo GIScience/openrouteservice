@@ -9,7 +9,7 @@ on:
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   PRODUCTION_IMAGE_NAME: 'openrouteservice/openrouteservice:nightly'
-  BUILD_PLATFORMS: 'linux/amd64'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
@@ -23,19 +23,60 @@ jobs:
       build_platforms: ${{ env.BUILD_PLATFORMS }}
     steps:
       - run: |
-          echo "Publish enironment variables"
-  build_docker_and_test_war_deployment:
-    name: Build and check the war deployment stage
+          echo "Publish environment variables"
+  build_docker_images:
+    name: Build the docker images
     runs-on: ubuntu-latest
     needs:
       - prepare_environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        with:
+          install: true
+      - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          load: false
+          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
+          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+  run_docker_image_tests:
+    name: Run & test ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs:
+      - prepare_environment
+      - build_docker_images
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            image: ubuntu-latest
+    #          - arch: arm64
+    #            platform: linux/arm64
+    #            image: ubuntu-latest
+    steps:
+      - run: |
+          echo "Run docker test for platform ${{ matrix.arch }}"
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU for ${{ matrix.arch }}
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.platform }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         id: buildx
@@ -53,10 +94,10 @@ jobs:
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          build-args: "--platform ${{ matrix.platform }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Start container from image and wait for successful checks
+      - name: Start container from previously build image and wait for successful checks
         run: |
           mkdir $(pwd)/graphs $(pwd)/conf
           sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
@@ -78,8 +119,7 @@ jobs:
     name: Publish the docker image to docker hub
     runs-on: ubuntu-latest
     needs:
-      - prepare_environment
-      - build_docker_and_test_war_deployment
+      - run_docker_image_tests
     steps:
       - name: Checkout
         uses: actions/checkout@v2.2.0
