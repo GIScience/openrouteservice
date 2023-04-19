@@ -63,9 +63,9 @@ jobs:
           - arch: amd64
             platform: linux/amd64
             image: ubuntu-latest
-    #          - arch: arm64
-    #            platform: linux/arm64
-    #            image: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            image: ubuntu-latest
     steps:
       - run: |
           echo "Run docker test for platform ${{ matrix.arch }}"
