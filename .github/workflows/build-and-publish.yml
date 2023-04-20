@@ -119,8 +119,12 @@ jobs:
     name: Publish the docker image to docker hub
     runs-on: ubuntu-latest
     needs:
+      - prepare_environment
+      - build_docker_images
       - run_docker_image_tests
     steps:
+      - run: |
+          echo "Publish image ${{ needs.prepare_environment.outputs.production_image_name }}"
       - name: Checkout
         uses: actions/checkout@v2.2.0
         with:
