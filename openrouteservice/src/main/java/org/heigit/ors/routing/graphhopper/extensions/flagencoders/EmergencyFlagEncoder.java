@@ -117,8 +117,6 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
      // limit speed on bad surfaces to 30 km/h
         badSurfaceSpeed = 30;
 
-        destinationSpeed = 5;
-
         maxPossibleSpeed = 140;
 
         Map<String, Integer> defaultSpeedMap = new HashMap<>();
