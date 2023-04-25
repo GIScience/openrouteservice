@@ -41,8 +41,8 @@ RELEASING:
 - moved all api tests into `openrouteservice` module [#1352](https://github.com/GIScience/openrouteservice/pull/1352)
 - migrate java from 11 to 17 [#1353](https://github.com/GIScience/openrouteservice/pull/1353)
 - time-dependent core routing algorithms ([#1388](https://github.com/GIScience/openrouteservice/pull/1388))
-
 ### Fixed
+- certain cases of OSM ways with invalid node refs causing crashes during graph building [#1351](https://github.com/GIScience/openrouteservice/issues/1351)
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 - upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
 - time-dependent routing with Dijkstra ([#1322](https://github.com/GIScience/openrouteservice/pull/1322))
