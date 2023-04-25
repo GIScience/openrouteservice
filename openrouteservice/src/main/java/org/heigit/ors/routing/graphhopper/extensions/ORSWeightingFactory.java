@@ -83,47 +83,31 @@ public class ORSWeightingFactory implements WeightingFactory {
             weightingStr = toLowerCase(profile.getWeighting());
         // ORS-GH MOD END
         if (weightingStr.isEmpty())
-            throw new IllegalArgumentException("You have to specify a weighting");
+                throw new IllegalArgumentException("You need to specify a weighting");
 
         Weighting weighting = null;
-        if (CustomWeighting.NAME.equalsIgnoreCase(weightingStr)) {
-            if (!(profile instanceof CustomProfile))
-                throw new IllegalArgumentException("custom weighting requires a CustomProfile but was profile=" + profile.getName());
-            CustomModel queryCustomModel = requestHints.getObject(CustomModel.KEY, null);
-            CustomProfile customProfile = (CustomProfile) profile;
-            if (queryCustomModel != null)
-                queryCustomModel.checkLMConstraints(customProfile.getCustomModel());
-
-            queryCustomModel = CustomModel.merge(customProfile.getCustomModel(), queryCustomModel);
-            weighting = CustomModelParser.createWeighting(encoder, encodingManager, turnCostProvider, queryCustomModel);
-        } else if ("shortest".equalsIgnoreCase(weightingStr)) {
+        if ("shortest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortestWeighting(encoder, turnCostProvider);
-        } else if ("fastest".equalsIgnoreCase(weightingStr)) {
-            weighting = createFastestWeighting(encoder, hints, turnCostProvider);
-        } else if ("curvature".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(CurvatureWeighting.class))
-                weighting = new CurvatureWeighting(encoder, hints, turnCostProvider);
-
-        } else if ("short_fastest".equalsIgnoreCase(weightingStr)) {
-            weighting = new ShortFastestWeighting(encoder, hints, turnCostProvider);
-        }
-        // ORS-GH MOD START - hook for ORS-specific weightings
-        else {
-            weighting = handleExternalOrsWeightings(weightingStr, hints, encoder, turnCostProvider);
+        } else if ("fastest".equalsIgnoreCase(weightingStr) || "recommended".equalsIgnoreCase(weightingStr)) {
+            if (encoder.supports(PriorityWeighting.class)) {
+                weighting = new OptimizedPriorityWeighting(encoder, hints, turnCostProvider);
+            } else {
+                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
+            }
+        } else {
+            if (encoder.supports(PriorityWeighting.class)) {
+                weighting = new FastestSafeWeighting(encoder, hints, turnCostProvider);
+            } else {
+                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
+            }
         }
 
         weighting = applySoftWeightings(hints, encoder, weighting);
-        // ORS-GH MOD END
 
-        if (weighting == null)
-            throw new IllegalArgumentException("Weighting '" + weightingStr + "' not supported");
-
-        // ORS-GH MOD START - hook for attaching speed calculators
         setSpeedCalculator(weighting, hints);
 
         if (isRequestTimeDependent(hints))
             weighting = createTimeDependentAccessWeighting(weighting);
-        // ORS-GH MOD END
 
         weighting = new LimitedAccessWeighting(weighting, requestHints);
 
@@ -140,40 +124,6 @@ public class ORSWeightingFactory implements WeightingFactory {
             return new TimeDependentAccessWeighting(weighting, ghStorage, flagEncoder);
         else
             return weighting;
-    }
-
-    protected Weighting handleExternalOrsWeightings(String weightingStr, PMap hints, FlagEncoder encoder, TurnCostProvider turnCostProvider) {
-        Weighting weighting = null;
-        if ("priority".equalsIgnoreCase(weightingStr)) {
-            weighting = new PreferencePriorityWeighting(encoder, hints);
-        } else if ("recommended_pref".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new PreferencePriorityWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new FastestWeighting(encoder, hints, turnCostProvider);
-            }
-        } else if ("recommended".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new OptimizedPriorityWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
-        } else {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new FastestSafeWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
-        }
-
-        return weighting;
-    }
-
-    protected Weighting createFastestWeighting(FlagEncoder encoder, PMap hints, TurnCostProvider turnCostProvider) {
-        if(encoder.supports(PriorityWeighting .class))
-            return new OptimizedPriorityWeighting(encoder, hints, turnCostProvider);
-        else
-            return new ORSFastestWeighting(encoder, hints, turnCostProvider);
     }
 
     public Weighting createIsochroneWeighting(Profile profile, PMap requestHints) {
@@ -208,11 +158,13 @@ public class ORSWeightingFactory implements WeightingFactory {
     }
 
     protected void setSpeedCalculator(Weighting weighting, PMap requestHints) {
-        FlagEncoder encoder = weighting.getFlagEncoder();
-        if (encodingManager.hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)) && isRequestTimeDependent(requestHints))
-            weighting.setSpeedCalculator(new ConditionalSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, encoder));
-
         if (isRequestTimeDependent(requestHints)) {
+            // OSM conditionals
+            FlagEncoder encoder = weighting.getFlagEncoder();
+            if (encodingManager.hasEncodedValue(EncodingManager.getKey(encoder, ConditionalEdges.SPEED)))
+                weighting.setSpeedCalculator(new ConditionalSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, encoder));
+
+            // traffic data
             String time = requestHints.getString(requestHints.has(RouteRequest.PARAM_DEPARTURE) ?
                     RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
             addTrafficSpeedCalculator(weighting, ghStorage, time);
