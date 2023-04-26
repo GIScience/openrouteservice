@@ -23,12 +23,12 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKey
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
-public class OptimizedPriorityWeighting extends ORSFastestWeighting {
+public class ORSPriorityWeighting extends ORSFastestWeighting {
 	private static final double PRIORITY_BEST = PriorityCode.BEST.getValue();
 	private static final double PRIORITY_UNCHANGED = PriorityCode.UNCHANGED.getValue();
 	private final DecimalEncodedValue priorityEncoder;
 
-	public OptimizedPriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
+	public ORSPriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
 		super(encoder, map, tcp);
 		priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
 	}
@@ -54,13 +54,13 @@ public class OptimizedPriorityWeighting extends ORSFastestWeighting {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final OptimizedPriorityWeighting other = (OptimizedPriorityWeighting) obj;
+		final ORSPriorityWeighting other = (ORSPriorityWeighting) obj;
 		return toString().equals(other.toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return ("OptimizedPriorityWeighting" + this).hashCode();
+		return ("ORSPriorityWeighting" + this).hashCode();
 	}
 
 	@Override

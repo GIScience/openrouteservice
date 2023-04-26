@@ -6,12 +6,8 @@ import com.graphhopper.routing.util.ConditionalSpeedCalculator;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.*;
-import com.graphhopper.routing.weighting.custom.CustomModelParser;
-import com.graphhopper.routing.weighting.custom.CustomProfile;
-import com.graphhopper.routing.weighting.custom.CustomWeighting;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -90,7 +86,7 @@ public class ORSWeightingFactory implements WeightingFactory {
             weighting = new ShortestWeighting(encoder, turnCostProvider);
         } else if ("fastest".equalsIgnoreCase(weightingStr) || "recommended".equalsIgnoreCase(weightingStr)) {
             if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new OptimizedPriorityWeighting(encoder, hints, turnCostProvider);
+                weighting = new ORSPriorityWeighting(encoder, hints, turnCostProvider);
             } else {
                 weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
             }
