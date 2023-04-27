@@ -26,14 +26,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>parent-project</artifactId>
+        <groupId>org.heigit.ors</groupId>
+        <version>7.1.0</version>
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
     <version>7.1.0</version>
     <packaging>war</packaging>
     <name>openrouteservice</name>
-    <url>openrouteservice.org</url>
+    <url>https://openrouteservice.org</url>
     <inceptionYear>2008</inceptionYear>
     <issueManagement>
         <system>GitHub</system>
@@ -63,11 +67,6 @@
         <connection>git@github.com:GIScience/openrouteservice.git</connection>
         <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
     </scm>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.12</version>
-    </parent>
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -130,7 +129,8 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
+                                      tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
@@ -181,22 +181,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0-M1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
                 <configuration>
                     <excludes>
                         <exclude>**/apitests/**</exclude>
