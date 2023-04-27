@@ -130,7 +130,8 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
+                                      tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
@@ -503,6 +504,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
             <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
