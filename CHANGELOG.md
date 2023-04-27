@@ -52,6 +52,7 @@ RELEASING:
 - upgrade graphhopper version to v4.4 for correct flushing of graph storages [#1378](https://github.com/GIScience/openrouteservice/pull/1378)
 - Handle warning regarding transient dependencies [#1383](https://github.com/GIScience/openrouteservice/issues/1383)
 - Bump spring-boot to 2.7.11 [#1416](https://github.com/GIScience/openrouteservice/pull/1416)
+- Fix the maven-shared-utils CVE [#1414](https://github.com/GIScience/openrouteservice/pull/1414)
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
