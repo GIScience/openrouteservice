@@ -1,0 +1,22 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+#    authors:
+#      - octocat
+  categories:
+    - title: API Breaking Changes 🛠
+      labels:
+        - api-breaking
+    - title: Graph-Building Breaking Changes 🌐
+      labels:
+        - graph-breaking
+    - title: New Features 🎉
+      labels:
+        - feature
+    - title: Fixes 🔧
+      labels:
+        - fix
+    - title: Other Changes
+      labels:
+        - "*"
