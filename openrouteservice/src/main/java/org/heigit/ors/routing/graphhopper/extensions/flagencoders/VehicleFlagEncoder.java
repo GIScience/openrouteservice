@@ -15,7 +15,6 @@
 
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
-import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
@@ -60,9 +59,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     // This value determines the maximal possible on roads with bad surfaces
     protected int badSurfaceSpeed;
-
-    // This value determines the speed for roads with access=destination
-    protected int destinationSpeed;
 
     protected final double minPossibleSpeed;
 
@@ -155,7 +151,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         // limit speed on bad surfaces to 30 km/h
         badSurfaceSpeed = 30;
-        destinationSpeed = 5;
         maxPossibleSpeed = 140;
 
         defaultSpeedMap = new HashMap<>();
@@ -276,16 +271,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             accessEnc.setBool(true, edgeFlags, true);
             setSpeed(false, edgeFlags, ferrySpeed);
             setSpeed(true, edgeFlags, ferrySpeed);
-        }
-
-        if (destinationSpeed != -1) {
-            for (String restriction : restrictions) {
-                if (way.hasTag(restriction, "destination")) {
-                    // This is problematic as Speed != Time
-                    avgSpeedEnc.setDecimal(false, edgeFlags, destinationSpeed);
-                    avgSpeedEnc.setDecimal(true, edgeFlags, destinationSpeed);
-                }
-            }
         }
 
         return edgeFlags;
