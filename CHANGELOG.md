@@ -54,6 +54,7 @@ RELEASING:
 - Bump spring-boot to 2.7.11 [#1416](https://github.com/GIScience/openrouteservice/pull/1416)
 - Fix the maven-shared-utils CVE [#1414](https://github.com/GIScience/openrouteservice/pull/1414)
 - Exclude snakeyaml [#1414](https://github.com/GIScience/openrouteservice/pull/1414)
+- upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
