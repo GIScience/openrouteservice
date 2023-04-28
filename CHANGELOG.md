@@ -55,6 +55,7 @@ RELEASING:
 - Fix the maven-shared-utils CVE [#1414](https://github.com/GIScience/openrouteservice/pull/1414)
 - Exclude snakeyaml [#1418](https://github.com/GIScience/openrouteservice/pull/1418)
 - Upgrade geotools from 28.2 to 29.0 [#1422](https://github.com/GIScience/openrouteservice/pull/1422)
+- upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
