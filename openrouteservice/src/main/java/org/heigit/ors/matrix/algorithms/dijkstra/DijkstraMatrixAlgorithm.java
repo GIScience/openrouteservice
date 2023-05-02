@@ -20,7 +20,7 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
@@ -60,7 +60,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
             //TODO Refactoring : Check whether this access filter is unnecessary
             algorithm.setEdgeFilter(AccessFilter.allEdges(this.encoder.getAccessEnc()));
             algorithm.prepare(srcData.getNodeIds(), dstData.getNodeIds());
-            algorithm.setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
+            algorithm.setMaxVisitedNodes(this.maxVisitedNodes);
 
             int sourceId = -1;
 
@@ -74,7 +74,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     SPTEntry[] targets = algorithm.calcPaths(sourceId, dstData.getNodeIds());
 
                     if (algorithm.getFoundTargets() != algorithm.getTargetsCount())
-                        throw new Exception("Search exceeds the limit of visited nodes.");
+                        throw new MaxVisitedNodesExceededException();
 
                     if (targets != null) {
                         pathMetricsExtractor.calcValues(srcIndex, targets, dstData, times, distances, weights);
