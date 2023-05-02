@@ -41,6 +41,8 @@ RELEASING:
 - moved all api tests into `openrouteservice` module [#1352](https://github.com/GIScience/openrouteservice/pull/1352)
 - migrate java from 11 to 17 [#1353](https://github.com/GIScience/openrouteservice/pull/1353)
 - time-dependent core routing algorithms ([#1388](https://github.com/GIScience/openrouteservice/pull/1388))
+### Changed
+- Consistent use of maximum number of visited nodes limit across different matrix algorithms ([#1246](https://github.com/GIScience/openrouteservice/issues/1246))
 ### Fixed
 - certain cases of OSM ways with invalid node refs causing crashes during graph building [#1351](https://github.com/GIScience/openrouteservice/issues/1351)
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
