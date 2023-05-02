@@ -17,6 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.matrix.MatrixRequest;
 
 public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
@@ -24,6 +25,7 @@ public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
   protected Graph graph;
   protected FlagEncoder encoder;
   protected Weighting weighting;
+  protected int maxVisitedNodes = Integer.MAX_VALUE;
   
   public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
   {
@@ -31,5 +33,6 @@ public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
 	  this.graph = graph;
 	  this.encoder = encoder;
 	  this.weighting = weighting;
+      this.maxVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
   }
 }
