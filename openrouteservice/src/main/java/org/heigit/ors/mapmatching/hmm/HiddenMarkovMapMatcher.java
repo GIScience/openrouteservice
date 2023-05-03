@@ -346,7 +346,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
                 if (!roadSegments.contains(edgeId))
                     roadSegments.add(edgeId);
 
-                MatchPoint mp = new MatchPoint(spLat, spLon);
+                MatchPoint mp = new MatchPoint(spLon, spLat);// match order in Coordinate objects
                 mp.distanceVal = distance;
                 mp.segmentId = roadSegments.indexOf(edgeId);
                 mp.measuredPointIndex = measuredPointIndex;
