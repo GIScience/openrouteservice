@@ -272,8 +272,8 @@ public class TarjansCoreSCCAlgorithm {
         }
 
         @Override
-        public int getTime(boolean reverse, long time) {
-            return chIterator.getTime(reverse, time);
+        public int getTime(boolean reverse) {
+            return chIterator.getTime(reverse);
         }
     }
 }

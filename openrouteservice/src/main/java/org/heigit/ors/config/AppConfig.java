@@ -134,6 +134,15 @@ public class AppConfig {
 		return null;
 	}
 
+	public List<String> getStringList(String path) {
+		try {
+			return config.getStringList(path);
+		} catch (Exception e) {
+			// IGNORE
+		}
+		return new ArrayList<>();
+	}
+
 	public String getServiceParameter(String serviceName, String paramName) {
 		try {
 			return config.getString(PREFIX_ORS_SERVICES + serviceName + "." + paramName);

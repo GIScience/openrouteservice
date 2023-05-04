@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -118,6 +117,10 @@ public class CorePreparationHandler extends CHPreparationHandler {
         /* Conditional edges */
         if (TimeDependentCoreEdgeFilter.hasConditionals(encodingManager)) {
             edgeFilterSequence.add(new TimeDependentCoreEdgeFilter(gs));
+        }
+
+        if (TrafficSpeedCoreEdgeFilter.hasTrafficGraphStorage(gs)) {
+            edgeFilterSequence.add(new TrafficSpeedCoreEdgeFilter(gs));
         }
 
         return edgeFilterSequence;

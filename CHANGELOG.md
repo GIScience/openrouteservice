@@ -37,15 +37,16 @@ RELEASING:
 ### Added
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 - GTFS support for routing  ([#1316](https://github.com/GIScience/openrouteservice/pull/1316))
-- support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - upgrade to spring-boot 2.7.9 and dependency alignment for the api-tests [#1310](https://github.com/GIScience/openrouteservice/pull/1310)
 - moved all api tests into `openrouteservice` module [#1352](https://github.com/GIScience/openrouteservice/pull/1352)
 - migrate java from 11 to 17 [#1353](https://github.com/GIScience/openrouteservice/pull/1353)
+- time-dependent core routing algorithms ([#1388](https://github.com/GIScience/openrouteservice/pull/1388))
 
 ### Changed
 - Updated code for getting elevation data from a PostGIS database. There is now the option to specify the PostGIS version in the config file, and for versions greater than 2.4, the new aggregation method is used aswell as a standard SRID ([834](https://github.com/GIScience/openrouteservice/issues/834))
 
 ### Fixed
+- certain cases of OSM ways with invalid node refs causing crashes during graph building [#1351](https://github.com/GIScience/openrouteservice/issues/1351)
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 - upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
 - time-dependent routing with Dijkstra ([#1322](https://github.com/GIScience/openrouteservice/pull/1322))
@@ -53,6 +54,12 @@ RELEASING:
 - support for API time parameters  ([#1315](https://github.com/GIScience/openrouteservice/pull/1315))
 - upgrade spring-boot from 2.7.9 to 2.7.10  ([#1372](https://github.com/GIScience/openrouteservice/pull/1372))
 - upgrade graphhopper version to v4.4 for correct flushing of graph storages [#1378](https://github.com/GIScience/openrouteservice/pull/1378)
+- Handle warning regarding transient dependencies [#1383](https://github.com/GIScience/openrouteservice/issues/1383)
+- Bump spring-boot to 2.7.11 [#1416](https://github.com/GIScience/openrouteservice/pull/1416)
+- Fix the maven-shared-utils CVE [#1414](https://github.com/GIScience/openrouteservice/pull/1414)
+- Exclude snakeyaml [#1418](https://github.com/GIScience/openrouteservice/pull/1418)
+- Upgrade geotools from 28.2 to 29.0 [#1422](https://github.com/GIScience/openrouteservice/pull/1422)
+- upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 
 ## [7.0.1] - 2023-03-08
 ### Fixed

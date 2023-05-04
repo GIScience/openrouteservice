@@ -16,7 +16,6 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;

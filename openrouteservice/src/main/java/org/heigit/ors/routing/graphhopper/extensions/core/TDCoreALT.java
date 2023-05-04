@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
+import com.graphhopper.routing.Path;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
@@ -27,13 +28,13 @@ public class TDCoreALT extends CoreALT {
         this.reverse = reverse;
     }
 
-    /*TODO
     @Override
-    protected void initPhase2() {
-        inEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.inEdges(flagEncoder));
-        outEdgeExplorer = graph.createEdgeExplorer(AccessEdgeFilter.outEdges(flagEncoder));
+    protected Path extractPath() {
+        if (finished())
+            return TDCorePathExtractor.extractPath(chGraph, weighting, bestFwdEntry, bestBwdEntry, bestWeight);
+
+        return createEmptyPath();
     }
-    */
 
     @Override
     public boolean fillEdgesFromCore() {
@@ -52,13 +53,8 @@ public class TDCoreALT extends CoreALT {
     }
 
     @Override
-    double calcEdgeWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return calcWeight(iter, reverse, currEdge.originalEdge/*TODO: , currEdge.time*/) + currEdge.getWeightOfVisitedPath();
-    }
-
-    @Override
-    long calcTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
-        return currEdge.time + (reverse ? -1 : 1) * iter.getTime(reverse, currEdge.time);
+    long calcEdgeTime(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
+        return currEdge.time + (reverse ? -1 : 1) * calcTime(iter, reverse, currEdge.time);
     }
 
     @Override

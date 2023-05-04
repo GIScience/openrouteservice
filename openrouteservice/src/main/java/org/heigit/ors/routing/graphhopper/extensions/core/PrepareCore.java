@@ -15,7 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntContainer;
-import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.graphhopper.coll.MinHeapWithUpdate;
 import com.graphhopper.routing.ch.*;

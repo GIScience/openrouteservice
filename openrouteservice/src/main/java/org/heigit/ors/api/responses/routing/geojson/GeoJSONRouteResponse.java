@@ -18,6 +18,7 @@ package org.heigit.ors.api.responses.routing.geojson;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
+import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
@@ -26,7 +27,6 @@ import org.heigit.ors.api.responses.routing.RouteResponseInfo;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.util.GeomUtility;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;

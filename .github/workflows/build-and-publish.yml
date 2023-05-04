@@ -9,7 +9,7 @@ on:
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   PRODUCTION_IMAGE_NAME: 'openrouteservice/openrouteservice:nightly'
-  BUILD_PLATFORMS: 'linux/amd64'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
@@ -23,24 +23,70 @@ jobs:
       build_platforms: ${{ env.BUILD_PLATFORMS }}
     steps:
       - run: |
-          echo "Publish enironment variables"
-  build_docker_and_test_war_deployment:
-    name: Build and check the war deployment stage
+          echo "Publish environment variables"
+  build_docker_images:
+    name: Build the docker images
     runs-on: ubuntu-latest
     needs:
       - prepare_environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         id: buildx
         with:
           install: true
+      - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          load: false
+          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
+          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+  run_docker_image_tests:
+    name: Run & test ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs:
+      - prepare_environment
+      - build_docker_images
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            image: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            image: ubuntu-latest
+    steps:
+      - run: |
+          echo "Run docker test for platform ${{ matrix.arch }}"
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU for ${{ matrix.arch }}
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.platform }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        with:
+          install: true
+      - name: Install jq
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: jq moreutils
+          version: 1.0
       - name: Build image
         uses: docker/build-push-action@v4
         with:
@@ -48,20 +94,37 @@ jobs:
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          build-args: "--platform ${{ matrix.platform }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Start container from image and wait for successful war deployment
+      - name: Start container from previously build image and wait for successful checks
         run: |
-          docker run -it -d -p 8080:8080 ${{ needs.prepare_environment.outputs.test_image_name }}
-          ./.github/utils/health_check.sh 127.0.0.1 8080 /ors/
+          mkdir $(pwd)/graphs $(pwd)/conf
+          sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
+          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          # Check for health to turn 200 after the graphs are build and spring-boot completely started         
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 240
+          # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
+          # Adjust the config file and set ORIGIN to https://example.org
+          sudo sh -c 'jq ".ors.api_settings.cors.allowed.origins[0] = \"https://example.org\"" ./conf/ors-config.json | sponge ./conf/ors-config.json'
+          # Restart the container to apply the config changes
+          docker restart ors-instance
+          # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
+          # It should fail with http code 403 for https://example.com since the Origin is not covered.
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
   publish_docker:
     name: Publish the docker image to docker hub
     runs-on: ubuntu-latest
     needs:
       - prepare_environment
-      - build_docker_and_test_war_deployment
+      - build_docker_images
+      - run_docker_image_tests
     steps:
+      - run: |
+          echo "Publish image ${{ needs.prepare_environment.outputs.production_image_name }}"
       - name: Checkout
         uses: actions/checkout@v2.2.0
         with:

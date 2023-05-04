@@ -7,6 +7,33 @@
       "author_tag": "openrouteservice",
       "content_licence": "LGPL 3.0"
     },
+    "api_settings": {
+      "cors": {
+        "allowed": {
+          "origins": [
+            "https://example.org",
+            "https://test.com",
+            "http://localhost:8080",
+            "http://127.0.0.1:8082"
+          ],
+          "headers": [
+            "Content-Type",
+            "X-Tested-With",
+            "accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+            "Authorization"
+          ]
+        },
+        "exposed": {
+          "headers": [
+            "Access-Control-Allow-Origin", "X-Requested-With", "Location"
+          ]
+        },
+        "preflight_max_age": 1234
+      }
+    },
     "services": {
       "matrix": {
         "enabled": true,
@@ -192,6 +219,15 @@
                 },
                 "RoadAccessRestrictions": {
                   "use_for_warnings": true
+                },
+                "HereTraffic": {
+                  "enabled": true,
+                  "streets": "./src/test/files/data/traffic_data/here/Streets.shp",
+                  "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
+                  "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
+                  "radius": 150,
+                  "output_log": false,
+                  "log_location": "ors/traffic_log"
                 }
               },
               "traffic": false
