@@ -204,6 +204,30 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
+	// dedicated method for map matcher to circumvent issue of GraphHopperStorage not being fully loaded
+	public GHResponse routeHMM(GHRequest request) {
+		GraphHopperStorage ghStorage = getGraphHopperStorage();
+		LocationIndex locationIndex = getLocationIndex();
+		if (ghStorage == null)
+			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
+		if (ghStorage.isClosed())
+			throw new IllegalStateException("You need to create a new GraphHopper instance as it is already closed");
+		if (locationIndex == null)
+			throw new IllegalStateException("Location index not initialized");
+
+		PathDetailsBuilderFactory pathBuilderFactory = getPathDetailsBuilderFactory();
+		TranslationMap trMap = getTranslationMap();
+		RouterConfig routerConfig = getRouterConfig();
+
+		Map<String, RoutingCHGraph> chGraphs = new LinkedHashMap<>();
+		Map<String, LandmarkStorage> landmarks = new LinkedHashMap<>();
+
+		Router router = super.doCreateRouter(ghStorage, locationIndex, profilesByName, pathBuilderFactory,
+				trMap, routerConfig, createWeightingFactory(), chGraphs, landmarks);
+
+		return router.route(request);
+	}
+
 	@Override
 	protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,
 									PathDetailsBuilderFactory pathBuilderFactory, TranslationMap trMap, RouterConfig routerConfig,
@@ -244,13 +268,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
 
 		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("weighting", "fastest");
+		req.getHints().putObject("ch.disable", true);
+		req.getHints().putObject("lm.disable", true);
+		req.setProfile("car_ors_fastest");
 
-        GHResponse resp = new GHResponse();
-
-		// TODO Postponed till MapMatcher implementation: need to create a router here? Can we maybe remove the whole class ORSGraphHopper?
-		// List<Path> paths = this.calcPaths(req, resp);
-		List<Path> paths = new ArrayList<>(); // stub to make compile temporarily
+		GHResponse resp = routeHMM(req);
+		List<ResponsePath> paths = resp.getAll();//FIXME: would bestPath be sufficient here?
 
         if (!resp.hasErrors()) {
 
@@ -259,14 +282,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             long time = 0;
             double distance = 0;
             for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
-                Path path = paths.get(pathIndex);
+                ResponsePath path = paths.get(pathIndex);
                 time += path.getTime();
 
-                for (EdgeIteratorState edge : path.calcEdges()) {
-                    fullEdges.add(edge);
-                }
+                //FIXME: ResponsePath doesn't seem to have a method to return edges
+                //for (EdgeIteratorState edge : path.calcEdges()) {
+                //    fullEdges.add(edge);
+                //}
 
-                PointList tmpPoints = path.calcPoints();
+                PointList tmpPoints = path.getPoints();
 
                 if (fullPoints.isEmpty())
                     fullPoints = new PointList(tmpPoints.size(), tmpPoints.is3D());

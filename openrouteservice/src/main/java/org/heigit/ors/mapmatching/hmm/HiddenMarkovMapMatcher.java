@@ -184,7 +184,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
     private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
         // Phase II: Compute distances, probabilities, etc.
-
+        ORSGraphHopper gh = (ORSGraphHopper) graphHopper;
         double v;
         double dist;
         Coordinate z0 = z[0];
@@ -251,9 +251,10 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						req.getHints().putObject("ch.disable", true);
 						req.getHints().putObject("lm.disable", true);
 						req.setAlgorithm("dijkstrabi");
+						req.setProfile("car_ors_fastest");
 
 						try {
-							GHResponse resp = graphHopper.route(req);
+							GHResponse resp = gh.routeHMM(req);
 
 							if (!resp.hasErrors()) {
 								ResponsePath path = resp.getBest();
@@ -288,8 +289,6 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         // and transition probabilities
 
         int[] bestPath = ViterbiSolver.findPath(startProbs, transProbs, emissionProbs, true);
-
-        ORSGraphHopper gh = (ORSGraphHopper) graphHopper;
 
         RouteSegmentInfo res;
 
