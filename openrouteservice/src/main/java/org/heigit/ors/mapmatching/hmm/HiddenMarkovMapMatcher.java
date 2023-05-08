@@ -13,22 +13,25 @@
  */
 package org.heigit.ors.mapmatching.hmm;
 
-import com.graphhopper.GHRequest;
-import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.ResponsePath;
+import com.graphhopper.config.Profile;
+import com.graphhopper.routing.DijkstraBidirectionRef;
+import com.graphhopper.routing.Path;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.*;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +53,14 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
     private List<MatchPoint> matchPoints = new ArrayList<>(2);
     private List<Integer> roadSegments = new ArrayList<>();
     private double[] distances = new double[2];
-    private double[] longitudes = new double[2];
-    private double[] latitudes = new double[2];
-
+    private QueryGraph queryGraph;
+    private Weighting weighting;
+    private Weighting unwrappedWeighting;
+    private List<Snap> snaps = new ArrayList<>(2);
 
 	@SuppressWarnings("serial")
 	private static class MatchPoint extends Coordinate {
+		Snap snap;//FIXME: come up with a better solution?
 		int segmentId;
 		double distanceVal;
 		int measuredPointIndex;
@@ -86,6 +91,12 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 		encoder = gh.getEncodingManager().fetchEdgeEncoders().get(0);
 		locationIndex = (LocationIndexTree) gh.getLocationIndex();
+		String profileStr = "car_ors_fastest";
+		Profile profile = graphHopper.getProfile(profileStr);
+		if (profile == null)
+		    throw new IllegalArgumentException("Could not find profile '" + profileStr);
+
+		unwrappedWeighting = graphHopper.createWeighting(profile, new PMap());
 	}
 
     @Override
@@ -102,6 +113,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
         // Phase I: We are looking for the nearest road segments
         MatchPoint[][] x = new MatchPoint[nZ][];
+        snaps = new ArrayList<>(2);
         double searchRadius = this.searchRadius;
 
         for (int i = 0; i < nPoints; i++) {
@@ -115,6 +127,9 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
             x[i] = xi;
         }
+
+        queryGraph = QueryGraph.create(graphHopper.getGraphHopperStorage().getBaseGraph(), snaps);
+        weighting = queryGraph.wrapWeighting(unwrappedWeighting);
 
         this.searchRadius = searchRadius;
 
@@ -247,17 +262,9 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 						//Point zt1 = z[xj.measuredPointIndex]
 						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
 
-						GHRequest req = new GHRequest(xi.y, xi.x, xj.y, xj.x);
-						req.getHints().putObject("ch.disable", true);
-						req.getHints().putObject("lm.disable", true);
-						req.setAlgorithm("dijkstrabi");
-						req.setProfile("car_ors_fastest");
+						Path path = calcPath(xi, xj);
 
-						try {
-							GHResponse resp = gh.routeHMM(req);
-
-							if (!resp.hasErrors()) {
-								ResponsePath path = resp.getBest();
+						if (path.isFound()) {
 								/*
 								double dx = resp.getDistance()
 								double dt = Math.abs(dz - dx)
@@ -274,9 +281,6 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
 							}
-						} catch(Exception ex) {
-							// do nothing
-						}
 					}
 				}
 
@@ -290,30 +294,78 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
         int[] bestPath = ViterbiSolver.findPath(startProbs, transProbs, emissionProbs, true);
 
-        RouteSegmentInfo res;
-
-        if (nZ > latitudes.length) {
-            latitudes = new double[nZ];
-            longitudes = new double[nZ];
-        }
+        MatchPoint [] mps = new MatchPoint[nZ];
 
         if (bestPath[0] != bestPath[1]) {
             for (int i = 0; i < nZ; i++) {
-                MatchPoint mp = matchPoints.get(bestPath[i]);
-                latitudes[i] = mp.y;
-                longitudes[i] = mp.x;
+                mps[i] = matchPoints.get(bestPath[i]);
             }
         } else {
             for (int i = 0; i < nZ; i++) {
-                latitudes[i] = z[i].y;
-                longitudes[i] = z[i].x;
+                mps[i] = matchPoints.get(i);
             }
         }
 
-		res = gh.getRouteSegment(latitudes, longitudes, encoder.toString());
+		RouteSegmentInfo res = getRouteSegment(mps);
 
 		return res;
 	}
+
+    private Path calcPath(MatchPoint xi, MatchPoint xj) {
+        DijkstraBidirectionRef router = new DijkstraBidirectionRef(queryGraph, weighting, TraversalMode.EDGE_BASED);
+        Path path = router.calcPath(xi.snap.getClosestNode(), xj.snap.getClosestNode());
+        return path;
+    }
+
+    public RouteSegmentInfo getRouteSegment(MatchPoint [] mps) {
+        RouteSegmentInfo result = null;
+
+        List <Path> paths = new ArrayList<>();
+
+        for (int i = 0; i < mps.length - 1; i++) {
+            Path path = calcPath(mps[i], mps[i+1]);
+            if (path.isFound())
+                paths.add(path);
+            else
+                return result;//fail-safe: return an empty object rather than throw an exception
+        }
+
+        List<EdgeIteratorState> fullEdges = new ArrayList<>();
+        PointList fullPoints = PointList.EMPTY;
+        long time = 0;
+        double distance = 0;
+        for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
+            Path path = paths.get(pathIndex);
+            time += path.getTime();
+
+            for (EdgeIteratorState edge : path.calcEdges()) {
+                fullEdges.add(edge);
+            }
+
+            PointList tmpPoints = path.calcPoints();
+
+            if (fullPoints.isEmpty())
+                fullPoints = new PointList(tmpPoints.size(), tmpPoints.is3D());
+
+            fullPoints.add(tmpPoints);
+
+            distance += path.getDistance();
+        }
+
+        if (fullPoints.size() > 1) {
+            Coordinate[] coords = new Coordinate[fullPoints.size()];
+
+            for (int i = 0; i < fullPoints.size(); i++) {
+                double x = fullPoints.getLon(i);
+                double y = fullPoints.getLat(i);
+                coords[i] = new Coordinate(x, y);
+            }
+
+            result = new RouteSegmentInfo(fullEdges, distance, time, new GeometryFactory().createLineString(coords));
+        }
+
+        return result;
+    }
 
 	static double exponentialDistribution(double beta, double x) {
         return 1.0 / beta * Math.exp(-x / beta);
@@ -324,6 +376,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
         // TODO: this is just a temporary work-around for the previous line
 		List<Snap> qResults = List.of(locationIndex.findClosest(lat, lon, edgeFilter));
+		snaps.addAll(qResults);
+
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 
@@ -347,6 +401,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
                 MatchPoint mp = new MatchPoint(spLon, spLat);// match order in Coordinate objects
                 mp.distanceVal = distance;
+                mp.snap = qr;
                 mp.segmentId = roadSegments.indexOf(edgeId);
                 mp.measuredPointIndex = measuredPointIndex;
 
@@ -367,8 +422,6 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
     public void clear() {
         this.distances = new double[2];
-        this.longitudes = new double[2];
-        this.latitudes = new double[2];
         this.matchPoints = new ArrayList<>(2);
         this.roadSegments = new ArrayList<>();
     }

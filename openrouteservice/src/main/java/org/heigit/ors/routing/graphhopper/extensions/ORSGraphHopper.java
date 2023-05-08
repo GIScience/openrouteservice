@@ -260,62 +260,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 		return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
 
-    public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
-        RouteSegmentInfo result = null;
-
-        GHRequest req = new GHRequest();
-        for (int i = 0; i < latitudes.length; i++)
-            req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
-
-		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("ch.disable", true);
-		req.getHints().putObject("lm.disable", true);
-		req.setProfile("car_ors_fastest");
-
-		GHResponse resp = routeHMM(req);
-		List<ResponsePath> paths = resp.getAll();//FIXME: would bestPath be sufficient here?
-
-        if (!resp.hasErrors()) {
-
-            List<EdgeIteratorState> fullEdges = new ArrayList<>();
-            PointList fullPoints = PointList.EMPTY;
-            long time = 0;
-            double distance = 0;
-            for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
-                ResponsePath path = paths.get(pathIndex);
-                time += path.getTime();
-
-                //FIXME: ResponsePath doesn't seem to have a method to return edges
-                //for (EdgeIteratorState edge : path.calcEdges()) {
-                //    fullEdges.add(edge);
-                //}
-
-                PointList tmpPoints = path.getPoints();
-
-                if (fullPoints.isEmpty())
-                    fullPoints = new PointList(tmpPoints.size(), tmpPoints.is3D());
-
-                fullPoints.add(tmpPoints);
-
-                distance += path.getDistance();
-            }
-
-            if (fullPoints.size() > 1) {
-                Coordinate[] coords = new Coordinate[fullPoints.size()];
-
-                for (int i = 0; i < fullPoints.size(); i++) {
-                    double x = fullPoints.getLon(i);
-                    double y = fullPoints.getLat(i);
-                    coords[i] = new Coordinate(x, y);
-                }
-
-                result = new RouteSegmentInfo(fullEdges, distance, time, new GeometryFactory().createLineString(coords));
-            }
-        }
-
-        return result;
-    }
-
 	/**
 	 * Check whether the route processing has to start. If avoid all borders is set and the routing points are in different countries,
 	 * there is no need to even start routing.
