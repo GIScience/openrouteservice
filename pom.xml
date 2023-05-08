@@ -10,8 +10,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
-    <artifactId>parent-project</artifactId>
-    <version>7.0.1</version>
+    <artifactId>ors-parent</artifactId>
+    <version>7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>openrouteservice parent project</name>
     <url>https://openrouteservice.org</url>
@@ -78,6 +78,6 @@
         </pluginManagement>
     </build>
     <modules>
-        <module>openrouteservice</module>
+        <module>ors-routing</module>
     </modules>
 </project>

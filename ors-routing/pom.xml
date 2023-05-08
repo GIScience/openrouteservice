@@ -27,16 +27,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>parent-project</artifactId>
+        <relativePath>../pom.xml</relativePath>
+        <artifactId>ors-parent</artifactId>
         <groupId>org.heigit.ors</groupId>
-        <version>7.1.0</version>
+        <version>7.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>openrouteservice</artifactId>
-    <version>7.1.0</version>
+    <artifactId>ors-routing</artifactId>
+    <version>7.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>openrouteservice</name>
+    <name>ors-routing</name>
     <url>https://openrouteservice.org</url>
     <inceptionYear>2008</inceptionYear>
     <issueManagement>
