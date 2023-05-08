@@ -1644,7 +1644,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testHGVWidthRestriction() { // check route
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.690915,49.430117|8.68834,49.427758"));
+        body.put("coordinates", constructCoords("8.76121,49.417929|8.761028,49.419332"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1668,8 +1668,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(809.3, 8)))
-                .body("routes[0].summary.duration", is(closeTo(239.1, 2)))
+                .body("routes[0].summary.distance", is(closeTo(719.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(172.5, 1)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1691,15 +1691,15 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(379.5, 3)))
-                .body("routes[0].summary.duration", is(closeTo(270.0, 2)))
+                .body("routes[0].summary.distance", is(closeTo(237.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(57.0, 1)))
                 .statusCode(200);
     }
 
     @Test
     void testHGVHeightRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.687992,49.426312|8.691315,49.425962"));
+        body.put("coordinates", constructCoords("8.688941,49.427668|8.691315,49.425962"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1723,8 +1723,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(549.0, 1)))
-                .body("routes[0].summary.duration", is(closeTo(185.4, 1)))
+                .body("routes[0].summary.distance", is(closeTo(573.5, 1)))
+                .body("routes[0].summary.duration", is(closeTo(183.5, 1)))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -1747,7 +1747,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(376.5, 1)))
-                .body("routes[0].summary.duration", is(closeTo(184.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(130.0, 1)))
                 .statusCode(200);
     }
 
@@ -1769,8 +1769,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(379.5, 1)))
-                .body("routes[0].summary.duration", is(closeTo(270.0, 1)))
+                .body("routes[0].summary.distance", is(closeTo(808.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(238.7, 1)))
                 .statusCode(200);
     }
 
