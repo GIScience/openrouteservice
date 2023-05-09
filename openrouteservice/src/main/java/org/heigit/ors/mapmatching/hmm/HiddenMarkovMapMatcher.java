@@ -60,14 +60,19 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 	@SuppressWarnings("serial")
 	private static class MatchPoint extends Coordinate {
-		Snap snap;//FIXME: come up with a better solution?
+		Snap snap;
 		int segmentId;
-		double distanceVal;
 		int measuredPointIndex;
 
-		MatchPoint(double lat, double lon) {
-			super(lat, lon);
+		MatchPoint(Snap snap, int measuredPointIndex) {
+            super(snap.getSnappedPoint().getLon(), snap.getSnappedPoint().getLat());
+		    this.snap = snap;
+		    this.measuredPointIndex = measuredPointIndex;
 		}
+
+		double getDistance() {
+		    return snap.getQueryDistance();
+        }
 
 		@Override
 		public boolean equals(Object obj) {
@@ -213,7 +218,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
             for (int i = 0; i < nRI; i++) {
                 MatchPoint xi = x[t][i];
                 int ri = xi.segmentId;
-                dist = xi.distanceVal;// distCalcEarth.calcDist(zt.lat, zt.lon, xi.lat, xi.lon)
+                dist = xi.getDistance();
                 if (dist > distThreshold)
                     emissionProbs[ri][t] = defaultProbability;
                 else {
@@ -383,32 +388,20 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
         int nMatchPoints = matchPoints.size();
 
-		for (int matchIndex = 0; matchIndex < qResults.size(); matchIndex++) {
-			Snap qr = qResults.get(matchIndex);
-			if (!qr.isValid())
+		for (Snap qr: qResults) {
+			if (!qr.isValid() || qr.getQueryDistance() > searchRadius)
 			    continue;
 
-            double spLat = qr.getSnappedPoint().getLat();
-            double spLon = qr.getSnappedPoint().getLon();
-            double distance = distCalcEarth.calcDist(qr.getQueryPoint().getLat(), qr.getQueryPoint().getLon(), spLat,
-                    spLon);
+            MatchPoint mp = new MatchPoint(qr, measuredPointIndex);// match order in Coordinate objects
+            matchPoints.add(mp);
 
-            // TODO Add start end end radius to search in rings.
-            if (distance <= searchRadius) {
-
-                int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
-
-                if (!roadSegments.contains(edgeId))
-                    roadSegments.add(edgeId);
-
-                MatchPoint mp = new MatchPoint(spLon, spLat);// match order in Coordinate objects
-                mp.distanceVal = distance;
-                mp.snap = qr;
-                mp.segmentId = roadSegments.indexOf(edgeId);
-                mp.measuredPointIndex = measuredPointIndex;
-
-                matchPoints.add(mp);
-            }
+            //TODO: all the bookkeeping around road segments seems obsolete to me as the matching appears to happen
+            // based on matched points rather than segments. In fact, the size of `roadSegments` array is used in loops
+            // iterating over `matchPoints` which looks like a potential bug to me.
+            int edgeId = EdgeIteratorStateHelper.getOriginalEdge(qr.getClosestEdge());
+            if (!roadSegments.contains(edgeId))
+			    roadSegments.add(edgeId);
+            mp.segmentId = roadSegments.indexOf(edgeId);
         }
 
         int n = matchPoints.size() - nMatchPoints;
