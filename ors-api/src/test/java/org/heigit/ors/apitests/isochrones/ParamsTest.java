@@ -11,15 +11,14 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.apitests.isochrones.fast;
+package org.heigit.ors.apitests.isochrones;
 
+import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.heigit.ors.apitests.isochrones.IsochronesErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -36,7 +35,8 @@ class ParamsTest extends ServiceTest {
     public ParamsTest() {
         // Locations
         addParameter("preference", "fastest");
-        addParameter("hgvProfile", "driving-hgv");
+        addParameter("cyclingProfile", "cycling-regular");
+        addParameter("carProfile", "driving-car");
 
         JSONArray firstLocation = new JSONArray();
         firstLocation.put(8.681495);
@@ -103,7 +103,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -121,12 +121,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.MISSING_PARAMETER))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.MISSING_PARAMETER))
                 .statusCode(400);
     }
 
@@ -139,12 +139,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.UNKNOWN_PARAMETER))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.UNKNOWN_PARAMETER))
                 .statusCode(400);
     }
 
@@ -160,12 +160,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);
     }
 
@@ -181,12 +181,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
     }
@@ -202,12 +202,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM))
                 .statusCode(400);
     }
 
@@ -223,12 +223,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
                 .statusCode(400);
     }
 
@@ -245,12 +245,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
     }
@@ -266,12 +266,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -285,12 +285,12 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -307,26 +307,26 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
 
         body.put("attributes", new JSONArray(Arrays.asList("blah", "reachfactor")));
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -345,13 +345,13 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -369,13 +369,13 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -388,29 +388,28 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/blah")
+                .post(getEndPointPath() + "/{profile}/blah")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
                 .statusCode(406);
 
         given()
                 .headers(jsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/geojson")
+                .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .assertThat()
-                .body("error.code", is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .body("error.code", Matchers.is(IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
                 .statusCode(406);
     }
 
     @Test
-    @Disabled("Currently no support for location type destination with fast isochrones")
     void testDestination() {
 
         JSONObject body = new JSONObject();
@@ -421,9 +420,8 @@ class ParamsTest extends ServiceTest {
         body.put("location_type", "destination");
 
         given()
-                .header("Accept", "application/geo+json")
-                .header("Content-Type", "application/json")
-                .pathParam("profile", getParameter("hgvProfile"))
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -443,7 +441,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -464,7 +462,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -486,7 +484,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -509,7 +507,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -530,11 +528,11 @@ class ParamsTest extends ServiceTest {
         body.put("range", ranges);
         body.put("range_type", "time");
         body.put("interval", getParameter("interval_200"));
-        body.put("location_type", "start");
+        body.put("location_type", "destination");
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -561,7 +559,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -582,13 +580,13 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
 
     }
 
@@ -605,13 +603,13 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
     }
 
     @Test
@@ -628,7 +626,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -654,13 +652,13 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
 
     }
 
@@ -678,7 +676,7 @@ class ParamsTest extends ServiceTest {
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
@@ -702,38 +700,82 @@ class ParamsTest extends ServiceTest {
         // ten, 101, -1
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT));
 
         body.put("smoothing", "-1");
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
 
         body.put("smoothing", "101");
 
         given()
                 .headers(geoJsonContent)
-                .pathParam("profile", getParameter("hgvProfile"))
+                .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(400)
-                .body("error.code", is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
 
     }
 
+    @Test
+    void expectUnknownProfile() {
+
+        JSONArray ranges = new JSONArray();
+        ranges.put(600);
+        ranges.put(400);
+        ranges.put(300);
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", ranges);
+        body.put("range_type", "time");
+        body.put("interval", getParameter("interval_200"));
+        body.put("location_type", "destination");
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", "wrongProfile")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(400)
+                .body("error.code", Matchers.is(IsochronesErrorCodes.INVALID_PARAMETER_VALUE));
+
+    }
+
+    @Test
+    void testAcceptsTimeParameter() {
+        JSONArray ranges = new JSONArray();
+        ranges.put(400);
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", ranges);
+        body.put("time", "2023-03-20T12:18:00");
+
+        given().log().ifValidationFails()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .statusCode(200);
+    }
 }

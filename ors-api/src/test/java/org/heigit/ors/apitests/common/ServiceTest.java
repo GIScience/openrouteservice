@@ -21,6 +21,7 @@
 package org.heigit.ors.apitests.common;
 
 import io.restassured.RestAssured;
+import org.heigit.ors.api.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
 @ExtendWith(InitializeGraphsOnce.class)
 public abstract class ServiceTest {
 	private final Map<String, Object> dictUrlParams;

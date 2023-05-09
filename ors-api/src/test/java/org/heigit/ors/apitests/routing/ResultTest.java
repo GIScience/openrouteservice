@@ -17,9 +17,11 @@ import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.utils.CommonHeaders;
+import org.heigit.ors.apitests.utils.HelperFunctions;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Disabled;
@@ -50,8 +52,6 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
-import static org.heigit.ors.apitests.utils.CommonHeaders.*;
-import static org.heigit.ors.apitests.utils.HelperFunctions.constructCoords;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -175,7 +175,7 @@ class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         Response response = given()
-                .headers(gpxContent)
+                .headers(CommonHeaders.gpxContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -193,7 +193,7 @@ class ResultTest extends ServiceTest {
 
         body.put("instructions", false);
         Response response_without_instructions = given()
-                .headers(gpxContent)
+                .headers(CommonHeaders.gpxContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -679,7 +679,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", getParameter("extra_info"));
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -714,7 +714,7 @@ class ResultTest extends ServiceTest {
         body.put("id", "request123");
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -729,7 +729,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -750,7 +750,7 @@ class ResultTest extends ServiceTest {
         body.put("id", "request123");
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -788,7 +788,7 @@ class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -811,7 +811,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -838,7 +838,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -866,7 +866,7 @@ class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -889,7 +889,7 @@ class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -911,7 +911,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -934,7 +934,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -961,7 +961,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", getParameter("extra_info"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -986,7 +986,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", getParameter("extra_info"));
 
         Response response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1014,7 +1014,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", constructExtras("surface|suitability|steepness"));
 
         Response response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -1028,13 +1028,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testTrailDifficultyExtraDetails() { // route geometry needs to be checked, might be edge simplification issue
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.763442,49.388882|8.762927,49.397541"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.763442,49.388882|8.762927,49.397541"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("suitability|traildifficulty"));
 
         Response response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1056,13 +1056,13 @@ class ResultTest extends ServiceTest {
         checkExtraConsistency(response);
 
         body = new JSONObject();
-        body.put("coordinates", constructCoords("8.724174,49.390223|8.716536,49.399622"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.724174,49.390223|8.716536,49.399622"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("traildifficulty"));
 
         response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "foot-hiking")
                 .body(body.toString())
                 .when()
@@ -1090,7 +1090,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testTollwaysExtraDetails() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676281,49.414715|8.6483,49.413291"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676281,49.414715|8.6483,49.413291"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("extra_info", constructExtras("suitability|tollways"));
@@ -1098,7 +1098,7 @@ class ResultTest extends ServiceTest {
         // Test that the response indicates that the whole route is tollway free. The first two tests check that the waypoint ids
         // in the extras.tollways.values match the final waypoint of the route
         Response response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
@@ -1117,7 +1117,7 @@ class ResultTest extends ServiceTest {
         checkExtraConsistency(response);
 
         response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1154,7 +1154,7 @@ class ResultTest extends ServiceTest {
         body.put("continue_straight", false);
 
         response = given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -1186,7 +1186,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", constructExtras("green"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -1212,7 +1212,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", constructExtras("noise"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -1247,7 +1247,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -1269,7 +1269,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", new JSONArray("[\"steepness\",\"suitability\",\"surface\",\"waycategory\",\"waytype\",\"tollways\",\"traildifficulty\",\"osmid\",\"roadaccessrestrictions\",\"countryinfo\",\"green\",\"noise\"]"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/foot-walking/json")
@@ -1294,14 +1294,14 @@ class ResultTest extends ServiceTest {
     @Test
     void testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("optimized", false);
 
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
@@ -1316,14 +1316,14 @@ class ResultTest extends ServiceTest {
     @Test
     void testMaximumSpeed() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
         body.put("maximum_speed", 85);
 
         //Test against default maximum speed lower bound setting
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
@@ -1339,7 +1339,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1354,7 +1354,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testTurnRestrictions() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.684081,49.398155|8.684703,49.397359"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.684081,49.398155|8.684703,49.397359"));
         body.put("preference", getParameter("preference"));
 
         JSONObject options = new JSONObject();
@@ -1363,7 +1363,7 @@ class ResultTest extends ServiceTest {
 
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
@@ -1378,7 +1378,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testUTurnRestrictions() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.698302,49.412282|8.698801,49.41223"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.698302,49.412282|8.698801,49.41223"));
         body.put("preference", getParameter("preference"));
 
         JSONObject options = new JSONObject();
@@ -1388,7 +1388,7 @@ class ResultTest extends ServiceTest {
         // Test that the "right turn only" restriction at the junction is taken into account
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
@@ -1403,12 +1403,12 @@ class ResultTest extends ServiceTest {
     @Test
     void testNoBearings() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1423,14 +1423,14 @@ class ResultTest extends ServiceTest {
     @Test
     void testBearingsForStartAndEndPoints() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("25,30|90,20"));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "cycling-road")
                 .body(body.toString())
                 .when()
@@ -1445,13 +1445,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testBearingsExceptLastPoint() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("25,30"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "cycling-road")
                 .body(body.toString())
                 .when()
@@ -1466,14 +1466,14 @@ class ResultTest extends ServiceTest {
     @Test
     void testBearingsSkipwaypoint() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688694,49.399374|8.686495,49.40349"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", true);
         body.put("bearings", constructBearings("|90,20"));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1493,7 +1493,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1513,7 +1513,7 @@ class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1536,7 +1536,7 @@ class ResultTest extends ServiceTest {
         body.put("instructions", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -1602,7 +1602,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testVehicleType() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.71189,49.41165|8.71128,49.40971"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.71189,49.41165|8.71128,49.40971"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1614,7 +1614,7 @@ class ResultTest extends ServiceTest {
         // Test that buses are not allowed on Neue Schlossstraße (https://www.openstreetmap.org/way/150549948)
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1629,7 +1629,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1644,7 +1644,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testHGVWidthRestriction() { // check route
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.76121,49.417929|8.761028,49.419332"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.76121,49.417929|8.761028,49.419332"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1660,7 +1660,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1683,7 +1683,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1699,7 +1699,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testHGVHeightRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.688941,49.427668|8.691315,49.425962"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.688941,49.427668|8.691315,49.425962"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1715,7 +1715,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1738,7 +1738,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -1754,14 +1754,14 @@ class ResultTest extends ServiceTest {
     @Test
     void testCarDistanceAndDuration() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.690915,49.430117|8.68834,49.427758"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.690915,49.430117|8.68834,49.427758"));
         body.put("preference", "shortest");
         body.put("instructions", false);
 
         // Generic test to ensure that the distance and duration dont get changed
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1779,7 +1779,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testBordersAvoid() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("optimized", false);
@@ -1792,7 +1792,7 @@ class ResultTest extends ServiceTest {
         // Test that providing border control in avoid_features works
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1809,7 +1809,7 @@ class ResultTest extends ServiceTest {
 
         // Option 1 signifies that the route should not cross any borders
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1824,7 +1824,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testCountryExclusion() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("optimized", false);
@@ -1836,7 +1836,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1852,7 +1852,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1867,7 +1867,7 @@ class ResultTest extends ServiceTest {
         options.put("avoid_countries", constructFromPipedList("AT|FR"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1882,7 +1882,7 @@ class ResultTest extends ServiceTest {
         options.put("avoid_countries", constructFromPipedList("AUT|FRA"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1898,7 +1898,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testBordersAndCountry() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.684682,49.401961|8.690518,49.405326"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1910,7 +1910,7 @@ class ResultTest extends ServiceTest {
 
         // Test that routing avoids crossing into borders specified
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1931,7 +1931,7 @@ class ResultTest extends ServiceTest {
 
         // Test that a detourfactor is returned when requested
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1956,7 +1956,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -1973,7 +1973,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairWidthRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.708605,49.410688|8.709844,49.411160"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.708605,49.410688|8.709844,49.411160"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -1987,7 +1987,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2008,7 +2008,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -2024,7 +2024,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairInclineRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.670290,49.418041|8.667490,49.418376"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.670290,49.418041|8.667490,49.418376"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("units", "m");
@@ -2038,7 +2038,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2060,7 +2060,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2076,7 +2076,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairKerbRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.681125,49.403070|8.681434,49.402991"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.681125,49.403070|8.681434,49.402991"));
         body.put("preference", "shortest");
         body.put("instructions", false);
 
@@ -2089,7 +2089,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2110,7 +2110,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2126,7 +2126,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairSurfaceRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.686388,49.412449|8.690858,49.413009"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.686388,49.412449|8.690858,49.413009"));
         body.put("preference", "shortest");
         body.put("instructions", false);
 
@@ -2140,7 +2140,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2163,7 +2163,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2179,7 +2179,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairSmoothnessRestriction() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676730,49.421513|8.678545,49.421117"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676730,49.421513|8.678545,49.421117"));
         body.put("preference", "shortest");
         body.put("instructions", false);
 
@@ -2192,7 +2192,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2213,7 +2213,7 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2229,7 +2229,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairDebugExport() {
         JSONObject body = new JSONObject();
-        body.put("bbox", constructCoords("8.662440776824953, 49.41372343556617|8.677289485931398, 49.42018658125273"));
+        body.put("bbox", HelperFunctions.constructCoords("8.662440776824953, 49.41372343556617|8.677289485931398, 49.42018658125273"));
         body.put("debug", true);
         given()
                 .header("Accept", "application/json")
@@ -2247,13 +2247,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairSurfaceQualityKnown() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.6639,49.381199|8.670702,49.378978"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.6639,49.381199|8.670702,49.378978"));
         body.put("preference", "recommended");
         body.put("instructions", true);
 
         given()
                 .config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE)))
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2273,7 +2273,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2289,13 +2289,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testWheelchairAllowUnsuitable() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.668277,49.377836|8.664753,49.376104"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.668277,49.377836|8.664753,49.376104"));
         body.put("preference", "shortest");
         body.put("instructions", true);
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2315,7 +2315,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2331,13 +2331,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testOsmIdExtras() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676730,49.421513|8.678545,49.421117"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676730,49.421513|8.678545,49.421117"));
         body.put("preference", "shortest");
         body.put("instructions", false);
         body.put("extra_info", constructExtras("osmid"));
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
@@ -2368,7 +2368,7 @@ class ResultTest extends ServiceTest {
         body.put("preference", "shortest");
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2384,7 +2384,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2411,7 +2411,7 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesLong"));
 
         Response res = given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2424,7 +2424,7 @@ class ResultTest extends ServiceTest {
         body.put("geometry_simplify", true);
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2446,7 +2446,7 @@ class ResultTest extends ServiceTest {
 
         body.put("skip_segments", skipSegments);
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -2460,7 +2460,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2487,7 +2487,7 @@ class ResultTest extends ServiceTest {
 
         body.put("coordinates", getParameter("coordinatesShort"));
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -2525,7 +2525,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2579,7 +2579,7 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", getParameter("coordinatesLong"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -2625,7 +2625,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2701,7 +2701,7 @@ class ResultTest extends ServiceTest {
         coordsTooLong.put(coordLong5);
         body.put("coordinates", coordsTooLong);
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -2730,7 +2730,7 @@ class ResultTest extends ServiceTest {
         body.put("attributes", attributes);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2745,7 +2745,7 @@ class ResultTest extends ServiceTest {
 
         body.put("units", "km");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2760,7 +2760,7 @@ class ResultTest extends ServiceTest {
 
         body.put("units", "m");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2775,7 +2775,7 @@ class ResultTest extends ServiceTest {
 
         body.put("units", "mi");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2796,7 +2796,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2819,7 +2819,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2840,7 +2840,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2863,7 +2863,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2884,7 +2884,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2907,7 +2907,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -2924,12 +2924,12 @@ class ResultTest extends ServiceTest {
     @Test
     void testRouteMergeIndexing() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
 
         // ensure indexing of merged routes waypoints dont get messed up
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2953,11 +2953,11 @@ class ResultTest extends ServiceTest {
     @Test
     void testIdenticalCoordinatesIndexing() { // Taki needs to look into this, see if the problem in question is addressed properly...
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -2973,13 +2973,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testRouteMergeInstructionsWithoutGeometry() { // need to check route geometry, might be edge simplifications
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.676131,49.418149|8.676142,49.417555|8.680733,49.417248"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", "false");
 
         // ensure indexing of merged routes waypoints dont get messed up
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3020,7 +3020,7 @@ class ResultTest extends ServiceTest {
 
         // No border crossing
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3060,7 +3060,7 @@ class ResultTest extends ServiceTest {
 
         // Outside of any borders
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3095,7 +3095,7 @@ class ResultTest extends ServiceTest {
 
         // Close to a border crossing
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3135,7 +3135,7 @@ class ResultTest extends ServiceTest {
 
         // With Border crossing
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3184,7 +3184,7 @@ class ResultTest extends ServiceTest {
         body.put("extra_info", getParameter("extra_info"));
         given()
             .config(JSON_CONFIG_DOUBLE_NUMBERS)
-            .headers(jsonContent)
+            .headers(CommonHeaders.jsonContent)
             .pathParam("profile", getParameter("carProfile"))
             .body(body.toString())
             .when()
@@ -3206,7 +3206,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3245,7 +3245,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3264,7 +3264,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3282,7 +3282,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3298,7 +3298,7 @@ class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("25,30"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3334,7 +3334,7 @@ class ResultTest extends ServiceTest {
         body.put("instructions", false);
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3353,7 +3353,7 @@ class ResultTest extends ServiceTest {
         body.put("preference", "shortest");
 
         given()
-                .headers(geoJsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when().log().ifValidationFails()
@@ -3374,7 +3374,7 @@ class ResultTest extends ServiceTest {
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
@@ -3396,7 +3396,7 @@ class ResultTest extends ServiceTest {
         body.put("elevation", true);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "foot-hiking")
                 .body(body.toString())
                 .when()
@@ -3419,7 +3419,7 @@ class ResultTest extends ServiceTest {
 
         // Test that if the request specifies departure time then the response contains both departure and arrival time
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("bikeProfile"))
                 .body(body.toString())
                 .when()
@@ -3451,7 +3451,7 @@ class ResultTest extends ServiceTest {
         // Tag "motor_vehicle:conditional = no @ Mo-Fr 12:45-13:30" on way 27884831
         // Test that way is accessible if no time is specified
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3466,7 +3466,7 @@ class ResultTest extends ServiceTest {
         // Test that way is accessible on weekends
         body.put("departure", "2021-01-31T13:00");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3481,7 +3481,7 @@ class ResultTest extends ServiceTest {
         // Test that way is closed at certain times throughout the week
         body.put("departure", "2021-12-31T13:00");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3496,7 +3496,7 @@ class ResultTest extends ServiceTest {
         // Test that a shorter route around closed edge exists
         body.put("preference", "shortest");
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3529,7 +3529,7 @@ class ResultTest extends ServiceTest {
         // Test that the speed limit is not taken into account if no time is specified
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3545,7 +3545,7 @@ class ResultTest extends ServiceTest {
         body.put("arrival", "2021-01-31T22:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3562,7 +3562,7 @@ class ResultTest extends ServiceTest {
         body.put("departure", "2021-01-31T22:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3578,7 +3578,7 @@ class ResultTest extends ServiceTest {
         body.put("preference", "shortest");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3739,7 +3739,7 @@ class ResultTest extends ServiceTest {
 
         // Test that "zone:maxspeed = DE:urban" overrides default "highway = residential" speed for both car and hgv
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3752,7 +3752,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -3783,7 +3783,7 @@ class ResultTest extends ServiceTest {
 
         // Test that "maxspeed:hgv:forward = 30" when going downhill on Am Götzenberg is taken into account for hgv profile
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3796,7 +3796,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         given()
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()

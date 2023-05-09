@@ -1,8 +1,8 @@
 package org.heigit.ors.apitests.centrality;
 
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.json.JSONArray;
 import org.json.JSONObject;

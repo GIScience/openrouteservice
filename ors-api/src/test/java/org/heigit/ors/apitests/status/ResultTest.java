@@ -13,9 +13,9 @@
  */
 package org.heigit.ors.apitests.status;
 
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.kafka.ORSKafkaConsumerRunner;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;

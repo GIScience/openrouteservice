@@ -13,9 +13,10 @@
  */
 package org.heigit.ors.apitests.routing;
 
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.utils.HelperFunctions;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.config.AppConfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +30,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.geoJsonContent;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.apitests.utils.HelperFunctions.constructCoords;
 
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
@@ -1661,7 +1661,7 @@ class ParamsTest extends ServiceTest {
     @Test
     void testMaximumSpeedLowerBound() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
         body.put("maximum_speed", 75);
 
@@ -1682,7 +1682,7 @@ class ParamsTest extends ServiceTest {
     @Test
     void testMaximumSpeedUnsupportedProfile() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("coordinates", HelperFunctions.constructCoords("8.63348,49.41766|8.6441,49.4672"));
         body.put("preference", getParameter("preference"));
         body.put("maximum_speed", 80);
 

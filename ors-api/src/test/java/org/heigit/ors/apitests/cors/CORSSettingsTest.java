@@ -14,9 +14,9 @@
 package org.heigit.ors.apitests.cors;
 
 import io.restassured.response.Response;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.config.AppConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

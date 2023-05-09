@@ -13,9 +13,10 @@
  */
 package org.heigit.ors.apitests.matrix;
 
-import org.heigit.ors.apitests.common.EndPointAnnotation;
+import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -187,7 +188,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -204,7 +205,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -221,7 +222,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/blah")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .body("error.code", Matchers.is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
                 .statusCode(406);
 
         given()
@@ -232,7 +233,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath()+"/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .body("error.code", Matchers.is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
                 .statusCode(406);
     }
 
@@ -248,7 +249,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -264,7 +265,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath())
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.MISSING_PARAMETER))
+                .body("error.code", Matchers.is(MatrixErrorCodes.MISSING_PARAMETER))
                 .statusCode(400);
     }
 
@@ -280,7 +281,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
+                .body("error.code", Matchers.is(MatrixErrorCodes.INVALID_PARAMETER_FORMAT))
                 .statusCode(400);
     }
 
@@ -297,7 +298,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
+                .body("error.code", Matchers.is(MatrixErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
     }
 
@@ -315,7 +316,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
+                .body("error.code", Matchers.is(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
                 .statusCode(400);
     }
 
@@ -696,7 +697,7 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/json")
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("error.code", is(MatrixErrorCodes.POINT_NOT_FOUND))
+                .body("error.code", Matchers.is(MatrixErrorCodes.POINT_NOT_FOUND))
                 .statusCode(404);
     }
 }
