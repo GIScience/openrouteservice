@@ -385,6 +385,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 		for (int matchIndex = 0; matchIndex < qResults.size(); matchIndex++) {
 			Snap qr = qResults.get(matchIndex);
+			if (!qr.isValid())
+			    continue;
 
             double spLat = qr.getSnappedPoint().getLat();
             double spLon = qr.getSnappedPoint().getLon();
