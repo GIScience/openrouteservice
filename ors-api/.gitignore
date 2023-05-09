@@ -1,0 +1,19 @@
+target/
+*~
+TODO.txt
+.settings/
+.classpath
+.project
+#/WebContent/WEB-INF/ors-config.json
+cgiar-cache
+srtm_38_03.zip
+.attach_*
+
+# integration tests
+!src/test/resources/logs/TEST_LOGGING.json
+graphs-apitests/
+ors.log
+
+# jqwik
+.jqwik-database
+
