@@ -4,7 +4,7 @@
 	<!-- FILTERS -->
 	<filter>
 		<filter-name>CompressionFilter</filter-name>
-		<filter-class>org.heigit.ors.servlet.filters.CompressionFilter</filter-class>
+		<filter-class>org.heigit.ors.api.servlet.filters.CompressionFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>CompressionFilter</filter-name>
@@ -13,7 +13,7 @@
 
 	<filter>
 		<filter-name>StatusCodeHandlerFilter</filter-name>
-		<filter-class>org.heigit.ors.servlet.filters.StatusCodeHandlerFilter</filter-class>
+		<filter-class>org.heigit.ors.api.servlet.filters.StatusCodeHandlerFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>StatusCodeHandlerFilter</filter-name>

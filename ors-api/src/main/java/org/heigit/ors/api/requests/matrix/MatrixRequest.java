@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.common.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -307,7 +306,7 @@ public class MatrixRequest extends APIRequest {
             int profileType = convertRouteProfileType(profile);
             params.setProfileType(profileType);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         }
         processRequestOptions(matrixOptions, params);
 
@@ -399,11 +398,11 @@ public class MatrixRequest extends APIRequest {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
             }
             return profileFromString;
         } catch (Exception e) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         }
     }
 }

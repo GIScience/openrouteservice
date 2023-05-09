@@ -1,8 +1,8 @@
-package org.heigit.ors;
+package org.heigit.ors.api;
 
-import org.heigit.ors.servlet.listeners.LoggingStartupContextListener;
-import org.heigit.ors.servlet.listeners.ORSInitContextListener;
-import org.heigit.ors.servlet.listeners.ORSKafkaConsumerInitContextListener;
+import org.heigit.ors.api.servlet.listeners.LoggingStartupContextListener;
+import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
+import org.heigit.ors.api.servlet.listeners.ORSKafkaConsumerInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@ServletComponentScan("org.heigit.ors.servlet.listeners")
+@ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
     public static void main(String[] args) {

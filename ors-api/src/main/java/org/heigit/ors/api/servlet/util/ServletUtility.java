@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.servlet.util;
+package org.heigit.ors.api.servlet.util;
 
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.util.StreamUtility;

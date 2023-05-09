@@ -528,11 +528,11 @@ public class IsochronesRequest extends APIRequest {
         try {
             profileType = convertToIsochronesProfileType(this.getProfile());
         } catch (Exception e) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         }
 
         if (profileType == RoutingProfileType.UNKNOWN)
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         routeSearchParameters.setProfileType(profileType);
 
         if (this.hasOptions()) {

@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.servlet.listeners;
+package org.heigit.ors.api.servlet.listeners;
 
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigObject;
