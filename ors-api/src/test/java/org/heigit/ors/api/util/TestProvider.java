@@ -1,4 +1,4 @@
-package org.heigit.ors.util;
+package org.heigit.ors.api.util;
 
 import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,7 +9,7 @@ import java.util.stream.Stream;
  * IntelliJ can't resolve class usage in @MethodSource usage for parametrized tests in Junit5.
  * The usage is as followed:
  * '@ParameterizedTest'
- * '@MethodSource("org.heigit.ors.util.TestProvider#languagesEnumTestProvider")'
+ * '@MethodSource("org.heigit.ors.api.util.TestProvider#languagesEnumTestProvider")'
  */
 @SuppressWarnings("unused")
 public class TestProvider {

@@ -174,7 +174,7 @@ class APIEnumsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("org.heigit.ors.util.TestProvider#languagesEnumTestProvider")
+    @MethodSource("org.heigit.ors.api.util.TestProvider#languagesEnumTestProvider")
     void testLanguagesEnumCreation(String languageEnum, APIEnums.Languages expectedLanguageEnum) throws ParameterValueException {
         assertEquals(expectedLanguageEnum, APIEnums.Languages.forValue(languageEnum));
     }
@@ -185,7 +185,7 @@ class APIEnumsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("org.heigit.ors.util.TestProvider#languagesEnumTestProvider")
+    @MethodSource("org.heigit.ors.api.util.TestProvider#languagesEnumTestProvider")
     void testLanguagesEnumValue(String expectedLanguageEnumString, APIEnums.Languages languageEnum) {
         assertEquals(expectedLanguageEnumString, languageEnum.toString());
     }

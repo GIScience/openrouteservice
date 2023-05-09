@@ -1,0 +1,489 @@
+{
+  "ors": {
+    "info": {
+      "base_url": "https://openrouteservice.org/",
+      "swagger_documentation_url": "https://api.openrouteservice.org/",
+      "support_mail": "support@openrouteservice.org",
+      "author_tag": "openrouteservice",
+      "content_licence": "LGPL 3.0"
+    },
+    "api_settings": {
+      "cors": {
+        "allowed": {
+          "origins": [
+            "https://example.org",
+            "https://test.com",
+            "http://localhost:8080",
+            "http://127.0.0.1:8082"
+          ],
+          "headers": [
+            "Content-Type",
+            "X-Tested-With",
+            "accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+            "Authorization"
+          ]
+        },
+        "exposed": {
+          "headers": [
+            "Access-Control-Allow-Origin", "X-Requested-With", "Location"
+          ]
+        },
+        "preflight_max_age": 1234
+      }
+    },
+    "services": {
+      "matrix": {
+        "enabled": true,
+        "maximum_routes": 200,
+        "maximum_visited_nodes": 100000,
+        "allow_resolve_locations": true,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors"
+      },
+      "isochrones": {
+        "enabled": true,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
+        "maximum_range_distance": [
+          {
+            "profiles": "any",
+            "value": 50000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 100000
+          }
+        ],
+        "maximum_range_time": [
+          {
+            "profiles": "any",
+            "value": 18000
+          },
+          {
+            "profiles": "driving-car, driving-hgv",
+            "value": 3600
+          }
+        ],
+        "fastisochrones": {
+          "maximum_range_distance": [
+            {
+              "profiles": "any",
+              "value": 50000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 500000
+            }
+          ],
+          "maximum_range_time": [
+            {
+              "profiles": "any",
+              "value": 18000
+            },
+            {
+              "profiles": "driving-car, driving-hgv",
+              "value": 10800
+            }
+          ],
+          "profiles": {
+            "default_params": {
+              "enabled": false,
+              "threads": 12,
+              "weightings": "recommended",
+              "maxcellnodes": 5000
+            },
+            "hgv": {
+              "enabled": true,
+              "threads": 12,
+              "weightings": "recommended, shortest",
+              "maxcellnodes": 5000
+            }
+          }
+        },
+        "maximum_intervals": 10,
+        "maximum_locations": 2,
+        "allow_compute_area": true
+      },
+      "routing": {
+        "enabled": true,
+        "mode": "normal",
+        "routing_description": "This is a routing file from openrouteservice",
+        "routing_name": "ORSRouting",
+        "sources": [
+          "./src/test/files/data/heidelberg.osm.gz"
+        ],
+        "init_threads": 1,
+        "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
+        "distance_approximation": true,
+        "elevation_preprocessed": false,
+        "profiles": {
+          "active": [
+            "car",
+            "hgv",
+            "bike-regular",
+            "bike-mountain",
+            "bike-road",
+            "bike-electric",
+            "walking",
+            "hiking",
+            "wheelchair",
+            "public-transport"
+          ],
+          "default_params": {
+            "encoder_flags_size": 4,
+            "graphs_root_path": "graphs-apitests",
+            "elevation_provider": "multi",
+            "elevation_cache_clear": false,
+            "elevation_cache_path": "./src/test/files/data/elevation",
+            "elevation_smoothing": false,
+            "instructions": true,
+            "maximum_distance": 100000,
+            "maximum_distance_round_trip_routes": 100000,
+            "maximum_segment_distance_with_dynamic_weights": 50000,
+            "maximum_waypoints": 50,
+            "maximum_snapping_radius": 350,
+            "maximum_avoid_polygon_area": 200000000,
+            "maximum_avoid_polygon_extent": 20000,
+            "preparation": {
+              "min_network_size": 200,
+              "min_one_way_network_size": 200,
+              "methods": {
+                "lm": {
+                  "enabled": true,
+                  "threads": 1,
+                  "weightings": "recommended,shortest",
+                  "landmarks": 16
+                }
+              }
+            },
+            "execution": {
+              "methods": {
+                "lm": {
+                  "active_landmarks": 8
+                }
+              }
+            }
+          },
+          "profile-car": {
+            "profiles": "driving-car",
+            "parameters": {
+              "encoder_options": "turn_costs=true|block_fords=false|maximum_grade_level=1|use_acceleration=true|conditional_access=true|conditional_speed=true",
+              "maximum_distance": 100000,
+              "elevation": true,
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "ch": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest"
+                  },
+                  "lm": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest",
+                    "landmarks": 16
+                  },
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "fastest,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "lm": {
+                    "active_landmarks": 8
+                  },
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
+              "ext_storages": {
+                "WayCategory": {},
+                "HeavyVehicle": {
+                  "restrictions": true
+                },
+                "WaySurfaceType": {},
+                "Tollways": {},
+                "Borders": {
+                  "boundaries": "./src/test/files/data/borders/borders.geojson",
+                  "ids": "./src/test/files/data/borders/ids.csv",
+                  "openborders": "./src/test/files/data/borders/openborders.csv"
+                },
+                "RoadAccessRestrictions": {
+                  "use_for_warnings": true
+                },
+                "HereTraffic": {
+                  "enabled": true,
+                  "streets": "./src/test/files/data/traffic_data/here/Streets.shp",
+                  "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
+                  "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
+                  "radius": 150,
+                  "output_log": false,
+                  "log_location": "ors/traffic_log"
+                }
+              },
+              "traffic": false
+            }
+          },
+          "profile-hgv": {
+            "profiles": "driving-hgv",
+            "parameters": {
+              "encoder_options": "turn_costs=true|block_fords=false|use_acceleration=true",
+              "maximum_distance": 100000,
+              "elevation": true,
+              "maximum_speed_lower_bound": 75,
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "ch": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended"
+                  },
+                  "lm": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended",
+                    "landmarks": 16
+                  },
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "lm": {
+                    "active_landmarks": 8
+                  },
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
+              "ext_storages": {
+                "WayCategory": {},
+                "HeavyVehicle": {
+                  "restrictions": true
+                },
+                "WaySurfaceType": {},
+                "Tollways": {},
+                "Borders": {
+                  "boundaries": "./src/test/files/data/borders/borders.geojson",
+                  "ids": "./src/test/files/data/borders/ids.csv",
+                  "openborders": "./src/test/files/data/borders/openborders.csv"
+                }
+              },
+              "traffic": false
+            }
+          },
+          "profile-bike-regular": {
+            "profiles": "cycling-regular",
+            "parameters": {
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
+              "elevation": true,
+              "preparation": {
+                "min_network_size": 200,
+                "min_one_way_network_size": 200,
+                "methods": {
+                  "core": {
+                    "enabled": true,
+                    "threads": 1,
+                    "weightings": "recommended,shortest",
+                    "landmarks": 32
+                  }
+                }
+              },
+              "execution": {
+                "methods": {
+                  "core": {
+                    "disabling_allowed": true,
+                    "active_landmarks": 6
+                  }
+                }
+              },
+              "ext_storages": {
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-bike-mountain": {
+            "profiles": "cycling-mountain",
+            "parameters": {
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
+              "elevation": true,
+              "maximum_snapping_radius": 10,
+              "ext_storages": {
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-bike-road": {
+            "profiles": "cycling-road",
+            "parameters": {
+              "encoder_options": "consider_elevation=false|turn_costs=false|block_fords=false",
+              "elevation": true,
+              "ext_storages": {
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-bike-electric": {
+            "profiles": "cycling-electric",
+            "parameters": {
+              "encoder_options": "consider_elevation=false|turn_costs=true|block_fords=false",
+              "elevation": true,
+              "ext_storages": {
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-walking": {
+            "profiles": "foot-walking",
+            "parameters": {
+              "encoder_options": "block_fords=false",
+              "elevation": true,
+              "interpolate_bridges_and_tunnels": false,
+              "ext_storages": {
+                "GreenIndex": {
+                  "filepath": "./src/test/files/data/green_streets_hd.csv"
+                },
+                "NoiseIndex": {
+                  "filepath": "./src/test/files/data/noise_data_hd.csv"
+                },
+                "csv": {
+                  "filepath": "./src/test/files/data/csv_data_hd.csv"
+                },
+                "ShadowIndex": {
+                  "filepath": "./src/test/files/data/shadow_index_hd.csv"
+                },
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-hiking": {
+            "profiles": "foot-hiking",
+            "parameters": {
+              "encoder_options": "block_fords=false",
+              "elevation": true,
+              "elevation_smoothing": true,
+              "ext_storages": {
+                "GreenIndex": {
+                  "filepath": "./src/test/files/data/green_streets_hd.csv"
+                },
+                "NoiseIndex": {
+                  "filepath": "./src/test/files/data/noise_data_hd.csv"
+                },
+                "ShadowIndex": {
+                  "filepath": "./src/test/files/data/shadow_index_hd.csv"
+                },
+                "WayCategory": {},
+                "WaySurfaceType": {},
+                "HillIndex": {},
+                "TrailDifficulty": {}
+              }
+            }
+          },
+          "profile-wheelchair": {
+            "profiles": "wheelchair",
+            "parameters": {
+              "encoder_options": "block_fords=true",
+              "elevation": true,
+              "maximum_snapping_radius": 50,
+              "ext_storages": {
+                "Wheelchair": {
+                  "KerbsOnCrossings": "true"
+                },
+                "WaySurfaceType": {},
+                "WayCategory": {},
+                "OsmId": {}
+              }
+            }
+          },
+          "profile-public-transport": {
+            "profiles": "public-transport",
+            "parameters": {
+              "encoder_options": "block_fords=false",
+              "elevation": true,
+              "maximum_visited_nodes": 15000,
+              "gtfs_file": "./src/test/files/data/vrn_gtfs_cut.zip"
+            }
+          }
+        }
+      }
+    },
+    "logging": {
+      "enabled": true,
+      "level_file": "TEST_LOGGING.json",
+      "location": "./logs",
+      "stdout": true
+    },
+    "kafka_test_cluster": true,
+    "kafka_consumer": [
+      {
+        "cluster": "127.0.0.1:9092",
+        "topic": "test-topic",
+        "profile": "test"
+      }
+    ],
+    "system_message": [
+      {
+        "active": true,
+        "text": "This message would be sent with every routing bike fastest request",
+        "condition": {
+          "request_service": "routing",
+          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+          "request_preference": "fastest"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request for geojson response",
+        "condition": {
+          "api_format": "geojson"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
+        "condition": {
+          "api_version": 1,
+          "time_after": "2020-01-01T00:00:00Z",
+          "time_before": "2050-06-01T00:00:00Z"
+        }
+      },
+      {
+        "active": true,
+        "text": "This message would be sent with every request"
+      }
+    ]
+  }
+}

@@ -35,8 +35,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ors-api</artifactId>
-    <version>${project.parent.version}</version>
     <name>ors-api</name>
+
     <url>https://openrouteservice.org</url>
     <inceptionYear>2008</inceptionYear>
     <issueManagement>
@@ -251,7 +251,7 @@
         <dependency>
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-routing</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
