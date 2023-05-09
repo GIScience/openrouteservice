@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 
 import java.util.HashMap;
 import java.util.Map;

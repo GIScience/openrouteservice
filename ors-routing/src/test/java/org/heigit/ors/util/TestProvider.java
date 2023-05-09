@@ -1,6 +1,6 @@
 package org.heigit.ors.util;
 
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;

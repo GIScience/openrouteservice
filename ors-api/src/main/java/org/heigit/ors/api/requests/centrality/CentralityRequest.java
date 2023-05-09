@@ -7,7 +7,7 @@ import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityResult;

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.locationtech.jts.geom.Coordinate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;

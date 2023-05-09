@@ -11,9 +11,9 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.routing.ProfileWeighting;
+import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -162,8 +162,8 @@ public class ORSWeightingFactory implements WeightingFactory {
                 weighting.setSpeedCalculator(new ConditionalSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, encoder));
 
             // traffic data
-            Instant time = requestHints.getObject(requestHints.has(RouteRequest.PARAM_DEPARTURE) ?
-                    RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, null);
+            Instant time = requestHints.getObject(requestHints.has(RouteRequestParameterNames.PARAM_DEPARTURE) ?
+                    RouteRequestParameterNames.PARAM_DEPARTURE : RouteRequestParameterNames.PARAM_ARRIVAL, null);
             addTrafficSpeedCalculator(weighting, ghStorage, time);
         }
 
@@ -175,7 +175,7 @@ public class ORSWeightingFactory implements WeightingFactory {
     }
 
     protected boolean isRequestTimeDependent(PMap hints) {
-        return hints.has(RouteRequest.PARAM_DEPARTURE) || hints.has(RouteRequest.PARAM_ARRIVAL);
+        return hints.has(RouteRequestParameterNames.PARAM_DEPARTURE) || hints.has(RouteRequestParameterNames.PARAM_ARRIVAL);
     }
 
     protected Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {

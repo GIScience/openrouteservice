@@ -36,14 +36,15 @@ import java.util.List;
 
 import static org.heigit.ors.routing.RouteResult.*;
 
-class RouteResultBuilder
+// visibilities needed until RouteResultBuilderTest is properly migrated
+public class RouteResultBuilder
 {
 	private final AngleCalc angleCalc;
 	private final DistanceCalc distCalc;
 	private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
     private int startWayPointIndex = 0;
 
-	RouteResultBuilder() {
+	public RouteResultBuilder() {
 		angleCalc = new AngleCalc();
 		distCalc = new DistanceCalcEarth();
 	}
@@ -74,7 +75,7 @@ class RouteResultBuilder
         return result;
     }
 
-    RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
+    public RouteResult createMergedRouteResultFromBestPaths(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         RouteResult result = createInitialRouteResult(request, extras[0]);
 
         for (int ri = 0; ri < responses.size(); ++ri) {

@@ -17,9 +17,6 @@ import com.graphhopper.util.Helper;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
-import org.heigit.ors.api.requests.common.APIEnums;
-import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -424,7 +421,7 @@ public class RouteSearchParameters {
                         }
                     }
                 } catch (InternalServerException e) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestOptions.PARAM_AVOID_POLYGONS);
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_POLYGONS);
                 }
             }
         }
@@ -438,7 +435,7 @@ public class RouteSearchParameters {
             String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
             int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
             if (countLimit > 0 && alternativeRoutesCount > countLimit) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
             }
             if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
                 try {

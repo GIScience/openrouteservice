@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityResult;

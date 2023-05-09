@@ -27,7 +27,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
@@ -72,9 +72,9 @@ public class CoreRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
         } else if (DIJKSTRA_BI.equals(algoStr)) {
             algo = new CoreDijkstra(routingCHGraph, weighting);
         } else if (TD_DIJKSTRA.equals(algoStr)) {
-            algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            algo = new TDCoreDijkstra(routingCHGraph, weighting, opts.getHints().has(RouteRequestParameterNames.PARAM_ARRIVAL));
         } else if (TD_ASTAR.equals(algoStr)) {
-            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RouteRequest.PARAM_ARRIVAL));
+            CoreALT tmpAlgo = new TDCoreALT(routingCHGraph, weighting, opts.getHints().has(RouteRequestParameterNames.PARAM_ARRIVAL));
             if (lms != null) {
                 int activeLM = Math.max(1, opts.getHints().getInt(ORSParameters.CoreLandmark.ACTIVE_COUNT, defaultActiveLandmarks));
                 LMApproximator lmApproximator = new LMApproximator(graph, lms.getWeighting(), GraphUtils.getBaseGraph(graph).getNodes(), lms, activeLM, lms.getFactor(), false);

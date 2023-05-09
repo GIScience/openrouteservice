@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportRequest;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;

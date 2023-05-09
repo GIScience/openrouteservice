@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
 import org.heigit.ors.exceptions.*;

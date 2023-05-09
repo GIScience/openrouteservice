@@ -22,17 +22,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
+import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.json.simple.JSONObject;
 
 @ApiModel(value = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class RequestOptions {
-    public static final String PARAM_AVOID_FEATURES = "avoid_features";
-    public static final String PARAM_AVOID_BORDERS = "avoid_borders";
-    public static final String PARAM_AVOID_COUNTRIES = "avoid_countries";
-    public static final String PARAM_VEHICLE_TYPE = "vehicle_type";
-    public static final String PARAM_PROFILE_PARAMS = "profile_params";
-    public static final String PARAM_AVOID_POLYGONS = "avoid_polygons";
+public class RequestOptions implements RouteRequestParameterNames {
 
     @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
             "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}",

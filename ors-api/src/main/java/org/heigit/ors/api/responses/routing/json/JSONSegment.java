@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.routing.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.routing.RouteStep;

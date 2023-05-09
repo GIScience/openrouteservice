@@ -24,10 +24,11 @@ import org.heigit.ors.isochrones.IsochroneRequest;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import static org.heigit.ors.routing.RouteRequestParameterNames.PARAM_ROUND_TRIP_OPTIONS;
+
 @ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions extends RequestOptions {
-    public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
 
     @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.",
             example = "{\"length\":10000,\"points\":5}")

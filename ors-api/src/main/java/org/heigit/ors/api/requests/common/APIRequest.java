@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import io.swagger.annotations.ApiModelProperty;
-import org.heigit.ors.api.errors.GenericErrorCodes;
+import org.heigit.ors.routing.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequest;

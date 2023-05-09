@@ -16,7 +16,7 @@
 package org.heigit.ors.api.responses.common.boundingbox;
 
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.gpx.GPXBounds;

@@ -16,7 +16,7 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.Helper;
-import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.util.AppInfo;

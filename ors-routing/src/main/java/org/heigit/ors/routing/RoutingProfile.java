@@ -35,7 +35,6 @@ import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.centrality.CentralityWarning;
@@ -1196,11 +1195,11 @@ public class RoutingProfile {
                 String key;
                 LocalDateTime time;
                 if (searchParams.hasDeparture()) {
-                    key = RouteRequest.PARAM_DEPARTURE;
+                    key = RouteRequestParameterNames.PARAM_DEPARTURE;
                     time = searchParams.getDeparture();
                 }
                 else {
-                    key = RouteRequest.PARAM_ARRIVAL;
+                    key = RouteRequestParameterNames.PARAM_ARRIVAL;
                     time = searchParams.getArrival();
                 }
 
@@ -1256,7 +1255,7 @@ public class RoutingProfile {
         Instant departureTime = null;
         boolean arrive_by = false;
         if (params.hasDeparture() && params.hasArrival()) {
-            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequestParameterNames.PARAM_DEPARTURE, RouteRequestParameterNames.PARAM_ARRIVAL);
         } else if (params.hasArrival()) {
             departureTime = params.getArrival().toInstant(ZoneOffset.UTC);
             arrive_by = true;
