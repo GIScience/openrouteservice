@@ -13,7 +13,7 @@
     <artifactId>ors-parent</artifactId>
     <version>7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>openrouteservice parent project</name>
+    <name>ors-parent</name>
     <url>https://openrouteservice.org</url>
 
     <properties>
@@ -79,5 +79,6 @@
     </build>
     <modules>
         <module>ors-routing</module>
+        <module>ors-api</module>
     </modules>
 </project>
