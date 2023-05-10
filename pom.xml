@@ -26,6 +26,11 @@
         <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
     </scm>
 
+    <modules>
+        <module>ors-routing</module>
+        <module>ors-api</module>
+    </modules>
+
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -112,8 +117,4 @@
             </plugins>
         </pluginManagement>
     </build>
-    <modules>
-        <module>ors-routing</module>
-        <module>ors-api</module>
-    </modules>
 </project>
