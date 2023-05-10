@@ -26,7 +26,7 @@ import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MapMatchingServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.config.RoutingServiceSettings;
-import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.api.util.AppInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

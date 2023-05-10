@@ -24,7 +24,7 @@ import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
-import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.api.util.AppInfo;
 import org.json.JSONObject;
 
 @ApiModel(value = "IsochronesResponseInfo", description = "Information about the request")

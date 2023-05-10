@@ -22,7 +22,7 @@ import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.RoutingServiceSettings;
-import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.api.util.AppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;

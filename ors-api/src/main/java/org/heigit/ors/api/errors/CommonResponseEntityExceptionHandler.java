@@ -21,7 +21,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.util.DebugUtility;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
