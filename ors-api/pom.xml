@@ -74,15 +74,8 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>resources/locales/*.resources</include>
-                    <include>logs/*</include>
-                    <include>resources/version.properties</include>
+                    <include>version.properties</include>
                     <include>application.properties</include>
-                    <include>resources/services/locations/categories.txt</include>
-                    <include>resources/services/routing/speed_limits/*.*</include>
-                    <include>META-INF/services/*.*</include>
-                    <include>app.config*</include>
-                    <include>ors-config*.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -119,6 +112,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
+<!--
                 <executions>
                     <execution>
                         <id>create version file</id>
@@ -135,6 +129,7 @@
                         </configuration>
                     </execution>
                 </executions>
+-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

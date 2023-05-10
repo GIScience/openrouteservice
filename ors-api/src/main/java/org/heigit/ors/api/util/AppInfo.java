@@ -64,7 +64,7 @@ public class AppInfo {
 		String version = "0.0";
 		Properties prop = new Properties();
 
-		try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("resources/version.properties").openStream()) {
+		try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("version.properties").openStream()) {
 			prop.load(in);
 			version = prop.getProperty("version");
 		} catch (Exception e) {
