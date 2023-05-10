@@ -19,7 +19,6 @@ import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.GraphHopperGtfs;
 import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
@@ -38,7 +37,6 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
-import com.graphhopper.util.shapes.GHPoint;
 import org.geotools.feature.SchemaException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -203,30 +201,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         return gh;
     }
-
-	// dedicated method for map matcher to circumvent issue of GraphHopperStorage not being fully loaded
-	public GHResponse routeHMM(GHRequest request) {
-		GraphHopperStorage ghStorage = getGraphHopperStorage();
-		LocationIndex locationIndex = getLocationIndex();
-		if (ghStorage == null)
-			throw new IllegalStateException("Do a successful call to load or importOrLoad before routing");
-		if (ghStorage.isClosed())
-			throw new IllegalStateException("You need to create a new GraphHopper instance as it is already closed");
-		if (locationIndex == null)
-			throw new IllegalStateException("Location index not initialized");
-
-		PathDetailsBuilderFactory pathBuilderFactory = getPathDetailsBuilderFactory();
-		TranslationMap trMap = getTranslationMap();
-		RouterConfig routerConfig = getRouterConfig();
-
-		Map<String, RoutingCHGraph> chGraphs = new LinkedHashMap<>();
-		Map<String, LandmarkStorage> landmarks = new LinkedHashMap<>();
-
-		Router router = super.doCreateRouter(ghStorage, locationIndex, profilesByName, pathBuilderFactory,
-				trMap, routerConfig, createWeightingFactory(), chGraphs, landmarks);
-
-		return router.route(request);
-	}
 
 	@Override
 	protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,

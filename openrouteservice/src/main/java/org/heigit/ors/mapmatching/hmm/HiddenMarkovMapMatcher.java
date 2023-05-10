@@ -29,7 +29,6 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
-import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 
@@ -204,7 +203,6 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
     private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
         // Phase II: Compute distances, probabilities, etc.
-        ORSGraphHopper gh = (ORSGraphHopper) graphHopper;
         double v;
         double dist;
         Coordinate z0 = z[0];
@@ -263,6 +261,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
 					// check the order of points from 0 -> 1
 					if (xi.measuredPointIndex < xj.measuredPointIndex) {
+					    //TODO: the commented out code doesn't seem to be equivalent to the current implementation. Bug?
 						//Point zt = z[xi.measuredPointIndex]
 						//Point zt1 = z[xj.measuredPointIndex]
 						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
