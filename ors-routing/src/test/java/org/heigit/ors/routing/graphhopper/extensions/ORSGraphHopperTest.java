@@ -54,45 +54,41 @@ class ORSGraphHopperTest {
      * For testing purposes, a subset from the Heidelberg graph has been modified with several invalid ele tag
      * values to demonstrate that the graph will still build, albeit with incorrect but valid elevation values.
      * <node id="...">
-     *   <tag k="ele" v="invalid ele tag"/>
+     * <tag k="ele" v="invalid ele tag"/>
      * </node>
-     *=> NaN, elevation will be set to 0
+     * => NaN, elevation will be set to 0
      * <node id="...">
-     *   <tag k="ele" v="198.0.0.4"/>
+     * <tag k="ele" v="198.0.0.4"/>
      * </node>
-     *=> NaN, elevation will be set to 0
+     * => NaN, elevation will be set to 0
      * <node id="...">
-     *   <tag k="ele" v="1,912.1"/>
+     * <tag k="ele" v="1,912.1"/>
      * </node>
-     *=> 1912.1
+     * => 1912.1
      * <node id="...">
-     *   <tag k="ele" v="1.021,12"/>
+     * <tag k="ele" v="1.021,12"/>
      * </node>
-     *=> 1.02112
+     * => 1.02112
      */
     @Test
-    void buildGraphWithPreprocessedData() {
+    void buildGraphWithPreprocessedData() throws Exception {
         RouteProfileConfiguration rpc = new RouteProfileConfiguration();
         rpc.setName("whocares");
         rpc.setEnabled(true);
         rpc.setProfiles("driving-car");
-        try {
-            GraphProcessContext gpc = new GraphProcessContext(rpc);
-            gpc.setGetElevationFromPreprocessedData(true);
-            ORSGraphHopper gh = new ORSGraphHopper(gpc);
-            ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-            ghConfig.putObject("graph.dataaccess", "RAM");
-            ghConfig.putObject("graph.location", "unittest.testgraph");
-            ghConfig.putObject("datareader.file", "src/test/files/data/preprocessed_osm_data.pbf");
-            ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
-            gh.init(ghConfig);
-            gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-            gh.importOrLoad();
-            ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
-            assertEquals(419, storage.getNodes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        GraphProcessContext gpc = new GraphProcessContext(rpc);
+        gpc.setGetElevationFromPreprocessedData(true);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc);
+        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        ghConfig.putObject("graph.dataaccess", "RAM");
+        ghConfig.putObject("graph.location", "unittest.testgraph");
+        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
+        ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
+        gh.init(ghConfig);
+        gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+        gh.importOrLoad();
+        ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
+        assertEquals(419, storage.getNodes());
     }
 
     private void checkInstructions(InstructionList instructions) {
