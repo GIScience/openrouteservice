@@ -63,11 +63,6 @@
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
-    <scm>
-        <url>git@github.com:GIScience/openrouteservice.git</url>
-        <connection>git@github.com:GIScience/openrouteservice.git</connection>
-        <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
-    </scm>
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
