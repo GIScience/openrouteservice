@@ -37,17 +37,6 @@
     <artifactId>ors-api</artifactId>
     <name>ors-api</name>
 
-    <url>https://openrouteservice.org</url>
-    <inceptionYear>2008</inceptionYear>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/GIScience/openrouteservice/issues</url>
-    </issueManagement>
-    <scm>
-        <url>git@github.com:GIScience/openrouteservice.git</url>
-        <connection>git@github.com:GIScience/openrouteservice.git</connection>
-        <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
-    </scm>
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
