@@ -1,4 +1,4 @@
-package org.heigit.ors.kafka;
+package org.heigit.ors.api.kafka;
 
 public class ORSKafkaConsumerConfiguration {
     private final String cluster;

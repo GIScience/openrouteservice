@@ -1,4 +1,4 @@
-package org.heigit.ors.kafka;
+package org.heigit.ors.api.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +12,7 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Time;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 import org.springframework.util.FileSystemUtils;
 import scala.Option;
 
@@ -84,7 +85,7 @@ public class ORSKafkaTestCluster {
             ObjectMapper mapper = new ObjectMapper();
             while (active) {
                 try {
-                    ORSKafkaConsumerMessageSpeedUpdate messageSpeedUpdate = ORSKafkaConsumerMessageSpeedUpdate.generateRandom();
+                    ORSSpeedUpdate messageSpeedUpdate = ORSSpeedUpdate.generateRandom();
                     producer.send(new ProducerRecord<>("test-topic", index, mapper.writeValueAsString(messageSpeedUpdate)));
                     index++;
                     Thread.sleep(PRODUCER_INTERVAL);

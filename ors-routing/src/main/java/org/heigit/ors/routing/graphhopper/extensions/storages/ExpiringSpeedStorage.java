@@ -3,7 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
-import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
+import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 
 import java.time.Instant;
 
@@ -44,7 +44,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
         return this;
     }
 
-    public void process(ORSKafkaConsumerMessageSpeedUpdate msg) {
+    public void process(ORSSpeedUpdate msg) {
         if(!isValid(msg))
             throw new IllegalArgumentException("Invalid kafka message");
         byte speed = (byte) msg.getSpeed();
@@ -102,7 +102,7 @@ public class ExpiringSpeedStorage extends SpeedStorage {
         this.defaultExpirationTime = newDefaultExpirationTimeMinutes;
     }
 
-    private boolean isValid(ORSKafkaConsumerMessageSpeedUpdate msg) {
+    private boolean isValid(ORSSpeedUpdate msg) {
         return !(msg.getSpeed() > Byte.MAX_VALUE || msg.getSpeed() < 0);
     }
 

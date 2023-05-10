@@ -18,18 +18,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.kafka;
+package org.heigit.ors.routing.graphhopper.extensions;
 
 import java.security.SecureRandom;
 
-public class ORSKafkaConsumerMessageSpeedUpdate {
+public class ORSSpeedUpdate {
     private int edgeId;
     private boolean reverse;
     private int speed;
     private int durationMin;
 
-    public static ORSKafkaConsumerMessageSpeedUpdate generateRandom() {
-        ORSKafkaConsumerMessageSpeedUpdate msg = new ORSKafkaConsumerMessageSpeedUpdate();
+    public static ORSSpeedUpdate generateRandom() {
+        ORSSpeedUpdate msg = new ORSSpeedUpdate();
         SecureRandom random = new SecureRandom();
         msg.setEdgeId(random.nextInt(100));
         msg.setReverse(random.nextBoolean());

@@ -24,9 +24,9 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.kafka.ORSKafkaConsumer;
-import org.heigit.ors.kafka.ORSKafkaConsumerConfiguration;
-import org.heigit.ors.kafka.ORSKafkaTestCluster;
+import org.heigit.ors.api.kafka.ORSKafkaConsumer;
+import org.heigit.ors.api.kafka.ORSKafkaConsumerConfiguration;
+import org.heigit.ors.api.kafka.ORSKafkaTestCluster;
 import org.heigit.ors.routing.RoutingProfileManager;
 
 import javax.servlet.ServletContextEvent;

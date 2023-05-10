@@ -16,7 +16,7 @@
 package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
-import org.heigit.ors.kafka.ORSKafkaConsumer;
+import org.heigit.ors.api.kafka.ORSKafkaConsumer;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;

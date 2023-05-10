@@ -19,6 +19,7 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
+import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -30,7 +31,6 @@ import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.kafka.ORSKafkaConsumerMessageSpeedUpdate;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -730,7 +730,7 @@ public class RoutingProfileManager {
             case "driving-car":
             case "driving-hgv":
                 try {
-                    ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
+                    ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
                     RoutingProfile rp = null;
                     int profileType = RoutingProfileType.getFromString(profile);
                     rp = getRoutingProfileFromType(rp, profileType);
@@ -751,7 +751,7 @@ public class RoutingProfileManager {
                 break;
             case "test":
                 try {
-                    ORSKafkaConsumerMessageSpeedUpdate msg = mapper.readValue(value, ORSKafkaConsumerMessageSpeedUpdate.class);
+                    ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
                     if (KAFKA_DEBUG)
                         LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
                     this.kafkaMessagesProcessed++;
@@ -767,7 +767,7 @@ public class RoutingProfileManager {
         }
     }
 
-    private void processMessage(ORSKafkaConsumerMessageSpeedUpdate msg, ExpiringSpeedStorage storage) {
+    private void processMessage(ORSSpeedUpdate msg, ExpiringSpeedStorage storage) {
         try{
             storage.process(msg);
         }
