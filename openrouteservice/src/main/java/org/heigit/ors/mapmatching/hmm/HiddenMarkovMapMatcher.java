@@ -112,12 +112,12 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         Coordinate[] z = locations;
         int nZ = z.length;
         int nR = 0;
+        snaps.clear();
         matchPoints.clear();
         roadSegments.clear();
 
         // Phase I: We are looking for the nearest road segments
         MatchPoint[][] x = new MatchPoint[nZ][];
-        snaps = new ArrayList<>(2);
         double searchRadius = this.searchRadius;
 
         for (int i = 0; i < nPoints; i++) {
@@ -203,6 +203,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
     private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
         // Phase II: Compute distances, probabilities, etc.
+
         double v;
         double dist;
         Coordinate z0 = z[0];
@@ -380,8 +381,6 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
         // TODO: this is just a temporary work-around for the previous line
 		List<Snap> qResults = List.of(locationIndex.findClosest(lat, lon, edgeFilter));
-		snaps.addAll(qResults);
-
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 
@@ -391,6 +390,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			if (!qr.isValid() || qr.getQueryDistance() > searchRadius)
 			    continue;
 
+			snaps.add(qr);
             MatchPoint mp = new MatchPoint(qr, measuredPointIndex);// match order in Coordinate objects
             matchPoints.add(mp);
 
