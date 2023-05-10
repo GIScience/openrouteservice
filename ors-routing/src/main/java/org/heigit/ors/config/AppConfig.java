@@ -89,7 +89,7 @@ public class AppConfig {
 						"future.");
 				LOGGER.warn("Use 'ors-config.json' instead.");
 			} else {
-				throw new IOException("No valid configuration file found in 'openrouteservice/src/main/resources'. " +
+				throw new IOException("No valid configuration file found in 'ors-api/src/main/resources'. " +
 						"Did you copy ors-config-sample.json to ors-config.json?");
 			}
 			LOGGER.info("Loading configuration from " + configFile);
