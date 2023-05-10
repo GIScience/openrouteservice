@@ -36,6 +36,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ors-api</artifactId>
     <name>ors-api</name>
+    <packaging>war</packaging>
 
     <build>
         <finalName>ors</finalName>
@@ -44,8 +45,15 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>resources/locales/*.resources</include>
+                    <include>logs/*</include>
+                    <include>resources/services/locations/categories.txt</include>
+                    <include>resources/services/routing/speed_limits/*.*</include>
+                    <include>META-INF/services/*.*</include>
                     <include>version.properties</include>
                     <include>application.properties</include>
+                    <include>app.config*</include>
+                    <include>ors-config*.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
