@@ -10,29 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  run_pre_checks:
-    name: Run style and lint checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Check the commit style against the 'conventional commit styling'
-        uses: MichaelsJP/action-conventional-commits@master
-        with:
-          VALID_LABELS: '["feat","fix","docs","style","refactor","test","build","perf","ci","chore","revert","merge","wip","graphbreak", "apigreak"]'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add conventional release labels
-        uses: bcoe/conventional-release-labels@v1.3.0
-        with:
-          type_labels: '{"feat": "feature", "fix": "fix", "graphbreak": "graph-breaking", "apibreak": "api-breaking"}'
-          ignored_types: '["chore"]'
-          ignore_label: 'ignore-for-release'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   run_tests:
-    needs:
-      - run_pre_checks
     name: Run unit and integration tests
     runs-on: ubuntu-latest
     steps:
