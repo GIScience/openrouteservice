@@ -37,4 +37,5 @@ target/
 nohup.out
 build/
 logs/
+!ors-api/src/main/resources/logs
 cgiar_cache/

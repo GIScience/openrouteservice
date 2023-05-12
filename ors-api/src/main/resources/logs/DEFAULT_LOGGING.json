@@ -1,0 +1,69 @@
+{
+  "configuration": {
+    "status": "error",
+    "name": "ORSLogger",
+    "packages": "org.apache.logging.log4j",
+    "properties": {
+      "property": {
+        "name": "filepath",
+        "value": "/tmp/ors-logs"
+      }
+    },
+    "appenders": {
+      "Console": {
+        "name": "stdout",
+        "PatternLayout": {
+          "pattern": "%d{dd MMM HH:mm:ss} %p [%c{2}] - %m%n"
+        }
+      },
+      "RollingFile": {
+        "name": "orslogfile",
+        "fileName": "${sys:ors-log-filepath}/ors.log",
+        "filePattern": "${sys:ors-log-filepath}/ors.%d{yyyy-MM-dd}.log.gz",
+        "PatternLayout": {
+          "pattern": "%d %p [%c{2}] - %m%n"
+        },
+        "TimeBasedTriggeringPolicy": { "interval": "1", "modulate": "true" }
+      }
+    },
+    "loggers": {
+      "logger": [
+        {
+          "name": "org.heigit.ors",
+          "level": "info",
+          "additivity": "false",
+          "AppenderRef": [
+            {
+              "ref": "orslogfile"
+            },
+            {
+              "ref": "stdout"
+            }
+          ]
+        },
+        {
+          "name": "org.springframework",
+          "level": "warn",
+          "additivity": "false",
+          "AppenderRef": {
+            "ref": "stdout"
+          }
+        },
+        {
+          "name": "org.hibernate",
+          "level": "error",
+          "additivity": "warn",
+          "AppenderRef": {
+            "ref": "stdout"
+          }
+        }
+      ],
+      "root": {
+        "level": "warn",
+        "AppenderRef": {
+          "ref": "stdout"
+        }
+      }
+    }
+  }
+}
