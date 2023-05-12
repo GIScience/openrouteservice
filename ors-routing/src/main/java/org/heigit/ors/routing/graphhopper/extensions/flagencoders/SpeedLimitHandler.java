@@ -38,11 +38,10 @@ public class SpeedLimitHandler {
 		this.trackTypeSpeeds.putAll(trackTypeSpeeds);
 
 		encoderName = FlagEncoderNames.getBaseName(encoderName);
-		
-		Path path = Paths.get(FileUtility.getResourcesPath().toString(), "services", "routing", "speed_limits", encoderName + ".json");
+		String resourcePath = "/resources/services/routing/speed_limits/" + encoderName + ".json";
 
 		try {
-			JSONObject json = new JSONObject(FileUtility.readFile(path.toString()));
+			JSONObject json = new JSONObject(FileUtility.readResource(resourcePath));
 
 			readSpeedValues(json, "default", this.defaultSpeeds);
 			readSpeedValues(json, "max_speeds", countryMaxSpeeds);
