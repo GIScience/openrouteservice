@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 
@@ -30,8 +29,12 @@ public class GPXEmail {
     @XmlAttribute(name = "domain")
     private String domain;
 
+    // For JaxB compatibility
     public GPXEmail() throws InternalServerException {
-        String email = AppConfig.getGlobal().getParameter("info", "support_mail");
+        this("");
+    }
+
+    public GPXEmail(String email) throws InternalServerException {
         try {
             String[] parts = email.split("@");
 

@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
+import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -52,19 +53,19 @@ public class GPXRouteResponse extends RouteResponse {
 
     public GPXRouteResponse() throws StatusCodeException {
         super(null);
-        init(null, null);
+        init(null, null, new InfoProperties());
     }
 
-    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request) throws StatusCodeException {
+    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request, InfoProperties info) throws StatusCodeException {
         super(request);
-        init(routeResult, request);
-        for(RouteResult result : routeResult) {
+        init(routeResult, request, info);
+        for (RouteResult result : routeResult) {
             routes.add(new GPXRouteElement(result));
         }
     }
 
-    private void init(RouteResult[] result, RouteRequest request) throws StatusCodeException {
-        metadata = new GPXMetadata(result, request);
+    private void init(RouteResult[] result, RouteRequest request, InfoProperties info) throws StatusCodeException {
+        metadata = new GPXMetadata(result, request, info);
         routes = new ArrayList<>();
         extensions = new GPXExtensions(request);
     }

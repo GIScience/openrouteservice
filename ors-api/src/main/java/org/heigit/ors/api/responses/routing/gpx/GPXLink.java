@@ -15,8 +15,6 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.config.AppConfig;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -28,9 +26,14 @@ public class GPXLink {
     @XmlElement
     private final String type;
 
+    // For JaxB compatibility
     public GPXLink() {
-        this.href = AppConfig.getGlobal().getParameter("info", "base_url");
-        this.text = AppConfig.getGlobal().getParameter("info", "base_url");
+        this(null);
+    }
+
+    public GPXLink(String baseUrl) {
+        this.href = baseUrl;
+        this.text = baseUrl;
         this.type = "text/html";
     }
 

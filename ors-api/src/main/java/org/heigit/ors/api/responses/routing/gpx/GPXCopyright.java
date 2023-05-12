@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.RoutingServiceSettings;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,9 +29,9 @@ public class GPXCopyright {
     @XmlElement(name = "license")
     private final String license;
 
-    public GPXCopyright() {
+    public GPXCopyright(String contentLicense) {
         this.author = RoutingServiceSettings.getAttribution();
-        this.license = AppConfig.getGlobal().getParameter("info", "content_licence");
+        this.license = contentLicense;
         this.year = Calendar.getInstance().get(Calendar.YEAR);
     }
 }

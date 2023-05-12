@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.InternalServerException;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -30,9 +29,14 @@ public class GPXAuthor {
     @XmlElement(name = "link")
     private final GPXLink link;
 
-    public GPXAuthor() throws InternalServerException  {
-        this.name = AppConfig.getGlobal().getParameter("info", "author_tag");
-        this.email = new GPXEmail();
-        this.link = new GPXLink();
+    // For JaxB compatibility
+    public GPXAuthor() throws InternalServerException {
+        this(null, null, null);
+    }
+
+    public GPXAuthor(String name, String email, String baseUrl) throws InternalServerException  {
+        this.name = name;
+        this.email = new GPXEmail(email);
+        this.link = new GPXLink(baseUrl);
     }
 }

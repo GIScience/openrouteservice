@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.annotations.*;
+import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -56,6 +57,12 @@ import javax.servlet.http.HttpServletResponse;
 })
 public class RoutingAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
+
+    private final InfoProperties info;
+
+    public RoutingAPI(InfoProperties infoProperties) {
+        this.info = infoProperties;
+    }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -142,7 +149,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GPXRouteResponse(result, request);
+        return new GPXRouteResponse(result, request, info);
 
     }
 
