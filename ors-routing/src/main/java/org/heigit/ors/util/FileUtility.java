@@ -32,13 +32,6 @@ public class FileUtility {
 	private static final Logger LOGGER = Logger.getLogger(FileUtility.class.getName());
 	private FileUtility() {}
 
-	public static Path getResourcesPath() {
-		File classFile = new File(FileUtility.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-		String classPath = classFile.getAbsolutePath();
-		String classesPath = classPath.substring(0, classPath.indexOf("classes") + "classes".length());
-		return Paths.get(classesPath, "resources");
-	}
-
 	public static boolean isAbsolutePath(String path) {
 		Path path2 = Paths.get(path);
 		return path2.isAbsolute();
@@ -49,6 +42,15 @@ public class FileUtility {
 		FileInputStream fis = new FileInputStream(file);
 		String result = StreamUtility.readStream(fis);
 		fis.close();
+
+		return result;
+	}
+
+	public static String readResource(String resourcePath) throws IOException {
+		URL resource = FileUtility.class.getResource(resourcePath);
+		InputStream ris  = resource.openStream();
+		String result = StreamUtility.readStream(ris);
+		ris.close();
 
 		return result;
 	}
