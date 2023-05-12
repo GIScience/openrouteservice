@@ -24,6 +24,7 @@ The top level element.
 
 ---
 
+// TODO: This is now a Spring Boot configuration block ("info")
 ### ors.info
 
 | key | type | description                                                                          | example value                        |

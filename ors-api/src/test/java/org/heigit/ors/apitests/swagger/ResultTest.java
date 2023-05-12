@@ -13,11 +13,12 @@
  */
 package org.heigit.ors.apitests.swagger;
 
+import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.heigit.ors.config.AppConfig;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasToString;
@@ -26,7 +27,9 @@ import static org.hamcrest.Matchers.is;
 @EndPointAnnotation(name = "api-docs")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
-    String expected_swagger_documentation_url = AppConfig.getGlobal().getParameter("info", "swagger_documentation_url");
+
+    @Autowired
+    InfoProperties infoProperties;
 
     @Test
     void testGetSwagger() {
@@ -41,7 +44,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'paths' }", is(true))
                 .body("any { it.key == 'definitions' }", is(true))
                 .body("swagger", hasToString("2.0"))
-                .body("host", hasToString(expected_swagger_documentation_url))
+                .body("host", hasToString(infoProperties.getSwaggerDocumentationUrl()))
                 .statusCode(200);
     }
 }

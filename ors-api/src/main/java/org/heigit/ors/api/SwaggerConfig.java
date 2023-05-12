@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api;
 
-import org.heigit.ors.config.AppConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -43,7 +42,12 @@ import java.util.Set;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-    String swagger_documentation_url = AppConfig.getGlobal().getParameter("info", "swagger_documentation_url");
+
+    private final InfoProperties infoProperties;
+
+    public SwaggerConfig(InfoProperties infoProperties) {
+        this.infoProperties = infoProperties;
+    }
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
@@ -58,7 +62,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .host(swagger_documentation_url)
+                .host(infoProperties.getSwaggerDocumentationUrl())
                 .pathProvider(new DefaultPathProvider())
                 .directModelSubstitute(Duration.class, String.class)
                 .select()

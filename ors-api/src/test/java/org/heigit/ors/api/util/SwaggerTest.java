@@ -1,5 +1,6 @@
 package org.heigit.ors.api.util;
 
+import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.api.SwaggerConfig;
 import org.junit.jupiter.api.Test;
 import springfox.documentation.spi.DocumentationType;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SwaggerTest {
     @Test
     void testGetSwaggerDocs() {
-        SwaggerConfig swagger_config = new SwaggerConfig();
+        SwaggerConfig swagger_config = new SwaggerConfig(new InfoProperties());
         Docket api = swagger_config.api();
         assertEquals(DocumentationType.SWAGGER_2, api.getDocumentationType());
         assertTrue(api.isEnabled());
