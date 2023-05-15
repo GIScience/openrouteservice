@@ -50,6 +50,9 @@
         <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
         <org-json.version>20230227</org-json.version>
         <postgresql.version>42.6.0</postgresql.version>
+        <apache-curator-test.version>5.4.0</apache-curator-test.version>
+        <progressbar.version>0.9.5</progressbar.version>
+        <jqwik.version>1.6.5</jqwik.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -80,6 +83,30 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.13</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${apache-curator-test.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <type>pom</type>
@@ -103,6 +130,21 @@
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
+
+            <!-- Why is this needed in the first place? -->
+            <!--
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.maven.shared</groupId>
+                        <artifactId>maven-shared-utils</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            -->
 
             <dependency>
                 <groupId>org.apache.maven.shared</groupId>
@@ -156,13 +198,13 @@
             <dependency>
                 <groupId>me.tongfei</groupId>
                 <artifactId>progressbar</artifactId>
-                <version>0.9.5</version>
+                <version>${progressbar.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>net.jqwik</groupId>
                 <artifactId>jqwik</artifactId>
-                <version>1.6.5</version>
+                <version>${jqwik.version}</version>
             </dependency>
 
             <dependency>
@@ -252,7 +294,6 @@
             </plugin>
         </plugins>
         <pluginManagement>
-            <!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
                 <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
                 <plugin>
@@ -270,6 +311,10 @@
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
