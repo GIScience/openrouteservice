@@ -44,6 +44,12 @@
         <log4j.version>2.20.0</log4j.version>
         <kafka.version>3.4.0</kafka.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
+        <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <typesafe-config.version>1.4.1</typesafe-config.version>
+        <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
+        <org-json.version>20230227</org-json.version>
+        <postgresql.version>42.6.0</postgresql.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -70,6 +76,158 @@
             </releases>
         </repository>
     </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <type>pom</type>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-1.2-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-shared-utils</artifactId>
+                <version>${maven-shared-utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>${typesafe-config.version}</version>
+            </dependency>
+
+            <!-- used for APIEnum annotations -->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox-swagger2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>me.tongfei</groupId>
+                <artifactId>progressbar</artifactId>
+                <version>0.9.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jqwik</groupId>
+                <artifactId>jqwik</artifactId>
+                <version>1.6.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-main</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-metadata</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-epsg-hsql</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-geojson</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-swing</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-shapefile</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org-json.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-reload4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
