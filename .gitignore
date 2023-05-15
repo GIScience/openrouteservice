@@ -39,3 +39,6 @@ build/
 logs/
 !ors-api/src/main/resources/logs
 cgiar_cache/
+
+# jqwik
+.jqwik-database
