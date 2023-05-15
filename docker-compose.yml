@@ -8,16 +8,16 @@ services:
     image: openrouteservice/openrouteservice:latest
     user: "${UID:-0}:${GID:-0}"
 #    build:
-#      context: ../
+#      context: ./
 #      args:
-#        ORS_CONFIG: ./openrouteservice/src/main/resources/ors-config-sample.json
-#        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
+#        ORS_CONFIG: ./ors-api/src/main/resources/ors-config-sample.json
+#        OSM_FILE: ./ors-routing/src/main/files/heidelberg.osm.gz
     volumes:
-      - ./graphs:/home/ors/ors-core/data/graphs
-      - ./elevation_cache:/home/ors/ors-core/data/elevation_cache
-      - ./logs/ors:/home/ors/ors-core/logs/ors
-      - ./logs/tomcat:/home/ors/tomcat/logs
-      - ./conf:/home/ors/ors-conf
+      - ./docker/graphs:/home/ors/ors-core/data/graphs
+      - ./docker/elevation_cache:/home/ors/ors-core/data/elevation_cache
+      - ./docker/logs/ors:/home/ors/ors-core/logs/ors
+      - ./docker/logs/tomcat:/home/ors/tomcat/logs
+      - ./docker/conf:/home/ors/ors-conf
       #- ./your_osm.pbf:/home/ors/ors-core/data/osm_file.pbf
     environment:
       - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
