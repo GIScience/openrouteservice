@@ -6,6 +6,7 @@ graphs/
 graphs-*/
 target/
 logs/
+elevation-cache/
 
 # jqwik
 .jqwik-database

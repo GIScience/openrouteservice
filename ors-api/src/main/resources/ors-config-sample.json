@@ -123,7 +123,7 @@
             "encoder_flags_size": 8,
             "graphs_root_path": "graphs",
             "elevation_provider": "multi",
-            "elevation_cache_path": "cgiar_provider",
+            "elevation_cache_path": "elevation-cache",
             "elevation_cache_clear": false,
             "instructions": true,
             "maximum_distance": 100000,
@@ -369,7 +369,7 @@
     "logging": {
       "enabled": true,
       "level_file": "DEBUG_LOGGING.json",
-      "location": "./ors",
+      "location": "./logs",
       "stdout": true
     },
     "system_message": [

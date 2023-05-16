@@ -128,7 +128,7 @@
             "graphs_root_path": "graphs-apitests",
             "elevation_provider": "multi",
             "elevation_cache_clear": false,
-            "elevation_cache_path": "./src/test/files/data/elevation",
+            "elevation_cache_path": "elevation-cache",
             "elevation_smoothing": false,
             "instructions": true,
             "maximum_distance": 100000,
