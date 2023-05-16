@@ -6,7 +6,6 @@ graphs/
 graphs-*/
 target/
 logs/
-ors/
 
 # jqwik
 .jqwik-database
