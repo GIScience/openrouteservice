@@ -90,7 +90,7 @@ WORKDIR ${BASE_FOLDER}
 
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
-COPY --chown=ors:ors --from=build $CONFIG_PATH ${BASE_FOLDER}/ors-core/ors-config.json
+COPY --chown=ors:ors --from=build $CONFIG_PATH ${BASE_FOLDER}/ors-conf/ors-config.json
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
 COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
