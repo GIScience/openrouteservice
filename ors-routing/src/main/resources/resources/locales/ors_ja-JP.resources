@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1番目",
+      "2": "2番目",
+      "3": "3番目",
+      "4": "4番目",
+      "5": "5番目",
+      "6": "6番目",
+      "7": "7番目",
+      "8": "8番目",
+      "9": "9番目",
+      "10": "10番目"
+    },
+    "directions": {
+      "north": "北",
+      "northeast": "北東",
+      "east": "東",
+      "southeast": "南東",
+      "south": "南",
+      "southwest": "南西",
+      "west": "西",
+      "northwest": "北西"
+    },
+    "turn_maneuvers": {
+      "left": "左",
+      "right": "右",
+      "sharp_left": "左急角度",
+      "sharp_right": "右急角度",
+      "slight_left": "左方向",
+      "slight_right": "右方向",
+      "straight": "直進",
+      "uturn": "Uターン"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "目的地に到着します",
+          "name": "{way_name}に到着します"
+        },
+        "left": {
+          "default": "左側にある目的地に到着します",
+          "name": "左側にある{way_name}に到着します"
+        },
+        "right": {
+          "default": "右側にある目的地に到着します",
+          "name": "右側にある{way_name}に到着します"
+        },
+        "straight": {
+          "default": "前方にある目的地に到着します",
+          "name": "前方にある{way_name}に到着します"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "{direction}に向かいます",
+          "name": "{way_name}を通って{direction}に向かいます"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "ロータリーに入って{exit_number}番出口を選びます",
+            "name": "ロータリーに入って{way_name}上の{exit_number}番出口を選びます"
+          },
+          "default": {
+            "default": "ロータリーに入ります",
+            "name": "ロータリーに入って{way_name}上へ抜けます"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "{turn_maneuver}へ曲がります",
+          "name": "{way_name}に向けて{turn_maneuver}へ曲がります"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "続けて{turn_maneuver}に進みます",
+          "name": "続けて{way_name}上を{turn_maneuver}に進みます"
+        },
+        "uturn": {
+          "default": "Uターンします",
+          "name": "{way_name}に向けてUターンします"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "そのまま{turn_maneuver}に進みます",
+          "name": "そのまま{way_name}上を{turn_maneuver}に進みます"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "{name}に乗車します",
+          "headsign": "{headsign}行の{name}に乗車します"
+        },
+        "transfer": {
+          "default": "{name}へ乗り換えます",
+          "headsign": "{headsign}行の{name}へ乗り換えます"
+        },
+        "end": "{name}で下車します"
+      }
+    }
+  }
+}

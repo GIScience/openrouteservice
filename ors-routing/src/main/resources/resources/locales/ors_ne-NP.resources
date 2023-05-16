@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "१",
+      "2": "२",
+      "3": "३",
+      "4": "४",
+      "5": "५",
+      "6": "६",
+      "7": "७",
+      "8": "८",
+      "9": "९",
+      "10": "१०"
+    },
+    "directions": {
+      "north": "उत्तर",
+      "northeast": "उत्तर-पूर्व",
+      "east": "पूर्व",
+      "southeast": "दक्षिण-पूर्व",
+      "south": "दक्षिण",
+      "southwest": "दक्षिण-पश्चिम",
+      "west": "पश्चिम",
+      "northwest": "उत्तर-पश्चिम"
+    },
+    "turn_maneuvers": {
+      "left": "बाँया",
+      "right": "दाहिने",
+      "sharp_left": "तिखो बाँया",
+      "sharp_right": "तिखो दाहिने",
+      "slight_left": "हल्का बाँया",
+      "slight_right": "हल्का दाहिने",
+      "straight": "सिधा",
+      "uturn": "घुम्ती"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "तपाईंको गन्तव्यमा पुग्नुहोस्",
+          "name": "{Way_name} मा आइपुग्नुहोस्"
+        },
+        "left": {
+          "default": "तपाईंको गन्तव्यमा पुग्नुहोस्, बाँयामा",
+          "name": "{Way_name} मा बायाँ तिर"
+        },
+        "right": {
+          "default": "तपाईंको गन्तव्यमा पुग्नुहोस् दाँयामा",
+          "name": "दायाँतिर {way_name} मा आइपुग्नुहोस्"
+        },
+        "straight": {
+          "default": "तपाईंको गन्तव्यमा पुग्नुहोस्, सीधा अगाडी",
+          "name": "{Way_name} मा जानुहोस्, सीधा अगाडी"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "अगाडी {direction}",
+          "name": "अगाडी {direction} {way_name} मा"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "गोलघुम्ती छिर्नुहोस्, {exit_number} लिनुहोस् र बाहिर निस्कनुहोस्",
+            "name": "गोलघुम्ती छिर्नुहोस् र {exit_number} लिनुहोस् र {way_name} तिर बाहिर निस्कनुहोस्"
+          },
+          "default": {
+            "default": "गोलघुम्ती छिर्नुहोस्",
+            "name": "गोलघुम्ती छिर्नुहोस् र {way_name} तिर बाहिर निस्कनुहोस्"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "घुम्नुहोस् {turn_maneuver}",
+          "name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "निरन्तरता दिनु {turn_maneuver}",
+          "name": "निरन्तरता दिनु {turn_maneuver} {way_name} तिर"
+        },
+        "uturn": {
+          "default": "U मोड लिनुहोस्",
+          "name": "{way_name} तिर U मोड लिनुहोस्"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "घुम्नुहोस् {turn_maneuver}",
+          "name": "घुम्नुहोस् {turn_maneuver} {way_name} तिर"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

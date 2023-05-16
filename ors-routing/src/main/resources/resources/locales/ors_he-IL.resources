@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "ראשון",
+      "2": "שני",
+      "3": "שלישי",
+      "4": "רביעי",
+      "5": "חמישי",
+      "6": "שישי",
+      "7": "שביעי",
+      "8": "שמיני",
+      "9": "תשיעי",
+      "10": "עשירי"
+    },
+    "directions": {
+      "north": "צפון",
+      "northeast": "צפון-מזרח",
+      "east": "מזרח",
+      "southeast": "דרום-מזרח",
+      "south": "דרום",
+      "southwest": "דרום-מערב",
+      "west": "מערב",
+      "northwest": "צפון-מערב"
+    },
+    "turn_maneuvers": {
+      "left": "שמאלה",
+      "right": "ימינה",
+      "sharp_left": "פניה חדה שמאלה",
+      "sharp_right": "פניה חדה ימינה",
+      "slight_left": "מעט שמאלה",
+      "slight_right": "מעט ימינה",
+      "straight": "ישר",
+      "uturn": "פניית פרסה"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "הגעת ליעד",
+          "name": "הגעת אל {way_name}"
+        },
+        "left": {
+          "default": "הגעת ליעד, משמאלך",
+          "name": "הגעת אל {way_name}, משמאלך"
+        },
+        "right": {
+          "default": "הגעת ליעד, מימנך",
+          "name": "הגעת אל {way_name}, מימנך"
+        },
+        "straight": {
+          "default": "הגעת ליעד, ישר מולך",
+          "name": "הגעת אל {way_name}, ישר מולך"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "סע {direction}",
+          "name": "סע {direction} ב {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "כנס למעגל התנועה וצא ביציאה מספר {exit_number}",
+            "name": "כנס למעגל התנועה וצא ביציאה מספר {exit_number} אל {way_name}"
+          },
+          "default": {
+            "default": "כנס למעגל התנועה",
+            "name": "כנס למעגל התנועה וצא אל {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "פנה {turn_maneuver}",
+          "name": "פנה {turn_maneuver} אל {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "המשך {turn_maneuver}",
+          "name": "המשך {turn_maneuver} אל {way_name}"
+        },
+        "uturn": {
+          "default": "בצע פניית פרסה",
+          "name": "בצע פניית פרסה אל {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "המשך {turn_maneuver}",
+          "name": "המשך {turn_maneuver} אל {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "primul",
+      "2": "al doilea",
+      "3": "al treilea",
+      "4": "al patrulea",
+      "5": "al cincilea",
+      "6": "al șaselea",
+      "7": "al șaptelea",
+      "8": "al optulea",
+      "9": "al nouălea",
+      "10": "al zecelea"
+    },
+    "directions": {
+      "north": "nord",
+      "northeast": "nord-est",
+      "east": "est",
+      "southeast": "sud-est",
+      "south": "sud",
+      "southwest": "sud-vest",
+      "west": "vest",
+      "northwest": "nord-vest"
+    },
+    "turn_maneuvers": {
+      "left": "stânga",
+      "right": "dreapta",
+      "sharp_left": "stânga brusc",
+      "sharp_right": "dreapta brusc",
+      "slight_left": "ușor stânga",
+      "slight_right": "ușor dreapta",
+      "straight": "drept înainte",
+      "uturn": "Întoarcerea în U"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Ajungeți la destinație",
+          "name": "Ajungeți la {way_name}"
+        },
+        "left": {
+          "default": "Ajungeți la destinație, pe stânga",
+          "name": "Ajungeți la {way_name}, pe stânga"
+        },
+        "right": {
+          "default": "Ajungeți la destinație, pe dreapta",
+          "name": "Ajungeți la {way_name}, pe dreapta"
+        },
+        "straight": {
+          "default": "Ajungeți la destinație, drept înainte",
+          "name": "Ajungeți la {way_name}, drept înainte"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Direcția {direcția}",
+          "name": "Continuați în {direction} pe {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Intrați în sensul giratoriu și luați ieșirea {exit_number}",
+            "name": "Intrați în sensul giratoriu și luați ieșirea {exit_number} pe {way_name}"
+          },
+          "default": {
+            "default": "Intrați în sensul giratoriu",
+            "name": "Intrați în sensul giratoriu și ieșiți pe {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Întoarceți {turn_maneuver}",
+          "name": "Întoarceți {turn_maneuver} pe {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Continuați {turn_maneuver}",
+          "name": "Continuați {turn_maneuver} pe {way_name}"
+        },
+        "uturn": {
+          "default": "Efectuați o întoarcere în U",
+          "name": "Întoarceți în U pe {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Țineți {turn_maneuver}",
+          "name": "Țineți {turn_maneuver} pe {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

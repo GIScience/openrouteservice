@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1a",
+      "2": "2a",
+      "3": "3a",
+      "4": "4a",
+      "5": "5a",
+      "6": "6a",
+      "7": "7a",
+      "8": "8a",
+      "9": "9a",
+      "10": "10a"
+    },
+    "directions": {
+      "north": "norte",
+      "northeast": "nordeste",
+      "east": "este",
+      "southeast": "sudeste",
+      "south": "sur",
+      "southwest": "suroeste",
+      "west": "oeste",
+      "northwest": "noroeste"
+    },
+    "turn_maneuvers": {
+      "left": "a la izquierda",
+      "right": "a la derecha",
+      "sharp_left": "bastante a la izquierda",
+      "sharp_right": "bastante a la derecha",
+      "slight_left": "ligeramente a la izquierda",
+      "slight_right": "ligeramente a la derecha",
+      "straight": "todo recto",
+      "uturn": "atrás"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Llegar a su destino",
+          "name": "Llegar a {way_name}"
+        },
+        "left": {
+          "default": "Llegar a su destino, a la izquierda",
+          "name": "Llegar a {way_name}, a la izquierda"
+        },
+        "right": {
+          "default": "Llegar a su destino, a la derecha",
+          "name": "Llegar a {way_name}, a la derecha"
+        },
+        "straight": {
+          "default": "Llegar a su destino, es recto",
+          "name": "Llegar a {way_name}, es recto"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Camina hacia el {direction}",
+          "name": "Camina hacia el {direction} en {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Entre en la rotonda y tome la {exit_number} salida",
+            "name": "Entre en la rotonda y tome la {exit_number} salida a {way_name}"
+          },
+          "default": {
+            "default": "Entrar en la rotonda",
+            "name": "Entre en la rotonda y salga a {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Gire {turn_maneuver}",
+          "name": "Gire {turn_maneuver} a {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Siga {turn_maneuver}",
+          "name": "Siga {turn_maneuver} a {way_name}"
+        },
+        "uturn": {
+          "default": "Haga una vuelta en U",
+          "name": "Haga una vuelta en U a {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Gire {turn_maneuver}",
+          "name": "Gire {turn_maneuver} a {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

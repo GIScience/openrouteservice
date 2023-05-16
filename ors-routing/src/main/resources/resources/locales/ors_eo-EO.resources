@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "unue",
+      "2": "dua",
+      "3": "tria",
+      "4": "kvara",
+      "5": "kvina",
+      "6": "sesa",
+      "7": "sepa",
+      "8": "oka",
+      "9": "naŭa",
+      "10": "deka"
+    },
+    "directions": {
+      "north": "nordo",
+      "northeast": "nordoriento",
+      "east": "oriento",
+      "southeast": "sudoriento",
+      "south": "sudo",
+      "southwest": "sudokcidento",
+      "west": "okcidento",
+      "northwest": "nordokcidento"
+    },
+    "turn_maneuvers": {
+      "left": "maldekstre",
+      "right": "dekstre",
+      "sharp_left": "akra maldekstre",
+      "sharp_right": "akra dekstre",
+      "slight_left": "iomete maldekstre",
+      "slight_right": "iomete dekstre",
+      "straight": "rekte",
+      "uturn": "U-turno"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Alvenis ĉe via destino",
+          "name": "Alvenu ĉe {way_name}"
+        },
+        "left": {
+          "default": "Alvenis ĉe via destino, maldekstre",
+          "name": "Alvenu ĉe {way_name}, maldekstre"
+        },
+        "right": {
+          "default": "Alvenis ĉe via destino, sur la dekstra flanko",
+          "name": "Alvenu ĉe {way_name}, sur la dekstra flanko"
+        },
+        "straight": {
+          "default": "Alvenis ĉe via destino, rekte antaŭ",
+          "name": "Alvenu ĉe {way_name} , rekte antaŭ"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Iru {direction}",
+          "name": "Iru {direction} sur {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Enigu la trafikcirklon kaj prenu la {exit_number} elirejo",
+            "name": "Enigu la trafikcirklon kaj prenu la {exit_number} elirejo sur {way_name}"
+          },
+          "default": {
+            "default": "Enigu la trafikcirklon",
+            "name": "Enigu la trafikcirklon kaj eliru sur {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Turnu {turn_maneuver}n",
+          "name": "Turnu {turn_maneuver}n sur {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Daŭrigu {turn_maneuver}",
+          "name": "Daŭrigu {turn_maneuver} sur {way_name}"
+        },
+        "uturn": {
+          "default": "Faru U-turnon",
+          "name": "Faru U-turnon sur {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Tenu {turn_maneuver}",
+          "name": "Tenu {turn_maneuver} sur {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

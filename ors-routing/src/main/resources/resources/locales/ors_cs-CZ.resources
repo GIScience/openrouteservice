@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1.",
+      "2": "2.",
+      "3": "3.",
+      "4": "4.",
+      "5": "5.",
+      "6": "6.",
+      "7": "7.",
+      "8": "8.",
+      "9": "9.",
+      "10": "10."
+    },
+    "directions": {
+      "north": "sever",
+      "northeast": "severovýchod",
+      "east": "východ",
+      "southeast": "jihovýchod",
+      "south": "jih",
+      "southwest": "jihozápad",
+      "west": "západ",
+      "northwest": "severozápad"
+    },
+    "turn_maneuvers": {
+      "left": "vlevo",
+      "right": "vpravo",
+      "sharp_left": "ostře vlevo",
+      "sharp_right": "ostře vpravo",
+      "slight_left": "mírně vlevo",
+      "slight_right": "mírně vpravo",
+      "straight": "přímo",
+      "uturn": "otočit zpět"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Dorazil jste do cíle",
+          "name": "Dorazil do {way_name}"
+        },
+        "left": {
+          "default": "Dorazil jste do cíle, nalevo",
+          "name": "dorazil jste do {way_name}, nalevo"
+        },
+        "right": {
+          "default": "Dorazil jste do cíle, napravo",
+          "name": "Dorazil jste do {way_name}, napravo"
+        },
+        "straight": {
+          "default": "Dorazil jste do cíle, rovně před vámi",
+          "name": "Dorazil jste do {way_name}, rovně před vámi"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Jeďte {direction}",
+          "name": "Jeďte {direction} na {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Na kruhovém objezdu sjeďte na {exit_number} sjezdu",
+            "name": "Na kruhovém objezdu sjeďte na {exit_number} sjezdu na {way_name}"
+          },
+          "default": {
+            "default": "Vjeďte na kruhový objezd",
+            "name": "Vjeďte na kruhová objezd a sjeďte na {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Zahněte {turn_maneuver}",
+          "name": "Zahněte {turn_maneuver} na {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Jeďte dál {turn_maneuver}",
+          "name": "Jeďte dál {turn_maneuver} na {way_name}"
+        },
+        "uturn": {
+          "default": "Otočte se",
+          "name": "Otočte se na {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Pokračujte {turn_maneuver}",
+          "name": "Pokračujte {turn_maneuver} na {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

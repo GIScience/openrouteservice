@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1-й",
+      "2": "2-й",
+      "3": "3-й",
+      "4": "4-й",
+      "5": "5-й",
+      "6": "6-й",
+      "7": "7-й",
+      "8": "8-й",
+      "9": "9-й",
+      "10": "10-й"
+    },
+    "directions": {
+      "north": "север",
+      "northeast": "северо-восток",
+      "east": "восток",
+      "southeast": "юго-восток",
+      "south": "юг",
+      "southwest": "юго-запад",
+      "west": "запад",
+      "northwest": "северо-запад"
+    },
+    "turn_maneuvers": {
+      "left": "налево",
+      "right": "направо",
+      "sharp_left": "резко налево",
+      "sharp_right": "резко направо",
+      "slight_left": "плавно налево",
+      "slight_right": "плавно направо",
+      "straight": "прямо",
+      "uturn": "разворот"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Прибытие в пункт назначения",
+          "name": "Прибываете на {way_name}"
+        },
+        "left": {
+          "default": "Прибытие в пункт назначения (слева)",
+          "name": "Прибываете на {way_name} (слева)"
+        },
+        "right": {
+          "default": "Прибытие в пункт назначения (справа)",
+          "name": "Прибываете на {way_name} (справа)"
+        },
+        "straight": {
+          "default": "Прибытие в пункт назначения (прямо)",
+          "name": "Прибываете на {way_name} (прямо)"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Направляйтесь на {direction}",
+          "name": "Направляйтесь на {direction} по {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Въезжайте на кольцо, затем выбирете {exit_number} съезд",
+            "name": "Въезжайте на кольцо, затем выбирете {exit_number} съезд на {way_name}"
+          },
+          "default": {
+            "default": "Въезжайте на кольцо",
+            "name": "Въезжайте на кольцо на {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Поверните {turn_maneuver}",
+          "name": "Поверните {turn_maneuver} на {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Следуйте {turn_maneuver}",
+          "name": "Следуйте {turn_maneuver} по {way_name}"
+        },
+        "uturn": {
+          "default": "Произведите разворот",
+          "name": "Произведите разворот на {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Поверните {turn_maneuver}",
+          "name": "Поверните {turn_maneuver} на {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

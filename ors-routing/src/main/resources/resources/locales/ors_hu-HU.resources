@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "első",
+      "2": "második",
+      "3": "harmadik",
+      "4": "negyedik",
+      "5": "ötödik",
+      "6": "hatodik",
+      "7": "hetedik",
+      "8": "nyolcadik",
+      "9": "kilencedik",
+      "10": "tizedik"
+    },
+    "directions": {
+      "north": "észak",
+      "northeast": "északkelet",
+      "east": "kelet",
+      "southeast": "délkelet",
+      "south": "dél",
+      "southwest": "délnyugat",
+      "west": "nyugat",
+      "northwest": "északnyugat"
+    },
+    "turn_maneuvers": {
+      "left": "balra",
+      "right": "jobbra",
+      "sharp_left": "élesen balra",
+      "sharp_right": "élesen jobbra",
+      "slight_left": "enyhén balra",
+      "slight_right": "enyhén jobbra",
+      "straight": "egyenesen",
+      "uturn": "vissza"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Megérkezett az úticéljához",
+          "name": "Megérkezett: {way_name}"
+        },
+        "left": {
+          "default": "Megérkezett, úticélja a bal oldalon található",
+          "name": "Megérkezett: {way_name} (a bal oldalon)"
+        },
+        "right": {
+          "default": "Megérkezett, úticélja a jobb oldalon található",
+          "name": "Megérkezett: {way_name} (a jobb oldalon)"
+        },
+        "straight": {
+          "default": "Megérkezett, úticélja szemben található",
+          "name": "Megérkezett: {way_name} (szemben)"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Induljon {direction} felé",
+          "name": "Induljon {direction} felé ezen: {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Hajtson be a köforgalomba, majd hajtson ki a(z) {exit_number} kijáraton",
+            "name": "Hajtson be a köforgalomba, majd hajtson ki a(z) {exit_number} kijáraton, ezen: {way_name}"
+          },
+          "default": {
+            "default": "Hajtson be a köforgalomba",
+            "name": "Hajtson be a köforgalomba, majd hajtson ki ezen: {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Forduljon be {turn_maneuver}",
+          "name": "Forduljon be {turn_maneuver} erre: {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Menjen tovább {turn_maneuver}",
+          "name": "Menjen tovább {turn_maneuver} ezen: {way_name}"
+        },
+        "uturn": {
+          "default": "Forduljon meg",
+          "name": "Forduljon meg, és menjen tovább ezen: {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Tartson {turn_maneuver}",
+          "name": "Tartson {turn_maneuver} ezen: {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

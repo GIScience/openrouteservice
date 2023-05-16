@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "erste",
+      "2": "zweite",
+      "3": "dritte",
+      "4": "vierte",
+      "5": "fünfte",
+      "6": "sechste",
+      "7": "siebte",
+      "8": "achte",
+      "9": "neunte",
+      "10": "zehnte"
+    },
+    "directions": {
+      "north": "nördlich",
+      "northeast": "nordöstlich",
+      "east": "östlich",
+      "southeast": "südöstlich",
+      "south": "südlich",
+      "southwest": "südwestlich",
+      "west": "westlich",
+      "northwest": "nordwestlich"
+    },
+    "turn_maneuvers": {
+      "left": "links",
+      "right": "rechts",
+      "sharp_left": "scharf links",
+      "sharp_right": "scharf rechts",
+      "slight_left": "leicht links",
+      "slight_right": "leicht rechts",
+      "straight": "geradeaus",
+      "uturn": "Kehrtwendung"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Ziel erreicht",
+          "name": "Sie erreichen {way_name}"
+        },
+        "left": {
+          "default": "Ziel erreicht (links)",
+          "name": "Sie erreichen {way_name} (links)"
+        },
+        "right": {
+          "default": "Ziel erreicht (rechts)",
+          "name": "Sie erreichen {way_name} (rechts)"
+        },
+        "straight": {
+          "default": "Ziel erreicht (geradeaus)",
+          "name": "Sie erreichen {way_name} (geradeaus)"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Weiter {direction}",
+          "name": "Weiter {direction} auf {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Fahren Sie in den Kreisverkehr und nehmen die {exit_number} Ausfahrt",
+            "name": "Fahren Sie in den Kreisverkehr und verlassen ihn an der {exit_number} Ausfahrt in {way_name}"
+          },
+          "default": {
+            "default": "Fahren Sie in den Kreisverkehr",
+            "name": "Fahren Sie in den Kreisverkehr und verlassen ihn in {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Biegen Sie {turn_maneuver} ab",
+          "name": "Biegen Sie {turn_maneuver} auf {way_name} ab"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Weiter {turn_maneuver}",
+          "name": "Weiter {turn_maneuver} auf {way_name}"
+        },
+        "uturn": {
+          "default": "Eine Kehrtwendung vollziehen",
+          "name": "Eine Kehrtwendung auf {way_name} vollziehen"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "{turn_maneuver} halten",
+          "name": "{turn_maneuver} halten auf {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Einsteigen in {name}",
+          "headsign": "Einsteigen in {name} nach {headsign}"
+        },
+        "transfer": {
+          "default": "Umsteigen in {name}",
+          "headsign": "Umsteigen in {name} nach {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

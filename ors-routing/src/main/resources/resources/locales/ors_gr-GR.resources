@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1ος",
+      "2": "2ος",
+      "3": "3ος",
+      "4": "4ος",
+      "5": "5ος",
+      "6": "6ος",
+      "7": "7ος",
+      "8": "8ος",
+      "9": "9ος",
+      "10": "10ος"
+    },
+    "directions": {
+      "north": "βόρεια",
+      "northeast": "βορειοανατολικά",
+      "east": "ανατολικά",
+      "southeast": "νοτιοανατολικά",
+      "south": "νότια",
+      "southwest": "νοτιοδυτικά",
+      "west": "δυτικά",
+      "northwest": "βορειοδυτικά"
+    },
+    "turn_maneuvers": {
+      "left": "αριστερά",
+      "right": "δεξιά",
+      "sharp_left": "απότομα αριστερά",
+      "sharp_right": "απότομα δεξιά",
+      "slight_left": "ελαφρά αριστερά",
+      "slight_right": "ελαφρά δεξιά",
+      "straight": "ευθεία",
+      "uturn": "αναστροφή"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Φτάσετε στον προορισμό σας",
+          "name": "Άφιξη στο {way_name}"
+        },
+        "left": {
+          "default": "Άφιξη στον προορισμό σας, στα αριστερά",
+          "name": "Άφιξη στο {way_name}, στα αριστερά"
+        },
+        "right": {
+          "default": "Φτάσετε στον προορισμό σας, στα δεξιά",
+          "name": "Άφιξη στο {way_name}, στα δεξιά"
+        },
+        "straight": {
+          "default": "Φτάσετε στον προορισμό σας, ευθεία μπροστά",
+          "name": "Άφιξη στο {way_name}, ευθεία μπροστά"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Συνεχίστε ευθεία {direction}",
+          "name": "Συνεχίστε ευθεία {direction} στην οδό {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Μπείτε στον κυκλικό κόμβο και στη συνέχεια ακολουθείστε την έξοδο {exit_number} και",
+            "name": "Μπείτε στον κυκλικό κόμβο και στη συνέχεια ακολουθείστε την έξοδο {exit_number} και συνεχίστε στην οδό {way_name}"
+          },
+          "default": {
+            "default": "Εισάγετε τον κυκλικό κόμβο",
+            "name": "Μπείτε στον κυκλικό κόμβο και συνεχίστε στην οδό {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Στρίψτε {turn_maneuver}",
+          "name": "Στρίψτε {turn_maneuver} στην οδό {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Συνεχίστε {turn_maneuver}",
+          "name": "Συνεχίστε {turn_maneuver} στην οδό {way_name}"
+        },
+        "uturn": {
+          "default": "Κάντε αναστροφή",
+          "name": "Κάντε αναστροφή στην οδό {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Στρίψτε {turn_maneuver}",
+          "name": "Στρίψτε {turn_maneuver} στην οδό {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

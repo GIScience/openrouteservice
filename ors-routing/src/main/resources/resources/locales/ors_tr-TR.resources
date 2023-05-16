@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1.",
+      "2": "2.",
+      "3": "3.",
+      "4": "4.",
+      "5": "5.",
+      "6": "6.",
+      "7": "7.",
+      "8": "8.",
+      "9": "9.",
+      "10": "10."
+    },
+    "directions": {
+      "north": "kuzey",
+      "northeast": "kuzeydoğu",
+      "east": "doğu",
+      "southeast": "güneydoğu",
+      "south": "güney",
+      "southwest": "güneydoğu",
+      "west": "batı",
+      "northwest": "kuzeydoğu"
+    },
+    "turn_maneuvers": {
+      "left": "sol",
+      "right": "sağ",
+      "sharp_left": "tam sol",
+      "sharp_right": "tam sağ",
+      "slight_left": "hafifçe sol",
+      "slight_right": "hafifçe sağ",
+      "straight": "düz şekilde",
+      "uturn": "U dönüşü"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Varış noktanıza ulaştınız",
+          "name": "{way_name} noktasına ulaştınız"
+        },
+        "left": {
+          "default": "Varış noktanıza ulaştınız, sol tarafınızda",
+          "name": "{way_name} noktasına ulaştınız, sol tarafınızda"
+        },
+        "right": {
+          "default": "Varış noktanıza ulaştınız, sağ tarafınızd",
+          "name": "{way_name} noktasına ulaştınız, sağ tarafınızda"
+        },
+        "straight": {
+          "default": "Varış noktanıza ulaştınız, tam karşınızda",
+          "name": "{way_name} noktasına ulaştınız, tam karşınızda"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "{direction} yönüne ilrleyin",
+          "name": "{way_name} üzerinde {direction} tarafına ilerleyin"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Döner kavşağa girin ve {exit_number} çıkışından ilerleyin",
+            "name": "Döner kavşağa girin ve {way_name} tarafına doğru {exit_number} çıkışından ilerleyin"
+          },
+          "default": {
+            "default": "Döner kavşağa girin",
+            "name": "Döner kavşağa girin {way_name} tarafına doğru çıkın"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "{turn_maneuver}a dönün",
+          "name": "{way_name} tarafına doğru {turn_maneuver}a dönün"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "{turn_maneuver} tarafta kalın",
+          "name": "{way_name} konumuna doğru {turn_maneuver}da kalın"
+        },
+        "uturn": {
+          "default": "U Dönüşü yapın",
+          "name": "{way_name} tarafına doğru U Dönüşü yapın"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "{turn_maneuver}da kalın",
+          "name": "{way_name} tarafına doğru {turn_maneuver}da kalın"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

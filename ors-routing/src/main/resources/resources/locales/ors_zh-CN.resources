@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "第1",
+      "2": "第2",
+      "3": "第3",
+      "4": "第4",
+      "5": "第5",
+      "6": "第6",
+      "7": "第7",
+      "8": "第8",
+      "9": "第9",
+      "10": "第10"
+    },
+    "directions": {
+      "north": "北",
+      "northeast": "东北",
+      "east": "东",
+      "southeast": "东南",
+      "south": "南",
+      "southwest": "西南",
+      "west": "西",
+      "northwest": "西北"
+    },
+    "turn_maneuvers": {
+      "left": "向左转",
+      "right": "向右转",
+      "sharp_left": "向左急转",
+      "sharp_right": "向右急转",
+      "slight_left": "稍向左转",
+      "slight_right": "稍向右转",
+      "straight": "直行",
+      "uturn": "掉头"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "到达目的地",
+          "name": "到达 {way_name}"
+        },
+        "left": {
+          "default": "到达你的目的地, 在左边",
+          "name": "到达 {way_name}, 在左侧"
+        },
+        "right": {
+          "default": "到达你的目的地, 在右边",
+          "name": "到达 {way_name}, 在右侧"
+        },
+        "straight": {
+          "default": "到达目的地, 笔直向前",
+          "name": "到达 {way_name}, 直接向前"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "向 {direction} 前进",
+          "name": "沿 {way_name} 向 {direction} 前进"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "进入环岛后在 {exit_number} 出口离开环岛",
+            "name": "进入环岛后在 {exit_number} 出口离开后进入 {way_name}"
+          },
+          "default": {
+            "default": "进入环岛",
+            "name": "进入并通过环岛后进入 {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "{turn_maneuver}",
+          "name": "{turn_maneuver} 进入 {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "继续 {turn_maneuver}",
+          "name": "继续 {turn_maneuver} 进入 {way_name}"
+        },
+        "uturn": {
+          "default": "前方掉头",
+          "name": "前方掉头后进入 {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "{turn_maneuver}",
+          "name": "{turn_maneuver} 进入 {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

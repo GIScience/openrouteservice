@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "pertama",
+      "2": "kedua",
+      "3": "ketiga",
+      "4": "keempat",
+      "5": "kelima",
+      "6": "keenam",
+      "7": "ketujuh",
+      "8": "kedelapan",
+      "9": "kesembilan",
+      "10": "kesepuluh"
+    },
+    "directions": {
+      "north": "utara",
+      "northeast": "timur laut",
+      "east": "timur",
+      "southeast": "tenggara",
+      "south": "selatan",
+      "southwest": "barat daya",
+      "west": "barat",
+      "northwest": "barat laut"
+    },
+    "turn_maneuvers": {
+      "left": "kiri",
+      "right": "kanan",
+      "sharp_left": "kiri tajam",
+      "sharp_right": "kanan tajam",
+      "slight_left": "kiri sedikit",
+      "slight_right": "kanan sedikit",
+      "straight": "lurus",
+      "uturn": "putar balik"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Sampai pada titik tujuan",
+          "name": "Sampai di {way_name}"
+        },
+        "left": {
+          "default": "Sampai pada titik tujuan, tetap berada di jalur kiri",
+          "name": "Sampai di {way_name}, tetap berada pada jalur kiri"
+        },
+        "right": {
+          "default": "Sampai pada titik tujuan, tetap berada di jalur kanan",
+          "name": "Sampai di {way_name}, tetap berada pada jalur kanan"
+        },
+        "straight": {
+          "default": "Sampai pada titik tujuan, lurus terus",
+          "name": "Sampai di {way_name}, lurus terus"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Ke arah {direction}",
+          "name": "Menuju ke arah {direction} di {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Masuk pada bundarn dan mengambil jalur {exit_number} untuk keluar",
+            "name": "Masuk dalam bundaran dan keluar melalui {exit_number} keluar di {way_name}"
+          },
+          "default": {
+            "default": "Masuk ke bundaran",
+            "name": "Masuk dalam bundaran {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Belok {turn_maneuver}",
+          "name": "Belok {turn_maneuver} ke {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Dilanjutkan {turn_maneuver}",
+          "name": "Dilanjutkan {turn_maneuver} pada {way_name}"
+        },
+        "uturn": {
+          "default": "Putar Balik",
+          "name": "Putar balik pada {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Tetap berada pada {turn_maneuver}",
+          "name": "Tetap berada pada {turn_maneuver} di {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

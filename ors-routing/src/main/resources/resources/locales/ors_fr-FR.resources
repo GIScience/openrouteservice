@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1ère",
+      "2": "2ème",
+      "3": "3ème",
+      "4": "4ème",
+      "5": "5ème",
+      "6": "6ème",
+      "7": "7ème",
+      "8": "8ème",
+      "9": "9ème",
+      "10": "10ème"
+    },
+    "directions": {
+      "north": "du Nord",
+      "northeast": "du Nord-Est",
+      "east": "de l’Est",
+      "southeast": "du Sud-Est",
+      "south": "du Sud",
+      "southwest": "du Sud-Ouest",
+      "west": "de l’Ouest",
+      "northwest": "du Nord-Ouest"
+    },
+    "turn_maneuvers": {
+      "left": "à gauche",
+      "right": "à droite",
+      "sharp_left": "franchement à gauche",
+      "sharp_right": "franchement à droite",
+      "slight_left": "légerement à gauche",
+      "slight_right": "légèrement à droite",
+      "straight": "tout droit",
+      "uturn": "demi-tour"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Arrivez à votre destination",
+          "name": "Arrivez à {way_name}"
+        },
+        "left": {
+          "default": "Arrivé à votre destination, sur la gauche",
+          "name": "Arrivé à {way_name}, destination sur la gauche"
+        },
+        "right": {
+          "default": "Arrivé à votre destination, sur la droite",
+          "name": "Arrivé à {way_name}, destination sur la droite"
+        },
+        "straight": {
+          "default": "Arrivé à votre destination, droit devant",
+          "name": "Arrivé à {way_name}, destination droit devant"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Démarrez en direction {direction}",
+          "name": "Démarrez en direction {direction} sur {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Entrez sur le rond-point et prenez la {exit_number} sortie",
+            "name": "Entrez sur le rond-point et prenez la {exit_number} sortie sur {way_name}"
+          },
+          "default": {
+            "default": "Entrez sur le rond-point",
+            "name": "Entrez sur le rond-point et sortie sur {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Tournez {turn_maneuver}",
+          "name": "Tournez {turn_maneuver} sur {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Continuez {turn_maneuver}",
+          "name": "Continuez {turn_maneuver} sur {way_name}"
+        },
+        "uturn": {
+          "default": "Faites un demi-tour",
+          "name": "Faites un demi-tour sur {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Tournez {turn_maneuver}",
+          "name": "Tournez {turn_maneuver} sur {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}

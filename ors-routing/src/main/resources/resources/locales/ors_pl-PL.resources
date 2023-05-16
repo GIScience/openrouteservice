@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1.",
+      "2": "2.",
+      "3": "3.",
+      "4": "4.",
+      "5": "5.",
+      "6": "6.",
+      "7": "7.",
+      "8": "8.",
+      "9": "9.",
+      "10": "10."
+    },
+    "directions": {
+      "north": "północ",
+      "northeast": "północny wschód",
+      "east": "wschód",
+      "southeast": "południowy wschód",
+      "south": "południe",
+      "southwest": "południowy zachód",
+      "west": "zachód",
+      "northwest": "północny zachód"
+    },
+    "turn_maneuvers": {
+      "left": "w lewo",
+      "right": "w prawo",
+      "sharp_left": "ostro w lewo",
+      "sharp_right": "ostro w prawo",
+      "slight_left": "łagodnie w lewo",
+      "slight_right": "łagodnie w prawo",
+      "straight": "prosto",
+      "uturn": "zawróć"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Dojeżdżasz do celu",
+          "name": "Dojeżdżasz do {way_name}"
+        },
+        "left": {
+          "default": "Dotrzesz do celu po lewej stronie",
+          "name": "Dojeżdżasz do {way_name} po lewej stronie"
+        },
+        "right": {
+          "default": "Dotrzesz do celu po prawej stronie",
+          "name": "Dojeżdżasz do {way_name} po prawej stronie"
+        },
+        "straight": {
+          "default": "Dojeżdżasz do celu prosto przed siebie",
+          "name": "Dojeżdżasz do {way_name} na wprost"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Kieruj się na {direction}",
+          "name": "Kieruj się na {direction} na {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Na rondzie zjedź {exit_number} zjazdem",
+            "name": "Na rondzie zjedź {exit_number} zjazdem na {way_name}"
+          },
+          "default": {
+            "default": "Wjedź na rondo",
+            "name": "Na rondzie zjedź na {way_name}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Skręć {turn_maneuver}",
+          "name": "Skręć {turn_maneuver} na {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Kontynuuj {turn_maneuver}",
+          "name": "Kontynuuj {turn_maneuver} na {way_name}"
+        },
+        "uturn": {
+          "default": "Zawróć",
+          "name": "Zawróć na {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Kieruj się {turn_maneuver}",
+          "name": "Kieruj się {turn_maneuver} na {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}
