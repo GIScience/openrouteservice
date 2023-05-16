@@ -38,14 +38,13 @@ ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.o
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 ARG ORS_CONFIG=ors-api/src/main/resources/ors-config-sample.json
-ARG CONFIG_PATH=/ors-core/ors-api/src/main/resources/ors-config.json
 
 WORKDIR /ors-core
 
 COPY ors-api /ors-core/ors-api
 COPY ors-routing /ors-core/ors-routing
 COPY pom.xml /ors-core/pom.xml
-COPY $ORS_CONFIG $CONFIG_PATH
+COPY $ORS_CONFIG /ors-core/ors-api/src/main/resources/ors-config.json
 
 # Configure ors config:
 # Fist set pipefail to -c to allow intermediate pipes to throw errors
@@ -53,12 +52,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # - Replace paths in ors-config.json to match docker setup
 # - init_threads = 1, > 1 been reported some issues
 # - Delete all profiles but car
-RUN jq '.ors.services.routing.sources[0] = "/home/ors/ors-core/data/osm_file.pbf"' $CONFIG_PATH | sponge $CONFIG_PATH && \
-    jq '.ors.logging.location = "/home/ors/ors-core/logs/ors"' $CONFIG_PATH | sponge $CONFIG_PATH && \
-    jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "/home/ors/ors-core/data/elevation_cache"' $CONFIG_PATH | sponge $CONFIG_PATH && \
-    jq '.ors.services.routing.profiles.default_params.graphs_root_path = "/home/ors/ors-core/data/graphs"' $CONFIG_PATH | sponge $CONFIG_PATH && \
-    jq '.ors.services.routing.init_threads = 1' $CONFIG_PATH | sponge $CONFIG_PATH && \
-    jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' $CONFIG_PATH | sponge $CONFIG_PATH
+RUN jq '.ors.services.routing.sources[0] = "/home/ors/ors-core/data/osm_file.pbf"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.logging.location = "/home/ors/ors-core/logs/ors"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "/home/ors/ors-core/data/elevation_cache"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.profiles.default_params.graphs_root_path = "/home/ors/ors-core/data/graphs"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.init_threads = 1' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json
 
 RUN mvn package -DskipTests
 
@@ -90,7 +89,7 @@ WORKDIR ${BASE_FOLDER}
 
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
-COPY --chown=ors:ors --from=build $CONFIG_PATH ${BASE_FOLDER}/ors-conf/ors-config.json
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/ors-config.json ${BASE_FOLDER}/ors-core/ors-config.json
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
 COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
