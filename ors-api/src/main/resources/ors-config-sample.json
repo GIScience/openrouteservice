@@ -102,7 +102,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "ors-routing/src/main/files/heidelberg.osm.gz"
+          "ors-engine/src/main/files/heidelberg.osm.gz"
         ],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",

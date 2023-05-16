@@ -42,7 +42,7 @@ ARG ORS_CONFIG=ors-api/src/main/resources/ors-config-sample.json
 WORKDIR /ors-core
 
 COPY ors-api /ors-core/ors-api
-COPY ors-routing /ors-core/ors-routing
+COPY ors-engine /ors-core/ors-engine
 COPY pom.xml /ors-core/pom.xml
 COPY $ORS_CONFIG /ors-core/ors-api/src/main/resources/ors-config.json
 
@@ -67,7 +67,7 @@ FROM amazoncorretto:17.0.7-alpine3.17 as publish
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
-ARG OSM_FILE=./ors-routing/src/main/files/heidelberg.osm.gz
+ARG OSM_FILE=./ors-engine/src/main/files/heidelberg.osm.gz
 ARG BASE_FOLDER=/home/ors
 
 # Runtime ENVs for tomcat

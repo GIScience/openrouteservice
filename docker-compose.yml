@@ -11,7 +11,7 @@ services:
 #      context: ./
 #      args:
 #        ORS_CONFIG: ./ors-api/src/main/resources/ors-config-sample.json
-#        OSM_FILE: ./ors-routing/src/main/files/heidelberg.osm.gz
+#        OSM_FILE: ./ors-engine/src/main/files/heidelberg.osm.gz
     volumes:
       - ./docker/graphs:/home/ors/ors-core/data/graphs
       - ./docker/elevation_cache:/home/ors/ors-core/data/elevation_cache
