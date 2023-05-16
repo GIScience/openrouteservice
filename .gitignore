@@ -12,3 +12,7 @@ logs/
 
 # Ignore folders generated from docker
 docker/
+
+# Ignore all ors-config files except for the sample one, useful for development and testing
+ors-api/src/main/resources/ors-config*
+!ors-api/src/main/resources/ors-config-sample.json
