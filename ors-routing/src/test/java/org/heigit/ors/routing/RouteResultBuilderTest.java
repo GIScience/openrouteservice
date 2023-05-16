@@ -1,9 +1,8 @@
-package org.heigit.ors.tomigrate.routing;
+package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.util.*;
-import org.heigit.ors.routing.*;
 import org.heigit.ors.util.CoordTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
