@@ -3,8 +3,6 @@ package org.heigit.ors.tomigrate.routing;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.util.*;
-import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.util.CoordTools;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RouteResultBuilderTest {
-    private RouteRequest request1;
-    private RouteRequest request2;
+    private RoutingRequest request1;
+    private RoutingRequest request2;
 
 
     public RouteResultBuilderTest() throws Exception {
@@ -31,53 +29,24 @@ class RouteResultBuilderTest {
 
     @BeforeEach
     void init() throws Exception {
-        Double[][] coords = new Double[2][2];
-        coords[0] = new Double[]{12.3, 45.6};
-        coords[1] = new Double[]{23.4, 56.7};
-        request1 = new RouteRequest(coords);
-
-        request1.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request1.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.DETOUR_FACTOR});
-        request1.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.OSM_ID});
-        request1.setIncludeGeometry(true);
-        request1.setIncludeInstructionsInResponse(true);
-        request1.setIncludeRoundaboutExitInfo(true);
+        Coordinate [] coordinates = new Coordinate[2];
+        coordinates[0] = new Coordinate(12.3, 45.6);
+        coordinates[1] = new Coordinate(23.4, 56.7);
+        request1 = new RoutingRequest();
+        request1.setCoordinates(coordinates);
+        request1.setAttributes(new String[] {"detourfactor"});
+        request1.setExtraInfo(RouteExtraInfoFlag.getFromString("osmid"));
         request1.setIncludeManeuvers(true);
-        request1.setInstructionsFormat(APIEnums.InstructionsFormat.HTML);
-        request1.setLanguage(APIEnums.Languages.DE);
-        request1.setUseElevation(true);
-        request1.setRoutePreference(APIEnums.RoutePreference.FASTEST);
-        RouteRequestOptions options = new RouteRequestOptions();
-        options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-        request1.setRouteOptions(options);
 
-        coords[0] = new Double[]{23.4, 56.7};
-        coords[1] = new Double[]{34.5, 67.8};
-        request2 = new RouteRequest(coords);
-
-        request2.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request2.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.DETOUR_FACTOR});
-        request2.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.OSM_ID});
-        request2.setIncludeGeometry(true);
-        request2.setIncludeInstructionsInResponse(true);
-        request2.setIncludeRoundaboutExitInfo(true);
-        request2.setIncludeManeuvers(true);
-        request2.setInstructionsFormat(APIEnums.InstructionsFormat.HTML);
-        request2.setLanguage(APIEnums.Languages.DE);
-        request2.setUseElevation(true);
-        request2.setRoutePreference(APIEnums.RoutePreference.FASTEST);
-        options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-        request2.setRouteOptions(options);
+        coordinates = new Coordinate[2];
+        coordinates[0] = new Coordinate(23.4, 56.7);
+        coordinates[1] = new Coordinate(34.5, 67.8);
+        request2 = new RoutingRequest();
+        request2.setCoordinates(coordinates);
     }
 
-    private GHResponse constructResponse(RouteRequest request) {
-        Coordinate start = new Coordinate();
-        Coordinate end = new Coordinate();
-        start.x = request.getCoordinates().get(0).get(0);
-        start.y = request.getCoordinates().get(0).get(1);
-        end.x = request.getCoordinates().get(1).get(0);
-        end.y = request.getCoordinates().get(1).get(1);
-        Coordinate[] coords = new Coordinate[]{start, end};
+    private GHResponse constructResponse(RoutingRequest request) {
+        Coordinate[] coords = request.getCoordinates();
         LineString lineString = new GeometryFactory().createLineString(coords);
         ResponsePath responsePath = new ResponsePath();
         PointList pointList = new PointList();
@@ -120,11 +89,10 @@ class RouteResultBuilderTest {
     @Test
     void TestCreateMergedRouteResultFromBestPaths0() throws Exception {
         List<GHResponse> responseList = new ArrayList<>();
-        RoutingRequest routingRequest = request1.convertRouteRequest();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
         //noinspection unchecked
-        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
+        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, request1, new List[]{extrasList});
 
         assertEquals(0.0, result.getSummary().getDistance(), 0.0, "Empty response list should return empty RouteResult (summary.distance = 0.0)");
         assertEquals(0, result.getSegments().size(), "Empty response list should return empty RouteResult (no segments)");
@@ -136,13 +104,12 @@ class RouteResultBuilderTest {
     @Test
     void TestCreateMergedRouteResultFromBestPaths1() throws Exception {
         List<GHResponse> responseList = new ArrayList<>();
-        RoutingRequest routingRequest = request1.convertRouteRequest();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
         extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
         responseList.add(constructResponse(request1));
         //noinspection unchecked
-        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
+        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, request1, new List[]{extrasList});
 
         assertEquals(1452977.2, result.getSummary().getDistance(), 0.0, "Single response should return valid RouteResult (summary.duration = 1452977.2)");
         assertEquals("45.6,56.7,12.3,23.4", result.getSummary().getBBox().toString(), "Single response should return valid RouteResult (summary.bbox = 45.6,56.7,12.3,23.4)");
@@ -168,14 +135,13 @@ class RouteResultBuilderTest {
     @SuppressWarnings("java:S5961")
     void TestCreateMergedRouteResultFromBestPaths2() throws Exception {
         List<GHResponse> responseList = new ArrayList<>();
-        RoutingRequest routingRequest = request1.convertRouteRequest();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
         extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
         responseList.add(constructResponse(request1));
         responseList.add(constructResponse(request2));
         //noinspection unchecked
-        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
+        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, request1, new List[]{extrasList});
 
         assertEquals(2809674.1, result.getSummary().getDistance(), 0.0, "Two responses should return merged RouteResult (summary.duration = 2809674.1)");
         assertEquals("45.6,67.8,12.3,34.5", result.getSummary().getBBox().toString(), "Two responses should return merged RouteResult (summary.bbox = 45.6,67.8,12.3,34.5)");
@@ -214,18 +180,13 @@ class RouteResultBuilderTest {
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
         extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
-        responseList.add(constructResponse(request1));
-        responseList.add(constructResponse(request2));
-        RouteRequest modRequest = request1;
         List<Integer> skipSegments = new ArrayList<>();
         skipSegments.add(1);
-        modRequest.setSkipSegments(skipSegments);
-        RoutingRequest routingRequest = modRequest.convertRouteRequest();
-        responseList = new ArrayList<>();
-        responseList.add(constructResponse(modRequest));
+        request1.setSkipSegments(skipSegments);
+        responseList.add(constructResponse(request1));
 
         //noinspection unchecked
-        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, routingRequest, new List[]{extrasList});
+        RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, request1, new List[]{extrasList});
         assertEquals(1, result.getWarnings().size(), "Response with SkipSegments should return RouteResult with warning");
         assertEquals(3, result.getWarnings().get(0).getWarningCode(), "Response with SkipSegments should return RouteResult with warning (code 3)");
     }
