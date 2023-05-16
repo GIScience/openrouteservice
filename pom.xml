@@ -27,7 +27,7 @@
     </scm>
 
     <modules>
-        <module>ors-routing</module>
+        <module>ors-engine</module>
         <module>ors-api</module>
     </modules>
 

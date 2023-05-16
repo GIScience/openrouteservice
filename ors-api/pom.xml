@@ -127,7 +127,7 @@
     <dependencies>
         <dependency>
             <groupId>org.heigit.ors</groupId>
-            <artifactId>ors-routing</artifactId>
+            <artifactId>ors-engine</artifactId>
             <version>${project.version}</version>
         </dependency>
 

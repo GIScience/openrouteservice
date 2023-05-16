@@ -34,7 +34,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ors-routing</artifactId>
+    <artifactId>ors-engine</artifactId>
     <name>ors-routing</name>
 
     <build>
