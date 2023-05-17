@@ -51,8 +51,6 @@
                     <include>application.properties</include>
                     <include>app.config*</include>
                     <include>ors-config*.json</include>
-                    <!-- TODO: Remove as soon as RouteResultBuilderTest has been migrated to ors-routing: -->
-                    <include>resources/locales/*.resources</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
