@@ -130,8 +130,7 @@
                         <configuration>
                             <target>
                                 <echo>Creating version file</echo>
-                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties"
-                                      tofile="${basedir}/target/version.properties"/>
+                                <copy file="${basedir}/target/${project.build.finalName}/WEB-INF/classes/resources/version.properties" tofile="${basedir}/target/version.properties"/>
                             </target>
                         </configuration>
                     </execution>
@@ -496,7 +495,7 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
-            <version>5.4.0</version>
+            <version>5.5.0</version>
         </dependency>
 
         <!-- Spring dependencies -->

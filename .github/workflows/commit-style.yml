@@ -1,0 +1,44 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Conventional commit checks
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [ opened, reopened, edited, synchronize ]
+
+
+jobs:
+  convention_commit_check:
+    name: Run conventional commit style check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the commit style against the 'conventional commit styling'
+        uses: MichaelsJP/action-conventional-commits@master
+        with:
+          VALID_LABELS: '["feat","fix","docs","style","refactor","test","build","perf","ci","chore","revert","merge","wip"]'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  conventional_commit_pr_title_check:
+    name: Check the PR title against the 'conventional commit styling'
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - uses: aslafy-z/conventional-pr-title-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  add_conventional_release_labels:
+    needs:
+      - conventional_commit_pr_title_check
+    name: Add PR title conventional type to PR labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add conventional release labels
+        uses: bcoe/conventional-release-labels@v1.3.0
+        with:
+          type_labels: '{"feat": "feature", "fix": "fix", "docs": "documentation", "style": "style", "refactor": "refactor", "test": "test", "build": "build", "perf": "performance", "ci": "ci", "chore": "chore", "revert": "revert", "merge": "merge", "wip": "wip"}'
+          ignored_types: '["chore"]'
+          ignore_label: 'ignore-for-release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
