@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
+@ActiveProfiles("test")
 class CORSSettingsTest extends ServiceTest {
 
     @Autowired
@@ -52,7 +54,6 @@ class CORSSettingsTest extends ServiceTest {
     List<String> allowedHeaders;
 
     final static List<String> exposedHeaders = List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
-
 
     @Test
     @DisplayName("Requests without 'Origin' header pass with 200 response")
