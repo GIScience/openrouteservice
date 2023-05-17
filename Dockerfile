@@ -67,7 +67,7 @@ FROM amazoncorretto:17.0.7-alpine3.17 as publish
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
-ARG OSM_FILE=./ors-engine/src/main/files/heidelberg.osm.gz
+ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
 ARG BASE_FOLDER=/home/ors
 
 # Runtime ENVs for tomcat

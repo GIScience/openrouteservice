@@ -78,7 +78,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "ors-engine/src/main/files/heidelberg.osm.gz"
+          "ors-api/src/test/files/heidelberg.osm.gz"
         ],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
@@ -336,7 +336,7 @@
               "encoder_options": "block_fords=false",
               "elevation": true,
               "maximum_visited_nodes": 1000000,
-              "gtfs_file": "openrouteservice-api-tests/data/vrn_gtfs.zip"
+              "gtfs_file": "ors-api/src/test/files/vrn_gtfs.zip"
             }
           }
         }

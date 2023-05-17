@@ -9,11 +9,11 @@ has_toc: false
 
 ## Installation via Docker
 
-We suggest using docker to install and launch openrouteservice backend. In short, run the following command under the source code tree will get everything done (for this please
-clone the repository, running docker via the archive is currently not supported).
+We suggest using docker to install and launch openrouteservice backend. In short, run the following commands will get everything done.
 
 ```bash
-cd docker && docker-compose up
+wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
+docker compose up
 ```
 
 For more details, check the [Running with Docker](Running-with-Docker)-Section. More explanation about customization can be found in th e [Advanced Docker Setup](Advanced-Docker-Setup)

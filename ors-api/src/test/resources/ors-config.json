@@ -104,7 +104,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "ORSRouting",
         "sources": [
-          "./src/test/files/data/heidelberg.osm.gz"
+          "./src/test/files/heidelberg.osm.gz"
         ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors, tmc - BASt",
@@ -128,7 +128,7 @@
             "graphs_root_path": "graphs-apitests",
             "elevation_provider": "multi",
             "elevation_cache_clear": false,
-            "elevation_cache_path": "./src/test/files/data/elevation",
+            "elevation_cache_path": "./src/test/files/elevation",
             "elevation_smoothing": false,
             "instructions": true,
             "maximum_distance": 100000,
@@ -206,18 +206,18 @@
                 "WaySurfaceType": {},
                 "Tollways": {},
                 "Borders": {
-                  "boundaries": "./src/test/files/data/borders/borders.geojson",
-                  "ids": "./src/test/files/data/borders/ids.csv",
-                  "openborders": "./src/test/files/data/borders/openborders.csv"
+                  "boundaries": "./src/test/files/borders/borders.geojson",
+                  "ids": "./src/test/files/borders/ids.csv",
+                  "openborders": "./src/test/files/borders/openborders.csv"
                 },
                 "RoadAccessRestrictions": {
                   "use_for_warnings": true
                 },
                 "HereTraffic": {
                   "enabled": true,
-                  "streets": "./src/test/files/data/traffic_data/here/Streets.shp",
-                  "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
-                  "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
+                  "streets": "./src/test/files/traffic_data/here/Streets.shp",
+                  "ref_pattern": "./src/test/files/traffic_data/here/ref_pattern.csv",
+                  "pattern_15min": "./src/test/files/traffic_data/here/pattern_kph_15min.csv",
                   "radius": 150,
                   "output_log": false,
                   "log_location": "ors/traffic_log"
@@ -275,9 +275,9 @@
                 "WaySurfaceType": {},
                 "Tollways": {},
                 "Borders": {
-                  "boundaries": "./src/test/files/data/borders/borders.geojson",
-                  "ids": "./src/test/files/data/borders/ids.csv",
-                  "openborders": "./src/test/files/data/borders/openborders.csv"
+                  "boundaries": "./src/test/files/borders/borders.geojson",
+                  "ids": "./src/test/files/borders/ids.csv",
+                  "openborders": "./src/test/files/borders/openborders.csv"
                 }
               },
               "traffic": false
@@ -364,16 +364,16 @@
               "interpolate_bridges_and_tunnels": false,
               "ext_storages": {
                 "GreenIndex": {
-                  "filepath": "./src/test/files/data/green_streets_hd.csv"
+                  "filepath": "./src/test/files/green_streets_hd.csv"
                 },
                 "NoiseIndex": {
-                  "filepath": "./src/test/files/data/noise_data_hd.csv"
+                  "filepath": "./src/test/files/noise_data_hd.csv"
                 },
                 "csv": {
-                  "filepath": "./src/test/files/data/csv_data_hd.csv"
+                  "filepath": "./src/test/files/csv_data_hd.csv"
                 },
                 "ShadowIndex": {
-                  "filepath": "./src/test/files/data/shadow_index_hd.csv"
+                  "filepath": "./src/test/files/shadow_index_hd.csv"
                 },
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -390,13 +390,13 @@
               "elevation_smoothing": true,
               "ext_storages": {
                 "GreenIndex": {
-                  "filepath": "./src/test/files/data/green_streets_hd.csv"
+                  "filepath": "./src/test/files/green_streets_hd.csv"
                 },
                 "NoiseIndex": {
-                  "filepath": "./src/test/files/data/noise_data_hd.csv"
+                  "filepath": "./src/test/files/noise_data_hd.csv"
                 },
                 "ShadowIndex": {
-                  "filepath": "./src/test/files/data/shadow_index_hd.csv"
+                  "filepath": "./src/test/files/shadow_index_hd.csv"
                 },
                 "WayCategory": {},
                 "WaySurfaceType": {},
@@ -427,7 +427,7 @@
               "encoder_options": "block_fords=false",
               "elevation": true,
               "maximum_visited_nodes": 15000,
-              "gtfs_file": "./src/test/files/data/vrn_gtfs_cut.zip"
+              "gtfs_file": "./src/test/files/vrn_gtfs_cut.zip"
             }
           }
         }

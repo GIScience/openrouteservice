@@ -229,7 +229,7 @@ Currently only [cors](#orsapi_settingscors) member for api access control
 |   maximum_avoid_polygon_area   |  number | The maximum allowed total area of a polygon in square kilometers, optional      | `200000000`                                                                       |
 |   maximum_avoid_polygon_extent   |  number | The maximum extent (i.e. envelope side length) of a polygon in kilometers, optional    | `20000`                                                                           |
 |   ext_storages    |  object |  Controls which external storages are enabled    | [external storages](#orsservicesroutingprofilesprofile-xxxparametersext_storages) |
-|   gtfs_file | string | Only for pt profile: location of gtfs-file used. Can either be a zip-file or the unzipped folder. | `"src/test/files/data/vrn_gtfs_cut.zip"`                                          |
+|   gtfs_file | string | Only for pt profile: location of gtfs-file used. Can either be a zip-file or the unzipped folder. | `"src/test/files/vrn_gtfs_cut.zip"`                                          |
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters.encoder_options**
 
