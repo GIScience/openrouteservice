@@ -6,7 +6,7 @@ name: Conventional commit checks
 on:
   pull_request:
     branches: [ master ]
-    types: [ opened, reopened, edited, synchronize ]
+    types: [ opened, reopened, edited ]
 
 
 jobs:
