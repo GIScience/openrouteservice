@@ -113,7 +113,7 @@ Specify either during container startup or in `docker-compose.yml`.
 
 When building the image, the following arguments are customizable:
 
-- `ORS_CONFIG`: Can be changed to specify the location of a custom `ors-config.json` file. Default `./ors-api/src/main/resources/ors-config-sample.json`.
+- `ORS_CONFIG`: Can be changed to specify the location of a custom `ors-config.json` file. Default `./ors-api/src/main/resources/ors-config.json`.
 - `OSM_FILE`: Can be changed to point to a local custom OSM file. Default `./ors-api/src/test/files/heidelberg.osm.gz`.
 
 **Customization**

@@ -5,60 +5,52 @@ title: Configuration
 ---
 
 # Configuration
-The configuration of your own **openrouteservice** instance is read from the `ors-config.json` file.
-For a quick start with the default values, the [ors-config-sample.json][sample_config] can be copied to that location
-and adjusted as needed.
+The configuration of your own **openrouteservice** instance is done in two places: The `application.properties` used by spring-boot and a `ors-config.json` file. We are working on consolidating all configurations to use the boot-spring mechanisms in the future.
+
+## Configuration via `application.properties`
+All spring-boot properties can be set in multiple ways. 
+#### 1. Environment variables.
+For now the easiest way to modify the settings described below. Note that all properties are translated from period-separated lowercase to underscore-separated uppercase, e.g. to override the `cors.allowed_origins` property you would set `CORS_ALLOWED_ORIGINS=https://example.org` (with `-e` flag to your `docker run` command or in the `environment` block in your `docker-compose.yml`). 
+
+#### 2. Runtime parameters
+You can pass values to the JVM as java system variable. The example above could be set as `-Dcors.allowed_origins=https://example.org` (e.g. within the `JAVA_OPTS` variable through your `docker run` command or in the `environment` block in your `docker-compose.yml`)
+
+#### 3. Additional `application.properties` file
+Make a copy of `ors-api/src/main/resources/application.properties` file and change values. You can place that copy in certain locations or provide a path to that file via environment variable or as a runtime parameter using `spring.config.name` or `spring.config.location` as environment variable or runtime parameter. 
+
+#### 4. Packaged `application.properties` file 
+You could also make changes to `ors-api/src/main/resources/application.properties` directly. Requires building ORS from source.
+
+For more details see [Externalized Configuration](https://docs.spring.io/spring-boot/docs/1.5.22.RELEASE/reference/html/boot-features-external-config.html) in the spring documentation.
+
+### Available properties 
+
+| key                            | type                          | description                                                                            | default value                                                                                                                |
+|--------------------------------|-------------------------------|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| info.base_url                  | string                        |                                                                                        | https://openrouteservice.org/                                                                                                |
+| info.swagger_documentation_url | string                        | Define the url for the the swagger documentation. Can be different from the `base_url` | https://api.openrouteservice.org/                                                                                            |
+| info.support_mail              | string                        |                                                                                        | support@openrouteservice.org                                                                                                 |
+| info.author_tag                | string                        |                                                                                        | openrouteservice                                                                                                             |
+| info.content_licence           | string                        |                                                                                        | LGPL 3.0                                                                                                                     ||    
+| cors.allowed_origins           | string / comma separated list | Configures the Access-Control-Allow-Origins CORS header. `*` for all origins           | *                                                                                                                            |                        
+| cors.allowed_headers           | string / comma separated list | Configures the Access-Control-Allow-Headers CORS header. `*` for all headers           | Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization | 
+| cors.preflight_max_age         | int                           | Duration in seconds. Specifies how long the OPTIONS response is cached by browsers     | 600                                                                                                                          |                               
+
+Currently only API-specific options are set this way, which are rarely changed. Everything else is configured within the `ors-config.json` file.
+
+## Configuration via `ors-config.json`
+For a quick start with the default values, the [ors-config-sample.json][sample_config] can be copied to that location and adjusted as needed.
 
 [comment]: <> (TOC here?)
 
-## ors
+### ors
 The top level element.
 
-| key               | type   | description                                                                                             | example value                         |
-|-------------------|--------|---------------------------------------------------------------------------------------------------------|---------------------------------------|
-| info              | object | the topmost element to provide basic information about the service for signing and information purposes | [info](#orsinfo)                      |
-| api_settings.cors | object | general api settings (e.g. access control)                                                              | [api settings](#orsapi_settings)      |
-| services          | object | an object comprising the services                                                                       | [services](#orsservices)              |  
-| logging           | object | the logging properties                                                                                  | [logging](#orslogging)                |
-| system_message    | list   | List of system message objects                                                                          | [system messages](#orssystem_message) |
-
----
-
-// TODO: This is now a Spring Boot configuration block ("info")
-### ors.info
-
-| key | type | description                                                                          | example value                        |
-|-----|------|--------------------------------------------------------------------------------------|--------------------------------------|
-|  base_url  |  string |                                                                                      | `"https://openrouteservice.org"`     |
-|  swagger_documentation_url  |  string | Define the url for the the swagger documentation. Can be different from the `base_url` | `"https://api.openrouteservice.org"` |
-|  support_mail  |  string |                                                                                      | `"support@openrouteservice.org"`     |
-|  author_tag  |  string |                                                                                      | `"openrouteservice"`                 |
-|  content_licence  |  string |                                                                                      | `"LGPL 3.0"`                         |
-
----
-
-### ors.api_settings
-Currently only [cors](#orsapi_settingscors) member for api access control
-
----
-
-### ors.api_settings.cors
-
-| key               | type    | description                                                                         | example value                                         |
-|-------------------|---------|-------------------------------------------------------------------------------------|-------------------------------------------------------|
-| allowed           | object  | CORS settings for origins and headers                                               | [allowed](#orsapi_settingscorsallowed)                |
-| exposed.headers   | list    | Configures the Access-Control-Expose-Headers CORS header                            | `["Access-Control-Allow-Origin", "X-Requested-With"]` |
-| preflight_max_age | integer | Duration in seconds. Specifies how long the OPTIONS response is cached by browsers  | `600`                                                 |
-
----
-
-
-### ors.api_settings.cors.allowed
-
-| key               | type | description                                                                  | example value                                       |
-|-------------------|------|------------------------------------------------------------------------------|-----------------------------------------------------|
-| origins           | list | Configures the Access-Control-Allow-Origins CORS header. `*` for all origins | `["https://my-app.com","https://my-other-app.com"]` |
-| headers           | list | Configures the Access-Control-Allow-Headers CORS header. `*` for all headers | `["Authorization","X-Requested-With"]`              |
+| key            | type   | description                       | example value                         |
+|----------------|--------|-----------------------------------|---------------------------------------|
+| services       | object | an object comprising the services | [services](#orsservices)              |  
+| logging        | object | the logging properties            | [logging](#orslogging)                |
+| system_message | list   | List of system message objects    | [system messages](#orssystem_message) |
 
 ---
 
@@ -339,7 +331,7 @@ Array of message objects where each has
 system_message: [
     {
         active: true,
-        text: "This message would be sent with every routing bike fastest request. E.g. 'The fastest weighting for cycling profiles is deprecated, use recommended weighting instead. API will be kept for compatibility until release of version 7.0.'",
+        text: "This message would be sent with every routing bike fastest request. E.g. 'The fastest weighting for cycling profiles is deprecated, use recommended weighting instead. API will be kept for compatibility until release of version 7.0.0'",
         condition: {
             "request_service": "routing",
             "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
@@ -369,4 +361,4 @@ system_message: [
 ]
 ```
 
-[sample_config]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/resources/ors-config-sample.json
+[sample_config]: https://github.com/GIScience/openrouteservice/blob/master/ors-api/src/main/resources/ors-config-sample.json

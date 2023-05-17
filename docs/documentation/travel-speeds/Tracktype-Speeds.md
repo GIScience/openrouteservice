@@ -19,4 +19,4 @@ _(all Values in km/h)_
   |         grade4         |      15     |      15     |        6       |
   |         grade5         |      10     |      10     |        4       |
 
-[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/services/routing/speed_limits

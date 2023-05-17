@@ -16,7 +16,9 @@ wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-
 docker compose up
 ```
 
-For more details, check the [Running with Docker](Running-with-Docker)-Section. More explanation about customization can be found in th e [Advanced Docker Setup](Advanced-Docker-Setup)
+This will pull the latest release version of openrouteservice from dockerhub and start it up using an example setup and the provided test OSM file. 
+You can also modify the configuration and source file settings to match your needs. For more details, check the [Running with Docker](Running-with-Docker)-Section. 
+More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
 
 ## Other Resources 
 
@@ -25,7 +27,7 @@ For more details, check the [Running with Docker](Running-with-Docker)-Section. 
 * [Configuration](Configuration)
 
 ## Usage
-Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
+Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/ors-api/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
 
 - `http://localhost:8080/ors/v2/directions`
 - `http://localhost:8080/ors/v2/isochrones`
