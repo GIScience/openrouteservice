@@ -14,15 +14,17 @@
 package org.heigit.ors.apitests.cors;
 
 import io.restassured.response.Response;
+import org.heigit.ors.api.CorsProperties;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
-import org.heigit.ors.config.AppConfig;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -36,8 +38,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
 class CORSSettingsTest extends ServiceTest {
-    List<String> allowedOrigins = AppConfig.getGlobal().getStringList("ors.api_settings.cors.allowed.origins");
-    List<String> allowedHeaders = AppConfig.getGlobal().getStringList("ors.api_settings.cors.allowed.headers");
+
+    @Autowired
+    CorsProperties corsProperties;
+
+    @BeforeEach
+    void init() {
+        allowedOrigins = corsProperties.getAllowedOrigins();
+        allowedHeaders = corsProperties.getAllowedHeaders();
+    }
+
+    List<String> allowedOrigins;
+    List<String> allowedHeaders;
+
+    final static List<String> exposedHeaders = List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+
 
     @Test
     @DisplayName("Requests without 'Origin' header pass with 200 response")
@@ -133,20 +148,19 @@ class CORSSettingsTest extends ServiceTest {
     @Test
     @DisplayName("MaxAge of OPTIONS request is set correctly")
     void testMaxAge() {
-        long preflightMaxAge = (long) AppConfig.getGlobal().getDouble("api_settings.cors.preflight_max_age");
+        long expectedPreflightMaxAge = corsProperties.getPreflightMaxAge();
         given()
                 .header("Origin", allowedOrigins.get(0))
                 .header("Access-Control-Request-Method", "POST")  // needed to return maxAge header
                 .options(getEndPointPath())
                 .then().log().ifValidationFails()
                 .assertThat().statusCode(200)
-                .header("Access-Control-Max-Age", String.valueOf(preflightMaxAge));
+                .header("Access-Control-Max-Age", String.valueOf(expectedPreflightMaxAge));
     }
 
     @Test
     @DisplayName("Exposed Headers are provided in OPTIONS response")
     void testExposedHeaders() {
-        List<String> exposedHeaders = AppConfig.getGlobal().getStringList("ors.api_settings.cors.exposed.headers");
         Response res = given()
                 .header("Origin", allowedOrigins.get(0))
                 .options(getEndPointPath());

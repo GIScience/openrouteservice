@@ -1,29 +1,5 @@
 {
   "ors": {
-    "api_settings": {
-      "cors": {
-        "allowed": {
-          "origins": [
-            "*"
-          ],
-          "headers": [
-            "Content-Type",
-            "X-Requested-With",
-            "accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers",
-            "Authorization"
-          ]
-        },
-        "exposed": {
-          "headers": [
-            "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"
-          ]
-        },
-        "preflight_max_age": 600
-      }
-    },
     "services": {
       "matrix": {
         "enabled": true,
