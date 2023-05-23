@@ -1,0 +1,22 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Conventional PR label
+
+on:
+  pull_request:
+    types: [ opened, edited, ready_for_review, review_requested, reopened ]
+
+jobs:
+  add_conventional_release_labels:
+    name: Add PR title conventional type to PR labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add conventional release labels
+        uses: bcoe/conventional-release-labels@v1
+        with:
+          type_labels: '{"feat": "feature", "fix": "fix", "docs": "documentation", "style": "style", "refactor": "refactor", "test": "test", "build": "build", "perf": "performance", "ci": "ci", "chore": "chore", "revert": "revert", "merge": "merge", "wip": "wip"}'
+          ignored_types: '["chore"]'
+          ignore_label: 'ignore-for-release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
