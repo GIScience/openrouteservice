@@ -8,6 +8,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.util.DebugUtility;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RPHASTMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder().setSpeedTwoDirections(true);
@@ -139,6 +141,19 @@ class RPHASTMatrixTest {
                 assertEquals(expected[i * 9 + j], destTrees[j].getItem(i).getWeight(), 1e-6);
             }
         }
+    }
+
+    @Test
+    void testMaxVisitedNodesExceededException() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED);
+        int[] srcIds = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+        int[] dstIds = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+        algorithm.prepare(srcIds, dstIds);
+        algorithm.setMaxVisitedNodes(33);
+        assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.calcPaths(srcIds, dstIds));
     }
 
 
