@@ -17,21 +17,13 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.matrix.MatrixRequest;
 
-public abstract class AbstractContractedMatrixAlgorithm implements ContractedMatrixAlgorithm {
-    protected GraphHopper graphHopper;
+public abstract class AbstractContractedMatrixAlgorithm extends AbstractMatrixAlgorithm {
     protected RoutingCHGraph chGraph;
-    protected FlagEncoder encoder;
-    protected Weighting weighting;
-    protected int maxVisitedNodes = Integer.MAX_VALUE;
 
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
-        graphHopper = gh;
+        super.init(req, gh, chGraph.getBaseGraph(), encoder, weighting);
         this.chGraph = chGraph;
-        this.encoder = encoder;
-        this.weighting = weighting;
-        this.maxVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
     }
 }

@@ -20,7 +20,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
@@ -74,7 +73,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
                     SPTEntry[] targets = algorithm.calcPaths(sourceId, dstData.getNodeIds());
 
                     if (algorithm.getFoundTargets() != algorithm.getTargetsCount())
-                        throw new MaxVisitedNodesExceededException();
+                        throw new Exception("Some target nodes could not be found.");
 
                     if (targets != null) {
                         pathMetricsExtractor.calcValues(srcIndex, targets, dstData, times, distances, weights);

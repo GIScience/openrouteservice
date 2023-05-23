@@ -524,11 +524,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     }
 
     @Override
-    protected boolean isMaxVisitedNodesExceeded() {
-        return this.maxVisitedNodes < this.visitedNodes;
-    }
-
-    @Override
     public String getName() {
         return Parameters.Algorithms.DIJKSTRA;
     }

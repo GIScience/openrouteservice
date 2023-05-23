@@ -18,7 +18,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
@@ -73,9 +72,6 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
             algorithm.prepare(srcIds, destIds);
 
             MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, destIds);
-
-            if (algorithm.getVisitedNodes() > maxVisitedNodes)
-                throw new MaxVisitedNodesExceededException();
 
             MultiTreeSPEntry[] originalDestTrees = new MultiTreeSPEntry[dstData.size()];
 
