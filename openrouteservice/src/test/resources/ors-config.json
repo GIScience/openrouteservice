@@ -38,7 +38,7 @@
       "matrix": {
         "enabled": true,
         "maximum_routes": 200,
-        "maximum_visited_nodes": 100000,
+        "maximum_visited_nodes": 50000,
         "allow_resolve_locations": true,
         "attribution": "openrouteservice.org, OpenStreetMap contributors"
       },
