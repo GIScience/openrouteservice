@@ -11,19 +11,12 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.matrix.algorithms;
+package org.heigit.ors.exceptions;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.matrix.MatrixRequest;
+public class MaxVisitedNodesExceededException extends RuntimeException {
 
-public abstract class AbstractContractedMatrixAlgorithm extends AbstractMatrixAlgorithm {
-    protected RoutingCHGraph chGraph;
-
-    public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting) {
-        super.init(req, gh, chGraph.getBaseGraph(), encoder, weighting);
-        this.chGraph = chGraph;
+    public MaxVisitedNodesExceededException() {
+        super("Search exceeds the limit of visited nodes.");
     }
+
 }

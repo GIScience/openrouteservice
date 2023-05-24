@@ -54,7 +54,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
         initCollections(size);
-        setMaxVisitedNodes(Integer.MAX_VALUE);
         FlagEncoder encoder = weighting.getFlagEncoder();
 
         upwardEdgeFilter = new UpwardSearchEdgeFilter(graph, encoder);
@@ -119,7 +118,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     }
 
     protected void runDownwardSearch() {
-        while (!finishedTo) {
+        while (!isMaxVisitedNodesExceeded() && !finishedTo) {
             finishedTo = !downwardSearch();
         }
     }

@@ -28,100 +28,97 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
+import static org.heigit.ors.matrix.MatrixErrorCodes.*;
 
 @EndPointAnnotation(name = "matrix")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
     public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
     public ResultTest() {
-        // Locations
-        JSONArray coordsShort = new JSONArray();
+        // Three locations
+        JSONArray locations3 = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.681495);
         coord1.put(49.41461);
-        coordsShort.put(coord1);
+        locations3.put(coord1);
         JSONArray coord2 = new JSONArray();
         coord2.put(8.686507);
         coord2.put(49.41943);
-        coordsShort.put(coord2);
+        locations3.put(coord2);
         JSONArray coord3 = new JSONArray();
         coord3.put(8.687872);
         coord3.put(49.420318);
-        coordsShort.put(coord3);
-        addParameter("locations", coordsShort);
-        JSONArray locationsLong = new JSONArray();
-        coord1 = new JSONArray();
-        coord1.put(8.681495);
-        coord1.put(49.41461);
-        locationsLong.put(coord1);
-        coord2 = new JSONArray();
-        coord2.put(8.686507);
-        coord2.put(49.41943);
-        locationsLong.put(coord2);
-        coord3 = new JSONArray();
-        coord3.put(8.687872);
-        coord3.put(49.420318);
-        locationsLong.put(coord3);
-        JSONArray coord4 = new JSONArray();
-        coord4.put(8.787872);
-        coord4.put(49.620318);
-        locationsLong.put(coord3);
-        addParameter("locationsLong", locationsLong);
+        locations3.put(coord3);
+        addParameter("locations", locations3);
 
+        // Four locations: the three original ones with the last one repeated (?)
+        JSONArray locations4 = new JSONArray();
+        locations4.put(coord1);
+        locations4.put(coord2);
+        locations4.put(coord3);
+        locations4.put(coord3);
+        addParameter("locationsLong", locations4);
+
+        // Just two locations
+        JSONArray locations2 = new JSONArray();
+        JSONArray coord10 = new JSONArray();
+        coord10.put(8.684081);
+        coord10.put(49.398155);
+        locations2.put(coord10);
+        JSONArray coord11 = new JSONArray();
+        coord11.put(8.684703);
+        coord11.put(49.397359);
+        locations2.put(coord11);
+        addParameter("locations2", locations2);
+
+        // Five new locations + all of the above ones
         JSONArray locations5 = new JSONArray();
-        coord1 = new JSONArray();
-        coord1.put(8.684682);
-        coord1.put(49.401961);
-        locations5.put(coord1);
-        coord2 = new JSONArray();
-        coord2.put(8.690518);
-        coord2.put(49.405326);
-        locations5.put(coord2);
-        coord3 = new JSONArray();
-        coord3.put(8.690915);
-        coord3.put(49.430117);
-        locations5.put(coord3);
-        coord4 = new JSONArray();
-        coord4.put(8.68834);
-        coord4.put(49.427758);
-        locations5.put(coord4);
         JSONArray coord5 = new JSONArray();
-        coord5.put(8.687525);
-        coord5.put(49.405437);
+        coord5.put(8.684682);
+        coord5.put(49.401961);
         locations5.put(coord5);
-
+        JSONArray coord6 = new JSONArray();
+        coord6.put(8.690518);
+        coord6.put(49.405326);
+        locations5.put(coord6);
+        JSONArray coord7 = new JSONArray();
+        coord7.put(8.690915);
+        coord7.put(49.430117);
+        locations5.put(coord7);
+        JSONArray coord8 = new JSONArray();
+        coord8.put(8.68834);
+        coord8.put(49.427758);
+        locations5.put(coord8);
+        JSONArray coord9 = new JSONArray();
+        coord9.put(8.687525);
+        coord9.put(49.405437);
+        locations5.put(coord9);
+        locations5.put(coord1);
+        locations5.put(coord2);
+        locations5.put(coord3);
+        locations5.put(coord10);
+        locations5.put(coord11);
         addParameter("locations5", locations5);
 
-        JSONArray locations6 = new JSONArray();
-        coord1 = new JSONArray();
-        coord1.put(8.684081);
-        coord1.put(49.398155);
-        locations6.put(coord1);
-        coord2 = new JSONArray();
-        coord2.put(8.684703);
-        coord2.put(49.397359);
-        locations6.put(coord2);
-
-        addParameter("locations6", locations6);
-
-        JSONArray locations7 = new JSONArray();
-        coord1 = new JSONArray();
-        coord1.put(8.703320316580971);
-        coord1.put(49.43318333640056);
-        locations7.put(coord1);
-        coord2 = new JSONArray();
-        coord2.put(8.687654576684464);
-        coord2.put(49.424556390630144);
-        locations7.put(coord2);
-        coord3 = new JSONArray();
-        coord3.put(8.720827102661133);
-        coord3.put(49.450717967273356);
-        locations7.put(coord3);
-        coord4 = new JSONArray();
-        coord4.put(8.708810806274414);
-        coord4.put(49.45122015291216);
-        locations7.put(coord4);
-        addParameter("locations7", locations7);
+        // Locations for testing core matrix
+        JSONArray locationsCore = new JSONArray();
+        JSONArray coord1c = new JSONArray();
+        coord1c.put(8.703320316580971);
+        coord1c.put(49.43318333640056);
+        locationsCore.put(coord1c);
+        JSONArray coord2c = new JSONArray();
+        coord2c.put(8.687654576684464);
+        coord2c.put(49.424556390630144);
+        locationsCore.put(coord2c);
+        JSONArray coord3c = new JSONArray();
+        coord3c.put(8.720827102661133);
+        coord3c.put(49.450717967273356);
+        locationsCore.put(coord3c);
+        JSONArray coord4c = new JSONArray();
+        coord4c.put(8.708810806274414);
+        coord4c.put(49.45122015291216);
+        locationsCore.put(coord4c);
+        addParameter("locationsCore", locationsCore);
 
         // Fake array to test maximum exceedings
         JSONArray maximumLocations = HelperFunctions.fakeJSONLocations(101);
@@ -880,7 +877,7 @@ class ResultTest extends ServiceTest {
     void expectTurnRestrictionDurations() {
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
-        body.put("locations", getParameter("locations6"));
+        body.put("locations", getParameter("locations2"));
         body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsDuration"));
         body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
@@ -909,7 +906,7 @@ class ResultTest extends ServiceTest {
     void testCrossVirtualNode() {
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
-        body.put("locations", getParameter("locations7"));
+        body.put("locations", getParameter("locationsCore"));
         body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsDuration"));
         body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
@@ -944,5 +941,21 @@ class ResultTest extends ServiceTest {
                 .body("durations[3][2]", is(closeTo(210.8f, 1.0f)))
                 .body("durations[3][3]", is(closeTo(0.0f, 1.0f)))
                 .statusCode(200);
+    }
+
+    @Test
+    void expectMaxVisitedNodesExceededError() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations5"));
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("error.code", is(MAX_VISITED_NODES_EXCEEDED))
+                .statusCode(500);
     }
 }
