@@ -323,9 +323,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
                 processLink(graphHopper, trafficLink.value);
                 counter += 1;
-                if (!outputLog) {
-                    links.put(trafficLink.index, null);
-                }
                 if (counter % 2000 == 0)
                     pb.stepBy(2000);
             }

@@ -19,7 +19,6 @@ import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.GraphHopperGtfs;
 import com.graphhopper.reader.osm.OSMReader;
-import com.graphhopper.routing.Path;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
@@ -38,7 +37,6 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
-import com.graphhopper.util.shapes.GHPoint;
 import org.geotools.feature.SchemaException;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -235,62 +233,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	protected WeightingFactory createWeightingFactory() {
 		return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
 	}
-
-    public RouteSegmentInfo getRouteSegment(double[] latitudes, double[] longitudes, String vehicle) {
-        RouteSegmentInfo result = null;
-
-        GHRequest req = new GHRequest();
-        for (int i = 0; i < latitudes.length; i++)
-            req.addPoint(new GHPoint(latitudes[i], longitudes[i]));
-
-		req.setAlgorithm("dijkstrabi");
-		req.getHints().putObject("weighting", "fastest");
-
-        GHResponse resp = new GHResponse();
-
-		// TODO Postponed till MapMatcher implementation: need to create a router here? Can we maybe remove the whole class ORSGraphHopper?
-		// List<Path> paths = this.calcPaths(req, resp);
-		List<Path> paths = new ArrayList<>(); // stub to make compile temporarily
-
-        if (!resp.hasErrors()) {
-
-            List<EdgeIteratorState> fullEdges = new ArrayList<>();
-            PointList fullPoints = PointList.EMPTY;
-            long time = 0;
-            double distance = 0;
-            for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
-                Path path = paths.get(pathIndex);
-                time += path.getTime();
-
-                for (EdgeIteratorState edge : path.calcEdges()) {
-                    fullEdges.add(edge);
-                }
-
-                PointList tmpPoints = path.calcPoints();
-
-                if (fullPoints.isEmpty())
-                    fullPoints = new PointList(tmpPoints.size(), tmpPoints.is3D());
-
-                fullPoints.add(tmpPoints);
-
-                distance += path.getDistance();
-            }
-
-            if (fullPoints.size() > 1) {
-                Coordinate[] coords = new Coordinate[fullPoints.size()];
-
-                for (int i = 0; i < fullPoints.size(); i++) {
-                    double x = fullPoints.getLon(i);
-                    double y = fullPoints.getLat(i);
-                    coords[i] = new Coordinate(x, y);
-                }
-
-                result = new RouteSegmentInfo(fullEdges, distance, time, new GeometryFactory().createLineString(coords));
-            }
-        }
-
-        return result;
-    }
 
 	/**
 	 * Check whether the route processing has to start. If avoid all borders is set and the routing points are in different countries,
