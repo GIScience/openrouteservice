@@ -61,7 +61,7 @@ RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors
 RUN mvn -f /ors-core/openrouteservice/pom.xml package -DskipTests
 
 # build final image, just copying stuff inside
-FROM eclipse-temurin:17.0.7_7-jdk-alpine as publish
+FROM eclipse-temurin:17.0.7_7-jre-alpine as publish
 
 # Build ARGS
 ARG UID=1000
