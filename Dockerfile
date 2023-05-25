@@ -15,14 +15,15 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 FROM base as tomcat
-ARG TOMCAT_VERSION=8.5.69
+ARG TOMCAT_MAJOR=9
+ARG TOMCAT_VERSION=9.0.75
 
 # hadolint ignore=DL3002
 USER root
 
 WORKDIR /tmp
 # Prepare tomcat
-RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tar.gz && \
+RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tar.gz && \
     tar xf tomcat.tar.gz && \
     mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat
 
