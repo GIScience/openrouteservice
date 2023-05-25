@@ -17,19 +17,29 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.MatrixRequest;
 
 public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
-  protected GraphHopper graphHopper;
-  protected Graph graph;
-  protected FlagEncoder encoder;
-  protected Weighting weighting;
-  
-  public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting)
-  {
-	  graphHopper = gh;
-	  this.graph = graph;
-	  this.encoder = encoder;
-	  this.weighting = weighting;
-  }
+    protected GraphHopper graphHopper;
+    protected Graph graph;
+    protected FlagEncoder encoder;
+    protected Weighting weighting;
+    protected int visitedNodes = 0;
+    protected int maxVisitedNodes = Integer.MAX_VALUE;
+
+    public void init(MatrixRequest req, GraphHopper gh, Graph graph, FlagEncoder encoder, Weighting weighting) {
+        graphHopper = gh;
+        this.graph = graph;
+        this.encoder = encoder;
+        this.weighting = weighting;
+        this.maxVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
+    }
+
+    protected boolean isMaxVisitedNodesExceeded() {
+        if (visitedNodes > maxVisitedNodes)
+            throw new MaxVisitedNodesExceededException();
+        return false;
+    }
 }

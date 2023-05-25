@@ -10,6 +10,7 @@ import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.MatrixLocations;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
@@ -24,8 +25,7 @@ import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CoreMatrixTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder(5, 5, 3);
@@ -1145,4 +1145,59 @@ class CoreMatrixTest {
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
+
+    @Test
+    void testMaxVisitedNodesExceededExceptionOutsideCore() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(8);
+        restrictedEdges.add(9);
+        restrictedEdges.add(11);
+        restrictedEdges.add(12);
+
+        contractGraph(restrictedEdges);
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 1, null);
+        MatrixLocations destinations = new MatrixLocations(2);
+        destinations.setData(0, 4, null);
+        destinations.setData(1, 5, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.setMaxVisitedNodes(3);
+        assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE));
+    }
+
+    @Test
+    void testMaxVisitedNodesExceededExceptionInsideCore() {
+        ToyGraphCreationUtil.createMediumGraph(g, encodingManager);
+        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
+
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        restrictedEdges.add(8);
+        restrictedEdges.add(9);
+        restrictedEdges.add(11);
+        restrictedEdges.add(12);
+
+        contractGraph(restrictedEdges);
+        MatrixLocations sources = new MatrixLocations(2);
+        sources.setData(0, 0, null);
+        sources.setData(1, 1, null);
+        MatrixLocations destinations = new MatrixLocations(2);
+        destinations.setData(0, 4, null);
+        destinations.setData(1, 5, null);
+
+        MatrixRequest matrixRequest = new MatrixRequest();
+        matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
+
+        algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
+        algorithm.setMaxVisitedNodes(13);
+        assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE));
+    }
+
 }

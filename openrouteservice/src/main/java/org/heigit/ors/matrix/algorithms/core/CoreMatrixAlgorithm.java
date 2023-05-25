@@ -27,7 +27,6 @@ import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractContractedMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToMany;
@@ -53,8 +52,6 @@ import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     protected int coreNodeLevel;
     protected int nodeCount;
-    protected int maxVisitedNodes = Integer.MAX_VALUE;
-    protected int visitedNodes;
     private int treeEntrySize;
     private boolean hasTurnWeighting = false;
     private boolean swap = false;
@@ -81,7 +78,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, preparedWeighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
-        setMaxVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
     }
 
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
@@ -400,6 +396,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         int[] entryPoints = coreEntryPoints.toArray();
         int[] exitPoints = coreExitPoints.toArray();
         algorithm.calcPaths(entryPoints, exitPoints);
+        visitedNodes = algorithm.getVisitedNodes();
     }
 
     /**
@@ -491,10 +488,6 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
 
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
-    }
-
-    protected boolean isMaxVisitedNodesExceeded() {
-        return this.maxVisitedNodes < this.visitedNodes;
     }
 
     double calcPathWeight(RoutingCHEdgeIteratorState iter, SPTEntry currEdge, boolean reverse) {
