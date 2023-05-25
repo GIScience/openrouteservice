@@ -59,6 +59,8 @@ RELEASING:
 - Upgrade geotools from 28.2 to 29.0 [#1422](https://github.com/GIScience/openrouteservice/pull/1422)
 - upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 - Map matching of traffic data ([#1430](https://github.com/GIScience/openrouteservice/pull/1430))
+### Removed
+- AccelerationWeighting ([#1454](https://github.com/GIScience/openrouteservice/pull/1454))
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
