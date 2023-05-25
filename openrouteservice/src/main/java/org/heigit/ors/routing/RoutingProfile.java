@@ -31,6 +31,7 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
+import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -44,9 +45,6 @@ import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MatrixServiceSettings;
-import org.heigit.ors.exceptions.IncompatibleParameterException;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -715,6 +713,8 @@ public class RoutingProfile {
             }
         } catch (PointNotFoundException e) {
             throw e;
+        } catch (MaxVisitedNodesExceededException e) {
+            throw new InternalServerException(MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED, "Unable to compute a distance/duration matrix: " + e.getMessage());
         } catch (Exception ex) {
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
         }

@@ -23,6 +23,7 @@ import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 
 public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRoutingAlgorithm {
     protected final Graph graph;
@@ -79,6 +80,8 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
     }
 
     protected boolean isMaxVisitedNodesExceeded() {
-        return maxVisitedNodes < getVisitedNodes();
+        if (getVisitedNodes() > maxVisitedNodes)
+            throw new MaxVisitedNodesExceededException();
+        return false;
     }
 }

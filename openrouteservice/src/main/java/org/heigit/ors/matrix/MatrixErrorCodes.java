@@ -31,6 +31,7 @@ public class MatrixErrorCodes {
     public static final int EMPTY_ELEMENT = 6008;
     public static final int POINT_NOT_FOUND = 6010;
     public static final int UNKNOWN_PARAMETER = 6011;
+    public static final int MAX_VISITED_NODES_EXCEEDED = 6020;
     public static final int UNKNOWN = 6099;
     private MatrixErrorCodes() {}
 }

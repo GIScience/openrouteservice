@@ -18,6 +18,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
     protected final RoutingCHGraph graph;
@@ -91,6 +92,8 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
     }
 
     protected boolean isMaxVisitedNodesExceeded() {
-        return maxVisitedNodes < getVisitedNodes();
+        if (getVisitedNodes() > maxVisitedNodes)
+            throw new MaxVisitedNodesExceededException();
+        return false;
     }
 }
