@@ -21,6 +21,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.MaximumSpeedCalculator
 import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -161,8 +162,8 @@ public class ORSWeightingFactory implements WeightingFactory {
                 weighting.setSpeedCalculator(new ConditionalSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, encoder));
 
             // traffic data
-            String time = requestHints.getString(requestHints.has(RouteRequest.PARAM_DEPARTURE) ?
-                    RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, "");
+            Instant time = requestHints.getObject(requestHints.has(RouteRequest.PARAM_DEPARTURE) ?
+                    RouteRequest.PARAM_DEPARTURE : RouteRequest.PARAM_ARRIVAL, null);
             addTrafficSpeedCalculator(weighting, ghStorage, time);
         }
 
@@ -249,18 +250,18 @@ public class ORSWeightingFactory implements WeightingFactory {
 
     public static void addTrafficSpeedCalculator(List<Weighting> weightings, GraphHopperStorage ghStorage) {
         for (Weighting weighting : weightings)
-            addTrafficSpeedCalculator(weighting, ghStorage, "");
+            addTrafficSpeedCalculator(weighting, ghStorage, null);
     }
 
-    private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, String time) {
+    private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, Instant time) {
         TrafficGraphStorage trafficGraphStorage = GraphStorageUtils.getGraphExtension(ghStorage, TrafficGraphStorage.class);
 
         if (trafficGraphStorage != null) {
             RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
 
-            if (!time.isEmpty()) {
+            if (time!=null) {
                 //Use fixed time zone because original implementation was for German traffic data
-                ZonedDateTime zdt = LocalDateTime.parse(time).atZone(ZoneId.of("Europe/Berlin"));
+                ZonedDateTime zdt = time.atZone(ZoneId.of("Europe/Berlin"));
                 routingTrafficSpeedCalculator.setZonedDateTime(zdt);
             }
 
