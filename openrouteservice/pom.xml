@@ -372,7 +372,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v4.6</version>
+            <version>v4.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -384,7 +384,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-gtfs</artifactId>
-            <version>v4.6</version>
+            <version>v4.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -396,7 +396,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
-            <version>v4.6</version>
+            <version>v4.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
