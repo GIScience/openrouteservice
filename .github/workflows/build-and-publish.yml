@@ -2,6 +2,7 @@ name: Build and publish the nightly Docker image
 on:
   pull_request:
     branches: [ master ]
+    types: [ opened, synchronize, ready_for_review ]
   push:
     branches: [ master ]
   workflow_dispatch:
@@ -9,7 +10,7 @@ on:
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   PRODUCTION_IMAGE_NAME: 'openrouteservice/openrouteservice:nightly'
-  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64/v8'
 
 
 jobs:
@@ -47,33 +48,45 @@ jobs:
           context: .
           push: false
           load: false
-          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          tags: ${{ needs.prepare_environment.outputs.test_image_name }}, ${{ needs.prepare_environment.outputs.production_image_name }}
+          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
   run_docker_image_tests:
-    name: Run & test ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    name: Run & test ${{ matrix.platform }}
+    runs-on: ${{ matrix.image }}
     needs:
       - prepare_environment
       - build_docker_images
     strategy:
       matrix:
-        include:
-          - arch: amd64
-            platform: linux/amd64
-            image: ubuntu-latest
-          - arch: arm64
-            platform: linux/arm64
-            image: ubuntu-latest
+        platform: [ linux/amd64,linux/arm64/v8 ]
+        image: [ ubuntu-latest ]
+        # linux/arm64/v8 is emulated with qemu and takes ages to build the graph.
+        # Only run linux/arm64/v8 tests on ready PR and master.
+        isDraftPR:
+          - ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == true }}
+        exclude:
+          - isDraftPR: true
+            platform: linux/arm64/v8
     steps:
       - run: |
-          echo "Run docker test for platform ${{ matrix.arch }}"
+          echo "Run docker test for platform ${{ matrix.platform }}"
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Set up QEMU for ${{ matrix.arch }}
+      - name: Set the wait time for arm64
+        run: |
+          if [[ "${{ matrix.platform }}" == 'linux/arm64/v8' ]]; then
+            # arm64 is emulated and takes longer to build the graph
+            echo "Set HEALTH_WAIT_TIME to 600 for arm64"
+            echo "HEALTH_WAIT_TIME=600" >> $GITHUB_ENV
+          else
+            echo "Set HEALTH_WAIT_TIME to 260 for non-arm64"
+            echo "HEALTH_WAIT_TIME=260" >> $GITHUB_ENV
+          fi
+      - name: Set up QEMU for ${{ matrix.platform }}
         uses: docker/setup-qemu-action@v2
         with:
           platforms: ${{ matrix.platform }}
@@ -94,16 +107,15 @@ jobs:
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          build-args: "--platform ${{ matrix.platform }}"
+          platforms: "${{ matrix.platform }}"
           cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Start container from previously build image and wait for successful checks
         run: |
           mkdir $(pwd)/graphs $(pwd)/conf
           sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
           docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
-          # Check for health to turn 200 after the graphs are build and spring-boot completely started         
-          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 240
+          # Check for health to turn 200 after the graphs are build and spring-boot completely started
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
@@ -149,6 +161,5 @@ jobs:
           context: .
           push: true
           tags: ${{ needs.prepare_environment.outputs.production_image_name }}
-          build-args: "--platform ${{ needs.prepare_environment.outputs.build_platforms }}"
+          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
-          cache-to: type=gha,mode=max
