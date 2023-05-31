@@ -209,9 +209,6 @@ public class ORSWeightingFactory implements WeightingFactory {
                     case "quiet":
                         softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;
-                    case "acceleration":
-                        softWeightings.add(new AccelerationWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
                     case "csv":
                         softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                         break;

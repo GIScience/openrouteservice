@@ -380,7 +380,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			List<Integer> roadSegments) {
 		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
         // TODO: this is just a temporary work-around for the previous line
-		List<Snap> qResults = List.of(locationIndex.findClosest(lat, lon, edgeFilter));
+		List<Snap> qResults = locationIndex.findCandidateSnaps(lat, lon, edgeFilter);
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 

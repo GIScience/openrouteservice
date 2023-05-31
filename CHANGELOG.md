@@ -44,6 +44,7 @@ RELEASING:
 ### Changed
 - Consistent use of maximum number of visited nodes limit across different matrix algorithms ([#1246](https://github.com/GIScience/openrouteservice/issues/1246))
 ### Fixed
+- fix HiddenMarkovMapMatcher using LocationIndexTree.findCandidateSnaps [#1457](https://github.com/GIScience/openrouteservice/pull/1457)
 - certain cases of OSM ways with invalid node refs causing crashes during graph building [#1351](https://github.com/GIScience/openrouteservice/issues/1351)
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 - upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
@@ -59,6 +60,8 @@ RELEASING:
 - Upgrade geotools from 28.2 to 29.0 [#1422](https://github.com/GIScience/openrouteservice/pull/1422)
 - upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 - Map matching of traffic data ([#1430](https://github.com/GIScience/openrouteservice/pull/1430))
+### Removed
+- AccelerationWeighting ([#1454](https://github.com/GIScience/openrouteservice/pull/1454))
 
 ## [7.0.1] - 2023-03-08
 ### Fixed
