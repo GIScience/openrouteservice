@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
-@ActiveProfiles("test")
 class CORSSettingsTest extends ServiceTest {
 
     @Autowired
