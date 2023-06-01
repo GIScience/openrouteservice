@@ -43,6 +43,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
     private String tableName = null;
     private String geomColumn = null;
     private HikariDataSource dataSource;
+    private String postgisVersion = null;
     /**
      * This function initializes the connection to the server according to the settings in the ors-config.json.
      * The connection is established using a {@link HikariDataSource} object with the configuration data from the ors-config.json.
@@ -55,6 +56,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
         dataSource = null;
         tableName = null;
         geomColumn = null;
+        postgisVersion = null;
 
         String value = (String) parameters.get("table_name");
         if (Helper.isEmpty(value))
@@ -68,6 +70,11 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
         else
             geomColumn = value;
 
+        value = (String) parameters.get("postgis_version");
+        if (Helper.isEmpty(value))
+            LOGGER.debug("No PostGIS version provided");
+        else
+            postgisVersion = value;
 
         //https://github.com/pgjdbc/pgjdbc/pull/772
         org.postgresql.Driver.isRegistered();
@@ -125,7 +132,12 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
             for (String property : properties) {
                 String polyGeom = isochrone.getGeometry().toText();
                 if ("total_pop".equals(property)) {
-                    sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
+                    // Newer versions of PostGIS have different summary methods
+                    if (postgisVersion != null && Float.parseFloat(postgisVersion) > 2.4) {
+                        sql = "SELECT ROUND((ST_SummaryStatsAgg(ST_Clip(" + geomColumn + ", poly), 1, TRUE, 1)).sum::numeric, 0) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
+                    } else {
+                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
+                    }
                 }
             }
             connection = dataSource.getConnection();
