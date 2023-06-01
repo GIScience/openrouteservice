@@ -25,7 +25,8 @@ WORKDIR /tmp
 # Prepare tomcat
 RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tar.gz && \
     tar xf tomcat.tar.gz && \
-    mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat
+    mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat && \
+    echo "org.apache.catalina.level = WARNING" >> /tmp/tomcat/conf/logging.properties
 
 
 FROM base as build
@@ -91,6 +92,7 @@ WORKDIR ${BASE_FOLDER}
 COPY --chown=ors:ors --from=build /ors-core/openrouteservice/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
 COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/ors-config.json ${BASE_FOLDER}/ors-core/ors-config.json
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
+COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
 COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/ors-core/data/osm_file.pbf
 
