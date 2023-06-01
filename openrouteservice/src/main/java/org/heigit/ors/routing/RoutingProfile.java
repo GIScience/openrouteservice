@@ -709,7 +709,8 @@ public class RoutingProfile {
             }
             // Dijkstra
             else {
-                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
+                // use CHProfileName (w/o turn costs) since Dijkstra is node-based so turn restrictions are not used.
+                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, CHProfileName);
             }
         } catch (PointNotFoundException e) {
             throw e;
