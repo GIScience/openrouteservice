@@ -16,6 +16,8 @@ package org.heigit.ors.apitests.matrix;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
+import org.heigit.ors.api.requests.common.APIEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
@@ -957,5 +959,38 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("error.code", is(MAX_VISITED_NODES_EXCEEDED))
                 .statusCode(500);
+    }
+
+    @Test
+    void footWalkingMatrixRequest() {
+        JSONArray testLocations = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.703912762628875);
+        coord1.put(49.41305491191235);
+        testLocations.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.701326264605086);
+        coord2.put(49.40882228599824);
+        testLocations.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("locations", testLocations);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", "foot-walking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations.size()", is(2))
+                .body("durations[0][0]", is(closeTo(0.0f, 0f)))
+                .body("durations[0][1]", is(closeTo(607.28f, 0.5f)))
+                .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
     }
 }
