@@ -63,7 +63,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.AbstractTrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -745,7 +745,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public boolean isTrafficEnabled() {
-        return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;
+        return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), AbstractTrafficGraphStorage.class) != null;
     }
 	public long getMemoryUsage() {
 		long mem = 0;
