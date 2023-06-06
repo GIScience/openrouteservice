@@ -27,7 +27,7 @@ import java.util.TimeZone;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class TrafficGraphStorage extends AbstractTrafficGraphStorage {
+public class HereTrafficGraphStorage extends AbstractTrafficGraphStorage {
 
     public enum Property {ROAD_TYPE}
 
@@ -88,7 +88,7 @@ public class TrafficGraphStorage extends AbstractTrafficGraphStorage {
     private byte[] speedValue;
     private byte[] priorityValue;
 
-    public TrafficGraphStorage() {
+    public HereTrafficGraphStorage() {
         int edgeEntryIndex = 0;
         edgePropertyEntryBytes = edgeEntryIndex + PROPERTY_BYTE_COUNT;
         edgeLinkLookupEntryBytes = edgeEntryIndex + LINK_LOOKUP_BYTE_COUNT;

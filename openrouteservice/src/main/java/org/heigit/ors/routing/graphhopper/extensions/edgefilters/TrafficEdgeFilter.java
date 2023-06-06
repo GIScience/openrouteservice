@@ -8,7 +8,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.AbstractTrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 
 
 public class TrafficEdgeFilter implements EdgeFilter {
@@ -16,7 +16,7 @@ public class TrafficEdgeFilter implements EdgeFilter {
     private AbstractTrafficGraphStorage trafficGraphStorage;
 
     public TrafficEdgeFilter(GraphHopperStorage graphStorage) {
-        this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, TrafficGraphStorage.class);
+        this.trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphStorage, HereTrafficGraphStorage.class);
     }
 
 

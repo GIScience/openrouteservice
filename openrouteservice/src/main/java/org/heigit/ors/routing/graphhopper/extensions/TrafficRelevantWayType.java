@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 
 public class TrafficRelevantWayType {
     public enum RelevantWayTypes {
@@ -40,21 +40,21 @@ public class TrafficRelevantWayType {
     }
 
     public static byte getHereTrafficClassFromOSMRoadType(short roadType) {
-        if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY.value || roadType == TrafficGraphStorage.RoadTypes.MOTORROAD.value) {
+        if (roadType == HereTrafficGraphStorage.RoadTypes.MOTORWAY.value || roadType == HereTrafficGraphStorage.RoadTypes.MOTORROAD.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS1.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.PRIMARY.value || roadType == HereTrafficGraphStorage.RoadTypes.TRUNK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS2.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.SECONDARY.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS3.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.TERTIARY.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS4.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.MOTORWAY_LINK.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.MOTORWAY_LINK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.PRIMARY_LINK.value || roadType == TrafficGraphStorage.RoadTypes.TRUNK_LINK.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.PRIMARY_LINK.value || roadType == HereTrafficGraphStorage.RoadTypes.TRUNK_LINK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS2LINK.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.SECONDARY_LINK.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.SECONDARY_LINK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS3LINK.value;
-        } else if (roadType == TrafficGraphStorage.RoadTypes.TERTIARY_LINK.value) {
+        } else if (roadType == HereTrafficGraphStorage.RoadTypes.TERTIARY_LINK.value) {
             return TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value;
         } else {
             return TrafficRelevantWayType.RelevantWayTypes.UNWANTED.value;

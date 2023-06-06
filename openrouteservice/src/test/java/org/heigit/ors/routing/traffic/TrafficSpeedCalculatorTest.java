@@ -5,7 +5,7 @@ import com.graphhopper.routing.util.DefaultSpeedCalculator;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.HereTrafficGraphStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ class TrafficSpeedCalculatorTest {
         carEncoder = new CarFlagEncoder();
         encodingManager = EncodingManager.create(carEncoder);
         trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
-        trafficSpeedCalculator.setTrafficGraphStorage(new MockTrafficStorage());
+        trafficSpeedCalculator.setTrafficGraphStorage(new MockHereTrafficStorage());
     }
 
     @Test
@@ -98,7 +98,7 @@ class TrafficSpeedCalculatorTest {
         assertEquals(65, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    private class MockTrafficStorage extends TrafficGraphStorage {
+    private class MockHereTrafficStorage extends HereTrafficGraphStorage {
 
         @Override
         public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
