@@ -40,3 +40,4 @@ docker/
 docs/
 .github/
 Dockerfile
+envs/
