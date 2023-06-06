@@ -17,7 +17,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.AbstractTrafficGraphStorage;
 
 /**
  * This class includes in the core all edges which have traffic speed assigned.
@@ -26,10 +26,10 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorag
  */
 
 public class TrafficSpeedCoreEdgeFilter implements EdgeFilter {
-    private TrafficGraphStorage trafficGraphStorage;
+    private AbstractTrafficGraphStorage trafficGraphStorage;
 
     public TrafficSpeedCoreEdgeFilter(GraphHopperStorage graphHopperStorage) {
-        trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class);
+        trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphHopperStorage, AbstractTrafficGraphStorage.class);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class TrafficSpeedCoreEdgeFilter implements EdgeFilter {
     }
 
     public static boolean hasTrafficGraphStorage(GraphHopperStorage graphHopperStorage) {
-        return GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class) != null;
+        return GraphStorageUtils.getGraphExtension(graphHopperStorage, AbstractTrafficGraphStorage.class) != null;
     }
 }
 
