@@ -15,12 +15,15 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 
 import com.graphhopper.storage.GraphExtension;
 
+import java.time.ZoneId;
+
 /**
  * Graph storage class for the Border Restriction routing
  */
 public abstract class AbstractTrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
+    private ZoneId zoneId;
 
     public void setMatched() {
     }
@@ -58,5 +61,5 @@ public abstract class AbstractTrafficGraphStorage implements GraphExtension {
         return -1;
     }
 
-
+    public ZoneId getZoneId() {return this.zoneId;}
 }

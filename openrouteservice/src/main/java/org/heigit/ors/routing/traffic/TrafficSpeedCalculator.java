@@ -9,14 +9,14 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.AbstractTrafficGraphStorage;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     // time-dependent stuff
-    protected TrafficGraphStorage trafficGraphStorage;
+    protected AbstractTrafficGraphStorage trafficGraphStorage;
     protected int timeZoneOffset;
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
@@ -32,7 +32,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
         if (flagEncoder instanceof HeavyVehicleFlagEncoder)
             isHGV = true;
-        setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
+        setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, AbstractTrafficGraphStorage.class));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         isVehicle = true;
     }
 
-    public void setTrafficGraphStorage(TrafficGraphStorage trafficGraphStorage) {
+    public void setTrafficGraphStorage(AbstractTrafficGraphStorage trafficGraphStorage) {
         this.trafficGraphStorage = trafficGraphStorage;
     }
 
