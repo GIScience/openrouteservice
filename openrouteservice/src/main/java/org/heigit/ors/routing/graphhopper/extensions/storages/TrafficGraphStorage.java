@@ -27,7 +27,7 @@ import java.util.TimeZone;
 /**
  * Graph storage class for the Border Restriction routing
  */
-public class TrafficGraphStorage implements GraphExtension {
+public class TrafficGraphStorage extends AbstractTrafficGraphStorage {
 
     public enum Property {ROAD_TYPE}
 
