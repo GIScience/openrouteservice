@@ -27,13 +27,15 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.GHPoint;
 import org.heigit.ors.mapmatching.AbstractMapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.util.PolylineEncoder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * This class presents an implementation of a map matching algorithm based on a paper "Hidden Markov Map Matching Through Noise and Sparseness" written by Paul Newson and John Krumm
@@ -44,7 +46,7 @@ import java.util.List;
 public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 
     private static final double SIGMA_Z = 4.07;// sigma_z(z, x); this value is taken from a paper by Newson and Krumm
-    private static final double BETA =  0.00959442; // beta(z, x)
+    private static final double BETA =  0.0959442; // beta(z, x)
     private static final double DENOM = Math.sqrt(2 * Math.PI) * SIGMA_Z; // see Equation 1
     private DistanceCalc distCalcEarth = new DistanceCalcEarth(); // DistancePlaneProjection
     private LocationIndexTree locationIndex;
@@ -120,6 +122,8 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         MatchPoint[][] x = new MatchPoint[nZ][];
         double searchRadius = this.searchRadius;
 
+        System.out.println("Points " + nPoints);
+
         for (int i = 0; i < nPoints; i++) {
             Coordinate zt = z[i];
             this.searchRadius = (bPreciseMode && i == 1) ? 50 : searchRadius;
@@ -129,6 +133,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
             if (xi == null)
                 return new RouteSegmentInfo[]{};
 
+            System.out.println("[ " + zt.x + " " + zt.y + " ] matched to " + Arrays.stream(xi).map(mp -> "[ " + mp.x + " " + mp.y + " ]").collect(Collectors.joining(", ")));
             x[i] = xi;
         }
 
@@ -142,7 +147,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         if (nR == 0)
             return new RouteSegmentInfo[]{};
 
-        double[][] transProbs = new double[nR][nR];
+        double[][][] transProbs = new double[nZ - 1][nR][nR];
         double[][] emissionProbs = new double[nR][nZ];
         double[] startProbs = new double[nR];
 
@@ -201,7 +206,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
         return result;
     }
 
-    private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][] transProbs) {
+    private RouteSegmentInfo findRouteSegments(Coordinate[] z, MatchPoint[][] x, int nR, int nZ, double[] startProbs, double[][] emissionProbs, double[][][] transProbs) {
         // Phase II: Compute distances, probabilities, etc.
 
         double v;
@@ -237,61 +242,75 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 			}
 		}
 
-		if (z.length > distances.length)
-			distances = new double[z.length];
+        for (int t = 0; t < nZ - 1; t++) {
+            int finalT = t;
+            Coordinate zt = z[t];
+            Coordinate zt1 = z[t+1];
+            double dz = distCalcEarth.calcDist(zt.y, zt.x, zt1.y, zt1.x);
+            double perfTime = (dz/encoder.getMaxSpeed())*3600;
+            matchPoints.stream().filter(mp -> mp.measuredPointIndex == finalT).forEach(sourceMatch -> {
+                matchPoints.stream().filter(mp -> mp.measuredPointIndex == finalT + 1).forEach(targetMatch -> {
+                    if (sourceMatch == targetMatch) return;
+                    double value;
+                    Path path = calcPath(sourceMatch, targetMatch);
+                    if (path.isFound()) {
+                        double dx = path.getDistance();
+                        double dt = Math.abs(dz - dx);// / dz; // normalize
 
-		for (int i = 0; i < z.length - 1 ; i++) {
-			Coordinate zt = z[i];
-			Coordinate zt1 = z[i+1];
-			distances[i] = distCalcEarth.calcDist(zt.y, zt.x, zt1.y, zt1.x);
-		}
+//                        double time = path.getTime();
+//                        double dt2 = Math.abs(time - perfTime)/perfTime;
 
-		distances[z.length - 1] = distances[0];
+                        value = exponentialDistribution(BETA, dt);// + 0.8*dt2);
+                        transProbs[finalT][sourceMatch.segmentId][targetMatch.segmentId] = value;
+                    } else {
+                        transProbs[finalT][sourceMatch.segmentId][targetMatch.segmentId] = 0;
+                    }
+                });
+            });
+        }
 
-		double perfTime = (distances[0]/encoder.getMaxSpeed())*3600;
-
-		for (int i = 0; i < nR; i++) {
-		    MatchPoint xi = matchPoints.get(i);
-
-			for (int j = 0; j < nR; j++) {
-
-				double value = defaultProbability;
-
-				if (i != j) {
-					MatchPoint xj = matchPoints.get(j);
-
-					// check the order of points from 0 -> 1
-					if (xi.measuredPointIndex < xj.measuredPointIndex) {
-					    //TODO: the commented out code doesn't seem to be equivalent to the current implementation. Bug?
-						//Point zt = z[xi.measuredPointIndex]
-						//Point zt1 = z[xj.measuredPointIndex]
-						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
-
-						Path path = calcPath(xi, xj);
-
-						if (path.isFound()) {
-								/*
-								double dx = resp.getDistance()
-								double dt = Math.abs(dz - dx)
-                                								
-								value = exponentialDistribution(100*beta, dt);  // Equation 2
-								*/
-
-                                double dx = path.getDistance();
-                                double dt = Math.abs(dz - dx) / distances[0]; // normalize
-
-								double time = path.getTime();
-								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
-                                double dt2 = Math.abs(time - perfTime)/perfTime;
-
-								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
-							}
-					}
-				}
-
-				transProbs[i][j] = value;
-			}
-		}
+//		for (int i = 0; i < nR; i++) {
+//		    MatchPoint xi = matchPoints.get(i);
+//
+//			for (int j = 0; j < nR; j++) {
+//
+//				double value = defaultProbability;
+//
+//				if (i != j) {
+//					MatchPoint xj = matchPoints.get(j);
+//
+//					// check the order of points from 0 -> 1
+//					if (xi.measuredPointIndex < xj.measuredPointIndex) {
+//					    //TODO: the commented out code doesn't seem to be equivalent to the current implementation. Bug?
+//						//Point zt = z[xi.measuredPointIndex]
+//						//Point zt1 = z[xj.measuredPointIndex]
+//						double dz = distances[xi.measuredPointIndex]; // distCalcEarth.calcDist(zt.lat, zt.lon, zt1.lat, zt1.lon)
+//
+//						Path path = calcPath(xi, xj);
+//
+//						if (path.isFound()) {
+//								/*
+//								double dx = resp.getDistance()
+//								double dt = Math.abs(dz - dx)
+//
+//								value = exponentialDistribution(100*beta, dt);  // Equation 2
+//								*/
+//
+//                                double dx = path.getDistance();
+//                                double dt = Math.abs(dz - dx) / distances[0]; // normalize
+//
+//								double time = path.getTime();
+//								//(distances[0]/1000/encoder.getMaxSpeed())*60*60*1000
+//                                double dt2 = Math.abs(time - perfTime)/perfTime;
+//
+//								value = exponentialDistribution(BETA, 0.2*dt + 0.8*dt2);
+//							}
+//					}
+//				}
+//
+//				transProbs[i][j] = value;
+//			}
+//		}
 
         // Phase III: Apply Viterbi algorithm to find the path through the
         // lattice that maximizes the product of the measurement probabilities
@@ -381,6 +400,7 @@ public class HiddenMarkovMapMatcher extends AbstractMapMatcher {
 		// TODO Postponed: find out how to do this now: List<Snap> qResults = locationIndex.findNClosest(lat, lon, edgeFilter);
         // TODO: this is just a temporary work-around for the previous line
 		List<Snap> qResults = locationIndex.findCandidateSnaps(lat, lon, edgeFilter);
+//        List<Snap> qResults = Collections.singletonList(locationIndex.findClosest(lat, lon, edgeFilter));
 		if (qResults.isEmpty())
 			return new MatchPoint[] {};
 

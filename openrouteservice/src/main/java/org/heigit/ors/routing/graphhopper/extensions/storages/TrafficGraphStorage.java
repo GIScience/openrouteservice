@@ -178,7 +178,6 @@ public class TrafficGraphStorage implements GraphExtension {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
 
         priorityValue[0] = (byte) priority;
-
         if (baseNode < adjNode) {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);

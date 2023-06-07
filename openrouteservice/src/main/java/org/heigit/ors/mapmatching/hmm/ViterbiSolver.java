@@ -16,7 +16,7 @@ package org.heigit.ors.mapmatching.hmm;
 public class ViterbiSolver {
 	private ViterbiSolver() {}
 	
-	public static int[] findPath(double[] startProbability, double[][] transitionProbability, double[][] emissionProbability, boolean scaled) {
+	public static int[] findPath(double[] startProbability, double[][][] transitionProbability, double[][] emissionProbability, boolean scaled) {
 		int nObservations = emissionProbability[0].length;
 		int nStates = startProbability.length;
 
@@ -45,9 +45,9 @@ public class ViterbiSolver {
 	        for (int i = 0; i < nStates; i++) {
 	          // find the maximum probability and most likely state leading up to this
 	          int maxState = 0;
-	          double maxProb = delta[t - 1][0] + Math.log(transitionProbability[0][i]);
+	          double maxProb = delta[t - 1][0] + Math.log(transitionProbability[t - 1][0][i]);
 	          for (int j = 1; j < nStates; j++) {
-	            double prob = delta[t - 1][j] + Math.log(transitionProbability[j][i]);
+	            double prob = delta[t - 1][j] + Math.log(transitionProbability[t - 1][j][i]);
 	            if (prob > maxProb) {
 	              maxProb = prob;
 	              maxState = j;
@@ -61,9 +61,9 @@ public class ViterbiSolver {
 	      for (int t = 1; t < nObservations; t++) {
 	        for (int i = 0; i < nStates; i++) {
 	          int maxState = 0;
-	          double maxProb = delta[t - 1][0] * transitionProbability[0][i];
+	          double maxProb = delta[t - 1][0] * transitionProbability[t - 1][0][i];
 	          for (int j = 1; j < nStates; j++) {
-	            double prob = delta[t - 1][j] * transitionProbability[j][i];
+	            double prob = delta[t - 1][j] * transitionProbability[t - 1][j][i];
 	            if (prob > maxProb) {
 	              maxProb = prob;
 	              maxState = j;

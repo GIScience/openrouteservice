@@ -24,6 +24,7 @@ import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
+import org.heigit.ors.util.PolylineEncoder;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -54,12 +55,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.MissingResourceException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
@@ -271,6 +268,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         }
         try {
             matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
+            if (matchedSegments.length > 0) {
+                System.out.println("\"" + PolylineEncoder.encode(geometry.getCoordinates(), false, new StringBuilder()) + "\", \"" + Arrays.stream(matchedSegments).map(match -> match != null ? PolylineEncoder.encode(match.getGeometry().getCoordinates(), false, new StringBuilder()) : "null").collect(Collectors.joining(",")) + "\"");
+                System.out.println("\"" + geometry + "\", \"" + Arrays.stream(matchedSegments).map(match -> match != null ? match.getEdgesStates().stream().map(i -> i.getName()).collect(Collectors.joining(", ")) : "").collect(Collectors.joining(",")) + "\"");
+            }
         } catch (Exception e) {
             LOGGER.info("Error while matching: " + e);
         }
@@ -343,9 +344,11 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
             matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         } else if (hereTrafficLink.isOnlyFromDirection()) {
+            System.out.println(hereTrafficLink.getLinkId() + ": FROM");
             // One Direction
             matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
         } else {
+            System.out.println(hereTrafficLink.getLinkId() + ": TO");
             // One Direction
             matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
