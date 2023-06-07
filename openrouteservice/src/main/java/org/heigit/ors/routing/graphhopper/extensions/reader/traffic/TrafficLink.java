@@ -91,10 +91,10 @@ public class TrafficLink {
             LineString geometry = gf.createLineString(linkGeometry.getCoordinates());
             if (checkTearDop(geometry))
                 isTeardrop = true;
-            if (isFromOrientation(geometry))
+            //if (isFromOrientation(geometry))
                 this.linkGeometry = geometry;
-            else
-                this.linkGeometry = (LineString) geometry.reverse(); // Reverse to isFromGeometry
+            //else
+            //    this.linkGeometry = (LineString) geometry.reverse(); // Reverse to isFromGeometry
         } else {
             LOGGER.error("Invalid geometry - " + linkGeometry.getGeometryType());
             throw new InvalidObjectException("Invalid geometry for linkId " + linkId);
