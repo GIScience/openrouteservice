@@ -42,6 +42,8 @@ public class GhMapMatcher extends AbstractMapMatcher {
         double distance = mr.getMatchLength();
         long time = mr.getMatchMillis();
         Geometry geometry = null; // TODO: get geometry from match result
+                                  // it is unclear, whether the geometry is
+                                  // used at all, so we leave it for now.
         RouteSegmentInfo[] rsi = new RouteSegmentInfo[1];
         rsi[0] = new RouteSegmentInfo(edgeStates, distance, time, geometry);
         return rsi;
