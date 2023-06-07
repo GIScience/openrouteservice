@@ -406,7 +406,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.graphhopper</groupId>
+            <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-map-matching</artifactId>
             <version>v4.8</version>
             <exclusions>
