@@ -119,7 +119,16 @@
         "elevation_preprocessed": false,
         "profiles": {
           "active": [
-            "car"
+            "car",
+            "hgv",
+            "bike-regular",
+            "bike-mountain",
+            "bike-road",
+            "bike-electric",
+            "walking",
+            "hiking",
+            "wheelchair",
+            "public-transport"
           ],
           "default_params": {
             "encoder_flags_size": 4,
