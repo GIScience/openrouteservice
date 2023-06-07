@@ -119,16 +119,7 @@
         "elevation_preprocessed": false,
         "profiles": {
           "active": [
-            "car",
-            "hgv",
-            "bike-regular",
-            "bike-mountain",
-            "bike-road",
-            "bike-electric",
-            "walking",
-            "hiking",
-            "wheelchair",
-            "public-transport"
+            "car"
           ],
           "default_params": {
             "encoder_flags_size": 4,
@@ -226,7 +217,7 @@
                   "ref_pattern": "./src/test/files/data/traffic_data/here/ref_pattern.csv",
                   "pattern_15min": "./src/test/files/data/traffic_data/here/pattern_kph_15min.csv",
                   "radius": 150,
-                  "output_log": false,
+                  "output_log": true,
                   "log_location": "ors/traffic_log"
                 }
               },
