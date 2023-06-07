@@ -50,7 +50,7 @@
         <geotools.version>29.0</geotools.version>
         <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
-        <kafka.version>3.4.0</kafka.version>
+        <kafka.version>3.4.1</kafka.version>
         <fasterxml.jackson.version>2.15.0</fasterxml.jackson.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.organization>giscience</sonar.organization>
