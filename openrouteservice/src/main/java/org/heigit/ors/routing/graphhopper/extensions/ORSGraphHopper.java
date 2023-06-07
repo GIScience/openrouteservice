@@ -38,6 +38,7 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.geotools.feature.SchemaException;
+import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -650,8 +651,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                                                          int trafficLinkFunctionalClass,
                                                          boolean bothDirections,
                                                          int matchingRadius) {
-        if (mMapMatcher == null || mMapMatcher.getClass() != HiddenMarkovMapMatcher.class) {
-            mMapMatcher = new HiddenMarkovMapMatcher();
+        if (mMapMatcher == null /*|| mMapMatcher.getClass() != HiddenMarkovMapMatcher.class*/) {
+			mMapMatcher = new GhMapMatcher(this); //HiddenMarkovMapMatcher();
             if (this.getGraphHopperStorage() != null) {
                 mMapMatcher.setGraphHopper(this);
             }

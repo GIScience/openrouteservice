@@ -405,6 +405,17 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-map-matching</artifactId>
+            <version>4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- remove the comment to enable debugging
         <dependency>
             <groupId>com.graphhopper</groupId>
