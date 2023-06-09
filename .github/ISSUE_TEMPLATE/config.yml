@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions?
+    url: https://ask.openrouteservice.org/latest
+    about: Please ask and answer questions in our Community Forum
+  - name: Map Client Issue
+    url: https://github.com/GIScience/ors-map-client/issues/new
+    about: Issues with maps.openrouteservice.org? Please use this repository instead
