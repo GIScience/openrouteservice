@@ -161,8 +161,11 @@ public class TrafficGraphStorage implements GraphExtension {
      * @param patternId Id of the traffic pattern.
      * @param weekday   Enum value for the weekday the traffic pattern Id refers to.
      **/
-    public void setEdgeIdTrafficPatternLookup(int edgeKey, int patternId, TrafficEnums.WeekDay weekday, double priority) {
-        priority = priority > 255 ? 255 : priority;//FIXME: does using double for priority make sense at all?
+    public void setEdgeIdTrafficPatternLookup(int edgeKey, int patternId, TrafficEnums.WeekDay weekday, int priority) {
+        if (patternId <= 0)
+            return;
+
+        priority = Math.min(priority, 255);
         patternId = patternId > 65535 ? 0 : patternId;
         int edgeId = GHUtility.getEdgeFromEdgeKey(edgeKey);
         boolean forward = isForward(edgeKey);
@@ -172,8 +175,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
         int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, forward);
 
-        if (patternId <= 0)//FIXME: this sanity check should be performed at the very beginning of the method
-            return;
 
         if (getEdgeIdTrafficPatternLookup(edgeKey, weekday) > 0 && lastPriority > priority)
             return;

@@ -36,9 +36,7 @@ public class GhMapMatcher extends AbstractMapMatcher {
     }
 
     private static RouteSegmentInfo[] getRouteSegmentInfoFromMatchResult(MatchResult mr) {
-        List<EdgeIteratorState> edgeStates = mr.getEdgeMatches().stream().map(
-                edgeMatch -> edgeMatch.getEdgeState()
-        ).toList();
+        List<EdgeIteratorState> edgeStates = mr.getMergedPath().calcEdges();
         double distance = mr.getMatchLength();
         long time = mr.getMatchMillis();
         Geometry geometry = null; // TODO: get geometry from match result
