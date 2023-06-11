@@ -350,48 +350,30 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
 
-        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
-        processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
+        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
+        processSegments(hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.TO), matchedSegmentsTo);
     }
 
-    private void processSegments(ORSGraphHopper graphHopper, int linkId, Map<
-            TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
+    private void processSegments(int linkId, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds, RouteSegmentInfo[] matchedSegments) {
         if (matchedSegments == null)
             return;
         for (RouteSegmentInfo routeSegment : matchedSegments) {
             if (routeSegment == null) continue;
-            processSegment(graphHopper, trafficPatternIds, linkId, routeSegment);
+            processSegment(trafficPatternIds, linkId, routeSegment);
         }
     }
 
-    private void processSegment(ORSGraphHopper graphHopper, Map<TrafficEnums.WeekDay, Integer> trafficPatternIds,
+    private void processSegment( Map<TrafficEnums.WeekDay, Integer> trafficPatternIds,
                                 int trafficLinkId, RouteSegmentInfo routeSegment) {
         for (EdgeIteratorState edge : routeSegment.getEdgesStates()) {
+            int originalEdgeKey;
             if (edge instanceof VirtualEdgeIteratorState) {
-                VirtualEdgeIteratorState virtualEdge = (VirtualEdgeIteratorState) edge;
-                int originalEdgeId;
-                int originalBaseNodeId;
-                int originalAdjNodeId;
-                if (virtualEdge.getAdjNode() < graphHopper.getGraphHopperStorage().getNodes()) {
-                    EdgeIteratorState originalEdgeIter = graphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getAdjNode());
-                    originalEdgeId = originalEdgeIter.getEdge();
-                    originalBaseNodeId = originalEdgeIter.getBaseNode();
-                    originalAdjNodeId = originalEdgeIter.getAdjNode();
-                } else if (virtualEdge.getBaseNode() < graphHopper.getGraphHopperStorage().getNodes()) {
-                    EdgeIteratorState originalEdgeIter = graphHopper.getGraphHopperStorage().getEdgeIteratorState(virtualEdge.getOriginalEdge(), virtualEdge.getBaseNode());
-                    originalEdgeId = originalEdgeIter.getEdge();
-                    originalBaseNodeId = originalEdgeIter.getAdjNode();
-                    originalAdjNodeId = originalEdgeIter.getBaseNode();
-                } else {
-                    continue;
-                }
-                final int finalOriginalEdgeId = originalEdgeId;
-                final int finalOriginalBaseNodeId = originalBaseNodeId;
-                final int finalOriginalAdjNodeId = originalAdjNodeId;
-                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(finalOriginalEdgeId, finalOriginalBaseNodeId, finalOriginalAdjNodeId, patternId, weekDay, edge.getDistance()));
+                originalEdgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
             } else {
-                trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(edge.getEdge(), edge.getBaseNode(), edge.getAdjNode(), patternId, weekDay, edge.getDistance()));
+                originalEdgeKey = edge.getEdgeKey();
             }
+            double distance = edge.getDistance();//FIXME: use normalized distance as priority
+            trafficPatternIds.forEach((weekDay, patternId) -> storage.setEdgeIdTrafficPatternLookup(originalEdgeKey, patternId, weekDay, distance));
             if (outputLog) {
                 LineString lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
                 addOSMGeometryForLogging(lineString.toString());

@@ -1,11 +1,12 @@
 package org.heigit.ors.routing.traffic;
 
-import com.graphhopper.routing.querygraph.EdgeKeys;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.AbstractAdjustedSpeedCalculator;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.SpeedCalculator;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.HeavyVehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -39,16 +40,21 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
 
-        int edgeId = EdgeKeys.getOriginalEdge(edge);
+        int edgeKey;
+        if (edge instanceof VirtualEdgeIteratorState) {
+            edgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
+        }
+        else {
+            edgeKey = edge.getEdgeKey();
+        }
+        if (reverse)
+            edgeKey = GHUtility.reverseEdgeKey(edgeKey);
+
         double trafficSpeed;
         if (time == -1)
-            trafficSpeed = reverse ?
-                    trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode())
-                    : trafficGraphStorage.getMaxSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode());
+            trafficSpeed = trafficGraphStorage.getMaxSpeedValue(edgeKey);
         else
-            trafficSpeed = reverse ?
-                    trafficGraphStorage.getSpeedValue(edgeId, edge.getAdjNode(), edge.getBaseNode(), time, timeZoneOffset)
-                    : trafficGraphStorage.getSpeedValue(edgeId, edge.getBaseNode(), edge.getAdjNode(), time, timeZoneOffset);
+            trafficSpeed = trafficGraphStorage.getSpeedValue(edgeKey, time, timeZoneOffset);
 
         if (trafficSpeed > 0) {
             //TODO: This is a heuristic to provide expected results given traffic data and ORS internal speed calculations.
