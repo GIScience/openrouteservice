@@ -61,6 +61,8 @@ RELEASING:
 - Upgrade geotools from 28.2 to 29.0 [#1422](https://github.com/GIScience/openrouteservice/pull/1422)
 - upgrade graphhopper version to v4.6 [#1427](https://github.com/GIScience/openrouteservice/pull/1427)
 - Map matching of traffic data ([#1430](https://github.com/GIScience/openrouteservice/pull/1430))
+- Upgrade kafka_2.13 from 3.4.0 to 3.4.1 ([#1463](https://github.com/GIScience/openrouteservice/issues/1463))
+
 ### Removed
 - AccelerationWeighting ([#1454](https://github.com/GIScience/openrouteservice/pull/1454))
 
