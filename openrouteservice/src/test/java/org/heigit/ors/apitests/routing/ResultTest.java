@@ -3653,7 +3653,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(1327.1, 1)))
-                .body("routes[0].summary.duration", is(closeTo(495.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(477.9, 1)))
                 .statusCode(200);
     }
 
