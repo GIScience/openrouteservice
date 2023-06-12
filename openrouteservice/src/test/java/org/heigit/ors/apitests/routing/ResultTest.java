@@ -3673,6 +3673,22 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", coordinatesTheodorHeuss);
         body.put("preference", getParameter("preference"));
 
+        // No traffic data
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(20.0, 1)))
+                .statusCode(200);
+
+        // Saturday evening
         body.put("departure", "2023-05-06T17:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
@@ -3682,7 +3698,26 @@ class ResultTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}")
                 .then()
-                .assertThat() // TODO: insert assertion here
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(28.6, 1)))
+                .statusCode(200);
+
+        // Sunday evening
+        body.put("departure", "2023-05-07T17:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(23.5, 1)))
                 .statusCode(200);
     }
 
