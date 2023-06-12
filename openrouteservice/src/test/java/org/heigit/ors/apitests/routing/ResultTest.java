@@ -3593,7 +3593,7 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testTrafficSpeed() {
-        JSONArray coordinates =  new JSONArray();
+        JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.676538);
         coord1.put(49.412299);
@@ -3654,6 +3654,35 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(1327.1, 1)))
                 .body("routes[0].summary.duration", is(closeTo(477.9, 1)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testTrafficSpeedMultipleMatches() {
+        JSONArray coordinatesTheodorHeuss =  new JSONArray();
+        JSONArray coordTh1 = new JSONArray();
+        coordTh1.put(8.6928696);
+        coordTh1.put(49.4115257);
+        coordinatesTheodorHeuss.put(coordTh1);
+        JSONArray coordTh2 = new JSONArray();
+        coordTh2.put(8.6923596);
+        coordTh2.put(49.4134954);
+        coordinatesTheodorHeuss.put(coordTh2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinatesTheodorHeuss);
+        body.put("preference", getParameter("preference"));
+
+        body.put("departure", "2023-05-06T17:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat() // TODO: insert assertion here
                 .statusCode(200);
     }
 
