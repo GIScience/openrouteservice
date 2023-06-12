@@ -40,15 +40,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     public double getSpeed(EdgeIteratorState edge, boolean reverse, long time) {
         double speed = superSpeedCalculator.getSpeed(edge, reverse, time);
 
-        int edgeKey;
-        if (edge instanceof VirtualEdgeIteratorState) {
-            edgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
-        }
-        else {
-            edgeKey = edge.getEdgeKey();
-        }
-        if (reverse)
-            edgeKey = GHUtility.reverseEdgeKey(edgeKey);
+        int edgeKey = getEdgeKey(edge, reverse);
 
         double trafficSpeed;
         if (time == -1)
@@ -72,6 +64,19 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         }
 
         return speed;
+    }
+
+    protected int getEdgeKey(EdgeIteratorState edge, boolean reverse) {
+        int edgeKey;
+        if (edge instanceof VirtualEdgeIteratorState) {
+            edgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
+        }
+        else {
+            edgeKey = edge.getEdgeKey();
+        }
+        if (reverse)
+            edgeKey = GHUtility.reverseEdgeKey(edgeKey);
+        return edgeKey;
     }
 
     public void setVehicleFlagEncoder(VehicleFlagEncoder flagEncoder) {

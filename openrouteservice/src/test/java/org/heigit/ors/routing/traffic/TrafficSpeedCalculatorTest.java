@@ -21,7 +21,12 @@ class TrafficSpeedCalculatorTest {
     void setUp() {
         carEncoder = new CarFlagEncoder();
         encodingManager = EncodingManager.create(carEncoder);
-        trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
+        trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder)) {
+            @Override
+            protected int getEdgeKey(EdgeIteratorState edge, boolean reverse) {
+                return edge.getEdge();
+            }
+        };
         trafficSpeedCalculator.setTrafficGraphStorage(new MockTrafficStorage());
     }
 

@@ -175,7 +175,6 @@ public class TrafficGraphStorage implements GraphExtension {
 
         int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, forward);
 
-
         if (getEdgeIdTrafficPatternLookup(edgeKey, weekday) > 0 && lastPriority > priority)
             return;
 
