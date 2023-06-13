@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+
+## [7.1.0] - 2023-06-13
 ### Added
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 - GTFS support for routing  ([#1316](https://github.com/GIScience/openrouteservice/pull/1316))
@@ -46,7 +48,6 @@ RELEASING:
 - Consistent use of maximum number of visited nodes limit across different matrix algorithms ([#1246](https://github.com/GIScience/openrouteservice/issues/1246))
 - Updated code that queries the population database so that it can use more recent PostGIS version ([#834](https://github.com/GIScience/openrouteservice/issues/834)) 
 ### Fixed
-- fix HiddenMarkovMapMatcher using LocationIndexTree.findCandidateSnaps [#1457](https://github.com/GIScience/openrouteservice/pull/1457)
 - certain cases of OSM ways with invalid node refs causing crashes during graph building [#1351](https://github.com/GIScience/openrouteservice/issues/1351)
 - update docker setup description ([#1326](https://github.com/GIScience/openrouteservice/pull/1326))
 - upgrade org.apache.logging.log4j:log4j-1.2-api from 2.19.0 to 2.20.0 ([#1324](https://github.com/GIScience/openrouteservice/pull/1324))
@@ -657,7 +658,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...HEAD
+[7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
+[7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
 [6.8.3]: https://github.com/GIScience/openrouteservice/compare/v6.8.2...v6.8.3
 [6.8.2]: https://github.com/GIScience/openrouteservice/compare/v6.8.1...v6.8.2
