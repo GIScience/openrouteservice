@@ -41,6 +41,7 @@ RELEASING:
 - moved all api tests into `openrouteservice` module [#1352](https://github.com/GIScience/openrouteservice/pull/1352)
 - migrate java from 11 to 17 [#1353](https://github.com/GIScience/openrouteservice/pull/1353)
 - time-dependent core routing algorithms ([#1388](https://github.com/GIScience/openrouteservice/pull/1388))
+- tests for traffic data [#1449](https://github.com/GIScience/openrouteservice/pull/1449)
 ### Changed
 - Consistent use of maximum number of visited nodes limit across different matrix algorithms ([#1246](https://github.com/GIScience/openrouteservice/issues/1246))
 - Updated code that queries the population database so that it can use more recent PostGIS version ([#834](https://github.com/GIScience/openrouteservice/issues/834)) 
