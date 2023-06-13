@@ -372,7 +372,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>v4.7</version>
+            <version>v4.8.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -384,7 +384,7 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-gtfs</artifactId>
-            <version>v4.7</version>
+            <version>v4.8.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -395,8 +395,8 @@
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-web-api</artifactId>
-            <version>v4.7</version>
+            <artifactId>graphhopper-map-matching</artifactId>
+            <version>v4.8.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -420,7 +420,7 @@
 
         <dependency>
             <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-web-api</artifactId>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
             <version>4.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
@@ -432,7 +432,7 @@
 
         <dependency>
             <groupId>com.graphhopper</groupId>
-            <artifactId>graphhopper-reader-gtfs</artifactId>
+            <artifactId>graphhopper-map-matching</artifactId>
             <version>4.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>

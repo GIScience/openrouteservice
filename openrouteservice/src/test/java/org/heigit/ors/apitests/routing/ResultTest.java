@@ -3592,6 +3592,136 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testTrafficSpeed() {
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.676538);
+        coord1.put(49.412299);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.676764);
+        coord2.put(49.412303);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        // Test that traffic speed limit is not taken into account if no time is specified
+        body.put("optimized", "false");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1327.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(196.3, 1)))
+                .statusCode(200);
+        body.remove("optimized");
+
+        // Middle of the night
+        body.put("departure", "2023-05-02T03:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1327.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(194.5, 1)))
+                .statusCode(200);
+
+        // Morning rush hour
+        body.put("departure", "2023-05-02T09:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1327.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(477.9, 1)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testTrafficSpeedMultipleMatches() {
+        JSONArray coordinatesTheodorHeuss =  new JSONArray();
+        JSONArray coordTh1 = new JSONArray();
+        coordTh1.put(8.6928696);
+        coordTh1.put(49.4115257);
+        coordinatesTheodorHeuss.put(coordTh1);
+        JSONArray coordTh2 = new JSONArray();
+        coordTh2.put(8.6923596);
+        coordTh2.put(49.4134954);
+        coordinatesTheodorHeuss.put(coordTh2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinatesTheodorHeuss);
+        body.put("preference", getParameter("preference"));
+
+        // No traffic data
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(20.0, 1)))
+                .statusCode(200);
+
+        // Saturday evening
+        body.put("departure", "2023-05-06T17:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(28.6, 1)))
+                .statusCode(200);
+
+        // Sunday evening
+        body.put("departure", "2023-05-07T17:00");
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(222.1, 1)))
+                .body("routes[0].summary.duration", is(closeTo(23.5, 1)))
+                .statusCode(200);
+    }
+
+    @Test
     void expectZoneMaxpeed() {
         JSONArray coordinates =  new JSONArray();
         JSONArray coord1 = new JSONArray();

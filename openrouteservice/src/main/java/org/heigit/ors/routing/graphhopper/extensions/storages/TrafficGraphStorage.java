@@ -18,6 +18,7 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
 import java.time.ZoneId;
@@ -155,37 +156,45 @@ public class TrafficGraphStorage implements GraphExtension {
      * <p>
      * This method takes the ID of the traffic edge and adds the weekday specific pattern Id to the lookup.
      *
-     * @param baseNode  Bade id to matchc the pattern on.
+     *
+     * @param edgeKey   Edge key
      * @param patternId Id of the traffic pattern.
      * @param weekday   Enum value for the weekday the traffic pattern Id refers to.
      **/
-    public void setEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, int patternId, TrafficEnums.WeekDay weekday, double priority) {
-        priority = priority > 255 ? 255 : priority;
-        patternId = patternId > 65535 ? 0 : patternId;
+    public void setEdgeIdTrafficPatternLookup(int edgeKey, int patternId, TrafficEnums.WeekDay weekday, int priority) {
+        if (patternId <= 0)
+            return;
 
+        priority = Math.min(priority, 255);
+        patternId = patternId > 65535 ? 0 : patternId;
+        int edgeId = GHUtility.getEdgeFromEdgeKey(edgeKey);
+        boolean forward = isForward(edgeKey);
         if (edgeId > maxEdgeId)
             maxEdgeId = edgeId;
         ensureEdgesTrafficLinkLookupIndex(edgeId);
 
-        int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, baseNode, adjNode);
+        int lastPriority = getEdgeIdTrafficPatternPriority(edgeId, forward);
 
-        if (patternId <= 0)
-            return;
-
-        if (getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, weekday) > 0 && lastPriority > priority)
+        if (getEdgeIdTrafficPatternLookup(edgeKey, weekday) > 0 && lastPriority > priority)
             return;
 
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
 
         priorityValue[0] = (byte) priority;
 
-        if (baseNode < adjNode) {
+        if (forward) {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
         } else {
             orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priorityValue, 1);
             orsEdgesTrafficLinkLookup.setShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation(), (short) patternId);
         }
+    }
+
+    private boolean isForward(int edgeKey) {
+        // edge state in storage direction -> edge key is even
+        // edge state against storage direction -> edge key is odd
+        return edgeKey % 2 == 0;
     }
 
     /**
@@ -272,16 +281,15 @@ public class TrafficGraphStorage implements GraphExtension {
      * <p>
      * This method returns the linkID matched on the internal edge ID in both directions if present.
      *
-     * @param edgeId   Internal ID of the graph edge.
-     * @param baseNode Value of the base Node of the edge.
-     * @param adjNode  Value of the adjacent Node of the edge.
+     * @param edgeKey   Internal ID of the graph edge.
      * @param weekday  Enum of Weekday to get the pattern for.
      **/
-    public int getEdgeIdTrafficPatternLookup(int edgeId, int baseNode, int adjNode, TrafficEnums.WeekDay weekday) {
+    public int getEdgeIdTrafficPatternLookup(int edgeKey, TrafficEnums.WeekDay weekday) {
+        int edgeId = GHUtility.getEdgeFromEdgeKey(edgeKey);
         if (invalidEdgeId(edgeId))
             return 0;
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-        if (baseNode < adjNode)
+        if (isForward(edgeKey))
             return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_FORWARD_TRAFFIC + weekday.getByteLocation()));
         else
             return Short.toUnsignedInt(orsEdgesTrafficLinkLookup.getShort(edgePointer + LOCATION_BACKWARD_TRAFFIC + weekday.getByteLocation()));
@@ -302,13 +310,12 @@ public class TrafficGraphStorage implements GraphExtension {
      * e.g. This function can be used to retrieve the stored length of the last ors edge <-> traffic edge match.
      *
      * @param edgeId   Internal ID of the graph edge.
-     * @param baseNode Value of the base Node of the edge.
-     * @param adjNode  Value of the adjacent Node of the edge.
+     * @param forward  Direction
      **/
-    public int getEdgeIdTrafficPatternPriority(int edgeId, int baseNode, int adjNode) {
+    private int getEdgeIdTrafficPatternPriority(int edgeId, boolean forward) {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
         byte[] priority = new byte[1];
-        if (baseNode < adjNode)
+        if (forward)
             orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_FORWARD_TRAFFIC_PRIORITY, priority, 1);
         else
             orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_BACKWARD_TRAFFIC_PRIORITY, priority, 1);
@@ -357,19 +364,17 @@ public class TrafficGraphStorage implements GraphExtension {
      * ## TODO's ##
      * - enhance internal time encoding and harmonize it in the whole ORS backend when more traffic data comes in.
      *
-     * @param edgeId           Internal ID of the edge to get values for.
-     * @param baseNode         The baseNode of the edge to define the direction.
-     * @param adjNode          The adjNode of the edge to define the direction.
+     * @param edgeKey           Internal Edge Key
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */
-    public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
+    public int getSpeedValue(int edgeKey, long unixMilliSeconds, int timeZoneOffset) {
         Calendar calendarDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+" + timeZoneOffset));
         calendarDate.setTimeInMillis(unixMilliSeconds);
         int calendarWeekDay = calendarDate.get(Calendar.DAY_OF_WEEK);
         int hour = calendarDate.get(Calendar.HOUR_OF_DAY);
         int minute = calendarDate.get(Calendar.MINUTE);
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
+        int patternId = getEdgeIdTrafficPatternLookup(edgeKey, TrafficEnums.WeekDay.valueOfCanonical(calendarWeekDay));
         if (patternId > 0)
             return getTrafficSpeed(patternId, hour, minute);
         return -1;
@@ -378,19 +383,20 @@ public class TrafficGraphStorage implements GraphExtension {
     /**
      * Maximum traffic speed value across the whole week
      **/
-    public int getMaxSpeedValue(int edgeId, int baseNode, int adjNode) {
+    public int getMaxSpeedValue(int edgeKey) {
+        int edgeId = GHUtility.getEdgeFromEdgeKey(edgeKey);
         if (invalidEdgeId(edgeId))
             return 0;
         byte[] value = new byte[1];
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
-        int directionOffset = (baseNode < adjNode) ? FORWARD_OFFSET : BACKWARD_OFFSET;
+        int directionOffset = isForward(edgeKey) ? FORWARD_OFFSET : BACKWARD_OFFSET;
         orsEdgesTrafficLinkLookup.getBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, value, 1);
         return Byte.toUnsignedInt(value[0]);
     }
 
-    public boolean hasTrafficSpeed(int edgeId, int baseNode, int adjNode) {
+    public boolean hasTrafficSpeed(int edgeKey) {
         // Traffic patters are stored for all weekdays so it should be enough to check only for one of them
-        int patternId = getEdgeIdTrafficPatternLookup(edgeId, baseNode, adjNode, TrafficEnums.WeekDay.MONDAY);
+        int patternId = getEdgeIdTrafficPatternLookup(edgeKey, TrafficEnums.WeekDay.MONDAY);
         // Pattern IDs start from 1 so 0 is assumed to mean no pattern is assigned
         return patternId > 0;
     }

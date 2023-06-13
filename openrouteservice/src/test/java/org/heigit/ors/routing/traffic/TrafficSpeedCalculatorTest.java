@@ -21,7 +21,12 @@ class TrafficSpeedCalculatorTest {
     void setUp() {
         carEncoder = new CarFlagEncoder();
         encodingManager = EncodingManager.create(carEncoder);
-        trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder));
+        trafficSpeedCalculator = new TrafficSpeedCalculator(new DefaultSpeedCalculator(carEncoder)) {
+            @Override
+            protected int getEdgeKey(EdgeIteratorState edge, boolean reverse) {
+                return edge.getEdge();
+            }
+        };
         trafficSpeedCalculator.setTrafficGraphStorage(new MockTrafficStorage());
     }
 
@@ -101,7 +106,7 @@ class TrafficSpeedCalculatorTest {
     private class MockTrafficStorage extends TrafficGraphStorage {
 
         @Override
-        public int getSpeedValue(int edgeId, int baseNode, int adjNode, long unixMilliSeconds, int timeZoneOffset) {
+        public int getSpeedValue(int edgeId, long unixMilliSeconds, int timeZoneOffset) {
             switch (edgeId) {
                 case 1:
                     return 10;

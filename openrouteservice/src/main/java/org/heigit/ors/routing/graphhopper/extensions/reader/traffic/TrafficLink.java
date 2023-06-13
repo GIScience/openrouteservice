@@ -89,12 +89,8 @@ public class TrafficLink {
         GeometryFactory gf = new GeometryFactory();
         if (linkGeometry.getGeometryType().equals("LineString")) {
             LineString geometry = gf.createLineString(linkGeometry.getCoordinates());
-            if (checkTearDop(geometry))
-                isTeardrop = true;
-            if (isFromOrientation(geometry))
-                this.linkGeometry = geometry;
-            else
-                this.linkGeometry = (LineString) geometry.reverse(); // Reverse to isFromGeometry
+            isTeardrop = checkTearDrop(geometry);
+            this.linkGeometry = geometry;
         } else {
             LOGGER.error("Invalid geometry - " + linkGeometry.getGeometryType());
             throw new InvalidObjectException("Invalid geometry for linkId " + linkId);
@@ -137,7 +133,7 @@ public class TrafficLink {
         return this.trafficLinkMetadata.getFunctionalClassWithRamp();
     }
 
-    private boolean checkTearDop(LineString lineString) {
+    private boolean checkTearDrop(LineString lineString) {
         double coordinateFirstX = lineString.getCoordinateN(0).x;
         double coordinateFirstY = lineString.getCoordinateN(0).y;
         double coordinateLastX = lineString.getCoordinateN(lineString.getCoordinates().length - 1).x;
@@ -153,31 +149,6 @@ public class TrafficLink {
             // First coordinate is the reference if latitudes are equal but its longitude is lower.
             // This represents horizontal lines >------>
             return false;
-        } else if (coordinateFirstX > coordinateLastX) {
-            // First coordinate is the reference if latitudes are equal but its longitude is lower.
-            return false;
-        } else {
-            // Teardrop nodes with same Coords. This shouldn't happen with roads from Here!
-            return true;
-        }
-    }
-
-    private boolean isFromOrientation(LineString lineString) {
-        double coordinateFirstX = lineString.getCoordinateN(0).x;
-        double coordinateFirstY = lineString.getCoordinateN(0).y;
-        double coordinateLastX = lineString.getCoordinateN(lineString.getCoordinates().length - 1).x;
-        double coordinateLastY = lineString.getCoordinateN(lineString.getCoordinates().length - 1).y;
-
-        if (coordinateFirstY < coordinateLastY) {
-            // First coordinate is the reference if its latitude is lower. Most common case!
-            return true;
-        } else if (coordinateFirstY > coordinateLastY) {
-            // Last  coordinate is Reference if its latitude is lower.
-            return false;
-        } else if (coordinateFirstX < coordinateLastX) {
-            // First coordinate is the reference if latitudes are equal but its longitude is lower.
-            // This represents horizontal lines >------>
-            return true;
         } else if (coordinateFirstX > coordinateLastX) {
             // First coordinate is the reference if latitudes are equal but its longitude is lower.
             return false;

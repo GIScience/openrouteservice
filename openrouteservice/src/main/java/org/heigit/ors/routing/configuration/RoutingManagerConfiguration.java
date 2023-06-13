@@ -15,6 +15,8 @@ package org.heigit.ors.routing.configuration;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.locationtech.jts.geom.Envelope;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.RoutingServiceSettings;
@@ -171,6 +173,8 @@ public class RoutingManagerConfiguration  {
 							for(Map.Entry<String, Object> entry : entryValue.entrySet()) {
 								storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
 							}
+
+							storageParams.put("gh_profile", RoutingProfile.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(profile.getEncoderOptions())));
 
 							profile.getExtStorages().put(storageEntry.getKey(), storageParams);
 						}
