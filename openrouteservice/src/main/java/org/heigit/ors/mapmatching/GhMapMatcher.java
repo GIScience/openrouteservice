@@ -20,16 +20,16 @@ import java.util.List;
  * AbstractMapMatcher using Graphhopper's MapMatching internally.
  */
 public class GhMapMatcher extends AbstractMapMatcher {
-    MapMatching mapMatching;
+    PMap hints;
     public GhMapMatcher(GraphHopper graphHopper, String profile) {
         setGraphHopper(graphHopper);
-        PMap hints = new PMap()
+        hints = new PMap()
             .putObject("profile", profile)
             .putObject(Parameters.Landmark.DISABLE, true);
-        mapMatching = new MapMatching(graphHopper, hints);
     }
     @Override
     public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
+        MapMatching mapMatching = new MapMatching(graphHopper, hints);
         List<Observation> inputGPXEntries = getObservationsFromLocations(locations);
         MatchResult mr = mapMatching.match(inputGPXEntries);
         return getRouteSegmentInfoFromMatchResult(mr);
