@@ -3611,7 +3611,7 @@ class ResultTest extends ServiceTest {
         body.put("optimized", "false");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3628,7 +3628,7 @@ class ResultTest extends ServiceTest {
         body.put("departure", "2023-05-02T03:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3644,7 +3644,7 @@ class ResultTest extends ServiceTest {
         body.put("departure", "2023-05-02T09:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
@@ -3676,7 +3676,7 @@ class ResultTest extends ServiceTest {
         // No traffic data
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -3692,7 +3692,7 @@ class ResultTest extends ServiceTest {
         body.put("departure", "2023-05-06T17:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
@@ -3708,7 +3708,7 @@ class ResultTest extends ServiceTest {
         body.put("departure", "2023-05-07T17:00");
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(jsonContent)
+                .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
