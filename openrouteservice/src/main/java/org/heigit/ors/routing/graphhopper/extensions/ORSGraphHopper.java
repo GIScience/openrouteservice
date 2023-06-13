@@ -92,7 +92,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
 	private HashMap<Integer, Long> tmcEdges;
 	private Eccentricity eccentricity;
-    private TrafficEdgeFilter trafficEdgeFilter;
 
 	private int minNetworkSize = 200;
 	private int minOneWayNetworkSize = 0;
@@ -101,7 +100,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
 	private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
-    private MapMatcher mMapMatcher;
 
 	public GraphHopperConfig getConfig() {
 		return config;
@@ -646,104 +644,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return eccentricity;
     }
 
-    public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
-                                                         double originalTrafficLinkLength,
-                                                         int trafficLinkFunctionalClass,
-                                                         boolean bothDirections,
-                                                         int matchingRadius) {
-        if (mMapMatcher == null /*|| mMapMatcher.getClass() != HiddenMarkovMapMatcher.class*/) {
-			mMapMatcher = new GhMapMatcher(this); //HiddenMarkovMapMatcher();
-            if (this.getGraphHopperStorage() != null) {
-                mMapMatcher.setGraphHopper(this);
-            }
-        } else {
-            mMapMatcher.clear();
-        }
-
-        if (trafficEdgeFilter == null) {
-            trafficEdgeFilter = new TrafficEdgeFilter(getGraphHopperStorage());
-        }
-        trafficEdgeFilter.setHereFunctionalClass(trafficLinkFunctionalClass);
-        mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-
-        RouteSegmentInfo[] routeSegmentInfos;
-        mMapMatcher.setSearchRadius(matchingRadius);
-        routeSegmentInfos = matchInternalSegments(geometry, originalTrafficLinkLength, bothDirections);
-        for (RouteSegmentInfo routeSegmentInfo : routeSegmentInfos) {
-            if (routeSegmentInfo != null) {
-                return routeSegmentInfos;
-            }
-        }
-        return routeSegmentInfos;
-    }
-
-    private RouteSegmentInfo[] matchInternalSegments(Geometry geometry, double originalTrafficLinkLength, boolean bothDirections) {
-
-        if (trafficEdgeFilter == null || !trafficEdgeFilter.getClass().equals(TrafficEdgeFilter.class)) {
-            return new RouteSegmentInfo[]{};
-        }
-        org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
-        int originalFunctionalClass = trafficEdgeFilter.getHereFunctionalClass();
-        RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
-        match = validateRouteSegment(originalTrafficLinkLength, match);
-
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
-            // Test a higher functional class based from the original class
-//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.higherFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // Try matching in the next lower functional class.
-            trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.lowerFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
-            // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        return match;
-    }
-
-
-    private RouteSegmentInfo[] validateRouteSegment(double originalTrafficLinkLength, RouteSegmentInfo[] routeSegmentInfo) {
-        if (routeSegmentInfo == null || routeSegmentInfo.length == 0)
-            // Cases that shouldn't happen while matching Here data correctly. Return empty array to potentially restart the matching.
-            return new RouteSegmentInfo[]{};
-        int nullCounter = 0;
-        for (int i = 0; i < routeSegmentInfo.length; i++) {
-            if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdgesStates() == null) {
-                nullCounter += 1;
-                break;
-            }
-            RouteSegmentInfo routeSegment = routeSegmentInfo[i];
-            if (routeSegment.getDistance() > (originalTrafficLinkLength * 1.8)) {
-                // Worst case scenario!
-                routeSegmentInfo[i] = null;
-                nullCounter += 1;
-            }
-        }
-
-        if (nullCounter == routeSegmentInfo.length)
-            return new RouteSegmentInfo[]{};
-        else
-            return routeSegmentInfo;
-    }
 
     public boolean isTrafficEnabled() {
         return GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), TrafficGraphStorage.class) != null;

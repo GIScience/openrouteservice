@@ -119,7 +119,7 @@ public class RouteProfileConfiguration {
 		maximumVisitedNodesPT = rpc.maximumVisitedNodesPT;
 	}
 
-    private static boolean hasTurnCosts(String encoderOptions) {
+    public static boolean hasTurnCosts(String encoderOptions) {
         for (String option : encoderOptions.split("\\|")) {
             String[] keyValuePair = option.split("=");
             if (keyValuePair.length > 0 && keyValuePair[0].equals("turn_costs")) {

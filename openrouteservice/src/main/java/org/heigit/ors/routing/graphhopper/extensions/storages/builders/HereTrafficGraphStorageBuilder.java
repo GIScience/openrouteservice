@@ -22,8 +22,12 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
+import org.heigit.ors.mapmatching.GhMapMatcher;
+import org.heigit.ors.mapmatching.MapMatcher;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -86,6 +90,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     private TrafficGraphStorage storage;
 
+    private GraphHopper gh;
+    private MapMatcher mMapMatcher;
+    private TrafficEdgeFilter trafficEdgeFilter;
     private IntHashSet matchedHereLinks = new IntHashSet();
     private ArrayList<String> matchedOSMLinks = new ArrayList<>();
 
@@ -138,6 +145,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             LOGGER.info("Traffic not enabled.");
         }
 
+        gh = graphhopper;
+        mMapMatcher = new GhMapMatcher(graphhopper, parameters.get("gh_profile"));
         return storage;
     }
 
@@ -268,7 +277,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return matchedSegments;
         }
         try {
-            matchedSegments = graphHopper.getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
+            matchedSegments = getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
         } catch (Exception e) {
             LOGGER.info("Error while matching: " + e);
         }
@@ -379,4 +388,92 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             }
         }
     }
+
+    public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
+                                                                double originalTrafficLinkLength,
+                                                                int trafficLinkFunctionalClass,
+                                                                boolean bothDirections,
+                                                                int matchingRadius) {
+
+        if (trafficEdgeFilter == null) {
+            trafficEdgeFilter = new TrafficEdgeFilter(gh.getGraphHopperStorage());
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+        }
+        trafficEdgeFilter.setHereFunctionalClass(trafficLinkFunctionalClass);
+
+        RouteSegmentInfo[] routeSegmentInfos;
+        mMapMatcher.setSearchRadius(matchingRadius);
+        routeSegmentInfos = matchInternalSegments(geometry, originalTrafficLinkLength, bothDirections);
+        for (RouteSegmentInfo routeSegmentInfo : routeSegmentInfos) {
+            if (routeSegmentInfo != null) {
+                return routeSegmentInfos;
+            }
+        }
+        return routeSegmentInfos;
+    }
+
+    private RouteSegmentInfo[] matchInternalSegments(Geometry geometry, double originalTrafficLinkLength, boolean bothDirections) {
+
+        org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
+        int originalFunctionalClass = trafficEdgeFilter.getHereFunctionalClass();
+        RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
+        match = validateRouteSegment(originalTrafficLinkLength, match);
+
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
+            // Test a higher functional class based from the original class
+//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
+            trafficEdgeFilter.higherFunctionalClass();
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+            // Try matching in the next lower functional class.
+            trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
+            trafficEdgeFilter.lowerFunctionalClass();
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+            // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
+            // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
+            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+            match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
+        }
+        return match;
+    }
+
+    private RouteSegmentInfo[] validateRouteSegment(double originalTrafficLinkLength, RouteSegmentInfo[] routeSegmentInfo) {
+        if (routeSegmentInfo == null || routeSegmentInfo.length == 0)
+            // Cases that shouldn't happen while matching Here data correctly. Return empty array to potentially restart the matching.
+            return new RouteSegmentInfo[]{};
+        int nullCounter = 0;
+        for (int i = 0; i < routeSegmentInfo.length; i++) {
+            if (routeSegmentInfo[i] == null || routeSegmentInfo[i].getEdgesStates() == null) {
+                nullCounter += 1;
+                break;
+            }
+            RouteSegmentInfo routeSegment = routeSegmentInfo[i];
+            if (routeSegment.getDistance() > (originalTrafficLinkLength * 1.8)) {
+                // Worst case scenario!
+                routeSegmentInfo[i] = null;
+                nullCounter += 1;
+            }
+        }
+
+        if (nullCounter == routeSegmentInfo.length)
+            return new RouteSegmentInfo[]{};
+        else
+            return routeSegmentInfo;
+    }
+
 }
