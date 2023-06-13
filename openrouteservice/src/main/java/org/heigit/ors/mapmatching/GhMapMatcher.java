@@ -8,7 +8,6 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.GHPoint;
-import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
@@ -47,7 +46,6 @@ public class GhMapMatcher extends AbstractMapMatcher {
         return rsi;
     }
 
-    @NotNull
     private static List<Observation> getObservationsFromLocations(Coordinate[] locations) {
         return Arrays.stream(locations).map(
                 loc -> new Observation(new GHPoint(loc.y, loc.x))
