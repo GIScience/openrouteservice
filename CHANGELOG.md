@@ -35,6 +35,17 @@ RELEASING:
 
 ## [Unreleased]
 
+### Added
+- workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
+- environment variables for adjusting folders and paths during graph build using docker: ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
+  - `ELEVATION_CACHE_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.elevation_cache_path` with
+  - `GRAPHS_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.graphs_root_path` with
+  - `LOGS_FOLDER`: value to overwrite the `ors.logging.location` with
+  - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
+
+### Changed
+- url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
+
 ## [7.1.0] - 2023-06-13
 ### Added
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))

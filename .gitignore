@@ -38,3 +38,5 @@ nohup.out
 build/
 logs/
 cgiar_cache/
+envs/
+ors-config-repo/
