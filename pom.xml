@@ -44,7 +44,6 @@
         <log4j.version>2.20.0</log4j.version>
         <kafka.version>3.5.0</kafka.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
-        <maven-shared-utils.version>3.3.4</maven-shared-utils.version>
         <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
@@ -130,27 +129,6 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>
-            </dependency>
-
-            <!-- Why is this needed in the first place? -->
-            <!--
-            <dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.0.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.maven.shared</groupId>
-                        <artifactId>maven-shared-utils</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            -->
-
-            <dependency>
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-shared-utils</artifactId>
-                <version>${maven-shared-utils.version}</version>
             </dependency>
 
             <dependency>
