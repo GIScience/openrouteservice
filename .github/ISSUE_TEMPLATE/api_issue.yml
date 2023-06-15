@@ -12,7 +12,7 @@ body:
 
   - type: checkboxes
     attributes:
-      label: Is there an existing issue for this? (required)
+      label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the bug you encountered.
       options:
         - label: I have searched the existing issues
@@ -21,7 +21,7 @@ body:
   - type: dropdown
     id: where
     attributes:
-      label: Where did you encounter this issue? (required)
+      label: Where did you encounter this issue?
       description: Choose 'live API' or 'self-hosted instance'
       multiple: true
       options:
@@ -41,7 +41,7 @@ body:
 
   - type: input
     attributes:
-      label: Request URL (required)
+      label: Request URL
       description: Please paste the request URL.
       placeholder: "https://api.openrouteservice.org/v2/..."
     validations:
@@ -59,7 +59,7 @@ body:
   - type: textarea
     id: response
     attributes:
-      label: Response (required)
+      label: Response
       description: Please paste the response. (Automatically formatted, no need for backticks)
       value: |
         <details><summary>Response</summary>
@@ -75,23 +75,23 @@ body:
 
   - type: textarea
     attributes:
-      label: Current behavior (required)
+      label: Current behavior
       description: |
-        Describe in detail what you are doing and what has happened that doesn't seem right. (required)
+        Describe in detail what you are doing and what has happened that doesn't seem right.
         Providing any further context or screenshots about the problem helps us come up with a solution faster.
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: Expected behavior (required)
-      description: Tell us what you think should have happened instead. (required)
+      label: Expected behavior
+      description: Tell us what you think should have happened instead.
     validations:
       required: true
 
   - type: input
     attributes:
-      label: Openrouteservice Version (required)
+      label: Openrouteservice Version
       description: Copy this from `metadata.engine.version` of a response. For self-hosted you can also pass a commit hash.
       placeholder: "0.0.0"
     validations:
