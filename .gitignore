@@ -1,42 +1,24 @@
-.metadata/
-
-.recommenders/
-.recommenders/caches/identified-project-coordinates.json
-openrouteservice/Program FilesApache Software FoundationTomcat 7.0webappsopenrouteservice-0.0.1-SNAPSHOTWEB-INFlogsCounter_RS.csv
-.recommenders/caches/manual-mappings.json
-.recommenders/index/http___download_eclipse_org_recommenders_models_neon_/segments.gen
 .idea/
 *.iml
 *.ipr
-*.iws
 .DS_Store
-nohup.out
-.python-version
 
-.project
-
-# Ignore all ors and app config files except for the sample ones
-openrouteservice/WebContent/WEB-INF/app.config*
-!openrouteservice/WebContent/WEB-INF/app.config.sample
-openrouteservice/src/main/resources/app.config*
-!openrouteservice/src/main/resources/app.config.sample
-openrouteservice/WebContent/WEB-INF/ors-config*
-!openrouteservice/WebContent/WEB-INF/ors-config-sample.json
-openrouteservice/src/main/resources/ors-config*
-!openrouteservice/src/main/resources/ors-config-sample.json
-
-# Ignore folders generated from docker
-docker/elevation_cache
-docker/conf
-
-cgiar_provider/
 graphs/
 graphs-*/
 target/
-.python-version
-nohup.out
-build/
 logs/
+elevation-cache/
 cgiar_cache/
+
+# jqwik
+.jqwik-database
+
+# Ignore folders generated from docker
+docker/
+
+# Ignore all ors-config files except for the sample one, useful for development and testing
+ors-api/src/main/resources/ors-config*
+!ors-api/src/main/resources/ors-config-sample.json
+
 envs/
 ors-config-repo/

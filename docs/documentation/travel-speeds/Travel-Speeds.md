@@ -67,7 +67,7 @@ are not used in the calculation_
 
 The speeds used can be found in the [CommonBikeFlagEncoder][cbfe] for the
 default values and regular bike profile, [MountainBikeFlagEncoder][mbfe] for
-the mountain bike profile, [RoadBikeFlagEncoder][ebfe] for the road bike, and
+the mountain bike profile, [RoadBikeFlagEncoder][rbfe] for the road bike, and
 [ElectroBikeFlagEncoder][ebfe] for the electric bike.
 
 Note that each bike profile has a different value set for the maximum
@@ -100,9 +100,9 @@ The wheelchair profile has a base speed of 4km/h which is then modified based
 on a number of parameters. As such, based on the presence of sidewalks and type
 of way, the actual speed can range from 3 to 10km/h
 
-[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
-[cbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/CommonBikeFlagEncoder.java#L179
-[mbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/MountainBikeFlagEncoder.java#L52
-[rbfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/RoadBikeFlagEncoder.java#L91
-[ebfe]: https://github.com/GIScience/openrouteservice/blob/master/openrouteservice/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/ElectroBikeFlagEncoder.java#L41
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/services/routing/speed_limits
+[cbfe]: https://github.com/GIScience/openrouteservice/blob/master/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/CommonBikeFlagEncoder.java#L186
+[mbfe]: https://github.com/GIScience/openrouteservice/blob/master/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/MountainBikeFlagEncoder.java#L52
+[rbfe]: https://github.com/GIScience/openrouteservice/blob/master/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/RoadBikeFlagEncoder.java#L85
+[ebfe]: https://github.com/GIScience/openrouteservice/blob/master/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/ElectroBikeFlagEncoder.java#L41
 [apidocs]: https://openrouteservice.org/dev/#/api-docs/v2/directions/{profile}/post

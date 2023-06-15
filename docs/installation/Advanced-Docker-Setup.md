@@ -27,8 +27,8 @@ The easiest thing to change is the data that you will be using. In the file, you
 #    build:
 #      context: ../
 #      args:
-#        ORS_CONFIG: ./openrouteservice/src/main/resources/ors-config-sample.json
-#        OSM_FILE: ./openrouteservice/src/main/files/heidelberg.osm.gz
+#        ORS_CONFIG: ./ors-api/src/main/resources/ors-config-sample.json
+#        OSM_FILE: ./ors-api/src/main/files/heidelberg.osm.gz
 ```
 This block is what tells docker-compose that rather than using the pre-built image on docker hub (or one you have already built) we want to build the image here. So to start off, lets uncomment out this code by removing the `#` characters at the start of each line in this block. The two values in `args` are used to tell the build process which config file to build with (we will talk about that soon) and which osm dataset to use. One thing that can get a little confusing here is where the files should be placed in relation to the docker-compose file. You will see the `context: ../` entry which is telling docker-compose that the "root" folder of where the Docker file and all resulting paths are is one folder above where the `docker-compose.yml` file is. That means that any path you define in the two `args` items are relative to that root folder. 
 So, lets say you want to use an OSM PBF file for Germany - you could create a folder in the same folder as the Docker file called `data` and put the PBF file in there. Then, inside the docker-compose file, you update the `OSM_FILE` entry to be `OSM_FILE: ./data/germany-latest.osm.pbf`. Now when you run `docker-compose up` this file will be copied into the container and renamed to be `osm_file.pbf` inside the `/ors-core/data` folder, and that is the file that gets used for building the graphs.
