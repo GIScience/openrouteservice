@@ -8,6 +8,7 @@ graphs-*/
 target/
 logs/
 elevation-cache/
+cgiar_cache/
 
 # jqwik
 .jqwik-database
@@ -18,3 +19,6 @@ docker/
 # Ignore all ors-config files except for the sample one, useful for development and testing
 ors-api/src/main/resources/ors-config*
 !ors-api/src/main/resources/ors-config-sample.json
+
+envs/
+ors-config-repo/

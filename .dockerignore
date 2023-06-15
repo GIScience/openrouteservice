@@ -35,4 +35,5 @@ docker/
 docs/
 .github/
 Dockerfile
+envs/
 .jqwik-database

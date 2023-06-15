@@ -94,6 +94,8 @@ public class AppConfig {
 			}
 			LOGGER.info("Loading configuration from " + configFile);
 			config = ConfigFactory.parseFile(configFile);
+			config = overrideFromEnvVariables(config);
+
 		} catch (IOException ioe) {
 			LOGGER.error("ORS can not run without a valid configuration, exiting. Message: " + ioe.getMessage());
 			System.exit(1);
@@ -150,6 +152,34 @@ public class AppConfig {
 			// IGNORE
 		}
 		return null;
+	}
+
+	private Config overrideFromEnvVariables(Config baseConfig) {
+		if (System.getenv("GRAPHS_FOLDER") != null) {
+			LOGGER.info("Environment variable 'GRAPHS_FOLDER' used as graphs folder path");
+			String graphsFolderPath = System.getenv("GRAPHS_FOLDER");
+			Config newConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(graphsFolderPath));
+			baseConfig = newConfig.withFallback(baseConfig);
+		}
+		if (System.getenv("ELEVATION_CACHE_FOLDER") != null) {
+			LOGGER.info("Environment variable 'ELEVATION_CACHE_FOLDER' used as elevation cache folder path");
+			String elevationCacheFolder = System.getenv("ELEVATION_CACHE_FOLDER");
+			Config newConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(elevationCacheFolder));
+			baseConfig = newConfig.withFallback(baseConfig);
+		}
+		if (System.getenv("PBF_FILE_PATH") != null) {
+			LOGGER.info("Environment variable 'PBF_FILE_PATH' used as pbf file path");
+			String pbfPath = System.getenv("PBF_FILE_PATH");
+			Config newConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(pbfPath).concat("]"));
+			baseConfig = newConfig.withFallback(baseConfig);
+		}
+		if (System.getenv("LOGS_FOLDER") != null) {
+			LOGGER.info("Environment variable 'LOGS_FOLDER' used as logs folder path");
+			String logsFolder = System.getenv("LOGS_FOLDER");
+			Config newConfig = ConfigFactory.parseString("ors.logging.location=".concat(logsFolder));
+			baseConfig = newConfig.withFallback(baseConfig);
+		}
+		return baseConfig;
 	}
 
 	public String getRoutingProfileParameter(String profile, String paramName) {
