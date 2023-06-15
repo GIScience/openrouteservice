@@ -12,7 +12,7 @@ The following services are available via a HTTP interface served by Tomcat.
 
 To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/ors-map-client). Or simply [sign up](https://openrouteservice.org/dev/#/signup) for an API key and fire your requests against the API directly.
 
-Please note that openrouteservice uses a forked and edited version of [graphhopper 0.13](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
+Please note that openrouteservice uses a forked and edited version of [graphhopper 4.0](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
 [![ors client accessibility](https://user-images.githubusercontent.com/23240110/30385487-9eac96b8-98a7-11e7-9357-afd4df8fccdf.png)](https://openrouteservice.org/reach)
 
