@@ -25,7 +25,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
   2. Make sure that you have java 17 set as the default Java environment.
   3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
-  5. Copy the `openrouteservice/src/main/resources/ors-config-sample.json` file to
+  5. Copy the `ors-api/src/main/resources/ors-config-sample.json` file to
      the same location but renaming it to `ors-config.json`.
   6. Update the `ors-config.json` file to reflect the various settings, profiles you
      want to have running, and the locations of various files, in particular
@@ -34,11 +34,14 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
      are accessible by the service, for example by using the `sudo chmod -R 777
      [path to folder]` command.
      An explanation of the file format and parameters can be found [here](Configuration)
-  7. From within the `openrouteservice` folder (containing the pom file and the
-     src folder, amongst others) run the command `mvn package`. This will build
+  7. From within the `openrouteservice` root directory run the command `mvn package`. This will build
      the openrouteservice ready for tomcat deployment.
-  8. For running both the unit and api tests, add `-Papitests` as a parameter to `mvn`. Note, that the test graphs won't be rebuilt
-     unless the `openrouteservice/graphs-apitests`-folder is being deleted.
+  8. For running both the unit and api tests, add `-Papitests` as a parameter to `mvn`.
+     ```
+     mvn -Papitests verify
+     ```
+     Note that the test graphs won't be rebuilt
+     unless the `ors-engine/graphs-apitests`-folder has been deleted.
 
 After you have packaged openrouteservice, there are two options for running it.
 One is to run the `mvn spring-boot:run` command which triggers a spring-boot native
@@ -62,7 +65,7 @@ To run the project from within your IDE, you have to:
 
   1. Install Tomcat 8 using `sudo apt-get install tomcat8`.
 
-     Note that it might not be available in the lastest repositories of your distribution anymore.
+     Note that it might not be available in the latest repositories of your distribution anymore.
      In that case, add the following line(s) to your `/etc/apt/sources.list`:
      ```
      debian:  deb http://ftp.de.debian.org/debian/ stretch main
@@ -87,11 +90,11 @@ To run the project from within your IDE, you have to:
      restart Tomcat for these to take effect using `sudo systemctl restart
      tomcat8.service`.
   4. To get openrouteservice up and running, copy the `ors.war` file found in
-     the `openrouteservice/target` folder to the Tomcat webapps folder. For
+     the `ors-api/target` folder to the Tomcat webapps folder. For
      example
 
      ```bash
-     sudo cp ~/openrouteservice/openroutesrvice/target/ors.war /var/lib/tomcat8/webapps/
+     sudo cp ~/openrouteservice/ors-api/target/ors.war /var/lib/tomcat8/webapps/
      ```
 
   5. Tomcat should now automatically detect the new WAR file and deploy the
@@ -105,7 +108,7 @@ To run the project from within your IDE, you have to:
 There are numerous settings within the `ors-config.json` which are highly dependent
 on your individual circumstances, but many of these [are documented](Configuration). As a guide
 however you can look at the `ors-config-sample.json` file in the
-`openrouteservice/src/main/resources` folder. If you run into issues relating
+`ors-api/src/main/resources` folder. If you run into issues relating
 to out of memory or similar, then you will need to adjust java/tomcat settings
 accordingly.
 
@@ -114,43 +117,91 @@ accordingly.
 If you need to make adjustments to our forked and edited [GraphHopper
 repository](https://github.com/GIScience/graphhopper), follow these steps:
 
-1. Clone and checkout `ors_0.13.2`:
+1. Clone and checkout `ors_4.0`:
 
    ```bash
    git clone https://github.com/GIScience/graphhopper.git
    cd graphhopper
-   git checkout ors_0.13.2
+   git checkout ors_4.0
    ```
 
 2. Build the project to create the local snapshot.
 
-3. Change the `openrouteservice/pom.xml`:
+3. Change the `ors-engine/pom.xml`:
 
    ```xml
    <!--
    <dependency>
-   <groupId>com.github.GIScience.graphhopper</groupId>
-   <artifactId>graphhopper-core</artifactId>
-       <version>v0.9.12</version>
+       <groupId>com.github.GIScience.graphhopper</groupId>
+       <artifactId>graphhopper-core</artifactId>
+       <version>v4.5.2</version>
+       <exclusions>
+           <exclusion>
+               <groupId>com.fasterxml.jackson.dataformat</groupId>
+               <artifactId>jackson-dataformat-xml</artifactId>
+           </exclusion>
+       </exclusions>
    </dependency>
-   
+
    <dependency>
    <groupId>com.github.GIScience.graphhopper</groupId>
-   <artifactId>graphhopper-reader-osm</artifactId>
-   <version>v0.9.12</version>
+   <artifactId>graphhopper-reader-gtfs</artifactId>
+   <version>v4.5.2</version>
+   <exclusions>
+       <exclusion>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+           <artifactId>jackson-dataformat-xml</artifactId>
+       </exclusion>
+   </exclusions>
+   </dependency>
+
+   <dependency>
+   <groupId>com.github.GIScience.graphhopper</groupId>
+   <artifactId>graphhopper-web-api</artifactId>
+   <version>v4.5.2</version>
+   <exclusions>
+       <exclusion>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+           <artifactId>jackson-dataformat-xml</artifactId>
+       </exclusion>
+   </exclusions>
    </dependency>
    -->
-   
+
    <dependency>
-       <groupId>com.graphhopper</groupId>
-       <artifactId>graphhopper-core</artifactId>
-       <version>0.13-SNAPSHOT</version>
+   <groupId>com.graphhopper</groupId>
+   <artifactId>graphhopper-core</artifactId>
+   <version>4.0-SNAPSHOT</version>
+   <exclusions>
+       <exclusion>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+           <artifactId>jackson-dataformat-xml</artifactId>
+       </exclusion>
+   </exclusions>
    </dependency>
-   
+
    <dependency>
-       <groupId>com.graphhopper</groupId>
-       <artifactId>graphhopper-reader-osm</artifactId>
-       <version>0.13-SNAPSHOT</version>
+   <groupId>com.graphhopper</groupId>
+   <artifactId>graphhopper-web-api</artifactId>
+   <version>4.0-SNAPSHOT</version>
+   <exclusions>
+       <exclusion>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+           <artifactId>jackson-dataformat-xml</artifactId>
+       </exclusion>
+   </exclusions>
+   </dependency>
+
+   <dependency>
+   <groupId>com.graphhopper</groupId>
+   <artifactId>graphhopper-reader-gtfs</artifactId>
+   <version>4.0-SNAPSHOT</version>
+   <exclusions>
+       <exclusion>
+           <groupId>com.fasterxml.jackson.dataformat</groupId>
+           <artifactId>jackson-dataformat-xml</artifactId>
+       </exclusion>
+   </exclusions>
    </dependency>
    ```
 
@@ -161,10 +212,10 @@ repository](https://github.com/GIScience/graphhopper), follow these steps:
 5. If successful, create a PR for both
    [openrouteservice](https://github.com/GIScience/openrouteservice/pulls) and
    [GraphHopper](https://github.com/GIScience/graphhopper/pulls) against `master`
-   and `ors_0.13.2` branches, respectively.
+   and `ors_4.0` branches, respectively.
 
-**Note that in these examples, the 0.13_2 version of GH is used - you should
-update which you use accordingly. To know which to use, check the
-[openrouteservice pom file](https://github.com/GIScience/openrouteservice/pom.xml) 
+**Note that in the above example, the 4.x version of GH is being used - you should
+adapt according to your specific version. To know which one to use, check the
+[ors-engine module pom file](https://github.com/GIScience/openrouteservice/ors-engine/pom.xml)
 and see what version is being used for the `com.github.GIScience.graphhopper`
 dependencies**

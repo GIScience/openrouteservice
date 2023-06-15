@@ -37,14 +37,14 @@ USER root
 ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-ARG ORS_CONFIG=openrouteservice/src/main/resources/ors-config-sample.json
+ARG ORS_CONFIG=ors-api/src/main/resources/ors-config-sample.json
 
 WORKDIR /ors-core
 
-COPY openrouteservice/src /ors-core/openrouteservice/src
-COPY openrouteservice/WebContent /ors-core/openrouteservice/WebContent
-COPY openrouteservice/pom.xml /ors-core/openrouteservice/pom.xml
-COPY $ORS_CONFIG /ors-core/openrouteservice/src/main/resources/ors-config-sample.json
+COPY ors-api /ors-core/ors-api
+COPY ors-engine /ors-core/ors-engine
+COPY pom.xml /ors-core/pom.xml
+COPY $ORS_CONFIG /ors-core/ors-api/src/main/resources/ors-config.json
 
 # Configure ors config:
 # Fist set pipefail to -c to allow intermediate pipes to throw errors
@@ -52,15 +52,14 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # - Replace paths in ors-config.json to match docker setup
 # - init_threads = 1, > 1 been reported some issues
 # - Delete all profiles but car
-RUN cp /ors-core/openrouteservice/src/main/resources/ors-config-sample.json /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.sources[0] = "/home/ors/ors-core/data/osm_file.pbf"' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq '.ors.logging.location = "/home/ors/ors-core/logs/ors"' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "/home/ors/ors-core/data/elevation_cache"' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.profiles.default_params.graphs_root_path = "/home/ors/ors-core/data/graphs"' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.init_threads = 1' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json && \
-    jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' /ors-core/openrouteservice/src/main/resources/ors-config.json |sponge /ors-core/openrouteservice/src/main/resources/ors-config.json
+RUN jq '.ors.services.routing.sources[0] = "/home/ors/ors-core/data/osm_file.pbf"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.logging.location = "/home/ors/ors-core/logs/ors"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "/home/ors/ors-core/data/elevation_cache"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.profiles.default_params.graphs_root_path = "/home/ors/ors-core/data/graphs"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq '.ors.services.routing.init_threads = 1' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
+    jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json
 
-RUN mvn -f /ors-core/openrouteservice/pom.xml package -DskipTests
+RUN mvn package -DskipTests
 
 # build final image, just copying stuff inside
 FROM amazoncorretto:17.0.7-alpine3.17 as publish
@@ -68,7 +67,7 @@ FROM amazoncorretto:17.0.7-alpine3.17 as publish
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
-ARG OSM_FILE=./openrouteservice/src/main/files/heidelberg.osm.gz
+ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
 ARG BASE_FOLDER=/home/ors
 
 # Runtime ENVs for tomcat
@@ -89,10 +88,10 @@ RUN apk add --no-cache bash=~'5' openssl=~'3' && \
 WORKDIR ${BASE_FOLDER}
 
 # Copy over the needed bits and pieces from the other stages.
-COPY --chown=ors:ors --from=build /ors-core/openrouteservice/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
-COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/ors-config.json ${BASE_FOLDER}/ors-core/ors-config.json
+COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/ors-config.json ${BASE_FOLDER}/ors-core/ors-config.json
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
-COPY --chown=ors:ors --from=build /ors-core/openrouteservice/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
 COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/ors-core/data/osm_file.pbf
 

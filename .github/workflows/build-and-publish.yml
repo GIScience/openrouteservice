@@ -119,10 +119,10 @@ jobs:
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
-          # Adjust the config file and set ORIGIN to https://example.org
-          sudo sh -c 'jq ".ors.api_settings.cors.allowed.origins[0] = \"https://example.org\"" ./conf/ors-config.json | sponge ./conf/ors-config.json'
           # Restart the container to apply the config changes
-          docker restart ors-instance
+          docker stop ors-instance
+          docker container prune -f 
+          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf -e CORS_ALLOWED_ORIGINS=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
           # It should fail with http code 403 for https://example.com since the Origin is not covered.

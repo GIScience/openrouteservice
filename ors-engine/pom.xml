@@ -1,0 +1,291 @@
+<!--
+  ~ /*
+  ~  *
+  ~  *  *  Licensed to GIScience Research Group, Heidelberg University (GIScience)
+  ~  *  *
+  ~  *  *   http://www.giscience.uni-hd.de
+  ~  *  *   http://www.heigit.org
+  ~  *  *
+  ~  *  *  under one or more contributor license agreements. See the NOTICE file
+  ~  *  *  distributed with this work for additional information regarding copyright
+  ~  *  *  ownership. The GIScience licenses this file to you under the Apache License,
+  ~  *  *  Version 2.0 (the "License"); you may not use this file except in compliance
+  ~  *  *  with the License. You may obtain a copy of the License at
+  ~  *  *
+  ~  *  *       http://www.apache.org/licenses/LICENSE-2.0
+  ~  *  *
+  ~  *  *  Unless required by applicable law or agreed to in writing, software
+  ~  *  *  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  *  *  See the License for the specific language governing permissions and
+  ~  *  *  limitations under the License.
+  ~  *
+  ~  */
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <relativePath>../pom.xml</relativePath>
+        <artifactId>openrouteservice</artifactId>
+        <groupId>org.heigit.ors</groupId>
+        <version>8.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>ors-engine</artifactId>
+    <name>ors-engine</name>
+
+    <build>
+        <finalName>ors</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>resources/locales/*.resources</include>
+                    <include>resources/services/routing/speed_limits/*.*</include>
+                    <include>META-INF/services/*.*</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-metadata</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-swing</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.tongfei</groupId>
+            <artifactId>progressbar</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+            <version>v4.8.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
+            <version>v4.8.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-map-matching</artifactId>
+            <version>v4.8.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- remove the comment to enable debugging
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+            <version>4.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
+            <version>4.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.graphhopper</groupId>
+            <artifactId>graphhopper-map-matching</artifactId>
+            <version>4.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- used for APIEnum annotations -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    </dependencies>
+</project>
