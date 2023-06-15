@@ -1,0 +1,53 @@
+name: Other issue (Simple)
+description: Did you encounter technical problems with the build system or something else not covered by other options?
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to submit an issue!
+        **For *bug reports*, *feature requests* and *documentation issues* please switch to the correct template!**
+
+        Want to ask a question instead? Please don't open an issue!
+        Head to https://ask.openrouteservice.org
+
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this? (required)
+      description: Please search to see if an issue already exists for the problem you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Problem description (required)
+      description: Clear and concise description of what you are doing and what has happened that doesn't seem right. (required)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed solution (required)
+      description: Clear and concise description of what you think should have happened instead. (required)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional context
+      placeholder: |
+        In case of a problem with setting up openrouteservice, please provide:
+        - ors version or commit-hash or docker-image-id
+        - ors-config
+        - information on your setup instructions (commands used for building via source/docker)
+      description: |
+        Add any further context or screenshots about the problem that might help solve it.
+        Providing context helps us come up with a solution faster.
+
+  - type: input
+    id: forum-link
+    attributes:
+      label: Forum Topic Link
+      placeholder: https://giscience.github.io/openrouteservice/...
+      description: If you were referred here from our forum, please provide a link to the topic as cross-reference.

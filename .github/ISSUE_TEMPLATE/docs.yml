@@ -1,0 +1,46 @@
+name: Documentation
+description: Are the docs or the API Playground lacking or missing something?
+labels: ["documentation :book:"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > Note: This regards the [GitHub Pages Documentation](https://giscience.github.io/openrouteservice/) or the [API Playground](https://openrouteservice.org/dev/#/api-docs).
+
+        Want to ask a question instead? Please don't open an issue!
+        Head to https://ask.openrouteservice.org
+  - type: input
+    attributes:
+      label: Page Link
+      placeholder: https://giscience.github.io/openrouteservice/...
+      description: Please provide a link to the live documentation page with the issue.
+
+  - type: dropdown
+    attributes:
+      label: "Documentation is ... (required)"
+      description: Select the problem category.
+      options:
+        - Missing/Needed
+        - Confusing
+        - Incorrect
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Please Explain in Detail: (required)"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "Your Proposal for Changes: (required)"
+    validations:
+      required: true
+
+  - type: input
+    id: forum-link
+    attributes:
+      label: Forum Topic Link
+      placeholder: https://giscience.github.io/openrouteservice/...
+      description: If you were referred here from our forum, please provide a link to the topic as cross-reference.

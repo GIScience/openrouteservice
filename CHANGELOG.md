@@ -48,6 +48,7 @@ RELEASING:
 
 ## [7.1.0] - 2023-06-13
 ### Added
+- issue templates & config using issue forms for different categories ([#1456](https://github.com/GIScience/openrouteservice/issues/1456))
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
 - GTFS support for routing  ([#1316](https://github.com/GIScience/openrouteservice/pull/1316))
 - upgrade to spring-boot 2.7.9 and dependency alignment for the api-tests [#1310](https://github.com/GIScience/openrouteservice/pull/1310)

@@ -1,0 +1,117 @@
+name: API Issue
+description: Something doesn't work as intended or not at all in an API request
+labels: ["bug :bug:", "api"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        Want to ask a question instead? Please don't open an issue!
+        Head to https://ask.openrouteservice.org
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this? (required)
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did you encounter this issue? (required)
+      description: Choose 'live API' or 'self-hosted instance'
+      multiple: true
+      options:
+        - live API
+        - self-hosted instance
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        > For issues on a **self-hosted** openrouteservice instance,
+        > please append the following information in a **comment** after submission:
+        > - architecture and version information
+        > - used ors-config.json (in triple backticks for code-block format)
+        > - relevant log outputs
+
+  - type: input
+    attributes:
+      label: Request URL (required)
+      description: Please paste the request URL.
+      placeholder: "https://api.openrouteservice.org/v2/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: request-body
+    attributes:
+      label: POST Request Body
+      description: Please paste the request body if you use POST . (Automatically formatted, no need for backticks)
+      render: JSON
+    validations:
+      required: true
+
+  - type: textarea
+    id: response
+    attributes:
+      label: Response (required)
+      description: Please paste the response. (Automatically formatted, no need for backticks)
+      value: |
+        <details><summary>Response</summary>
+        
+        ```JSON
+
+        PASTE HERE
+
+        ```
+        </details>
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Current behavior (required)
+      description: |
+        Describe in detail what you are doing and what has happened that doesn't seem right. (required)
+        Providing any further context or screenshots about the problem helps us come up with a solution faster.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected behavior (required)
+      description: Tell us what you think should have happened instead. (required)
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Openrouteservice Version (required)
+      description: Copy this from `metadata.engine.version` of a response. For self-hosted you can also pass a commit hash.
+      placeholder: "0.0.0"
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Build date
+      description: Copy this from `metadata.engine.build_date` of a response.
+      placeholder: "YYYY-MM-DDTHH:MM:SSZ"
+
+  - type: input
+    attributes:
+      label: Graph date
+      description: Copy this from `metadata.engine.graph_date` of a response.
+      placeholder: "YYYY-MM-DDTHH:MM:SSZ"
+
+  - type: input
+    id: forum-link
+    attributes:
+      label: Forum Topic Link
+      placeholder: https://giscience.github.io/openrouteservice/...
+      description: If you were referred here from our forum, please provide a link to the topic as cross-reference.

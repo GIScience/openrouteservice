@@ -1,0 +1,50 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+labels: [ "enhancement | feature :zap:" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please consider whether your changes are useful for all users, or if this is specific to your use case.
+
+        Want to ask a question instead? Please don't open an issue!
+        Head to https://ask.openrouteservice.org
+
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this? (required)
+      description: Please search to see if an issue already exists for the feature you are requesting.
+      options:
+        - label: I have searched the existing issues
+          required: true
+
+  - type: textarea
+    id: feature-proposal
+    attributes:
+      label: Feature/Enhancement Proposal (required)
+      description: |
+        A clear and concise description of what can be improved or what you want to happen.
+        Providing context helps us come up with a solution that is most useful.
+      placeholder: |
+        It would be really nice if [...]
+        I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here.
+
+  - type: textarea
+    id: possible-implementation
+    attributes:
+      label: Possible Implementation
+      description: Suggest ideas for how to implement the enhancement
+
+  - type: input
+    id: forum-topic-link
+    attributes:
+      label: Forum Topic Link
+      placeholder: https://giscience.github.io/openrouteservice/...
+      description: If you were referred here from our forum, please provide a link to the topic as cross-reference.
