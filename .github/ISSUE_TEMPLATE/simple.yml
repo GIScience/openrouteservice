@@ -13,7 +13,7 @@ body:
 
   - type: checkboxes
     attributes:
-      label: Is there an existing issue for this? (required)
+      label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the problem you encountered.
       options:
         - label: I have searched the existing issues
@@ -21,15 +21,15 @@ body:
 
   - type: textarea
     attributes:
-      label: Problem description (required)
-      description: Clear and concise description of what you are doing and what has happened that doesn't seem right. (required)
+      label: Problem description
+      description: Clear and concise description of what you are doing and what has happened that doesn't seem right.
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: Proposed solution (required)
-      description: Clear and concise description of what you think should have happened instead. (required)
+      label: Proposed solution
+      description: Clear and concise description of what you think should have happened instead.
     validations:
       required: true
 

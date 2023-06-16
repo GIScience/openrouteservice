@@ -1,0 +1,39 @@
+name: Vulnerability Report
+description: Did you find a security issue that affects our software?
+labels: ["security :rotating_light:"]
+title: "CVE-...|GHSA-...|.."
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > Note: Please put the Vulnerability ID in the issue title and only create one issue per vulnerability!
+  - type: dropdown
+    attributes:
+      label: "Scope"
+      description: Select the scope of the vulnerability
+      multiple: true
+      options:
+        - pom.xml
+        - Dockerfile
+        - Other
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Report Link
+      placeholder: https://github.com/advisories/GHSA-4wrc-f8pq-fpqp
+      description: Please provide a Link to official vulnerability report
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Dependency affected"
+      description: Which dependency is affected by this vulnerability
+      placeholder: e.g. Spring-Framework
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Proposed solution / further info"
+      description: Which solution do you propose? Room for further information
+      placeholder: Dependency x should be updated to version x.x.x
