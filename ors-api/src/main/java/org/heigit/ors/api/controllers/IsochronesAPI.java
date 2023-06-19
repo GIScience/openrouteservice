@@ -37,7 +37,6 @@ import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.routing.APIEnums;
-import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -89,15 +88,16 @@ public class IsochronesAPI {
 
     // Functional request methods
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
-    @RouterOperation(operation = @Operation(description = """
+    @Operation(
+            description = """
             The Isochrone Service supports time and distance analyses for one single or multiple locations.
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.
-            "This service allows the same range of profile options as the /directions endpoint,
-            "which help you to further customize your request to obtain a more detailed reachability area response.""", summary = "Isochrones Service"),
-            method = RequestMethod.POST,
-            consumes = "application/geo+json",
-            produces = "application/geo+json")
-    @ApiResponse(responseCode = "200",
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.""",
+            summary = "Isochrones Service"
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
@@ -111,15 +111,17 @@ public class IsochronesAPI {
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    @RouterOperation(operation = @Operation(description = """
+    @Operation(
+            description = """
             The Isochrone Service supports time and distance analyses for one single or multiple locations.
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.
-            "This service allows the same range of profile options as the /directions endpoint,
-            "which help you to further customize your request to obtain a more detailed reachability area response.""", summary = "Isochrones Service", hidden = true),
-            method = RequestMethod.POST,
-            consumes = "application/geo+json",
-            produces = "application/geo+json")
-    @ApiResponse(responseCode = "200",
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.""",
+            summary = "Isochrones Service",
+            hidden = true
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
