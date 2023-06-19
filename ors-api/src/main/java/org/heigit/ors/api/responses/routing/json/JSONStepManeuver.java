@@ -17,26 +17,25 @@ package org.heigit.ors.api.responses.routing.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Coordinate;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteStepManeuver;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
 
-@ApiModel(description = "Maneuver object of the step")
+@Schema(description = "Maneuver object of the step")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStepManeuver {
     private static final int COORDINATE_PRECISION = 6;
     private static final int ELEVATION_DECIMAL_PLACES = 2;
 
 
-    @ApiModelProperty(value = "The coordinate of the point where a maneuver takes place.", example = "[8.678962,49.407819]")
+    @Schema(description = "The coordinate of the point where a maneuver takes place.", example = "[8.678962,49.407819]")
     @JsonProperty("location")
     private Double[] location;
-    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right before the maneuver.", example = "24")
+    @Schema(description = "The azimuth angle (in degrees) of the direction right before the maneuver.", example = "24")
     @JsonProperty("bearing_before")
     private final Integer bearingBefore;
-    @ApiModelProperty(value = "The azimuth angle (in degrees) of the direction right after the maneuver.", example = "96")
+    @Schema(description = "The azimuth angle (in degrees) of the direction right after the maneuver.", example = "96")
     @JsonProperty("bearing_after")
     private final Integer bearingAfter;
 

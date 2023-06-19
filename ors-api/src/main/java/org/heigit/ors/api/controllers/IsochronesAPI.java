@@ -20,7 +20,13 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
@@ -28,6 +34,7 @@ import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -38,69 +45,80 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Isochrones Service", tags = "Isochrones")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Isochrones", description = "Obtain areas of reachability from given locations")
-})
+@Tag(name = "Isochrones Service", description = "Obtain areas of reachability from given locations")
 @RequestMapping("/v2/isochrones")
-@ApiResponses({
-        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
-        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
-        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
-        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
-        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
-        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
-        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
-})
+@ApiResponse(responseCode = "400", description = "The request is incorrect and therefore can not be processed.")
+@ApiResponse(responseCode = "404", description = "An element could not be found. If possible, a more detailed error code is provided.")
+@ApiResponse(responseCode = "405", description = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation.")
+@ApiResponse(responseCode = "413", description = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit.")
+@ApiResponse(responseCode = "500", description = "An unexpected error was encountered and a more detailed error code is provided.")
+@ApiResponse(responseCode = "501", description = "Indicates that the server does not support the functionality needed to fulfill the request.")
+@ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class IsochronesAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getGetMapping() throws MissingParameterException {
         throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     @PostMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public String getPostMapping(@RequestBody IsochronesRequest request) throws MissingParameterException {
         throw new MissingParameterException(IsochronesErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, IsochronesErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
     // Functional request methods
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "Isochrones Service", notes = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.\n" +
-            "This service allows the same range of profile options as the /directions endpoint,\n" +
-            "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
-    })
+    @RouterOperation(operation = @Operation(description = """
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            "You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            "This service allows the same range of profile options as the /directions endpoint,
+            "which help you to further customize your request to obtain a more detailed reachability area response.""", summary = "Isochrones Service"),
+            method = RequestMethod.POST,
+            consumes = "application/geo+json",
+            produces = "application/geo+json")
+    @ApiResponse(responseCode = "200",
+            description = "Standard response for successfully processed requests. Returns GeoJSON.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONIsochronesResponse.class))
+            )
+            })
     public GeoJSONIsochronesResponse getDefaultIsochrones(
-            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         return getGeoJsonIsochrones(profile, request);
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    @ApiOperation(value = "The Isochrone Service supports time and distance analyses for one single or multiple locations.\n" +
-            "You may also specify the isochrone interval or provide multiple exact isochrone range values.\n" +
-            "This service allows the same range of profile options as the /directions endpoint,\n" +
-            "which help you to further customize your request to obtain a more detailed reachability area response.", httpMethod = "POST", consumes = "application/geo+json", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Standard response for successfully processed requests. Returns GeoJSON.", response = GeoJSONIsochronesResponse.class)
-    })
+    @RouterOperation(operation = @Operation(description ="""
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            "You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            "This service allows the same range of profile options as the /directions endpoint,
+            "which help you to further customize your request to obtain a more detailed reachability area response.""", summary = "Isochrones Service", hidden = true),
+            method = RequestMethod.POST,
+            consumes = "application/geo+json",
+            produces = "application/geo+json")
+    @ApiResponse(responseCode = "200",
+            description = "Standard response for successfully processed requests. Returns GeoJSON.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONIsochronesResponse.class))
+            )
+            })
     public GeoJSONIsochronesResponse getGeoJsonIsochrones(
-            @ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 

@@ -2,21 +2,21 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Coordinate;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Map;
 
 public class JsonNode {
     protected static final int COORDINATE_DECIMAL_PLACES = 6;
 
-    @ApiModelProperty(value = "Id of the corresponding node in the graph", example = "1")
+    @Schema(description = "Id of the corresponding node in the graph", example = "1")
     @JsonProperty(value = "nodeId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     protected Integer nodeId;
 
-    @ApiModelProperty(value = "{longitude},{latitude} coordinates of the closest accessible point on the routing graph",
+    @Schema(description = "{longitude},{latitude} coordinates of the closest accessible point on the routing graph",
             example = "[8.678962, 49.40783]")
     @JsonProperty(value = "location")
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)

@@ -16,8 +16,9 @@
 package org.heigit.ors.api.requests.routing;
 
 import com.fasterxml.jackson.annotation.*;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -35,97 +36,101 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-@ApiModel(value = "Directions Service", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
+@Schema(title = "Directions Service", name = "directionsService", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequest extends APIRequest implements RouteRequestParameterNames {
 
-    @ApiModelProperty(name = PARAM_COORDINATES, value = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
+    @Schema(name= PARAM_COORDINATES, description = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",
-            required = true)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_COORDINATES)
     private List<List<Double>> coordinates;
 
     //TODO (GTFS): We might need to make a bunch of these parameters only valid if profile pt is selected.
 
-    @ApiModelProperty(name = PARAM_PREFERENCE,
-            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
-            example = "recommended")
+    @Schema(name= PARAM_PREFERENCE,
+            description = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
+            defaultValue = "recommended")
     @JsonProperty(value = PARAM_PREFERENCE)
     private APIEnums.RoutePreference routePreference;
     @JsonIgnore
     private boolean hasRoutePreference = false;
 
-    @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
+    @Schema(name= PARAM_FORMAT, hidden = true)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.JSON;
 
-    @ApiModelProperty(name = PARAM_UNITS,
-            value = "Specifies the distance unit. CUSTOM_KEYS:{'apiDefault':'m'}",
-            example = "m")
+    @Schema(name= PARAM_UNITS,
+            description = "Specifies the distance unit. CUSTOM_KEYS:{'apiDefault':'m'}",
+            defaultValue = "m")
     @JsonProperty(value = PARAM_UNITS)
     private APIEnums.Units units;
     @JsonIgnore
     private boolean hasUnits = false;
 
-    @ApiModelProperty(name = PARAM_LANGUAGE,
-            value = "Language for the route instructions. CUSTOM_KEYS:{'apiDefault':'en'}",
-            example = "en")
+    @Schema(name= PARAM_LANGUAGE,
+            description = "Language for the route instructions. CUSTOM_KEYS:{'apiDefault':'en'}",
+            defaultValue = "en")
     @JsonProperty(value = PARAM_LANGUAGE)
     private APIEnums.Languages language;
     @JsonIgnore
     private boolean hasLanguage = false;
 
-    @ApiModelProperty(name = PARAM_GEOMETRY,
-            value = "Specifies whether to return geometry. " +
+    @Schema(name= PARAM_GEOMETRY,
+            description = "Specifies whether to return geometry. " +
                     "CUSTOM_KEYS:{'apiDefault':true, 'validWhen':{'ref':'format','value':['json']}}",
-                    example = "true")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "format"),
+                    @ExtensionProperty(name = "value", value = "[\"json\"]", parseValue = true)}
+            )},
+            defaultValue = "true")
     @JsonProperty(value = PARAM_GEOMETRY)
     private boolean includeGeometry;
     @JsonIgnore
     private boolean hasIncludeGeometry = false;
 
-    @ApiModelProperty(name = PARAM_INSTRUCTIONS,
-            value = "Specifies whether to return instructions. CUSTOM_KEYS:{'apiDefault':true}",
-            example = "true")
+    @Schema(name= PARAM_INSTRUCTIONS,
+            description = "Specifies whether to return instructions. CUSTOM_KEYS:{'apiDefault':true}",
+            defaultValue = "true")
     @JsonProperty(value = PARAM_INSTRUCTIONS)
     private boolean includeInstructionsInResponse;
     @JsonIgnore
     private boolean hasIncludeInstructions = false;
 
-    @ApiModelProperty(name = PARAM_INSTRUCTIONS_FORMAT,
-            value = "Select html for more verbose instructions. CUSTOM_KEYS:{'apiDefault':'text'}",
-            example = "text")
+    @Schema(name= PARAM_INSTRUCTIONS_FORMAT,
+            description = "Select html for more verbose instructions. CUSTOM_KEYS:{'apiDefault':'text'}",
+            defaultValue = "text")
     @JsonProperty(value = PARAM_INSTRUCTIONS_FORMAT)
     private APIEnums.InstructionsFormat instructionsFormat;
     @JsonIgnore
     private boolean hasInstructionsFormat = false;
 
-    @ApiModelProperty(name = PARAM_ROUNDABOUT_EXITS,
-            value = "Provides bearings of the entrance and all passed roundabout exits. Adds the `exit_bearings` array to the step object in the response. " +
+    @Schema(name= PARAM_ROUNDABOUT_EXITS,
+            description = "Provides bearings of the entrance and all passed roundabout exits. Adds the `exit_bearings` array to the step object in the response. " +
                     "CUSTOM_KEYS:{'apiDefault':false}",
-            example = "false")
+            defaultValue = "false")
     @JsonProperty(value = PARAM_ROUNDABOUT_EXITS)
     private boolean includeRoundaboutExitInfo;
     @JsonIgnore
     private boolean hasIncludeRoundaboutExitInfo = false;
 
-    @ApiModelProperty(name = PARAM_ATTRIBUTES,
-            value = "List of route attributes",
+    @Schema(name= PARAM_ATTRIBUTES,
+            description = "List of route attributes",
             example = "[\"avgspeed\",\"percentage\"]")
     @JsonProperty(PARAM_ATTRIBUTES)
     private APIEnums.Attributes[] attributes;
     @JsonIgnore
     private boolean hasAttributes = false;
 
-    @ApiModelProperty(name = PARAM_MANEUVERS, value = "Specifies whether the maneuver object is included into the step object or not. " +
+    @Schema(name= PARAM_MANEUVERS, description = "Specifies whether the maneuver object is included into the step object or not. " +
             "CUSTOM_KEYS:{'apiDefault':false}",
-            example = "false")
+            defaultValue = "false")
     @JsonProperty(value = PARAM_MANEUVERS)
     private boolean includeManeuvers;
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
-    @ApiModelProperty(name = PARAM_RADII, value = "A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
+    @Schema(name= PARAM_RADII, description = "A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
             "The values must be greater than 0, the value of -1 specifies using the maximum possible search radius. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.",
             example = "[200, -1, 30]")
     @JsonProperty(PARAM_RADII)
@@ -134,78 +139,83 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasMaximumSearchRadii = false;
 
-    @ApiModelProperty(name = PARAM_BEARINGS, value = "Specifies a list of pairs (bearings and deviations) to filter the segments of the road network a waypoint can snap to. " +
-            "For example `bearings=[[45,10],[120,20]]`. \n" +
-            "Each pair is a comma-separated list that can consist of one or two float values, where the first value is the bearing and the second one is the allowed deviation from the bearing. " +
-            "The bearing can take values between `0` and `360` clockwise from true north. If the deviation is not set, then the default value of `100` degrees is used. " +
-            "The number of pairs must correspond to the number of waypoints.\n" +
-            "The number of bearings corresponds to the length of waypoints-1 or waypoints. If the bearing information for the last waypoint is given, then this will control the sector from which the destination waypoint may be reached. " +
-            "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. `[30,20],[],[40,20]`. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':'cycling-*'}}",
-            example = "[[30, 20], [], [40, 20]]"
+    @Schema(name= PARAM_BEARINGS, description = """
+            Specifies a list of pairs (bearings and deviations) to filter the segments of the road network a waypoint can snap to.
+            "For example `bearings=[[45,10],[120,20]]`.
+            "Each pair is a comma-separated list that can consist of one or two float values, where the first value is the bearing and the second one is the allowed deviation from the bearing.
+            "The bearing can take values between `0` and `360` clockwise from true north. If the deviation is not set, then the default value of `100` degrees is used.
+            "The number of pairs must correspond to the number of waypoints.
+            "The number of bearings corresponds to the length of waypoints-1 or waypoints. If the bearing information for the last waypoint is given, then this will control the sector from which the destination waypoint may be reached.
+            "You can skip a bearing for a certain waypoint by passing an empty value for an array, e.g. `[30,20],[],[40,20]`. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':'cycling-*'}}""",
+            example = "[[30, 20], [], [40, 20]]",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "cycling-*")}
+            )}
     )
     @JsonProperty(PARAM_BEARINGS)
     private Double[][] bearings;
     @JsonIgnore
     private boolean hasBearings = false;
 
-    @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
-            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster." +
+    @Schema(name= PARAM_CONTINUE_STRAIGHT,
+            description = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster." +
             "CUSTOM_KEYS:{'apiDefault':'false'}",
-            example = "false")
+            defaultValue = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
     private boolean continueStraightAtWaypoints;
     @JsonIgnore
     private boolean hasContinueStraightAtWaypoints = false;
 
-    @ApiModelProperty(name = PARAM_ELEVATION,
-            value = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.",
+    @Schema(name= PARAM_ELEVATION,
+            description = "Specifies whether to return elevation values for points. Please note that elevation also gets encoded for json response encoded polyline.",
             example = "false")
     @JsonProperty(value = PARAM_ELEVATION)
     private boolean useElevation;
     @JsonIgnore
     private boolean hasUseElevation = false;
 
-    @ApiModelProperty(name = PARAM_EXTRA_INFO,
-            value = "The extra info items to include in the response",
+    @Schema(name= PARAM_EXTRA_INFO,
+            description = "The extra info items to include in the response",
             example = "[\"waytype\",\"surface\"]")
     @JsonProperty(PARAM_EXTRA_INFO)
     private APIEnums.ExtraInfo[] extraInfo;
     @JsonIgnore
     private boolean hasExtraInfo = false;
 
-    @ApiModelProperty(name = PARAM_OPTIMIZED, value = "Uses contraction hierarchies if available (false). " +
-            "CUSTOM_KEYS:{'apiDefault':true}", hidden = true)
+    @Schema(name= PARAM_OPTIMIZED, description = "Uses contraction hierarchies if available (false). " +
+            "CUSTOM_KEYS:{'apiDefault':true}", defaultValue = "true", hidden = true)
     @JsonProperty(value = PARAM_OPTIMIZED)
     private boolean useContractionHierarchies;
     @JsonIgnore
     private boolean hasUseContractionHierarchies = false;
 
-    @ApiModelProperty(name = PARAM_OPTIONS,
-            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+    @Schema(name= PARAM_OPTIONS,
+            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
             example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;
     @JsonIgnore
     private boolean hasRouteOptions = false;
 
-    @ApiModelProperty(name = PARAM_SUPPRESS_WARNINGS,
-            value = "Suppress warning messages in the response",
+    @Schema(name= PARAM_SUPPRESS_WARNINGS,
+            description = "Suppress warning messages in the response",
             example = "false")
     @JsonProperty(PARAM_SUPPRESS_WARNINGS)
     private boolean suppressWarnings;
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
-    @ApiModelProperty(name = PARAM_SIMPLIFY_GEOMETRY, value = "Specifies whether to simplify the geometry. " +
+    @Schema(name= PARAM_SIMPLIFY_GEOMETRY, description = "Specifies whether to simplify the geometry. " +
             "Simplify geometry cannot be applied to routes with more than **one segment** and when `extra_info` is required." +
             "CUSTOM_KEYS:{'apiDefault':false}",
-            example = "false")
+            defaultValue = "false")
     @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
     private boolean simplifyGeometry;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 
-    @ApiModelProperty(name = PARAM_SKIP_SEGMENTS, value = "Specifies the segments that should be skipped in the route calculation. " +
+    @Schema(name= PARAM_SKIP_SEGMENTS, description = "Specifies the segments that should be skipped in the route calculation. " +
             "A segment is the connection between two given coordinates and the counting starts with 1 for the connection between the first and second coordinate.",
             example = "[2,4]")
     @JsonProperty(PARAM_SKIP_SEGMENTS)
@@ -213,32 +223,44 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasSkipSegments = false;
 
-    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES,
-            value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.",
+    @Schema(name= PARAM_ALTERNATIVE_ROUTES,
+            description = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.",
             example = "{\"target_count\":2,\"weight_factor\":1.6}")
     @JsonProperty(PARAM_ALTERNATIVE_ROUTES)
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
 
-    @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
+    @Schema(name= PARAM_DEPARTURE, description = "Departure date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "format"),
+                    @ExtensionProperty(name = "valueNot", value = "[\"*\"]", parseValue = true)}
+            )},
             example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_DEPARTURE)
     private LocalDateTime departure;
     @JsonIgnore
     private boolean hasDeparture = false;
 
-    @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
+    @Schema(name= PARAM_ARRIVAL, description = "Arrival date and time provided in local time zone" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "format"),
+                    @ExtensionProperty(name = "valueNot", value = "[\"*\"]", parseValue = true)}
+            )},
             example = "2020-01-31T13:15:00", hidden = true)
     @JsonProperty(PARAM_ARRIVAL)
     private LocalDateTime arrival;
     @JsonIgnore
     private boolean hasArrival = false;
 
-    @ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+    @Schema(name= PARAM_MAXIMUM_SPEED, description = "The maximum speed specified by user." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-*")}
+            )},
             example = "90")
     @JsonProperty(PARAM_MAXIMUM_SPEED)
     private double maximumSpeed;
@@ -249,40 +271,60 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
      * The following parameters are specific to public transport.
      * Other parameters public-transport accepts are coordinates and language.
      */
-    @ApiModelProperty(name = PARAM_SCHEDULE, value = "If true, return a public transport schedule starting at <departure> for the next <schedule_duration> minutes." +
+    @Schema(name= PARAM_SCHEDULE, description = "If true, return a public transport schedule starting at <departure> for the next <schedule_duration> minutes." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': false}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "public-transport")}
+            )},
             example = "true")
     @JsonProperty(PARAM_SCHEDULE)
     private boolean schedule;
     @JsonIgnore
     private boolean hasSchedule = false;
 
-    @ApiModelProperty(name = PARAM_SCHEDULE_DURATION, value = "The time window when requesting a public transport schedule." +
+    @Schema(name= PARAM_SCHEDULE_DURATION, description = "The time window when requesting a public transport schedule." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "schedule"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )},
             example = "PT30M")
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
     private boolean hasScheduleDuration = false;
 
-    @ApiModelProperty(name = PARAM_SCHEDULE_ROWS, value = "The maximum amount of entries that should be returned when requesting a schedule." +
+    @Schema(name= PARAM_SCHEDULE_ROWS, description = "The maximum amount of entries that should be returned when requesting a schedule." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'schedule','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "schedule"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )},
             example = "3")
     @JsonProperty(PARAM_SCHEDULE_ROWS)
     private int scheduleRows;
     @JsonIgnore
     private boolean hasScheduleRows = false;
 
-    @ApiModelProperty(name = PARAM_WALKING_TIME, value = "Maximum duration for walking access and egress of public transport." +
+    @Schema(name= PARAM_WALKING_TIME, description = "Maximum duration for walking access and egress of public transport." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': 'PT15M'}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "public-transport")}
+            )},
             example = "PT30M")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
     @JsonIgnore
     private boolean hasWalkingTime = false;
 
-    @ApiModelProperty(name = PARAM_IGNORE_TRANSFERS, value = "Specifies if transfers as criterion should be ignored." +
+    @Schema(name= PARAM_IGNORE_TRANSFERS, description = "Specifies if transfers as criterion should be ignored." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['public-transport']}, 'apiDefault': false}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "public-transport")}
+            )},
             example = "true")
     @JsonProperty(PARAM_IGNORE_TRANSFERS)
     private boolean ignoreTransfers;

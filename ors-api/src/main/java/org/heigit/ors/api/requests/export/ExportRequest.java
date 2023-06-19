@@ -6,8 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.StatusCode;
@@ -19,7 +18,7 @@ import org.heigit.ors.routing.RoutingProfileManager;
 
 import java.util.List;
 
-@ApiModel(value = "Centrality Service", description = "The JSON body request sent to the centrality service which defines options and parameters regarding the centrality measure to calculate.")
+@Schema(title = "Graph export Service", name = "graphExportService", description = "Graph export service endpoint.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ExportRequest extends APIRequest {
     public static final String PARAM_ID = "id";
@@ -29,27 +28,27 @@ public class ExportRequest extends APIRequest {
 
     public static final String PARAM_DEBUG = "debug";
 
-    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
+    @Schema(name= PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
             example = "centrality_request")
     @JsonProperty(PARAM_ID)
     private String id;
     @JsonIgnore
     private boolean hasId = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
+    @Schema(name= PARAM_PROFILE, accessMode = Schema.AccessMode.READ_ONLY)
     private APIEnums.Profile profile;
 
-    @ApiModelProperty(name = PARAM_BBOX, value = "The bounding box to use for the request as an array of `longitude/latitude` pairs",
+    @Schema(name= PARAM_BBOX, description = "The bounding box to use for the request as an array of `longitude/latitude` pairs",
             example = "[8.681495,49.41461,8.686507,49.41943]",
-            required = true)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_BBOX)
     private List<List<Double>> bbox; //apparently, this has to be a non-primitive type…
 
-    @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
+    @Schema(name= PARAM_FORMAT, accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
 
-    @ApiModelProperty(name = PARAM_DEBUG, hidden = true)
+    @Schema(name= PARAM_DEBUG, accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_DEBUG)
     private boolean debug;
 

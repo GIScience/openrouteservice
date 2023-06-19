@@ -18,7 +18,9 @@ package org.heigit.ors.api.responses.routing.geojson;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.responses.routing.json.JSONExtra;
 import org.heigit.ors.api.responses.routing.json.JSONLeg;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
@@ -43,12 +45,20 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("legs")
     private final List<JSONLeg> legs;
     private final List<RouteWarning> warnings;
-    @ApiModelProperty(value = "Departure date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
+    @Schema(description = "Departure date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "departure"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
-    @ApiModelProperty(value = "Arrival date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}", example = "2020-01-31T13:15:00+01:00")
+    @Schema(description = "Arrival date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "arrival"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "2020-01-31T13:15:00+01:00")
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
 

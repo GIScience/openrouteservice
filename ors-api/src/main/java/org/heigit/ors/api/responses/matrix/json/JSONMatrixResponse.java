@@ -17,14 +17,13 @@ package org.heigit.ors.api.responses.matrix.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.MatrixResponse;
 import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
 import org.heigit.ors.matrix.MatrixResult;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "The Matrix Response contains one matrix for each specified `metrics` value.")
+@Schema(name = "MatrixResponse", description = "The Matrix Response contains one matrix for each specified `metrics` value.")
 public class JSONMatrixResponse extends MatrixResponse {
     public JSONMatrixResponse(MatrixResult result, MatrixRequest request) {
         super(result, request);
@@ -38,7 +37,7 @@ public class JSONMatrixResponse extends MatrixResponse {
     }
 
     @JsonProperty("metadata")
-    @ApiModelProperty("Information about the service and request")
+    @Schema(description = "Information about the service and request")
     public MatrixResponseInfo getInfo() {
         return responseInformation;
     }

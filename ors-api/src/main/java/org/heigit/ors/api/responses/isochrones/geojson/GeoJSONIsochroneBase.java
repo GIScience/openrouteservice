@@ -17,11 +17,11 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.json.simple.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
-import org.heigit.ors.geojson.GeometryJSON;
-import io.swagger.annotations.ApiModelProperty;
-import org.json.simple.JSONObject;
 
 public abstract class GeoJSONIsochroneBase {
     @JsonProperty("type")
@@ -30,7 +30,7 @@ public abstract class GeoJSONIsochroneBase {
     @JsonIgnore
     abstract Geometry getIsochroneGeometry();
 
-    @ApiModelProperty(dataType = "org.json.simple.JSONObject")
+    @Schema(implementation = JSONObject.class)
     @JsonProperty("geometry")
     public JSONObject getGeometry() {
         JSONObject geoJson = new JSONObject();

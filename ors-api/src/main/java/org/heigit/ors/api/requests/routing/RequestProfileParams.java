@@ -18,10 +18,11 @@ package org.heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@ApiModel(value = "Profile Parameters", parent = RouteRequestOptions.class, description = "Specifies additional routing parameters. For all profiles except `driving-car`.")
+@Schema(title = "Profile Parameters", name = "profileParameters", description = "Specifies additional routing parameters. For all profiles except `driving-car`.", subTypes = {RequestProfileParamsRestrictions.class, RequestProfileParamsWeightings.class})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RequestProfileParams {
     public static final String PARAM_WEIGHTINGS = "weightings";
@@ -39,16 +40,24 @@ public class RequestProfileParams {
     @JsonIgnore
     private boolean hasRestrictions = false;
 
-    @ApiModelProperty(name = PARAM_SURFACE_QUALITY_KNOWN, value = "Specifies whether to enforce that only ways with known information on surface quality be taken into account - default false" +
+    @Schema(name= PARAM_SURFACE_QUALITY_KNOWN, description = "Specifies whether to enforce that only ways with known information on surface quality be taken into account - default false" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
             example = "true")
     @JsonProperty(PARAM_SURFACE_QUALITY_KNOWN)
     private boolean surfaceQualityKnown;
     @JsonIgnore
     private boolean hasSurfaceQualityKnown = false;
 
-    @ApiModelProperty(name = PARAM_ALLOW_UNSUITABLE, value = "Specifies if ways that might not be suitable (e.g. unknown pedestrian usage) should be included in finding routes - default false" +
+    @Schema(name= PARAM_ALLOW_UNSUITABLE, description = "Specifies if ways that might not be suitable (e.g. unknown pedestrian usage) should be included in finding routes - default false" +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
             example = "true")
     @JsonProperty(PARAM_ALLOW_UNSUITABLE)
     private boolean allowUnsuitable;

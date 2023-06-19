@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.routing.geojson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.json.JSONBasedIndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
@@ -45,7 +45,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }
 
-    @ApiModelProperty(dataType = "org.json.simple.JSONObject", value = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
+    @Schema(implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
     @JsonProperty("geometry")
     public JSONObject getGeometry() {
         JSONObject geoJson = new JSONObject();

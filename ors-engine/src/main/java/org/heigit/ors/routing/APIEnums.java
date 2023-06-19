@@ -18,12 +18,12 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.exceptions.ParameterValueException;
-import io.swagger.annotations.ApiModel;
 
 
 public class APIEnums {
-    @ApiModel(value = "Specify which type of border crossing to avoid")
+    @Schema(name = "Avoid borders", description = "Specify which type of border crossing to avoid")
     public enum AvoidBorders {
         ALL("all"),
         CONTROLLED("controlled"),
@@ -52,7 +52,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel(value = "Specify which extra info items to include in the response")
+    @Schema(name = "Extra information", description = "Specify which extra info items to include in the response")
     public enum ExtraInfo {
         STEEPNESS("steepness"),
         SUITABILITY("suitability"),
@@ -92,7 +92,7 @@ public class APIEnums {
 
     }
 
-    @ApiModel
+    @Schema(name = "Route response type", description = "Format of the route response.")
     public enum RouteResponseType {
         GPX("gpx"),
         JSON("json"),
@@ -120,7 +120,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel
+    @Schema(name = "Matrix response type", description = "Format of the Matrix response.")
     public enum MatrixResponseType {
         JSON("json");
 
@@ -146,7 +146,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel
+    @Schema(name = "Centrality response type", description = "Format of the Centrality response.")
     public enum CentralityResponseType {
         JSON("json");
 
@@ -172,7 +172,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel
+    @Schema(name = "Vehicle type", description = "Definition of the vehicle type.")
     public enum VehicleType {
         HGV("hgv"),
         BUS("bus"),
@@ -204,7 +204,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel
+    @Schema(name = "Avoid features", description = "Definition of the features to be avoided.")
     public enum AvoidFeatures {
         HIGHWAYS("highways"),
         TOLLWAYS("tollways"),
@@ -234,7 +234,7 @@ public class APIEnums {
         }
     }
 
-    @ApiModel(value = "Preference", description = "Specifies the route preference")
+    @Schema(name = "Preference", description = "Specifies the route preference")
     public enum RoutePreference {
         FASTEST("fastest"),
         SHORTEST("shortest"),

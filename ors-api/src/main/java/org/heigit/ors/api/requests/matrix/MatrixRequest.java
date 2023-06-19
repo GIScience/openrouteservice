@@ -19,9 +19,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.locationtech.jts.geom.Coordinate;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
@@ -41,7 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@ApiModel(value = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
+@Schema(name = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequest extends APIRequest {
     public static final String PARAM_LOCATIONS = "locations";
@@ -53,63 +55,69 @@ public class MatrixRequest extends APIRequest {
     public static final String PARAM_OPTIMIZED = "optimized";
     public static final String PARAM_OPTIONS = "options";
 
-    @ApiModelProperty(name = PARAM_LOCATIONS, value = "List of comma separated lists of `longitude,latitude` coordinates in WGS 84 (EPSG:4326)",
+    @Schema(name = PARAM_LOCATIONS, description = "List of comma separated lists of `longitude,latitude` coordinates in WGS 84 (EPSG:4326)",
             example = "[[9.70093, 48.477473], [9.207916, 49.153868], [37.573242, 55.801281], [115.663757, 38.106467]]",
-            required = true)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_LOCATIONS)
     private List<List<Double>> locations;
 
-    @ApiModelProperty(name = PARAM_SOURCES, value = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':['all']}")
+    @Schema(name = PARAM_SOURCES, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':['all']}", defaultValue = "[\"all\"]")
     @JsonProperty(value = PARAM_SOURCES)
     private String[] sources;
     @JsonIgnore
     private boolean hasSources = false;
 
-    @ApiModelProperty(name = PARAM_DESTINATIONS, value = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). `[0,3]` for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':['all']}")
+    @Schema(name = PARAM_DESTINATIONS, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). `[0,3]` for the first and fourth locations " +
+            "CUSTOM_KEYS:{'apiDefault':['all']}", defaultValue = "[\"all\"]")
     @JsonProperty(value = PARAM_DESTINATIONS)
     private String[] destinations;
     @JsonIgnore
     private boolean hasDestinations = false;
 
-    @ApiModelProperty(name = PARAM_METRICS, value = "Specifies a list of returned metrics.\n" +
-            "* `distance` - Returns distance matrix for specified points in defined `units`.\n* `duration` - Returns duration matrix for specified points in **seconds**. " +
-            "CUSTOM_KEYS:{'apiDefault':'duration'}")
+    @Schema(name = PARAM_METRICS, description = """
+            Specifies a list of returned metrics.
+            "* `distance` - Returns distance matrix for specified points in defined `units`.
+            * `duration` - Returns duration matrix for specified points in **seconds**.
+            "CUSTOM_KEYS:{'apiDefault':'duration'}""", defaultValue = "duration")
     @JsonProperty(value = PARAM_METRICS)
     private MatrixRequestEnums.Metrics[] metrics;
     @JsonIgnore
     private boolean hasMetrics = false;
 
-    @ApiModelProperty(name = PARAM_RESOLVE_LOCATIONS, value = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
+    @Schema(name = PARAM_RESOLVE_LOCATIONS, description = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
             "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. " +
-            "CUSTOM_KEYS:{'apiDefault':false}")
+            "CUSTOM_KEYS:{'apiDefault':false}", defaultValue = "false")
     @JsonProperty(value = PARAM_RESOLVE_LOCATIONS)
     private boolean resolveLocations;
     @JsonIgnore
     private boolean hasResolveLocations = false;
 
-    @ApiModelProperty(name = PARAM_UNITS, value = "Specifies the distance unit.\n" +
-            "Default: m. CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'metrics','value':'distance'}`}")
+    @Schema(name = PARAM_UNITS, description = "Specifies the distance unit.\n" +
+            "Default: m. CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'metrics','value':'distance'}`}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "metrics"),
+                    @ExtensionProperty(name = "value", value = "distance")}
+            )})
     @JsonProperty(value = PARAM_UNITS)
     private APIEnums.Units units;
     @JsonIgnore
     private boolean hasUnits = false;
 
-    @ApiModelProperty(name = PARAM_OPTIMIZED, value = "Specifies whether flexible mode is used or not.", hidden = true)
+    @Schema(name = PARAM_OPTIMIZED, description = "Specifies whether flexible mode is used or not.", hidden = true)
     @JsonProperty(value = PARAM_OPTIMIZED)
     private Boolean optimized;
     @JsonIgnore
     private boolean hasOptimized = false;
 
-    @ApiModelProperty(name = PARAM_OPTIONS,
-            value = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+    @Schema(name = PARAM_OPTIONS,
+            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
             example = "{\"avoid_borders\":\"controlled\"}",
             hidden = true)
     @JsonProperty(PARAM_OPTIONS)
     private MatrixRequestOptions matrixOptions;
 
-    @ApiModelProperty(hidden = true)
+    @Schema(hidden = true)
     private APIEnums.MatrixResponseType responseType;
 
     @JsonCreator
@@ -306,7 +314,7 @@ public class MatrixRequest extends APIRequest {
             int profileType = convertRouteProfileType(profile);
             params.setProfileType(profileType);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
         processRequestOptions(matrixOptions, params);
 
@@ -398,11 +406,11 @@ public class MatrixRequest extends APIRequest {
         try {
             int profileFromString = RoutingProfileType.getFromString(profile.toString());
             if (profileFromString == 0) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
+                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
             }
             return profileFromString;
         } catch (Exception e) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
+            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
         }
     }
 }

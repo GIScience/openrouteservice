@@ -3,7 +3,7 @@ package org.heigit.ors.api.responses.export.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.locationtech.jts.geom.Coordinate;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.responses.export.ExportResponse;
 import org.heigit.ors.api.responses.routing.json.JSONWarning;
 import org.heigit.ors.export.ExportResult;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@ApiModel(description = "The Export Response contains nodes and edge weights from the requested BBox")
+@Schema(description = "The Export Response contains nodes and edge weights from the requested BBox")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonExportResponse extends ExportResponse {
 
