@@ -101,14 +101,14 @@ public class SwaggerConfig {
 
     private License apiLicence() {
         return new License()
-                .name("MIT Licence")
-                .url("https://opensource.org/licenses/mit-license.php");
+                .name("GNU General Public License v3.0")
+                .url("https://github.com/GIScience/openrouteservice/blob/master/LICENSE");
     }
 
     private Contact apiContact() {
         return new Contact()
                 .name(SERVICE_NAME)
-                .email("enquiry@openrouteservice.heigit.org")
+                .email("support@smartmobility.heigit.org")
                 .url("https://github.com/GIScience/openrouteservice");
     }
 }
