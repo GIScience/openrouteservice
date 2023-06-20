@@ -19,14 +19,21 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.api.requests.export.ExportRequest;
 import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.requests.export.ExportRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.exceptions.*;
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -36,61 +43,72 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Export Service", description = "Export the base graph for different modes of transport", tags = "Export")
+@Tag(name = "Export Service", description = "Export the base graph for different modes of transport")
 @RequestMapping("/v2/export")
-@ApiResponses({
-        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
-        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
-        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
-        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
-        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
-        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
-        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
-})
+@ApiResponse(responseCode = "400", description = "The request is incorrect and therefore can not be processed.")
+@ApiResponse(responseCode = "404", description = "An element could not be found. If possible, a more detailed error code is provided.")
+@ApiResponse(responseCode = "405", description = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation.")
+@ApiResponse(responseCode = "413", description = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit.")
+@ApiResponse(responseCode = "500", description = "An unexpected error was encountered and a more detailed error code is provided.")
+@ApiResponse(responseCode = "501", description = "Indicates that the server does not support the functionality needed to fulfill the request.")
+@ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class ExportAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(ExportErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getGetMapping() throws MissingParameterException {
         throw new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     @PostMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public String getPostMapping(@RequestBody ExportRequest request) throws MissingParameterException {
         throw new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     // Matches any response type that has not been defined
     @PostMapping(value="/{profile}/*")
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
     // Functional request methods
     @PostMapping(value = "/{profile}")
-    @ApiOperation(notes = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON", value = "Export Service (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
-    @ApiResponses(
-            @ApiResponse(code = 200,
-                    message = "Standard response for successfully processed requests. Returns JSON.", //TODO: add docs
-                    response = JsonExportResponse.class)
-    )
-    public JsonExportResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                             @ApiParam(value = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
+    @RouterOperation(operation = @Operation(description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. " +
+            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.", summary = "Directions Service (GET)"),
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json")
+    @ApiResponse(responseCode = "200",
+            description = "Standard response for successfully processed requests. Returns JSON.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+            )
+            })
+    public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+                                             @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
         return getJsonExport(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(notes = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON", value = "Export Service JSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JsonExportResponse.class)
-    })
+    @RouterOperation(operation = @Operation(description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.", summary = "Export Service JSON (POST)"),
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json")
+    @ApiResponse(responseCode = "200",
+            description = "JSON Response.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+            )
+            })
     public JsonExportResponse getJsonExport(
-            @ApiParam(value = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 

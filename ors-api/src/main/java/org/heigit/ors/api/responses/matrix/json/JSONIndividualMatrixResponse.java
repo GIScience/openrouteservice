@@ -17,31 +17,30 @@ package org.heigit.ors.api.responses.matrix.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.util.FormatUtility;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@ApiModel(value = "JSONIndividualMatrixResponse", description = "An individual JSON based route created by the service")
+@Schema(name = "JSONIndividualMatrixResponse", description = "An individual JSON based route created by the service")
 public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixResponse {
-    @ApiModelProperty(value = "The durations of the matrix calculations.", example = "[[0,25],[25,0]]")
+    @Schema(description = "The durations of the matrix calculations.", example = "[[0,25],[25,0]]")
     @JsonProperty("durations")
     private Double[][] durations;
 
-    @ApiModelProperty(value = "The distances of the matrix calculations.", example = "[[0,0.25],[0.25,0]]")
+    @Schema(description = "The distances of the matrix calculations.", example = "[[0,0.25],[0.25,0]]")
     @JsonProperty("distances")
     private Double[][] distances;
 
-    @ApiModelProperty(value = "The individual destinations of the matrix calculations.")
+    @Schema(description = "The individual destinations of the matrix calculations.")
     @JsonProperty("destinations")
     private List<JSON2DDestinations> destinations;
 
-    @ApiModelProperty(value = "The individual sources of the matrix calculations.")
+    @Schema(description = "The individual sources of the matrix calculations.")
     @JsonProperty("sources")
     private List<JSON2DSources> sources;
 

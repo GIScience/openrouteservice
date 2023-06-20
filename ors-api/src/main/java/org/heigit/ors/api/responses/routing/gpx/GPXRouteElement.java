@@ -16,10 +16,10 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import org.locationtech.jts.geom.Coordinate;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.routing.RouteStep;
-import io.swagger.annotations.ApiModel;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "rte")
-@ApiModel(value = "rte")
+@Schema(name = "rte")
 public class GPXRouteElement {
     @XmlElement(name = "rtept")
     List<GPXRoutePointElement> routePoints;

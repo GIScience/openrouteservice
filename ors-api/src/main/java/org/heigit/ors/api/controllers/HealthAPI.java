@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Health service", description = "Get information on the health of the api")
 @RequestMapping("/v2/health")
 public class HealthAPI {
     @GetMapping

@@ -2,10 +2,7 @@ package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.GenericErrorCodes;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
@@ -28,21 +25,26 @@ import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class APIRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_PROFILE = "profile";
 
-    @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
+    @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
             example = "centrality_request")
     @JsonProperty(PARAM_ID)
     protected String id;
     @JsonIgnore
     private boolean hasId = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE, hidden = true)
+    @Schema(name = PARAM_PROFILE, accessMode = Schema.AccessMode.READ_ONLY)
     protected APIEnums.Profile profile;
 
     public boolean hasId() {

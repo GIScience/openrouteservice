@@ -18,19 +18,15 @@ package org.heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.RequestOptions;
-import org.heigit.ors.isochrones.IsochroneRequest;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-import static org.heigit.ors.routing.RouteRequestParameterNames.PARAM_ROUND_TRIP_OPTIONS;
-
-@ApiModel(value = "Route Options", description = "Advanced options for routing", subTypes = {RouteRequest.class, IsochroneRequest.class})
+@Schema(title = "Route Options", name = "routeOptions", description = "Advanced options for routing", subTypes = {RouteRequestAlternativeRoutes.class, RequestProfileParams.class, RouteRequestRoundTripOptions.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RouteRequestOptions extends RequestOptions {
+    public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
 
-    @ApiModelProperty(name = PARAM_ROUND_TRIP_OPTIONS, value = "Options to be applied on round trip routes.",
+    @Schema(name= PARAM_ROUND_TRIP_OPTIONS, description = "Options to be applied on round trip routes.",
             example = "{\"length\":10000,\"points\":5}")
     @JsonProperty(PARAM_ROUND_TRIP_OPTIONS)
     private RouteRequestRoundTripOptions roundTripOptions;

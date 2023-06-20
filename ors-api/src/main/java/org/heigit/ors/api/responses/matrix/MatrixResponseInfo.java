@@ -18,44 +18,43 @@ package org.heigit.ors.api.responses.matrix;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.api.util.AppInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import org.json.JSONObject;
 
-@ApiModel(description = "Information about the request")
+@Schema(description = "Information about the request")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixResponseInfo {
-    @ApiModelProperty(value = "ID of the request (as passed in by the query)", example = "request123")
+    @Schema(description = "ID of the request (as passed in by the query)", example = "request123")
     @JsonProperty("id")
     private String id;
 
-    @ApiModelProperty(value = "Copyright and attribution information", example = "openrouteservice.org, OpenStreetMap contributors")
+    @Schema(description = "Copyright and attribution information", example = "openrouteservice.org, OpenStreetMap contributors")
     @JsonProperty("attribution")
     private String attribution;
-    @ApiModelProperty(value = "The MD5 hash of the OSM planet file that was used for generating graphs", example = "c0327ba6")
+    @Schema(description = "The MD5 hash of the OSM planet file that was used for generating graphs", example = "c0327ba6")
     @JsonProperty("osm_file_md5_hash")
     private String osmFileMD5Hash;
-    @ApiModelProperty(value = "The service that was requested", example = "matrix")
+    @Schema(description = "The service that was requested", example = "matrix")
     @JsonProperty("service")
     private final String service;
-    @ApiModelProperty(value = "Time that the request was made (UNIX Epoch time)", example = "1549549847974")
+    @Schema(description = "Time that the request was made (UNIX Epoch time)", example = "1549549847974")
     @JsonProperty("timestamp")
     private final long timeStamp;
 
-    @ApiModelProperty(value = "The information that was used for generating the matrix")
+    @Schema(description = "The information that was used for generating the matrix")
     @JsonProperty("query")
     private final MatrixRequest request;
 
-    @ApiModelProperty(value = "Information about the routing service")
+    @Schema(description = "Information about the routing service")
     @JsonProperty("engine")
     private final EngineInfo engineInfo;
 
-    @ApiModelProperty(value = "System message", example ="A message string configured in the service")
+    @Schema(description = "System message", example ="A message string configured in the service")
     @JsonProperty("system_message")
     private final String systemMessage;
 
@@ -82,15 +81,15 @@ public class MatrixResponseInfo {
         engineInfo.setGraphDate(graphDate);
     }
 
-    @ApiModel(description = "Information about the version of the openrouteservice that was used to generate the matrix")
+    @Schema(description = "Information about the version of the openrouteservice that was used to generate the matrix")
     private class EngineInfo {
-        @ApiModelProperty(value = "The backend version of the openrouteservice that was queried", example = "5.0")
+        @Schema(description = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")
         private final String version;
-        @ApiModelProperty(value = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
+        @Schema(description = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("build_date")
         private final String buildDate;
-        @ApiModelProperty(value = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
+        @Schema(description = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
         @JsonProperty("graph_date")
         private String graphDate;
 

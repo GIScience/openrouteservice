@@ -16,11 +16,11 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import org.heigit.ors.api.InfoProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
-import io.swagger.annotations.ApiModel;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,7 +30,7 @@ import java.util.List;
 
 
 @XmlRootElement(name = "gpx")
-@ApiModel(value = "gpx")
+@Schema(name = "gpx")
 public class GPXRouteResponse extends RouteResponse {
 
     @XmlAttribute(name = "version")

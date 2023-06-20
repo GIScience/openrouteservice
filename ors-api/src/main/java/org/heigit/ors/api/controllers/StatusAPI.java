@@ -16,6 +16,7 @@
 package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.kafka.ORSKafkaConsumer;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
@@ -43,6 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@Tag(name = "Status service", description = "Get information on the status of the api")
 @RequestMapping("/v2/status")
 public class StatusAPI {
     @GetMapping

@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.centrality.CentralityErrorCodes;
@@ -18,7 +17,7 @@ import org.heigit.ors.routing.RoutingProfileManager;
 
 import java.util.List;
 
-@ApiModel(value = "Centrality Service", description = "The JSON body request sent to the centrality service which defines options and parameters regarding the centrality measure to calculate.")
+@Schema(title = "Centrality Service", name = "dentralityService", description = "The JSON body request sent to the centrality service which defines options and parameters regarding the centrality measure to calculate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CentralityRequest extends APIRequest {
     public static final String PARAM_BBOX = "bbox";
@@ -26,23 +25,23 @@ public class CentralityRequest extends APIRequest {
     public static final String PARAM_MODE = "mode";
     public static final String PARAM_FORMAT = "format";
 
-    @ApiModelProperty(name = PARAM_BBOX, value = "The bounding box to use for the request as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
+    @Schema(name= PARAM_BBOX, description = "The bounding box to use for the request as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[8.681495,49.41461,8.686507,49.41943]",
-            required = true)
+            accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_BBOX)
     private List<List<Double>> bbox; //apparently, this has to be a non-primitive type…
 
-    @ApiModelProperty(name = PARAM_EXCLUDENODES, value = "List of node Ids to exclude when calculating centrality",
+    @Schema(name= PARAM_EXCLUDENODES, description = "List of node Ids to exclude when calculating centrality",
             example = "[1661, 1662, 1663]")
     @JsonProperty(PARAM_EXCLUDENODES)
     private List<Integer> excludeNodes;
     private boolean hasExcludeNodes = false;
 
-    @ApiModelProperty(name = PARAM_FORMAT, hidden = true)
+    @Schema(name= PARAM_FORMAT, accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
 
-    @ApiModelProperty(name = PARAM_MODE, value = "Specifies the centrality calculation mode. Currently, node-based and edge-based centrality calculation is supported.", example = "nodes")
+    @Schema(name= PARAM_MODE, description = "Specifies the centrality calculation mode. Currently, node-based and edge-based centrality calculation is supported.", example = "nodes")
     @JsonProperty(PARAM_MODE)
     private CentralityRequestEnums.Mode mode = CentralityRequestEnums.Mode.NODES;
 

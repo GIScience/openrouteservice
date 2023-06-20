@@ -2,21 +2,19 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Coordinate;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.util.FormatUtility;
 
 import java.util.Map;
 
 public class JsonEdgeExtra {
 
-    @ApiModelProperty(value = "Id of the corresponding edge in the graph", example = "1")
+    @Schema(description = "Id of the corresponding edge in the graph", example = "1")
     @JsonProperty(value = "edgeId")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     protected String nodeId;
 
-    @ApiModelProperty(value = "Extra info stored on the edge",
+    @Schema(description = "Extra info stored on the edge",
             example = "{\"surface_quality_known\" : \"true\"}")
     @JsonProperty(value = "extra")
     @JsonFormat(shape = JsonFormat.Shape.ANY)

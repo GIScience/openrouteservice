@@ -18,15 +18,14 @@ package org.heigit.ors.api.requests.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.locationtech.jts.geom.Coordinate;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.converters.CoordinateListDeserializer;
 import org.heigit.ors.exceptions.ParameterValueException;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value = "Coordinates", description = "An array of waypoints in the longitude/latitude pairs.")
+@Schema(name = "Coordinates", description = "An array of waypoints in the longitude/latitude pairs.")
 @JsonDeserialize(using = CoordinateListDeserializer.class)
 public class CoordinateListWrapper {
     @JsonIgnore
@@ -91,7 +90,7 @@ public class CoordinateListWrapper {
         return via;
     }
 
-    @ApiModelProperty
+    @Schema(name = "Coordinate array", description = "Get all coordinates as an array.")
     public Coordinate[] getCoordinates() {
         List<Coordinate> coordinates = new ArrayList<>();
         coordinates.add(start);

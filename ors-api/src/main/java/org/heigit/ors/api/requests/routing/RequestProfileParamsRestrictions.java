@@ -18,14 +18,15 @@ package org.heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value = "Restrictions", parent = RequestProfileParams.class, description = "Describe restrictions to be applied to edges on the routing. any edges that do not match these restrictions are not traversed.")
+@Schema(name = "Restrictions", description = "Describe restrictions to be applied to edges on the routing. any edges that do not match these restrictions are not traversed.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsRestrictions {
     public static final String PARAM_LENGTH = "length";
@@ -41,87 +42,135 @@ public class RequestProfileParamsRestrictions {
     public static final String PARAM_MAX_INCLINE = "maximum_incline";
     public static final String PARAM_MIN_WIDTH = "minimum_width";
 
-    @ApiModelProperty(name = PARAM_LENGTH, value = "Length restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "8.4")
+    @Schema(name= PARAM_LENGTH, description = "Length restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )}, example = "8.4")
     @JsonProperty(PARAM_LENGTH)
     private Float length;
     private boolean hasLength = false;
 
-    @ApiModelProperty(name = PARAM_WIDTH, value = "Width restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "5.6")
+    @Schema(name= PARAM_WIDTH, description = "Width restriction in metres. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )}, example = "5.6")
     @JsonProperty(PARAM_WIDTH)
     private Float width;
     @JsonIgnore
     private boolean hasWidth = false;
 
-    @ApiModelProperty(name = PARAM_HEIGHT, value = "Height restriction in metres. " +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "4.2")
+    @Schema(name= PARAM_HEIGHT, description = "Height restriction in metres. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )}, example = "4.2")
     @JsonProperty(PARAM_HEIGHT)
     private Float height;
     @JsonIgnore
     private boolean hasHeight = false;
 
-    @ApiModelProperty(name = PARAM_AXLE_LOAD, value = "Axleload restriction in tons. " +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "50")
+    @Schema(name= PARAM_AXLE_LOAD, description = "Axleload restriction in tons. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )}, example = "50")
     @JsonProperty(PARAM_AXLE_LOAD)
     private Float axleLoad;
     @JsonIgnore
     private boolean hasAxleLoad = false;
 
-    @ApiModelProperty(name = PARAM_WEIGHT, value = "Weight restriction in tons. " +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}", example = "40")
+    @Schema(name= PARAM_WEIGHT, description = "Weight restriction in tons. " +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )}, example = "40")
     @JsonProperty(PARAM_WEIGHT)
     private Float weight;
     @JsonIgnore
     private boolean hasWeight = false;
 
-    @ApiModelProperty(name = PARAM_HAZMAT, value = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. " +
-            "CUSTOM_KEYS:{'apiDefault':false,'validWhen':{'ref':'profile','value':['driving-hgv']}}")
+    @Schema(name= PARAM_HAZMAT, description = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. " +
+            "CUSTOM_KEYS:{'apiDefault':false,'validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )})
     @JsonProperty(value = PARAM_HAZMAT)
     private boolean hazardousMaterial;
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @ApiModelProperty(name = PARAM_SURFACE_TYPE, value = "Specifies the minimum surface type. Default is `sett`. " +
+    @Schema(name= PARAM_SURFACE_TYPE, description = "Specifies the minimum surface type. Default is `sett`. " +
             "CUSTOM_KEYS:{'apiDefault':'sett','validWhen':{'ref':'profile','value':['wheelchair']}}",
-            example = "asphalt")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
+            defaultValue = "sett")
     @JsonProperty(PARAM_SURFACE_TYPE)
     private String surfaceType;
     @JsonIgnore
     private boolean hasSurfaceType = false;
 
-    @ApiModelProperty(name = PARAM_TRACK_TYPE, value = "Specifies the minimum grade of the route. Default is `grade1`. " +
+    @Schema(name= PARAM_TRACK_TYPE, description = "Specifies the minimum grade of the route. Default is `grade1`. " +
             "CUSTOM_KEYS:{'apiDefault':'grade1','validWhen':{'ref':'profile','value':['wheelchair']}}",
-            example = "grade2")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
+            defaultValue = "grade1")
     @JsonProperty(PARAM_TRACK_TYPE)
     private String trackType;
     @JsonIgnore
     private boolean hasTrackType = false;
 
-    @ApiModelProperty(name = PARAM_SMOOTHNESS_TYPE, value = "Specifies the minimum smoothness of the route. Default is `good`." +
+    @Schema(name= PARAM_SMOOTHNESS_TYPE, description = "Specifies the minimum smoothness of the route. Default is `good`." +
             "CUSTOM_KEYS:{'apiDefault':'good','validWhen':{'ref':'profile','value':['wheelchair']}}",
-            example = "best")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
+            defaultValue = "good")
     @JsonProperty(value = PARAM_SMOOTHNESS_TYPE)
     private APIEnums.SmoothnessTypes smoothnessType;
     @JsonIgnore
     private boolean hasSmoothnessType = false;
 
-    @ApiModelProperty(name = PARAM_MAXIMUM_SLOPED_KERB, value = "Specifies the maximum height of the sloped curb in metres. Values are `0.03`, `0.06` (default), `0.1`." +
+    @Schema(name= PARAM_MAXIMUM_SLOPED_KERB, description = "Specifies the maximum height of the sloped curb in metres. Values are `0.03`, `0.06` (default), `0.1`." +
             "CUSTOM_KEYS:{'apiDefault':0.6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
-            example = "0.03")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
+            defaultValue = "0.6")
     @JsonProperty(PARAM_MAXIMUM_SLOPED_KERB)
     private Float maxSlopedKerb;
     @JsonIgnore
     private boolean hasMaxSlopedKerb = false;
 
-    @ApiModelProperty(name = PARAM_MAX_INCLINE, value = "Specifies the maximum incline as a percentage. `3`, `6` (default), `10`, `15." +
+    @Schema(name= PARAM_MAX_INCLINE, description = "Specifies the maximum incline as a percentage. `3`, `6` (default), `10`, `15." +
             "CUSTOM_KEYS:{'apiDefault':6,'validWhen':{'ref':'profile','value':['wheelchair']}}",
-            example = "3")
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
+            defaultValue = "6")
     @JsonProperty(PARAM_MAX_INCLINE)
     private Integer maxIncline;
     @JsonIgnore
     private boolean hasMaxIncline = false;
 
-    @ApiModelProperty(name = PARAM_MIN_WIDTH, value = "Specifies the minimum width of the footway in metres." +
+    @Schema(name= PARAM_MIN_WIDTH, description = "Specifies the minimum width of the footway in metres." +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "wheelchair")}
+            )},
             example = "2.5")
     @JsonProperty(PARAM_MIN_WIDTH)
     private Float minWidth;

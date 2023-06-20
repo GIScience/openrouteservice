@@ -16,15 +16,14 @@
 package org.heigit.ors.api.responses.routing.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.ExtraSummaryItem;
 import org.heigit.ors.routing.RouteSegmentItem;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value = "JSONExtra", description = "An object representing one of the extra info items requested")
+@Schema(name = "JSONExtra", description = "An object representing one of the extra info items requested")
 public class JSONExtra {
     private final List<List<Long>> values;
     private final List<JSONExtraSummary> summary;
@@ -46,7 +45,7 @@ public class JSONExtra {
         }
     }
 
-    @ApiModelProperty(value = "A list of values representing a section of the route. The individual values are: \n" +
+    @Schema(description = "A list of values representing a section of the route. The individual values are: \n" +
             "Value 1: Indice of the staring point of the geometry for this section,\n" +
             "Value 2: Indice of the end point of the geoemetry for this sections,\n" +
             "Value 3: [Value](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html) assigned to this section.",
@@ -56,7 +55,7 @@ public class JSONExtra {
         return values;
     }
 
-    @ApiModelProperty(value = "List representing the summary of the extra info items.")
+    @Schema(description = "List representing the summary of the extra info items.")
     @JsonProperty("summary")
     private List<JSONExtraSummary> getSummary() {
         return summary;

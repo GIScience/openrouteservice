@@ -19,7 +19,13 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.centrality.CentralityRequest;
 import org.heigit.ors.routing.APIEnums;
@@ -27,6 +33,7 @@ import org.heigit.ors.api.responses.centrality.json.JsonCentralityResponse;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.exceptions.*;
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -37,64 +44,71 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@Api(value = "Centrality Service", tags = "Centrality")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Centrality", description = "Get node centrality for different modes of transport")
-})
+@Tag(name = "Centrality Service", description = "Get node centrality for different modes of transport")
 @RequestMapping("/v2/centrality")
-@ApiResponses({
-        @ApiResponse(code = 400, message = "The request is incorrect and therefore can not be processed."),
-        @ApiResponse(code = 404, message = "An element could not be found. If possible, a more detailed error code is provided."),
-        @ApiResponse(code = 405, message = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation."),
-        @ApiResponse(code = 413, message = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit."),
-        @ApiResponse(code = 500, message = "An unexpected error was encountered and a more detailed error code is provided."),
-        @ApiResponse(code = 501, message = "Indicates that the server does not support the functionality needed to fulfill the request."),
-        @ApiResponse(code = 503, message = "The server is currently unavailable due to overload or maintenance.")
-})
+@ApiResponse(responseCode = "400", description = "The request is incorrect and therefore can not be processed.")
+@ApiResponse(responseCode = "404", description = "An element could not be found. If possible, a more detailed error code is provided.")
+@ApiResponse(responseCode = "405", description = "The specified HTTP method is not supported. For more details, refer to the EndPoint documentation.")
+@ApiResponse(responseCode = "413", description = "The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit.")
+@ApiResponse(responseCode = "500", description = "An unexpected error was encountered and a more detailed error code is provided.")
+@ApiResponse(responseCode = "501", description = "Indicates that the server does not support the functionality needed to fulfill the request.")
+@ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class CentralityAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(CentralityErrorCodes.BASE);
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getGetMapping() throws MissingParameterException {
         throw new MissingParameterException(CentralityErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     @PostMapping
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public String getPostMapping(@RequestBody CentralityRequest request) throws MissingParameterException {
         throw new MissingParameterException(CentralityErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
-    @ApiOperation(value = "", hidden = true)
+    @Operation(summary = "", hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, CentralityErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
     // Functional request methods
     @PostMapping(value = "/{profile}")
-    @ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON", value = "Centrality Service (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
-    @ApiResponses(
-            @ApiResponse(code = 200,
-                    message = "Standard response for successfully processed requests. Returns JSON.", //TODO: add docs
-                    response = JsonCentralityResponse.class)
-    )
-    public JsonCentralityResponse getDefault(@ApiParam(value = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                             @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
+    @RouterOperation(operation = @Operation(description = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON.", summary = "Centrality Service (POST)"),
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json")
+    @ApiResponse(responseCode = "200",
+            description = "Standard response for successfully processed requests. Returns JSON.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = JsonCentralityResponse.class))
+            )
+            })
+    public JsonCentralityResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+                                             @Parameter(description = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
         return getJsonCentrality(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @ApiOperation(notes = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON", value = "Centrality Service JSON (POST)", httpMethod = "POST", consumes = "application/json", produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JSON Response", response = JsonCentralityResponse.class)
-    })
+    @RouterOperation(operation = @Operation(description = "Returns an ordered list of points and centrality values within a given bounding box for a selected profile and its settings as JSON.", summary = "Centrality Service JSON (POST)"),
+            method = RequestMethod.POST,
+            consumes = "application/json",
+            produces = "application/json")
+    @ApiResponse(responseCode = "200",
+            description = "JSON Response.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    array = @ArraySchema(schema = @Schema(implementation = JsonCentralityResponse.class))
+            )
+            })
     public JsonCentralityResponse getJsonCentrality(
-            @ApiParam(value = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @ApiParam(value = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody CentralityRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.CentralityResponseType.JSON);
 

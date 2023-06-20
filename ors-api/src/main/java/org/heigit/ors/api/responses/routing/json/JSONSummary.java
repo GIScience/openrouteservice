@@ -18,28 +18,38 @@ package org.heigit.ors.api.responses.routing.json;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteResult;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "Contains total sums of duration, route distance and actual distance of the route.")
+
+@Schema(description = "Contains total sums of duration, route distance and actual distance of the route.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSONSummary {
-    @ApiModelProperty(value = "Total route distance in specified units.", example = "12.6")
+    @Schema(description = "Total route distance in specified units.", example = "12.6")
     @JsonProperty(value = "distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
     protected Double distance;
-    @ApiModelProperty(value = "Total duration in seconds.", example = "604")
+    @Schema(description = "Total duration in seconds.", example = "604")
     @JsonProperty(value = "duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double duration;
-    @ApiModelProperty(value = "Total ascent in meters." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}", example = "166.3")
+    @Schema(description = "Total ascent in meters." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "elevation"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "166.3")
     @JsonProperty(value = "ascent")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double ascent;
-    @ApiModelProperty(value = "Total descent in meters." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}", example = "201.3")
+    @Schema(description = "Total descent in meters." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "elevation"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "201.3")
     @JsonProperty(value = "descent")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double descent;

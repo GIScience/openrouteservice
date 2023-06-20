@@ -39,6 +39,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+        <springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
+        <swagger-parser.version>2.1.15</swagger-parser.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <geotools.version>29.1</geotools.version>
         <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
@@ -46,7 +49,6 @@
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
-        <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
         <org-json.version>20230227</org-json.version>
         <postgresql.version>42.6.0</postgresql.version>
         <apache-curator-test.version>5.4.0</apache-curator-test.version>
@@ -82,6 +84,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- As long as swagger-parser uses snakeyaml <2 it cannot be used. Too much vulnerabilities. -->
+            <!-- The package is updated quite often. -->
+            <!--            <dependency>-->
+            <!--                <groupId>io.swagger.parser.v3</groupId>-->
+            <!--                <artifactId>swagger-parser</artifactId>-->
+            <!--                <version>${swagger-parser.version}</version>-->
+            <!--                <scope>test</scope>-->
+            <!--            </dependency>-->
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi-ui.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka_2.13</artifactId>
@@ -165,13 +182,6 @@
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
                 <version>${typesafe-config.version}</version>
-            </dependency>
-
-            <!-- used for APIEnum annotations -->
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger2</artifactId>
-                <version>${springfox-swagger2.version}</version>
             </dependency>
 
             <dependency>

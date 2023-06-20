@@ -20,8 +20,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteLeg;
 import org.heigit.ors.routing.RoutePtStop;
 import org.heigit.ors.routing.RouteStep;
@@ -32,65 +33,73 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value="JSONLeg", description = "Leg of a route")
+@Schema(name="JSONLeg", description = "Leg of a route")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONLeg {
-    @ApiModelProperty(value = "The type of the leg, possible values are currently 'walk' and 'pt'.", example = "pt")
+    @Schema(description = "The type of the leg, possible values are currently 'walk' and 'pt'.", example = "pt")
     @JsonProperty("type")
     private final String type;
-    @ApiModelProperty(value = "The departure location of the leg.", example = "Dossenheim, Süd Bstg G1")
+    @Schema(description = "The departure location of the leg.", example = "Dossenheim, Süd Bstg G1")
     @JsonProperty("departure_location")
     private final String departureLocation;
-    @ApiModelProperty(value = "The headsign of the public transport vehicle of the leg.", example = "Bismarckplatz - Speyererhof - EMBL - Boxberg - Mombertplatz")
+    @Schema(description = "The headsign of the public transport vehicle of the leg.", example = "Bismarckplatz - Speyererhof - EMBL - Boxberg - Mombertplatz")
     @JsonProperty("trip_headsign")
     private final String tripHeadsign;
-    @ApiModelProperty(value = "The public transport route name of the leg.", example = "RNV Bus 39A")
+    @Schema(description = "The public transport route name of the leg.", example = "RNV Bus 39A")
     @JsonProperty("route_long_name")
     private final String routeLongName;
-    @ApiModelProperty(value = "The public transport route name (short version) of the leg.", example = "39A")
+    @Schema(description = "The public transport route name (short version) of the leg.", example = "39A")
     @JsonProperty("route_short_name")
     private final String routeShortName;
-    @ApiModelProperty(value = "The route description of the leg (if provided in the GTFS data set).", example = "Bus")
+    @Schema(description = "The route description of the leg (if provided in the GTFS data set).", example = "Bus")
     @JsonProperty("route_desc")
     private final String routeDesc;
-    @ApiModelProperty(value = "The route type of the leg (if provided in the GTFS data set).", example = "1")
+    @Schema(description = "The route type of the leg (if provided in the GTFS data set).", example = "1")
     @JsonProperty("route_type")
     private final int routeType;
-    @ApiModelProperty(value = "The distance for the leg in metres.", example = "245")
+    @Schema(description = "The distance for the leg in metres.", example = "245")
     @JsonProperty("distance")
     private final Double distance;
-    @ApiModelProperty(value = "The duration for the leg in seconds.", example = "96.2")
+    @Schema(description = "The duration for the leg in seconds.", example = "96.2")
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private final Double duration;
-    @ApiModelProperty(value = "Departure date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}", example = "2020-01-31T12:45:00+01:00")
+    @Schema(description = "Departure date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "departure"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
-    @ApiModelProperty(value = "Arrival date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}", example = "2020-01-31T13:15:00+01:00")
+    @Schema(description = "Arrival date and time" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "arrival"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "2020-01-31T13:15:00+01:00")
     @JsonProperty(value = "arrival")
     protected ZonedDateTime arrival;
-    @ApiModelProperty(value = "The feed ID this public transport leg based its information from.", example = "gtfs_0")
+    @Schema(description = "The feed ID this public transport leg based its information from.", example = "gtfs_0")
     @JsonProperty("feed_id")
     private String feedId;
-    @ApiModelProperty(value = "The trip ID of this public transport leg.", example = "trip_id: vrn-19-39A-1-2-21-H-8-Special-50-42")
+    @Schema(description = "The trip ID of this public transport leg.", example = "trip_id: vrn-19-39A-1-2-21-H-8-Special-50-42")
     @JsonProperty("trip_id")
     private String tripId;
-    @ApiModelProperty(value = "The route ID of this public transport leg.", example = "vrn-19-39A-1")
+    @Schema(description = "The route ID of this public transport leg.", example = "vrn-19-39A-1")
     @JsonProperty("route_id")
     private String routeId;
-    @ApiModelProperty(value = "Whether the legs continues in the same vehicle as the previous one.", example = "false")
+    @Schema(description = "Whether the legs continues in the same vehicle as the previous one.", example = "false")
     @JsonProperty("is_in_same_vehicle_as_previous")
     private Boolean isInSameVehicleAsPrevious;
-    @ApiModelProperty(value = "The geometry of the leg. This is an encoded polyline.", example = "yuqlH{i~s@gaUe@VgEQFcBRbB_C")
+    @Schema(description = "The geometry of the leg. This is an encoded polyline.", example = "yuqlH{i~s@gaUe@VgEQFcBRbB_C")
     @JsonProperty("geometry")
     @JsonUnwrapped
     private final String geomResponse;
-    @ApiModelProperty("List containing the specific steps the segment consists of.")
+    @Schema(description = "List containing the specific steps the segment consists of.")
     @JsonProperty("instructions")
     private final List<JSONStep> instructions;
-    @ApiModelProperty("List containing the stops the along the leg.")
+    @Schema(description = "List containing the stops the along the leg.")
     @JsonProperty("stops")
     private final List<JSONPtStop> stops;
 

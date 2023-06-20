@@ -3,7 +3,7 @@ package org.heigit.ors.api.responses.centrality.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.locationtech.jts.geom.Coordinate;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.responses.centrality.CentralityResponse;
 import org.heigit.ors.api.responses.routing.json.JSONWarning;
 import org.heigit.ors.centrality.CentralityResult;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@ApiModel(description = "The Centrality Response contains centrality values for nodes or edges in the requested BBox")
+@Schema(description = "The Centrality Response contains centrality values for nodes or edges in the requested BBox")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonCentralityResponse extends CentralityResponse {
 

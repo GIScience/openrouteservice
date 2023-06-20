@@ -18,16 +18,15 @@ package org.heigit.ors.api.requests.matrix;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.RequestOptions;
 
-@ApiModel(value = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
+@Schema(name = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequestOptions extends RequestOptions {
     public static final String PARAM_DYNAMIC_SPEEDS = "dynamic_speeds";
 
-    @ApiModelProperty(name = PARAM_DYNAMIC_SPEEDS, value = "Option to use dynamic speed updates on some pre-defined speeds.",
+    @Schema(name = PARAM_DYNAMIC_SPEEDS, description = "Option to use dynamic speed updates on some pre-defined speeds.",
             example = "{true}")
     @JsonProperty(PARAM_DYNAMIC_SPEEDS)
     private boolean dynamicSpeeds;

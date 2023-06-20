@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import org.locationtech.jts.geom.Envelope;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.isochrones.IsochronesResponse;
@@ -41,7 +41,7 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
 
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty(value = "Bounding box that covers all returned isochrones", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
+    @Schema(description = "Bounding box that covers all returned isochrones", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
     public double[] getBBoxAsArray() {
         return bbox.getAsArray();
     }

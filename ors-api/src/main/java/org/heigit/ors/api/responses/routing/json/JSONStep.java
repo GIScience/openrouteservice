@@ -19,42 +19,51 @@ package org.heigit.ors.api.responses.routing.json;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteStep;
 import org.heigit.ors.util.StringUtility;
 
 import java.util.Arrays;
 
-@ApiModel(value="JSONStep", description = "Step of a route segment")
+@Schema(name="JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStep {
-    @ApiModelProperty(value = "The distance for the step in metres.", example = "245")
+    @Schema(description = "The distance for the step in metres.", example = "245")
     @JsonProperty("distance")
     private final Double distance;
-    @ApiModelProperty(value = "The duration for the step in seconds.", example = "96.2")
+    @Schema(description = "The duration for the step in seconds.", example = "96.2")
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private final Double duration;
-    @ApiModelProperty(value = "The [instruction](https://GIScience.github.io/openrouteservice/documentation/Instruction-Types.html) action for symbolisation purposes.", example = "1")
+    @Schema(description = "The [instruction](https://GIScience.github.io/openrouteservice/documentation/Instruction-Types.html) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
     private final Integer type;
-    @ApiModelProperty(value = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
+    @Schema(description = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
     @JsonProperty("instruction")
     private final String instruction;
-    @ApiModelProperty(value = "The name of the next street.", example = "Berliner Straße")
+    @Schema(description = "The name of the next street.", example = "Berliner Straße")
     @JsonProperty("name")
     private String name;
-    @ApiModelProperty(value = "Only for roundabouts. Contains the number of the exit to take.", example = "2")
+    @Schema(description = "Only for roundabouts. Contains the number of the exit to take.", example = "2")
     @JsonProperty("exit_number")
     private Integer exitNumber;
-    @ApiModelProperty(value = "Contains the bearing of the entrance and all passed exits in a roundabout  CUSTOM_KEYS:{'validWhen':{'ref':'roundabout_exits',value:true}}.", example = "[10,45,60]")
+    @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout  CUSTOM_KEYS:{'validWhen':{'ref':'roundabout_exits',value:true}}.",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "roundabout_exits"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )}, example = "[10,45,60]")
     @JsonProperty("exit_bearings")
     private int[] exitBearings;
-    @ApiModelProperty(value = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
+    @Schema(description = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
     @JsonProperty("way_points")
     private int[] waypoints;
-    @ApiModelProperty(value = "The maneuver to be performed  CUSTOM_KEYS:{'validWhen':{'ref':'maneuvers',value:true}}")
+    @Schema(description = "The maneuver to be performed  CUSTOM_KEYS:{'validWhen':{'ref':'maneuvers',value:true}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "maneuvers"),
+                    @ExtensionProperty(name = "value", value = "true", parseValue = true)}
+            )})
     @JsonProperty("maneuver")
     private JSONStepManeuver maneuver;
 

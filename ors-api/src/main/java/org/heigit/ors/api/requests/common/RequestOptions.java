@@ -18,59 +18,80 @@ package org.heigit.ors.api.requests.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.json.simple.JSONObject;
 
-@ApiModel(value = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
+@Schema(name = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestOptions implements RouteRequestParameterNames {
 
-    @ApiModelProperty(name = PARAM_AVOID_FEATURES, value = "List of features to avoid. " +
+    @Schema(name = PARAM_AVOID_FEATURES, description = "List of features to avoid. " +
             "CUSTOM_KEYS:{'itemRestrictions':{'ref':'profile', 'itemsWhen':{'driving-*':['highways','tollways','ferries'],'cycling-*':['ferries','steps','fords'],'foot-*':['ferries','fords','steps'],'wheelchair':['ferries','steps']}}}",
+            extensions = { @Extension(name = "itemRestrictions", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "itemsWhen", value = "{\"driving-*\":[\"highways\",\"tollways\",\"ferries\"],\"cycling-*\":[\"ferries\",\"steps\",\"fords\"],\"foot-*\":[\"ferries\",\"fords\",\"steps\"],\"wheelchair\":[\"ferries\",\"steps\"]}", parseValue = true)}
+            )},
             example = "[\"highways\"]")
     @JsonProperty(PARAM_AVOID_FEATURES)
     private APIEnums.AvoidFeatures[] avoidFeatures;
     @JsonIgnore
     private boolean hasAvoidFeatures = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_BORDERS, value = "`all` for no border crossing. `controlled` to cross open borders but avoid controlled ones. Only for `driving-*` profiles. " +
+    @Schema(name = PARAM_AVOID_BORDERS, description = "`all` for no border crossing. `controlled` to cross open borders but avoid controlled ones. Only for `driving-*` profiles. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-*")}
+            )},
             example = "controlled")
     @JsonProperty(PARAM_AVOID_BORDERS)
     private APIEnums.AvoidBorders avoidBorders;
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_COUNTRIES, value = "List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
+    @Schema(name = PARAM_AVOID_COUNTRIES, description = "List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
             "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). " +
             "Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. " +
             "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-*")}
+            )},
             example = "[ 11, 193 ]")
     @JsonProperty(PARAM_AVOID_COUNTRIES)
     private String[] avoidCountries;
     @JsonIgnore
     private boolean hasAvoidCountries = false;
 
-    @ApiModelProperty(name = PARAM_VEHICLE_TYPE, value = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
-            "CUSTOM_KEYS:{'apiDefault':'hgv','validWhen':{'ref':'profile','value':['driving-hgv']}}")
+    @Schema(name = PARAM_VEHICLE_TYPE, description = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. " +
+            "CUSTOM_KEYS:{'apiDefault':'hgv','validWhen':{'ref':'profile','value':['driving-hgv']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "driving-hgv")}
+            )})
     @JsonProperty(value = PARAM_VEHICLE_TYPE)
     private APIEnums.VehicleType vehicleType;
     @JsonIgnore
     private boolean hasVehicleType = false;
 
-    @ApiModelProperty(name = PARAM_PROFILE_PARAMS, value = " Specifies additional matrix parameters." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','valueNot':['driving-car']}}")
+    @Schema(name = PARAM_PROFILE_PARAMS, description = " Specifies additional matrix parameters." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','valueNot':['driving-car']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "valueNot", value = "driving-car")}
+            )})
     @JsonProperty(PARAM_PROFILE_PARAMS)
     private RequestProfileParams profileParams;
     @JsonIgnore
     private boolean hasProfileParams = false;
 
-    @ApiModelProperty(name = PARAM_AVOID_POLYGONS, value = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
+    @Schema(name = PARAM_AVOID_POLYGONS, description = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
     @JsonProperty(PARAM_AVOID_POLYGONS)
     private JSONObject avoidPolygonFeatures;
     @JsonIgnore

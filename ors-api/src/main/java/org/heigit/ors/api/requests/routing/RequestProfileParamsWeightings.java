@@ -18,10 +18,11 @@ package org.heigit.ors.api.requests.routing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@ApiModel(value = "Profile Weightings", parent = RequestProfileParams.class, description = "Describe additional weightings to be applied to edges on the routing.")
+@Schema(title = "Profile Weightings", name = "profileWeightings", description = "Describe additional weightings to be applied to edges on the routing.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RequestProfileParamsWeightings {
     public static final String PARAM_STEEPNESS_DIFFICULTY = "steepness_difficulty";
@@ -31,39 +32,55 @@ public class RequestProfileParamsWeightings {
     private static final String PARAM_CSV_COLUMN = "csv_column";
     public static final String PARAM_SHADOW_INDEX = "shadow";
 
-    @ApiModelProperty(name = PARAM_STEEPNESS_DIFFICULTY, value = "Specifies the fitness level for `cycling-*` profiles.\n" +
-            "\n level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['cycling-*']}}", example = "2")
+    @Schema(name= PARAM_STEEPNESS_DIFFICULTY, description = "Specifies the fitness level for `cycling-*` profiles.\n" +
+            "\n level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['cycling-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "cycling-*")}
+            )}, example = "2")
     @JsonProperty(PARAM_STEEPNESS_DIFFICULTY)
     private Integer steepnessDifficulty;
     @JsonIgnore
     private boolean hasSteepnessDifficulty = false;
 
-    @ApiModelProperty(name = PARAM_GREEN_INDEX, value = "Specifies the Green factor for `foot-*` profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the green routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through green areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.4")
+    @Schema(name= PARAM_GREEN_INDEX, description = "Specifies the Green factor for `foot-*` profiles.\n" +
+            "\nfactor: Multiplication factor range from 0 to 1. 0 is the green routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through green areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "foot-*")}
+            )}, example = "0.4")
     @JsonProperty(PARAM_GREEN_INDEX)
     private Float greenIndex;
     @JsonIgnore
     private boolean hasGreenIndex = false;
 
-    @ApiModelProperty(name = PARAM_QUIETNESS, value = "Specifies the Quiet factor for foot-* profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the quiet routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer quiet ways over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.8")
+    @Schema(name= PARAM_QUIETNESS, description = "Specifies the Quiet factor for foot-* profiles.\n" +
+            "\nfactor: Multiplication factor range from 0 to 1. 0 is the quiet routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer quiet ways over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "foot-*")}
+            )}, example = "0.8")
     @JsonProperty(PARAM_QUIETNESS)
     private Float quietIndex;
     @JsonIgnore
     private boolean hasQuietIndex = false;
 
-    @ApiModelProperty(name = PARAM_CSV_FACTOR, value="Specifies the factor of csv-column (range 0 to 1)", hidden = true)
+    @Schema(name = PARAM_CSV_FACTOR, description = "Specifies the factor of csv-column (range 0 to 1)", hidden = true)
     @JsonProperty(PARAM_CSV_FACTOR)
     private Float csvFactor;
 
-    @ApiModelProperty(name = PARAM_CSV_COLUMN, value="Specifies the csv column name", hidden = true)
+    @Schema(name = PARAM_CSV_COLUMN, description = "Specifies the csv column name", hidden = true)
     @JsonProperty(PARAM_CSV_COLUMN)
     private String csvColumn;
     @JsonIgnore
     private boolean hasCsv = false;
 
-    @ApiModelProperty(name = PARAM_SHADOW_INDEX, value = "Specifies the shadow factor for `foot-*` profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the shadow routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through shadow areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}", example = "0.4")
+    @Schema(name= PARAM_SHADOW_INDEX, description = "Specifies the shadow factor for `foot-*` profiles.\n" +
+            "\nfactor: Multiplication factor range from 0 to 1. 0 is the shadow routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through shadow areas over a shorter route. CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['foot-*']}}",
+            extensions = { @Extension(name = "validWhen", properties = {
+                    @ExtensionProperty(name = "ref", value = "profile"),
+                    @ExtensionProperty(name = "value", value = "foot-*")}
+            )}, example = "0.4")
     @JsonProperty(PARAM_SHADOW_INDEX)
     private Float shadowIndex;
     @JsonIgnore

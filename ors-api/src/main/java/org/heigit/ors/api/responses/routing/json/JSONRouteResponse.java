@@ -18,6 +18,7 @@ package org.heigit.ors.api.responses.routing.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
@@ -26,13 +27,11 @@ import org.heigit.ors.api.responses.routing.RouteResponseInfo;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.util.GeomUtility;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ApiModel(value = "JSONRouteResponse")
+@Schema(name = "JSONRouteResponse")
 public class JSONRouteResponse extends RouteResponse {
     public JSONRouteResponse(RouteResult[] routeResults, RouteRequest request) throws StatusCodeException {
         super(request);
@@ -51,20 +50,20 @@ public class JSONRouteResponse extends RouteResponse {
     }
 
     @JsonProperty("routes")
-    @ApiModelProperty(value = "A list of routes returned from the request")
+    @Schema(description = "A list of routes returned from the request")
     public JSONIndividualRouteResponse[] getRoutes() {
         return (JSONIndividualRouteResponse[]) routeResults.toArray(new JSONIndividualRouteResponse[routeResults.size()]);
     }
 
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @ApiModelProperty(value = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
+    @Schema(description = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
     public double[] getBBoxsArray() {
         return bbox.getAsArray();
     }
 
     @JsonProperty("metadata")
-    @ApiModelProperty("Information about the service and request")
+    @Schema(description = "Information about the service and request")
     public RouteResponseInfo getInfo() {
         return responseInformation;
     }

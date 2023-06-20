@@ -21,8 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_1;
+
 
 @EndPointAnnotation(name = "api-docs")
 @VersionAnnotation(version = "v2")
@@ -31,20 +32,77 @@ class ResultTest extends ServiceTest {
     @Autowired
     InfoProperties infoProperties;
 
+    //    The outcommented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
+//    SwaggerParseResult result;
+//    OpenAPI openAPI;
+    String openAPIVersion = String.valueOf(OPENAPI_3_1.getVersion());
+
+//    @BeforeEach
+//    void setUp() {
+//        Response response = RestAssured.given().get(getEndPointPath());
+//        // parse a openapi description from the petstore and get the result
+//        result = new OpenAPIParser().readContents(response.getBody().asString(), null, null);
+//        // the parsed POJO
+//        openAPI = result.getOpenAPI();
+//    }
+
+
     @Test
     void testGetSwagger() {
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()
                 .assertThat()
-                .body("any { it.key == 'swagger' }", is(true))
+                .body("openapi", hasToString(openAPIVersion))
+                .body("any { it.key == 'openapi' }", is(true))
                 .body("any { it.key == 'info' }", is(true))
-                .body("any { it.key == 'host' }", is(true))
+                .body("any { it.key == 'servers' }", is(true))
                 .body("any { it.key == 'tags' }", is(true))
                 .body("any { it.key == 'paths' }", is(true))
-                .body("any { it.key == 'definitions' }", is(true))
-                .body("swagger", hasToString("2.0"))
-                .body("host", hasToString(infoProperties.getSwaggerDocumentationUrl()))
+                .body("any { it.key == 'components' }", is(true))
+                .body("servers", hasSize(1))
+                .body("servers[0].url", hasToString(infoProperties.getSwaggerDocumentationUrl()))
                 .statusCode(200);
     }
+
+//    @Test
+//    void testSwaggerSpecValidationErrors() {
+//        if (result.getMessages() != null) {
+//            result.getMessages().forEach(System.err::println);
+//        }
+//        // Assure that no openapi spec validation errors exist.
+//        assertTrue(result.getMessages().isEmpty());
+//        assertTrue(result.isOpenapi31());
+//    }
+
+//    @Test
+//    void testSwaggerVersion() {
+//        assertEquals(openAPIVersion, openAPI.getOpenapi());
+//    }
+
+//    @Test
+//    void testSwaggerInfo() {
+//        assertNotNull(openAPI.getInfo());
+//        assertEquals("Openrouteservice", openAPI.getInfo().getTitle());
+//        assertEquals("v2", openAPI.getInfo().getVersion());
+//    }
+
+//    @Test
+//    void testSwaggerTags() {
+//        assertNotNull(openAPI.getTags());
+//        assertEquals(7, openAPI.getTags().size());
+//    }
+
+//    @Test
+//    void testSwaggerPaths() {
+//        assertNotNull(openAPI.getPaths());
+//        assertEquals(14, openAPI.getPaths().size());
+//    }
+
+//    @Test
+//    void testSwaggerComponents() {
+//        assertNotNull(openAPI.getComponents());
+//        assertNotNull(openAPI.getComponents().getSchemas());
+//        assertEquals(43, openAPI.getComponents().getSchemas().size());
+//    }
 }
