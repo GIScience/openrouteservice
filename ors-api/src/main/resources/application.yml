@@ -32,7 +32,6 @@ messages:
 
 ##### ORS endpoints settings #####
 endpoints:
-  swagger_documentation_url: https://api.openrouteservice.org/
   routing:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
