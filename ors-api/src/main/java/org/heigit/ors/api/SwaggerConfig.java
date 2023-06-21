@@ -115,7 +115,7 @@ public class SwaggerConfig {
     private Info apiInfo() {
         return new Info()
                 .title(SERVICE_NAME)
-                .description("This is the openrouteservice API V2 documentation for ORS Core-Version " + VERSION + ". Documentations for [older Core-Versions](https://github.com/GIScience/openrouteservice-docs/releases) can be rendered with the [Swagger-Editor](https://editor-next.swagger.io/).")
+                .description("This is the openrouteservice API documentation for ORS Core-Version " + VERSION + ". Documentations for [older Core-Versions](https://github.com/GIScience/openrouteservice-docs/releases) can be rendered with the [Swagger-Editor](https://editor-next.swagger.io/).")
                 .version("v2")
                 .contact(apiContact())
                 .license(apiLicence());
