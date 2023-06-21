@@ -54,7 +54,6 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
 
     private RoutingProfilesCollection routeProfiles;
-    //private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
