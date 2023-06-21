@@ -16,15 +16,17 @@ package org.heigit.ors.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
-import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.centrality.CentralityErrorCodes;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportRequest;
@@ -37,6 +39,7 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
@@ -44,6 +47,7 @@ import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +59,6 @@ import java.util.stream.Collectors;
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
-
     private RoutingProfilesCollection routeProfiles;
     private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager instance;
@@ -65,15 +68,21 @@ public class RoutingProfileManager {
     private long kafkaMessagesFailed = 0;
     public static final boolean KAFKA_DEBUG = false;
 
+    public RoutingProfileManager(EngineConfig config) {
+        if (instance == null) {
+            initialize(null, config);
+            instance = this;
+        }
+    }
+
     public static synchronized RoutingProfileManager getInstance() {
         if (instance == null) {
-            instance = new RoutingProfileManager();
-            instance.initialize(null);
+            throw new UnsupportedOperationException("RoutingProfileManager has not been initialited!");
         }
         return instance;
     }
 
-    public void prepareGraphs(String graphProps) {
+    public void prepareGraphs(String graphProps, EngineConfig config) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -83,7 +92,7 @@ public class RoutingProfileManager {
             int nRouteInstances = rmc.getProfiles().length;
 
             RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-            ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
+            ExecutorService executor = Executors.newFixedThreadPool(config.getInitializationThreads());
             ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
 
             int nTotalTasks = 0;
@@ -132,7 +141,7 @@ public class RoutingProfileManager {
         RuntimeUtility.clearMemory(LOGGER);
     }
 
-    public void initialize(String graphProps) {
+    public void initialize(String graphProps, EngineConfig config) {
         RuntimeUtility.printRAMInfo("", LOGGER);
 
         LOGGER.info("      ");
@@ -143,17 +152,18 @@ public class RoutingProfileManager {
             if (RoutingServiceSettings.getEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
+                int initializationThreads = config.getInitializationThreads();
                 LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
-                        RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
+                        RoutingServiceSettings.getSourceFile(), initializationThreads));
 
                 if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
-                    prepareGraphs(graphProps);
+                    prepareGraphs(graphProps, config);
                 } else {
                     routeProfiles = new RoutingProfilesCollection();
                     int nRouteInstances = rmc.getProfiles().length;
 
                     RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-                    ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
+                    ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
                     ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
 
                     int nTotalTasks = 0;
@@ -402,36 +412,36 @@ public class RoutingProfileManager {
                                 code = RoutingErrorCodes.PT_ROUTE_NOT_FOUND;
                             }
                             throw new RouteNotFoundException(
-                                code,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
-                                    i,
-                                    FormatUtility.formatCoordinate(c0),
-                                    i + 1,
-                                    FormatUtility.formatCoordinate(c1),
-                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
-                                )
+                                    code,
+                                    String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                            i,
+                                            FormatUtility.formatCoordinate(c0),
+                                            i + 1,
+                                            FormatUtility.formatCoordinate(c1),
+                                            details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                    )
                             );
                         }
                         throw new RouteNotFoundException(
-                            RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1)
-                            )
+                                RoutingErrorCodes.ROUTE_NOT_FOUND,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1)
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
                         Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
                         throw new RouteNotFoundException(
-                            RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1),
-                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
-                            )
+                                RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1),
+                                        details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
@@ -727,19 +737,18 @@ public class RoutingProfileManager {
     public void updateProfile(String profile, String value) {
         switch (profile) {
             // profile specific processing
-            case "driving-car":
-            case "driving-hgv":
+            case "driving-car", "driving-hgv" -> {
                 try {
                     ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
                     RoutingProfile rp = null;
                     int profileType = RoutingProfileType.getFromString(profile);
                     rp = getRoutingProfileFromType(rp, profileType);
-                    if(rp == null)
+                    if (rp == null)
                         return;
                     if (!msg.hasDurationMin())
                         msg.setDurationMin(rp.getConfiguration().getTrafficExpirationMin());
                     ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);
-                    if(storage == null)
+                    if (storage == null)
                         throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
                     processMessage(msg, storage);
                     LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
@@ -748,8 +757,8 @@ public class RoutingProfileManager {
                     LOGGER.error(e);
                     this.kafkaMessagesFailed++;
                 }
-                break;
-            case "test":
+            }
+            case "test" -> {
                 try {
                     ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
                     if (KAFKA_DEBUG)
@@ -759,19 +768,18 @@ public class RoutingProfileManager {
                     LOGGER.error(e);
                     this.kafkaMessagesFailed++;
                 }
-                break;
-            default:
+            }
+            default -> {
                 LOGGER.error(String.format("kafka message received for unknown profile %s", profile));
                 this.kafkaMessagesFailed++;
-                break;
+            }
         }
     }
 
     private void processMessage(ORSSpeedUpdate msg, ExpiringSpeedStorage storage) {
-        try{
+        try {
             storage.process(msg);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e);
         }
     }
@@ -779,8 +787,7 @@ public class RoutingProfileManager {
     private RoutingProfile getRoutingProfileFromType(RoutingProfile rp, int profileType) {
         try {
             rp = routeProfiles.getRouteProfile(profileType);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e);
         }
         return rp;
