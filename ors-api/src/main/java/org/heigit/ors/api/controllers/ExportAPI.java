@@ -110,7 +110,7 @@ public class ExportAPI {
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
             @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
         request.setProfile(profile);
-        request.setResponseType(APIEnums.CentralityResponseType.JSON);
+        request.setResponseType(APIEnums.ExportResponseType.JSON);
 
         ExportResult result = request.generateExportFromRequest();
 

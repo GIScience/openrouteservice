@@ -19,12 +19,10 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
+import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
-import org.heigit.ors.centrality.CentralityErrorCodes;
-import org.heigit.ors.centrality.CentralityRequest;
-import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportRequest;
@@ -46,7 +44,6 @@ import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -666,19 +663,11 @@ public class RoutingProfileManager {
         return rp.computeMatrix(req);
     }
 
-    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
-        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
-
-        if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-        return rp.computeCentrality(req);
-    }
-
     public ExportResult computeExport(ExportRequest req) throws Exception {
         RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeExport(req);
     }
 

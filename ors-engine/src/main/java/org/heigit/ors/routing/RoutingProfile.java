@@ -34,11 +34,6 @@ import com.typesafe.config.Config;
 import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
-import org.heigit.ors.centrality.CentralityRequest;
-import org.heigit.ors.centrality.CentralityResult;
-import org.heigit.ors.centrality.CentralityWarning;
-import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
-import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
@@ -720,73 +715,7 @@ public class RoutingProfile {
         return matrixResult;
     }
 
-    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
-        CentralityResult res = new CentralityResult();
-
-        GraphHopper gh = getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.FASTEST;
-        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
-
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
-
-        // filter graph for nodes in Bounding Box
-        LocationIndex index = gh.getLocationIndex();
-        NodeAccess nodeAccess = graph.getNodeAccess();
-        BBox bbox = req.getBoundingBox();
-        List<Integer> excludeNodes = req.getExcludeNodes();
-
-        ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, edgeId -> {
-            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
-            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-
-            //we only add nodes once, if they are not excluded and in our bbox.
-            if (!nodesInBBox.contains(baseNode) && !excludeNodes.contains(baseNode) && bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
-                nodesInBBox.add(baseNode);
-            }
-            if (!nodesInBBox.contains(adjNode) && !excludeNodes.contains(adjNode) && bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
-                nodesInBBox.add(adjNode);
-            }
-
-        });
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
-
-        if (nodesInBBox.isEmpty()) {
-            // without nodes, no centrality can be calculated
-            res.setWarning(new CentralityWarning(CentralityWarning.EMPTY_BBOX));
-            return res;
-        }
-
-        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting, explorer);
-
-        // transform node ids to coordinates,
-        for (int v : nodesInBBox) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-            res.addLocation(v, coord);
-        }
-
-        if (req.getMode().equals("nodes")) {
-            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
-            res.setNodeCentralityScores(nodeBetweenness);
-        } else {
-            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
-            res.setEdgeCentralityScores(edgeBetweenness);
-        }
-
-        return res;
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
+     public ExportResult computeExport(ExportRequest req) throws Exception {
         ExportResult res = new ExportResult();
 
         GraphHopper gh = getGraphhopper();
@@ -826,7 +755,7 @@ public class RoutingProfile {
         LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
-            // without nodes, no centrality can be calculated
+            // without nodes, no export can be calculated
             res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
             return res;
         }
