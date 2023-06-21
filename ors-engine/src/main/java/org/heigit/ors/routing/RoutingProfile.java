@@ -33,7 +33,6 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.centrality.CentralityRequest;
 import org.heigit.ors.centrality.CentralityResult;
@@ -68,7 +67,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
@@ -127,7 +125,6 @@ public class RoutingProfile {
     private final RouteProfileConfiguration config;
     private ORSGraphHopper mGraphHopper;
     private Integer mUseCounter;
-    private boolean mUpdateRun;
     private MapMatcher mMapMatcher;
     private String astarApproximation;
     private Double astarEpsilon;
@@ -522,65 +519,6 @@ public class RoutingProfile {
         mUseCounter--;
     }
 
-    public void updateGH(GraphHopper gh) throws Exception {
-        if (gh == null)
-            throw new Exception("GraphHopper instance is null.");
-
-        try {
-            mUpdateRun = true;
-            while (true) {
-                if (!isGHUsed()) {
-                    GraphHopper ghOld = mGraphHopper;
-
-                    ghOld.close();
-                    ghOld.clean();
-
-                    gh.close();
-                    // gh.clean(); // do not remove on-disk files, we need to
-                    // copy them as follows
-
-                    RuntimeUtility.clearMemory(LOGGER);
-
-                    // Change the content of the graph folder
-                    String oldLocation = ghOld.getGraphHopperLocation();
-                    File dstDir = new File(oldLocation);
-                    File srcDir = new File(gh.getGraphHopperLocation());
-                    FileUtils.copyDirectory(srcDir, dstDir, true);
-                    FileUtils.deleteDirectory(srcDir);
-
-                    RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-
-                    mGraphHopper = initGraphHopper(ghOld.getOSMFile(), config, loadCntx);
-
-                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
-
-                    break;
-                }
-
-                Thread.sleep(2000);
-            }
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-        }
-
-        mUpdateRun = false;
-    }
-
-    private void waitForUpdateCompletion() throws Exception {
-        if (mUpdateRun) {
-            long startTime = System.currentTimeMillis();
-
-            while (mUpdateRun) {
-                long curTime = System.currentTimeMillis();
-                if (curTime - startTime > 600000) {
-                    throw new Exception("The route profile is currently being updated.");
-                }
-
-                Thread.sleep(1000);
-            }
-        }
-    }
-
     /**
      * This function creates the actual {@link IsochroneMap}.
      * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
@@ -618,7 +556,6 @@ public class RoutingProfile {
 
 
         IsochroneMap result;
-        waitForUpdateCompletion();
 
         beginUseGH();
 
@@ -1053,8 +990,6 @@ public class RoutingProfile {
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
 
-        waitForUpdateCompletion();
-
         beginUseGH();
 
         try {
@@ -1124,8 +1059,6 @@ public class RoutingProfile {
             throws Exception {
 
         GHResponse resp;
-
-        waitForUpdateCompletion();
 
         beginUseGH();
 
@@ -1458,7 +1391,7 @@ public class RoutingProfile {
      */
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
         IsochroneMap result;
-        waitForUpdateCompletion();
+
         beginUseGH();
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());

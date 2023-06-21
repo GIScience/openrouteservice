@@ -57,7 +57,7 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
 
     private RoutingProfilesCollection routeProfiles;
-    private RoutingProfilesUpdater profileUpdater;
+    //private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -196,11 +196,6 @@ public class RoutingProfileManager {
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
                     initCompleted();
-
-                    if (rmc.getUpdateConfig().getEnabled()) {
-                        profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
-                        profileUpdater.start();
-                    }
                 }
 
                 RoutingProfileManagerStatus.setReady(true);
@@ -217,26 +212,11 @@ public class RoutingProfileManager {
     }
 
     public void destroy() {
-        if (profileUpdater != null)
-            profileUpdater.destroy();
-
         routeProfiles.destroy();
     }
 
     public RoutingProfilesCollection getProfiles() {
         return routeProfiles;
-    }
-
-    public boolean updateEnabled() {
-        return profileUpdater != null;
-    }
-
-    public Date getNextUpdateTime() {
-        return profileUpdater == null ? new Date() : profileUpdater.getNextUpdate();
-    }
-
-    public String getUpdatedStatus() {
-        return profileUpdater == null ? null : profileUpdater.getStatus();
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {

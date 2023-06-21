@@ -46,6 +46,9 @@ RELEASING:
 ### Changed
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 
+### Removed
+- RoutingProfileUpdater and related classes
+
 ### Fixed
 - Upgrade kafka_2.13 from 3.4.0 to 3.5.0 ([#1472](https://github.com/GIScience/openrouteservice/issues/1472))
 - Remove maven-shared-utils dependency ([#1473](https://github.com/GIScience/openrouteservice/issues/1473))
