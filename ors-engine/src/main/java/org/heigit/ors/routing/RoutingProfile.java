@@ -50,7 +50,6 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
@@ -125,7 +124,6 @@ public class RoutingProfile {
     private final RouteProfileConfiguration config;
     private ORSGraphHopper mGraphHopper;
     private Integer mUseCounter;
-    private MapMatcher mMapMatcher;
     private String astarApproximation;
     private Double astarEpsilon;
 
@@ -952,39 +950,6 @@ public class RoutingProfile {
 
         return searchCntx;
     }
-
-//    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
-//            throws Exception {
-//        RouteSegmentInfo[] rsi;
-//
-//        waitForUpdateCompletion();
-//
-//        beginUseGH();
-//
-//        try {
-//            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-//
-//            endUseGH();
-//        } catch (Exception ex) {
-//            endUseGH();
-//
-//            throw ex;
-//        }
-//
-//        return rsi;
-//    }
-
-//    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations, double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
-//        if (mMapMatcher == null) {
-//            mMapMatcher = new HiddenMarkovMapMatcher();
-//            mMapMatcher.setGraphHopper(mGraphHopper);
-//        }
-//
-//        mMapMatcher.setSearchRadius(searchRadius);
-//        mMapMatcher.setEdgeFilter(edgeFilter);
-//
-//        return mMapMatcher.match(locations, bothDirections);
-//    }
 
     public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {

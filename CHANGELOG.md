@@ -48,6 +48,7 @@ RELEASING:
 
 ### Removed
 - RoutingProfileUpdater and related classes
+- Old map matching code
 
 ### Fixed
 - Upgrade kafka_2.13 from 3.4.0 to 3.5.0 ([#1472](https://github.com/GIScience/openrouteservice/issues/1472))
