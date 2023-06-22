@@ -29,7 +29,7 @@ public class ExportRequest extends APIRequest {
     public static final String PARAM_DEBUG = "debug";
 
     @Schema(name= PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "centrality_request")
+            example = "export_request")
     @JsonProperty(PARAM_ID)
     private String id;
     @JsonIgnore
@@ -46,7 +46,7 @@ public class ExportRequest extends APIRequest {
 
     @Schema(name= PARAM_FORMAT, accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_FORMAT)
-    private APIEnums.CentralityResponseType responseType = APIEnums.CentralityResponseType.JSON;
+    private APIEnums.ExportResponseType responseType = APIEnums.ExportResponseType.JSON;
 
     @Schema(name= PARAM_DEBUG, accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(PARAM_DEBUG)
@@ -90,7 +90,7 @@ public class ExportRequest extends APIRequest {
         this.profile = profile;
     }
 
-    public void setResponseType(APIEnums.CentralityResponseType responseType) {
+    public void setResponseType(APIEnums.ExportResponseType responseType) {
         this.responseType = responseType;
     }
 

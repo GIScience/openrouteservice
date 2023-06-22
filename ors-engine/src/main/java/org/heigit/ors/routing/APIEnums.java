@@ -146,19 +146,19 @@ public class APIEnums {
         }
     }
 
-    @Schema(name = "Centrality response type", description = "Format of the Centrality response.")
-    public enum CentralityResponseType {
+    @Schema(name = "Export response type", description = "Format of the export response.")
+    public enum ExportResponseType {
         JSON("json");
 
         private final String value;
 
-        CentralityResponseType(String value) {
+        ExportResponseType(String value) {
             this.value = value;
         }
 
         @JsonCreator
-        public static CentralityResponseType forValue(String v) throws ParameterValueException {
-            for (CentralityResponseType enumItem : CentralityResponseType.values()) {
+        public static ExportResponseType forValue(String v) throws ParameterValueException {
+            for (ExportResponseType enumItem : ExportResponseType.values()) {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }

@@ -73,13 +73,6 @@ public class StatusAPI {
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
-                if (profileManager.updateEnabled()) {
-                    jInfo.put("next_update", formatDateTime(profileManager.getNextUpdateTime()));
-                    String status = profileManager.getUpdatedStatus();
-                    if (status != null)
-                        jInfo.put("update_status", status);
-                }
-
                 org.json.JSONObject jProfiles = new org.json.JSONObject(true);
                 int i = 1;
 

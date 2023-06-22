@@ -38,7 +38,7 @@ public class APIRequest {
     public static final String PARAM_PROFILE = "profile";
 
     @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "centrality_request")
+            example = "export_request")
     @JsonProperty(PARAM_ID)
     protected String id;
     @JsonIgnore

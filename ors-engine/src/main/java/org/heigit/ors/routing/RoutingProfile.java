@@ -33,13 +33,7 @@ import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.centrality.CentralityRequest;
-import org.heigit.ors.centrality.CentralityResult;
-import org.heigit.ors.centrality.CentralityWarning;
-import org.heigit.ors.centrality.algorithms.CentralityAlgorithm;
-import org.heigit.ors.centrality.algorithms.brandes.BrandesCentralityAlgorithm;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
@@ -51,7 +45,6 @@ import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
@@ -68,7 +61,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
@@ -127,8 +119,6 @@ public class RoutingProfile {
     private final RouteProfileConfiguration config;
     private ORSGraphHopper mGraphHopper;
     private Integer mUseCounter;
-    private boolean mUpdateRun;
-    private MapMatcher mMapMatcher;
     private String astarApproximation;
     private Double astarEpsilon;
 
@@ -522,65 +512,6 @@ public class RoutingProfile {
         mUseCounter--;
     }
 
-    public void updateGH(GraphHopper gh) throws Exception {
-        if (gh == null)
-            throw new Exception("GraphHopper instance is null.");
-
-        try {
-            mUpdateRun = true;
-            while (true) {
-                if (!isGHUsed()) {
-                    GraphHopper ghOld = mGraphHopper;
-
-                    ghOld.close();
-                    ghOld.clean();
-
-                    gh.close();
-                    // gh.clean(); // do not remove on-disk files, we need to
-                    // copy them as follows
-
-                    RuntimeUtility.clearMemory(LOGGER);
-
-                    // Change the content of the graph folder
-                    String oldLocation = ghOld.getGraphHopperLocation();
-                    File dstDir = new File(oldLocation);
-                    File srcDir = new File(gh.getGraphHopperLocation());
-                    FileUtils.copyDirectory(srcDir, dstDir, true);
-                    FileUtils.deleteDirectory(srcDir);
-
-                    RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-
-                    mGraphHopper = initGraphHopper(ghOld.getOSMFile(), config, loadCntx);
-
-                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
-
-                    break;
-                }
-
-                Thread.sleep(2000);
-            }
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-        }
-
-        mUpdateRun = false;
-    }
-
-    private void waitForUpdateCompletion() throws Exception {
-        if (mUpdateRun) {
-            long startTime = System.currentTimeMillis();
-
-            while (mUpdateRun) {
-                long curTime = System.currentTimeMillis();
-                if (curTime - startTime > 600000) {
-                    throw new Exception("The route profile is currently being updated.");
-                }
-
-                Thread.sleep(1000);
-            }
-        }
-    }
-
     /**
      * This function creates the actual {@link IsochroneMap}.
      * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
@@ -618,7 +549,6 @@ public class RoutingProfile {
 
 
         IsochroneMap result;
-        waitForUpdateCompletion();
 
         beginUseGH();
 
@@ -785,73 +715,7 @@ public class RoutingProfile {
         return matrixResult;
     }
 
-    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
-        CentralityResult res = new CentralityResult();
-
-        GraphHopper gh = getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.FASTEST;
-        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
-
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
-
-        // filter graph for nodes in Bounding Box
-        LocationIndex index = gh.getLocationIndex();
-        NodeAccess nodeAccess = graph.getNodeAccess();
-        BBox bbox = req.getBoundingBox();
-        List<Integer> excludeNodes = req.getExcludeNodes();
-
-        ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, edgeId -> {
-            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
-            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-
-            //we only add nodes once, if they are not excluded and in our bbox.
-            if (!nodesInBBox.contains(baseNode) && !excludeNodes.contains(baseNode) && bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
-                nodesInBBox.add(baseNode);
-            }
-            if (!nodesInBBox.contains(adjNode) && !excludeNodes.contains(adjNode) && bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
-                nodesInBBox.add(adjNode);
-            }
-
-        });
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
-
-        if (nodesInBBox.isEmpty()) {
-            // without nodes, no centrality can be calculated
-            res.setWarning(new CentralityWarning(CentralityWarning.EMPTY_BBOX));
-            return res;
-        }
-
-        CentralityAlgorithm alg = new BrandesCentralityAlgorithm();
-        alg.init(graph, weighting, explorer);
-
-        // transform node ids to coordinates,
-        for (int v : nodesInBBox) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(v), nodeAccess.getLat(v));
-            res.addLocation(v, coord);
-        }
-
-        if (req.getMode().equals("nodes")) {
-            Map<Integer, Double> nodeBetweenness = alg.computeNodeCentrality(nodesInBBox);
-            res.setNodeCentralityScores(nodeBetweenness);
-        } else {
-            Map<Pair<Integer, Integer>, Double> edgeBetweenness = alg.computeEdgeCentrality(nodesInBBox);
-            res.setEdgeCentralityScores(edgeBetweenness);
-        }
-
-        return res;
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
+     public ExportResult computeExport(ExportRequest req) throws Exception {
         ExportResult res = new ExportResult();
 
         GraphHopper gh = getGraphhopper();
@@ -891,7 +755,7 @@ public class RoutingProfile {
         LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
-            // without nodes, no centrality can be calculated
+            // without nodes, no export can be calculated
             res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
             return res;
         }
@@ -1016,44 +880,9 @@ public class RoutingProfile {
         return searchCntx;
     }
 
-//    public RouteSegmentInfo[] getMatchedSegments(Coordinate[] locations, double searchRadius, boolean bothDirections)
-//            throws Exception {
-//        RouteSegmentInfo[] rsi;
-//
-//        waitForUpdateCompletion();
-//
-//        beginUseGH();
-//
-//        try {
-//            rsi = getMatchedSegmentsInternal(locations, searchRadius, null, bothDirections);
-//
-//            endUseGH();
-//        } catch (Exception ex) {
-//            endUseGH();
-//
-//            throw ex;
-//        }
-//
-//        return rsi;
-//    }
-
-//    private RouteSegmentInfo[] getMatchedSegmentsInternal(Coordinate[] locations, double searchRadius, EdgeFilter edgeFilter, boolean bothDirections) {
-//        if (mMapMatcher == null) {
-//            mMapMatcher = new HiddenMarkovMapMatcher();
-//            mMapMatcher.setGraphHopper(mGraphHopper);
-//        }
-//
-//        mMapMatcher.setSearchRadius(searchRadius);
-//        mMapMatcher.setEdgeFilter(edgeFilter);
-//
-//        return mMapMatcher.match(locations, bothDirections);
-//    }
-
     public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
-
-        waitForUpdateCompletion();
 
         beginUseGH();
 
@@ -1124,8 +953,6 @@ public class RoutingProfile {
             throws Exception {
 
         GHResponse resp;
-
-        waitForUpdateCompletion();
 
         beginUseGH();
 
@@ -1458,7 +1285,7 @@ public class RoutingProfile {
      */
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
         IsochroneMap result;
-        waitForUpdateCompletion();
+
         beginUseGH();
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());

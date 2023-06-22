@@ -19,12 +19,10 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
+import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
-import org.heigit.ors.centrality.CentralityErrorCodes;
-import org.heigit.ors.centrality.CentralityRequest;
-import org.heigit.ors.centrality.CentralityResult;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportRequest;
@@ -46,7 +44,6 @@ import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -57,7 +54,6 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
 
     private RoutingProfilesCollection routeProfiles;
-    private RoutingProfilesUpdater profileUpdater;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -196,11 +192,6 @@ public class RoutingProfileManager {
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
                     initCompleted();
-
-                    if (rmc.getUpdateConfig().getEnabled()) {
-                        profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
-                        profileUpdater.start();
-                    }
                 }
 
                 RoutingProfileManagerStatus.setReady(true);
@@ -217,26 +208,11 @@ public class RoutingProfileManager {
     }
 
     public void destroy() {
-        if (profileUpdater != null)
-            profileUpdater.destroy();
-
         routeProfiles.destroy();
     }
 
     public RoutingProfilesCollection getProfiles() {
         return routeProfiles;
-    }
-
-    public boolean updateEnabled() {
-        return profileUpdater != null;
-    }
-
-    public Date getNextUpdateTime() {
-        return profileUpdater == null ? new Date() : profileUpdater.getNextUpdate();
-    }
-
-    public String getUpdatedStatus() {
-        return profileUpdater == null ? null : profileUpdater.getStatus();
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
@@ -686,19 +662,11 @@ public class RoutingProfileManager {
         return rp.computeMatrix(req);
     }
 
-    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
-        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
-
-        if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-        return rp.computeCentrality(req);
-    }
-
     public ExportResult computeExport(ExportRequest req) throws Exception {
         RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)
-            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeExport(req);
     }
 
