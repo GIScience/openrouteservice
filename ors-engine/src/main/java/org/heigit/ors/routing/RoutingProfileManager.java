@@ -156,7 +156,7 @@ public class RoutingProfileManager {
                 LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
                         RoutingServiceSettings.getSourceFile(), initializationThreads));
 
-                if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
+                if (config.isPreparationMode()) {
                     prepareGraphs(graphProps, config);
                 } else {
                     routeProfiles = new RoutingProfilesCollection();

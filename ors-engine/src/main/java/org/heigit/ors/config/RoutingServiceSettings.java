@@ -22,7 +22,6 @@ public class RoutingServiceSettings {
     private static final String SERVICE_NAME_ROUTING = "routing";
     private static boolean enabled = true;
     private static String sourceFile = "";
-    private static String workingMode = "Normal"; // Normal or PrepareGraphs
     private static boolean distanceApproximation = false;
     private static String storageFormat = "Native";
     private static String attribution = "";
@@ -49,9 +48,6 @@ public class RoutingServiceSettings {
 
         sourceFile = RoutingServiceSettings.config.getServiceParametersList(SERVICE_NAME_ROUTING, "sources").get(0);
 
-        workingMode = config.getServiceParameter(SERVICE_NAME_ROUTING, "mode");
-
-
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "distance_approximation");
         if (value != null)
             distanceApproximation = Boolean.parseBoolean(value);
@@ -75,10 +71,6 @@ public class RoutingServiceSettings {
 
     public static String getSourceFile() {
         return sourceFile;
-    }
-
-    public static String getWorkingMode() {
-        return workingMode;
     }
 
     public static boolean getDistanceApproximation() {
