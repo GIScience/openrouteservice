@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import org.heigit.ors.config.EngineConfig;
 import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
@@ -564,12 +565,12 @@ public class IsochronesRequest extends APIRequest {
     }
 
     void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
-
+        EngineConfig config = RoutingProfileManager.getInstance().getConfig();
         if (!IsochronesServiceSettings.getAllowComputeArea() && isochroneRequest.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
-        if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
-            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
+        if (travellers.size() > config.getMaximumLocationsIsochrones())
+            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(config.getMaximumLocationsIsochrones()));
 
         for (TravellerInfo traveller : travellers) {
             int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());

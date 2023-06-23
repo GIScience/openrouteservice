@@ -67,6 +67,7 @@ public class RoutingProfileManager {
     private long kafkaMessagesProcessed = 0;
     private long kafkaMessagesFailed = 0;
     public static final boolean KAFKA_DEBUG = false;
+    private EngineConfig config;
 
     public RoutingProfileManager(EngineConfig config) {
         if (instance == null) {
@@ -147,7 +148,7 @@ public class RoutingProfileManager {
         LOGGER.info("      ");
 
         long startTime = System.currentTimeMillis();
-
+        this.config = config;
         try {
             if (RoutingServiceSettings.getEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
@@ -774,6 +775,10 @@ public class RoutingProfileManager {
                 this.kafkaMessagesFailed++;
             }
         }
+    }
+
+    public EngineConfig getConfig() {
+        return config;
     }
 
     private void processMessage(ORSSpeedUpdate msg, ExpiringSpeedStorage storage) {
