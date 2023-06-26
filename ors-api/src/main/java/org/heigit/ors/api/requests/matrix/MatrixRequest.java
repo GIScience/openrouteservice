@@ -306,6 +306,8 @@ public class MatrixRequest extends APIRequest {
         if(this.hasMatrixOptions())
             coreRequest.setFlexibleMode(this.processMatrixRequestOptions( params));
         coreRequest.setSearchParameters(params);
+        coreRequest.setMaximumVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
+        coreRequest.setMaximumSearchRadius(MatrixServiceSettings.getMaximumSearchRadius());
         return coreRequest;
     }
 

@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.matrix;
 
+import org.heigit.ors.config.MatrixServiceSettings;
 import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
@@ -28,6 +29,8 @@ public class MatrixRequest extends ServiceRequest {
 	private boolean flexibleMode = false;
 	private String algorithm;
 	private MatrixSearchParameters searchParameters;
+	private double maximumSearchRadius = MatrixServiceSettings.getMaximumSearchRadius();
+	private int maximumVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
 
 	public Coordinate[] getSources()
 	{
@@ -110,6 +113,21 @@ public class MatrixRequest extends ServiceRequest {
 
 	public void setAlgorithm(String algorithm) {
 		this.algorithm = algorithm;
+	}
+
+	public double getMaximumSearchRadius() {
+		return maximumSearchRadius;
+	}
+
+	public void setMaximumSearchRadius(double radius) {
+		this.maximumSearchRadius = radius;
+	}
+	public int getMaximumVisitedNodes() {
+		return maximumVisitedNodes;
+	}
+
+	public void setMaximumVisitedNodes(int maximumVisitedNodes) {
+		this.maximumVisitedNodes = maximumVisitedNodes;
 	}
 
 	public void setSearchParameters(MatrixSearchParameters searchParameters) {

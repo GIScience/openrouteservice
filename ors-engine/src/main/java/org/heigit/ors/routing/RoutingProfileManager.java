@@ -74,7 +74,7 @@ public class RoutingProfileManager {
 
     public static synchronized RoutingProfileManager getInstance() {
         if (instance == null) {
-            throw new UnsupportedOperationException("RoutingProfileManager has not been initialited!");
+            throw new UnsupportedOperationException("RoutingProfileManager has not been initialized!");
         }
         return instance;
     }

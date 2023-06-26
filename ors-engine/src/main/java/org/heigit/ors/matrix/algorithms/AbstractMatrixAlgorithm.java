@@ -17,7 +17,6 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 import org.heigit.ors.matrix.MatrixRequest;
 
@@ -34,7 +33,7 @@ public abstract class AbstractMatrixAlgorithm implements MatrixAlgorithm {
         this.graph = graph;
         this.encoder = encoder;
         this.weighting = weighting;
-        this.maxVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
+        this.maxVisitedNodes = req.getMaximumVisitedNodes();
     }
 
     protected boolean isMaxVisitedNodesExceeded() {

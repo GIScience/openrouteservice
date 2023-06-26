@@ -43,9 +43,6 @@ public class MatrixServiceSettings {
 		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "maximum_visited_nodes");
 		if (value != null)
 			maximumVisitedNodes = Math.max(1, Integer.parseInt(value));
-		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, " allow_resolve_locations");
-		if (value != null)
-			allowResolveLocations = Boolean.parseBoolean(value);
 		value = AppConfig.getGlobal().getServiceParameter(PARAM_MATRIX, "attribution");
 		if (value != null)
 			attribution = value;
@@ -60,10 +57,6 @@ public class MatrixServiceSettings {
 		return enabled;
 	}
 
-	public static boolean getAllowResolveLocations() {
-		return allowResolveLocations;
-	}
-	
 	public static int getMaximumVisitedNodes() {
 		return maximumVisitedNodes;
 	}
