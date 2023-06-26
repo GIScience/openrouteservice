@@ -34,8 +34,7 @@ public class JSONLocation {
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     protected Coordinate location;
 
-    @Schema(description = "Name of the street the closest accessible point is situated on. Only for `resolve_locations=true` and only if name is available." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'resolve_locations','value':true}}",
+    @Schema(description = "Name of the street the closest accessible point is situated on. Only for `resolve_locations=true` and only if name is available.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "resolve_locations"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}

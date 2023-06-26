@@ -35,8 +35,7 @@ public class JSONSummary {
     @JsonProperty(value = "duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double duration;
-    @Schema(description = "Total ascent in meters." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}",
+    @Schema(description = "Total ascent in meters.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "elevation"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
@@ -44,8 +43,7 @@ public class JSONSummary {
     @JsonProperty(value = "ascent")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double ascent;
-    @Schema(description = "Total descent in meters." +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'elevation','value':true}}",
+    @Schema(description = "Total descent in meters.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "elevation"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}

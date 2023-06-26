@@ -76,7 +76,7 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasLocations = false;
 
-    @Schema(name= PARAM_LOCATION_TYPE, description = "`start` treats the location(s) as starting point, `destination` as goal. CUSTOM_KEYS:{'apiDefault':'start'}",
+    @Schema(name= PARAM_LOCATION_TYPE, description = "`start` treats the location(s) as starting point, `destination` as goal.",
             defaultValue = "start")
     @JsonProperty(value = PARAM_LOCATION_TYPE)
     private IsochronesRequestEnums.LocationType locationType;
@@ -93,7 +93,7 @@ public class IsochronesRequest extends APIRequest {
     private boolean hasRange = false;
 
     @Schema(name= PARAM_RANGE_TYPE,
-            description = "Specifies the isochrones reachability type. CUSTOM_KEYS:{'apiDefault':'time'}", defaultValue = "time")
+            description = "Specifies the isochrones reachability type.", defaultValue = "time")
     @JsonProperty(value = PARAM_RANGE_TYPE, defaultValue = "time")
     private IsochronesRequestEnums.RangeType rangeType;
     @JsonIgnore
@@ -102,13 +102,12 @@ public class IsochronesRequest extends APIRequest {
     // unit only valid for range_type distance, will be ignored for range_time time
     @Schema(name= PARAM_RANGE_UNITS,
             description = "Specifies the distance units only if `range_type` is set to distance.\n" +
-                    "Default: m. " +
-                    "CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'range_type','value':'distance'}}",
+                    "Default: m. ",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "range_type"),
                     @ExtensionProperty(name = "value", value = "distance")}
             )},
-            example = "m")
+            defaultValue = "m")
     @JsonProperty(value = PARAM_RANGE_UNITS)
     private APIEnums.Units rangeUnit;
     @JsonIgnore
@@ -127,20 +126,19 @@ public class IsochronesRequest extends APIRequest {
 
     @Schema(name= PARAM_AREA_UNITS,
             description = "Specifies the area unit.\n" +
-                    "Default: m. " +
-                    "CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'attributes','value':'area'}}",
+                    "Default: m. ",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "value", value = "area")}
-            )})
+            )},
+            defaultValue = "m")
     @JsonProperty(value = PARAM_AREA_UNITS)
     private APIEnums.Units areaUnit;
     @JsonIgnore
     private boolean hasAreaUnits = false;
 
     @Schema(name= PARAM_INTERSECTIONS,
-            description = "Specifies whether to return intersecting polygons. " +
-                    "CUSTOM_KEYS:{'apiDefault':false}", defaultValue = "false")
+            description = "Specifies whether to return intersecting polygons. ", defaultValue = "false")
     @JsonProperty(value = PARAM_INTERSECTIONS)
     private boolean intersections;
     @JsonIgnore

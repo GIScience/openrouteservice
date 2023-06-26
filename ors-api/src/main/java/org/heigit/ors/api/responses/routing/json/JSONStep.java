@@ -49,7 +49,7 @@ public class JSONStep {
     @Schema(description = "Only for roundabouts. Contains the number of the exit to take.", example = "2")
     @JsonProperty("exit_number")
     private Integer exitNumber;
-    @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout  CUSTOM_KEYS:{'validWhen':{'ref':'roundabout_exits',value:true}}.",
+    @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "roundabout_exits"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
@@ -59,7 +59,7 @@ public class JSONStep {
     @Schema(description = "List containing the indices of the steps start- and endpoint corresponding to the *geometry*.", example = "[45,48]")
     @JsonProperty("way_points")
     private int[] waypoints;
-    @Schema(description = "The maneuver to be performed  CUSTOM_KEYS:{'validWhen':{'ref':'maneuvers',value:true}}",
+    @Schema(description = "The maneuver to be performed.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "maneuvers"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
