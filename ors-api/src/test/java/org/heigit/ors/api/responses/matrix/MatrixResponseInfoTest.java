@@ -1,22 +1,28 @@
 package org.heigit.ors.api.responses.matrix;
 
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class MatrixResponseInfoTest {
     private static MatrixRequest bareMatrixRequest;
     private MatrixResponseInfo responseInformation;
+    @Autowired
+    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
 
     @BeforeEach
     void setUp() {
         bareMatrixRequest = new MatrixRequest(new ArrayList<>());
-        MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest);
+        MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest, systemMessageProperties);
         responseInformation = bareMatrixResponse.responseInformation;
     }
 

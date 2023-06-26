@@ -1,6 +1,6 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
@@ -8,12 +8,16 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class JSONMatrixResponseTest {
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];
@@ -22,6 +26,8 @@ class JSONMatrixResponseTest {
     private JSONMatrixResponse jsonMatrixDurationsResponse;
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixCombinedResponse;
+    @Autowired
+    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
 
     @BeforeEach
     void setUp() throws StatusCodeException {
@@ -77,11 +83,11 @@ class JSONMatrixResponseTest {
         apiRequestCombined.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE, MatrixRequestEnums.Metrics.DURATION});
         apiRequestCombined.setResolveLocations(true);
 
-        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration);
+        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration, systemMessageProperties);
 
-        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance);
+        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance, systemMessageProperties);
 
-        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined);
+        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined, systemMessageProperties);
     }
 
     @Test

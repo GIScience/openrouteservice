@@ -17,6 +17,7 @@ package org.heigit.ors.api.responses.routing.gpx;
 
 import org.heigit.ors.api.InfoProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -52,20 +53,19 @@ public class GPXRouteResponse extends RouteResponse {
     private GPXExtensions extensions;
 
     public GPXRouteResponse() throws StatusCodeException {
-        super(null);
-        init(null, null, new InfoProperties());
+        super(null, new SystemMessageProperties());
+        init(null, null, new InfoProperties(), new SystemMessageProperties());
     }
-
-    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request, InfoProperties info) throws StatusCodeException {
-        super(request);
-        init(routeResult, request, info);
+    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request, InfoProperties info, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
+        super(request, systemMessageProperties);
+        init(routeResult, request, info, systemMessageProperties);
         for (RouteResult result : routeResult) {
             routes.add(new GPXRouteElement(result));
         }
     }
 
-    private void init(RouteResult[] result, RouteRequest request, InfoProperties info) throws StatusCodeException {
-        metadata = new GPXMetadata(result, request, info);
+    private void init(RouteResult[] result, RouteRequest request, InfoProperties info, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
+        metadata = new GPXMetadata(result, request, info, systemMessageProperties);
         routes = new ArrayList<>();
         extensions = new GPXExtensions(request);
     }

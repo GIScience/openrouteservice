@@ -47,10 +47,12 @@
                 <includes>
                     <include>logs/*</include>
                     <include>META-INF/services/*.*</include>
+                    <include>META-INF/*</include>
                     <include>version.properties</include>
                     <include>application.properties</include>
                     <include>app.config*</include>
                     <include>ors-config*.json</include>
+                    <include>*.yml</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>

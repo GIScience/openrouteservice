@@ -17,6 +17,7 @@ package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.api.InfoProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
@@ -48,7 +49,7 @@ public class GPXMetadata {
 
     public GPXMetadata() {}
 
-    public GPXMetadata(RouteResult[] routeResults, RouteRequest request, InfoProperties info) throws StatusCodeException {
+    public GPXMetadata(RouteResult[] routeResults, RouteRequest request, InfoProperties info, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
         this.name = RoutingServiceSettings.getRoutingName();
         this.description = "This is a directions instructions file as GPX, generated from openrouteservice";
         this.author = new GPXAuthor(info.getAuthorTag(), info.getSupportMail(), info.getBaseUrl());
@@ -62,7 +63,7 @@ public class GPXMetadata {
 
         this.bounds = BoundingBoxFactory.constructBoundingBox(GeomUtility.generateBoundingFromMultiple(bboxes), request);
 
-        this.extensions = new GPXMetadataExtensions(request);
+        this.extensions = new GPXMetadataExtensions(request, systemMessageProperties);
     }
 
     public String getName() {

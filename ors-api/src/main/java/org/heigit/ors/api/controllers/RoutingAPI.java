@@ -27,13 +27,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.InfoProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.locationtech.jts.geom.Coordinate;
@@ -61,9 +62,11 @@ public class RoutingAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
 
     private final InfoProperties info;
+    private final SystemMessageProperties systemMessageProperties;
 
-    public RoutingAPI(InfoProperties infoProperties) {
+    public RoutingAPI(InfoProperties infoProperties, SystemMessageProperties systemMessageProperties) {
         this.info = infoProperties;
+        this.systemMessageProperties = systemMessageProperties;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -109,7 +112,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GeoJSONRouteResponse(result, request);
+        return new GeoJSONRouteResponse(result, request, systemMessageProperties);
     }
 
     @PostMapping(value = "/{profile}")
@@ -123,7 +126,7 @@ public class RoutingAPI {
                     mediaType = "application/json",
                     array = @ArraySchema(schema = @Schema(implementation = JSONRouteResponse.class))
             )
-    })
+            })
     public JSONRouteResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
                                         @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         return getJsonRoute(profile, request);
@@ -149,7 +152,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new JSONRouteResponse(result, request);
+        return new JSONRouteResponse(result, request, systemMessageProperties);
     }
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
@@ -173,7 +176,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GPXRouteResponse(result, request, info);
+        return new GPXRouteResponse(result, request, info, systemMessageProperties);
 
     }
 
@@ -198,7 +201,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GeoJSONRouteResponse(result, request);
+        return new GeoJSONRouteResponse(result, request, systemMessageProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
