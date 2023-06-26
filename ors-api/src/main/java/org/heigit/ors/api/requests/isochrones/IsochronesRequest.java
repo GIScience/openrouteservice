@@ -70,7 +70,7 @@ public class IsochronesRequest extends APIRequest {
 
     @Schema(name= PARAM_LOCATIONS, description = "The locations to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
-            accessMode = Schema.AccessMode.READ_ONLY)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_LOCATIONS)
     private Double[][] locations = new Double[][]{};
     @JsonIgnore
@@ -86,7 +86,7 @@ public class IsochronesRequest extends APIRequest {
     @Schema(name= PARAM_RANGE, description = "Maximum range value of the analysis in **seconds** for time and **metres** for distance." +
             "Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.",
             example = "[ 300, 200 ]",
-            accessMode = Schema.AccessMode.READ_ONLY)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_RANGE)
     private List<Double> range;
     @JsonIgnore
@@ -122,7 +122,7 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasOptions = false;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(hidden = true)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
     @Schema(name= PARAM_AREA_UNITS,
@@ -177,7 +177,7 @@ public class IsochronesRequest extends APIRequest {
     private boolean hasSmoothing = false;
 
     @Schema(name= PARAM_TIME, description = "Departure date and time provided in local time zone",
-            example = "2020-01-31T12:45:00", accessMode = Schema.AccessMode.READ_ONLY)
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_TIME)
     private LocalDateTime time;
     @JsonIgnore

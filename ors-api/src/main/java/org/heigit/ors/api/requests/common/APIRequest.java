@@ -44,7 +44,7 @@ public class APIRequest {
     @JsonIgnore
     private boolean hasId = false;
 
-    @Schema(name = PARAM_PROFILE, accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(name = PARAM_PROFILE, hidden = true)
     protected APIEnums.Profile profile;
 
     public boolean hasId() {
