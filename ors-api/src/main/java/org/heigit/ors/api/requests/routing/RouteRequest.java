@@ -914,6 +914,7 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
         return routingRequest;
     }
 
+    @JsonIgnore
     public boolean isPtRequest(){
         return convertRouteProfileType(profile) == RoutingProfileType.PUBLIC_TRANSPORT;
     }
