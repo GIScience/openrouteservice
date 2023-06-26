@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.SystemMessage;
 
@@ -28,7 +29,7 @@ public class GPXMetadataExtensions {
 
     public GPXMetadataExtensions() {}
 
-    public GPXMetadataExtensions(RouteRequest request) {
-        this.systemMessage = SystemMessage.getSystemMessage(request);
+    public GPXMetadataExtensions(RouteRequest request, SystemMessageProperties systemMessageProperties) {
+        this.systemMessage = SystemMessage.getSystemMessage(request, systemMessageProperties);
     }
 }

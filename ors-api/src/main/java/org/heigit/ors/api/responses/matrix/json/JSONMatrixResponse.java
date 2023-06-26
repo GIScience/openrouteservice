@@ -18,6 +18,7 @@ package org.heigit.ors.api.responses.matrix.json;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.MatrixResponse;
 import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
@@ -25,8 +26,8 @@ import org.heigit.ors.matrix.MatrixResult;
 
 @Schema(name = "MatrixResponse", description = "The Matrix Response contains one matrix for each specified `metrics` value.")
 public class JSONMatrixResponse extends MatrixResponse {
-    public JSONMatrixResponse(MatrixResult result, MatrixRequest request) {
-        super(result, request);
+    public JSONMatrixResponse(MatrixResult result, MatrixRequest request, SystemMessageProperties systemMessageProperties) {
+        super(result, request, systemMessageProperties);
         responseInformation.setGraphDate(result.getGraphDate());
     }
 

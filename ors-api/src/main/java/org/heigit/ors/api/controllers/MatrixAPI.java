@@ -26,13 +26,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
+import org.heigit.ors.routing.APIEnums;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,12 @@ import javax.servlet.http.HttpServletResponse;
 @ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class MatrixAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
+
+    private final SystemMessageProperties systemMessageProperties;
+
+    public MatrixAPI(SystemMessageProperties systemMessageProperties) {
+        this.systemMessageProperties = systemMessageProperties;
+    }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -99,7 +106,7 @@ public class MatrixAPI {
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @RouterOperation(operation = @Operation(
-            summary = "Get a matrix calculation from the specified profile",hidden = true),
+            summary = "Get a matrix calculation from the specified profile", hidden = true),
             method = RequestMethod.POST,
             consumes = "application/json",
             produces = "application/json;charset=UTF-8")
@@ -117,7 +124,7 @@ public class MatrixAPI {
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
         MatrixResult matrixResult = originalRequest.generateMatrixFromRequest();
 
-        return new JSONMatrixResponse(matrixResult, originalRequest);
+        return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

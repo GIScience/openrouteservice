@@ -35,14 +35,6 @@ public class RoutingManagerConfiguration  {
 	public static final String PARAM_ELEVATION_SMOOTHING = "elevation_smoothing";
 	public static final String PARAM_INTERPOLATE_BRIDGES_AND_TUNNELS = "interpolate_bridges_and_tunnels";
 
-	public RouteUpdateConfiguration getUpdateConfig() {
-		return updateConfig;
-	}
-
-	public void setUpdateConfig(RouteUpdateConfiguration updateConfig) {
-		this.updateConfig = updateConfig;
-	}
-
 	public RouteProfileConfiguration[] getProfiles() {
 		return profiles;
 	}
@@ -51,7 +43,6 @@ public class RoutingManagerConfiguration  {
 		this.profiles = profiles;
 	}
 
-	private RouteUpdateConfiguration updateConfig;
 	private RouteProfileConfiguration[] profiles;
 
 	private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String,Object> defaultFastIsochroneParams, RouteProfileConfiguration profile){
@@ -253,15 +244,6 @@ public class RoutingManagerConfiguration  {
 		}
 		gc.setProfiles(newProfiles.toArray(new RouteProfileConfiguration[0]));
 
-		// Read update settings
-		RouteUpdateConfiguration ruc = new RouteUpdateConfiguration();
-		ruc.setEnabled(Boolean.parseBoolean(RoutingServiceSettings.getParameter("update.enabled")));
-		ruc.setTime(RoutingServiceSettings.getParameter("update.time"));
-		ruc.setDataSource(RoutingServiceSettings.getParameter("update.source"));
-		ruc.setExtent(RoutingServiceSettings.getParameter("update.extent"));
-		ruc.setWorkingDirectory(RoutingServiceSettings.getParameter("update.working_directory"));
-
-		gc.setUpdateConfig(ruc);
 		return gc;
 	}
 }

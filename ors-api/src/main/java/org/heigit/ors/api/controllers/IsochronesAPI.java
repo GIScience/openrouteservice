@@ -27,13 +27,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.routing.APIEnums;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,11 @@ import javax.servlet.http.HttpServletResponse;
 @ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class IsochronesAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
+    private final SystemMessageProperties systemMessageProperties;
+
+    public IsochronesAPI(SystemMessageProperties systemMessageProperties) {
+        this.systemMessageProperties = systemMessageProperties;
+    }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -101,7 +107,7 @@ public class IsochronesAPI {
     }
 
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
-    @RouterOperation(operation = @Operation(description ="""
+    @RouterOperation(operation = @Operation(description = """
             The Isochrone Service supports time and distance analyses for one single or multiple locations.
             "You may also specify the isochrone interval or provide multiple exact isochrone range values.
             "This service allows the same range of profile options as the /directions endpoint,
@@ -124,7 +130,7 @@ public class IsochronesAPI {
 
         request.generateIsochronesFromRequest();
         IsochroneMapCollection isoMaps = request.getIsoMaps();
-        return new GeoJSONIsochronesResponse(request, isoMaps);
+        return new GeoJSONIsochronesResponse(request, isoMaps, systemMessageProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

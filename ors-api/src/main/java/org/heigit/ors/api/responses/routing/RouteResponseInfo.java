@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
@@ -58,7 +59,7 @@ public class RouteResponseInfo {
     @JsonProperty("system_message")
     private final String systemMessage;
 
-    public RouteResponseInfo(RouteRequest request) {
+    public RouteResponseInfo(RouteRequest request, SystemMessageProperties systemMessageProperties) {
         service = "routing";
         timeStamp = System.currentTimeMillis();
 
@@ -75,7 +76,7 @@ public class RouteResponseInfo {
 
         this.request = request;
 
-        this.systemMessage = SystemMessage.getSystemMessage(request);
+        this.systemMessage = SystemMessage.getSystemMessage(request, systemMessageProperties);
     }
 
     public void setGraphDate(String graphDate) {

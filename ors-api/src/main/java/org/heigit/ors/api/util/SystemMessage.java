@@ -1,11 +1,10 @@
 package org.heigit.ors.api.util;
 
-import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.RoutingRequest;
@@ -21,9 +20,9 @@ public class SystemMessage {
 
     private SystemMessage() {}
 
-    public static String getSystemMessage(Object requestObj) {
+    public static String getSystemMessage(Object requestObj, SystemMessageProperties messageProperties) {
         if (messages == null) {
-            loadMessages();
+            loadMessages(messageProperties);
         }
         if (messages.isEmpty()) {
             return "";
@@ -112,14 +111,15 @@ public class SystemMessage {
         return "";
     }
 
-    private static void loadMessages() {
+    private static void loadMessages(SystemMessageProperties messageProperties) {
         messages = new ArrayList<>();
-        for (ConfigObject message : AppConfig.getGlobal().getObjectList("system_message")) {
+
+        for (SystemMessageProperties.MessageObject message : messageProperties.getMessages()) {
             try {
-                if (message.toConfig().getBoolean("active")) {
-                    List<Condition> conditions = new ArrayList<>();
+                if (message.isActive()) {
+                    List<SystemMessage.Condition> conditions = new ArrayList<>();
                     loadConditionsForMessage(message, conditions);
-                    messages.add(new Message(message.toConfig().getString("text"), conditions));
+                    messages.add(new SystemMessage.Message(message.getText(), conditions));
                 }
             }
             catch (Exception e) {
@@ -127,14 +127,16 @@ public class SystemMessage {
                 LOGGER.warn(String.format("Invalid SystemMessage object in ors config %s.", message.toString().substring(18)));
             }
         }
+        AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
         LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
     }
 
-    private static void loadConditionsForMessage(ConfigObject message, List<Condition> conditions) {
+    private static void loadConditionsForMessage(SystemMessageProperties.MessageObject message, List<Condition> conditions) {
         try {
-            ConfigObject condition = message.toConfig().getObject("condition");
-            for (String key : condition.keySet()) {
-                conditions.add(new Condition(key, condition.toConfig().getString(key)));
+            for (Map<String, String> conditionMap : message.getCondition()) {
+                for (Map.Entry<String, String> condition: conditionMap.entrySet()) {
+                    conditions.add(new Condition(condition.getKey(), condition.getValue()));
+                }
             }
         } catch (Exception e) {
             // ignore missing condition block and keep message
@@ -142,7 +144,7 @@ public class SystemMessage {
         }
     }
 
-    private static class Message {
+    static class Message {
         private final String text;
         private final List<Condition> conditions;
 
@@ -165,7 +167,7 @@ public class SystemMessage {
         }
     }
 
-    private static class Condition {
+    static class Condition {
         private final String type;
         private final String[] values;
 

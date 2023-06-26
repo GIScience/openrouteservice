@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
 import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
@@ -43,8 +44,8 @@ public class GeoJSONRouteResponse extends RouteResponse {
     }
 
 
-    public GeoJSONRouteResponse(RouteResult[] routeResults, RouteRequest request) throws StatusCodeException {
-        super(request);
+    public GeoJSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
+        super(request, systemMessageProperties);
 
         this.routeResults = new ArrayList<IndividualRouteResponse>();
 
