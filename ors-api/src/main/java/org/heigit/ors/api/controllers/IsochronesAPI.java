@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
@@ -57,9 +58,11 @@ import javax.servlet.http.HttpServletResponse;
 @ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class IsochronesAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
+    private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
 
-    public IsochronesAPI(SystemMessageProperties systemMessageProperties) {
+    public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
     }
 

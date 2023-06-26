@@ -5,8 +5,6 @@ public class EngineConfig {
 
     private final int initializationThreads;
     private final boolean preparationMode;
-    private final int maximumLocationsIsochrones;
-
     public int getInitializationThreads() {
         return initializationThreads;
     }
@@ -15,23 +13,15 @@ public class EngineConfig {
         return preparationMode;
     }
 
-    public int getMaximumLocationsIsochrones () {
-        return maximumLocationsIsochrones;
-    }
-
     public EngineConfig(EngineConfigBuilder builder) {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
-        this.maximumLocationsIsochrones = builder.maximumLocationsIsochrones;
-
     }
 
     public static class EngineConfigBuilder {
 // Migration guide: 2. add corresponding field (without final)
         private int initializationThreads = 1;
         private boolean preparationMode;
-        private int maximumLocationsIsochrones;
-
         public static EngineConfigBuilder init() {
             return new EngineConfigBuilder();
         }
@@ -52,15 +42,9 @@ public class EngineConfig {
             if (value != null)
                 preparationMode = "preparation".equalsIgnoreCase(value);
 
-            int maximumLocationsIsochrones = 1;
-            value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
-            if (value != null)
-                maximumLocationsIsochrones = Integer.parseInt(value);
-
             return new EngineConfigBuilder()
                     .setInitializationThreads(initializationThreads)
-                    .setPreparationMode(preparationMode)
-                    .setMaximumLocationsIsochrones(maximumLocationsIsochrones);
+                    .setPreparationMode(preparationMode);
         }
 
 // Migration guide: 4. add chainable setter
@@ -71,11 +55,6 @@ public class EngineConfig {
 
         public EngineConfigBuilder setPreparationMode(boolean preparationMode) {
             this.preparationMode = preparationMode;
-            return this;
-        }
-
-        public EngineConfigBuilder setMaximumLocationsIsochrones(int maximumLocationsIsochrones) {
-            this.maximumLocationsIsochrones = maximumLocationsIsochrones;
             return this;
         }
 

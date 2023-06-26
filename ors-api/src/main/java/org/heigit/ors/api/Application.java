@@ -67,9 +67,9 @@ public class Application extends SpringBootServletInitializer {
 
     @Bean("ORSInitContextListenerBean")
     @DependsOn("LoggingStartupContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean() {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener());
+        bean.setListener(new ORSInitContextListener(engineProperties));
         return bean;
     }
 

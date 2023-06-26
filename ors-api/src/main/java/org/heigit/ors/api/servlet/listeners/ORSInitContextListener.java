@@ -22,6 +22,7 @@ package org.heigit.ors.api.servlet.listeners;
 
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.EngineProperties;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -33,17 +34,21 @@ import javax.servlet.ServletContextListener;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
+    private final EngineProperties engineProperties;
+
+    public ORSInitContextListener(EngineProperties engineProperties) {
+        this.engineProperties = engineProperties;
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
         Runnable runnable = () -> {
             try {
-
-                // Here we will later injcet code that gets the settings from the new configuration setup.
-                // initFromAppConfig() can then be replaced by init()
-
                 EngineConfig config = EngineConfig.EngineConfigBuilder.initFromAppConfig()
-//                        .setInitializationThreads(1)
+                        // Here we will later inject code that gets the settings from the properties.
+                        // initFromAppConfig() can then be replaced by init()
+                        .setInitializationThreads(engineProperties.getInitThreads())
+                        .setPreparationMode(engineProperties.isPreparationMode())
                         .build();
                 new RoutingProfileManager(config);
             } catch (Exception e) {

@@ -32,6 +32,25 @@ info:
   author_tag: openrouteservice
   content_licence: LGPL 3.0
 
+##### ORS endpoints settings #####
+endpoints:
+  default:
+    attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
+  routing:
+    enabled: true
+  matrix:
+    enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors
+  isochrone:
+    enabled: true
+    maximum_locations:
+
+
+##### ORS engine settings #####
+engine:
+  init_threads: 2
+  preparation_mode: false
+
 ##### Additional features: System messages, Kafka listener #####
 messages:
 

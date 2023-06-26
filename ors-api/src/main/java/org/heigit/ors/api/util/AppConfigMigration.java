@@ -1,8 +1,10 @@
 package org.heigit.ors.api.util;
 
 import com.typesafe.config.ConfigObject;
+import org.apache.kafka.common.protocol.types.Field;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.CorsProperties;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.util.StringUtility;
@@ -12,6 +14,7 @@ import java.util.List;
 
 public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
+    public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
 
     public static void loadSystemMessagesfromAppConfig(List<SystemMessage.Message> messages) {
         for (ConfigObject message : AppConfig.getGlobal().getObjectList("system_message")) {
@@ -79,5 +82,14 @@ public class AppConfigMigration {
             cors.setPreflightMaxAge((long) maxAge);
 
         return cors;
+    }
+
+    public static EndpointsProperties overrideEndpointsProperties(EndpointsProperties endpoints) {
+
+        String maximumLocationsIsochrones = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
+        if (!StringUtility.isNullOrEmpty(maximumLocationsIsochrones))
+            endpoints.getIsochrone().setMaximumLocations(Integer.parseInt(maximumLocationsIsochrones));
+
+        return endpoints;
     }
 }
