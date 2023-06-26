@@ -33,6 +33,7 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.routing.RouteResult;
@@ -65,7 +66,7 @@ public class RoutingAPI {
     private final SystemMessageProperties systemMessageProperties;
 
     public RoutingAPI(InfoProperties infoProperties, SystemMessageProperties systemMessageProperties) {
-        this.info = infoProperties;
+        this.info = AppConfigMigration.overrideInfoProperties(infoProperties);
         this.systemMessageProperties = systemMessageProperties;
     }
 

@@ -1,0 +1,52 @@
+##### openrouteservice default settings #####
+# This file contains the default parameters for openrouteservice.
+# To change values for your instance, you can add a file named "ors-config.yml" to the classpath.
+# This will override any value set here.
+
+##### General ORS server settings #####
+server:
+  port: 8082
+  error:
+    whitelabel:
+      enabled: false
+# Workaround for failing springfox-swagger2.
+# springfox-swagger2 should be replaced by the maintained springdoc-openapi
+# spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
+# Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
+  servlet:
+    context-path: /ors
+spring:
+  mvc:
+    servlet:
+      path: /
+
+cors:
+  allowed_origins: "*"
+  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+  preflight_max_age: 600
+
+info:
+  base_url: https://openrouteservice.org/
+  swagger_documentation_url: https://api.openrouteservice.org/
+  support_mail: support@openrouteservice.org
+  author_tag: openrouteservice
+  content_licence: LGPL 3.0
+
+##### Additional features: System messages, Kafka listener #####
+messages:
+
+##### Settings related to springdoc #####
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tryItOutEnabled: true
+    filter: false
+    syntaxHighlight:
+      activated: true
+    showExtensions: true
+#  packagesToScan: package1,package2
+#  pathsToMatch: /ors/v2,/v2
+  api-docs:
+    path: /v2/api-docs
+    version: OPENAPI_3_1

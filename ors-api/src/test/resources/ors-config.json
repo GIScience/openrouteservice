@@ -1,32 +1,5 @@
 {
   "ors": {
-    "api_settings": {
-      "cors": {
-        "allowed": {
-          "origins": [
-            "https://example.org",
-            "https://test.com",
-            "http://localhost:8080",
-            "http://127.0.0.1:8082"
-          ],
-          "headers": [
-            "Content-Type",
-            "X-Tested-With",
-            "accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers",
-            "Authorization"
-          ]
-        },
-        "exposed": {
-          "headers": [
-            "Access-Control-Allow-Origin", "X-Requested-With", "Location"
-          ]
-        },
-        "preflight_max_age": 1234
-      }
-    },
     "services": {
       "matrix": {
         "enabled": true,
@@ -454,37 +427,6 @@
         "cluster": "127.0.0.1:9092",
         "topic": "test-topic",
         "profile": "test"
-      }
-    ],
-    "system_message": [
-      {
-        "active": true,
-        "text": "This message would be sent with every routing bike fastest request",
-        "condition": {
-          "request_service": "routing",
-          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-          "request_preference": "fastest"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request for geojson response",
-        "condition": {
-          "api_format": "geojson"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-        "condition": {
-          "api_version": 1,
-          "time_after": "2020-01-01T00:00:00Z",
-          "time_before": "2050-06-01T00:00:00Z"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request"
       }
     ]
   }

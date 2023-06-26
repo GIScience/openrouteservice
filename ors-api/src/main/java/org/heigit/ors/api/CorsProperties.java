@@ -47,4 +47,12 @@ public class CorsProperties {
     public void setPreflightMaxAge(long preflightMaxAge) {
         this.preflightMaxAge = preflightMaxAge;
     }
+
+    public void setAllowedOriginsList(List<String> allowedOrigins) {
+        this.allowedOrigins = allowedOrigins;
+    }
+
+    public void setAllowedHeadersList(List<String> allowedHeaders) {
+        this.allowedHeaders = allowedHeaders;
+    }
 }

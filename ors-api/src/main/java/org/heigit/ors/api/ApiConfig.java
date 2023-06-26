@@ -23,14 +23,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
@@ -57,12 +56,14 @@ public class ApiConfig implements WebMvcConfigurer {
      * Credentials are turned off.
      */
     @Bean
-    public WebMvcConfigurer corsConfigurer(CorsProperties corsProperties) {
+    public WebMvcConfigurer corsConfigurer(CorsProperties corsProps) {
+        final CorsProperties corsProperties = AppConfigMigration.overrideCorsProperties(corsProps);
+
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NotNull CorsRegistry registry) {
-                String[] allowedMethods = new String[] {"GET", "POST", "HEAD", "OPTIONS"};
-                String[] exposedHeaders = new String[] {"Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"};
+                String[] allowedMethods = new String[]{"GET", "POST", "HEAD", "OPTIONS"};
+                String[] exposedHeaders = new String[]{"Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"};
 
                 registry.addMapping("/**")
                         .allowedMethods(allowedMethods)
