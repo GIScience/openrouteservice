@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.matrix;
 
+import com.graphhopper.routing.weighting.Weighting;
 import org.heigit.ors.config.MatrixServiceSettings;
 import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
@@ -31,7 +32,7 @@ public class MatrixRequest extends ServiceRequest {
 	private MatrixSearchParameters searchParameters;
 	private double maximumSearchRadius = MatrixServiceSettings.getMaximumSearchRadius();
 	private int maximumVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
-
+	private boolean hasInfiniteUTurnCosts = MatrixServiceSettings.getUTurnCost() == Weighting.INFINITE_U_TURN_COSTS;
 
 	public Coordinate[] getSources()
 	{
@@ -140,5 +141,13 @@ public class MatrixRequest extends ServiceRequest {
 
 	public boolean isValid(){
 		return !(sources == null && destinations == null);
+	}
+
+	public boolean hasInfiniteUTurnCosts() {
+		return hasInfiniteUTurnCosts;
+	}
+
+	public void setInfiniteUTurnCosts(boolean hasInfiniteUTurnCosts) {
+		this.hasInfiniteUTurnCosts = hasInfiniteUTurnCosts;
 	}
 }

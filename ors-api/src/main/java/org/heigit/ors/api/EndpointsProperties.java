@@ -84,6 +84,8 @@ public class EndpointsProperties {
         private int maximumRoutesFlexible;
        	private int maximumVisitedNodes;
         private double maximumSearchRadius;
+        private int uTurnCosts; // TODO: this parameter is only used in a binary check for infinity (==-1);
+                                //       Can't we reduce it to a boolean "forbid_u_turns"?
 
 
         public boolean isEnabled() {
@@ -130,6 +132,13 @@ public class EndpointsProperties {
             this.maximumSearchRadius = maximumSearchRadius;
         }
 
+        public int getUTurnCosts() {
+            return uTurnCosts;
+        }
+
+        public void setUTurnCosts(int uTurnCosts) {
+            this.uTurnCosts = uTurnCosts;
+        }
     }
 
     public static class EndpointIsochroneProperties {

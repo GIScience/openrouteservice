@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.graphhopper.routing.weighting.Weighting;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -309,6 +310,7 @@ public class MatrixRequest extends APIRequest {
         coreRequest.setSearchParameters(params);
         coreRequest.setMaximumVisitedNodes(endpointsProperties.getMatrix().getMaximumVisitedNodes());
         coreRequest.setMaximumSearchRadius(endpointsProperties.getMatrix().getMaximumSearchRadius());
+        coreRequest.setInfiniteUTurnCosts(endpointsProperties.getMatrix().getUTurnCosts() == Weighting.INFINITE_U_TURN_COSTS);
         return coreRequest;
     }
 

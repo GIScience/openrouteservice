@@ -66,6 +66,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private MultiTreeMetricsExtractor pathMetricsExtractor;
     private CoreDijkstraFilter additionalCoreEdgeFilter;
     private SubGraph targetGraph;
+    private boolean hasInfiniteUTurnCosts;
 
 
     @Override
@@ -78,6 +79,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         pathMetricsExtractor = new MultiTreeMetricsExtractor(req.getMetrics(), chGraph, this.encoder, preparedWeighting, req.getUnits());
         additionalCoreEdgeFilter = new CoreMatrixFilter(chGraph);
         initCollections(10);
+        hasInfiniteUTurnCosts = req.hasInfiniteUTurnCosts();
     }
 
     public void init(MatrixRequest req, GraphHopper gh, RoutingCHGraph chGraph, FlagEncoder encoder, Weighting weighting, EdgeFilter additionalEdgeFilter) {
@@ -382,6 +384,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     private void runPhaseInsideCore() {
         // Calculate all paths only inside core
         DijkstraManyToMany algorithm = new DijkstraManyToMany(chGraph, bestWeightMap, bestWeightMapCore, weighting, TraversalMode.NODE_BASED);
+        algorithm.setInfiniteUTurnCost(this.hasInfiniteUTurnCosts);
 
         algorithm.setEdgeFilter(this.additionalCoreEdgeFilter);
         algorithm.setTreeEntrySize(this.treeEntrySize);
