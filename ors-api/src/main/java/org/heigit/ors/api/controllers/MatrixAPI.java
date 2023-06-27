@@ -62,7 +62,7 @@ public class MatrixAPI {
     private final SystemMessageProperties systemMessageProperties;
 
     public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);;
+        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
     }
 

@@ -17,10 +17,11 @@ package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.config.MapMatchingServiceSettings;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
@@ -46,6 +47,11 @@ import java.util.List;
 @Tag(name = "Status service", description = "Get information on the status of the api")
 @RequestMapping("/v2/status")
 public class StatusAPI {
+    private final EndpointsProperties endpointsProperties;
+
+    public StatusAPI(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+    }
     @GetMapping
     public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
@@ -65,7 +71,7 @@ public class StatusAPI {
                     list.add("routing");
                 if (IsochronesServiceSettings.getEnabled())
                     list.add("isochrones");
-                if (MatrixServiceSettings.getEnabled())
+                if (endpointsProperties.getMatrix().isEnabled())
                     list.add("matrix");
                 if (MapMatchingServiceSettings.getEnabled())
                     list.add("mapmatching");
