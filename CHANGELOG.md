@@ -47,6 +47,7 @@ RELEASING:
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 
 ### Removed
+- ORSKafkaConsumer and related classes
 - RoutingProfileUpdater and related classes
 - Old map matching code
 - Centrality API and implementation (use export API and external centrality tools instead)

@@ -13,18 +13,17 @@
  */
 package org.heigit.ors.routing;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
-import org.heigit.ors.export.ExportErrorCodes;
-import org.heigit.ors.routing.graphhopper.extensions.ORSSpeedUpdate;
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
+import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
@@ -35,13 +34,12 @@ import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
-import org.heigit.ors.routing.graphhopper.extensions.storages.ExpiringSpeedStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +50,9 @@ import java.util.stream.Collectors;
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
-
     private RoutingProfilesCollection routeProfiles;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
-    private final ObjectMapper mapper = new ObjectMapper();
-    private long kafkaMessagesProcessed = 0;
-    private long kafkaMessagesFailed = 0;
-    public static final boolean KAFKA_DEBUG = false;
 
     public static synchronized RoutingProfileManager getInstance() {
         if (instance == null) {
@@ -678,79 +671,4 @@ public class RoutingProfileManager {
         return RoutingProfileManager.getInstance().initComplete;
     }
 
-    public long getKafkaMessagesProcessed() {
-        return this.kafkaMessagesProcessed;
-    }
-
-    public long getKafkaMessagesFailed() {
-        return this.kafkaMessagesFailed;
-    }
-
-    /**
-     * Process message received via ORSKafkaConsumer.
-     *
-     * @param profile target profile according to configuration
-     * @param value   message value passed from KafkaConsumer
-     */
-    public void updateProfile(String profile, String value) {
-        switch (profile) {
-            // profile specific processing
-            case "driving-car":
-            case "driving-hgv":
-                try {
-                    ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
-                    RoutingProfile rp = null;
-                    int profileType = RoutingProfileType.getFromString(profile);
-                    rp = getRoutingProfileFromType(rp, profileType);
-                    if(rp == null)
-                        return;
-                    if (!msg.hasDurationMin())
-                        msg.setDurationMin(rp.getConfiguration().getTrafficExpirationMin());
-                    ExpiringSpeedStorage storage = GraphStorageUtils.getGraphExtension(rp.getGraphhopper().getGraphHopperStorage(), ExpiringSpeedStorage.class);
-                    if(storage == null)
-                        throw new IllegalStateException("Unable to find ExpiringSpeedStorage to process speed update");
-                    processMessage(msg, storage);
-                    LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
-                    this.kafkaMessagesProcessed++;
-                } catch (JsonProcessingException e) {
-                    LOGGER.error(e);
-                    this.kafkaMessagesFailed++;
-                }
-                break;
-            case "test":
-                try {
-                    ORSSpeedUpdate msg = mapper.readValue(value, ORSSpeedUpdate.class);
-                    if (KAFKA_DEBUG)
-                        LOGGER.debug(String.format("kafka message for speed update received: %s (%s) => %s, duration: %s", msg.getEdgeId(), msg.isReverse(), msg.getSpeed(), msg.getDurationMin()));
-                    this.kafkaMessagesProcessed++;
-                } catch (JsonProcessingException e) {
-                    LOGGER.error(e);
-                    this.kafkaMessagesFailed++;
-                }
-                break;
-            default:
-                LOGGER.error(String.format("kafka message received for unknown profile %s", profile));
-                this.kafkaMessagesFailed++;
-                break;
-        }
-    }
-
-    private void processMessage(ORSSpeedUpdate msg, ExpiringSpeedStorage storage) {
-        try{
-            storage.process(msg);
-        }
-        catch (Exception e) {
-            LOGGER.error(e);
-        }
-    }
-
-    private RoutingProfile getRoutingProfileFromType(RoutingProfile rp, int profileType) {
-        try {
-            rp = routeProfiles.getRouteProfile(profileType);
-        }
-        catch (Exception e) {
-            LOGGER.error(e);
-        }
-        return rp;
-    }
 }

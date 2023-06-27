@@ -13,15 +13,12 @@
  */
 package org.heigit.ors.apitests.status;
 
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
-import org.heigit.ors.api.kafka.ORSKafkaConsumerRunner;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "status")
@@ -30,7 +27,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testGetStatus() throws InterruptedException {
-        waitForKafkaConsumer();
 
         given()
                 .get(getEndPointPath())
@@ -40,28 +36,6 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'services' }", is(true))
                 .body("any { it.key == 'languages' }", is(true))
                 .body("any { it.key == 'profiles' }", is(true))
-                .body("any { it.key == 'kafkaConsumer' }", is(true))
-                .body("kafkaConsumer.runners", is(greaterThan(0)))
-                .body("kafkaConsumer.processed", is(greaterThan(0)))
-                .body("kafkaConsumer.failed", is(0))
                 .statusCode(200);
-    }
-
-    @SuppressWarnings("BusyWait")
-    private void waitForKafkaConsumer() {
-        // This is a hack. See comment in ORSKafkaConsumerRunner
-        int seconds = 0;
-        final int timeout = 10;
-        while(!ORSKafkaConsumerRunner.hasRunOnce) {
-            if (seconds++ >= timeout) {
-                String message = String.format("Waiting for ORSKafkaConsumerRunner failed after %s seconds.", timeout);
-                throw new AssertionFailedError(message);
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 }
