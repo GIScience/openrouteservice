@@ -32,6 +32,7 @@ public class MatrixRequest extends ServiceRequest {
 	private double maximumSearchRadius = MatrixServiceSettings.getMaximumSearchRadius();
 	private int maximumVisitedNodes = MatrixServiceSettings.getMaximumVisitedNodes();
 
+
 	public Coordinate[] getSources()
 	{
 		return sources;

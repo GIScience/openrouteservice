@@ -31,6 +31,7 @@ import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
@@ -61,7 +62,7 @@ public class MatrixAPI {
     private final SystemMessageProperties systemMessageProperties;
 
     public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
-        this.endpointsProperties = endpointsProperties;
+        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);;
         this.systemMessageProperties = systemMessageProperties;
     }
 
@@ -124,7 +125,7 @@ public class MatrixAPI {
             @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = originalRequest.generateMatrixFromRequest();
+        MatrixResult matrixResult = originalRequest.generateMatrixFromRequest(endpointsProperties);
 
         return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties);
     }

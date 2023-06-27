@@ -80,6 +80,11 @@ public class EndpointsProperties {
     public static class EndpointMatrixProperties {
         private boolean enabled;
         private String attribution;
+        private int maximumRoutes;
+        private int maximumRoutesFlexible;
+       	private int maximumVisitedNodes;
+        private double maximumSearchRadius;
+
 
         public boolean isEnabled() {
             return enabled;
@@ -95,6 +100,34 @@ public class EndpointsProperties {
 
         public void setAttribution(String attribution) {
             this.attribution = attribution;
+        }
+
+    	public int getMaximumRoutes(boolean flexible) {
+		    return (flexible? maximumRoutesFlexible : maximumRoutes);
+	    }
+
+        public void setMaximumRoutes(int maximumRoutes) {
+            this.maximumRoutes = maximumRoutes;
+        }
+
+        public void setMaximumRoutesFlexible(int maximumRoutesFlexible) {
+            this.maximumRoutesFlexible = maximumRoutesFlexible;
+        }
+
+        public int getMaximumVisitedNodes() {
+            return maximumVisitedNodes;
+        }
+
+        public void setMaximumVisitedNodes(int maximumVisitedNodes) {
+            this.maximumVisitedNodes = maximumVisitedNodes;
+        }
+
+    	public double getMaximumSearchRadius() {
+	    	return maximumSearchRadius;
+    	}
+
+        public void setMaximumSearchRadius(double maximumSearchRadius) {
+            this.maximumSearchRadius = maximumSearchRadius;
         }
 
     }

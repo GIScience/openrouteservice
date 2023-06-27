@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.EndpointsProperties;
 import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.APIEnums;
@@ -259,8 +260,8 @@ public class MatrixRequest extends APIRequest {
         this.responseType = responseType;
     }
 
-    public MatrixResult generateMatrixFromRequest() throws StatusCodeException {
-        org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest();
+    public MatrixResult generateMatrixFromRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
+        org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(endpointsProperties);
 
         try {
             return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
@@ -271,12 +272,12 @@ public class MatrixRequest extends APIRequest {
         }
     }
 
-    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest() throws StatusCodeException {
+    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest();
 
         int numberOfSources = sources == null ? locations.size() : sources.length;
         int numberODestinations = destinations == null ? locations.size() : destinations.length;
-        Coordinate[] locations = convertLocations(this.locations, numberOfSources * numberODestinations);
+        Coordinate[] locations = convertLocations(this.locations, numberOfSources * numberODestinations, endpointsProperties);
 
         coreRequest.setProfileType(convertToMatrixProfileType(profile));
 
@@ -306,8 +307,8 @@ public class MatrixRequest extends APIRequest {
         if(this.hasMatrixOptions())
             coreRequest.setFlexibleMode(this.processMatrixRequestOptions( params));
         coreRequest.setSearchParameters(params);
-        coreRequest.setMaximumVisitedNodes(MatrixServiceSettings.getMaximumVisitedNodes());
-        coreRequest.setMaximumSearchRadius(MatrixServiceSettings.getMaximumSearchRadius());
+        coreRequest.setMaximumVisitedNodes(endpointsProperties.getMatrix().getMaximumVisitedNodes());
+        coreRequest.setMaximumSearchRadius(endpointsProperties.getMatrix().getMaximumSearchRadius());
         return coreRequest;
     }
 
@@ -347,7 +348,7 @@ public class MatrixRequest extends APIRequest {
         return combined;
     }
 
-    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes) throws ParameterValueException, ServerLimitExceededException {
+    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes, EndpointsProperties endpointsProperties) throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
         int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
