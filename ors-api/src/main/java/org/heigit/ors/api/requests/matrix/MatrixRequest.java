@@ -351,7 +351,7 @@ public class MatrixRequest extends APIRequest {
     protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes, EndpointsProperties endpointsProperties) throws ParameterValueException, ServerLimitExceededException {
         if (locations == null || locations.size() < 2)
             throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        int maximumNumberOfRoutes = MatrixServiceSettings.getMaximumRoutes(false);
+        int maximumNumberOfRoutes = endpointsProperties.getMatrix().getMaximumRoutes(false);
         if (numberOfRoutes > maximumNumberOfRoutes)
             throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + maximumNumberOfRoutes + " routes are allowed.");
         ArrayList<Coordinate> locationCoordinates = new ArrayList<>();

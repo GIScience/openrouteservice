@@ -4,7 +4,6 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class MatrixRequestHandlerTest {
     private final MatrixRequest bareMatrixRequest = new MatrixRequest();
     private final MatrixRequest matrixRequest = new MatrixRequest();
@@ -91,7 +92,7 @@ class MatrixRequestHandlerTest {
         // Fake locations to test maximum exceedings
 
         minimalLocations = HelperFunctions.fakeListLocations(1, 2);
-        maximumRoutes = MatrixServiceSettings.getMaximumRoutes(false) + 1;
+        maximumRoutes = endpointsProperties.getMatrix().getMaximumRoutes(false) + 1;
     }
 
     @Test

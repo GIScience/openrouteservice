@@ -1,18 +1,22 @@
 package org.heigit.ors.api.requests.matrix;
 
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.routing.APIEnums;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.api.util.HelperFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@SpringBootTest
+@ActiveProfiles("test")
 class MatrixRequestTest {
     private MatrixRequest matrixLocationsRequest;
     private MatrixRequest matrixLocationsListRequest;
@@ -23,6 +27,9 @@ class MatrixRequestTest {
     private final Double[] bareCoordinate3 = new Double[2];
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
+
+    @Autowired
+    private EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() {
@@ -50,10 +57,8 @@ class MatrixRequestTest {
         bareCoordinates[1] = bareCoordinate2;
         bareCoordinates[2] = bareCoordinate3;
 
-        maximumLocationsArray = HelperFunctions.fakeArrayLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1, 2);
+        maximumLocationsArray = HelperFunctions.fakeArrayLocations(endpointsProperties.getMatrix().getMaximumRoutes(false) + 1, 2);
         minimalLocationsArray = HelperFunctions.fakeArrayLocations(1, 2);
-
-
     }
 
     @Test
