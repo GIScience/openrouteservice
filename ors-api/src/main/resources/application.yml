@@ -43,7 +43,7 @@ endpoints:
     attribution: openrouteservice.org, OpenStreetMap contributors
   isochrone:
     enabled: true
-    maximum_locations:
+    maximum_locations: 2
 
 
 ##### ORS engine settings #####
