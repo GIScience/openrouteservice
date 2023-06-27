@@ -17,17 +17,16 @@ package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.heigit.ors.api.kafka.ORSKafkaConsumer;
+import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.MapMatchingServiceSettings;
+import org.heigit.ors.config.MatrixServiceSettings;
+import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.config.IsochronesServiceSettings;
-import org.heigit.ors.config.MapMatchingServiceSettings;
-import org.heigit.ors.config.MatrixServiceSettings;
-import org.heigit.ors.config.RoutingServiceSettings;
-import org.heigit.ors.api.util.AppInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -109,14 +108,6 @@ public class StatusAPI {
                 }
 
                 jInfo.put("profiles", jProfiles);
-            }
-
-            if (ORSKafkaConsumer.isEnabled()) {
-                org.json.JSONObject jKafka = new org.json.JSONObject(true);
-                jKafka.put("runners", ORSKafkaConsumer.getEnabledRunners());
-                jKafka.put("processed", profileManager.getKafkaMessagesProcessed());
-                jKafka.put("failed", profileManager.getKafkaMessagesFailed());
-                jInfo.put("kafkaConsumer", jKafka);
             }
         }
 

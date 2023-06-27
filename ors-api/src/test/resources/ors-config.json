@@ -448,14 +448,6 @@
       "location": "./logs",
       "stdout": true
     },
-    "kafka_test_cluster": true,
-    "kafka_consumer": [
-      {
-        "cluster": "127.0.0.1:9092",
-        "topic": "test-topic",
-        "profile": "test"
-      }
-    ],
     "system_message": [
       {
         "active": true,
