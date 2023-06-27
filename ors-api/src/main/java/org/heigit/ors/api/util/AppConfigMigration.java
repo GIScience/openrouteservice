@@ -1,7 +1,6 @@
 package org.heigit.ors.api.util;
 
 import com.typesafe.config.ConfigObject;
-import org.apache.kafka.common.protocol.types.Field;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.CorsProperties;
 import org.heigit.ors.api.EndpointsProperties;
@@ -15,6 +14,9 @@ import java.util.List;
 public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
+
+    private AppConfigMigration() {
+    }
 
     public static void loadSystemMessagesfromAppConfig(List<SystemMessage.Message> messages) {
         for (ConfigObject message : AppConfig.getGlobal().getObjectList("system_message")) {

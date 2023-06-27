@@ -44,12 +44,10 @@ public class ORSInitContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent contextEvent) {
         Runnable runnable = () -> {
             try {
-                EngineConfig config = EngineConfig.EngineConfigBuilder.initFromAppConfig()
-                        // Here we will later inject code that gets the settings from the properties.
-                        // initFromAppConfig() can then be replaced by init()
+                EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                         .setInitializationThreads(engineProperties.getInitThreads())
                         .setPreparationMode(engineProperties.isPreparationMode())
-                        .build();
+                        .buildWithAppConfigOverride();
                 new RoutingProfileManager(config);
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS." + e);

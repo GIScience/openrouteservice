@@ -26,28 +26,7 @@ public class EngineConfig {
             return new EngineConfigBuilder();
         }
 
-        public static EngineConfigBuilder initFromAppConfig() {
-            AppConfig deprecatedAppConfig = AppConfig.getGlobal();
-            final String SERVICE_NAME_ROUTING = "routing";
-            final String SERVICE_NAME_ISOCHRONES = "isochrones";
-
-// Migration guide: 3. add fetching from old AppConfig
-            int initializationThreads = 1;
-            String value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "init_threads");
-            if (value != null)
-                initializationThreads = Integer.parseInt(value);
-
-            boolean preparationMode = false;
-            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "mode");
-            if (value != null)
-                preparationMode = "preparation".equalsIgnoreCase(value);
-
-            return new EngineConfigBuilder()
-                    .setInitializationThreads(initializationThreads)
-                    .setPreparationMode(preparationMode);
-        }
-
-// Migration guide: 4. add chainable setter
+// Migration guide: 3. add chainable setter
         public EngineConfigBuilder setInitializationThreads(int initializationThreads) {
             this.initializationThreads = initializationThreads;
             return this;
@@ -59,6 +38,22 @@ public class EngineConfig {
         }
 
         public EngineConfig build() {
+            return new EngineConfig(this);
+        }
+
+        public EngineConfig buildWithAppConfigOverride() {
+            AppConfig deprecatedAppConfig = AppConfig.getGlobal();
+            final String SERVICE_NAME_ROUTING = "routing";
+
+// Migration guide: 4. add fetching from old AppConfig
+            String value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "init_threads");
+            if (value != null)
+                this.initializationThreads = Integer.parseInt(value);
+
+            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "mode");
+            if (value != null)
+                this.preparationMode = "preparation".equalsIgnoreCase(value);
+
             return new EngineConfig(this);
         }
     }

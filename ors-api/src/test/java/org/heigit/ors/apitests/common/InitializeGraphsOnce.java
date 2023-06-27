@@ -28,8 +28,8 @@ public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallba
     public void beforeAll(ExtensionContext extensionContext) {
         ExtensionContext.Store store = rootStore(extensionContext);
         deleteGraphsFolderOncePerTestRun(store);
-        EngineConfig config = EngineConfig.EngineConfigBuilder.initFromAppConfig()
-                .build();
+        EngineConfig config = EngineConfig.EngineConfigBuilder.init()
+                .buildWithAppConfigOverride();
         new RoutingProfileManager(config);
     }
 

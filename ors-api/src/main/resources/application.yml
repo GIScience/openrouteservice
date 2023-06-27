@@ -32,6 +32,9 @@ info:
   author_tag: openrouteservice
   content_licence: LGPL 3.0
 
+messages:
+
+
 ##### ORS endpoints settings #####
 endpoints:
   default:
@@ -51,8 +54,6 @@ engine:
   init_threads: 2
   preparation_mode: false
 
-##### Additional features: System messages, Kafka listener #####
-messages:
 
 ##### Settings related to springdoc #####
 springdoc:
