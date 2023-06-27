@@ -60,14 +60,6 @@
           }
         },
         {
-          "name": "kafka",
-          "level": "error",
-          "additivity": "false",
-          "AppenderRef": {
-            "ref": "stdout"
-          }
-        },
-        {
           "name": "org.hibernate",
           "level": "warn",
           "additivity": "false",

@@ -2,7 +2,6 @@ package org.heigit.ors.api;
 
 import org.heigit.ors.api.servlet.listeners.LoggingStartupContextListener;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
-import org.heigit.ors.api.servlet.listeners.ORSKafkaConsumerInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
@@ -70,14 +69,6 @@ public class Application extends SpringBootServletInitializer {
     public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
         bean.setListener(new ORSInitContextListener(engineProperties));
-        return bean;
-    }
-
-    @Bean
-    @DependsOn("ORSInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSKafkaConsumerInitContextListenerBean() {
-        ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSKafkaConsumerInitContextListener());
         return bean;
     }
 }
