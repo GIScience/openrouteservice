@@ -23,7 +23,6 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
