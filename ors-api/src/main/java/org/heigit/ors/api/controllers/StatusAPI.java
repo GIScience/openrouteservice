@@ -21,7 +21,6 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.IsochronesServiceSettings;
-import org.heigit.ors.config.MapMatchingServiceSettings;
 import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
@@ -73,8 +72,6 @@ public class StatusAPI {
                     list.add("isochrones");
                 if (endpointsProperties.getMatrix().isEnabled())
                     list.add("matrix");
-                if (MapMatchingServiceSettings.getEnabled())
-                    list.add("mapmatching");
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
