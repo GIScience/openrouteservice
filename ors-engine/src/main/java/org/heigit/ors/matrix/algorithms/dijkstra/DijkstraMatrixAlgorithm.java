@@ -32,7 +32,7 @@ public class DijkstraMatrixAlgorithm extends AbstractMatrixAlgorithm {
         weighting = graph.wrapWeighting(weighting);
         super.init(req, gh, graph, encoder, weighting);
 
-        pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), this.graph, this.encoder, this.weighting, req.getUnits());
+        pathMetricsExtractor = new PathMetricsExtractor(req.getMetrics(), this.graph, this.weighting, req.getUnits());
     }
 
     @Override
