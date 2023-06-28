@@ -62,6 +62,7 @@ endpoints:
 engine:
   init_threads: 2
   preparation_mode: false
+  elevation_preprocessed: false
 
 
 ##### Logging settings #####

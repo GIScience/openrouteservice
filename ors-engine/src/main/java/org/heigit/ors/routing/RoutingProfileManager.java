@@ -93,7 +93,7 @@ public class RoutingProfileManager {
                 Integer[] profilesTypes = rpc.getProfilesTypes();
 
                 if (profilesTypes != null) {
-                    Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc, loadCntx);
+                    Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
                     compService.submit(task);
                     nTotalTasks++;
                 }
@@ -142,7 +142,7 @@ public class RoutingProfileManager {
 
                 int initializationThreads = config.getInitializationThreads();
                 LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
-                        RoutingServiceSettings.getSourceFile(), initializationThreads));
+                        config.getSourceFile(), initializationThreads));
 
                 if (config.isPreparationMode()) {
                     prepareGraphs(graphProps, config);
@@ -162,7 +162,7 @@ public class RoutingProfileManager {
                             continue;
 
                         if (rpc.getProfilesTypes() != null) {
-                            Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc, loadCntx);
+                            Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
                             compService.submit(task);
                             nTotalTasks++;
                         }

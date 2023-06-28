@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;
+    private boolean elevationPreprocessed;
     public int getInitThreads() {
         return initThreads;
     }
@@ -21,5 +22,13 @@ public class EngineProperties {
 
     public void setPreparationMode(boolean preparationMode) {
         this.preparationMode = preparationMode;
+    }
+
+    public boolean isElevationPreprocessed() {
+        return elevationPreprocessed;
+    }
+
+    public void setElevationPreprocessed(boolean elevationPreprocessed) {
+        this.elevationPreprocessed = elevationPreprocessed;
     }
 }

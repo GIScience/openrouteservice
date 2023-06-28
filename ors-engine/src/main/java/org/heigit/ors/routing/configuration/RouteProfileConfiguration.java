@@ -20,7 +20,6 @@ import java.util.HashMap;
 import com.typesafe.config.Config;
 import org.locationtech.jts.geom.Envelope;
 
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 
 public class RouteProfileConfiguration {

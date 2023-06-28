@@ -31,11 +31,11 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
@@ -121,11 +121,11 @@ public class RoutingProfile {
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
+    public RoutingProfile(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
         mRoutePrefs = rpc.getProfilesTypes();
         mUseCounter = 0;
 
-        mGraphHopper = initGraphHopper(osmFile, rpc, loadCntx);
+        mGraphHopper = initGraphHopper(engineConfig, rpc, loadCntx);
 
         config = rpc;
 
@@ -138,7 +138,8 @@ public class RoutingProfile {
         }
     }
 
-    public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+        String osmFile = engineConfig.getSourceFile();
         ORSGraphHopperConfig args = createGHSettings(osmFile, config);
 
         int profileId;
@@ -154,7 +155,7 @@ public class RoutingProfile {
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
-        gpc.setGetElevationFromPreprocessedData("true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed")));
+        gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
 

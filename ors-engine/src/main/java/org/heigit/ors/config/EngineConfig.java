@@ -5,6 +5,9 @@ public class EngineConfig {
 
     private final int initializationThreads;
     private final boolean preparationMode;
+    private final String sourceFile;
+    private final boolean elevationPreprocessed;
+
     public int getInitializationThreads() {
         return initializationThreads;
     }
@@ -13,15 +16,28 @@ public class EngineConfig {
         return preparationMode;
     }
 
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public boolean isElevationPreprocessed() {
+        return elevationPreprocessed;
+    }
+
     public EngineConfig(EngineConfigBuilder builder) {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
+        this.sourceFile = builder.sourceFile;
+        this.elevationPreprocessed = builder.elevationPreprocessed;
     }
 
     public static class EngineConfigBuilder {
 // Migration guide: 2. add corresponding field (without final)
         private int initializationThreads = 1;
         private boolean preparationMode;
+        private String sourceFile;
+        private boolean elevationPreprocessed;
+
         public static EngineConfigBuilder init() {
             return new EngineConfigBuilder();
         }
@@ -34,6 +50,16 @@ public class EngineConfig {
 
         public EngineConfigBuilder setPreparationMode(boolean preparationMode) {
             this.preparationMode = preparationMode;
+            return this;
+        }
+
+        public EngineConfigBuilder setSourceFile(String sourceFile) {
+            this.sourceFile = sourceFile;
+            return this;
+        }
+
+        public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {
+            this.elevationPreprocessed = elevationPreprocessed;
             return this;
         }
 
@@ -53,6 +79,12 @@ public class EngineConfig {
             value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "mode");
             if (value != null)
                 this.preparationMode = "preparation".equalsIgnoreCase(value);
+
+            sourceFile = deprecatedAppConfig.getServiceParametersList(SERVICE_NAME_ROUTING, "sources").get(0);
+
+            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "elevation_preprocessed");
+            if (value != null)
+                elevationPreprocessed = "true".equalsIgnoreCase(value);
 
             return new EngineConfig(this);
         }
