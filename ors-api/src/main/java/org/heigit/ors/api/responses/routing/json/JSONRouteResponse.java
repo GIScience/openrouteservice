@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
@@ -34,8 +35,8 @@ import java.util.List;
 
 @Schema(name = "JSONRouteResponse")
 public class JSONRouteResponse extends RouteResponse {
-    public JSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
-        super(request, systemMessageProperties);
+    public JSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
+        super(request, systemMessageProperties, endpointsProperties);
 
         this.routeResults = new ArrayList<IndividualRouteResponse>();
 

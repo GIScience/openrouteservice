@@ -41,6 +41,8 @@ endpoints:
     attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
   routing:
     enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
+    routing_name: ORSRouting
   matrix:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors

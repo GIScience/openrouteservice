@@ -1,5 +1,6 @@
 package org.heigit.ors.api.responses.matrix.json;
 
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
@@ -28,6 +29,8 @@ class JSONMatrixResponseTest {
     private JSONMatrixResponse jsonMatrixCombinedResponse;
     @Autowired
     private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
+    @Autowired
+    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() throws StatusCodeException {
@@ -83,11 +86,11 @@ class JSONMatrixResponseTest {
         apiRequestCombined.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE, MatrixRequestEnums.Metrics.DURATION});
         apiRequestCombined.setResolveLocations(true);
 
-        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration, systemMessageProperties);
+        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration, systemMessageProperties, endpointsProperties);
 
-        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance, systemMessageProperties);
+        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance, systemMessageProperties, endpointsProperties);
 
-        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined, systemMessageProperties);
+        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined, systemMessageProperties, endpointsProperties);
     }
 
     @Test

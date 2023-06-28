@@ -1,5 +1,6 @@
 package org.heigit.ors.api.responses.matrix;
 
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
@@ -18,11 +19,13 @@ class MatrixResponseInfoTest {
     private MatrixResponseInfo responseInformation;
     @Autowired
     private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
+    @Autowired
+    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() {
         bareMatrixRequest = new MatrixRequest(new ArrayList<>());
-        MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest, systemMessageProperties);
+        MatrixResponse bareMatrixResponse = new MatrixResponse(new MatrixResult(null, null), bareMatrixRequest, systemMessageProperties, endpointsProperties);
         responseInformation = bareMatrixResponse.responseInformation;
     }
 

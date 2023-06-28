@@ -58,6 +58,7 @@ public class EndpointsProperties {
     public static class EndpointRoutingProperties {
         private boolean enabled;
         private String attribution;
+        private  String routingName;
 
         public boolean isEnabled() {
             return enabled;
@@ -74,6 +75,15 @@ public class EndpointsProperties {
         public void setAttribution(String attribution) {
             this.attribution = attribution;
         }
+
+        public String getRoutingName() {
+            return routingName;
+        }
+
+        public void setRoutingName(String routingName) {
+            this.routingName = routingName;
+        }
+
 
     }
 

@@ -19,11 +19,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.api.util.AppInfo;
 import org.json.JSONObject;
 
@@ -59,15 +59,15 @@ public class RouteResponseInfo {
     @JsonProperty("system_message")
     private final String systemMessage;
 
-    public RouteResponseInfo(RouteRequest request, SystemMessageProperties systemMessageProperties) {
+    public RouteResponseInfo(RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
         service = "routing";
         timeStamp = System.currentTimeMillis();
 
         if(AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-        if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
-            attribution =  RoutingServiceSettings.getAttribution();
+        if (!Helper.isEmpty(endpointsProperties.getRouting().getAttribution()))
+            attribution =  endpointsProperties.getRouting().getAttribution();
 
         if (request.hasId())
             id = request.getId();

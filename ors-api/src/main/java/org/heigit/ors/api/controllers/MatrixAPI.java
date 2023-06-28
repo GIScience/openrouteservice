@@ -127,7 +127,7 @@ public class MatrixAPI {
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
         MatrixResult matrixResult = originalRequest.generateMatrixFromRequest(endpointsProperties);
 
-        return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties);
+        return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties, endpointsProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

@@ -21,7 +21,6 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.IsochronesServiceSettings;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -66,7 +65,7 @@ public class StatusAPI {
             if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
 
                 List<String> list = new ArrayList<>(4);
-                if (RoutingServiceSettings.getEnabled())
+                if (endpointsProperties.getRouting().isEnabled())
                     list.add("routing");
                 if (IsochronesServiceSettings.getEnabled())
                     list.add("isochrones");

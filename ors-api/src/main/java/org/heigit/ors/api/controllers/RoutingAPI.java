@@ -116,7 +116,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GeoJSONRouteResponse(result, request, systemMessageProperties);
+        return new GeoJSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
     @PostMapping(value = "/{profile}")
@@ -156,7 +156,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new JSONRouteResponse(result, request, systemMessageProperties);
+        return new JSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
@@ -180,7 +180,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GPXRouteResponse(result, request, infoProperties, systemMessageProperties);
+        return new GPXRouteResponse(result, request, infoProperties, systemMessageProperties, endpointsProperties);
 
     }
 
@@ -205,7 +205,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GeoJSONRouteResponse(result, request, systemMessageProperties);
+        return new GeoJSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

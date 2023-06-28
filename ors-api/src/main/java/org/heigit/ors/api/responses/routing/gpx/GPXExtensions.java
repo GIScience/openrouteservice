@@ -18,7 +18,6 @@ package org.heigit.ors.api.responses.routing.gpx;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.api.util.AppInfo;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -45,9 +44,9 @@ public class GPXExtensions {
 
     public GPXExtensions() {}
 
-    public GPXExtensions(RouteRequest request) {
-        if (!Helper.isEmpty(RoutingServiceSettings.getAttribution()))
-            attribution =  RoutingServiceSettings.getAttribution();
+    public GPXExtensions(RouteRequest request, String attribution) {
+        if (!Helper.isEmpty(attribution))
+            this.attribution = attribution;
 
         engine = AppInfo.getEngineInfo().getString("version");
         buildDate = AppInfo.getEngineInfo().getString("build_date");

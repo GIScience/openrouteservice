@@ -16,6 +16,7 @@
 package org.heigit.ors.api.responses.routing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
@@ -32,8 +33,8 @@ public class RouteResponse {
     @JsonIgnore
     protected List<IndividualRouteResponse> routeResults;
 
-    public RouteResponse(RouteRequest request, SystemMessageProperties systemMessageProperties) {
-        responseInformation = new RouteResponseInfo(request, systemMessageProperties);
+    public RouteResponse(RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
+        responseInformation = new RouteResponseInfo(request, systemMessageProperties, endpointsProperties);
     }
 
     public RouteResponseInfo getResponseInformation() {

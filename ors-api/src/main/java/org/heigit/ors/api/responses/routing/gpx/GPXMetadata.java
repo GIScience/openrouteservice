@@ -16,12 +16,12 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.shapes.BBox;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.util.GeomUtility;
@@ -50,11 +50,11 @@ public class GPXMetadata {
     public GPXMetadata() {
     }
 
-    public GPXMetadata(RouteResult[] routeResults, RouteRequest request, InfoProperties info, SystemMessageProperties systemMessageProperties) throws StatusCodeException {
-        this.name = RoutingServiceSettings.getRoutingName();
+    public GPXMetadata(RouteResult[] routeResults, RouteRequest request, InfoProperties info, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
+        this.name = endpointsProperties.getRouting().getRoutingName();
         this.description = "This is a directions instructions file as GPX, generated from openrouteservice";
         this.author = new GPXAuthor(info.getAuthorTag(), info.getSupportMail(), info.getBaseUrl());
-        this.copyright = new GPXCopyright(info.getContentLicence());
+        this.copyright = new GPXCopyright(info.getContentLicence(), endpointsProperties.getRouting().getAttribution());
         this.timeGenerated = new Date();
 
         BBox[] bboxes = new BBox[routeResults.length];
