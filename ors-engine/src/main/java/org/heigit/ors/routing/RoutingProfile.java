@@ -751,7 +751,7 @@ public class RoutingProfile {
             }
         });
 
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+        LOGGER.debug(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no export can be calculated

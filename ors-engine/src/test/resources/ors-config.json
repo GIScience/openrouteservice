@@ -414,43 +414,6 @@
           }
         }
       }
-    },
-    "logging": {
-      "enabled": true,
-      "level_file": "TEST_LOGGING.json",
-      "location": "./logs",
-      "stdout": true
-    },
-    "system_message": [
-      {
-        "active": true,
-        "text": "This message would be sent with every routing bike fastest request",
-        "condition": {
-          "request_service": "routing",
-          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-          "request_preference": "fastest"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request for geojson response",
-        "condition": {
-          "api_format": "geojson"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-        "condition": {
-          "api_version": 1,
-          "time_after": "2020-01-01T00:00:00Z",
-          "time_before": "2050-06-01T00:00:00Z"
-        }
-      },
-      {
-        "active": true,
-        "text": "This message would be sent with every request"
-      }
-    ]
+    }
   }
 }

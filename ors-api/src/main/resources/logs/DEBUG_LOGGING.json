@@ -7,13 +7,13 @@
       "Console": {
         "name": "stdout",
         "PatternLayout": {
-          "pattern": "%d{dd MMM HH:mm:ss} %p [%c{2}] - %m%n"
+          "pattern": "%d{dd MMM HH:mm:ss} %p [%c{3}] - %m%n"
         }
       },
       "RollingFile": {
         "name": "orslogfile",
-        "fileName": "${sys:ors-log-filepath}/ors.log",
-        "filePattern": "${sys:ors-log-filepath}/ors.%d{yyyy-MM-dd}.log.gz",
+        "fileName": "logs/ors.log",
+        "filePattern": "logs/ors.%d{yyyy-MM-dd}.log.gz",
         "PatternLayout": {
           "pattern": "%d %p [%c{2}] - %m%n"
         },
@@ -34,22 +34,6 @@
               "ref": "stdout"
             }
           ]
-        },
-        {
-          "name": "org.springframework",
-          "level": "warn",
-          "additivity": "false",
-          "AppenderRef": {
-            "ref": "stdout"
-          }
-        },
-        {
-          "name": "org.hibernate",
-          "level": "warn",
-          "additivity": "false",
-          "AppenderRef": {
-            "ref": "stdout"
-          }
         }
       ],
       "root": {

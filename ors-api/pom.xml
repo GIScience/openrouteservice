@@ -47,9 +47,9 @@
                 <includes>
                     <include>logs/*</include>
                     <include>META-INF/*</include>
-                    <include>version.properties</include>
-                    <include>ors-config*.json</include>
+                    <include>*.properties</include>
                     <include>*.yml</include>
+                    <include>ors-config*.json</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
@@ -242,6 +242,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>

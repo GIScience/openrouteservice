@@ -1,13 +1,3 @@
-cors:
-  allowed_origins: https://example.org, https://test.com, http://localhost:8080, http://127.0.0.1:8082
-  allowed_headers: Content-Type, X-Tested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
-  preflight_max_age: 12345
-
-endpoints:
-  matrix:
-    maximum_routes: 200
-    maximum_visited_nodes: 50000
-
 messages:
   - active: true
     text: This message would be sent with every routing bike fastest request
@@ -32,4 +22,8 @@ logging:
   config: classpath:log4j.properties
   log4j2:
     config:
-      override: classpath:logs/TEST_LOGGING.json
+      override: classpath:logs/UNITTEST_LOGGING.json
+
+spring:
+  main:
+    banner-mode: "off"

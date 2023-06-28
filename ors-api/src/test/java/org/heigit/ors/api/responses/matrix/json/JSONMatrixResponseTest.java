@@ -15,10 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("unittest")
 class JSONMatrixResponseTest {
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];

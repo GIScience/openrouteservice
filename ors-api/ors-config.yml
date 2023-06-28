@@ -9,3 +9,9 @@
 #  allowed_origins: "*"
 #  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #  preflight_max_age: 600
+
+### uncomment the following lines to turn on debug output
+#logging:
+#  log4j2:
+#    config:
+#      override: classpath:logs/DEBUG_LOGGING.json

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("unittest")
 class SystemMessageTest {
 
     @Autowired

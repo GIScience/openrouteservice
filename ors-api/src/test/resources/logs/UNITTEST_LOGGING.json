@@ -7,29 +7,17 @@
       "Console": {
         "name": "stdout",
         "PatternLayout": {
-          "pattern": "%d{dd MMM HH:mm:ss} %p [%c{5}] - %m%n"
+          "pattern": "%d{dd MMM HH:mm:ss} %p [%c{10}] - %m%n"
         }
-      },
-      "RollingFile": {
-        "name": "orslogfile",
-        "fileName": "logs/ors.log",
-        "filePattern": "logs/ors.%d{yyyy-MM-dd}.log.gz",
-        "PatternLayout": {
-          "pattern": "%d %p [%c{2}] - %m%n"
-        },
-        "TimeBasedTriggeringPolicy": { "interval": "1", "modulate": "true" }
       }
     },
     "loggers": {
       "logger": [
         {
           "name": "org.heigit.ors",
-          "level": "info",
+          "level": "warn",
           "additivity": "false",
           "AppenderRef": [
-            {
-              "ref": "orslogfile"
-            },
             {
               "ref": "stdout"
             }

@@ -1,17 +1,17 @@
 package org.heigit.ors.api.requests.matrix;
 
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
+import org.heigit.ors.api.util.HelperFunctions;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.api.util.HelperFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -25,7 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("unittest")
 class MatrixRequestHandlerTest {
     private final MatrixRequest bareMatrixRequest = new MatrixRequest();
     private final MatrixRequest matrixRequest = new MatrixRequest();
@@ -131,7 +131,9 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {springMatrixRequest.convertMatrixRequest(endpointsProperties);});
+        assertThrows(ParameterValueException.class, () -> {
+            springMatrixRequest.convertMatrixRequest(endpointsProperties);
+        });
     }
 
     @Test
@@ -142,7 +144,9 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {springMatrixRequest.convertMatrixRequest(endpointsProperties);});
+        assertThrows(ParameterValueException.class, () -> {
+            springMatrixRequest.convertMatrixRequest(endpointsProperties);
+        });
     }
 
     @Test
@@ -152,7 +156,9 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {springMatrixRequest.convertMatrixRequest(endpointsProperties);});
+        assertThrows(ParameterValueException.class, () -> {
+            springMatrixRequest.convertMatrixRequest(endpointsProperties);
+        });
     }
 
     @Test
@@ -162,7 +168,9 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"foo"});
-        assertThrows(ParameterValueException.class, () -> {springMatrixRequest.convertMatrixRequest(endpointsProperties);});
+        assertThrows(ParameterValueException.class, () -> {
+            springMatrixRequest.convertMatrixRequest(endpointsProperties);
+        });
     }
 
     @Test

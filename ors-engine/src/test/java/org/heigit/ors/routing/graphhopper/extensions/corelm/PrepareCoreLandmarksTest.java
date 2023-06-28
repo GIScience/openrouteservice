@@ -130,7 +130,6 @@ class PrepareCoreLandmarksTest
         assertEquals(0, store.getFromWeight(0, 224));
         double factor = store.getFactor();
         assertEquals(4671, Math.round(store.getFromWeight(0, 47) * factor));
-        System.out.println(factor + " " + store.getFromWeight(0, 52));
         assertEquals(3639, Math.round(store.getFromWeight(0, 52) * factor));// The difference to a corresponding GH test is due to a different node order in the output of Tarjan which is used to compute the storage factor based on estimated maxWeight
 
         long weight1_224 = store.getFromWeight(1, 224);

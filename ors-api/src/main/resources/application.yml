@@ -1,7 +1,7 @@
 ##### openrouteservice default settings #####
 # This file contains the default parameters for openrouteservice.
-# To change values for your instance, you can add a file named "ors-config.yml" to the classpath.
-# This will override any value set here.
+# To change values for your instance, you can add a file named "ors-config.yml" to the JVM's working directory.
+# The parameters in said file will override any value set here.
 
 ##### General ORS server settings #####
 server:
@@ -9,13 +9,15 @@ server:
   error:
     whitelabel:
       enabled: false
-# Workaround for failing springfox-swagger2.
-# springfox-swagger2 should be replaced by the maintained springdoc-openapi
-# spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
-# Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
+  # Workaround for failing springfox-swagger2.
+  # springfox-swagger2 should be replaced by the maintained springdoc-openapi
+  # spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
+  # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
   servlet:
     context-path: /ors
 spring:
+  profiles:
+    active: default
   mvc:
     servlet:
       path: /
@@ -62,6 +64,14 @@ engine:
   preparation_mode: false
 
 
+##### Logging settings #####
+logging:
+  config: classpath:log4j.properties
+  log4j2:
+    config:
+      override: classpath:logs/DEFAULT_LOGGING.json
+
+
 ##### Settings related to springdoc #####
 springdoc:
   swagger-ui:
@@ -72,8 +82,8 @@ springdoc:
     syntaxHighlight:
       activated: true
     showExtensions: true
-#  packagesToScan: package1,package2
-#  pathsToMatch: /ors/v2,/v2
+  #  packagesToScan: package1,package2
+  #  pathsToMatch: /ors/v2,/v2
   api-docs:
     path: /v2/api-docs
     version: OPENAPI_3_1
