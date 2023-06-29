@@ -88,13 +88,16 @@ public class AppConfigMigration {
     }
 
     public static EndpointsProperties overrideEndpointsProperties(EndpointsProperties endpoints) {
-
-        String maximumLocationsIsochrones = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
-        if (!StringUtility.isNullOrEmpty(maximumLocationsIsochrones))
-            endpoints.getIsochrone().setMaximumLocations(Integer.parseInt(maximumLocationsIsochrones));
+        EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
+        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
+        if (!StringUtility.isNullOrEmpty(value))
+            isochrones.setMaximumLocations(Integer.parseInt(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
+        if (value != null)
+            isochrones.setAllowComputeArea(Boolean.parseBoolean(value));
 
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
-        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
         if (value != null)
             matrix.setEnabled(Boolean.parseBoolean(value));
         value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "attribution");

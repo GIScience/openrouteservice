@@ -480,8 +480,9 @@ public class IsochronesRequest extends APIRequest {
 
     IsochroneRequest convertIsochroneRequest(EndpointsProperties endpointsProperties) throws Exception {
         IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
-
-        convertedIsochroneRequest.setMaximumLocations(endpointsProperties.getIsochrone().getMaximumLocations());
+        EndpointsProperties.EndpointIsochroneProperties isochroneProperties = endpointsProperties.getIsochrone();
+        convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
+        convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
 
         for (int i = 0; i < locations.length; i++) {
             Double[] location = locations[i];
@@ -567,7 +568,7 @@ public class IsochronesRequest extends APIRequest {
     }
 
     void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
-        if (!IsochronesServiceSettings.getAllowComputeArea() && isochroneRequest.hasAttribute("area"))
+        if (!isochroneRequest.isAllowComputeArea() && isochroneRequest.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
         if (travellers.size() > isochroneRequest.getMaximumLocations())

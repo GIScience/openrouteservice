@@ -158,6 +158,7 @@ public class EndpointsProperties {
         private boolean enabled;
         private String attribution;
         private int maximumLocations;
+        private boolean allowComputeArea = true;
 
         public boolean isEnabled() {
             return enabled;
@@ -181,6 +182,14 @@ public class EndpointsProperties {
 
         public void setMaximumLocations(int maximumLocations) {
             this.maximumLocations = maximumLocations;
+        }
+
+        public boolean isAllowComputeArea() {
+            return allowComputeArea;
+        }
+
+        public void setAllowComputeArea(boolean allowComputeArea) {
+            this.allowComputeArea = allowComputeArea;
         }
     }
 }
