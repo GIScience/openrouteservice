@@ -54,6 +54,8 @@ endpoints:
   isochrone:
     enabled: true
     maximum_locations: 2
+    maximum_intervals: 1
+    allow_compute_area: true
 
 
 ##### ORS engine settings #####

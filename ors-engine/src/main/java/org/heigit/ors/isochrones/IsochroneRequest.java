@@ -35,6 +35,7 @@ public class IsochroneRequest extends ServiceRequest {
     private float smoothingFactor = -1.0f;
     private int maximumLocations;
     private boolean allowComputeArea;
+    private int maximumIntervals;
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
@@ -183,5 +184,13 @@ public class IsochroneRequest extends ServiceRequest {
 
     public void setAllowComputeArea(boolean allowComputeArea) {
         this.allowComputeArea = allowComputeArea;
+    }
+
+    public int getMaximumIntervals() {
+        return maximumIntervals;
+    }
+
+    public void setMaximumIntervals(int maximumIntervals) {
+        this.maximumIntervals = maximumIntervals;
     }
 }

@@ -95,6 +95,9 @@ public class AppConfigMigration {
         value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
         if (value != null)
             isochrones.setAllowComputeArea(Boolean.parseBoolean(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_intervals");
+        if (value != null)
+            isochrones.setMaximumIntervals(Integer.parseInt(value));
 
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
         value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "enabled");

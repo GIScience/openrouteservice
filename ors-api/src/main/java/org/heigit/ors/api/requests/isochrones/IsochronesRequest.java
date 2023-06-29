@@ -483,6 +483,7 @@ public class IsochronesRequest extends APIRequest {
         EndpointsProperties.EndpointIsochroneProperties isochroneProperties = endpointsProperties.getIsochrone();
         convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
         convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
+        convertedIsochroneRequest.setMaximumIntervals(isochroneProperties.getMaximumIntervals());
 
         for (int i = 0; i < locations.length; i++) {
             Double[] location = locations[i];
@@ -580,7 +581,7 @@ public class IsochronesRequest extends APIRequest {
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
 
-            int maxIntervals = IsochronesServiceSettings.getMaximumIntervals();
+            int maxIntervals = isochroneRequest.getMaximumIntervals();
             if (maxIntervals > 0 && maxIntervals < traveller.getRanges().length) {
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM, IsochronesRequest.PARAM_INTERVAL, "Resulting number of " + traveller.getRanges().length + " isochrones exceeds maximum value of " + maxIntervals + ".");
             }

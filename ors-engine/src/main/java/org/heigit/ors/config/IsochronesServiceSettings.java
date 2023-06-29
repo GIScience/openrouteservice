@@ -39,7 +39,6 @@ public class IsochronesServiceSettings {
     private static int fastIsochronesMaximumRangeTime = 3600; // in seconds
     private static Map<Integer, Integer> fastIsochronesProfileMaxRangeTimes;
     private static Set<Integer> fastIsochroneProfiles = new HashSet<>();
-    private static int maximumIntervals = 1;
     private static Map<String, StatisticsProviderConfiguration> statsProviders;
     private static String attribution = "";
     private static String weightings = "";
@@ -74,9 +73,7 @@ public class IsochronesServiceSettings {
                 maximumRangeTime = profileMaxRangeTimes.get(-1);
         }
 
-        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_intervals");
-        if (value != null)
-            maximumIntervals = Integer.parseInt(value);
+
 
         //Fast isochrones
         value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
@@ -208,10 +205,6 @@ public class IsochronesServiceSettings {
         }
 
         return res;
-    }
-
-    public static int getMaximumIntervals() {
-        return maximumIntervals;
     }
 
     public static Map<String, StatisticsProviderConfiguration> getStatsProviders() {
